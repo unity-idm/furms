@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.imunity.furms</groupId>
+	<artifactId>furms-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>FURMS aggregation and parent module</name>
+	<description>FURMS aggregation and parent module</description>
+
+        <parent>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>2.4.0-M3</version>
+                <relativePath/> <!-- lookup parent from repository -->
+        </parent>
+
+	<url>https://github.com/unity-idm/furms</url>
+	<organization>
+		<name>Unity</name>
+		<url>https://unity-idm.eu</url>
+	</organization>
+
+	<properties>
+		<java.version>11</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<scm.base>scm:git:git@github.com:unity-idm/furms.git</scm.base>
+	</properties>
+
+	<scm>
+		<connection>${scm.base}</connection>
+		<developerConnection>${scm.base}</developerConnection>
+		<url>https://github.com/unity-idm/furms</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>BSD</name>
+			<url>https://www.unity-idm.eu/opensource/</url>
+		</license>
+	</licenses>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<modules>
+		<module>furms-server</module>
+	</modules>
+
+	<developers>
+		<developer>
+			<name>Krzysztof Benedyczak</name>
+			<organization>Bixbit</organization>
+		</developer>
+		<developer>
+			<name>Roman Krysiński</name>
+			<organization>Bixbit</organization>
+		</developer>
+	</developers>
+
+	<dependencyManagement>
+	</dependencyManagement>
+
+</project>
