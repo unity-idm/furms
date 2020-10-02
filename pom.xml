@@ -79,6 +79,19 @@
 	<dependencyManagement>
 	</dependencyManagement>
 
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.6</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+		
 	<profiles>
 		<profile>
 			<id>coverage</id>
