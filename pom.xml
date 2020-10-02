@@ -8,12 +8,12 @@
 	<name>FURMS aggregation and parent module</name>
 	<description>FURMS aggregation and parent module</description>
 
-        <parent>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-parent</artifactId>
-                <version>2.4.0-M3</version>
-                <relativePath/> <!-- lookup parent from repository -->
-        </parent>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.0-M3</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
 
 	<url>https://github.com/unity-idm/furms</url>
 	<organization>
