@@ -105,6 +105,14 @@
 		</pluginManagement>
 		
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+		
 			<!-- To be able to sign, in local settings.xml a profile (enabled by default) should be defined with
 			gpg.keyname property and passphrase. 
 			See end of http://maven.apache.org/plugins/maven-gpg-plugin/usage.html -->
