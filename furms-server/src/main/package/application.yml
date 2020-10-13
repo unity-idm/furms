@@ -1,0 +1,13 @@
+server:
+   port: 3443
+   ssl:
+      key-store:          SET-ME
+      key-store-type:     PKCS12
+      key-store-password: SET-ME
+      key-password:       SET-ME
+      enabled-protocols:  TLSv1.2
+
+logging:
+    config: ./logback.xml
+
+    

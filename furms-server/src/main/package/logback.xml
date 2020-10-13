@@ -1,0 +1,13 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+  <appender name="file" class="ch.qos.logback.core.FileAppender">
+    <file>logs/furms-service.log</file>
+    <encoder>
+      <pattern>%date [%10.10thread] [%8.-8X{user}] [%10.10X{tenant}] [%8.-8X{plan}] %-5level %40.40logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="file" />
+  </root>  
+</configuration>

@@ -47,6 +47,29 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<executable>true</executable>
+					<embeddedLaunchScriptProperties>
+						<logFilename>std_err.log</logFilename>
+						<mode>service</mode>
+						<logFolder>.</logFolder>
+						<pidFolder>.</pidFolder>
+					</embeddedLaunchScriptProperties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
 				</configuration>
 			</plugin>
 		</plugins>
