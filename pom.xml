@@ -48,6 +48,7 @@
 
 	<modules>
 		<module>furms-server</module>
+		<module>furms-doc</module>
 	</modules>
 
 	<developers>
