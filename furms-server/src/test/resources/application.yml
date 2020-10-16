@@ -1,9 +1,0 @@
-server:
-   port: 3443
-   ssl:
-      key-store: classpath:keystore.p12
-      key-store-type: PKCS12
-      key-store-password: the!test
-      key-password: the!test
-      enabled-protocols: TLSv1.2
-
