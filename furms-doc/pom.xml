@@ -69,6 +69,7 @@
 								<idprefix /> <!-- set the idprefix to blank -->
 								<idseparator>-</idseparator>
 								<docinfo1>true</docinfo1>
+								<doctype>book</doctype>
 							</attributes>
 						</configuration>
 					</execution>
