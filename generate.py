@@ -14,13 +14,13 @@ manualDirs.sort(key=sortKey, reverse=True)
 
 def printEntries(targetFile, manualFileName):
     for manualDir in manualDirs:
-        targetFile.write("### [" + manualDir + "](" + manualDir + "/" + manualFileName + "\n")
+        targetFile.write("### [" + manualDir + "](" + manualDir + "/" + manualFileName + ")\n")
 
 def printFile(filename, manualFileName):        
     devops = open(filename, 'w')
     devops.write("[back](index)\n")
     devops.write("## Current\n")
-    devops.write("[LATEST](" + manualDirs[0] + "/" + manualFileName + "\n")
+    devops.write("[LATEST](" + manualDirs[0] + "/" + manualFileName + ")\n")
     devops.write("## All versions\n")
     printEntries(devops, manualFileName)
     devops.write("[back](index)\n")
