@@ -3,11 +3,7 @@ ifndef::sourcedir[:sourcedir: ../../main/java]
 
 image::logo-fenix.png[scaledwidth=75%]
 
-= Administrative web interface documentation.
+= FURMS system administration manual
 
-== FURMS Administrator
 
-== Community Administrator
-
-== Project Administrator
 
