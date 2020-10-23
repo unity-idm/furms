@@ -22,7 +22,6 @@ def printFile(filename, manualFileName):
     devops.write("## [LATEST](ver/" + manualDirs[0] + "/" + manualFileName + ")\n")
     devops.write("## All versions\n")
     printEntries(devops, manualFileName)
-    devops.write("\n\n[back](index)\n")
     devops.close()
 
 
