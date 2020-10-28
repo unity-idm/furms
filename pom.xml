@@ -4,7 +4,7 @@
 	<groupId>io.imunity.furms</groupId>
 	<artifactId>furms-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-test2</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>FURMS aggregation and parent module</name>
 	<description>FURMS aggregation and parent module</description>
 
@@ -38,7 +38,7 @@
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
 		<url>https://github.com/unity-idm/furms</url>
-		<tag>furms-release-0.0.1-test2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<licenses>
