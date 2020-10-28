@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.imunity.furms</groupId>
 		<artifactId>furms-parent</artifactId>
-		<version>0.0.1-test3</version>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>furms-server</artifactId>
@@ -14,7 +14,7 @@
 	<scm>
 		<connection>${scm.base}/furms-server</connection>
 		<developerConnection>${scm.base}/furms-server</developerConnection>
-		<tag>furms-release-0.0.1-test3</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
