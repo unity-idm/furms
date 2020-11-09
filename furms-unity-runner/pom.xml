@@ -12,7 +12,7 @@
     <artifactId>furms-unity-runner</artifactId>
 
     <properties>
-        <unity.version>3.4.0-SNAPSHOT</unity.version>
+        <unity.version>3.3.4</unity.version>
     </properties>
 
     <dependencies>
@@ -44,11 +44,6 @@
         <dependency>
             <groupId>io.imunity</groupId>
             <artifactId>unity-server-saml</artifactId>
-            <version>${unity.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-std-plugins</artifactId>
             <version>${unity.version}</version>
         </dependency>
         <dependency>
@@ -90,28 +85,6 @@
             <groupId>io.imunity</groupId>
             <artifactId>unity-server-web-upman</artifactId>
             <version>${unity.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-otp</artifactId>
-            <version>${unity.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-user-home</artifactId>
-            <version>${unity.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-rest</artifactId>
-            <version>${unity.version}</version>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-engine</artifactId>
-            <version>${unity.version}</version>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 
