@@ -6,6 +6,10 @@ server:
       key-store-password: the!test
       key-password: the!test
       enabled-protocols: TLSv1.2
+      trust-store: furms-server/src/main/resources/demoTruststore.jks
+      trust-store-password: unicore
+   servlet:
+      context-path: /
 app:
   version: '@project.version@'
-  
+

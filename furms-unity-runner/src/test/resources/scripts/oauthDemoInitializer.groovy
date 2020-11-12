@@ -54,7 +54,8 @@ try
 	attributesManagement.createAttribute(entityP, flowsA);
 	Attribute returnUrlA = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI,
 			"/oauth-clients",
-			"https://localhost:2443/unitygw/oauth2ResponseConsumer");
+			"https://localhost:2443/unitygw/oauth2ResponseConsumer",
+			"https://localhost:3443/login/oauth2/code/unity");
 	attributesManagement.createAttribute(entityP, returnUrlA);
 } catch (Exception e)
 {
