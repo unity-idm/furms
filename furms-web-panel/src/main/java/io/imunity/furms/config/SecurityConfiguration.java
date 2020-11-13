@@ -1,10 +1,7 @@
 package io.imunity.furms.config;
 
-import com.vaadin.flow.server.ServletHelper;
 import com.vaadin.flow.shared.ApplicationConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,13 +18,10 @@ import static com.vaadin.flow.server.ServletHelper.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String LOGIN_URL = "/front/login";
+    private static final String LOGIN_SUCCESS_URL = "/front/hello";
     private static final String LOGOUT_URL = "/logout";
     private static final String LOGOUT_SUCCESS_URL = "/front/hello";
 
-    /**
-     * Registers our UserDetailsService and the password encoder to be used on
-     * login attempts.
-     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -44,12 +38,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
 
                 // Configure the login page.
-                .and().oauth2Login().loginPage(LOGIN_URL).permitAll();
+                .and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL).permitAll();
     }
 
-    /**
-     * Allows access to static resources, bypassing Spring Security.
-     */
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
@@ -66,15 +57,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/front/icons/**", "/front/images/**");
     }
 
-    /**
-     * Tests if the request is an internal framework request. The test consists
-     * of checking if the request parameter is present and if its value is
-     * consistent with any of the request types know.
-     *
-     * @param request
-     *            {@link HttpServletRequest}
-     * @return true if is an internal framework request. False otherwise.
-     */
     static boolean isFrameworkInternalRequest(HttpServletRequest request) {
         final String parameterValue = request
                 .getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);

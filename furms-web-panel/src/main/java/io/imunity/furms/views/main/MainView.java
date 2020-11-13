@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
-@PWA(name = "My Project", shortName = "My Project", enableInstallPrompt = false)
+@PWA(name = "Furms", shortName = "Furms", enableInstallPrompt = false)
 public class MainView extends AppLayout {
 
     private final Tabs menu;
@@ -51,8 +51,12 @@ public class MainView extends AppLayout {
         layout.add(new DrawerToggle());
         viewTitle = new H1();
         layout.add(viewTitle);
-        layout.add(new Image("images/user.svg", "Avatar"));
-        layout.add(new Anchor("/logout", "Log out"));
+        HorizontalLayout logoutLayout = new HorizontalLayout();
+        logoutLayout.setSizeFull();
+        logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        logoutLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        logoutLayout.add(new Anchor("/logout", "Log out"));
+        layout.add(logoutLayout);
         return layout;
     }
 
@@ -66,8 +70,7 @@ public class MainView extends AppLayout {
         HorizontalLayout logoLayout = new HorizontalLayout();
         logoLayout.setId("logo");
         logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        logoLayout.add(new Image("images/logo.png", "My Project logo"));
-        logoLayout.add(new H1("My Project"));
+        logoLayout.add(new H1("Furms"));
         layout.add(logoLayout, menu);
         return layout;
     }
