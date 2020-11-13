@@ -5,25 +5,10 @@
  *
  * Depends on defaultContentInitializer.groovy
  */
-import pl.edu.icm.unity.engine.server.EngineInitialization
-import pl.edu.icm.unity.stdext.attr.EnumAttribute
-import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax
-import pl.edu.icm.unity.stdext.attr.StringAttribute
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax
-import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute
-import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity
-import pl.edu.icm.unity.stdext.identity.X500Identity
-import pl.edu.icm.unity.types.basic.Attribute
+
 import pl.edu.icm.unity.types.basic.AttributeType
-import pl.edu.icm.unity.types.basic.EntityParam
-import pl.edu.icm.unity.types.basic.EntityState
 import pl.edu.icm.unity.types.basic.Group
 import pl.edu.icm.unity.types.basic.GroupContents
-import pl.edu.icm.unity.types.basic.Identity
-import pl.edu.icm.unity.types.basic.IdentityParam
-import pl.edu.icm.unity.types.basic.VerifiableEmail
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
 import groovy.transform.Field
 
 
@@ -37,12 +22,12 @@ if (!isColdStart)
 	return;
 }
 
-log.info("Creating demo content...");
+log.info("Creating Furms content...");
 
 try
 {
 	GroupContents rootContents = groupsManagement.getContents("/", GroupContents.GROUPS);
-	if (rootContents.getSubGroups().contains("/A"))
+	if (rootContents.getSubGroups().contains("/project"))
 	{
 		log.error("Seems that init contents is installed, skipping");
 		return;
@@ -51,13 +36,13 @@ try
 	Map<String, AttributeType> existingATs = attributeTypeManagement.getAttributeTypesAsMap();
 	if (!existingATs.containsKey(NAME_ATTR) || !existingATs.containsKey(EMAIL_ATTR))
 	{
-		log.error("Demo contents can be only installed if standard types were installed " +  
+		log.error("Furms contents can be only installed if standard types were installed " +
 			"prior to it. Attribute types cn, o and email are required.");
 		return;
 	}
 	
-	createExampleGroups()
-	createExampleAttributeTypes()
+	createBaseGroups()
+	createBaseAttributeTypes()
 	
 } catch (Exception e)
 {
@@ -67,7 +52,7 @@ try
 }
 
 
-void createExampleGroups()
+void createBaseGroups()
 {
 	groupsManagement.addGroup(new Group("/project"))
 	groupsManagement.addGroup(new Group("/project/user"))
@@ -80,9 +65,9 @@ void createExampleGroups()
 	groupsManagement.addGroup(new Group("/site/admin"))
 }
 
-void createExampleAttributeTypes()
+void createBaseAttributeTypes()
 {
-	AttributeType height = new AttributeType("role", "string")
-	height.setMinElements(1)
-	attributeTypeManagement.addAttributeType(height)
+	AttributeType role = new AttributeType("role", "string")
+	role.setMinElements(1)
+	attributeTypeManagement.addAttributeType(role)
 }

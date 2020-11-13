@@ -51,7 +51,6 @@
 	<modules>
 		<module>furms-server</module>
 		<module>furms-doc</module>
-        <module>furms-unity-runner</module>
     </modules>
 
 	<developers>
