@@ -45,7 +45,7 @@
 		<dependency>
 			<artifactId>furms-web-panel</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>

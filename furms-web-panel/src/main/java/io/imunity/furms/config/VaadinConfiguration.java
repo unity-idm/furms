@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Configuration;
 public class VaadinConfiguration
 {
     @Bean
-    public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context) {
+    public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context)
+    {
         return new ServletRegistrationBean<>(new SpringServlet(context, false), "/front/*", "/front/*");
     }
 }

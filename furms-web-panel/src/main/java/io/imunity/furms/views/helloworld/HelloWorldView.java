@@ -19,11 +19,12 @@ import java.security.Principal;
 @PageTitle("Hello World")
 @CssImport("./styles/views/helloworld/hello-world-view.css")
 @RouteAlias(value = "", layout = MainView.class)
-public class HelloWorldView extends HorizontalLayout {
-
+public class HelloWorldView extends HorizontalLayout
+{
     private Label label;
 
-    public HelloWorldView() {
+    public HelloWorldView()
+    {
         setId("hello-world-view");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         label = new Label("Your name: " + auth.getName());

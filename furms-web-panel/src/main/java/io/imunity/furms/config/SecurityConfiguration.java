@@ -15,7 +15,8 @@ import static com.vaadin.flow.server.ServletHelper.*;
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter
+{
 
     private static final String LOGIN_URL = "/front/login";
     private static final String LOGIN_SUCCESS_URL = "/front/hello";
@@ -23,7 +24,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String LOGOUT_SUCCESS_URL = "/front/hello";
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception
+    {
         http
                 // Allow all flow internal requests.
                 .authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
@@ -42,7 +44,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) {
+    public void configure(WebSecurity web)
+    {
         web.ignoring().antMatchers(
                 // client-side JS code
                 "/VAADIN/**","/front/VAADIN/**",
@@ -57,11 +60,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/front/icons/**", "/front/images/**");
     }
 
-    static boolean isFrameworkInternalRequest(HttpServletRequest request) {
+    static boolean isFrameworkInternalRequest(HttpServletRequest request)
+    {
         final String parameterValue = request
                 .getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
-        return parameterValue != null
-                && Stream.of(RequestType.values()).anyMatch(
-                r -> r.getIdentifier().equals(parameterValue));
+        return parameterValue != null &&
+                Stream.of(RequestType.values())
+                    .anyMatch(r -> r.getIdentifier().equals(parameterValue));
     }
 }

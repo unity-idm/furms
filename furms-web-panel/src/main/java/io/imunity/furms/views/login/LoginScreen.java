@@ -7,11 +7,13 @@ import com.vaadin.flow.router.Route;
 
 @Route("login")
 @PageTitle("Login")
-public class LoginScreen extends VerticalLayout {
+public class LoginScreen extends VerticalLayout
+{
 
     private static final String URL = "/oauth2/authorization/unity";
 
-    public LoginScreen() {
+    public LoginScreen()
+    {
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
         layout.setPadding(false);
