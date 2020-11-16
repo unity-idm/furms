@@ -142,6 +142,7 @@ void assignNameAttributeToAdminAccound() throws EngineException {
 
 void initBaseGroups()
 {
+    groupsManagement.addGroup(new Group("/fenix"))
     groupsManagement.addGroup(new Group("/fenix/users"))
     groupsManagement.addGroup(new Group("/fenix/sites"))
     groupsManagement.addGroup(new Group("/fenix/communities"))
