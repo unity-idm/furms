@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
+ */
 package io.imunity.furms.config;
 
 import com.vaadin.flow.spring.SpringServlet;
@@ -12,9 +16,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableVaadin("io.imunity.furms")
 public class VaadinConfiguration
 {
-    @Bean
-    public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context)
-    {
-        return new ServletRegistrationBean<>(new SpringServlet(context, false), "/front/*", "/front/*");
-    }
+	@Bean
+	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context)
+	{
+		return new ServletRegistrationBean<>(new SpringServlet(context, false), "/front/*", "/front/*");
+	}
 }

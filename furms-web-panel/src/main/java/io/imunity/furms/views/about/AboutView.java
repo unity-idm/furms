@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
+ */
 package io.imunity.furms.views.about;
 
 
@@ -13,10 +17,10 @@ import io.imunity.furms.views.main.MainView;
 @CssImport("./styles/views/about/about-view.css")
 public class AboutView extends Div
 {
-    public AboutView()
-    {
-        setId("about-view");
-        add(new Label("Content placeholder"));
-    }
+	public AboutView()
+	{
+		setId("about-view");
+		add(new Label("Content placeholder"));
+	}
 
 }
