@@ -5,7 +5,6 @@
 package io.imunity.furms.config;
 
 import com.vaadin.flow.shared.ApplicationConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -25,6 +24,14 @@ import static io.imunity.furms.constant.LoginFlowConst.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 {
 	private static final String LOGOUT_SUCCESS_URL = "/front/hello";
+	public static final String LOGIN_REGEX = LOGIN_URL + "??(?:&?[^=&]*=[^=&]*)*";
+
+	private final ClientRegistrationRepository clientRegistrationRepository;
+
+	public SecurityConfiguration(ClientRegistrationRepository clientRegistrationRepository)
+	{
+		this.clientRegistrationRepository = clientRegistrationRepository;
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception
@@ -32,6 +39,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 		http
 				// Allow all flow internal requests.
 				.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
+
+				// Allow query string for login.
+				.and().authorizeRequests().regexMatchers(LOGIN_REGEX).permitAll()
 
 				// Restrict access to our application.
 				.and().authorizeRequests().anyRequest().authenticated()
@@ -43,7 +53,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
 
 				// Configure the login page.
-				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL).permitAll();
+				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL).permitAll()
+					.authorizationEndpoint()
+					.authorizationRequestResolver(new ParamAuthorizationRequestResolver(clientRegistrationRepository));
 	}
 
 	@Override

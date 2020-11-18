@@ -11,10 +11,14 @@ import com.vaadin.flow.router.*;
 import java.util.List;
 import java.util.Map;
 
+import static io.imunity.furms.constant.LoginFlowConst.*;
+
 @Route("login")
 @PageTitle("Login")
-public class LoginScreen extends VerticalLayout
+public class LoginScreen extends VerticalLayout implements HasUrlParameter<String>
 {
+	private Anchor login;
+
 	public LoginScreen()
 	{
 		VerticalLayout layout = new VerticalLayout();
@@ -24,9 +28,17 @@ public class LoginScreen extends VerticalLayout
 		layout.getThemeList().set("spacing-s", true);
 		layout.setAlignItems(Alignment.CENTER);
 		layout.setJustifyContentMode(JustifyContentMode.CENTER);
-		Anchor login = new Anchor("", "Login with Unity");
+		login = new Anchor("", "Login with Unity");
 		layout.add(login);
 		add(layout);
 		setSizeFull();
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		Location location = event.getLocation();
+		QueryParameters queryParameters = location.getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		login.setHref((parametersMap.containsKey("dev") ? AUTH_REQ_BASE_URL : AUTH_REQ_PARAM_URL) + REGISTRATION_ID);
 	}
 }
