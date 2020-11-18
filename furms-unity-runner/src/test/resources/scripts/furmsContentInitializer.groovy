@@ -41,12 +41,12 @@ if (!isColdStart)
 }
 try
 {
-	initCommonAttrTypes()
+	initCommonAttrTypesFromResource()
 	initDefaultAuthzPolicy()
-	initCommonAttributeTypes()
+	initCommonAttrTypes()
 	assignNameAttributeAndUserPasswordToAdminAccount()
 	initBaseGroups()
-	initBaseAttributeTypes()
+	initRoleAttributeType()
 	initOAuthClient()
 
 } catch (Exception e)
@@ -55,7 +55,7 @@ try
 }
 
 
-void initCommonAttrTypes() throws EngineException
+void initCommonAttrTypesFromResource() throws EngineException
 {
 	List<Resource> resources = attributeTypeSupport.getAttibuteTypeResourcesFromClasspathDir()
 	for (Resource r : resources)
@@ -67,7 +67,7 @@ void initCommonAttrTypes() throws EngineException
 				attributeTypeManagement.addAttributeType(type)
 			log.info("Common attributes added from resource file: " + r.getFilename())
 		}
-	log.info("Finished initCommonAttrTypes()")
+	log.info("Provisioned FURMS attribute types from resource")
 }
 
 void initDefaultAuthzPolicy() throws EngineException
@@ -80,11 +80,11 @@ void initDefaultAuthzPolicy() throws EngineException
 	AttributeStatement[] statements = [everybodyStmt]
 	rootGroup.setAttributeStatements(statements)
 	groupsManagement.updateGroup("/", rootGroup)
-	log.info("Finished initDefaultAuthzPolicy()")
+	log.info("Provisioned default FURMS authorization policy")
 }
 
 
-void initCommonAttributeTypes() throws EngineException
+void initCommonAttrTypes() throws EngineException
 {
 	//here we create couple of useful attribute types, paying attention not to
 	// create those which are already defined. This check shouldn't be necessary
@@ -121,7 +121,7 @@ void initCommonAttributeTypes() throws EngineException
 	verifiableMobile.getMetadata().put(ContactMobileMetadataProvider.NAME, "")
 	if (!existingATs.containsKey(MOBILE_ATTR))
 		attributeTypeManagement.addAttributeType(verifiableMobile)
-	log.info("Finished initCommonAttributeTypes()")
+	log.info("Provisioned common(name, email, mobile) attribute types")
 }
 
 void assignNameAttributeAndUserPasswordToAdminAccount() throws EngineException
@@ -143,7 +143,7 @@ void assignNameAttributeAndUserPasswordToAdminAccount() throws EngineException
 	{
 		//ok - no default admin, no default Name.
 	}
-	log.info("Finished assignNameAttributeAndUserPasswordToAdminAccount()")
+	log.info("Assigned name attribute and user password to admin account()")
 }
 
 void initBaseGroups()
@@ -152,15 +152,15 @@ void initBaseGroups()
 	groupsManagement.addGroup(new Group("/fenix/users"))
 	groupsManagement.addGroup(new Group("/fenix/sites"))
 	groupsManagement.addGroup(new Group("/fenix/communities"))
-	log.info("Finished initBaseGroups()")
+	log.info("Provisioned base Furms groups")
 }
 
-void initBaseAttributeTypes()
+void initRoleAttributeType()
 {
 	AttributeType role = new AttributeType("role", "string")
 	role.setMinElements(1)
 	attributeTypeManagement.addAttributeType(role)
-	log.info("Finished initBaseAttributeTypes()")
+	log.info("Provisioned role attribute type")
 }
 
 void initOAuthClient()
@@ -187,7 +187,9 @@ void initOAuthClient()
 	attributesManagement.createAttribute(entityP, flowsA)
 	Attribute returnUrlA = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI,
 			"/oauth-clients",
-			"https://localhost:2443/unitygw/oauth2ResponseConsumer")
+			"https://localhost:2443/unitygw/oauth2ResponseConsumer",
+			"https://localhost:3443/login/oauth2/code/unity"
+	)
 	attributesManagement.createAttribute(entityP, returnUrlA)
-	log.info("Finished initOAuthClient()")
+	log.info("Initialized all data required for oAuth2 client")
 }
