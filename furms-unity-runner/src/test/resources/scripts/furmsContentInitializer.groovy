@@ -136,7 +136,7 @@ void assignNameAttributeAndUserPasswordToAdminAccount() throws EngineException
 		if (attributesManagement.getAttributes(entity, "/", NAME_ATTR).isEmpty())
 		{
 			attributesManagement.createAttribute(entity, nameA)
-			PasswordToken pToken = new PasswordToken("QAZxsw1234!@#")
+			PasswordToken pToken = new PasswordToken("a")
 			entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
 		}
 	} catch (IllegalIdentityValueException e)
