@@ -32,6 +32,8 @@
 		<sonar.language>java</sonar.language>
 		<sonar.java.source>11</sonar.java.source>
 		<sonar.sources>src/main/java</sonar.sources>
+
+		<furms.domain.version>1.0.0-SNAPSHOT</furms.domain.version>
 	</properties>
 
 	<scm>
@@ -51,6 +53,8 @@
 	<modules>
 		<module>furms-server</module>
 		<module>furms-doc</module>
+		<module>furms-domain</module>
+		<module>furms-model-api</module>
 	</modules>
 
 	<developers>
@@ -109,6 +113,11 @@
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>1.2.32</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity.furms</groupId>
+				<artifactId>furms-domain</artifactId>
+				<version>${furms.domain.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
