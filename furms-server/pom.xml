@@ -43,7 +43,7 @@
 			<artifactId>swagger-models</artifactId>
 		</dependency>
 		<dependency>
-			<artifactId>furms-web-panel</artifactId>
+			<artifactId>furms-web-ui</artifactId>
 			<groupId>io.imunity.furms</groupId>
 			<version>${project.version}</version>
 		</dependency>
@@ -52,6 +52,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

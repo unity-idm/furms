@@ -24,7 +24,7 @@ public class LoginScreen extends VerticalLayout
 		layout.getThemeList().set("spacing-s", true);
 		layout.setAlignItems(Alignment.CENTER);
 		layout.setJustifyContentMode(JustifyContentMode.CENTER);
-		Anchor login = new Anchor("", "Login with Unity");
+		Anchor login = new Anchor("/oauth2/authorization/unity", "Login with Unity");
 		layout.add(login);
 		add(layout);
 		setSizeFull();

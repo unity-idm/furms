@@ -7,3 +7,16 @@ server:
       key-password: the!test
       enabled-protocols: TLSv1.2
 
+logging:
+   level:
+      org.springframework.security.oauth2: TRACE
+      org.springframework.web.client.RestTemplate: DEBUG
+      org.apache.http: DEBUG
+      httpclient.wire: DEBUG
+
+furms:
+   unity-url: https://localhost:2443
+   url: https://localhost:3443
+   ssl:
+      trust-store: classpath:demoTruststore.jks
+      trust-store-password: unicore

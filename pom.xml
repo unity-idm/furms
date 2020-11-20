@@ -51,7 +51,7 @@
 	<modules>
 		<module>furms-server</module>
 		<module>furms-doc</module>
-		<module>furms-web-panel</module>
+		<module>furms-web-ui</module>
 	</modules>
 
 	<developers>
@@ -111,6 +111,11 @@
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>1.2.32</version>
 			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>5.2.4.Final</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -146,6 +151,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.6</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
