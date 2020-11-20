@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableVaadin("io.imunity.furms")
-public class VaadinConfiguration
+class VaadinConfiguration
 {
 	@Bean
 	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context)

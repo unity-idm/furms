@@ -15,8 +15,12 @@ logging:
       httpclient.wire: DEBUG
 
 furms:
-   unity-url: https://localhost:2443
+   unity:
+      url: https://localhost:2443
+      ssl:
+         trust-store: classpath:demoTruststore.jks
+         trust-store-password: unicore
+      oAuth:
+         clientId: oauth-client
+         clientSecret: oauth-pass1
    url: https://localhost:3443
-   ssl:
-      trust-store: classpath:demoTruststore.jks
-      trust-store-password: unicore

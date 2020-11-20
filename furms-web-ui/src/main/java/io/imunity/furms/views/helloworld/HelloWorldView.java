@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RouteAlias(value = "", layout = MainView.class)
 public class HelloWorldView extends HorizontalLayout
 {
-	public HelloWorldView()
+	HelloWorldView()
 	{
 		setId("hello-world-view");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

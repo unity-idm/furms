@@ -17,7 +17,7 @@ import io.imunity.furms.views.main.MainView;
 @CssImport("./styles/views/about/about-view.css")
 public class AboutView extends Div
 {
-	public AboutView()
+	AboutView()
 	{
 		setId("about-view");
 		add(new Label("Content placeholder"));

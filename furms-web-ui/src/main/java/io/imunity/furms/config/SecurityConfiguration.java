@@ -5,23 +5,16 @@
 package io.imunity.furms.config;
 
 import com.vaadin.flow.shared.ApplicationConstants;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.client.endpoint.*;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.web.client.RestTemplate;
 
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.stream.Stream;
 
@@ -30,14 +23,16 @@ import static io.imunity.furms.constant.LoginFlowConst.*;
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter
+class SecurityConfiguration extends WebSecurityConfigurerAdapter
 {
 	private static final String LOGOUT_SUCCESS_URL = "/front/hello";
 
-	@Value("${server.ssl.trust-store}")
-	private Resource keyStore;
-	@Value("${server.ssl.trust-store-password}")
-	private String keyStorePassword;
+	private final RestTemplate unityRestTemplate;
+
+	SecurityConfiguration(RestTemplate unityRestTemplate)
+	{
+		this.unityRestTemplate = unityRestTemplate;
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception
@@ -58,8 +53,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				// Configure the login page.
 				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL).permitAll()
 
-				// Configure RestClient.
-				.and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient());
+				// Configure rest client template.
+				.and().oauth2Login()
+					.tokenEndpoint().accessTokenResponseClient(getAuthorizationTokenResponseClient(unityRestTemplate))
+					.and().userInfoEndpoint().userService(getOAuth2UserService(unityRestTemplate));
 	}
 
 	@Override
@@ -88,29 +85,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 						.anyMatch(r -> r.getIdentifier().equals(parameterValue));
 	}
 
-	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient(){
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
-		RestTemplate restClientForUnityConnection = getRestClientForUnityConnection();
-		accessTokenResponseClient.setRestOperations(restClientForUnityConnection);
-		return accessTokenResponseClient;
+	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate){
+		DefaultAuthorizationCodeTokenResponseClient responseClient = new DefaultAuthorizationCodeTokenResponseClient();
+		responseClient.setRestOperations(restTemplate);
+		return responseClient;
 	}
 
-	private RestTemplate getRestClientForUnityConnection()
-	{
-		SSLContext sslContext;
-		try
-		{
-			sslContext = new SSLContextBuilder()
-					.loadTrustMaterial(keyStore.getFile(), keyStorePassword.toCharArray())
-					.build();
-
-		} catch (Exception e)
-		{
-			throw new RuntimeException(e.getMessage());
-		}
-		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
-		HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
-		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-		return new RestTemplate(factory);
+	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate){
+		DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
+		defaultOAuth2UserService.setRestOperations(restTemplate);
+		return defaultOAuth2UserService;
 	}
 }

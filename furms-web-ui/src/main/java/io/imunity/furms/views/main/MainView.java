@@ -24,6 +24,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import io.imunity.furms.views.about.AboutView;
 import io.imunity.furms.views.helloworld.HelloWorldView;
+import org.springframework.core.env.Environment;
 
 import java.util.Optional;
 
@@ -38,10 +39,12 @@ import static io.imunity.furms.constant.LoginFlowConst.LOGOUT_URL;
 public class MainView extends AppLayout
 {
 	private final Tabs menu;
+	private final Environment env;
 	private H1 viewTitle;
 
-	public MainView()
+	MainView(Environment env)
 	{
+		this.env = env;
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(true, createHeaderContent());
 		menu = createMenu();
@@ -63,7 +66,7 @@ public class MainView extends AppLayout
 		logoutLayout.setSizeFull();
 		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		logoutLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoutLayout.add(new Anchor(LOGOUT_URL, "Log out"));
+		logoutLayout.add(new Anchor(LOGOUT_URL, env.getProperty("${placeholder.logout}")));
 		layout.add(logoutLayout);
 		return layout;
 	}
@@ -78,7 +81,7 @@ public class MainView extends AppLayout
 		layout.setAlignItems(FlexComponent.Alignment.STRETCH);
 		HorizontalLayout logoLayout = new HorizontalLayout();
 		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoLayout.add(new H1("Furms"));
+		logoLayout.add(new H1(env.getProperty("${placeholder.app-name}")));
 		layout.add(logoLayout, menu);
 		return layout;
 	}
@@ -96,8 +99,8 @@ public class MainView extends AppLayout
 	private Component[] createMenuItems()
 	{
 		return new Tab[]{
-				createTab("Hello World", HelloWorldView.class),
-				createTab("About", AboutView.class)
+				createTab(env.getProperty("${placeholder.tab.1}"), HelloWorldView.class),
+				createTab(env.getProperty("${placeholder.tab.2}"), AboutView.class)
 		};
 	}
 

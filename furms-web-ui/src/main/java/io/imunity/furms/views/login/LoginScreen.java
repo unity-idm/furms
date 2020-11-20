@@ -7,6 +7,7 @@ package io.imunity.furms.views.login;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
 @PageTitle("Login")
 public class LoginScreen extends VerticalLayout
 {
-	public LoginScreen()
+	LoginScreen(@Value("${placeholder.login}") String loginTxt)
 	{
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
@@ -24,7 +25,7 @@ public class LoginScreen extends VerticalLayout
 		layout.getThemeList().set("spacing-s", true);
 		layout.setAlignItems(Alignment.CENTER);
 		layout.setJustifyContentMode(JustifyContentMode.CENTER);
-		Anchor login = new Anchor("/oauth2/authorization/unity", "Login with Unity");
+		Anchor login = new Anchor("/oauth2/authorization/unity", loginTxt);
 		layout.add(login);
 		add(layout);
 		setSizeFull();
