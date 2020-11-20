@@ -51,6 +51,7 @@
 	<modules>
 		<module>furms-server</module>
 		<module>furms-doc</module>
+		<module>furms-rest-api</module>
 	</modules>
 
 	<developers>
