@@ -3,16 +3,16 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.sites;
+package io.imunity.furms.api.sites.web;
 
 import java.util.Objects;
 
-public class Site {
+public class SiteResponseDTO {
 
     private final Long id;
     private final String name;
 
-    public Site(Long id, String name) {
+    public SiteResponseDTO(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -25,17 +25,17 @@ public class Site {
         return name;
     }
 
-    public static SiteBuilder builder() {
-        return new SiteBuilder();
+    public static SiteResponseDTOBuilder builder() {
+        return new SiteResponseDTOBuilder();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Site site = (Site) o;
-        return Objects.equals(id, site.id) &&
-                Objects.equals(name, site.name);
+        SiteResponseDTO siteResponseDTO = (SiteResponseDTO) o;
+        return Objects.equals(id, siteResponseDTO.id) &&
+                Objects.equals(name, siteResponseDTO.name);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Site {
 
     @Override
     public String toString() {
-        return "Sites{" +
+        return "SiteDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

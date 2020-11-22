@@ -1,11 +1,17 @@
-package io.imunity.furms.spi.sites.web;
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+package io.imunity.furms.api.sites.web;
 
 import java.util.Objects;
 
-public class SiteRequest {
+public class SiteRequestDTO {
+
     private final String name;
 
-    public SiteRequest(String name) {
+    public SiteRequestDTO(String name) {
         this.name = name;
     }
 
@@ -17,7 +23,7 @@ public class SiteRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final SiteRequest that = (SiteRequest) o;
+        final SiteRequestDTO that = (SiteRequestDTO) o;
         return Objects.equals(name, that.name);
     }
 
