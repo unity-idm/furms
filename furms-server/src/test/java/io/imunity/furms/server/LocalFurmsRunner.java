@@ -6,7 +6,6 @@ package io.imunity.furms.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(scanBasePackages = "io.imunity.furms")
 public class LocalFurmsRunner

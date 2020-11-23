@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.views.main;
+package io.imunity.furms.ui.views.main;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
@@ -12,7 +12,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,13 +21,11 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
-import io.imunity.furms.views.about.AboutView;
-import io.imunity.furms.views.helloworld.HelloWorldView;
-import org.springframework.core.env.Environment;
+import io.imunity.furms.ui.constant.LoginFlowConst;
+import io.imunity.furms.ui.views.about.AboutView;
+import io.imunity.furms.ui.views.helloworld.HelloWorldView;
 
 import java.util.Optional;
-
-import static io.imunity.furms.constant.LoginFlowConst.LOGOUT_URL;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -39,12 +36,10 @@ import static io.imunity.furms.constant.LoginFlowConst.LOGOUT_URL;
 public class MainView extends AppLayout
 {
 	private final Tabs menu;
-	private final Environment env;
 	private H1 viewTitle;
 
-	MainView(Environment env)
+	MainView()
 	{
-		this.env = env;
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(true, createHeaderContent());
 		menu = createMenu();
@@ -66,7 +61,7 @@ public class MainView extends AppLayout
 		logoutLayout.setSizeFull();
 		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		logoutLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoutLayout.add(new Anchor(LOGOUT_URL, env.getProperty("${placeholder.logout}")));
+		logoutLayout.add(new Anchor(LoginFlowConst.LOGOUT_URL, getTranslation("view.main-page.logout")));
 		layout.add(logoutLayout);
 		return layout;
 	}
@@ -81,7 +76,7 @@ public class MainView extends AppLayout
 		layout.setAlignItems(FlexComponent.Alignment.STRETCH);
 		HorizontalLayout logoLayout = new HorizontalLayout();
 		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoLayout.add(new H1(env.getProperty("${placeholder.app-name}")));
+		logoLayout.add(new H1(getTranslation("view.main-page.app-name")));
 		layout.add(logoLayout, menu);
 		return layout;
 	}
@@ -99,8 +94,8 @@ public class MainView extends AppLayout
 	private Component[] createMenuItems()
 	{
 		return new Tab[]{
-				createTab(env.getProperty("${placeholder.tab.1}"), HelloWorldView.class),
-				createTab(env.getProperty("${placeholder.tab.2}"), AboutView.class)
+				createTab(getTranslation("view.main-page.tab.1"), HelloWorldView.class),
+				createTab(getTranslation("view.main-page.tab.2"), AboutView.class)
 		};
 	}
 

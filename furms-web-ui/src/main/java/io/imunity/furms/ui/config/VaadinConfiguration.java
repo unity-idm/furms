@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.config;
+package io.imunity.furms.ui.config;
 
 import com.vaadin.flow.spring.SpringServlet;
 import com.vaadin.flow.spring.annotation.EnableVaadin;

@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.config;
+package io.imunity.furms.ui.config;
 
 import com.vaadin.flow.shared.ApplicationConstants;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +18,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.util.stream.Stream;
 
-import static com.vaadin.flow.server.ServletHelper.*;
-import static io.imunity.furms.constant.LoginFlowConst.*;
+import static com.vaadin.flow.server.HandlerHelper.*;
+import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 
 @EnableWebSecurity
 @Configuration
@@ -51,7 +51,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
 
 				// Configure the login page.
-				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL).permitAll()
+				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
 
 				// Configure rest client template.
 				.and().oauth2Login()
@@ -76,7 +76,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				"/front/icons/**", "/front/images/**");
 	}
 
-	static boolean isFrameworkInternalRequest(HttpServletRequest request)
+	private static boolean isFrameworkInternalRequest(HttpServletRequest request)
 	{
 		final String parameterValue = request
 				.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);

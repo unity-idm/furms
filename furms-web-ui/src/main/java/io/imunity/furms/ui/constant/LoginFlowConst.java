@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.constant;
+package io.imunity.furms.ui.constant;
 
 public final class LoginFlowConst
 {
