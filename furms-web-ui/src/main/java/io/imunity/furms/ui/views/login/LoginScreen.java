@@ -9,13 +9,19 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 
-@Route("login")
+import java.util.List;
+import java.util.Map;
+
+import static io.imunity.furms.ui.constant.LoginFlowConst.*;
+
+@Route("public/login")
 @PageTitle("Login")
-public class LoginScreen extends Composite<Div>
+public class LoginScreen extends Composite<Div> implements HasUrlParameter<String>
 {
+	private final Anchor login;
+
 	LoginScreen()
 	{
 		VerticalLayout layout = new VerticalLayout();
@@ -25,9 +31,17 @@ public class LoginScreen extends Composite<Div>
 		layout.getThemeList().set("spacing-s", true);
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 		layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-		Anchor login = new Anchor("/oauth2/authorization/unity", getTranslation("view.login-page.login"));
+		login = new Anchor("", getTranslation("view.login-page.login"));
 		layout.add(login);
 		getContent().add(layout);
 		getContent().setSizeFull();
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		Location location = event.getLocation();
+		QueryParameters queryParameters = location.getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		login.setHref((parametersMap.containsKey("dev") ? AUTH_REQ_BASE_URL : AUTH_REQ_PARAM_URL) + REGISTRATION_ID);
 	}
 }

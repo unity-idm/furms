@@ -10,15 +10,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.client.endpoint.*;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.web.client.RestTemplate;
-
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.stream.Stream;
 
-import static com.vaadin.flow.server.HandlerHelper.*;
+import static com.vaadin.flow.server.HandlerHelper.RequestType;
 import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 
 @EnableWebSecurity
@@ -26,20 +26,14 @@ import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 class SecurityConfiguration extends WebSecurityConfigurerAdapter
 {
 	private static final String LOGOUT_SUCCESS_URL = "/front/hello";
-	public static final String LOGIN_REGEX = LOGIN_URL + "??(?:&?[^=&]*=[^=&]*)*";
 
-	private final ClientRegistrationRepository clientRegistrationRepository;
-
-	public SecurityConfiguration(ClientRegistrationRepository clientRegistrationRepository)
-	{
-		this.clientRegistrationRepository = clientRegistrationRepository;
-	}
-
+	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate)
+	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo)
 	{
 		this.unityRestTemplate = unityRestTemplate;
+		this.clientRegistrationRepo = clientRegistrationRepo;
 	}
 
 	@Override
@@ -50,12 +44,12 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
 
 				// Allow query string for login.
-				.and().authorizeRequests().regexMatchers(LOGIN_REGEX).permitAll()
+				.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LOGIN_URL)).permitAll()
 
 				// Restrict access to our application.
 				.and().authorizeRequests().anyRequest().authenticated()
 
-				// Not using Spring CSRF here to be able to use plain HTML for the login page
+				// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
 				.and().csrf().disable()
 
 				// Configure logout
@@ -67,9 +61,9 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				// Configure rest client template.
 				.and().oauth2Login()
 					.tokenEndpoint().accessTokenResponseClient(getAuthorizationTokenResponseClient(unityRestTemplate))
-					.and().userInfoEndpoint().userService(getOAuth2UserService(unityRestTemplate));
+					.and().userInfoEndpoint().userService(getOAuth2UserService(unityRestTemplate))
 					.and().authorizationEndpoint()
-					.authorizationRequestResolver(new ParamAuthorizationRequestResolver(clientRegistrationRepository));
+						.authorizationRequestResolver(new ParamAuthorizationRequestResolver(clientRegistrationRepo));
 	}
 
 	@Override
@@ -91,8 +85,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter
 
 	private static boolean isFrameworkInternalRequest(HttpServletRequest request)
 	{
-		final String parameterValue = request
-				.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
+		String parameterValue = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
 		return parameterValue != null &&
 				Stream.of(RequestType.values())
 						.anyMatch(r -> r.getIdentifier().equals(parameterValue));
