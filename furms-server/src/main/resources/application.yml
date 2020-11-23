@@ -1,15 +1,5 @@
 server:
-   port: 3443
-   ssl:
-      key-store: classpath:demo-keystore.p12
-      key-store-type: PKCS12
-      key-store-password: the!test
-      key-password: the!test
-      enabled-protocols: TLSv1.2
-      trust-store: furms-server/src/main/resources/demoTruststore.jks
-      trust-store-password: unicore
    servlet:
       context-path: /
 app:
   version: '@project.version@'
-
