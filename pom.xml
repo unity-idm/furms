@@ -55,7 +55,7 @@
 		<module>furms-doc</module>
 		<module>furms-domain</module>
 		<module>furms-model-api</module>
-        <module>furms-spi</module>
+		<module>furms-spi</module>
 		<module>furms-core</module>
 	</modules>
 
