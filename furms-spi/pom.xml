@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>furms-spi</artifactId>
+    <name>FURMS SPI module</name>
+    <description>FURMS SPI module</description>
 
     <parent>
         <artifactId>furms-parent</artifactId>

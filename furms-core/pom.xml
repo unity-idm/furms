@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>furms-core</artifactId>
+    <name>FURMS core module</name>
+    <description>FURMS core module</description>
 
     <parent>
         <artifactId>furms-parent</artifactId>
@@ -25,10 +27,6 @@
         </dependency>
 
         <!-- Furms -->
-        <dependency>
-            <groupId>io.imunity.furms</groupId>
-            <artifactId>furms-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>io.imunity.furms</groupId>
             <artifactId>furms-domain</artifactId>

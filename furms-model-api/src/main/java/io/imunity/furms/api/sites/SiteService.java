@@ -3,24 +3,23 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.spi.sites;
+package io.imunity.furms.api.sites;
 
 import io.imunity.furms.domain.sites.Site;
 
 import java.util.Optional;
 import java.util.Set;
 
-public interface SiteRepository {
+public interface SiteService {
 
     Optional<Site> findById(String id);
 
-    Set<Site> finAll();
+    Set<Site> findAll();
 
-    Site save(Site site);
+    void create(Site site);
 
-    boolean exists(String id);
-
-    boolean isUniqueName(String name);
+    void update(Site site);
 
     void delete(String id);
+
 }
