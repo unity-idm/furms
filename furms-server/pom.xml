@@ -132,6 +132,11 @@
 								<goals>
 									<goal>start</goal>
 								</goals>
+								<configuration>
+									<arguments>
+										<argument>--server.port=3443</argument>
+									</arguments>
+								</configuration>
 							</execution>
 							<execution>
 								<id>post-integration-test</id>
