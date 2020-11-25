@@ -17,41 +17,36 @@ import java.util.Map;
 import static io.imunity.furms.ui.constant.LoginFlowConst.AUTH_REQ_BASE_URL;
 import static io.imunity.furms.ui.constant.LoginFlowConst.AUTH_REQ_PARAM_URL;
 
-class ParamAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver
-{
+class ParamAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 	private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 	private final OAuth2AuthorizationRequestResolver authorizationParamRequestResolver;
 
-	ParamAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository)
-	{
+	ParamAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
 		authorizationRequestResolver =
-				new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_BASE_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_BASE_URL);
 		authorizationParamRequestResolver =
-				new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_PARAM_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_PARAM_URL);
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request)
-	{
+	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
 		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestResolver.resolve(request);
 		OAuth2AuthorizationRequest authorizationParamRequest = authorizationParamRequestResolver.resolve(request);
 		return authorizationRequest != null ? authorizationRequest :
-				authorizationParamRequest != null ? autoRedirectAuthorizationRequest(authorizationParamRequest) : null;
+			authorizationParamRequest != null ? autoRedirectAuthorizationRequest(authorizationParamRequest) : null;
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId)
-	{
+	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
 		OAuth2AuthorizationRequest authorizationRequest =
-				authorizationRequestResolver.resolve(request, clientRegistrationId);
+			authorizationRequestResolver.resolve(request, clientRegistrationId);
 		OAuth2AuthorizationRequest authorizationParamRequest =
-				authorizationParamRequestResolver.resolve(request, clientRegistrationId);
+			authorizationParamRequestResolver.resolve(request, clientRegistrationId);
 		return authorizationRequest != null ? authorizationRequest :
-				authorizationParamRequest != null ? autoRedirectAuthorizationRequest(authorizationParamRequest) : null;
+			authorizationParamRequest != null ? autoRedirectAuthorizationRequest(authorizationParamRequest) : null;
 	}
 
-	private OAuth2AuthorizationRequest autoRedirectAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest)
-	{
+	private OAuth2AuthorizationRequest autoRedirectAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest) {
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(authorizationRequest.getAdditionalParameters());
 		additionalParameters.put("uy_auto_login", "true");
 		additionalParameters.put("uy_select_authn", "oauth.local");

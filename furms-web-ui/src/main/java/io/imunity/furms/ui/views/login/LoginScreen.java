@@ -18,12 +18,10 @@ import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 
 @Route("public/login")
 @PageTitle("Login")
-public class LoginScreen extends Composite<Div> implements HasUrlParameter<String>
-{
+public class LoginScreen extends Composite<Div> implements HasUrlParameter<String> {
 	private final Anchor login;
 
-	LoginScreen()
-	{
+	LoginScreen() {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 		layout.setPadding(false);

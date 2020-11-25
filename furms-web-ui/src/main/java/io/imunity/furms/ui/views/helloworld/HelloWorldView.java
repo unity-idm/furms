@@ -19,10 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @PageTitle("Hello World")
 @CssImport("./styles/views/helloworld/hello-world-view.css")
 @RouteAlias(value = "", layout = MainView.class)
-public class HelloWorldView extends Composite<Div>
-{
-	HelloWorldView()
-	{
+public class HelloWorldView extends Composite<Div> {
+	HelloWorldView() {
 		setId("hello-world-view");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Label label = new Label("Your name: " + auth.getName());

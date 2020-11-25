@@ -23,81 +23,76 @@ import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 
 @EnableWebSecurity
 @Configuration
-class SecurityConfiguration extends WebSecurityConfigurerAdapter
-{
+class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private static final String LOGOUT_SUCCESS_URL = "/front/hello";
 
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo)
-	{
+	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 	}
 
 	@Override
-	protected void configure(HttpSecurity http) throws Exception
-	{
+	protected void configure(HttpSecurity http) throws Exception {
 		http
-				// Allow all flow internal requests.
-				.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
+			// Allow all flow internal requests.
+			.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
 
-				// Allow query string for login.
-				.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LOGIN_URL)).permitAll()
+			// Allow query string for login.
+			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LOGIN_URL)).permitAll()
 
-				// Restrict access to our application.
-				.and().authorizeRequests().anyRequest().authenticated()
+			// Restrict access to our application.
+			.and().authorizeRequests().anyRequest().authenticated()
 
-				// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
-				.and().csrf().disable()
+			// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
+			.and().csrf().disable()
 
-				// Configure logout
-				.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+			// Configure logout
+			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
 
-				// Configure the login page.
-				.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
+			// Configure the login page.
+			.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
 
-				// Configure rest client template.
-				.and().oauth2Login()
-					.tokenEndpoint().accessTokenResponseClient(getAuthorizationTokenResponseClient(unityRestTemplate))
-					.and().userInfoEndpoint().userService(getOAuth2UserService(unityRestTemplate))
-					.and().authorizationEndpoint()
-						.authorizationRequestResolver(new ParamAuthorizationRequestResolver(clientRegistrationRepo));
+			// Configure rest client template.
+			.and().oauth2Login()
+			.tokenEndpoint().accessTokenResponseClient(getAuthorizationTokenResponseClient(unityRestTemplate))
+			.and().userInfoEndpoint().userService(getOAuth2UserService(unityRestTemplate))
+			.and().authorizationEndpoint()
+				.authorizationRequestResolver(new ParamAuthorizationRequestResolver(clientRegistrationRepo));
 	}
 
 	@Override
-	public void configure(WebSecurity web)
-	{
+	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(
-				// client-side JS code
-				"/VAADIN/**", "/front/VAADIN/**",
+			// client-side JS code
+			"/VAADIN/**", "/front/VAADIN/**",
 
-				// the standard favicon URI
-				"/front/favicon.ico",
+			// the standard favicon URI
+			"/front/favicon.ico",
 
-				// web application manifest
-				"/front/manifest.webmanifest", "/front/sw.js", "/front/offline-page.html",
+			// web application manifest
+			"/front/manifest.webmanifest", "/front/sw.js", "/front/offline-page.html",
 
-				// icons and images
-				"/front/icons/**", "/front/images/**");
+			// icons and images
+			"/front/icons/**", "/front/images/**");
 	}
 
-	private static boolean isFrameworkInternalRequest(HttpServletRequest request)
-	{
+	private static boolean isFrameworkInternalRequest(HttpServletRequest request) {
 		String parameterValue = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
 		return parameterValue != null &&
-				Stream.of(RequestType.values())
-						.anyMatch(r -> r.getIdentifier().equals(parameterValue));
+			Stream.of(RequestType.values())
+				.anyMatch(r -> r.getIdentifier().equals(parameterValue));
 	}
 
-	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate){
+	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate) {
 		DefaultAuthorizationCodeTokenResponseClient responseClient = new DefaultAuthorizationCodeTokenResponseClient();
 		responseClient.setRestOperations(restTemplate);
 		return responseClient;
 	}
 
-	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate){
+	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
 		DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
 		defaultOAuth2UserService.setRestOperations(restTemplate);
 		return defaultOAuth2UserService;

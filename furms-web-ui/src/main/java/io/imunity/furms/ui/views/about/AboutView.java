@@ -16,12 +16,9 @@ import io.imunity.furms.ui.views.main.MainView;
 @Route(value = "about", layout = MainView.class)
 @PageTitle("About")
 @CssImport("./styles/views/about/about-view.css")
-public class AboutView extends Composite<Div>
-{
-	AboutView()
-	{
+public class AboutView extends Composite<Div> {
+	AboutView() {
 		setId("about-view");
 		getContent().add(new Label("Content placeholder"));
 	}
-
 }
