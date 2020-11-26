@@ -9,9 +9,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>furms-spi</artifactId>
-    <name>FURMS SPI module</name>
-    <description>FURMS SPI module</description>
+    <artifactId>furms-persistence-spi</artifactId>
+    <name>FURMS Persistence SPI module</name>
+    <description>FURMS Persistence SPI module</description>
 
     <parent>
         <artifactId>furms-parent</artifactId>

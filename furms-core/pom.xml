@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>io.imunity.furms</groupId>
-            <artifactId>furms-spi</artifactId>
+            <artifactId>furms-persistence-spi</artifactId>
         </dependency>
 
         <!-- Test -->

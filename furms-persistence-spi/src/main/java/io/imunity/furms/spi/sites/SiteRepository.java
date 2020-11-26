@@ -14,7 +14,7 @@ public interface SiteRepository {
 
     Optional<Site> findById(String id);
 
-    Set<Site> finAll();
+    Set<Site> findAll();
 
     Site save(Site site);
 

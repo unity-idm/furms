@@ -32,7 +32,7 @@ class SiteServiceAPI implements SiteService {
 
     @Override
     public Set<Site> findAll() {
-        return siteRepository.finAll();
+        return siteRepository.findAll();
     }
 
     @Override

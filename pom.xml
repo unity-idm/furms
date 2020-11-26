@@ -55,7 +55,7 @@
 		<module>furms-doc</module>
 		<module>furms-domain</module>
 		<module>furms-model-api</module>
-		<module>furms-spi</module>
+		<module>furms-persistence-spi</module>
 		<module>furms-core</module>
 	</modules>
 
@@ -138,7 +138,7 @@
 			</dependency>
 			<dependency>
 				<groupId>io.imunity.furms</groupId>
-				<artifactId>furms-spi</artifactId>
+				<artifactId>furms-persistence-spi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

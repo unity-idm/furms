@@ -27,6 +27,7 @@ class SiteServiceAPIValidator {
 
     void validateUpdate(Site request) {
         notNull(request, "Site object cannot be null.");
+        validateId(request.getId());
         validateName(request);
     }
 
