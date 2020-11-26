@@ -25,16 +25,14 @@ import javax.net.ssl.SSLContext;
 import static java.util.Arrays.asList;
 
 @Configuration
-class RestTemplateUnityConfiguration
-{
+class RestTemplateUnityConfiguration {
 	@Value("${unity.client.ssl.trust-store}")
 	private Resource keyStore;
 	@Value("${unity.client.ssl.trust-store-password}")
 	private String keyStorePassword;
 
 	@Bean
-	public RestTemplate getRestClientForUnityConnections()
-	{
+	public RestTemplate getRestClientForUnityConnections() {
 		SSLContext sslContext = getSslContext();
 		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
 		HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
@@ -50,15 +48,12 @@ class RestTemplateUnityConfiguration
 		return restTemplate;
 	}
 
-	private SSLContext getSslContext()
-	{
-		try
-		{
+	private SSLContext getSslContext() {
+		try {
 			return new SSLContextBuilder()
 				.loadTrustMaterial(keyStore.getFile(), keyStorePassword.toCharArray())
 				.build();
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
 	}

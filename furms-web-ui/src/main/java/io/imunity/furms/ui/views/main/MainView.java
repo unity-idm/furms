@@ -33,21 +33,18 @@ import java.util.Optional;
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 @PWA(name = "Furms", shortName = "Furms", enableInstallPrompt = false)
-public class MainView extends AppLayout
-{
+public class MainView extends AppLayout {
 	private final Tabs menu;
 	private H1 viewTitle;
 
-	MainView()
-	{
+	MainView() {
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(true, createHeaderContent());
 		menu = createMenu();
 		addToDrawer(createDrawerContent(menu));
 	}
 
-	private Component createHeaderContent()
-	{
+	private Component createHeaderContent() {
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setId("header");
 		layout.getThemeList().set("dark", true);
@@ -66,8 +63,7 @@ public class MainView extends AppLayout
 		return layout;
 	}
 
-	private Component createDrawerContent(Tabs menu)
-	{
+	private Component createDrawerContent(Tabs menu) {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
 		layout.setPadding(false);
@@ -81,8 +77,7 @@ public class MainView extends AppLayout
 		return layout;
 	}
 
-	private Tabs createMenu()
-	{
+	private Tabs createMenu() {
 		Tabs tabs = new Tabs();
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
@@ -91,16 +86,14 @@ public class MainView extends AppLayout
 		return tabs;
 	}
 
-	private Component[] createMenuItems()
-	{
+	private Component[] createMenuItems() {
 		return new Tab[]{
-				createTab(getTranslation("view.main-page.tab.1"), HelloWorldView.class),
-				createTab(getTranslation("view.main-page.tab.2"), AboutView.class)
+			createTab(getTranslation("view.main-page.tab.1"), HelloWorldView.class),
+			createTab(getTranslation("view.main-page.tab.2"), AboutView.class)
 		};
 	}
 
-	private static Tab createTab(String text, Class<? extends Component> navigationTarget)
-	{
+	private static Tab createTab(String text, Class<? extends Component> navigationTarget) {
 		final Tab tab = new Tab();
 		tab.add(new RouterLink(text, navigationTarget));
 		ComponentUtil.setData(tab, Class.class, navigationTarget);
@@ -108,23 +101,20 @@ public class MainView extends AppLayout
 	}
 
 	@Override
-	protected void afterNavigation()
-	{
+	protected void afterNavigation() {
 		super.afterNavigation();
 		getTabForComponent(getContent()).ifPresent(menu::setSelectedTab);
 		viewTitle.setText(getCurrentPageTitle());
 	}
 
-	private Optional<Tab> getTabForComponent(Component component)
-	{
+	private Optional<Tab> getTabForComponent(Component component) {
 		return menu.getChildren()
-				.filter(tab -> ComponentUtil.getData(tab, Class.class)
-						.equals(component.getClass()))
-				.findFirst().map(Tab.class::cast);
+			.filter(tab -> ComponentUtil.getData(tab, Class.class)
+				.equals(component.getClass()))
+			.findFirst().map(Tab.class::cast);
 	}
 
-	private String getCurrentPageTitle()
-	{
+	private String getCurrentPageTitle() {
 		return getContent().getClass().getAnnotation(PageTitle.class).value();
 	}
 }

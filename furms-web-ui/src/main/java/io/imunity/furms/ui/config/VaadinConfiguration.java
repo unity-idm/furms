@@ -14,11 +14,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableVaadin("io.imunity.furms")
-class VaadinConfiguration
-{
+class VaadinConfiguration {
 	@Bean
-	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context)
-	{
+	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context) {
 		return new ServletRegistrationBean<>(new SpringServlet(context, false), "/front/*", "/front/*");
 	}
 }
