@@ -45,6 +45,10 @@
 			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -129,12 +133,6 @@
 	<profiles>
 		<profile>
 			<id>springdoc</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.springdoc</groupId>
-					<artifactId>springdoc-openapi-ui</artifactId>
-				</dependency>
-			</dependencies>
 			<build>
 				<resources>
 					<resource>
