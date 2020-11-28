@@ -5,4 +5,4 @@ server:
 springdoc:
    api-docs:
       path: /api-docs
-   pathsToMatch: /v1/cidp/**
+   pathsToMatch: /v1/cidp/**, /v1/sites/**, /v1/communities/**, /v1/projects/**

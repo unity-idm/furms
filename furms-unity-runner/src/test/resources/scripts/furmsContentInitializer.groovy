@@ -136,7 +136,7 @@ void assignNameAttributeAndUserPasswordToAdminAccount() throws EngineException
 		if (attributesManagement.getAttributes(entity, "/", NAME_ATTR).isEmpty())
 		{
 			attributesManagement.createAttribute(entity, nameA)
-			PasswordToken pToken = new PasswordToken("QAZxsw1234!@#")
+			PasswordToken pToken = new PasswordToken("a")
 			entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
 		}
 	} catch (IllegalIdentityValueException e)
@@ -172,7 +172,7 @@ void initOAuthClient()
 	PasswordToken pToken2 = new PasswordToken("oauth-pass1")
 
 	EntityParam entityP = new EntityParam(oauthClientA.getEntityId())
-	entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL, pToken2.toJson())
+	entityCredentialManagement.setEntityCredential(entityP, "userPassword", pToken2.toJson())
 	log.warn("Furms OAuth client user was created with default password.  Please change it! U: oauth-client P: oauth-pass1")
 
 	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "OAuth client")
