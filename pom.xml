@@ -30,6 +30,8 @@
 
 		<swagger.core.version>2.1.1</swagger.core.version>
 
+		<spring.boot.version>2.4.0</spring.boot.version>
+
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.language>java</sonar.language>
 		<sonar.java.source>11</sonar.java.source>
@@ -53,6 +55,10 @@
 	<modules>
 		<module>furms-server</module>
 		<module>furms-doc</module>
+		<module>furms-domain</module>
+		<module>furms-model-api</module>
+		<module>furms-persistence-spi</module>
+		<module>furms-core</module>
 		<module>furms-rest-api</module>
 		<module>furms-web-ui</module>
 	</modules>
@@ -110,11 +116,42 @@
 				<version>${swagger.core.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter</artifactId>
+				<version>${spring.boot.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>1.2.32</version>
 			</dependency>
 			<dependency>
+				<groupId>io.imunity.furms</groupId>
+				<artifactId>furms-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity.furms</groupId>
+				<artifactId>furms-domain</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity.furms</groupId>
+				<artifactId>furms-model-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity.furms</groupId>
+				<artifactId>furms-persistence-spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring.boot.version}</version>
+				<scope>test</scope>
+			</dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
 				<version>5.2.4.Final</version>
