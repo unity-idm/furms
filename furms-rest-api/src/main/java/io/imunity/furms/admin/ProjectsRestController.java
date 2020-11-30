@@ -87,7 +87,7 @@ public class ProjectsRestController {
 					@Content }) })
 	// @formatter:on
 	@PutMapping("/{projectId}")
-	public Project updateProject(@RequestBody ProjectUpdateRequest request) {
+	public Project updateProject(@RequestBody ProjectMutableDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -99,7 +99,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied"), })
 	// @formatter:on
 	@PostMapping()
-	public Project addProject(@RequestBody ProjectAddRequest request) {
+	public Project addProject(@RequestBody ProjectDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -150,7 +150,7 @@ public class ProjectsRestController {
 	@PostMapping("/{projectId}/allocations")
 	public List<ProjectAllocation> getCreateAllocation(
 			@PathVariable("projectId") String projectId,
-			@RequestBody ProjectAllocationAddRequest request) {
+			@RequestBody ProjectAllocationDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 }

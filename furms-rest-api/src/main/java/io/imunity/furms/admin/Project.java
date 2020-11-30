@@ -6,26 +6,13 @@ package io.imunity.furms.admin;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
-class Project {
+class Project extends ProjectDefinition {
+	
 	final String id;
-
-	final String name;
-
-	final String description;
-
-	final List<String> allocations;
-
-	final String communityId;
 
 	Project(String id, String name, String description, List<String> allocations,
 			String communityId) {
+		super(communityId, name, description);
 		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.allocations = ImmutableList.copyOf(allocations);
-		this.communityId = communityId;
 	}
-
 }

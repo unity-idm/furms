@@ -4,20 +4,13 @@
  */
 package io.imunity.furms.admin;
 
-class CommunityAllocation {
+class CommunityAllocation extends CommunityAllocationDefinition {
+	
 	final CommunityAllocationId id;
-
-	final SiteAllocationId siteAllocationId;
-
-	final String name;
-
-	final Credits credits;
 
 	CommunityAllocation(CommunityAllocationId id, SiteAllocationId siteAllocationId,
 			String name, Credits credits) {
+		super(siteAllocationId, name, credits);
 		this.id = id;
-		this.siteAllocationId = siteAllocationId;
-		this.name = name;
-		this.credits = credits;
 	}
 }

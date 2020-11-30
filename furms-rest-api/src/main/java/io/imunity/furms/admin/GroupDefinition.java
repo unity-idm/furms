@@ -4,12 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class ProjectUpdateRequest {
+class GroupDefinition {
+	
 	final String name;
-
 	final String description;
 
-	ProjectUpdateRequest(String name, String description) {
+	GroupDefinition(String name, String description) {
 		this.name = name;
 		this.description = description;
 	}

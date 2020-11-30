@@ -4,17 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class Group {
+class Group extends GroupDefinition {
+
 	final String id;
 
-	final String name;
-
-	final String description;
-
 	Group(String id, String name, String description) {
+		super(name, description);
 		this.id = id;
-		this.name = name;
-		this.description = description;
 	}
-
 }

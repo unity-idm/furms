@@ -106,7 +106,7 @@ public class CommunitiesRestController {
 	@PostMapping("/{communityId}/allocations")
 	public List<CommunityAllocation> getCreateAllocation(
 			@PathVariable("communityId") String communityId,
-			@RequestBody CommunityAllocationAddRequest request) {
+			@RequestBody CommunityAllocationDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -169,7 +169,7 @@ public class CommunitiesRestController {
 					@Content }) })
 	// @formatter:on
 	@PutMapping("/{communityId}/groups/{groupId}")
-	public Group updateGroup(@RequestBody GroupUpdateRequest request) {
+	public Group updateGroup(@RequestBody GroupDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -183,7 +183,7 @@ public class CommunitiesRestController {
 					@Content }) })
 	// @formatter:on
 	@PostMapping("/{communityId}/groups")
-	public Group addGroup(@RequestBody GroupAddRequest request) {
+	public Group addGroup(@RequestBody GroupDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 

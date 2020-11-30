@@ -4,17 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class ProjectAddRequest {
+class ProjectDefinition extends ProjectMutableDefinition {
+	
 	final String communityId;
 
-	final String name;
-
-	final String description;
-
-	ProjectAddRequest(String communityId, String name, String description) {
+	ProjectDefinition(String communityId, String name, String description) {
+		super(name, description);
 		this.communityId = communityId;
-		this.name = name;
-		this.description = description;
 	}
-
 }
