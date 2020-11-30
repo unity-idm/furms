@@ -4,25 +4,22 @@
  */
 package io.imunity.furms.admin;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 class ProtocolMessage {
+	
 	final String id;
-
 	final MessageType type;
-
 	final MessageStatus status;
-
-	final Instant sent;
-
-	final Instant lastResponse;
-
-	ProtocolMessage(String id, MessageType type, MessageStatus status, Instant sent,
-			Instant lastResponse) {
+	final ZonedDateTime sentOn;
+	final ZonedDateTime ackOn;
+	
+	ProtocolMessage(String id, MessageType type, MessageStatus status,
+			ZonedDateTime sentOn, ZonedDateTime ackOn) {
 		this.id = id;
 		this.type = type;
 		this.status = status;
-		this.sent = sent;
-		this.lastResponse = lastResponse;
+		this.sentOn = sentOn;
+		this.ackOn = ackOn;
 	}
 }

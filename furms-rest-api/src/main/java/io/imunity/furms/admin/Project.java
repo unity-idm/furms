@@ -4,15 +4,17 @@
  */
 package io.imunity.furms.admin;
 
-import java.util.List;
+import java.time.ZonedDateTime;
 
 class Project extends ProjectDefinition {
 	
 	final String id;
 
-	Project(String id, String name, String description, List<String> allocations,
-			String communityId) {
-		super(communityId, name, description);
+	public Project(String name, String description, ZonedDateTime validFrom,
+			ZonedDateTime validTo, String researchField, User projectLeader,
+			String communityId, String acronym, String id) {
+		super(name, description, validFrom, validTo, researchField, projectLeader,
+				communityId, acronym);
 		this.id = id;
 	}
 }

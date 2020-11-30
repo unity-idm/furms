@@ -104,7 +104,7 @@ public class CommunitiesRestController {
 					@Content }) })
 	// @formatter:on
 	@PostMapping("/{communityId}/allocations")
-	public List<CommunityAllocation> getCreateAllocation(
+	public List<CommunityAllocation> addAllocation(
 			@PathVariable("communityId") String communityId,
 			@RequestBody CommunityAllocationDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO

@@ -6,15 +6,13 @@ package io.imunity.furms.admin;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
-class ProjectWithMembers extends Project {
+class ProjectWithMembers {
+	
+	final Project project;
 	final List<String> memberFenixUserIds;
 
-	ProjectWithMembers(String id, String name, String description, List<String> allocations,
-			String communityId, List<String> memberFenixUserIds) {
-		super(id, name, description, allocations, communityId);
-		this.memberFenixUserIds = ImmutableList.copyOf(memberFenixUserIds);
+	ProjectWithMembers(Project project, List<String> memberFenixUserIds) {
+		this.project = project;
+		this.memberFenixUserIds = memberFenixUserIds;
 	}
-
 }
