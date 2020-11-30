@@ -6,6 +6,7 @@ package io.imunity.furms.admin;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.imunity.furms.openapi.APIDocConstants;
@@ -55,7 +57,7 @@ public class SitesRestController {
 
 	/********************************************************************************************
 	 * 
-	 * Site's allocations.
+	 * Site's credits.
 	 * 
 	 ********************************************************************************************/
 
@@ -253,4 +255,130 @@ public class SitesRestController {
 			@PathVariable("messageId") String messageId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
+	
+	
+	/********************************************************************************************
+	 * 
+	 * Site installed projects
+	 * 
+	 ********************************************************************************************/
+	@Operation(summary = "Retrieve project installations",
+			description = "Returns list of projects that should be installed on the site with "
+					+ "details of installation status",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
+	@GetMapping("/{siteId}/projectInstallations")
+	public List<ProjectInstallation> getInstalledProjects(@PathVariable("siteId") String siteId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+	
+	
+	@Operation(summary = "Retrieve all users that should have access to a site",
+			description = "Returns list of users that have access to the site through at least "
+					+ "one of their projects. SSH key of each user is provided as well.",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
+	@GetMapping("/{siteId}/users")
+	public List<SiteUser> getSiteUsers(@PathVariable("siteId") String siteId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+	
+	@Operation(summary = "Retrieve all FURMS allocations at the site", 
+			description = "Retrieve all project allocations at the site as assigned in FURMS", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/furmsAllocations")
+	public List<ProjectAllocation> getAllocations(
+			@PathVariable("siteId") String siteId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
+	@Operation(summary = "Retrieve FURMS allocations at the site of a project", 
+			description = "Retrieve given project allocations at the site as assigned in FURMS", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site or project not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/furmsAllocations/{projectId}")
+	public List<ProjectAllocation> getProjectAllocations(
+			@PathVariable("siteId") String siteId, @PathVariable("projectId") String projectId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
+	
+	
+	@Operation(summary = "Retrieve site allocated resources to projects", 
+			description = "Retrieve all project allocations at the site as assigned by the site", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/siteAllocations")
+	public List<SiteAllocatedResources> getSiteAllocatedResources(
+			@PathVariable("siteId") String siteId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
+	@Operation(summary = "Retrieve site allocated resources to a project", 
+			description = "Retrieve given project allocations at the site as assigned by the site", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site or project not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/siteAllocations/{projectId}")
+	public List<SiteAllocatedResources> getSiteAllocatedProjectResources(
+			@PathVariable("siteId") String siteId, @PathVariable("projectId") String projectId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
+	
+	@Operation(summary = "Retrieve cumulative project resource consumption", 
+			description = "Retrieve cumultaive resoruce consumption recorded by FURMS for "
+					+ "a given project on a site.", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site or project not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/cumulativeResourcesConsumption/{projectId}")
+	public List<ProjectCumulativeResourceConsumption> getProjectCumulativeResourceConsumption(
+			@PathVariable("siteId") String siteId, @PathVariable("projectId") String projectId) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
+	@Operation(summary = "Retrieve project resource usage records", 
+			description = "Retrieve individual resoruce usage records, stored by FURMS for "
+					+ "a given project on a site. Records have per-user granularity. "
+					+ "Caller can limit time range of records.", 
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Site or project not found", content = {
+					@Content }) })
+	@GetMapping("/{siteId}/usageRecords/{projectId}")
+	public List<ProjectUsageRecord> getProjectResourceUsageRecords(
+			@PathVariable("siteId") String siteId, 
+			@PathVariable("projectId") String projectId,
+			@RequestParam(name = "from", required = false) ZonedDateTime from, 
+			@RequestParam(name = "until", required = false) ZonedDateTime until) {
+		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	}
+
 }
+

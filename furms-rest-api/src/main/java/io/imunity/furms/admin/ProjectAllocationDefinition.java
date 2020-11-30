@@ -6,14 +6,16 @@ package io.imunity.furms.admin;
 
 class ProjectAllocationDefinition {
 
-	final CommunityAllocationId siteAllocationId;
+	final CommunityAllocationId communityAllocationId;
 	final String name;
-	final CreditAmount credits;
+	final ResourceType resourceType;
+	final ResourceAmount amount;
 
-	ProjectAllocationDefinition(CommunityAllocationId siteAllocationId, String name,
-			CreditAmount credits) {
-		this.siteAllocationId = siteAllocationId;
+	ProjectAllocationDefinition(CommunityAllocationId communityAllocationId, String name,
+			ResourceType resourceType, ResourceAmount amount) {
+		this.communityAllocationId = communityAllocationId;
 		this.name = name;
-		this.credits = credits;
+		this.resourceType = resourceType;
+		this.amount = amount;
 	}
 }

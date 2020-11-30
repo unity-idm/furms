@@ -10,10 +10,10 @@ class ResourceCredit {
 	final String name;
 	final Validity validity;
 	final String resourceTypeId;
-	final CreditAmount amount;
+	final ResourceAmount amount;
 
 	ResourceCredit(SiteAllocationId id, String name, Validity validity, String resourceTypeId,
-			CreditAmount amount) {
+			ResourceAmount amount) {
 		this.id = id;
 		this.name = name;
 		this.validity = validity;
