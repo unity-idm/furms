@@ -24,8 +24,6 @@ import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-	private static final String LOGOUT_SUCCESS_URL = "/front/hello";
-
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 
@@ -50,7 +48,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGIN_URL)
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
