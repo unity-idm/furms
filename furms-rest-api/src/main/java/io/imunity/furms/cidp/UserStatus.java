@@ -4,7 +4,6 @@
  */
 package io.imunity.furms.cidp;
 
-public enum UserStatus
-{
+public enum UserStatus {
 	ENABLED, DISABLED
 }

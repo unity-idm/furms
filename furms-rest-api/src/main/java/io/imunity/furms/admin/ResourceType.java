@@ -4,14 +4,14 @@
  */
 package io.imunity.furms.admin;
 
-class ResourceType
-{
+class ResourceType {
 	final ResourceTypeId id;
+
 	final String name;
+
 	final ServiceId serviceId;
 
-	ResourceType(ResourceTypeId id, String name, ServiceId serviceId)
-	{
+	ResourceType(ResourceTypeId id, String name, ServiceId serviceId) {
 		this.id = id;
 		this.name = name;
 		this.serviceId = serviceId;

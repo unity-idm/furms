@@ -8,22 +8,21 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-class Site
-{
+class Site {
 	final String id;
+
 	final String name;
+
 	final List<String> allocationIds;
+
 	final List<String> resourceTypeIds;
+
 	final List<String> serviceIds;
+
 	final List<String> policieIds;
 
-	Site(String id,
-			String name,
-			List<String> allocationIds,
-			List<String> resourceTypeIds,
-			List<String> serviceIds,
-			List<String> policieIds)
-	{
+	Site(String id, String name, List<String> allocationIds, List<String> resourceTypeIds,
+			List<String> serviceIds, List<String> policieIds) {
 		this.id = id;
 		this.name = name;
 		this.allocationIds = ImmutableList.copyOf(allocationIds);

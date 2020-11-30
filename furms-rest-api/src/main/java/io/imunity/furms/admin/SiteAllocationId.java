@@ -4,13 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class SiteAllocationId
-{
+class SiteAllocationId {
 	final String siteId;
+
 	final String allocationId;
 
-	SiteAllocationId(String siteId, String allocationId)
-	{
+	SiteAllocationId(String siteId, String allocationId) {
 		this.siteId = siteId;
 		this.allocationId = allocationId;
 	}

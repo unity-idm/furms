@@ -6,13 +6,12 @@ package io.imunity.furms.admin;
 
 import java.time.Instant;
 
-public class Validity
-{
+public class Validity {
 	final Instant from;
+
 	final Instant to;
 
-	Validity(Instant from, Instant to)
-	{
+	Validity(Instant from, Instant to) {
 		this.from = from;
 		this.to = to;
 	}

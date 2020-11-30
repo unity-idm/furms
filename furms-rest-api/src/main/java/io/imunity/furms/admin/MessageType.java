@@ -4,8 +4,6 @@
  */
 package io.imunity.furms.admin;
 
-enum MessageType
-{
-	USER_PROVISIONING,
-	SSH_KEY_PROVISIONING,
+enum MessageType {
+	USER_PROVISIONING, SSH_KEY_PROVISIONING,
 }

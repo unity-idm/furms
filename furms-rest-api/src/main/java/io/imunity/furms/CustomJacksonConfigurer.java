@@ -16,11 +16,10 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
  * Enables serialization of DTOs w/o getters/setters.
  */
 @Configuration
-class CustomJacksonConfigurer implements Jackson2ObjectMapperBuilderCustomizer
-{
+class CustomJacksonConfigurer implements Jackson2ObjectMapperBuilderCustomizer {
+	
 	@Override
-	public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder)
-	{
+	public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
 		jacksonObjectMapperBuilder.visibility(PropertyAccessor.FIELD, Visibility.ANY);
 	}
 }

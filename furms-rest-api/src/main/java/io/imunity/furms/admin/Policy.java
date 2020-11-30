@@ -4,14 +4,14 @@
  */
 package io.imunity.furms.admin;
 
-class Policy
-{
+class Policy {
 	final PolicyId id;
+
 	final String name;
+
 	final int revision;
 
-	Policy(PolicyId id, String name, int revision)
-	{
+	Policy(PolicyId id, String name, int revision) {
 		this.id = id;
 		this.name = name;
 		this.revision = revision;

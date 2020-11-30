@@ -6,18 +6,15 @@ package io.imunity.furms.cidp;
 
 import java.util.List;
 
-public class Attribute
-{
+public class Attribute {
 	private String name;
 	private List<String> values;
-	
-	public String getName()
-	{
+
+	public String getName() {
 		return name;
 	}
-	
-	public List<String> getValues()
-	{
+
+	public List<String> getValues() {
 		return values;
 	}
 }

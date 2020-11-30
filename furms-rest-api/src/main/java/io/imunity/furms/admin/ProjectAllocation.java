@@ -4,18 +4,17 @@
  */
 package io.imunity.furms.admin;
 
-class ProjectAllocation
-{
+class ProjectAllocation {
 	final ProjectAllocationId id;
+
 	final CommunityAllocationId communityAllocationId;
+
 	final String name;
+
 	final Credits credits;
 
-	ProjectAllocation(ProjectAllocationId id,
-			CommunityAllocationId communityAllocationId,
-			String name,
-			Credits credits)
-	{
+	ProjectAllocation(ProjectAllocationId id, CommunityAllocationId communityAllocationId,
+			String name, Credits credits) {
 		this.id = id;
 		this.communityAllocationId = communityAllocationId;
 		this.name = name;

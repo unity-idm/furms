@@ -4,8 +4,7 @@
  */
 package io.imunity.furms.openapi;
 
-public class APIDocConstants
-{
+public class APIDocConstants {
 	public static final String CIDP_SECURITY_SCHEME = "CIdP token";
 	public static final String FURMS_SECURITY_SCHEME = "FURMS API token";
 }

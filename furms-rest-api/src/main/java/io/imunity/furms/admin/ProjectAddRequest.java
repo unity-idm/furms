@@ -4,14 +4,14 @@
  */
 package io.imunity.furms.admin;
 
-class ProjectAddRequest
-{
+class ProjectAddRequest {
 	final String communityId;
+
 	final String name;
+
 	final String description;
 
-	ProjectAddRequest(String communityId, String name, String description)
-	{
+	ProjectAddRequest(String communityId, String name, String description) {
 		this.communityId = communityId;
 		this.name = name;
 		this.description = description;

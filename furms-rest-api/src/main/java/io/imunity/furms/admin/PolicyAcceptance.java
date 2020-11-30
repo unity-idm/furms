@@ -4,14 +4,14 @@
  */
 package io.imunity.furms.admin;
 
-class PolicyAcceptance
-{
+class PolicyAcceptance {
 	final String fenixUserId;
+
 	final String policyId;
+
 	final boolean accepted;
 
-	PolicyAcceptance(String policyId, String fenixUserId, boolean accepted)
-	{
+	PolicyAcceptance(String policyId, String fenixUserId, boolean accepted) {
 		this.policyId = policyId;
 		this.fenixUserId = fenixUserId;
 		this.accepted = accepted;

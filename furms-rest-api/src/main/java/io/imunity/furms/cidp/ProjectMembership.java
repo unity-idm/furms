@@ -6,20 +6,15 @@ package io.imunity.furms.cidp;
 
 import java.util.List;
 
-public class ProjectMembership
-{
+public class ProjectMembership {
 	private String name;
 	private List<Attribute> attributes;
 
-	
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 
-
-	public List<Attribute> getAttributes()
-	{
+	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 }

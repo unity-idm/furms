@@ -8,14 +8,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-class Community
-{
+class Community {
 	final String id;
 	final String name;
 	final List<String> allocations;
 
-	Community(String id, String name, List<String> allocations)
-	{
+	Community(String id, String name, List<String> allocations) {
 		this.id = id;
 		this.name = name;
 		this.allocations = ImmutableList.copyOf(allocations);

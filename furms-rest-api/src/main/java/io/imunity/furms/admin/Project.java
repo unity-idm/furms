@@ -8,20 +8,19 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-class Project
-{
+class Project {
 	final String id;
+
 	final String name;
+
 	final String description;
+
 	final List<String> allocations;
+
 	final String communityId;
 
-	Project(String id,
-			String name,
-			String description,
-			List<String> allocations,
-			String communityId)
-	{
+	Project(String id, String name, String description, List<String> allocations,
+			String communityId) {
 		this.id = id;
 		this.name = name;
 		this.description = description;

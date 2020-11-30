@@ -4,13 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class Credits
-{
+class Credits {
 	final Integer amount;
+
 	final String unit;
 
-	Credits(Integer amount, String unit)
-	{
+	Credits(Integer amount, String unit) {
 		this.amount = amount;
 		this.unit = unit;
 	}

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/app-health")
-class AppHealthRESTController
-{
+class AppHealthRESTController {
 	@GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
-	public String getAppStatus()
-	{
+	public String getAppStatus() {
 		return "OK";
 	}
 }

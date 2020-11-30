@@ -6,24 +6,20 @@ package io.imunity.furms.cidp;
 
 import java.util.List;
 
-public class UserRecord
-{
+public class UserRecord {
 	private UserStatus userStatus;
 	private List<Attribute> attributes;
 	private List<CommunityMembership> communities;
 
-	public UserStatus getUserStatus()
-	{
+	public UserStatus getUserStatus() {
 		return userStatus;
 	}
 
-	public List<Attribute> getAttributes()
-	{
+	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 
-	public List<CommunityMembership> getCommunities()
-	{
+	public List<CommunityMembership> getCommunities() {
 		return communities;
 	}
 }

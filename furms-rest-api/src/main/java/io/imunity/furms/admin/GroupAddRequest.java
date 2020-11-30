@@ -4,13 +4,12 @@
  */
 package io.imunity.furms.admin;
 
-class GroupAddRequest
-{
+class GroupAddRequest {
 	final String name;
+
 	final String description;
 
-	GroupAddRequest(String name, String description)
-	{
+	GroupAddRequest(String name, String description) {
 		this.name = name;
 		this.description = description;
 	}

@@ -6,27 +6,25 @@ package io.imunity.furms.cidp;
 
 import java.util.List;
 
-public class CommunityMembership
-{
+public class CommunityMembership {
 	private String name;
 	private List<GroupMembership> groups;
 	private List<ProjectMembership> projects;
 	private List<Attribute> attributes;
 
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
-	public List<GroupMembership> getGroups()
-	{
+
+	public List<GroupMembership> getGroups() {
 		return groups;
 	}
-	public List<ProjectMembership> getProjects()
-	{
+
+	public List<ProjectMembership> getProjects() {
 		return projects;
 	}
-	public List<Attribute> getAttributes()
-	{
+
+	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 }
