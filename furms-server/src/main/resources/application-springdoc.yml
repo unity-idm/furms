@@ -1,8 +1,0 @@
-server:
-   ssl:
-      enabled: false
-  
-springdoc:
-   api-docs:
-      path: /api-docs
-   pathsToMatch: /v1/cidp/**

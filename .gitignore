@@ -1,6 +1,17 @@
 /.project
 /.settings
 **/target
+**/.project
+**/.settings
+**/.classpath
+**/target
+/target
 
 /.idea/
 **/*.iml
+
+furms-web-ui/node_modules
+furms-web-ui/package-lock.json
+furms-web-ui/package.json
+furms-web-ui/webpack.config.js
+furms-web-ui/webpack.generated.js

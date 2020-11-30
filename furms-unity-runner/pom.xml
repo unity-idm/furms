@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<groupId>unity-server-parent</groupId>
-	<artifactId>furms.unity.runner</artifactId>
+	<artifactId>furms-unity-runner</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 
