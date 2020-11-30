@@ -32,7 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 		+ "as well as exposes basic operations that can be done in context of a Community")
 // @formatter:on
 public class CommunitiesRestController {
-	// @formatter:off
+	
 	@Operation(summary = "Retrieve all communities", description = "Returns complete information about all communities including its allocations", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -44,7 +44,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Retrieve particular community information", description = "Returns complete information about community including its allocations", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -63,7 +63,7 @@ public class CommunitiesRestController {
 	 * Community's allocations.
 	 * 
 	 ********************************************************************************************/
-	// @formatter:off
+	
 	@Operation(summary = "Retrieve all allocations", description = "Retrieve all community's allocations information", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -78,7 +78,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Retrieve particular allocation information", description = "Retrieve particular community's allocation information", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -94,7 +94,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Create allocation", description = "Create particular allocation for given community.", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -115,7 +115,7 @@ public class CommunitiesRestController {
 	 * Groups CRUD.
 	 * 
 	 ********************************************************************************************/
-	// @formatter:off
+	
 	@Operation(summary = "Retrieve all groups", description = "Returns information about all groups in community", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -129,7 +129,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Get group with members", description = "Returns complete information about gropu including membership information", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -144,7 +144,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Delete group", description = "Removes group from community.", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -159,7 +159,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Update group", description = "Update particular group.", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -173,7 +173,7 @@ public class CommunitiesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	// @formatter:off
+	
 	@Operation(summary = "Add group", description = "Creates group in community.", security = {
 			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {

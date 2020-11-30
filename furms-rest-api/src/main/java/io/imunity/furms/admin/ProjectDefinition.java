@@ -4,17 +4,15 @@
  */
 package io.imunity.furms.admin;
 
-import java.time.ZonedDateTime;
-
 class ProjectDefinition extends ProjectMutableDefinition {
 	
 	final String communityId;
 	final String acronym;
 	
-	public ProjectDefinition(String name, String description, ZonedDateTime validFrom,
-			ZonedDateTime validTo, String researchField, User projectLeader,
+	public ProjectDefinition(String name, String description, Validity validity,
+			String researchField, User projectLeader,
 			String communityId, String acronym) {
-		super(name, description, validFrom, validTo, researchField, projectLeader);
+		super(name, description, validity, researchField, projectLeader);
 		this.communityId = communityId;
 		this.acronym = acronym;
 	}

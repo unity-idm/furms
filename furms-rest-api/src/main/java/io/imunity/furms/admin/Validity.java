@@ -4,16 +4,15 @@
  */
 package io.imunity.furms.admin;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 public class Validity {
-	final Instant from;
+	
+	final ZonedDateTime from;
+	final ZonedDateTime to;
 
-	final Instant to;
-
-	Validity(Instant from, Instant to) {
+	Validity(ZonedDateTime from, ZonedDateTime to) {
 		this.from = from;
 		this.to = to;
 	}
-
 }

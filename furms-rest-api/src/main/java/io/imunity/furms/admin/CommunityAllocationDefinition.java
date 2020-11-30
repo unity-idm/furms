@@ -8,10 +8,10 @@ class CommunityAllocationDefinition {
 
 	final SiteAllocationId siteAllocationId;
 	final String name;
-	final ResourceCredit credits;
+	final CreditAmount credits;
 
 	CommunityAllocationDefinition(SiteAllocationId siteAllocationId, String name,
-			ResourceCredit credits) {
+			CreditAmount credits) {
 		this.siteAllocationId = siteAllocationId;
 		this.name = name;
 		this.credits = credits;
