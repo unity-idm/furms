@@ -13,10 +13,10 @@ class SiteAllocation {
 
 	final String resourceTypeId;
 
-	final Credits credits;
+	final ResourceCredit credits;
 
 	SiteAllocation(SiteAllocationId id, String name, Validity validity, String resourceTypeId,
-			Credits credits) {
+			ResourceCredit credits) {
 		this.id = id;
 		this.name = name;
 		this.validity = validity;

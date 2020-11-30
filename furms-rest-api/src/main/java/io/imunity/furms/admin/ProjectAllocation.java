@@ -9,7 +9,7 @@ class ProjectAllocation extends ProjectAllocationDefinition {
 	final ProjectAllocationId id;
 
 	ProjectAllocation(ProjectAllocationId id, CommunityAllocationId communityAllocationId,
-			String name, Credits credits) {
+			String name, ResourceCredit credits) {
 		super(communityAllocationId, name, credits);
 		this.id = id;
 	}
