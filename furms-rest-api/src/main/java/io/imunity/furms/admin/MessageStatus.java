@@ -5,5 +5,5 @@
 package io.imunity.furms.admin;
 
 enum MessageStatus {
-	NO_ACK, IN_PROGRESS
+	SENT, ACKNOWLEDGED
 }

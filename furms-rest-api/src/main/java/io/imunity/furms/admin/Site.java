@@ -6,28 +6,22 @@ package io.imunity.furms.admin;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 class Site {
+	
 	final String id;
-
 	final String name;
-
-	final List<String> allocationIds;
-
-	final List<String> resourceTypeIds;
-
-	final List<String> serviceIds;
-
-	final List<String> policieIds;
-
-	Site(String id, String name, List<String> allocationIds, List<String> resourceTypeIds,
-			List<String> serviceIds, List<String> policieIds) {
+	final List<ResourceCredit> resourceCredits;
+	final List<ResourceType> resourceTypes;
+	final List<Service> services;
+	final List<Policy> policies;
+	
+	Site(String id, String name, List<ResourceCredit> resourceCredits, List<ResourceType> resourceTypes,
+			List<Service> services, List<Policy> policies) {
 		this.id = id;
 		this.name = name;
-		this.allocationIds = ImmutableList.copyOf(allocationIds);
-		this.resourceTypeIds = ImmutableList.copyOf(resourceTypeIds);
-		this.serviceIds = ImmutableList.copyOf(serviceIds);
-		this.policieIds = ImmutableList.copyOf(policieIds);
+		this.resourceCredits = resourceCredits;
+		this.resourceTypes = resourceTypes;
+		this.services = services;
+		this.policies = policies;
 	}
 }
