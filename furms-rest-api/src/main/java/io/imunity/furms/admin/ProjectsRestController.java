@@ -42,7 +42,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"), })
 	@GetMapping()
-	public List<Project> getProjects() {
+	public List<Project> getAll() {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -55,7 +55,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project not found", content = {
 					@Content }) })
 	@GetMapping("/{projectId}")
-	public ProjectWithMembers getProject(@PathVariable("projectId") String projectId) {
+	public ProjectWithMembers get(@PathVariable("projectId") String projectId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -67,7 +67,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project not found", content = {
 					@Content }) })
 	@DeleteMapping("/{projectId}")
-	public void deleteProject(@PathVariable("projectId") String projectId) {
+	public void delete(@PathVariable("projectId") String projectId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -79,7 +79,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project not found", content = {
 					@Content }) })
 	@PutMapping("/{projectId}")
-	public Project updateProject(@RequestBody ProjectMutableDefinition request) {
+	public Project update(@RequestBody ProjectMutableDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -89,7 +89,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"), })
 	@PostMapping()
-	public Project addProject(@RequestBody ProjectDefinition request) {
+	public Project add(@RequestBody ProjectDefinition request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -107,7 +107,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project not found", content = {
 					@Content }) })
 	@GetMapping("/{projectId}/allocations")
-	public List<ProjectAllocation> getAllProjectAllocations(
+	public List<ProjectAllocation> getAllocations(
 			@PathVariable("projectId") String projectId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -120,7 +120,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project or allocation not found", content = {
 					@Content }) })
 	@GetMapping("/{projectId}/allocations/{projectAllocationId}")
-	public ProjectAllocation getProjectAllocation(@PathVariable("projectId") String projectId,
+	public ProjectAllocation getAllocation(@PathVariable("projectId") String projectId,
 			@PathVariable("projectAllocationId") String projectAllocationId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}

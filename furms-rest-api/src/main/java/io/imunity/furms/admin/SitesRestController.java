@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping(value = "/v1/site", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/v1/sites", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Site Endpoint",
 	description = "FURMS administration endpoint that provides comprehensive access to Sites "
 			+ "as well as exposes basic operations that can be done in a site context.")
@@ -65,7 +65,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/credit")
+	@GetMapping("/{siteId}/credits")
 	public List<ResourceCredit> getResourceCredits(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -78,7 +78,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or allocation not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/credit/{siteAllocationId}")
+	@GetMapping("/{siteId}/credits/{siteAllocationId}")
 	public ResourceCredit getResourceCredit(@PathVariable("siteId") String siteId,
 			@PathVariable("siteAllocationId") String siteAllocationId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
@@ -96,7 +96,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/resourceType")
+	@GetMapping("/{siteId}/resourceTypes")
 	public List<ResourceType> getResourceTypes(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -109,7 +109,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or resource type not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/resourceType/{resourceTypeIds}")
+	@GetMapping("/{siteId}/resourceTypes/{resourceTypeIds}")
 	public ResourceType getResourceType(@PathVariable("siteId") String siteId,
 			@PathVariable("resourceTypeIds") String resourceTypeIds) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
@@ -127,7 +127,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/service")
+	@GetMapping("/{siteId}/services")
 	public List<Service> getServices(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -140,7 +140,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or services not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/service/{servicesId}")
+	@GetMapping("/{siteId}/services/{servicesId}")
 	public Service getService(@PathVariable("siteId") String siteId,
 			@PathVariable("servicesId") String servicesId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
@@ -158,7 +158,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/policy")
+	@GetMapping("/{siteId}/policies")
 	public List<Policy> getPolicies(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -171,7 +171,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or policy not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/policy/{policyId}")
+	@GetMapping("/{siteId}/policies/{policyId}")
 	public Policy getPolicy(@PathVariable("siteId") String siteId, @PathVariable("policyId") String servicesId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -189,7 +189,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/policyAcceptance")
+	@GetMapping("/{siteId}/policyAcceptances")
 	public List<PolicyAcceptance> getPoliciesAcceptance(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -202,7 +202,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site, policy or user not found",
 				content = { @Content }) })
-	@PostMapping("/{siteId}/policy/{policyId}/accept/{fenixUserId}")
+	@PostMapping("/{siteId}/policies/{policyId}/acceptance/{fenixUserId}")
 	public List<PolicyAcceptance> addPolicyAcceptance(@PathVariable("siteId") String siteId,
 			@PathVariable("policyId") String policyId, @PathVariable("fenixUserId") String fenixUserId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
@@ -220,7 +220,7 @@ public class SitesRestController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
-	@GetMapping("/{siteId}/protocolMessage")
+	@GetMapping("/{siteId}/protocolMessages")
 	public List<ProtocolMessage> getProtocolMessages(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
@@ -234,7 +234,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or message not found",
 				content = { @Content }) })
-	@DeleteMapping("/{siteId}/protocolMessage/{messageId}")
+	@DeleteMapping("/{siteId}/protocolMessages/{messageId}")
 	public void dropProtocolMessage(@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
@@ -248,7 +248,7 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "404",
 				description = "Site or message not found",
 				content = { @Content }) })
-	@PostMapping("/{siteId}/protocolMessage/{messageId}")
+	@PostMapping("/{siteId}/protocolMessages/{messageId}")
 	public void retryProtocolMessage(@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO

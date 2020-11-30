@@ -71,7 +71,7 @@ public class CommunitiesRestController {
 				description = "Community not found",
 				content = { @Content }) })
 	@GetMapping("/{communityId}/allocations")
-	public List<CommunityAllocation> getAllCommunityAllocations(@PathVariable("communityId") String communityId) {
+	public List<CommunityAllocation> getAllocations(@PathVariable("communityId") String communityId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -84,7 +84,7 @@ public class CommunitiesRestController {
 				description = "Community or allocation not found",
 				content = { @Content }) })
 	@GetMapping("/{communityId}/allocations/{communityAllocationId}")
-	public CommunityAllocation getCommunityAllocation(@PathVariable("communityId") String communityId,
+	public CommunityAllocation getAllocation(@PathVariable("communityId") String communityId,
 			@PathVariable("communityAllocationId") String communityAllocationId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
