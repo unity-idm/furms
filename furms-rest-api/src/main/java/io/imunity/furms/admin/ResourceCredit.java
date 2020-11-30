@@ -6,13 +6,13 @@ package io.imunity.furms.admin;
 
 class ResourceCredit {
 	
-	final SiteAllocationId id;
+	final SiteCreditId id;
 	final String name;
 	final Validity validity;
 	final String resourceTypeId;
 	final ResourceAmount amount;
 
-	ResourceCredit(SiteAllocationId id, String name, Validity validity, String resourceTypeId,
+	ResourceCredit(SiteCreditId id, String name, Validity validity, String resourceTypeId,
 			ResourceAmount amount) {
 		this.id = id;
 		this.name = name;

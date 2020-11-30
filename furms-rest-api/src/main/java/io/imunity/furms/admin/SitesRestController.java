@@ -28,12 +28,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping(value = "/v1/sites", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Site Endpoint",
-	description = "FURMS administration endpoint that provides comprehensive access to Sites "
+	description = "FURMS administration endpoint that provides comprehensive access to information about sites "
 			+ "as well as exposes basic operations that can be done in a site context.")
 public class SitesRestController {
 
 	@Operation(summary = "Retrieve all sites",
-		description = "Returns complete information about all sites including with its all allocations"
+		description = "Returns complete information about all sites including their allocations, "
 				+ "resource types, services and policies.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
@@ -44,8 +44,8 @@ public class SitesRestController {
 	}
 
 	@Operation(summary = "Retrieve particular site information",
-		description = "Returns complete information about site including its all allocations, "
-				+ "resource types, services and policyes",
+		description = "Returns complete information about a site, including its all allocations, "
+				+ "resource types, services and policies",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -61,8 +61,8 @@ public class SitesRestController {
 	 * 
 	 ********************************************************************************************/
 
-	@Operation(summary = "Retrieve all allocations information",
-		description = "Retrieve all allocations information.",
+	@Operation(summary = "Retrieve credits",
+		description = "Retrieve all resource credits of a site.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -72,17 +72,17 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Retrieve particular site's allocation information",
-		description = "Retrieve particular site's allocation information",
+	@Operation(summary = "Retrieve resource credit",
+		description = "Retrieve details of a given resource credit.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404",
 				description = "Site or allocation not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/credits/{siteAllocationId}")
+	@GetMapping("/{siteId}/credits/{creditId}")
 	public ResourceCredit getResourceCredit(@PathVariable("siteId") String siteId,
-			@PathVariable("siteAllocationId") String siteAllocationId) {
+			@PathVariable("creditId") String creditId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -92,8 +92,7 @@ public class SitesRestController {
 	 * 
 	 ********************************************************************************************/
 
-	@Operation(summary = "Retrieve all site's resource types information",
-		description = "Retrieve all site's resource types information",
+	@Operation(summary = "Retrieve all resource types",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -103,17 +102,16 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Retrieve particular site's resource type information",
-		description = "Retrieve particular site's resource type information",
+	@Operation(summary = "Retrieve a given resource type",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404",
 				description = "Site or resource type not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/resourceTypes/{resourceTypeIds}")
+	@GetMapping("/{siteId}/resourceTypes/{resourceTypeId}")
 	public ResourceType getResourceType(@PathVariable("siteId") String siteId,
-			@PathVariable("resourceTypeIds") String resourceTypeIds) {
+			@PathVariable("resourceTypeId") String resourceTypeId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -123,8 +121,7 @@ public class SitesRestController {
 	 * 
 	 ********************************************************************************************/
 
-	@Operation(summary = "Retrieve all site's services information",
-		description = "Retrieve all site's services information",
+	@Operation(summary = "Retrieve all services",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -134,17 +131,16 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Retrieve particular site's service information",
-		description = "Retrieve particular site's service information",
+	@Operation(summary = "Retrieve a given site service",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404",
-				description = "Site or services not found",
+				description = "Site or service not found",
 				content = { @Content }) })
-	@GetMapping("/{siteId}/services/{servicesId}")
+	@GetMapping("/{siteId}/services/{serviceId}")
 	public Service getService(@PathVariable("siteId") String siteId,
-			@PathVariable("servicesId") String servicesId) {
+			@PathVariable("serviceId") String serviceId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -154,8 +150,7 @@ public class SitesRestController {
 	 * 
 	 ********************************************************************************************/
 
-	@Operation(summary = "Retrieve all site's policies information",
-		description = "Retrieve all site's policies information",
+	@Operation(summary = "Retrieve site policies",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -165,8 +160,7 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Retrieve particular site's policiy information",
-		description = "Retrieve particular site's policiy information",
+	@Operation(summary = "Retrieve a given site policy",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -186,7 +180,7 @@ public class SitesRestController {
 
 	@Operation(summary = "Retrieve site policies acceptance",
 		description = "Returns list of all site's users with policies and status whether given policy "
-				+ "is accepcted or not",
+				+ "is accepcted or not.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -196,17 +190,19 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Accepts sites policy on behalf of user",
-		description = "Performs opertion of accepting the policy on behalf of given user",
+	@Operation(summary = "Accept sites policy on behalf of user",
+		description = "Performs opertion of accepting the policy on behalf of given user.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404",
 				description = "Site, policy or user not found",
 				content = { @Content }) })
-	@PostMapping("/{siteId}/policies/{policyId}/acceptance/{fenixUserId}")
+	@PostMapping("/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}")
 	public List<PolicyAcceptance> addPolicyAcceptance(@PathVariable("siteId") String siteId,
-			@PathVariable("policyId") String policyId, @PathVariable("fenixUserId") String fenixUserId) {
+			@PathVariable("policyId") String policyId, 
+			@PathVariable("fenixUserId") String fenixUserId,
+			@PathVariable("status") PolicyAcceptance status) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -216,8 +212,8 @@ public class SitesRestController {
 	 * 
 	 ********************************************************************************************/
 
-	@Operation(summary = "Retrieve site's protocol messages",
-		description = "Returns all pending site's messages exchanged with site agents.",
+	@Operation(summary = "Retrieve pending requests",
+		description = "Returns all pending site's requests, which were sent to the site agent.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -227,14 +223,14 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Drop pending protocol message",
-		description = "Removes the protocol message, it won't be possible to retry it, "
+	@Operation(summary = "Drop pending request",
+		description = "Removes a pending protocol request. It won't be possible to retry the removed request, "
 				+ "FURMS will assume it has timed out.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404",
-				description = "Site or message not found",
+				description = "Site or request not found",
 				content = { @Content }) })
 	@DeleteMapping("/{siteId}/protocolMessages/{messageId}")
 	public void dropProtocolMessage(@PathVariable("siteId") String siteId,
@@ -242,8 +238,8 @@ public class SitesRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Retry the protocol message",
-		description = "Retry sending protocol message to a site agent.",
+	@Operation(summary = "Retry site request",
+		description = "Retry sending a request to a site agent.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
@@ -286,6 +282,13 @@ public class SitesRestController {
 	public List<SiteUser> getSiteUsers(@PathVariable("siteId") String siteId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
+	
+	
+	/********************************************************************************************
+	 * 
+	 * Site allocations of projects and resource consumption
+	 * 
+	 ********************************************************************************************/
 	
 	@Operation(summary = "Retrieve all FURMS allocations at the site", 
 			description = "Retrieve all project allocations at the site as assigned in FURMS", 
