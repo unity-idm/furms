@@ -17,11 +17,11 @@ import java.util.Stack;
 
 import static io.imunity.furms.ui.views.components.FurmsLayout.getPageTitle;
 
-public class BreadCrumbComponent extends Composite<Div> {
+class BreadCrumbComponent extends Composite<Div> {
 	private final Stack<Pair<Class<? extends FurmsViewComponent>, Optional<String>>> bredCrumbs = new Stack<>();
 	private final List<Class<? extends Component>> menuRouts;
 
-	public BreadCrumbComponent(List<Class<? extends Component>> menuRouts){
+	BreadCrumbComponent(List<Class<? extends Component>> menuRouts){
 		this.menuRouts = menuRouts;
 	}
 
@@ -34,8 +34,9 @@ public class BreadCrumbComponent extends Composite<Div> {
 			Pair.of(componentClass, component.getParameter());
 		if(!bredCrumbs.contains(route))
 			bredCrumbs.push(route);
-		else while (!bredCrumbs.peek().equals(route))
-			bredCrumbs.pop();
+		else
+			while (!bredCrumbs.peek().equals(route))
+				bredCrumbs.pop();
 
 		updateView();
 	}

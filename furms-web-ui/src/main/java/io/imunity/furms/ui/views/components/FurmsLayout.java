@@ -5,6 +5,7 @@
 package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -12,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.VaadinService;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,20 +58,24 @@ public class FurmsLayout {
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		tabs.setId("tabs");
 		Component[] components = menuContent.stream()
-			.map(c -> new FurmsTab(getPageTitle(c), c))
+			.map(c -> new TabComponent(getPageTitle(c), c))
 			.toArray(Tab[]::new);
 		tabs.add(components);
 		return tabs;
 	}
 
-	private Optional<FurmsTab> getTabForComponent(Component component) {
+	private Optional<TabComponent> getTabForComponent(Component component) {
 		return menu.getChildren()
-			.map(FurmsTab.class::cast)
+			.map(TabComponent.class::cast)
 			.filter(tab -> tab.componentClass.equals(component.getClass()))
 			.findFirst();
 	}
 
 	static String getPageTitle(Class<? extends Component> componentClass) {
-		return componentClass.getAnnotation(PageTitle.class).value();
+		String key = componentClass.getAnnotation(PageTitle.class).key();
+		return VaadinService.getCurrent()
+			.getInstantiator()
+			.getI18NProvider()
+			.getTranslation(key, UI.getCurrent().getLocale());
 	}
 }

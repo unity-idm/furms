@@ -8,10 +8,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.router.RouterLink;
 
-public class FurmsTab extends Tab {
+public class TabComponent extends Tab {
 	public final Class<? extends Component> componentClass;
 
-	public FurmsTab(String text, Class<? extends Component> componentClass){
+	public TabComponent(String text, Class<? extends Component> componentClass){
 		super(new RouterLink(text, componentClass));
 		this.componentClass = componentClass;
 	}
