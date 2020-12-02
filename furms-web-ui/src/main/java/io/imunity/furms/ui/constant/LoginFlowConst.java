@@ -7,7 +7,7 @@ package io.imunity.furms.ui.constant;
 
 public final class LoginFlowConst {
 	public static final String LOGIN_URL = "/front/public/login";
-	public static final String LOGIN_SUCCESS_URL = "/front/hello";
+	public static final String LOGIN_SUCCESS_URL = "/front/fenix/admin/sites";
 	public static final String LOGOUT_URL = "/logout";
 
 	public static final String AUTH_REQ_BASE_URL = "/oauth2/authorization";
