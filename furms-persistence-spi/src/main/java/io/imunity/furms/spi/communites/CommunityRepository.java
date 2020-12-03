@@ -15,7 +15,7 @@ public interface CommunityRepository {
 
 	Set<Community> findAll();
 
-	Community save(Community site);
+	void save(Community site);
 
 	boolean exists(String id);
 

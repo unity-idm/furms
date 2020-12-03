@@ -7,120 +7,115 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CommunityServiceImpValidatorTest {
+	@Mock
+	private CommunityRepository communityRepository;
 
-    @Mock
-    private CommunityRepository communityRepository;
+	@InjectMocks
+	private CommunityServiceValidator validator;
 
-    @InjectMocks
-    private CommunityServiceValidator validator;
+	@Test
+	void shouldPassCreateForUniqueName() {
+		//given
+		Community community = Community.builder()
+			.userFacingName("name")
+			.build();
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
 
-    @Test
-    void shouldPassCreateForUniqueName() {
-        //given
-        Community community = Community.builder()
-                .userFacingName("name")
-                .build();
+		//when+then
+		assertDoesNotThrow(() -> validator.validateCreate(community));
+	}
 
-        when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
+	@Test
+	void shouldNotPassCreateForNonUniqueName() {
+		//given
+		final Community community = Community.builder()
+			.userFacingName("name")
+			.build();
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateCreate(community));
-    }
+		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
 
-    @Test
-    void shouldNotPassCreateForNonUniqueName() {
-        //given
-        final Community community = Community.builder()
-                .userFacingName("name")
-                .build();
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(community));
+	}
 
-        when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
+	@Test
+	void shouldPassUpdateForUniqueName() {
+		//given
+		final Community community = Community.builder()
+			.id("id")
+			.userFacingName("name")
+			.build();
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(community));
-    }
+		when(communityRepository.exists(community.getId())).thenReturn(true);
+		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
 
-    @Test
-    void shouldPassUpdateForUniqueName() {
-        //given
-        final Community community = Community.builder()
-                .id("id")
-                .userFacingName("name")
-                .build();
+		//when+then
+		assertDoesNotThrow(() -> validator.validateUpdate(community));
+	}
 
-        when(communityRepository.exists(community.getId())).thenReturn(true);
-        when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
+	@Test
+	void shouldNotPassUpdateForNonExistingObject() {
+		//given
+		Community community = Community.builder()
+			.id("id")
+			.userFacingName("name")
+			.build();
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateUpdate(community));
-    }
+		when(communityRepository.exists(community.getId())).thenReturn(false);
 
-    @Test
-    void shouldNotPassUpdateForNonExistingObject() {
-        //given
-        Community community = Community.builder()
-                .id("id")
-                .userFacingName("name")
-                .build();
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
+	}
 
-        when(communityRepository.exists(community.getId())).thenReturn(false);
+	@Test
+	void shouldNotPassUpdateForNonUniqueName() {
+		//given
+		Community community = Community.builder()
+			.id("id")
+			.userFacingName("name")
+			.build();
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
-    }
+		when(communityRepository.exists(community.getId())).thenReturn(true);
+		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
 
-    @Test
-    void shouldNotPassUpdateForNonUniqueName() {
-        //given
-        Community community = Community.builder()
-                .id("id")
-                .userFacingName("name")
-                .build();
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
+	}
 
-        when(communityRepository.exists(community.getId())).thenReturn(true);
-        when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
+	@Test
+	void shouldPassDeleteForExistingId() {
+		//given
+		final String id = "id";
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
-    }
+		when(communityRepository.exists(id)).thenReturn(true);
 
-    @Test
-    void shouldPassDeleteForExistingId() {
-        //given
-        final String id = "id";
+		//when+then
+		assertDoesNotThrow(() -> validator.validateDelete(id));
+	}
 
-        when(communityRepository.exists(id)).thenReturn(true);
+	@Test
+	void shouldNotPassDeleteForNonExistingId() {
+		//given
+		final String id = "id";
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateDelete(id));
-    }
+		when(communityRepository.exists(id)).thenReturn(false);
 
-    @Test
-    void shouldNotPassDeleteForNonExistingId() {
-        //given
-        final String id = "id";
-
-        when(communityRepository.exists(id)).thenReturn(false);
-
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
-    }
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
 
 }

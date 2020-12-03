@@ -7,6 +7,7 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.communites.UnityCommunityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,107 +23,108 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityServiceImpTest {
+	@Mock
+	private CommunityRepository communityRepository;
+	@Mock
+	private UnityCommunityRepository unityCommunityRepository;
+	private CommunityServiceImp service;
 
-    @Mock
-    private CommunityRepository repository;
-    private CommunityServiceValidator validator;
-    private CommunityServiceImp service;
+	@BeforeEach
+	void setUp() {
+		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository);
+		service = new CommunityServiceImp(communityRepository, unityCommunityRepository, validator);
+	}
 
-    @BeforeEach
-    void setUp() {
-        validator = new CommunityServiceValidator(repository);
-        service = new CommunityServiceImp(repository, validator);
-    }
+	@Test
+	void shouldReturnCommunityIfExistsInRepository() {
+		//given
+		String id = "id";
+		when(communityRepository.findById(id)).thenReturn(Optional.of(Community.builder()
+			.id(id)
+			.userFacingName("userFacingName")
+			.build())
+		);
 
-    @Test
-    void shouldReturnCommunityIfExistsInRepository() {
-        //given
-        String id = "id";
-        when(repository.findById(id)).thenReturn(Optional.of(Community.builder()
-                .id(id)
-                .userFacingName("userFacingName")
-                .build()));
+		//when
+		Optional<Community> byId = service.findById(id);
+		Optional<Community> otherId = service.findById("otherId");
 
-        //when
-        Optional<Community> byId = service.findById(id);
-        Optional<Community> otherId = service.findById("otherId");
+		//then
+		assertThat(byId).isPresent();
+		assertThat(byId.get().getId()).isEqualTo(id);
+		assertThat(otherId).isEmpty();
+	}
 
-        //then
-        assertThat(byId).isPresent();
-        assertThat(byId.get().getId()).isEqualTo(id);
-        assertThat(otherId).isEmpty();
-    }
+	@Test
+	void shouldReturnAllCommunitysIfExistsInRepository() {
+		//given
+		when(communityRepository.findAll()).thenReturn(Set.of(
+			Community.builder().id("id1").userFacingName("userFacingName").build(),
+			Community.builder().id("id2").userFacingName("userFacingName").build()));
 
-    @Test
-    void shouldReturnAllCommunitysIfExistsInRepository() {
-        //given
-        when(repository.findAll()).thenReturn(Set.of(
-                Community.builder().id("id1").userFacingName("userFacingName").build(),
-                Community.builder().id("id2").userFacingName("userFacingName").build()));
+		//when
+		final Set<Community> allCommunitys = service.findAll();
 
-        //when
-        final Set<Community> allCommunitys = service.findAll();
+		//then
+		assertThat(allCommunitys).hasSize(2);
+	}
 
-        //then
-        assertThat(allCommunitys).hasSize(2);
-    }
+	@Test
+	void shouldAllowToCreateCommunity() {
+		//given
+		final Community request = Community.builder()
+			.userFacingName("userFacingName")
+			.build();
+		when(communityRepository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(true);
 
-    @Test
-    void shouldAllowToCreateCommunity() {
-        //given
-        final Community request = Community.builder()
-                .userFacingName("userFacingName")
-                .build();
-        when(repository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(true);
+		//when
+		service.create(request);
+	}
 
-        //when
-        service.create(request);
-    }
+	@Test
+	void shouldNotAllowToCreateCommunityDueToNonUniqueuserFacingName() {
+		//given
+		final Community request = Community.builder()
+			.userFacingName("userFacingName")
+			.build();
+		when(communityRepository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(false);
 
-    @Test
-    void shouldNotAllowToCreateCommunityDueToNonUniqueuserFacingName() {
-        //given
-        final Community request = Community.builder()
-                .userFacingName("userFacingName")
-                .build();
-        when(repository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(false);
+		//when
+		assertThrows(IllegalArgumentException.class, () -> service.create(request));
+	}
 
-        //when
-        assertThrows(IllegalArgumentException.class, () -> service.create(request));
-    }
+	@Test
+	void shouldAllowToUpdateCommunity() {
+		//given
+		Community request = Community.builder()
+			.id("id")
+			.userFacingName("userFacingName")
+			.build();
+		when(communityRepository.exists(request.getId())).thenReturn(true);
+		when(communityRepository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(true);
 
-    @Test
-    void shouldAllowToUpdateCommunity() {
-        //given
-        final Community request = Community.builder()
-                .id("id")
-                .userFacingName("userFacingName")
-                .build();
-        when(repository.exists(request.getId())).thenReturn(true);
-        when(repository.isUniqueUserFacingName(request.getUserFacingName())).thenReturn(true);
+		//when
+		service.update(request);
+	}
 
-        //when
-        service.update(request);
-    }
+	@Test
+	void shouldAllowToDeleteCommunity() {
+		//given
+		String id = "id";
+		when(communityRepository.exists(id)).thenReturn(true);
 
-    @Test
-    void shouldAllowToDeleteCommunity() {
-        //given
-        final String id = "id";
-        when(repository.exists(id)).thenReturn(true);
+		//when
+		service.delete(id);
+	}
 
-        //when
-        service.delete(id);
-    }
+	@Test
+	void shouldNotAllowToDeleteCommunityDueToCommunityNotExists() {
+		//given
+		String id = "id";
+		when(communityRepository.exists(id)).thenReturn(false);
 
-    @Test
-    void shouldNotAllowToDeleteCommunityDueToCommunityNotExists() {
-        //given
-        final String id = "id";
-        when(repository.exists(id)).thenReturn(false);
-
-        //when
-        assertThrows(IllegalArgumentException.class, () -> service.delete(id));
-    }
+		//when
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+	}
 
 }
