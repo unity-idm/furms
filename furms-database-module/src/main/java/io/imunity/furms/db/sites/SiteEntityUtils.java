@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+package io.imunity.furms.db.sites;
+
+import java.util.UUID;
+
+class SiteEntityUtils {
+
+	static String generateSiteId() {
+		return UUID.randomUUID().toString();
+	}
+
+}

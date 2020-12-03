@@ -61,6 +61,7 @@
 		<module>furms-core</module>
 		<module>furms-rest-api</module>
 		<module>furms-web-ui</module>
+		<module>furms-database-module</module>
 	</modules>
 
 	<developers>
