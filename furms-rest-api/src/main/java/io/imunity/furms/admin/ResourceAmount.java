@@ -4,12 +4,14 @@
  */
 package io.imunity.furms.admin;
 
-class CreditAmount {
+import java.math.BigDecimal;
+
+class ResourceAmount {
 	
-	final Integer amount;
+	final BigDecimal amount;
 	final String unit;
 
-	CreditAmount(Integer amount, String unit) {
+	ResourceAmount(BigDecimal amount, String unit) {
 		this.amount = amount;
 		this.unit = unit;
 	}

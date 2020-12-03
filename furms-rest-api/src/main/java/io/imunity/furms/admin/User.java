@@ -7,7 +7,7 @@ package io.imunity.furms.admin;
 import java.time.LocalDate;
 
 class User {
-	
+	final String fenixIdentifier;
 	final String title;
 	final String firstname;
 	final String lastname;
@@ -19,9 +19,10 @@ class User {
 	final String placeOfBirth;
 	final String postalAddress;
 	
-	User(String title, String firstname, String lastname, String email,
-			Affiliation affiliation, String nationality, String phone,
-			LocalDate dateOfBirth, String placeOfBirth, String postalAddress) {
+	User(String fenixIdentifier, String title, String firstname, String lastname, String email,
+			Affiliation affiliation, String nationality, String phone, LocalDate dateOfBirth,
+			String placeOfBirth, String postalAddress) {
+		this.fenixIdentifier = fenixIdentifier;
 		this.title = title;
 		this.firstname = firstname;
 		this.lastname = lastname;

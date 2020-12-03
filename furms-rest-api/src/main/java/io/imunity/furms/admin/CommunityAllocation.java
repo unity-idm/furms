@@ -8,9 +8,9 @@ class CommunityAllocation extends CommunityAllocationDefinition {
 	
 	final CommunityAllocationId id;
 
-	CommunityAllocation(CommunityAllocationId id, SiteAllocationId siteAllocationId,
-			String name, CreditAmount credits) {
-		super(siteAllocationId, name, credits);
+	CommunityAllocation(SiteCreditId siteAllocationId, String name, ResourceType resourceType,
+			ResourceAmount credits, CommunityAllocationId id) {
+		super(siteAllocationId, name, resourceType, credits);
 		this.id = id;
 	}
 }

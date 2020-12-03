@@ -125,7 +125,7 @@ public class ProjectsRestController {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
-	@Operation(summary = "Create allocation", description = "Create particular allocation for given project.", 
+	@Operation(summary = "Create allocation", description = "Allocate resources to a project.", 
 			security = {@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
