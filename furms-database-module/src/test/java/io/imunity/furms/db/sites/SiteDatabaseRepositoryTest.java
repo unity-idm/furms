@@ -74,7 +74,7 @@ class SiteDatabaseRepositoryTest {
 				.build());
 		entityRepository.save(SiteEntity.builder()
 				.siteId(generateSiteId())
-				.name("name1")
+				.name("name2")
 				.build());
 
 		//when
@@ -92,10 +92,10 @@ class SiteDatabaseRepositoryTest {
 				.build();
 
 		//when
-		Site newSite = repository.save(request);
+		String newSiteId = repository.create(request);
 
 		//then
-		Optional<Site> byId = repository.findById(newSite.getId());
+		Optional<Site> byId = repository.findById(newSiteId);
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isNotNull();
 		assertThat(byId.get().getName()).isEqualTo("name");
@@ -117,9 +117,9 @@ class SiteDatabaseRepositoryTest {
 				.build();
 
 		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.save(requestWithEmptyName));
-		assertThrows(IllegalArgumentException.class, () -> repository.save(nullRequest));
-		assertThrows(IllegalArgumentException.class, () -> repository.save(nonUniqueNameRequest));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(nonUniqueNameRequest));
 	}
 
 	@Test
@@ -135,7 +135,7 @@ class SiteDatabaseRepositoryTest {
 				.build();
 
 		//when
-		repository.save(requestToUpdate);
+		repository.update(requestToUpdate);
 
 		//then
 		Optional<Site> byId = repository.findById(old.getSiteId());

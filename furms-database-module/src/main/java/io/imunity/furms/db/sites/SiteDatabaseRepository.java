@@ -43,19 +43,29 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Site save(Site site) {
-		if (site == null || isEmpty(site.getName()) || !isUniqueName(site.getName())) {
-			throw new IllegalArgumentException("Incorrect save Site input.");
-		}
-		final SiteEntity entity = repository.findBySiteId(site.getId())
-				.map(siteById -> SiteEntity.builder()
-						.id(siteById.getId())
-						.siteId(siteById.getSiteId()))
-				.orElse(SiteEntity.builder()
-						.siteId(generateSiteId()))
+	public String create(Site site) {
+		validateSiteName(site);
+		SiteEntity saved = repository.save(SiteEntity.builder()
+				.siteId(generateSiteId())
 				.name(site.getName())
-				.build();
-		return repository.save(entity).toSite();
+				.build());
+		return saved.getSiteId();
+	}
+
+	@Override
+	public String update(Site site) {
+		validateSiteId(site);
+		validateSiteName(site);
+
+		return repository.findBySiteId(site.getId())
+				.map(oldEntity -> SiteEntity.builder()
+						.id(oldEntity.getId())
+						.siteId(oldEntity.getSiteId())
+						.name(site.getName())
+						.build())
+				.map(repository::save)
+				.map(SiteEntity::getName)
+				.get();
 	}
 
 	@Override
@@ -77,5 +87,17 @@ class SiteDatabaseRepository implements SiteRepository {
 			throw new IllegalArgumentException("Incorrect delete Site input.");
 		}
 		repository.deleteBySiteId(id);
+	}
+
+	private void validateSiteName(final Site site) {
+		if (site == null || isEmpty(site.getName()) || !isUniqueName(site.getName())) {
+			throw new IllegalArgumentException("Incorrect Site name input.");
+		}
+	}
+
+	private void validateSiteId(final Site site) {
+		if (site == null || isEmpty(site.getId()) || !repository.existsBySiteId(site.getId())) {
+			throw new IllegalArgumentException("Incorrect Site name input.");
+		}
 	}
 }

@@ -10,5 +10,5 @@ import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 @SpringBootApplication
 @EnableJdbcRepositories
-public class TestSpringApp {
+public class TestSpringContextConfig {
 }

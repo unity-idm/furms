@@ -104,7 +104,7 @@ class SiteEntityRepositoryTest {
 				.build());
 		siteEntityRepository.save(SiteEntity.builder()
 				.siteId(generateSiteId())
-				.name("name1")
+				.name("name2")
 				.build());
 
 		//when

@@ -16,7 +16,9 @@ public interface SiteRepository {
 
 	Set<Site> findAll();
 
-	Site save(Site site);
+	String create(Site site);
+
+	String update(Site site);
 
 	boolean exists(String id);
 
