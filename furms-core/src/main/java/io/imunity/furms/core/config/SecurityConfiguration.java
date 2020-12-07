@@ -2,9 +2,9 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config;
 
-import com.vaadin.flow.shared.ApplicationConstants;
+import io.imunity.furms.core.constant.LoginFlowConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -16,14 +16,14 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.stream.Stream;
-
-import static com.vaadin.flow.server.HandlerHelper.RequestType;
-import static io.imunity.furms.ui.constant.LoginFlowConst.*;
+import java.util.List;
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	private static final String REQUEST_TYPE_PARAMETER = "v-r";
+	private static final List<String> REQUESTED_TYPES = List.of("uidl", "heartbeat", "push");
+
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 
@@ -39,7 +39,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
 
 			// Allow query string for login.
-			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LOGIN_URL)).permitAll()
+			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LoginFlowConst.LOGIN_URL)).permitAll()
 
 			// Restrict access to our application.
 			.and().authorizeRequests().anyRequest().authenticated()
@@ -48,10 +48,10 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGIN_URL)
+			.logout().logoutUrl(LoginFlowConst.LOGOUT_URL).logoutSuccessUrl(LoginFlowConst.LOGIN_URL)
 
 			// Configure the login page.
-			.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
+			.and().oauth2Login().loginPage(LoginFlowConst.LOGIN_URL).defaultSuccessUrl(LoginFlowConst.LOGIN_SUCCESS_URL, true).permitAll()
 
 			// Configure rest client template.
 			.and().oauth2Login()
@@ -78,10 +78,8 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private static boolean isFrameworkInternalRequest(HttpServletRequest request) {
-		String parameterValue = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
-		return parameterValue != null &&
-			Stream.of(RequestType.values())
-				.anyMatch(r -> r.getIdentifier().equals(parameterValue));
+		String parameterValue = request.getParameter(REQUEST_TYPE_PARAMETER);
+		return parameterValue != null && REQUESTED_TYPES.contains(parameterValue);
 	}
 
 	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate) {
@@ -91,8 +89,6 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
-		DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
-		defaultOAuth2UserService.setRestOperations(restTemplate);
-		return defaultOAuth2UserService;
+		return new FurmsOAuth2UserService(restTemplate);
 	}
 }

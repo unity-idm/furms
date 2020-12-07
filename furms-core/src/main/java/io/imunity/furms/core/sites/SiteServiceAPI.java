@@ -8,12 +8,11 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
 
-@Service
+//@Service
 class SiteServiceAPI implements SiteService {
 
     private final SiteRepository siteRepository;

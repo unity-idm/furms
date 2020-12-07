@@ -46,6 +46,12 @@
 			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<artifactId>furms-core</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
