@@ -11,8 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
-import static io.imunity.furms.db.sites.SiteEntityUtils.generateSiteId;
+import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -31,7 +32,7 @@ class SiteDatabaseRepository implements SiteRepository {
 		if (isEmpty(id)) {
 			return Optional.empty();
 		}
-		return repository.findBySiteId(id)
+		return repository.findById(fromString(id))
 				.map(SiteEntity::toSite);
 	}
 
@@ -46,10 +47,9 @@ class SiteDatabaseRepository implements SiteRepository {
 	public String create(Site site) {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name(site.getName())
 				.build());
-		return saved.getSiteId();
+		return saved.getId().toString();
 	}
 
 	@Override
@@ -57,14 +57,14 @@ class SiteDatabaseRepository implements SiteRepository {
 		validateSiteId(site);
 		validateSiteName(site);
 
-		return repository.findBySiteId(site.getId())
+		return repository.findById(fromString(site.getId()))
 				.map(oldEntity -> SiteEntity.builder()
 						.id(oldEntity.getId())
-						.siteId(oldEntity.getSiteId())
 						.name(site.getName())
 						.build())
 				.map(repository::save)
-				.map(SiteEntity::getName)
+				.map(SiteEntity::getId)
+				.map(UUID::toString)
 				.get();
 	}
 
@@ -73,7 +73,7 @@ class SiteDatabaseRepository implements SiteRepository {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsBySiteId(id);
+		return repository.existsById(fromString(id));
 	}
 
 	@Override
@@ -86,7 +86,7 @@ class SiteDatabaseRepository implements SiteRepository {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Incorrect delete Site input.");
 		}
-		repository.deleteBySiteId(id);
+		repository.deleteById(fromString(id));
 	}
 
 	private void validateSiteName(final Site site) {
@@ -96,7 +96,7 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	private void validateSiteId(final Site site) {
-		if (site == null || isEmpty(site.getId()) || !repository.existsBySiteId(site.getId())) {
+		if (site == null || isEmpty(site.getId()) || !repository.existsById(fromString(site.getId()))) {
 			throw new IllegalArgumentException("Incorrect Site name input.");
 		}
 	}

@@ -5,5 +5,10 @@ app:
   version: '@project.version@'
 
 spring:
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true

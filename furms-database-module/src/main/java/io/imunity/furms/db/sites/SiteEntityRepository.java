@@ -5,19 +5,11 @@
 
 package io.imunity.furms.db.sites;
 
-import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Optional;
+import java.util.UUID;
 
-interface SiteEntityRepository extends CrudRepository<SiteEntity, Long> {
-
-	Optional<SiteEntity> findBySiteId(String siteId);
-
-	boolean existsBySiteId(String siteId);
+interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 
 	boolean existsByName(String name);
-
-	@Modifying
-	void deleteBySiteId(String siteId);
 }

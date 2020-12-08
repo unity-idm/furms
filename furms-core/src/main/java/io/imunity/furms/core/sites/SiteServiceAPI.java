@@ -39,14 +39,14 @@ class SiteServiceAPI implements SiteService {
 	public void create(Site site) {
 		validator.validateCreate(site);
 
-		siteRepository.save(site);
+		siteRepository.create(site);
 	}
 
 	@Override
 	public void update(Site site) {
 		validator.validateUpdate(site);
 
-		siteRepository.save(site);
+		siteRepository.update(site);
 	}
 
 	@Override

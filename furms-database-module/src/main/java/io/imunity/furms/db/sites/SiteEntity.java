@@ -10,36 +10,30 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Table("SITE")
 class SiteEntity {
 
 	@Id
-	private final Long id;
-
-	private final String siteId;
+	private final UUID id;
 
 	private final String name;
 
-	SiteEntity(Long id, String siteId, String name) {
+	SiteEntity(UUID id, String name) {
 		this.id = id;
-		this.siteId = siteId;
 		this.name = name;
 	}
 
 	public Site toSite() {
 		return Site.builder()
-				.id(siteId)
+				.id(id.toString())
 				.name(name)
 				.build();
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
-	}
-
-	public String getSiteId() {
-		return siteId;
 	}
 
 	public String getName() {
@@ -56,37 +50,29 @@ class SiteEntity {
 		if (o == null || getClass() != o.getClass()) return false;
 		SiteEntity that = (SiteEntity) o;
 		return Objects.equals(id, that.id) &&
-				Objects.equals(siteId, that.siteId) &&
 				Objects.equals(name, that.name);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, name);
+		return Objects.hash(id, name);
 	}
 
 	@Override
 	public String toString() {
 		return "SiteEntity{" +
-				"id=" + id +
-				", siteId='" + siteId + '\'' +
+				"id='" + id + '\'' +
 				", name='" + name + '\'' +
 				'}';
 	}
 
 	public static class SiteEntityBuilder {
 
-		private Long id;
-		private String siteId;
+		private UUID id;
 		private String name;
 
-		public SiteEntity.SiteEntityBuilder id(Long id) {
+		public SiteEntity.SiteEntityBuilder id(UUID id) {
 			this.id = id;
-			return this;
-		}
-
-		public SiteEntity.SiteEntityBuilder siteId(String siteId) {
-			this.siteId = siteId;
 			return this;
 		}
 
@@ -96,8 +82,7 @@ class SiteEntity {
 		}
 
 		public SiteEntity build() {
-			return new SiteEntity(id, siteId, name);
+			return new SiteEntity(id, name);
 		}
-
 	}
 }

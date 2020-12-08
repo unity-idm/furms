@@ -4,7 +4,6 @@
  */
 
 CREATE TABLE site (
-    id          BIGSERIAL PRIMARY KEY,
-    site_id     VARCHAR(255) UNIQUE NOT NULL,
-    name        VARCHAR(255) UNIQUE NOT NULL
+    id   UUID PRIMARY KEY    NOT NULL,
+    name VARCHAR(255) UNIQUE NOT NULL
 );

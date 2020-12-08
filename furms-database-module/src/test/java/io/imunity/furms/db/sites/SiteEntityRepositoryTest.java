@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
-import static io.imunity.furms.db.sites.SiteEntityUtils.generateSiteId;
+import static io.imunity.furms.db.sites.SiteEntityUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -30,7 +30,6 @@ class SiteEntityRepositoryTest {
 	void shouldCreateSiteEntity() {
 		//given
 		SiteEntity entityToSave = SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build();
 
@@ -46,22 +45,19 @@ class SiteEntityRepositoryTest {
 	void shouldUpdateSiteEntity() {
 		//given
 		SiteEntity old = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 		SiteEntity toUpdate = SiteEntity.builder()
 				.id(old.getId())
-				.siteId(old.getSiteId())
 				.name("new_name")
 				.build();
 
 		//when
-		SiteEntity update = siteEntityRepository.save(toUpdate);
+		siteEntityRepository.save(toUpdate);
 
 		//then
 		Optional<SiteEntity> byId = siteEntityRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getSiteId()).isEqualTo(old.getSiteId());
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 	}
 
@@ -69,7 +65,6 @@ class SiteEntityRepositoryTest {
 	void shouldFindSiteById() {
 		//given
 		SiteEntity toFind = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 
@@ -84,12 +79,11 @@ class SiteEntityRepositoryTest {
 	void shouldFindSiteBySiteId() {
 		//given
 		SiteEntity toFind = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 
 		//when
-		Optional<SiteEntity> bySiteId = siteEntityRepository.findBySiteId(toFind.getSiteId());
+		Optional<SiteEntity> bySiteId = siteEntityRepository.findById(toFind.getId());
 
 		//then
 		assertThat(bySiteId).isPresent();
@@ -99,11 +93,9 @@ class SiteEntityRepositoryTest {
 	void shouldFindAllAvailableSites() {
 		//given
 		siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 		siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name2")
 				.build());
 
@@ -118,20 +110,18 @@ class SiteEntityRepositoryTest {
 	void shouldCheckIfExistsBySiteId() {
 		//given
 		SiteEntity site = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 
 		//when + then
-		assertThat(siteEntityRepository.existsBySiteId(site.getSiteId())).isTrue();
-		assertThat(siteEntityRepository.existsBySiteId(generateSiteId())).isFalse();
+		assertThat(siteEntityRepository.existsById(site.getId())).isTrue();
+		assertThat(siteEntityRepository.existsById(generateId())).isFalse();
 	}
 
 	@Test
 	void shouldCheckIfExistsByName() {
 		//given
 		SiteEntity site = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 
@@ -148,7 +138,6 @@ class SiteEntityRepositoryTest {
 	void shouldDeleteEntity() {
 		//given
 		SiteEntity entityToRemove = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 
@@ -163,12 +152,11 @@ class SiteEntityRepositoryTest {
 	void shouldDeleteEntityBySiteId() {
 		//given
 		SiteEntity entityToRemove = siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 
 		//when
-		siteEntityRepository.deleteBySiteId(entityToRemove.getSiteId());
+		siteEntityRepository.deleteById(entityToRemove.getId());
 
 		//then
 		assertThat(siteEntityRepository.findAll()).hasSize(0);
@@ -178,11 +166,9 @@ class SiteEntityRepositoryTest {
 	void shouldDeleteAllEntities() {
 		//given
 		siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 		siteEntityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name2")
 				.build());
 

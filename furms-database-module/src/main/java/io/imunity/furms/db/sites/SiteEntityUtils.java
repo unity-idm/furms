@@ -9,8 +9,8 @@ import java.util.UUID;
 
 class SiteEntityUtils {
 
-	static String generateSiteId() {
-		return UUID.randomUUID().toString();
+	static UUID generateId() {
+		return UUID.randomUUID();
 	}
 
 }

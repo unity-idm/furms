@@ -13,8 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
-import static io.imunity.furms.db.sites.SiteEntityUtils.generateSiteId;
+import static io.imunity.furms.db.sites.SiteEntityUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -35,31 +36,28 @@ class SiteDatabaseRepositoryTest {
 	@Test
 	void shouldFindById() {
 		//given
-		String id = generateSiteId();
-		entityRepository.save(SiteEntity.builder()
-				.siteId(id)
+		SiteEntity entity = entityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
 
 		//when
-		Optional<Site> byId = repository.findById(id);
+		Optional<Site> byId = repository.findById(entity.getId().toString());
 
 		//then
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getId()).isEqualTo(id);
+		assertThat(byId.get().getId()).isEqualTo(entity.getId().toString());
 	}
 
 	@Test
 	void shouldNotFindByIdIfNotExists() {
 		//given
-		String wrong_id = "wrong_id";
+		UUID wrongId = generateId();
 		entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("random_site")
 				.build());
 
 		//when
-		Optional<Site> byId = repository.findById(wrong_id);
+		Optional<Site> byId = repository.findById(wrongId.toString());
 
 		//then
 		assertThat(byId).isEmpty();
@@ -69,11 +67,9 @@ class SiteDatabaseRepositoryTest {
 	void shouldFindAllSites() {
 		//given
 		entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name1")
 				.build());
 		entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name2")
 				.build());
 
@@ -109,7 +105,6 @@ class SiteDatabaseRepositoryTest {
 				.build();
 		Site nullRequest = null;
 		entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("non_unique_name")
 				.build());
 		Site nonUniqueNameRequest = Site.builder()
@@ -126,11 +121,10 @@ class SiteDatabaseRepositoryTest {
 	void shouldUpdateSite() {
 		//given
 		SiteEntity old = entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 		Site requestToUpdate = Site.builder()
-				.id(old.getSiteId())
+				.id(old.getId().toString())
 				.name("new_name")
 				.build();
 
@@ -138,7 +132,7 @@ class SiteDatabaseRepositoryTest {
 		repository.update(requestToUpdate);
 
 		//then
-		Optional<Site> byId = repository.findById(old.getSiteId());
+		Optional<Site> byId = repository.findById(old.getId().toString());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 	}
@@ -146,20 +140,18 @@ class SiteDatabaseRepositoryTest {
 	@Test
 	void shouldExistsById() {
 		//given
-		String existedId = generateSiteId();
-		entityRepository.save(SiteEntity.builder()
-				.siteId(existedId)
+		SiteEntity entity = entityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
 
 		//when + then
-		assertThat(repository.exists(existedId)).isTrue();
+		assertThat(repository.exists(entity.getId().toString())).isTrue();
 	}
 
 	@Test
 	void shouldNotExistsDueToEmptyOrWrongId() {
 		//given
-		String nonExistedId = generateSiteId();
+		String nonExistedId = generateId().toString();
 
 		//when + then
 		assertThat(repository.exists(nonExistedId)).isFalse();
@@ -171,7 +163,6 @@ class SiteDatabaseRepositoryTest {
 	void shouldReturnTrueForUniqueName() {
 		//given
 		entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 		String uniqueName = "unique_name";
@@ -184,7 +175,6 @@ class SiteDatabaseRepositoryTest {
 	void shouldReturnFalseForNonUniqueName() {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
-				.siteId(generateSiteId())
 				.name("name")
 				.build());
 
