@@ -3,9 +3,9 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config;
+package io.imunity.furms.core.config.security;
 
-import io.imunity.furms.core.constant.LoginFlowConst;
+import io.imunity.furms.domain.constant.LoginFlowConst;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;

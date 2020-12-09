@@ -3,25 +3,31 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config;
+package io.imunity.furms.core.config.security.method;
 
+import io.imunity.furms.core.config.security.user.FurmsOAuth2User;
+import io.imunity.furms.core.config.security.user.Role;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
-public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
+import java.util.List;
 
-	public CustomMethodSecurityExpressionRoot(Authentication authentication) {
+import static java.util.Collections.emptyList;
+
+class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
+	implements MethodSecurityExpressionOperations {
+
+	FurmsMethodSecurityExpressionRoot(Authentication authentication) {
 		super(authentication);
 	}
 
-	public boolean isMember() {
-		authentication.getAuthorities();
+	public boolean hasCapability(String capability) {
 		FurmsOAuth2User principal = (FurmsOAuth2User)authentication.getPrincipal();
-
-//		User user = ((MyUserPrincipal) this.getPrincipal()).getUser();
-//		return user.getOrganization().getId().longValue() == OrganizationId.longValue();
-		return true;
+		List<Role> roles = principal.roles.getOrDefault(principal.currentGroup, emptyList());
+		return roles.stream()
+			.flatMap(role -> role.getCapabilities().stream())
+			.anyMatch(c -> c.equals(capability));
 	}
 
 	@Override

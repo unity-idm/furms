@@ -7,10 +7,11 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.springframework.stereotype.Component;
 
 import static org.springframework.util.Assert.notNull;
 
-//@Component
+@Component
 class SiteServiceAPIValidator {
 
     private final SiteRepository siteRepository;

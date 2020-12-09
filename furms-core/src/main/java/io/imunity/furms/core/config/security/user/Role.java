@@ -3,11 +3,17 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config;
+package io.imunity.furms.core.config.security.user;
 
 import java.util.List;
 
-public interface Role {;
+public interface Role {
+	String FURMS_SITE_ROLE = "furmsSiteRole";
+	String FURMS_FENIX_ROLE = "furmsFenixRole";
+	String FURMS_COMMUNITY_ROLE = "furmsCommunityRole";
+	String FURMS_PROJECT_ROLE = "furmsProjectRole";
+	List<String> ROLES = List.of(FURMS_SITE_ROLE, FURMS_FENIX_ROLE, FURMS_COMMUNITY_ROLE, FURMS_PROJECT_ROLE);
+
 	List<String> getCapabilities();
 
 	enum FENIX_ROLE implements Role{
@@ -89,13 +95,13 @@ public interface Role {;
 
 	static Role translateRole(String attributeType, String value){
 		switch(attributeType) {
-			case "furmsSiteRole":
+			case FURMS_SITE_ROLE:
 				return SITE_ROLE.valueOf(value);
-			case "furmsFenixRole":
+			case FURMS_FENIX_ROLE:
 				return FENIX_ROLE.valueOf(value);
-			case "furmsCommunityRole":
+			case FURMS_COMMUNITY_ROLE:
 				return COMMUNITY_ROLE.valueOf(value);
-			case "furmsProjectRole":
+			case FURMS_PROJECT_ROLE:
 				return PROJECT_ROLE.valueOf(value);
 			default: throw new UnsupportedOperationException();
 		}

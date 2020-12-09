@@ -79,10 +79,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-model-api</artifactId>
 		</dependency>

@@ -25,3 +25,31 @@ furms:
          clientSecret: oauth-pass1
    url: https://localhost:${server.port}
    language: en
+
+spring:
+   security:
+      oauth2:
+         client:
+            provider:
+               unity: unity
+               unity.authorization-uri: ${furms.unity.url}/oauth2-as/oauth2-authz
+               unity.token-uri: ${furms.unity.url}/oauth2/token
+               unity.user-info-uri: ${furms.unity.url}/oauth2/userinfo
+               unity.user-name-attribute: name
+            registration:
+               unity:
+                  authorization-grant-type: authorization_code
+                  client-authentication-method: basic
+                  clientId: ${furms.unity.oAuth.clientId}
+                  clientSecret: ${furms.unity.oAuth.clientSecret}
+                  redirect-uri: ${furms.url}/login/oauth2/code/unity
+                  scope: openid+profile
+unity:
+   client:
+      ssl:
+         trust-store: ${furms.unity.ssl.trust-store}
+         trust-store-password: ${furms.unity.ssl.trust-store-password}
+
+vaadin:
+   compatibilityMode: false
+   urlMapping: /front/*

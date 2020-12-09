@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config;
+package io.imunity.furms.core.config.security.method;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -12,12 +12,9 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
-		CustomMethodSecurityExpressionHandler expressionHandler =
-			new CustomMethodSecurityExpressionHandler();
-		//expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
-		return expressionHandler;
+		return new FurmsMethodSecurityExpressionHandler();
 	}
 }

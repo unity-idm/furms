@@ -14,7 +14,7 @@ import com.vaadin.flow.router.*;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.ui.constant.LoginFlowConst.*;
+import static io.imunity.furms.domain.constant.LoginFlowConst.*;
 
 @Route("public/login")
 @PageTitle("Login")

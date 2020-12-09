@@ -2,9 +2,10 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.core.config;
+package io.imunity.furms.core.config.security;
 
-import io.imunity.furms.core.constant.LoginFlowConst;
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.domain.constant.LoginFlowConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;

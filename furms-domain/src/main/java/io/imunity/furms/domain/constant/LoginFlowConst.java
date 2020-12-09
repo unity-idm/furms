@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.constant;
+package io.imunity.furms.domain.constant;
 
 public final class LoginFlowConst {
 	public static final String LOGIN_URL = "/front/public/login";
