@@ -1,6 +1,6 @@
 {
 	"ver": "2",
-	"name": "localOAuthProfile",
+	"name": "oauth",
 	"description": "For translation of localOAuth authn (loopback)",
 	"rules": [
 		{
@@ -17,21 +17,6 @@
 				]
 			}
 		},
-		{
-			"condition": {
-				"conditionValue": "attr contains 'username'"
-			}, 
-			"action": {
-				"name": "mapIdentity",
-				"parameters": [
-					"userName",
-					"attr['username']",
-					"sys:all",
-					"MATCH"
-				]
-			}
-		},
-			
 		{
 			"condition": {
 				"conditionValue": "true"
