@@ -6,6 +6,7 @@ package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -43,8 +44,17 @@ public class FurmsLayout {
 		return layout;
 	}
 
-	public Component createBredCrumbNavbar(){
-		return new HorizontalLayout(breadCrumbComponent);
+	public Component createNavbar(){
+		breadCrumbComponent.getContent().setSizeFull();
+		Anchor logout = new Anchor("/logout", getTranslation("view.main-page.logout"));
+		HorizontalLayout logoutLayout = new HorizontalLayout();
+		logoutLayout.setAlignItems(FlexComponent.Alignment.END);
+		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		logoutLayout.setSizeFull();
+		logoutLayout.add(logout);
+		HorizontalLayout navbarLayout = new HorizontalLayout(breadCrumbComponent, logoutLayout);
+		navbarLayout.setSizeFull();
+		return navbarLayout;
 	}
 
 	public void afterNavigation(Component content){
@@ -73,6 +83,10 @@ public class FurmsLayout {
 
 	static String getPageTitle(Class<? extends Component> componentClass) {
 		String key = componentClass.getAnnotation(PageTitle.class).key();
+		return getTranslation(key);
+	}
+
+	private static String getTranslation(String key) {
 		return VaadinService.getCurrent()
 			.getInstantiator()
 			.getI18NProvider()
