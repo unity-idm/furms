@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
-import static io.imunity.furms.db.sites.SiteEntityUtils.generateId;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest

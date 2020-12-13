@@ -5,18 +5,15 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.sites.Site;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Table("SITE")
-class SiteEntity {
-
-	@Id
-	private final UUID id;
+class SiteEntity extends UUIDIdentifiable {
 
 	private final String name;
 
@@ -30,10 +27,6 @@ class SiteEntity {
 				.id(id.toString())
 				.name(name)
 				.build();
-	}
-
-	public UUID getId() {
-		return id;
 	}
 
 	public String getName() {

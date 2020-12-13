@@ -3,13 +3,13 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.db.sites;
+package io.imunity.furms.db.id.uuid;
 
 import java.util.UUID;
 
-class SiteEntityUtils {
+public class UUIDIdUtils {
 
-	static UUID generateId() {
+	public static UUID generateId() {
 		return UUID.randomUUID();
 	}
 
