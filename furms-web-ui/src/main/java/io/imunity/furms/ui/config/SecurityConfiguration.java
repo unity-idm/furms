@@ -39,7 +39,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
 
 			// Allow query string for login.
-			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(LOGIN_URL)).permitAll()
+			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
 
 			// Restrict access to our application.
 			.and().authorizeRequests().anyRequest().authenticated()
@@ -48,10 +48,15 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGIN_URL)
+			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+
+			// Configure redirect entrypoint
+			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))
 
 			// Configure the login page.
-			.and().oauth2Login().loginPage(LOGIN_URL).defaultSuccessUrl(LOGIN_SUCCESS_URL, true).permitAll()
+			.and().oauth2Login().loginPage(LOGIN_URL)
+				.defaultSuccessUrl(LOGIN_SUCCESS_URL, true)
+				.failureUrl(LOGIN_ERROR_URL).permitAll()
 
 			// Configure rest client template.
 			.and().oauth2Login()
