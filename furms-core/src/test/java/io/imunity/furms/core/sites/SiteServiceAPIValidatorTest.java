@@ -9,11 +9,9 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,107 +20,107 @@ import static org.mockito.Mockito.when;
 
 class SiteServiceAPIValidatorTest {
 
-    @Mock
-    private SiteRepository siteRepository;
+	@Mock
+	private SiteRepository siteRepository;
 
-    @InjectMocks
-    private SiteServiceAPIValidator validator;
+	@InjectMocks
+	private SiteServiceAPIValidator validator;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.initMocks(this);
+	}
 
-    @Test
-    void shouldPassCreateForUniqueName() {
-        //given
-        final Site site = Site.builder()
-                .name("name")
-                .build();
+	@Test
+	void shouldPassCreateForUniqueName() {
+		//given
+		final Site site = Site.builder()
+				.name("name")
+				.build();
 
-        when(siteRepository.isUniqueName(any())).thenReturn(true);
+		when(siteRepository.isUniqueName(any())).thenReturn(true);
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateCreate(site));
-    }
+		//when+then
+		assertDoesNotThrow(() -> validator.validateCreate(site));
+	}
 
-    @Test
-    void shouldNotPassCreateForNonUniqueName() {
-        //given
-        final Site site = Site.builder()
-                .name("name")
-                .build();
+	@Test
+	void shouldNotPassCreateForNonUniqueName() {
+		//given
+		final Site site = Site.builder()
+				.name("name")
+				.build();
 
-        when(siteRepository.isUniqueName(any())).thenReturn(false);
+		when(siteRepository.isUniqueName(any())).thenReturn(false);
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(site));
-    }
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(site));
+	}
 
-    @Test
-    void shouldPassUpdateForUniqueName() {
-        //given
-        final Site site = Site.builder()
-                .id("id")
-                .name("name")
-                .build();
+	@Test
+	void shouldPassUpdateForUniqueName() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
 
-        when(siteRepository.exists(site.getId())).thenReturn(true);
-        when(siteRepository.isUniqueName(any())).thenReturn(true);
+		when(siteRepository.exists(site.getId())).thenReturn(true);
+		when(siteRepository.isUniqueName(any())).thenReturn(true);
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateUpdate(site));
-    }
+		//when+then
+		assertDoesNotThrow(() -> validator.validateUpdate(site));
+	}
 
-    @Test
-    void shouldNotPassUpdateForNonExistingObject() {
-        //given
-        final Site site = Site.builder()
-                .id("id")
-                .name("name")
-                .build();
+	@Test
+	void shouldNotPassUpdateForNonExistingObject() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
 
-        when(siteRepository.exists(site.getId())).thenReturn(false);
+		when(siteRepository.exists(site.getId())).thenReturn(false);
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
-    }
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
+	}
 
-    @Test
-    void shouldNotPassUpdateForNonUniqueName() {
-        //given
-        final Site site = Site.builder()
-                .id("id")
-                .name("name")
-                .build();
+	@Test
+	void shouldNotPassUpdateForNonUniqueName() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
 
-        when(siteRepository.exists(site.getId())).thenReturn(true);
-        when(siteRepository.isUniqueName(any())).thenReturn(false);
+		when(siteRepository.exists(site.getId())).thenReturn(true);
+		when(siteRepository.isUniqueName(any())).thenReturn(false);
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
-    }
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
+	}
 
-    @Test
-    void shouldPassDeleteForExistingId() {
-        //given
-        final String id = "id";
+	@Test
+	void shouldPassDeleteForExistingId() {
+		//given
+		final String id = "id";
 
-        when(siteRepository.exists(id)).thenReturn(true);
+		when(siteRepository.exists(id)).thenReturn(true);
 
-        //when+then
-        assertDoesNotThrow(() -> validator.validateDelete(id));
-    }
+		//when+then
+		assertDoesNotThrow(() -> validator.validateDelete(id));
+	}
 
-    @Test
-    void shouldNotPassDeleteForNonExistingId() {
-        //given
-        final String id = "id";
+	@Test
+	void shouldNotPassDeleteForNonExistingId() {
+		//given
+		final String id = "id";
 
-        when(siteRepository.exists(id)).thenReturn(false);
+		when(siteRepository.exists(id)).thenReturn(false);
 
-        //when+then
-        assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
-    }
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
 
 }
