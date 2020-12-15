@@ -1,7 +1,7 @@
 {
 	"ver": "2",
 	"name": "oauth",
-	"description": "For translation of localOAuth authn (loopback)",
+	"description": "For translation of CentralIdP",
 	"rules": [
 		{
 			"condition": {
@@ -30,6 +30,34 @@
 					"CREATE_OR_UPDATE"
 				]
 			}			
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'given_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"firstname",
+					"/",
+					"attr['given_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'family_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"surname",
+					"/",
+					"attr['family_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
 		}
 	]
 }
