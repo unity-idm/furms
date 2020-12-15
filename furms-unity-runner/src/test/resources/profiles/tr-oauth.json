@@ -13,20 +13,20 @@
 					"identifier",
 					"attr['sub']",
 					"sys:all",
-					"MATCH"
+					"CREATE_OR_MATCH"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'name'"
 			}, 
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"name",
 					"/",
-					"attr['cn']",
+					"attr['name']",
 					"CREATE_OR_UPDATE"
 				]
 			}			
