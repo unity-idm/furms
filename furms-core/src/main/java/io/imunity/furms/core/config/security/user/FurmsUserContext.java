@@ -11,15 +11,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.List;
 import java.util.Map;
 
-public class FurmsOAuth2User extends DefaultOAuth2User {
-	public final Map<String, List<Attribute>> attributes;
-	public final Map<String, List<Role>> roles;
-	public String currentGroup;
+public class FurmsUserContext extends DefaultOAuth2User {
+	public final Map<FurmsRole, List<ResourceId>> roles;
+	public ViewContext viewContext;
 
-	public FurmsOAuth2User(OAuth2User defaultOAuth2User, String key, Map<String, List<Attribute>> attributes,
-	                       Map<String, List<Role>> roles) {
+	public FurmsUserContext(OAuth2User defaultOAuth2User, String key, Map<FurmsRole, List<ResourceId>> roles) {
 		super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), key);
-		this.attributes = attributes;
 		this.roles = roles;
 	}
 }

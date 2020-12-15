@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.core.config.security.user.Role.ROLES;
 import static io.imunity.furms.core.config.security.user.Role.translateRole;
+import static io.imunity.furms.core.config.security.user.UnityGroupParser.getResourceId;
 import static java.util.stream.Collectors.*;
 
 public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
@@ -43,26 +43,27 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 			.getUserNameAttributeName();
 		String sub = oAuth2User.getAttribute("sub");
 		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
-		Map<String, List<Role>> roles = loadUserRoles(attributes);
-		return new FurmsOAuth2User(oAuth2User, key, attributes, roles);
+		Map<FurmsRole, List<ResourceId>> roles = loadUserRoles(attributes);
+		return new FurmsUserContext(oAuth2User, key, roles);
 	}
 
-	private Map<String, List<Role>> loadUserRoles(Map<String, List<Attribute>> attributes) {
+	private Map<FurmsRole, List<ResourceId>> loadUserRoles(Map<String, List<Attribute>> attributes) {
 		return attributes.values().stream()
 			.flatMap(Collection::stream)
-			.filter(x -> ROLES.contains(x.name))
+			.filter(x -> x.groupPath.contains("users"))
 			.collect(
 				groupingBy(
-					x -> x.groupPath,
-					mapping(x -> translateRole(x.name, x.values.iterator().next()), toList()))
+					attribute -> translateRole(attribute.name, attribute.values.iterator().next()),
+					mapping(attribute -> getResourceId(attribute.groupPath), toList())
+				)
 			);
 	}
 
 	//TODO all code below should be move to coming unity module
 	//TODO url and user data credential should be not hardcoded
-	private Map<String, List<Attribute>> loadUserAttributes(String userId) {
+	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
 		RequestEntity<Void> request = RequestEntity
-			.get(getUrl(userId))
+			.get(getUrl(persistentId))
 			.accept(MediaType.APPLICATION_JSON)
 			.headers(createHeaders("a", "a"))
 			.build();

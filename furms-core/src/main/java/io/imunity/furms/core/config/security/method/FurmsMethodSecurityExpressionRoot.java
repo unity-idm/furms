@@ -5,15 +5,15 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2User;
-import io.imunity.furms.core.config.security.user.Role;
+import io.imunity.furms.core.config.security.user.FurmsRole;
+import io.imunity.furms.core.config.security.user.FurmsUserContext;
+import io.imunity.furms.core.config.security.user.ResourceId;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
-
-import static java.util.Collections.emptyList;
+import java.util.Map;
 
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
@@ -23,11 +23,21 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	}
 
 	public boolean hasCapability(String capability) {
-		FurmsOAuth2User principal = (FurmsOAuth2User)authentication.getPrincipal();
-		List<Role> roles = principal.roles.getOrDefault(principal.currentGroup, emptyList());
-		return roles.stream()
-			.flatMap(role -> role.getCapabilities().stream())
-			.anyMatch(c -> c.equals(capability));
+		FurmsUserContext principal = (FurmsUserContext)authentication.getPrincipal();
+		ResourceId resourceId = new ResourceId(null, null);
+
+		Map<FurmsRole, List<ResourceId>> roles = principal.roles;
+
+		return true;
+//		Map<ResourceId, Set<Capability>> roles = principal.roles;
+//
+//
+//		return roles.keySet().stream()
+//			.filter(r -> r.getCapabilities().contains(capability))
+//			.anyMatch(r -> roles.get(r).contains(resourceId));
+//			roles.stream()
+//			.flatMap(role -> role.getCapabilities().stream())
+//			.anyMatch(c -> c.equals(capability));
 	}
 
 	@Override
