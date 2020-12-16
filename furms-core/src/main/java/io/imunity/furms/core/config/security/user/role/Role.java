@@ -54,7 +54,7 @@ public enum  Role {
 		}
 	}
 
-	enum SITE_ROLE implements FurmsRole {
+	public enum SITE_ROLE implements FurmsRole {
 		ADMIN(List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_ADMINS_MANAGEMENT
 		));
@@ -72,7 +72,7 @@ public enum  Role {
 		}
 	}
 
-	enum COMMUNITY_ROLE implements FurmsRole {
+	public enum COMMUNITY_ROLE implements FurmsRole {
 		ADMIN(List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE,
 			COMMUNITY_ADMINS_MANAGEMENT
@@ -91,7 +91,7 @@ public enum  Role {
 		}
 	}
 
-	enum PROJECT_ROLE implements FurmsRole {
+	public enum PROJECT_ROLE implements FurmsRole {
 		ADMIN(List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_WRITE, PROJECT_ADMINS_MANAGEMENT,
 			PROJECT_MEMBER_MANAGEMENT
