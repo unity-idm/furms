@@ -3,13 +3,16 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user;
+package io.imunity.furms.core.config.security.user.role;
+
+import io.imunity.furms.core.config.security.user.capability.Capability;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.core.config.security.user.Capability.*;
+import static io.imunity.furms.core.config.security.user.capability.Capability.*;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
 public enum  Role {
@@ -21,25 +24,33 @@ public enum  Role {
 		PROJECT_ROLE.roleName, PROJECT_ROLE.values()
 	);
 
-	enum FENIX_ROLE implements FurmsRole {
-		ADMIN(List.of(
-			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
-			FENIX_ADMINS_MANAGEMENT
-		)),
-		SUPPORT(List.of(
-
-		));
+	public enum FENIX_ROLE implements FurmsRole, SpecialRole {
+		ADMIN(
+			List.of(
+				AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
+				FENIX_ADMINS_MANAGEMENT
+			),
+			List.of(SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE)
+		),
+		SUPPORT(emptyList(), emptyList());
 
 		private final List<Capability> capabilities;
+		private final List<Capability> additionalCapabilities;
 		private final static String roleName = "furmsFenixRole";
 
-		FENIX_ROLE(List<Capability> capabilities){
+		FENIX_ROLE(List<Capability> capabilities, List<Capability> additionalCapabilities){
 			this.capabilities = capabilities;
+			this.additionalCapabilities = additionalCapabilities;
 		}
 
 		@Override
 		public List<Capability> getCapabilities() {
 			return capabilities;
+		}
+
+		@Override
+		public List<Capability> getAdditionalCapabilities() {
+			return additionalCapabilities;
 		}
 	}
 
@@ -102,7 +113,7 @@ public enum  Role {
 		}
 	}
 
-	static FurmsRole translateRole(String attributeType, String value){
+	public static FurmsRole translateRole(String attributeType, String value){
 		return ofNullable(roleTranslator.get(attributeType)).stream()
 			.flatMap(Arrays::stream)
 			.filter(r -> r.name().equals(value))

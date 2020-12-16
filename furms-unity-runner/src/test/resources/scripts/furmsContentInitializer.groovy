@@ -35,6 +35,7 @@ try
 	initBaseGroups()
 	initRoleAttributeType()
 	initOAuthClient()
+	initTestGroups()
 	initTestUsers()
 
 } catch (Exception e)
@@ -82,6 +83,20 @@ void initAuthAttrTypes() throws EngineException
 	log.info("Provisioned default FURMS roles attributes types")
 }
 
+void initTestGroups()
+{
+	groupsManagement.addGroup(new Group("/fenix/sites/cc18c39e-3f87-11eb-b378-0242ac130002"))
+	groupsManagement.addGroup(new Group("/fenix/sites/cc18c39e-3f87-11eb-b378-0242ac130002/users"))
+	groupsManagement.addGroup(new Group("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002"))
+	groupsManagement.addGroup(new Group("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/users"))
+	groupsManagement.addGroup(new Group("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/projects"))
+	groupsManagement.addGroup(new Group("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/projects/" +
+			"fce3b6be-3f87-11eb-b378-0242ac130002"))
+	groupsManagement.addGroup(new Group("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/" +
+			"projects/fce3b6be-3f87-11eb-b378-0242ac130002/users"))
+	log.info("Provisioned test Furms groups")
+}
+
 void initTestUsers()
 {
 	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "furms-site-demo-user")
@@ -90,18 +105,26 @@ void initTestUsers()
 	PasswordToken pToken = new PasswordToken("a")
 	entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
 
-	groupsManagement.addMemberFromParent("/fenix", entity)
-	groupsManagement.addMemberFromParent("/fenix/sites", entity)
-	groupsManagement.addMemberFromParent("/fenix/communities", entity)
 	groupsManagement.addMemberFromParent("/fenix/users", entity)
+	groupsManagement.addMemberFromParent("/fenix/sites/sites/cc18c39e-3f87-11eb-b378-0242ac130002/users", entity)
+	groupsManagement.addMemberFromParent( "/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/users", entity)
+	groupsManagement.addMemberFromParent("/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/projects/" +
+			"fce3b6be-3f87-11eb-b378-0242ac130002/users", entity)
 
-	Attribute role = EnumAttribute.of("furmsSiteRole", "/fenix/sites", "ADMIN")
+	Attribute role = EnumAttribute.of("furmsFenixRole", "/fenix/users", "ADMIN")
 	attributesManagement.createAttribute(entity, role)
 
-	Attribute role2 = EnumAttribute.of("furmsCommunityRole", "/fenix/communities", "ADMIN")
+	Attribute role1 = EnumAttribute.of("furmsSiteRole", "/fenix/sites/sites/" +
+			"cc18c39e-3f87-11eb-b378-0242ac130002/users", "ADMIN")
+	attributesManagement.createAttribute(entity, role1)
+
+	Attribute role2 = EnumAttribute.of("furmsCommunityRole", "/fenix/communities/" +
+			"d9876b3e-3f87-11eb-b378-0242ac130002/users", "ADMIN")
 	attributesManagement.createAttribute(entity, role2)
 
-	Attribute role3 = EnumAttribute.of("furmsProjectRole", "/fenix/users", "MEMBER")
+	Attribute role3 = EnumAttribute.of("furmsProjectRole",
+			"/fenix/communities/d9876b3e-3f87-11eb-b378-0242ac130002/" +
+					"projects/fce3b6be-3f87-11eb-b378-0242ac130002/users", "MEMBER")
 	attributesManagement.createAttribute(entity, role3)
 
 	log.info("Provisioned test FURMS users")

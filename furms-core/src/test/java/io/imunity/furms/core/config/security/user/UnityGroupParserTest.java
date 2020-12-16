@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.config.security.user;
 
+import io.imunity.furms.core.config.security.user.resource.ResourceId;
+import io.imunity.furms.core.config.security.user.resource.ResourceType;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -42,7 +44,7 @@ class UnityGroupParserTest {
 	public void shouldReturnUuidAndResourceTypeAll(){
 		ResourceId resourceId = UnityGroupParser.getResourceId("/fenix/users");
 		assertNull(resourceId.id);
-		assertEquals(ResourceType.ALL, resourceId.type);
+		assertEquals(ResourceType.APP_LEVEL, resourceId.type);
 	}
 
 	@Test

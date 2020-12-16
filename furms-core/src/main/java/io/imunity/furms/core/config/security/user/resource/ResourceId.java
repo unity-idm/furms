@@ -3,9 +3,10 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user;
+package io.imunity.furms.core.config.security.user.resource;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ResourceId {
@@ -14,6 +15,13 @@ public class ResourceId {
 
 	public ResourceId(UUID id, ResourceType type) {
 		this.id = id;
+		this.type = type;
+	}
+
+	public ResourceId(String id, ResourceType type) {
+		this.id = Optional.ofNullable(id)
+			.map(UUID::fromString)
+			.orElse(null);
 		this.type = type;
 	}
 

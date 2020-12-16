@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.config.security.user;
 
+import io.imunity.furms.core.config.security.user.resource.ResourceId;
+import io.imunity.furms.core.config.security.user.resource.ResourceType;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.Map;
@@ -12,7 +14,7 @@ import java.util.UUID;
 
 public class UnityGroupParser {
 	private final static Map<String, ResourceType> resourcesPatterns = Map.of(
-		"/fenix/users", ResourceType.ALL,
+		"/fenix/users", ResourceType.APP_LEVEL,
 		"/fenix/sites/*/users", ResourceType.SITE,
 		"/fenix/communities/*/users", ResourceType.COMMUNITY,
 		"/fenix/communities/*/projects/*/users", ResourceType.PROJECT

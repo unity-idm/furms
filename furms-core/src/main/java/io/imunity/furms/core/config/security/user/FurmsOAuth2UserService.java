@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.config.security.user;
 
+import io.imunity.furms.core.config.security.user.resource.ResourceId;
+import io.imunity.furms.core.config.security.user.role.FurmsRole;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -22,8 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static io.imunity.furms.core.config.security.user.Role.translateRole;
+import static io.imunity.furms.core.config.security.user.role.Role.translateRole;
 import static io.imunity.furms.core.config.security.user.UnityGroupParser.getResourceId;
 import static java.util.stream.Collectors.*;
 
@@ -43,18 +46,18 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 			.getUserNameAttributeName();
 		String sub = oAuth2User.getAttribute("sub");
 		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
-		Map<FurmsRole, List<ResourceId>> roles = loadUserRoles(attributes);
+		Map<ResourceId, Set<FurmsRole>> roles = loadUserRoles(attributes);
 		return new FurmsUserContext(oAuth2User, key, roles);
 	}
 
-	private Map<FurmsRole, List<ResourceId>> loadUserRoles(Map<String, List<Attribute>> attributes) {
+	private Map<ResourceId, Set<FurmsRole>> loadUserRoles(Map<String, List<Attribute>> attributes) {
 		return attributes.values().stream()
 			.flatMap(Collection::stream)
-			.filter(x -> x.groupPath.contains("users"))
+			.filter(x -> x.groupPath.endsWith("users"))
 			.collect(
 				groupingBy(
-					attribute -> translateRole(attribute.name, attribute.values.iterator().next()),
-					mapping(attribute -> getResourceId(attribute.groupPath), toList())
+					attribute -> getResourceId(attribute.groupPath),
+					mapping(attribute ->  translateRole(attribute.name, attribute.values.iterator().next()), toSet())
 				)
 			);
 	}

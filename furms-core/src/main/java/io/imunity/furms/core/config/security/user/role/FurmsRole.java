@@ -3,7 +3,9 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user;
+package io.imunity.furms.core.config.security.user.role;
+
+import io.imunity.furms.core.config.security.user.capability.Capability;
 
 import java.util.List;
 

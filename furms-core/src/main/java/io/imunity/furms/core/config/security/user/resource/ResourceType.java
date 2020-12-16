@@ -3,8 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user;
+package io.imunity.furms.core.config.security.user.resource;
 
 public enum  ResourceType {
-	ALL, SITE, COMMUNITY, PROJECT
+	APP_LEVEL, SITE, COMMUNITY, PROJECT
 }

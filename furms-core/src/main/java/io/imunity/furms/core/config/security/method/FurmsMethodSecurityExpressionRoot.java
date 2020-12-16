@@ -5,15 +5,15 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsRole;
 import io.imunity.furms.core.config.security.user.FurmsUserContext;
-import io.imunity.furms.core.config.security.user.ResourceId;
+import io.imunity.furms.core.config.security.user.capability.Capability;
+import io.imunity.furms.core.config.security.user.resource.ResourceId;
+import io.imunity.furms.core.config.security.user.resource.ResourceType;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
-import java.util.List;
-import java.util.Map;
+import static io.imunity.furms.core.config.security.user.capability.CapabilityCollector.getCapabilities;
 
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
@@ -22,22 +22,16 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		super(authentication);
 	}
 
-	public boolean hasCapability(String capability) {
+	public boolean hasCapability(Capability capability, ResourceType resourceType) {
+		return hasCapability(capability, resourceType, null);
+	}
+
+	public boolean hasCapability(Capability capability, ResourceType resourceType, String id) {
 		FurmsUserContext principal = (FurmsUserContext)authentication.getPrincipal();
-		ResourceId resourceId = new ResourceId(null, null);
+		ResourceId resourceId = new ResourceId(id, resourceType);
 
-		Map<FurmsRole, List<ResourceId>> roles = principal.roles;
-
-		return true;
-//		Map<ResourceId, Set<Capability>> roles = principal.roles;
-//
-//
-//		return roles.keySet().stream()
-//			.filter(r -> r.getCapabilities().contains(capability))
-//			.anyMatch(r -> roles.get(r).contains(resourceId));
-//			roles.stream()
-//			.flatMap(role -> role.getCapabilities().stream())
-//			.anyMatch(c -> c.equals(capability));
+		return getCapabilities(principal.roles, resourceId)
+			.anyMatch(c -> c.equals(capability));
 	}
 
 	@Override
