@@ -82,7 +82,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			"/front/manifest.webmanifest", "/front/sw.js", "/front/offline-page.html",
 
 			// icons and images
-			"/front/icons/**", "/front/images/**", "/error");
+			"/front/icons/**", "/front/images/**");
 	}
 
 	private static boolean isFrameworkInternalRequest(HttpServletRequest request) {
