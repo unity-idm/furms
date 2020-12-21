@@ -7,6 +7,8 @@ package io.imunity.furms.core.config.security.user;
 
 import io.imunity.furms.core.config.security.user.resource.ResourceId;
 import io.imunity.furms.core.config.security.user.resource.ResourceType;
+import io.imunity.furms.core.config.security.user.unity.UnityGroupParser;
+import io.imunity.furms.core.config.security.user.unity.exception.WrongGroupException;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -50,18 +52,16 @@ class UnityGroupParserTest {
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNotCorrect(){
 		assertThrows(
-			RuntimeException.class,
-			() -> UnityGroupParser.getResourceId("/fenix/"),
-			"Group should contain at least two elements"
+			WrongGroupException.class,
+			() -> UnityGroupParser.getResourceId("/fenix/")
 		);
 	}
 
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNull(){
 		assertThrows(
-			RuntimeException.class,
-			() -> UnityGroupParser.getResourceId(null),
-			"Group cannot be a null"
+			WrongGroupException.class,
+			() -> UnityGroupParser.getResourceId(null)
 		);
 	}
 }

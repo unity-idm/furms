@@ -3,11 +3,10 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.auth;
+package io.imunity.furms.core.config.security.method;
 
 import io.imunity.furms.core.config.security.user.FurmsUserContext;
 import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.FurmsRole;
 import io.imunity.furms.core.config.security.user.role.Role;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.*;
 
 import static io.imunity.furms.core.config.security.user.resource.ResourceType.*;
-import static java.util.Collections.emptySet;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,7 @@ public class AuthTest {
 	@Mock
 	OAuth2User oAuth2User;
 
-	Map<ResourceId, Set<FurmsRole>> roles = new HashMap<>();
+	Map<ResourceId, Set<Role>> roles = new HashMap<>();
 
 	@BeforeAll
 	public void configSecurityContext(){
@@ -61,8 +60,6 @@ public class AuthTest {
 		OAuth2UserAuthority oAuth2UserAuthority = new OAuth2UserAuthority(attributes);
 		Collection<GrantedAuthority> grantedAuthorities = List.of(oAuth2UserAuthority);
 
-//		TODO what notation is better?
-//		doReturn(List.of(oAuth2UserAuthority)).when(oAuth2User).getAuthorities();
 		Mockito.<Collection<? extends GrantedAuthority>>when(oAuth2User.getAuthorities())
 			.thenReturn(grantedAuthorities);
 		when(oAuth2User.getAttributes()).thenReturn(attributes);
@@ -80,53 +77,60 @@ public class AuthTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyList(){
-		roles.put(new ResourceId((String) null, APP_LEVEL), Set.of(Role.FENIX_ROLE.ADMIN));
-		Set<Object> objects = mockService.findAll();
+	public void authShouldPassFenixAdminHasAccessToAPPLevel(){
+		roles.put(new ResourceId((String) null, APP_LEVEL), Set.of(Role.FENIX_ADMIN));
 
-		assertEquals(emptySet(), objects);
+		Throwable throwable = catchThrowable(() -> mockService.findAll());
+		assertThat(throwable).isNull();
 	}
 
 	@Test
-	public void shouldReturnEmptyOptional(){
+	public void authShouldPassFenixAdminHasAccessToResource(){
 		UUID uuid = UUID.randomUUID();
-		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ROLE.ADMIN));
-		Optional<Object> object = mockService.findById(uuid.toString());
+		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN));
 
-		assertEquals(Optional.empty(), object);
+		Throwable throwable = catchThrowable(() -> mockService.findById(uuid.toString()));
+		assertThat(throwable).isNull();
 	}
 
 	@Test
-	public void shouldReturnEmptyOptionalForSpecialAdminRights(){
+	public void authShouldPassFenixAdminHasSpecialAdminRights(){
 		UUID uuid = UUID.randomUUID();
-		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ROLE.ADMIN));
-		Optional<Object> object = mockService.delete(uuid.toString());
+		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN));
 
-		assertEquals(Optional.empty(), object);
+		Throwable throwable = catchThrowable(() -> mockService.getCommunity(uuid.toString()));
+		assertThat(throwable).isNull();
 	}
 
 	@Test
-	public void authShouldFailedWrongResourceId(){
+	public void authShouldNotPassWrongResourceId(){
 		UUID uuid = UUID.randomUUID();
 		UUID uuid1 = UUID.randomUUID();
-		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ROLE.ADMIN));
+		roles.put(new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN));
 
 		assertThrows(AccessDeniedException.class, () -> mockService.findById(uuid1.toString()));
 	}
 
 	@Test
-	public void authShouldFailedWrongResourceType(){
+	public void authShouldNotPassWrongResourceType(){
 		UUID uuid = UUID.randomUUID();
-		roles.put(new ResourceId(uuid, PROJECT), Set.of(Role.FENIX_ROLE.ADMIN));
+		roles.put(new ResourceId(uuid, PROJECT), Set.of(Role.FENIX_ADMIN));
 
 		assertThrows(AccessDeniedException.class, () -> mockService.findById(uuid.toString()));
 	}
 
 	@Test
-	public void authShouldFailedWrongRole(){
+	public void authShouldNotPassWrongRole(){
 		UUID uuid = UUID.randomUUID();
-		roles.put(new ResourceId(uuid, COMMUNITY), Set.of(Role.SITE_ROLE.ADMIN));
+		roles.put(new ResourceId(uuid, COMMUNITY), Set.of(Role.SITE_ADMIN));
 
-		assertThrows(AccessDeniedException.class, () -> mockService.delete(uuid.toString()));
+		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(uuid.toString()));
+	}
+
+	@Test
+	public void authShouldNotPassCommunityAdminHasNotAccessToAppLevel(){
+		roles.put(new ResourceId((String) null, APP_LEVEL), Set.of(Role.COMMUNITY_ADMIN));
+
+		assertThrows(AccessDeniedException.class, () -> mockService.findAllWithClassScopeAuthorization());
 	}
 }

@@ -22,23 +22,27 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		super(authentication);
 	}
 
-	public boolean hasCapability(Capability capability, ResourceType resourceType) {
-		return hasCapability(capability, resourceType, null);
+	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType) {
+		return hasCapabilityForResource(capability, resourceType, null);
 	}
 
-	public boolean hasCapability(Capability capability, ResourceType resourceType, String id) {
+	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType, String id) {
 		FurmsUserContext principal = (FurmsUserContext)authentication.getPrincipal();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 
-		return getCapabilities(principal.roles, resourceId)
-			.anyMatch(c -> c.equals(capability));
+		return getCapabilities(principal.roles, resourceId).contains(capability);
 	}
 
+	/***
+	 * The filtering in this class is not supported, so method is empty.
+	 */
 	@Override
 	public void setFilterObject(Object o) {
-
 	}
 
+	/***
+	 * The filtering in this class is not supported, so method returns null.
+	 */
 	@Override
 	public Object getFilterObject() {
 		return null;

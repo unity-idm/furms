@@ -6,31 +6,31 @@
 package io.imunity.furms.core.config.security.user.capability;
 
 import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.FurmsRole;
 import io.imunity.furms.core.config.security.user.role.Role;
-import io.imunity.furms.core.config.security.user.role.SpecialRole;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
-
-import static java.util.function.Function.identity;
 
 public class CapabilityCollector {
-	public static Stream<Capability> getCapabilities(Map<ResourceId, Set<FurmsRole>> roles, ResourceId resourceId){
-		Stream<Capability> additionalCapabilities = roles.values().stream()
-			.flatMap(Collection::stream)
-			.filter(r -> r == Role.FENIX_ROLE.ADMIN)
-			.map(r -> (SpecialRole) r)
-			.map(SpecialRole::getAdditionalCapabilities)
-			.flatMap(Collection::stream);
+	public static Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
+		Set<Capability> capabilities = getAdditionalCapabilities(roles);
+		for(Role role: roles.getOrDefault(resourceId, new HashSet<>())){
+			capabilities.addAll(role.capabilities);
+		}
+		return capabilities;
+	}
 
-		Stream<Capability> capabilityStream = roles.getOrDefault(resourceId, new HashSet<>()).stream()
-			.flatMap(x -> x.getCapabilities().stream());
+	private static Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {
+		Set<Capability> capabilities = new HashSet<>();
+		Set<Role> roles = new HashSet<>();
 
-		return Stream.of(additionalCapabilities, capabilityStream)
-			.flatMap(identity());
+		for(Set<Role> role: resourceIdToRoles.values()){
+			roles.addAll(role);
+		}
+		for(Role r : roles){
+			capabilities.addAll(r.additionalCapabilities);
+		}
+		return capabilities;
 	}
 }

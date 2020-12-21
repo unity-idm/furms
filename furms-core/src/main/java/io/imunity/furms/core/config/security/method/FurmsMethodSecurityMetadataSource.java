@@ -17,18 +17,21 @@ import java.util.Collection;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 
-public class FurmsAbstractMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
+class FurmsMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 	private final PrePostInvocationAttributeFactory attributeFactory;
 
-	public FurmsAbstractMethodSecurityMetadataSource(PrePostInvocationAttributeFactory attributeFactory) {
+	FurmsMethodSecurityMetadataSource(PrePostInvocationAttributeFactory attributeFactory) {
 		this.attributeFactory = attributeFactory;
 	}
 
 	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		Method properMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
-		FurmsAuthorize annotation = properMethod.getAnnotation(FurmsAuthorize.class);
+		FurmsAuthorize methodAnnotation = properMethod.getAnnotation(FurmsAuthorize.class);
+		FurmsAuthorize classAnnotation = targetClass.getAnnotation(FurmsAuthorize.class);
+		FurmsAuthorize annotation = ofNullable(methodAnnotation).orElse(classAnnotation);
 		if(annotation == null)
 			return emptyList();
 
@@ -37,7 +40,7 @@ public class FurmsAbstractMethodSecurityMetadataSource extends AbstractMethodSec
 		String idSpEl = "";
 		if(!annotation.id().isEmpty())
 			idSpEl = ",#" + annotation.id();
-		String furmsSpEl = "hasCapability('" + capability.name() + "','" + resourceType.name() +"'" + idSpEl + ")";
+		String furmsSpEl = "hasCapabilityForResource('" + capability.name() + "','" + resourceType.name() +"'" + idSpEl + ")";
 
 		return singletonList(attributeFactory.createPreInvocationAttribute(null, null, furmsSpEl));
 	}

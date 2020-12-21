@@ -5,6 +5,7 @@
 package io.imunity.furms.core.config.security;
 
 import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.core.config.security.user.unity.RoleLoader;
 import io.imunity.furms.domain.constant.LoginFlowConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,10 +28,13 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
+	private final RoleLoader roleLoader;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo) {
+	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
+	                      RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
+		this.roleLoader = roleLoader;
 	}
 
 	@Override
@@ -90,6 +94,6 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
-		return new FurmsOAuth2UserService(restTemplate);
+		return new FurmsOAuth2UserService(restTemplate, roleLoader);
 	}
 }

@@ -6,36 +6,23 @@
 package io.imunity.furms.core.config.security.user;
 
 import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.FurmsRole;
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
+import io.imunity.furms.core.config.security.user.role.Role;
+import io.imunity.furms.core.config.security.user.unity.RoleLoader;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.client.RestOperations;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.imunity.furms.core.config.security.user.role.Role.translateRole;
-import static io.imunity.furms.core.config.security.user.UnityGroupParser.getResourceId;
-import static java.util.stream.Collectors.*;
-
 public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
-	private final RestOperations restOperations;
+	private final RoleLoader roleLoader;
 
-	public FurmsOAuth2UserService(RestOperations restOperations) {
+	public FurmsOAuth2UserService(RestOperations restOperations, RoleLoader roleLoader) {
 		super.setRestOperations(restOperations);
-		this.restOperations = restOperations;
+		this.roleLoader = roleLoader;
 	}
 
 	@Override
@@ -45,50 +32,7 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 		String key = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
 			.getUserNameAttributeName();
 		String sub = oAuth2User.getAttribute("sub");
-		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
-		Map<ResourceId, Set<FurmsRole>> roles = loadUserRoles(attributes);
+		Map<ResourceId, Set<Role>> roles = roleLoader.loadUserRoles(sub);
 		return new FurmsUserContext(oAuth2User, key, roles);
-	}
-
-	private Map<ResourceId, Set<FurmsRole>> loadUserRoles(Map<String, List<Attribute>> attributes) {
-		return attributes.values().stream()
-			.flatMap(Collection::stream)
-			.filter(x -> x.groupPath.endsWith("users"))
-			.collect(
-				groupingBy(
-					attribute -> getResourceId(attribute.groupPath),
-					mapping(attribute ->  translateRole(attribute.name, attribute.values.iterator().next()), toSet())
-				)
-			);
-	}
-
-	//TODO all code below should be move to coming unity module
-	//TODO url and user data credential should be not hardcoded
-	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
-		RequestEntity<Void> request = RequestEntity
-			.get(getUrl(persistentId))
-			.accept(MediaType.APPLICATION_JSON)
-			.headers(createHeaders("a", "a"))
-			.build();
-		return restOperations.exchange(request, new ParameterizedTypeReference<Map<String, List<Attribute>>>() {})
-			.getBody();
-	}
-
-	private URI getUrl(String userId) {
-		try {
-			return new URI("https://localhost:2443/rest-admin/v1/entity/" + userId + "/groups/attributes");
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("This should not happened - URI is not correct", e);
-		}
-	}
-
-	private HttpHeaders createHeaders(String username, String password){
-		return new HttpHeaders() {{
-			String auth = username + ":" + password;
-			byte[] encodedAuth = Base64.encodeBase64(
-				auth.getBytes(StandardCharsets.US_ASCII) );
-			String authHeader = "Basic " + new String( encodedAuth );
-			set( "Authorization", authHeader );
-		}};
 	}
 }
