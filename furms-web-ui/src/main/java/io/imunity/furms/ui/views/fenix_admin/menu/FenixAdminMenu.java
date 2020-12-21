@@ -33,7 +33,7 @@ public class FenixAdminMenu extends AppLayout {
 				AuditLogView.class,
 				PrivilegedUsersView.class
 			));
-		addToNavbar(false, furmsLayout.createBredCrumbNavbar());
+		addToNavbar(false, furmsLayout.createNavbar());
 		addToDrawer(furmsLayout.createDrawerContent());
 	}
 

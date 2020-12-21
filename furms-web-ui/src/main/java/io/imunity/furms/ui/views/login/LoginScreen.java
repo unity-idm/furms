@@ -1,15 +1,3 @@
-/*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
- */
-package io.imunity.furms.ui.views.login;
-
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
 
 import java.util.List;
 import java.util.Map;

@@ -12,14 +12,14 @@ import java.util.Set;
 
 public interface SiteService {
 
-    Optional<Site> findById(String id);
+	Optional<Site> findById(String id);
 
-    Set<Site> findAll();
+	Set<Site> findAll();
 
-    void create(Site site);
+	void create(Site site);
 
-    void update(Site site);
+	void update(Site site);
 
-    void delete(String id);
+	void delete(String id);
 
 }

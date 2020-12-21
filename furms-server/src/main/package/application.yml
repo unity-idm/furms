@@ -10,4 +10,9 @@ server:
 logging:
     config: ./logback.xml
 
-    
+ spring:
+    datasource:
+       url:
+       username:
+       password:
+       driver-class-name:
