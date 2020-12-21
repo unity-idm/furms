@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static io.imunity.furms.ui.constant.LoginFlowConst.PROXY_AUTH_PARAM;
+import static io.imunity.furms.domain.constant.LoginFlowConst.PROXY_AUTH_PARAM;
 
-public class FurmsEntryPoint extends LoginUrlAuthenticationEntryPoint {
+class FurmsEntryPoint extends LoginUrlAuthenticationEntryPoint {
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	public FurmsEntryPoint(String loginFormUrl) {
+	FurmsEntryPoint(String loginFormUrl) {
 		super(loginFormUrl);
 	}
 
