@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -22,17 +22,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 
-import static io.imunity.furms.ui.constant.LoginFlowConst.LOGOUT_SUCCESS_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_SUCCESS_URL;
 import static org.springframework.http.RequestEntity.post;
 
 @Component
-public class TokenRevoker implements LogoutSuccessHandler {
+class TokenRevoker implements LogoutSuccessHandler {
 	private final RestTemplate unityRestTemplate;
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	@Value("${spring.security.oauth2.client.provider.unity.revoke}")
 	private String uri;
 
-	public TokenRevoker(RestTemplate unityRestTemplate, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
+	TokenRevoker(RestTemplate unityRestTemplate, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 	}
@@ -55,6 +55,7 @@ public class TokenRevoker implements LogoutSuccessHandler {
 			.queryParam("token", accessToken)
 			.queryParam("client_id", clientId)
 			.queryParam("token_type_hint", "access_token")
+			.queryParam("logout", "true")
 			.build()
 			.toUri();
 

@@ -36,4 +36,4 @@ spring:
                   clientId: ${furms.unity.oAuth.clientId}
                   clientSecret: ${furms.unity.oAuth.clientSecret}
                   redirect-uri: ${furms.url}/login/oauth2/code/unity
-                  scope: openid+profile
+                  scope: openid+profile+single-logout

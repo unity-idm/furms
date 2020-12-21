@@ -3,15 +3,16 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config.security;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static io.imunity.furms.ui.constant.LoginFlowConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_URL;
+
 
 @Controller
-public class BaseRedirectController {
+class BaseRedirectController {
 	@RequestMapping("/")
 	public String redirect() {
 		return "forward:" + LOGIN_URL;

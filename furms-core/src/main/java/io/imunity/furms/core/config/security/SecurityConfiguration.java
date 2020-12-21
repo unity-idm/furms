@@ -6,7 +6,6 @@ package io.imunity.furms.core.config.security;
 
 import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
 import io.imunity.furms.core.config.security.user.unity.RoleLoader;
-import io.imunity.furms.domain.constant.LoginFlowConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -20,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static io.imunity.furms.domain.constant.LoginFlowConst.*;
+
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -32,9 +33,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final RoleLoader roleLoader;
 
 	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                      TokenRevoker tokenRevoker) {
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                      RoleLoader roleLoader) {
+	                      TokenRevoker tokenRevoker, RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevoker = tokenRevoker;
