@@ -26,10 +26,13 @@ import static io.imunity.furms.ui.constant.LoginFlowConst.*;
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
+	private final TokenRevoker tokenRevoker;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo) {
+	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
+	                      TokenRevoker tokenRevoker) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
+		this.tokenRevoker = tokenRevoker;
 	}
 
 	@Override
@@ -48,7 +51,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+			.logout().logoutUrl(LOGOUT_URL).logoutSuccessHandler(tokenRevoker)
 
 			// Configure redirect entrypoint
 			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))
