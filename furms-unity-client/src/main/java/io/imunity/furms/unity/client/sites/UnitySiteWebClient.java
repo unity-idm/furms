@@ -11,18 +11,21 @@ import io.imunity.furms.unity.client.sites.exceptions.UnitySiteCreateException;
 import io.imunity.furms.unity.client.sites.exceptions.UnitySiteDeleteException;
 import io.imunity.furms.unity.client.sites.exceptions.UnitySiteUpdateException;
 import io.imunity.furms.unity.client.unity.UnityClient;
-import io.imunity.furms.unity.client.unity.UnityEndpoints;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.client.unity.UriVariableUtils.buildPath;
+import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID;
+import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID_USERS;
+import static io.imunity.furms.unity.client.sites.UnitySitePaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.sites.UnitySitePaths.META;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -30,13 +33,9 @@ import static org.springframework.util.StringUtils.isEmpty;
 class UnitySiteWebClient implements SiteWebClient {
 
 	private final UnityClient unityClient;
-	private final SiteEndpoints siteEndpoints;
-	private final UnityEndpoints unityEndpoints;
 
-	UnitySiteWebClient(UnityClient unityClient, SiteEndpoints siteEndpoints, UnityEndpoints unityEndpoints) {
+	UnitySiteWebClient(UnityClient unityClient) {
 		this.unityClient = unityClient;
-		this.siteEndpoints = siteEndpoints;
-		this.unityEndpoints = unityEndpoints;
 	}
 
 	@Override
@@ -45,8 +44,14 @@ class UnitySiteWebClient implements SiteWebClient {
 			throw new IllegalArgumentException("Could not get Site from Unity. Missing Site ID");
 		}
 		Map<String, Object> uriVariables = uriVariables(id);
+		String path = UriComponentsBuilder.newInstance()
+				.path(GROUP_BASE)
+				.pathSegment(FENIX_SITE_ID)
+				.path(META)
+				.uriVariables(uriVariables)
+				.buildAndExpand().encode().toUriString();
 		try {
-			Group group = unityClient.get(siteEndpoints.getMeta(), Group.class, uriVariables);
+			Group group = unityClient.get(path, Group.class);
 			return Optional.ofNullable(Site.builder()
 					.id(id)
 					.name(group.getDisplayedName().getDefaultValue())
@@ -64,16 +69,24 @@ class UnitySiteWebClient implements SiteWebClient {
 		if (site == null || isEmpty(site.getId())) {
 			throw new IllegalArgumentException("Could not create Site in Unity. Missing Site or Site ID");
 		}
-		Map<String, Object> idUriVariable = uriVariables(site);
-		Group group = new Group(buildPath(siteEndpoints.getBaseDecoded(), idUriVariable));
+		Map<String, Object> uriVariables = uriVariables(site);
+		String groupPath = UriComponentsBuilder.newInstance()
+				.path(FENIX_SITE_ID)
+				.uriVariables(uriVariables)
+				.toUriString();
+		Group group = new Group(groupPath);
 		group.setDisplayedName(new I18nString(site.getName()));
 		try {
-			unityClient.post(unityEndpoints.getGroup(), group, idUriVariable);
+			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientException e) {
 			throw new UnitySiteCreateException(e.getMessage());
 		}
 		try {
-			unityClient.post(siteEndpoints.getUsers(), idUriVariable);
+			String createSiteUsersPath = UriComponentsBuilder.newInstance()
+					.path(GROUP_BASE)
+					.pathSegment(groupPath + FENIX_SITE_ID_USERS)
+					.toUriString();
+			unityClient.post(createSiteUsersPath);
 		} catch (WebClientException e) {
 			this.delete(site.getId());
 			throw new UnitySiteCreateException(e.getMessage());
@@ -86,10 +99,16 @@ class UnitySiteWebClient implements SiteWebClient {
 			throw new IllegalArgumentException("Could not update Site in Unity. Missing Site or Site ID");
 		}
 		Map<String, Object> uriVariables = uriVariables(site);
+		String metaSitePath = UriComponentsBuilder.newInstance()
+				.path(GROUP_BASE)
+				.pathSegment(FENIX_SITE_ID)
+				.path(META)
+				.uriVariables(uriVariables)
+				.buildAndExpand().encode().toUriString();
 		try {
-			Group group = unityClient.get(siteEndpoints.getMeta(), Group.class, uriVariables);
+			Group group = unityClient.get(metaSitePath, Group.class);
 			group.setDisplayedName(new I18nString(site.getName()));
-			unityClient.put(unityEndpoints.getGroup(), group, uriVariables);
+			unityClient.put(GROUP_BASE, group);
 		} catch (WebClientException e) {
 			throw new UnitySiteUpdateException(e.getMessage());
 		}
@@ -102,8 +121,13 @@ class UnitySiteWebClient implements SiteWebClient {
 		}
 		Map<String, Object> uriVariables = uriVariables(id);
 		Map<String, Object> queryParams = Map.of("recursive", TRUE);
+		String deleteSitePath = UriComponentsBuilder.newInstance()
+				.path(GROUP_BASE)
+				.pathSegment(FENIX_SITE_ID)
+				.uriVariables(uriVariables)
+				.buildAndExpand().encode().toUriString();
 		try {
-			unityClient.delete(siteEndpoints.getBaseEncoded(), uriVariables, queryParams);
+			unityClient.delete(deleteSitePath, queryParams);
 		} catch (WebClientException e) {
 			throw new UnitySiteDeleteException(e.getMessage());
 		}

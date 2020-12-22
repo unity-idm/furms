@@ -7,7 +7,6 @@ package io.imunity.furms.unity.client.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.unity.client.unity.UnityClient;
-import io.imunity.furms.unity.client.unity.UnityEndpoints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,8 +19,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UnitySiteWebClientTest {
@@ -29,24 +34,12 @@ class UnitySiteWebClientTest {
 	@Mock
 	private UnityClient unityClient;
 
-	@Mock
-	private SiteEndpoints siteEndpoints;
-
-	@Mock
-	private UnityEndpoints unityEndpoints;
-
 	@InjectMocks
 	private UnitySiteWebClient unitySiteWebClient;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
-
-		when(siteEndpoints.getBaseDecoded()).thenReturn("baseDecoded");
-		when(siteEndpoints.getBaseEncoded()).thenReturn("baseEncoded");
-		when(siteEndpoints.getMeta()).thenReturn("meta");
-		when(siteEndpoints.getUsers()).thenReturn("users");
-		when(unityEndpoints.getGroup()).thenReturn("group");
 	}
 
 	@Test
@@ -55,7 +48,7 @@ class UnitySiteWebClientTest {
 		String id = UUID.randomUUID().toString();
 		Group group = new Group("/path/"+id);
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(eq(siteEndpoints.getMeta()), eq(Group.class), anyMap())).thenReturn(group);
+		when(unityClient.get(contains(id), eq(Group.class))).thenReturn(group);
 
 		//when
 		Optional<Site> site = unitySiteWebClient.get(id);
@@ -64,6 +57,56 @@ class UnitySiteWebClientTest {
 		assertThat(site).isPresent();
 		assertThat(site.get().getId()).isEqualTo(id);
 		assertThat(site.get().getName()).isEqualTo("test");
+	}
+
+	@Test
+	void shouldCreateSite() {
+		//given
+		Site site = Site.builder()
+				.id(UUID.randomUUID().toString())
+				.name("test")
+				.build();
+		doNothing().when(unityClient).post(contains(site.getId()), any());
+		doNothing().when(unityClient).post(contains("users"), any());
+
+		//when
+		unitySiteWebClient.create(site);
+
+		//then
+		verify(unityClient, times(1)).post(anyString(), any());
+		verify(unityClient, times(1)).post(anyString());
+	}
+
+	@Test
+	void shouldUpdateSite() {
+		//given
+		Site site = Site.builder()
+				.id(UUID.randomUUID().toString())
+				.name("test")
+				.build();
+		Group group = new Group("/path/"+site.getId());
+		group.setDisplayedName(new I18nString("test"));
+		when(unityClient.get(contains(site.getId()), eq(Group.class))).thenReturn(group);
+		doNothing().when(unityClient).put(contains(site.getId()), eq(Group.class));
+
+		//when
+		unitySiteWebClient.update(site);
+
+		//then
+		verify(unityClient, times(1)).put(anyString(), any());
+	}
+
+	@Test
+	void shouldRemoveSite() {
+		//given
+		String id = UUID.randomUUID().toString();
+		doNothing().when(unityClient).delete(contains(id), anyMap());
+
+		//when
+		unitySiteWebClient.delete(id);
+
+		//then
+		verify(unityClient, times(1)).delete(anyString(), any());
 	}
 
 }

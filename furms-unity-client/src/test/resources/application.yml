@@ -3,11 +3,3 @@ furms:
     base-url: https://unity-furms/rest-admin/v1
     admin-user: test
     admin-password: test
-    endpoints:
-      unity:
-        group: /group
-      site:
-        base-decoded: /fenix/sites/{id}
-        base-encoded: /group/fenix%2Fsites%2F{id}
-        meta: ${furms.unity.endpoints.site.base-encoded}/meta
-        users: ${furms.unity.endpoints.site.base-encoded}%2Fusers

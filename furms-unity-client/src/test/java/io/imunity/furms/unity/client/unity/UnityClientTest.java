@@ -48,7 +48,7 @@ class UnityClientTest {
 
 	@BeforeAll
 	static void init() {
-		System.setProperty("furms.unity.base-url", createWireMockUrl(null));
+		System.setProperty("furms.unity.admin-url", createWireMockUrl(null));
 	}
 
 	@BeforeEach
@@ -75,8 +75,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		SampleDto response = unityClient.get("/path/to/unity/{param}", SampleDto.class,
-				Map.of("param", "test"),
+		SampleDto response = unityClient.get("/path/to/unity/test", SampleDto.class,
 				Map.of("param1", "stringValue", "param2", 1));
 
 		//then
@@ -97,7 +96,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		unityClient.post("/path/to/unity/{param}", new SampleDto("string"), Map.of("param", "test"));
+		unityClient.post("/path/to/unity/test", new SampleDto("string"));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);
@@ -116,7 +115,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		unityClient.put("/path/to/unity/{param}", new SampleDto("string"), Map.of("param", "test"));
+		unityClient.put("/path/to/unity/test", Map.of("param", "test"));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);
@@ -136,7 +135,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		unityClient.delete("/path/to/unity/{param}", Map.of("param", "test"), Map.of("recursive", TRUE));
+		unityClient.delete("/path/to/unity/test", Map.of("recursive", TRUE));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);

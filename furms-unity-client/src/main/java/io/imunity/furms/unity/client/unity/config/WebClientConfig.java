@@ -20,10 +20,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WebClientConfig {
 
 	@Bean
-	public WebClient webClient(UnityConfig unityConfig) {
-		String authorizationKey = createAuthorizationKey(unityConfig.getAdminUser(), unityConfig.getAdminPassword());
+	public WebClient webClient(UnityProperties unityProperties) {
+		String authorizationKey = createAuthorizationKey(unityProperties.getAdminUser(), unityProperties.getAdminPassword());
 		return WebClient.builder()
-				.baseUrl(unityConfig.getBaseUrl())
+				.baseUrl(unityProperties.getAdminUrl())
 				.defaultHeader(AUTHORIZATION, authorizationKey)
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.build();

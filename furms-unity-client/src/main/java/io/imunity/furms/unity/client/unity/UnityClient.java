@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static io.imunity.furms.unity.client.unity.UriVariableUtils.buildPath;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -30,48 +29,45 @@ public class UnityClient {
 		this.webClient = webClient;
 	}
 
-	public <T> T get(String path, Class<T> clazz, Map<String, Object> uriVariables) {
-		return get(path, clazz, uriVariables, emptyMap());
+	public <T> T get(String path, Class<T> clazz) {
+		return get(path, clazz, emptyMap());
 	}
 
-	public <T> T get(String path, Class<T> clazz, Map<String, Object> uriVariables, Map<String, Object> queryParams) {
-		String expandedPath = buildPath(path, uriVariables);
+	public <T> T get(String path, Class<T> clazz, Map<String, Object> queryParams) {
 		MultiValueMap<String, String> params = createParams(queryParams);
 		return webClient.get()
-				.uri(uriBuilder -> uri(uriBuilder, expandedPath, params))
+				.uri(uriBuilder -> uri(uriBuilder, path, params))
 				.retrieve()
 				.bodyToMono(clazz)
 				.block();
 	}
 
-	public void post(String path, Map<String, Object> uriVariables) {
-		post(path, null, uriVariables);
+	public void post(String path) {
+		post(path, null);
 	}
 
-	public void post(String path, Object body, Map<String, Object> uriVariables) {
-		String expandedPath = buildPath(path, uriVariables);
-		callVoidRequest(webClient.post()
-				.uri(uriBuilder -> uri(uriBuilder, expandedPath))
-				.bodyValue(body == null ? "" : body));
-	}
-	public void put(String path, Object body, Map<String, Object> uriVariables) {
-		String expandedPath = buildPath(path, uriVariables);
-		callVoidRequest(webClient.put()
-				.uri(uriBuilder -> uri(uriBuilder, expandedPath))
-				.bodyValue(body == null ? "" : body));
+	public void post(String path, Object body) {
+		webClient.post()
+				.uri(uriBuilder -> uri(uriBuilder, path))
+				.bodyValue(body == null ? "" : body)
+				.retrieve()
+				.bodyToMono(Void.class).block();
 	}
 
-	public void delete(String path, Map<String, Object> uriVariables, Map<String, Object> queryParams) {
-		String expandedPath = buildPath(path, uriVariables);
+	public void put(String path, Object body) {
+		webClient.put()
+				.uri(uriBuilder -> uri(uriBuilder, path))
+				.bodyValue(body == null ? "" : body)
+				.retrieve()
+				.bodyToMono(Void.class).block();
+	}
+
+	public void delete(String path, Map<String, Object> queryParams) {
 		MultiValueMap<String, String> params = createParams(queryParams);
-		callVoidRequest(webClient.delete()
-						.uri(uriBuilder -> uri(uriBuilder, expandedPath, params)));
-	}
-
-	private void callVoidRequest(WebClient.RequestHeadersSpec<?> request) {
-		request.retrieve()
-				.bodyToMono(Void.class)
-				.block();
+		webClient.delete()
+				.uri(uriBuilder -> uri(uriBuilder, path, params))
+				.retrieve()
+				.bodyToMono(Void.class).block();
 	}
 
 	private MultiValueMap<String, String> createParams(Map<String, Object> queryParams) {
