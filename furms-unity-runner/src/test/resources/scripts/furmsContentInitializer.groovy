@@ -3,30 +3,16 @@ import groovy.transform.Field
 import org.apache.commons.io.FilenameUtils
 import org.springframework.core.io.Resource
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration
-import pl.edu.icm.unity.engine.server.EngineInitialization
 import pl.edu.icm.unity.exceptions.EngineException
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider
-import pl.edu.icm.unity.stdext.attr.EnumAttribute
-import pl.edu.icm.unity.stdext.attr.StringAttribute
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax
-import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax
-import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax
+import pl.edu.icm.unity.stdext.attr.*
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider
 import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider
-import pl.edu.icm.unity.types.basic.Attribute
-import pl.edu.icm.unity.types.basic.AttributeStatement
-import pl.edu.icm.unity.types.basic.AttributeType
-import pl.edu.icm.unity.types.basic.EntityParam
-import pl.edu.icm.unity.types.basic.EntityState
-import pl.edu.icm.unity.types.basic.Group
-import pl.edu.icm.unity.types.basic.GroupContents
-import pl.edu.icm.unity.types.basic.Identity
-import pl.edu.icm.unity.types.basic.IdentityParam
-import pl.edu.icm.unity.types.basic.IdentityTaV
+import pl.edu.icm.unity.types.basic.*
 
 @Field final String NAME_ATTR = "name"
 @Field final String EMAIL_ATTR = "email"
@@ -44,10 +30,12 @@ try
 	initCommonAttrTypesFromResource()
 	initDefaultAuthzPolicy()
 	initCommonAttrTypes()
+	initAuthAttrTypes()
 	assignNameAttributeAndUserPasswordToAdminAccount()
 	initBaseGroups()
 	initRoleAttributeType()
 	initOAuthClient()
+	initTestUsers()
 
 } catch (Exception e)
 {
@@ -68,6 +56,41 @@ void initCommonAttrTypesFromResource() throws EngineException
 			log.info("Common attributes added from resource file: " + r.getFilename())
 		}
 	log.info("Provisioned FURMS attribute types from resource")
+}
+
+void initAuthAttrTypes() throws EngineException
+{
+	def furmsSiteRole = new AttributeType("furmsSiteRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsSiteRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN", "SUPPORT")
+			.getSerializedConfiguration())
+
+	def furmsFenixRole = new AttributeType("furmsFenixRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsFenixRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN")
+			.getSerializedConfiguration())
+
+	def furmsCommunityRole = new AttributeType("furmsCommunityRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsCommunityRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN")
+			.getSerializedConfiguration())
+
+	def furmsProjectRole = new AttributeType("furmsProjectRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsProjectRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN", "MEMBER")
+			.getSerializedConfiguration())
+
+	[furmsSiteRole, furmsFenixRole, furmsCommunityRole, furmsProjectRole]
+			.each{attributeTypeManagement.addAttributeType(it)}
+
+	log.info("Provisioned default FURMS roles attributes types")
+}
+
+void initTestUsers()
+{
+	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "furms-site-demo-user")
+	Identity base = entityManagement.addEntity(toAdd, EntityState.valid)
+	EntityParam entity = new EntityParam(base.getEntityId())
+	PasswordToken pToken = new PasswordToken("a")
+	entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
+
+	log.info("Provisioned test FURMS users")
 }
 
 void initDefaultAuthzPolicy() throws EngineException

@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 @Configuration
-@EnableJdbcRepositories
+@EnableJdbcRepositories(basePackages = "io.imunity.furms.db")
 public class DatabaseConfig {
 }

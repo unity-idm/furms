@@ -1,9 +1,0 @@
-server:
-   servlet:
-      context-path: /
-app:
-  version: '@project.version@'
-
-spring:
-  flyway:
-    enabled: true

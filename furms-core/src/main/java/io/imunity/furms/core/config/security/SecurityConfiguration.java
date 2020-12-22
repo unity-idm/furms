@@ -2,9 +2,10 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config.security;
 
-import com.vaadin.flow.shared.ApplicationConstants;
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.core.config.security.user.unity.RoleLoader;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -16,20 +17,27 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.stream.Stream;
+import java.util.List;
 
-import static com.vaadin.flow.server.HandlerHelper.RequestType;
-import static io.imunity.furms.ui.constant.LoginFlowConst.*;
+import static io.imunity.furms.domain.constant.LoginFlowConst.*;
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	private static final String REQUEST_TYPE_PARAMETER = "v-r";
+	private static final List<String> REQUESTED_TYPES = List.of("uidl", "heartbeat", "push");
+
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
+	private final TokenRevoker tokenRevoker;
+	private final RoleLoader roleLoader;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo) {
+	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
+	                      TokenRevoker tokenRevoker, RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
+		this.tokenRevoker = tokenRevoker;
+		this.roleLoader = roleLoader;
 	}
 
 	@Override
@@ -48,7 +56,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+			.logout().logoutUrl(LOGOUT_URL).logoutSuccessHandler(tokenRevoker)
 
 			// Configure redirect entrypoint
 			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))
@@ -83,10 +91,8 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private static boolean isFrameworkInternalRequest(HttpServletRequest request) {
-		String parameterValue = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
-		return parameterValue != null &&
-			Stream.of(RequestType.values())
-				.anyMatch(r -> r.getIdentifier().equals(parameterValue));
+		String parameterValue = request.getParameter(REQUEST_TYPE_PARAMETER);
+		return parameterValue != null && REQUESTED_TYPES.contains(parameterValue);
 	}
 
 	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate) {
@@ -96,8 +102,6 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
-		DefaultOAuth2UserService defaultOAuth2UserService = new DefaultOAuth2UserService();
-		defaultOAuth2UserService.setRestOperations(restTemplate);
-		return defaultOAuth2UserService;
+		return new FurmsOAuth2UserService(restTemplate, roleLoader);
 	}
 }

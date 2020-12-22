@@ -3,8 +3,9 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.config;
+package io.imunity.furms.core.config.security;
 
+import io.imunity.furms.domain.constant.LoginFlowConst;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -14,18 +15,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static io.imunity.furms.ui.constant.LoginFlowConst.AUTH_REQ_BASE_URL;
-import static io.imunity.furms.ui.constant.LoginFlowConst.AUTH_REQ_PARAM_URL;
-
 class ParamAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 	private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 	private final OAuth2AuthorizationRequestResolver authorizationParamRequestResolver;
 
 	ParamAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
 		authorizationRequestResolver =
-			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_BASE_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, LoginFlowConst.AUTH_REQ_BASE_URL);
 		authorizationParamRequestResolver =
-			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, AUTH_REQ_PARAM_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, LoginFlowConst.AUTH_REQ_PARAM_URL);
 	}
 
 	@Override

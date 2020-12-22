@@ -16,7 +16,7 @@ import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 class UUIDIdGenerator {
 
 	@Bean
-	ApplicationListener<BeforeSaveEvent> idGenerator() {
+	ApplicationListener<BeforeSaveEvent<?>> idGenerator() {
 		return event -> {
 			if (event.getEntity() instanceof UUIDIdentifiable) {
 				UUIDIdentifiable entity = (UUIDIdentifiable) event.getEntity();
