@@ -50,28 +50,28 @@ public class UnityClient {
 
 	public void post(String path, Object body, Map<String, Object> uriVariables) {
 		String expandedPath = buildPath(path, uriVariables);
-		webClient.post()
+		callVoidRequest(webClient.post()
 				.uri(uriBuilder -> uri(uriBuilder, expandedPath))
-				.bodyValue(body == null ? "" : body)
-				.retrieve()
-				.bodyToMono(String.class)
-				.block();
+				.bodyValue(body == null ? "" : body));
 	}
-
-	public void delete(String path, boolean recursive, Map<String, Object> uriVariables) {
+	public void put(String path, Object body, Map<String, Object> uriVariables) {
 		String expandedPath = buildPath(path, uriVariables);
-		MultiValueMap<String, String> recursiveParam = recursiveParam(recursive);
-		webClient.delete()
-				.uri(uriBuilder -> uri(uriBuilder, expandedPath, recursiveParam))
-				.retrieve()
-				.bodyToMono(String.class)
-				.block();
+		callVoidRequest(webClient.put()
+				.uri(uriBuilder -> uri(uriBuilder, expandedPath))
+				.bodyValue(body == null ? "" : body));
 	}
 
-	private MultiValueMap<String, String> recursiveParam(boolean recursive) {
-		MultiValueMap<String, String> linkedMultiValueMap = new LinkedMultiValueMap<>();
-		linkedMultiValueMap.put("recursive", List.of(String.valueOf(recursive)));
-		return linkedMultiValueMap;
+	public void delete(String path, Map<String, Object> uriVariables, Map<String, Object> queryParams) {
+		String expandedPath = buildPath(path, uriVariables);
+		MultiValueMap<String, String> params = createParams(queryParams);
+		callVoidRequest(webClient.delete()
+						.uri(uriBuilder -> uri(uriBuilder, expandedPath, params)));
+	}
+
+	private void callVoidRequest(WebClient.RequestHeadersSpec<?> request) {
+		request.retrieve()
+				.bodyToMono(Void.class)
+				.block();
 	}
 
 	private MultiValueMap<String, String> createParams(Map<String, Object> queryParams) {

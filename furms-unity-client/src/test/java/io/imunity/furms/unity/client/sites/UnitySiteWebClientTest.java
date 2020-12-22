@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,11 +58,12 @@ class UnitySiteWebClientTest {
 		when(unityClient.get(eq(siteEndpoints.getMeta()), eq(Group.class), anyMap())).thenReturn(group);
 
 		//when
-		Site site = unitySiteWebClient.get(id);
+		Optional<Site> site = unitySiteWebClient.get(id);
 
 		//then
-		assertThat(site.getId()).isEqualTo(id);
-		assertThat(site.getName()).isEqualTo("test");
+		assertThat(site).isPresent();
+		assertThat(site.get().getId()).isEqualTo(id);
+		assertThat(site.get().getName()).isEqualTo("test");
 	}
 
 }

@@ -7,11 +7,15 @@ package io.imunity.furms.spi.sites;
 
 import io.imunity.furms.domain.sites.Site;
 
+import java.util.Optional;
+
 public interface SiteWebClient {
 
-	Site get(String id);
+	Optional<Site> get(String id);
 
 	void create(Site site);
+
+	void update(Site site);
 
 	void delete(String id);
 

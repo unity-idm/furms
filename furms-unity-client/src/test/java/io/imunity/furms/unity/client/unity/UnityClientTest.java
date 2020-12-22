@@ -28,6 +28,7 @@ import org.springframework.util.SocketUtils;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static java.lang.Boolean.TRUE;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -104,6 +105,25 @@ class UnityClientTest {
 	}
 
 	@Test
+	void shouldSend_PUT_toUnityServer() {
+		//given
+		RequestPattern request = new RequestPatternBuilder(
+				PUT, new UrlPattern(new EqualToPattern("/path/to/unity/test"), false)).build();
+		server.addStubMapping(new StubMapping(request, ResponseDefinitionBuilder.responseDefinition()
+				.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.withBody("{\"field\": \"string\"}")
+				.withStatus(SC_OK)
+				.build()));
+
+		//when
+		unityClient.put("/path/to/unity/{param}", new SampleDto("string"), Map.of("param", "test"));
+
+		//then
+		VerificationResult verificationResult = server.countRequestsMatching(request);
+		assertThat(verificationResult.getCount()).isEqualTo(1);
+	}
+
+	@Test
 	void shouldSend_DELETE_toUnityServer() {
 		//given
 		RequestPattern request = new RequestPatternBuilder(
@@ -116,7 +136,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		unityClient.delete("/path/to/unity/{param}", true, Map.of("param", "test"));
+		unityClient.delete("/path/to/unity/{param}", Map.of("param", "test"), Map.of("recursive", TRUE));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);
