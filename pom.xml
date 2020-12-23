@@ -32,6 +32,8 @@
 
 		<spring.boot.version>2.4.0</spring.boot.version>
 
+		<unity.version>3.4.0</unity.version>
+
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.language>java</sonar.language>
 		<sonar.java.source>11</sonar.java.source>
@@ -62,6 +64,7 @@
 		<module>furms-rest-api</module>
 		<module>furms-web-ui</module>
 		<module>furms-database-module</module>
+		<module>furms-unity-client</module>
 	</modules>
 
 	<developers>
