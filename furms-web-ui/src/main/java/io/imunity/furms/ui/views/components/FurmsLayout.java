@@ -5,9 +5,12 @@
 package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,6 +21,8 @@ import com.vaadin.flow.server.VaadinService;
 
 import java.util.List;
 import java.util.Optional;
+
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_URL;
 
 public class FurmsLayout {
 	private final List<Class<? extends Component>> menuContent;
@@ -45,16 +50,26 @@ public class FurmsLayout {
 	}
 
 	public Component createNavbar(){
-		breadCrumbComponent.getContent().setSizeFull();
-		Anchor logout = new Anchor("/logout", getTranslation("view.main-page.logout"));
+		HorizontalLayout rightNavbarSite = createRightNavbarSite();
+
+		HorizontalLayout navbarLayout = new HorizontalLayout(breadCrumbComponent, rightNavbarSite);
+		navbarLayout.setId("header");
+		return navbarLayout;
+	}
+
+	private HorizontalLayout createRightNavbarSite() {
+		Icon logout = new Icon(VaadinIcon.SIGN_OUT);
+		logout.getStyle().set("cursor", "pointer");
+		logout.addClickListener(
+			event -> UI.getCurrent().getPage().setLocation(LOGOUT_URL)
+		);
+
 		HorizontalLayout logoutLayout = new HorizontalLayout();
-		logoutLayout.setAlignItems(FlexComponent.Alignment.END);
+		logoutLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		logoutLayout.setSizeFull();
-		logoutLayout.add(logout);
-		HorizontalLayout navbarLayout = new HorizontalLayout(breadCrumbComponent, logoutLayout);
-		navbarLayout.setSizeFull();
-		return navbarLayout;
+		logoutLayout.add(new Text(getTranslation("navbar.text")), new ComboBox<>(), logout);
+		return logoutLayout;
 	}
 
 	public void afterNavigation(Component content){
