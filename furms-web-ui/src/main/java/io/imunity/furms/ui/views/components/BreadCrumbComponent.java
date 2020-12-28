@@ -47,21 +47,21 @@ class BreadCrumbComponent extends Composite<Div> {
 
 	private void updateView() {
 		List<Component> components = new ArrayList<>();
-		RouterLink routerLink = createRouterLink(bredCrumbs.firstElement());
+		RouterLink firstRouterLink = createRouterLink(bredCrumbs.firstElement());
 		List<Component> nextComponents = bredCrumbs.stream()
 			.skip(1)
 			.map(this::createNextRouterLink)
 			.collect(toList());
-		components.add(routerLink);
+		components.add(firstRouterLink);
 		components.addAll(nextComponents);
 
 		getContent().removeAll();
 		getContent().add(components.toArray(Component[]::new));
 	}
 
-	private Span createNextRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> x) {
+	private Component createNextRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> route) {
 		Span span = new Span(" > ");
-		span.add(createRouterLink(x));
+		span.add(createRouterLink(route));
 		return span;
 	}
 

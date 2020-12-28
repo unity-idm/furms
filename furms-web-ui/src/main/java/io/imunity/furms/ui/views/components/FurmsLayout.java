@@ -64,12 +64,12 @@ public class FurmsLayout {
 			event -> UI.getCurrent().getPage().setLocation(LOGOUT_URL)
 		);
 
-		HorizontalLayout logoutLayout = new HorizontalLayout();
-		logoutLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		logoutLayout.setSizeFull();
-		logoutLayout.add(new Text(getTranslation("navbar.text")), new ComboBox<>(), logout);
-		return logoutLayout;
+		HorizontalLayout rightNavbarSite = new HorizontalLayout();
+		rightNavbarSite.setAlignItems(FlexComponent.Alignment.CENTER);
+		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		rightNavbarSite.setSizeFull();
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), new ComboBox<>(), logout);
+		return rightNavbarSite;
 	}
 
 	public void afterNavigation(Component content){
