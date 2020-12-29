@@ -1,7 +1,7 @@
 {
 	"ver": "2",
-	"name": "localOAuthProfile",
-	"description": "For translation of localOAuth authn (loopback)",
+	"name": "oauth",
+	"description": "For translation of CentralIdP",
 	"rules": [
 		{
 			"condition": {
@@ -13,38 +13,51 @@
 					"identifier",
 					"attr['sub']",
 					"sys:all",
-					"MATCH"
+					"CREATE_OR_MATCH"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'username'"
-			}, 
-			"action": {
-				"name": "mapIdentity",
-				"parameters": [
-					"userName",
-					"attr['username']",
-					"sys:all",
-					"MATCH"
-				]
-			}
-		},
-			
-		{
-			"condition": {
-				"conditionValue": "true"
+				"conditionValue": "attr contains 'name'"
 			}, 
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"name",
 					"/",
-					"attr['cn']",
+					"attr['name']",
 					"CREATE_OR_UPDATE"
 				]
 			}			
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'given_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"firstname",
+					"/",
+					"attr['given_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'family_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"surname",
+					"/",
+					"attr['family_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
 		}
 	]
 }

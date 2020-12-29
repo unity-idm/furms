@@ -1,0 +1,5 @@
+furms:
+  unity:
+    admin-url: https://unity-furms/rest-admin/v1
+    admin-user: test
+    admin-password: test

@@ -16,43 +16,43 @@ import java.util.Set;
 @Service
 class SiteServiceAPI implements SiteService {
 
-    private final SiteRepository siteRepository;
-    private final SiteServiceAPIValidator validator;
+	private final SiteRepository siteRepository;
+	private final SiteServiceAPIValidator validator;
 
-    SiteServiceAPI(SiteRepository siteRepository,
-                   SiteServiceAPIValidator validator) {
-        this.siteRepository = siteRepository;
-        this.validator = validator;
-    }
+	SiteServiceAPI(SiteRepository siteRepository,
+	               SiteServiceAPIValidator validator) {
+		this.siteRepository = siteRepository;
+		this.validator = validator;
+	}
 
-    @Override
-    public Optional<Site> findById(String id) {
-        return siteRepository.findById(id);
-    }
+	@Override
+	public Optional<Site> findById(String id) {
+		return siteRepository.findById(id);
+	}
 
-    @Override
-    public Set<Site> findAll() {
-        return siteRepository.findAll();
-    }
+	@Override
+	public Set<Site> findAll() {
+		return siteRepository.findAll();
+	}
 
-    @Override
-    public void create(Site site) {
-        validator.validateCreate(site);
+	@Override
+	public void create(Site site) {
+		validator.validateCreate(site);
 
-        siteRepository.save(site);
-    }
+		siteRepository.create(site);
+	}
 
-    @Override
-    public void update(Site site) {
-        validator.validateUpdate(site);
+	@Override
+	public void update(Site site) {
+		validator.validateUpdate(site);
 
-        siteRepository.save(site);
-    }
+		siteRepository.update(site);
+	}
 
-    @Override
-    public void delete(String id) {
-        validator.validateDelete(id);
+	@Override
+	public void delete(String id) {
+		validator.validateDelete(id);
 
-        siteRepository.delete(id);
-    }
+		siteRepository.delete(id);
+	}
 }

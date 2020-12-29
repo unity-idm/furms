@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 Bixbit s.c. All rights reserved.
+  ~  See LICENSE file for licensing information.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>furms-unity-client</artifactId>
+	<name>FURMS Unity Client module</name>
+	<description>FURMS Unity DAO/Client module</description>
+
+	<parent>
+		<artifactId>furms-parent</artifactId>
+		<groupId>io.imunity.furms</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- Furms -->
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-domain</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-persistence-spi</artifactId>
+		</dependency>
+
+		<!-- Unity -->
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-types-api</artifactId>
+			<version>${unity.version}</version>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<version>2.27.2</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>

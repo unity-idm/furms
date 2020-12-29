@@ -1,0 +1,39 @@
+server:
+   port: 3443
+
+logging:
+   level:
+      org.springframework.security.oauth2: TRACE
+      org.springframework.web.client.RestTemplate: DEBUG
+      org.apache.http: DEBUG
+      httpclient.wire: DEBUG
+
+furms:
+   unity:
+      url: https://localhost:2443
+      ssl:
+         trust-store: classpath:demoTruststore.jks
+         trust-store-password: unicore
+      oAuth:
+         clientId: oauth-client
+         clientSecret: oauth-pass1
+   url: https://localhost:${server.port}
+
+spring:
+   security:
+      oauth2:
+         client:
+            provider:
+               unity: unity
+               unity.authorization-uri: ${furms.unity.url}/oauth2-as/oauth2-authz
+               unity.token-uri: ${furms.unity.url}/oauth2/token
+               unity.user-info-uri: ${furms.unity.url}/oauth2/userinfo
+               unity.user-name-attribute: name
+            registration:
+               unity:
+                  authorization-grant-type: authorization_code
+                  client-authentication-method: basic
+                  clientId: ${furms.unity.oAuth.clientId}
+                  clientSecret: ${furms.unity.oAuth.clientSecret}
+                  redirect-uri: ${furms.url}/login/oauth2/code/unity
+                  scope: openid+profile+single-logout

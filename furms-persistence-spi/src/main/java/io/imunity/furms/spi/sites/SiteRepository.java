@@ -12,15 +12,17 @@ import java.util.Set;
 
 public interface SiteRepository {
 
-    Optional<Site> findById(String id);
+	Optional<Site> findById(String id);
 
-    Set<Site> findAll();
+	Set<Site> findAll();
 
-    Site save(Site site);
+	String create(Site site);
 
-    boolean exists(String id);
+	String update(Site site);
 
-    boolean isUniqueName(String name);
+	boolean exists(String id);
 
-    void delete(String id);
+	boolean isUniqueName(String name);
+
+	void delete(String id);
 }
