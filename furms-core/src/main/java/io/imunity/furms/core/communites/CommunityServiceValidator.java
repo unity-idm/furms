@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import static org.springframework.util.Assert.notNull;
 
 @Component
-public class CommunityServiceValidator {
+class CommunityServiceValidator {
 	private final CommunityRepository communityRepository;
 
 	public CommunityServiceValidator(CommunityRepository communityRepository) {
@@ -35,8 +35,8 @@ public class CommunityServiceValidator {
 	}
 
 	private void validateName(Community community) {
-		notNull(community.getUserFacingName(), "Community user facing name has to be declared.");
-		if (!communityRepository.isUniqueUserFacingName(community.getUserFacingName())) {
+		notNull(community.getName(), "Community user facing name has to be declared.");
+		if (!communityRepository.isUniqueName(community.getName())) {
 			throw new IllegalArgumentException("Community user facing  name has to be unique.");
 		}
 	}

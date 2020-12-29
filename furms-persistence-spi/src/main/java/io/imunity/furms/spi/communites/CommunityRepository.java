@@ -15,11 +15,13 @@ public interface CommunityRepository {
 
 	Set<Community> findAll();
 
-	void save(Community site);
+	String create(Community community);
+
+	String update(Community community);
 
 	boolean exists(String id);
 
-	boolean isUniqueUserFacingName(String name);
+	boolean isUniqueName(String name);
 
 	void delete(String id);
 }

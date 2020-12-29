@@ -58,6 +58,12 @@
 			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<artifactId>furms-unity-client</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.h2database</groupId>

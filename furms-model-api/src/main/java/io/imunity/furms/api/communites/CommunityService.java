@@ -15,9 +15,9 @@ public interface CommunityService {
 
 	Set<Community> findAll();
 
-	void create(Community site);
+	void create(Community community);
 
-	void update(Community site);
+	void update(Community community);
 
 	void delete(String id);
 }

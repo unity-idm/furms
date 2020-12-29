@@ -10,13 +10,13 @@ import java.util.Objects;
 
 public class Community {
 	private final String id;
-	private final String userFacingName;
+	private final String name;
 	private final String description;
 	private final byte[] logoImage;
 
-	private Community(String id, String userFacingName, String description, byte[] logoImage) {
+	private Community(String id, String name, String description, byte[] logoImage) {
 		this.id = id;
-		this.userFacingName = userFacingName;
+		this.name = name;
 		this.description = description;
 		this.logoImage = logoImage;
 	}
@@ -25,8 +25,8 @@ public class Community {
 		return id;
 	}
 
-	public String getUserFacingName() {
-		return userFacingName;
+	public String getName() {
+		return name;
 	}
 
 	public String getDescription() {
@@ -47,14 +47,14 @@ public class Community {
 		if (o == null || getClass() != o.getClass()) return false;
 		Community community = (Community) o;
 		return Objects.equals(id, community.id) &&
-			Objects.equals(userFacingName, community.userFacingName) &&
+			Objects.equals(name, community.name) &&
 			Objects.equals(description, community.description) &&
 			Arrays.equals(logoImage, community.logoImage);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, userFacingName, description);
+		int result = Objects.hash(id, name, description);
 		result = 31 * result + Arrays.hashCode(logoImage);
 		return result;
 	}
@@ -63,7 +63,7 @@ public class Community {
 	public String toString() {
 		return "Community{" +
 			"id='" + id + '\'' +
-			", userFacingName='" + userFacingName + '\'' +
+			", name='" + name + '\'' +
 			", description='" + description + '\'' +
 			", logoImage=" + Arrays.toString(logoImage) +
 			'}';
@@ -71,7 +71,7 @@ public class Community {
 
 	public static class CommunityBuilder {
 		private String id;
-		private String userFacingName;
+		private String name;
 		private String description;
 		private byte[] logoImage;
 
@@ -80,8 +80,8 @@ public class Community {
 			return this;
 		}
 
-		public CommunityBuilder userFacingName(String userFacingName) {
-			this.userFacingName = userFacingName;
+		public CommunityBuilder name(String name) {
+			this.name = name;
 			return this;
 		}
 
@@ -96,7 +96,7 @@ public class Community {
 		}
 
 		public Community build() {
-			return new Community(id, userFacingName, description, logoImage);
+			return new Community(id, name, description, logoImage);
 		}
 	}
 }

@@ -35,3 +35,13 @@ vaadin-tab[selected] {
 #breadcrumb a, #breadcrumb span {
 	color: var(--lumo-body-text-color);
 }
+
+.furms-view {
+	padding-right: 1rem;
+	padding-left: 1rem;
+	font-family: var(--lumo-font-family);
+}
+
+.furms-view h4 {
+	color: var(--lumo-body-text-color);
+}

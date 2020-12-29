@@ -30,10 +30,10 @@ class CommunityServiceImpValidatorTest {
 	void shouldPassCreateForUniqueName() {
 		//given
 		Community community = Community.builder()
-			.userFacingName("name")
+			.name("name")
 			.build();
 
-		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
+		when(communityRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(community));
@@ -43,10 +43,10 @@ class CommunityServiceImpValidatorTest {
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
 		final Community community = Community.builder()
-			.userFacingName("name")
+			.name("name")
 			.build();
 
-		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
+		when(communityRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(community));
@@ -57,11 +57,11 @@ class CommunityServiceImpValidatorTest {
 		//given
 		final Community community = Community.builder()
 			.id("id")
-			.userFacingName("name")
+			.name("name")
 			.build();
 
 		when(communityRepository.exists(community.getId())).thenReturn(true);
-		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(true);
+		when(communityRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(community));
@@ -72,7 +72,7 @@ class CommunityServiceImpValidatorTest {
 		//given
 		Community community = Community.builder()
 			.id("id")
-			.userFacingName("name")
+			.name("name")
 			.build();
 
 		when(communityRepository.exists(community.getId())).thenReturn(false);
@@ -86,11 +86,11 @@ class CommunityServiceImpValidatorTest {
 		//given
 		Community community = Community.builder()
 			.id("id")
-			.userFacingName("name")
+			.name("name")
 			.build();
 
 		when(communityRepository.exists(community.getId())).thenReturn(true);
-		when(communityRepository.isUniqueUserFacingName(any())).thenReturn(false);
+		when(communityRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));

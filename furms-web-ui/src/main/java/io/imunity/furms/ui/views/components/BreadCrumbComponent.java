@@ -20,7 +20,7 @@ import static io.imunity.furms.ui.views.components.FurmsLayout.getPageTitle;
 import static java.util.stream.Collectors.toList;
 
 class BreadCrumbComponent extends Composite<Div> {
-	private final Stack<Pair<Class<? extends FurmsViewComponent>, Optional<String>>> bredCrumbs = new Stack<>();
+	private final Stack<Pair<Class<? extends FurmsViewComponent>, Optional<Parameter>>> bredCrumbs = new Stack<>();
 	private final List<Class<? extends Component>> menuRouts;
 
 	BreadCrumbComponent(List<Class<? extends Component>> menuRouts){
@@ -34,7 +34,7 @@ class BreadCrumbComponent extends Composite<Div> {
 		if(menuRouts.contains(componentClass))
 			bredCrumbs.removeAllElements();
 
-		Pair<Class<? extends FurmsViewComponent>, Optional<String>> route =
+		Pair<Class<? extends FurmsViewComponent>, Optional<Parameter>> route =
 			Pair.of(componentClass, component.getParameter());
 		if(!bredCrumbs.contains(route))
 			bredCrumbs.push(route);
@@ -59,15 +59,15 @@ class BreadCrumbComponent extends Composite<Div> {
 		getContent().add(components.toArray(Component[]::new));
 	}
 
-	private Component createNextRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> route) {
+	private Component createNextRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<Parameter>> route) {
 		Span span = new Span(" > ");
 		span.add(createRouterLink(route));
 		return span;
 	}
 
-	private RouterLink createRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> route) {
+	private RouterLink createRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<Parameter>> route) {
 		return route.getValue()
-			.map(v -> new RouterLink(v, route.getKey(), v))
+			.map(p -> new RouterLink(p.name, route.getKey(), p.id))
 			.orElseGet(() -> new RouterLink(getPageTitle(route.getKey()), route.getKey()));
 	}
 }

@@ -8,7 +8,7 @@ package io.imunity.furms.core.communites;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.communites.UnityCommunityRepository;
+import io.imunity.furms.spi.communites.CommunityWebClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,14 +18,14 @@ import java.util.Set;
 @Service
 class CommunityServiceImp implements CommunityService {
 	private final CommunityRepository communityRepository;
-	private final UnityCommunityRepository unityCommunityRepository;
+	private final CommunityWebClient communityWebClient;
 	private final CommunityServiceValidator validator;
 
 	CommunityServiceImp(CommunityRepository communityRepository,
-	                    UnityCommunityRepository unityCommunityRepository,
+	                    CommunityWebClient communityWebClient,
 	                    CommunityServiceValidator validator) {
 		this.communityRepository = communityRepository;
-		this.unityCommunityRepository = unityCommunityRepository;
+		this.communityWebClient = communityWebClient;
 		this.validator = validator;
 	}
 
@@ -43,16 +43,16 @@ class CommunityServiceImp implements CommunityService {
 	@Transactional
 	public void create(Community community) {
 		validator.validateCreate(community);
-		communityRepository.save(community);
-		unityCommunityRepository.save(community);
+		communityRepository.create(community);
+		communityWebClient.create(community);
 	}
 
 	@Override
 	@Transactional
 	public void update(Community community) {
 		validator.validateUpdate(community);
-		communityRepository.save(community);
-		unityCommunityRepository.save(community);
+		communityRepository.update(community);
+		communityWebClient.update(community);
 	}
 
 	@Override
@@ -60,6 +60,6 @@ class CommunityServiceImp implements CommunityService {
 	public void delete(String id) {
 		validator.validateDelete(id);
 		communityRepository.delete(id);
-		unityCommunityRepository.delete(id);
+		communityWebClient.delete(id);
 	}
 }
