@@ -3,10 +3,11 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.unity;
+package io.imunity.furms.spi.roles;
 
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.Role;
+
+import io.imunity.furms.domain.roles.ResourceId;
+import io.imunity.furms.domain.roles.Role;
 
 import java.util.Map;
 import java.util.Set;

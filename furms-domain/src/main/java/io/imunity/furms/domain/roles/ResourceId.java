@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.resource;
+package io.imunity.furms.domain.roles;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -5,7 +5,7 @@
 package io.imunity.furms.core.config.security;
 
 import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
-import io.imunity.furms.core.config.security.user.unity.RoleLoader;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,14 +30,14 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
-	private final TokenRevoker tokenRevoker;
+	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
 
 	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                      TokenRevoker tokenRevoker, RoleLoader roleLoader) {
+	                      TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
-		this.tokenRevoker = tokenRevoker;
+		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
 	}
 
@@ -56,7 +57,8 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutUrl(LOGOUT_URL).logoutSuccessHandler(tokenRevoker)
+			.logout().logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL, "GET"))
+			.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
 			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))

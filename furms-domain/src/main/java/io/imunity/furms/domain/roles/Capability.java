@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.capability;
+package io.imunity.furms.domain.roles;
 
 public enum Capability {
 	AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_ADMINS_MANAGEMENT, COMMUNITY_READ, COMMUNITY_WRITE,

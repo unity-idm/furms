@@ -3,19 +3,20 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.unity;
+package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.resource.ResourceType;
-import io.imunity.furms.core.config.security.user.unity.exception.WrongGroupException;
+import io.imunity.furms.domain.roles.ResourceId;
+import io.imunity.furms.domain.roles.ResourceType;
+import io.imunity.furms.unity.client.unity.exception.WrongGroupException;
 import org.springframework.util.AntPathMatcher;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
 public class UnityGroupParser {
-	public final static Predicate<Attribute> usersGroupPredicate = a -> a.groupPath.endsWith("users");
+	public final static Predicate<Attribute> usersGroupPredicate = a -> a.getGroupPath().endsWith("users");
 
 	private final static Map<String, ResourceType> resourcesPatterns = Map.of(
 		"/fenix/users", ResourceType.APP_LEVEL,

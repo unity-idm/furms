@@ -6,9 +6,9 @@
 package io.imunity.furms.core.config.security.method;
 
 import io.imunity.furms.core.config.security.user.FurmsUserContext;
-import io.imunity.furms.core.config.security.user.capability.Capability;
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.resource.ResourceType;
+import io.imunity.furms.domain.roles.Capability;
+import io.imunity.furms.domain.roles.ResourceId;
+import io.imunity.furms.domain.roles.ResourceType;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;

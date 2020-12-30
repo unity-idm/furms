@@ -3,14 +3,13 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.role;
-
-import io.imunity.furms.core.config.security.user.capability.Capability;
+package io.imunity.furms.domain.roles;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static io.imunity.furms.core.config.security.user.capability.Capability.*;
+import static io.imunity.furms.domain.roles.Capability.*;
 import static java.util.Collections.emptyList;
 
 public enum Role {
@@ -33,7 +32,7 @@ public enum Role {
 	),
 	SITE_ADMIN(
 		"furmsSiteRole",
-		"SUPPORT",
+		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_ADMINS_MANAGEMENT
 		),
@@ -41,7 +40,7 @@ public enum Role {
 	),
 	COMMUNITY_ADMIN(
 		"furmsCommunityRole",
-		"SUPPORT",
+		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE,
 			COMMUNITY_ADMINS_MANAGEMENT
@@ -50,7 +49,7 @@ public enum Role {
 	),
 	PROJECT_ADMIN(
 		"furmsProjectRole",
-		"SUPPORT",
+		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_WRITE, PROJECT_ADMINS_MANAGEMENT,
 			PROJECT_MEMBER_MANAGEMENT
@@ -59,7 +58,7 @@ public enum Role {
 	),
 	PROJECT_MEMBER(
 		"furmsProjectRole",
-		"SUPPORT",
+		"MEMBER",
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ
 		),
@@ -78,12 +77,11 @@ public enum Role {
 		this.additionalCapabilities = List.copyOf(additionalCapabilities);
 	}
 
-	public static Role translateRole(String attributeType, String value) {
+	public static Optional<Role> translateRole(String attributeType, String value) {
 		return Arrays.stream(values())
 			.filter(r -> r.unityRoleAttribute.equals(attributeType))
-			.filter(r -> r.unityRoleAttribute.equals(value))
-			.findAny()
-			.orElseThrow(() -> new RuntimeException("Invalid attributeType: " + attributeType + " or value: " + value));
+			.filter(r -> r.unityRoleValue.equals(value))
+			.findAny();
 	}
 
 }

@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.unity.exception;
+package io.imunity.furms.unity.client.unity.exception;
 
 public class WrongGroupException extends IllegalArgumentException {
 	public WrongGroupException(String s) {
