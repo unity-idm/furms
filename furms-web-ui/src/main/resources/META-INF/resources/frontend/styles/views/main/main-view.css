@@ -42,6 +42,18 @@ vaadin-tab[selected] {
 	font-family: var(--lumo-font-family);
 }
 
-.furms-view h4 {
+.furms-view h4, .furms-color {
 	color: var(--lumo-body-text-color);
+}
+
+.tooltip-icon-padding {
+	padding-right: 0.25rem;
+}
+
+.tooltip-div {
+	cursor: pointer;
+}
+
+.tooltip-div span:hover {
+	text-decoration: underline;
 }
