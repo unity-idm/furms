@@ -6,8 +6,8 @@
 package io.imunity.furms.core.config.security.method;
 
 import io.imunity.furms.core.config.security.user.FurmsUserContext;
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.Role;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
-import static io.imunity.furms.core.config.security.user.resource.ResourceType.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertThrows;

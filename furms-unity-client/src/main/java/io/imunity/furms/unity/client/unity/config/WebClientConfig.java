@@ -7,7 +7,9 @@ package io.imunity.furms.unity.client.unity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import java.util.Base64;
 
@@ -20,9 +22,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class WebClientConfig {
 
 	@Bean
-	public WebClient webClient(UnityProperties unityProperties) {
+	public WebClient webClient(UnityProperties unityProperties, SslContextManager sslContextManager) {
 		String authorizationKey = createAuthorizationKey(unityProperties.getAdminUser(), unityProperties.getAdminPassword());
+		HttpClient httpClient = HttpClient.create()
+			.secure(sslSpec -> sslSpec.sslContext(sslContextManager.getSslContextForWebClient()));
 		return WebClient.builder()
+				.clientConnector(new ReactorClientHttpConnector(httpClient))
 				.baseUrl(unityProperties.getAdminUrl())
 				.defaultHeader(AUTHORIZATION, authorizationKey)
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

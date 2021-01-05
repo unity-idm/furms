@@ -3,19 +3,19 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.unity;
+package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.resource.ResourceType;
-import io.imunity.furms.core.config.security.user.unity.exception.WrongGroupException;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import org.springframework.util.AntPathMatcher;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public class UnityGroupParser {
-	public final static Predicate<Attribute> usersGroupPredicate = a -> a.groupPath.endsWith("users");
+class UnityGroupParser {
+	final static Predicate<Attribute> usersGroupPredicate = a -> a.getGroupPath().endsWith("users");
 
 	private final static Map<String, ResourceType> resourcesPatterns = Map.of(
 		"/fenix/users", ResourceType.APP_LEVEL,
@@ -25,15 +25,15 @@ public class UnityGroupParser {
 	);
 	private final static AntPathMatcher matcher = new AntPathMatcher();
 
-	public static ResourceId getResourceId(String group){
+	static ResourceId getResourceId(String group){
 		if(group == null)
-			throw new WrongGroupException("Group cannot be a null");
+			throw new IllegalArgumentException("Group cannot be a null");
 
 		UUID id = null;
 		String[] groupElements = group.replaceFirst("^/", "").split("/");
 
 		if(groupElements.length < 2)
-			throw new WrongGroupException("Group should contain at least two elements");
+			throw new IllegalArgumentException("Group should contain at least two elements");
 		if(groupElements.length > 2){
 			id = UUID.fromString(groupElements[groupElements.length - 2]);
 		}

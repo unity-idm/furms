@@ -7,6 +7,13 @@ server:
       key-password: the!test
       enabled-protocols: TLSv1.2
 
+reactor:
+   netty:
+      http:
+         client:
+            logging:
+               level: DEBUG
+
 logging:
    level:
       org.springframework.security.oauth2: TRACE
@@ -16,6 +23,9 @@ logging:
 
 furms:
    unity:
+      admin-url: https://localhost:2443/rest-admin/v1
+      admin-user: a
+      admin-password: AdminP@SSword1234!@&
       url: https://localhost:2443
       ssl:
          trust-store: classpath:demoTruststore.jks

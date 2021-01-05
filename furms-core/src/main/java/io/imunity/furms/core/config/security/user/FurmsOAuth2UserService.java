@@ -5,9 +5,10 @@
 
 package io.imunity.furms.core.config.security.user;
 
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.role.Role;
-import io.imunity.furms.core.config.security.user.unity.RoleLoader;
+
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
