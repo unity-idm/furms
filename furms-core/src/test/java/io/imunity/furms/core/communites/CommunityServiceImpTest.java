@@ -6,8 +6,9 @@
 package io.imunity.furms.core.communites;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.communites.CommunityWebClient;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -29,7 +30,7 @@ class CommunityServiceImpTest {
 	@Mock
 	private CommunityRepository communityRepository;
 	@Mock
-	private CommunityWebClient communityWebClient;
+	private CommunityGroupsDAO communityGroupsDAO;
 
 	private CommunityServiceImp service;
 	private InOrder orderVerifier;
@@ -38,8 +39,8 @@ class CommunityServiceImpTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository);
-		service = new CommunityServiceImp(communityRepository, communityWebClient, validator);
-		orderVerifier = inOrder(communityRepository, communityWebClient);
+		service = new CommunityServiceImp(communityRepository, communityGroupsDAO, validator);
+		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
 	}
 
 	@Test
@@ -80,15 +81,21 @@ class CommunityServiceImpTest {
 	void shouldAllowToCreateCommunity() {
 		//given
 		Community request = Community.builder()
+			.id("id")
+			.name("userFacingName")
+			.build();
+		CommunityGroup groupRequest = CommunityGroup.builder()
+			.id("id")
 			.name("userFacingName")
 			.build();
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(communityRepository.create(request)).thenReturn("id");
 
 		//when
 		service.create(request);
 
 		orderVerifier.verify(communityRepository).create(eq(request));
-		orderVerifier.verify(communityWebClient).create(eq(request));
+		orderVerifier.verify(communityGroupsDAO).create(eq(groupRequest));
 	}
 
 	@Test
@@ -110,6 +117,10 @@ class CommunityServiceImpTest {
 			.id("id")
 			.name("userFacingName")
 			.build();
+		CommunityGroup groupRequest = CommunityGroup.builder()
+			.id("id")
+			.name("userFacingName")
+			.build();
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
 
@@ -117,7 +128,7 @@ class CommunityServiceImpTest {
 		service.update(request);
 
 		orderVerifier.verify(communityRepository).update(eq(request));
-		orderVerifier.verify(communityWebClient).update(eq(request));
+		orderVerifier.verify(communityGroupsDAO).update(eq(groupRequest));
 	}
 
 	@Test
@@ -130,7 +141,7 @@ class CommunityServiceImpTest {
 		service.delete(id);
 
 		orderVerifier.verify(communityRepository).delete(eq(id));
-		orderVerifier.verify(communityWebClient).delete(eq(id));
+		orderVerifier.verify(communityGroupsDAO).delete(eq(id));
 	}
 
 	@Test

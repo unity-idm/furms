@@ -7,6 +7,7 @@ package io.imunity.furms.db.communities;
 
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,12 +49,12 @@ class CommunityDatabaseRepositoryTest {
 	}
 
 	@Test
-	void shouldFindById() throws IOException {
+	void shouldFindCreatedCommunity() {
 		//given
 		CommunityEntity entity = entityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -65,7 +66,7 @@ class CommunityDatabaseRepositoryTest {
 		assertThat(community.getId()).isEqualTo(entity.getId().toString());
 		assertThat(community.getName()).isEqualTo(entity.getName());
 		assertThat(community.getDescription()).isEqualTo(entity.getDescription());
-		assertThat(community.getLogoImage()).isEqualTo(entity.getLogoImage());
+		assertThat(community.getLogo()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
 	}
 
 	@Test
@@ -75,7 +76,7 @@ class CommunityDatabaseRepositoryTest {
 		entityRepository.save(CommunityEntity.builder()
 				.name("random_site")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -91,12 +92,12 @@ class CommunityDatabaseRepositoryTest {
 		entityRepository.save(CommunityEntity.builder()
 				.name("name1")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		entityRepository.save(CommunityEntity.builder()
 				.name("name2")
 				.description("description")
-				.logoImage(imgTestFile2)
+				.logo(imgTestFile2, "jpg")
 				.build());
 
 		//when
@@ -112,7 +113,7 @@ class CommunityDatabaseRepositoryTest {
 		Community request = Community.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build();
 
 		//when
@@ -126,26 +127,49 @@ class CommunityDatabaseRepositoryTest {
 	}
 
 	@Test
-	void shouldNotCreatCommunityDueToWrongRequest() {
+	void shouldNotCreatCommunityDueToRequestWithEmptyName() {
 		//given
 		Community requestWithEmptyName = Community.builder()
 				.name("")
 				.build();
-		Community nullRequest = null;
 		entityRepository.save(CommunityEntity.builder()
 				.name("non_unique_name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
-		Community nonUniqueNameRequest = Community.builder()
-				.name("non_unique_name")
-				.description("description")
-				.logoImage(imgTestFile2)
-				.build();
 
 		//when + then
 		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
+	}
+
+	@Test
+	void shouldNotCreatCommunityDueToNullRequest() {
+		//given
+		entityRepository.save(CommunityEntity.builder()
+			.name("non_unique_name")
+			.description("description")
+			.logo(imgTestFile, "jpg")
+			.build());
+
+		//when + then
+		assertThrows(IllegalArgumentException.class, () -> repository.create(null));
+	}
+
+	@Test
+	void shouldNotCreateCommunityDueToNonUniqueNameRequest() {
+		//given
+		entityRepository.save(CommunityEntity.builder()
+			.name("non_unique_name")
+			.description("description")
+			.logo(imgTestFile, "jpg")
+			.build());
+		Community nonUniqueNameRequest = Community.builder()
+			.name("non_unique_name")
+			.description("description")
+			.logo(imgTestFile2, "jpg")
+			.build();
+
+		//when + then
 		assertThrows(IllegalArgumentException.class, () -> repository.create(nonUniqueNameRequest));
 	}
 
@@ -155,13 +179,13 @@ class CommunityDatabaseRepositoryTest {
 		CommunityEntity old = entityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		Community requestToUpdate = Community.builder()
 				.id(old.getId().toString())
 				.name("new_name")
 				.description("new_description")
-				.logoImage(imgTestFile2)
+				.logo(imgTestFile2, "jpg")
 				.build();
 
 		//when
@@ -172,16 +196,17 @@ class CommunityDatabaseRepositoryTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 		assertThat(byId.get().getDescription()).isEqualTo("new_description");
-		assertThat(byId.get().getLogoImage()).isEqualTo(imgTestFile2);
+		assertThat(byId.get().getLogo().getImage()).isEqualTo(imgTestFile2);
+		assertThat(byId.get().getLogo().getType()).isEqualTo("jpg");
 	}
 
 	@Test
-	void shouldExistsById() {
+	void savedCommunityExists() {
 		//given
 		CommunityEntity entity = entityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("new_description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when + then
@@ -205,7 +230,7 @@ class CommunityDatabaseRepositoryTest {
 		entityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("new_description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		String uniqueName = "unique_name";
 
@@ -219,7 +244,7 @@ class CommunityDatabaseRepositoryTest {
 		CommunityEntity existedCommunity = entityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("new_description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when + then

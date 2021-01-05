@@ -9,13 +9,15 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static org.springframework.util.Assert.notNull;
 
 @Component
 class CommunityServiceValidator {
 	private final CommunityRepository communityRepository;
 
-	public CommunityServiceValidator(CommunityRepository communityRepository) {
+	CommunityServiceValidator(CommunityRepository communityRepository) {
 		this.communityRepository = communityRepository;
 	}
 
@@ -36,9 +38,15 @@ class CommunityServiceValidator {
 
 	private void validateName(Community community) {
 		notNull(community.getName(), "Community user facing name has to be declared.");
-		if (!communityRepository.isUniqueName(community.getName())) {
+		if (isNameUnique(community)) {
 			throw new IllegalArgumentException("Community user facing  name has to be unique.");
 		}
+	}
+
+	private boolean isNameUnique(Community community) {
+		Optional<Community> optionalCommunity = communityRepository.findById(community.getId());
+		return !communityRepository.isUniqueName(community.getName()) &&
+			(optionalCommunity.isEmpty() || !optionalCommunity.get().getName().equals(community.getName()));
 	}
 
 	private void validateId(String id) {

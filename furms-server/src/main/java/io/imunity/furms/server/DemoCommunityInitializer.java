@@ -5,35 +5,38 @@
 
 package io.imunity.furms.server;
 
+import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.spi.communites.CommunityRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 @Component
-public class TestCommunityInitializer {
-	public final CommunityRepository communityRepository;
+@Profile("demo-data-provisioning")
+class DemoCommunityInitializer {
+	private final CommunityService communityRepository;
 
-	public TestCommunityInitializer(CommunityRepository communityRepository) {
-		this.communityRepository = communityRepository;
+	DemoCommunityInitializer(CommunityService CommunityService) {
+		this.communityRepository = CommunityService;
 	}
 
 	@PostConstruct
 	public void init() throws IOException {
 		if(communityRepository.findAll().isEmpty()) {
-			byte[] imgTestFile = getClass().getClassLoader().getResourceAsStream("logo_test.jpg").readAllBytes();
+			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();
 			Community community = Community.builder()
 				.name("HBP")
 				.description("Human Brain Project")
-				.logoImage(imgTestFile)
+				.logo(imgHBPFile, "png")
 				.build();
 
+			byte[] imgPRACEFile = getClass().getClassLoader().getResourceAsStream("demo/PRACE.png").readAllBytes();
 			Community community2 = Community.builder()
 				.name("PRACE")
 				.description("Partnership for Advance Computing")
-				.logoImage(imgTestFile)
+				.logo(imgPRACEFile, "png")
 				.build();
 
 			communityRepository.create(community);

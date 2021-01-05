@@ -19,7 +19,7 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 		getContent().setClassName("furms-view");
 	}
 
-	public Optional<Parameter> getParameter(){
+	public Optional<BreadCrumbParameter> getParameter(){
 		return Optional.empty();
 	}
 

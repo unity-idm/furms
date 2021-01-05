@@ -5,20 +5,21 @@
 
 package io.imunity.furms.domain.communities;
 
-import java.util.Arrays;
+import io.imunity.furms.domain.images.FurmsImage;
+
 import java.util.Objects;
 
 public class Community {
 	private final String id;
 	private final String name;
 	private final String description;
-	private final byte[] logoImage;
+	private final FurmsImage logo;
 
-	private Community(String id, String name, String description, byte[] logoImage) {
+	private Community(String id, String name, String description, FurmsImage logo) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
-		this.logoImage = logoImage;
+		this.logo = logo;
 	}
 
 	public String getId() {
@@ -33,8 +34,8 @@ public class Community {
 		return description;
 	}
 
-	public byte[] getLogoImage() {
-		return logoImage;
+	public FurmsImage getLogo() {
+		return logo;
 	}
 
 	public static Community.CommunityBuilder builder() {
@@ -49,14 +50,12 @@ public class Community {
 		return Objects.equals(id, community.id) &&
 			Objects.equals(name, community.name) &&
 			Objects.equals(description, community.description) &&
-			Arrays.equals(logoImage, community.logoImage);
+			Objects.equals(logo, community.logo);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, name, description);
-		result = 31 * result + Arrays.hashCode(logoImage);
-		return result;
+		return Objects.hash(id, name, description, logo);
 	}
 
 	@Override
@@ -65,7 +64,7 @@ public class Community {
 			"id='" + id + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
-			", logoImage=" + Arrays.toString(logoImage) +
+			", logo=" + logo +
 			'}';
 	}
 
@@ -73,7 +72,7 @@ public class Community {
 		private String id;
 		private String name;
 		private String description;
-		private byte[] logoImage;
+		private FurmsImage logo;
 
 		public CommunityBuilder id(String id) {
 			this.id = id;
@@ -90,13 +89,18 @@ public class Community {
 			return this;
 		}
 
-		public CommunityBuilder logoImage(byte[] logoImage) {
-			this.logoImage = logoImage;
+		public CommunityBuilder logo(byte[] logoImage, String imageType) {
+			this.logo = new FurmsImage(logoImage, imageType);
+			return this;
+		}
+
+		public CommunityBuilder logo(FurmsImage logo) {
+			this.logo = logo;
 			return this;
 		}
 
 		public Community build() {
-			return new Community(id, name, description, logoImage);
+			return new Community(id, name, description, logo);
 		}
 	}
 }

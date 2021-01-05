@@ -5,11 +5,9 @@
 
 package io.imunity.furms.unity.client.communities;
 
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.spi.communites.CommunityWebClient;
-import io.imunity.furms.unity.client.communities.exceptions.UnityCommunityCreateException;
-import io.imunity.furms.unity.client.communities.exceptions.UnityCommunityDeleteException;
-import io.imunity.furms.unity.client.communities.exceptions.UnityCommunityUpdateException;
+import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.unity.client.communities.exceptions.UnityCommunityOperationException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -22,21 +20,24 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.*;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.META;
+import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_ID;
+import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_ID_USERS;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
-class UnityCommunityWebClient implements CommunityWebClient {
+class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 
 	private final UnityClient unityClient;
 
-	UnityCommunityWebClient(UnityClient unityClient) {
+	UnityCommunityGroupsDAO(UnityClient unityClient) {
 		this.unityClient = unityClient;
 	}
 
 	@Override
-	public Optional<Community> get(String id) {
+	public Optional<CommunityGroup> get(String id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Could not get Community from Unity. Missing Community ID");
 		}
@@ -49,7 +50,7 @@ class UnityCommunityWebClient implements CommunityWebClient {
 				.buildAndExpand().encode().toUriString();
 		try {
 			Group group = unityClient.get(path, Group.class);
-			return Optional.ofNullable(Community.builder()
+			return Optional.ofNullable(CommunityGroup.builder()
 					.id(id)
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
@@ -62,7 +63,7 @@ class UnityCommunityWebClient implements CommunityWebClient {
 	}
 
 	@Override
-	public void create(Community community) {
+	public void create(CommunityGroup community) {
 		if (community == null || isEmpty(community.getId())) {
 			throw new IllegalArgumentException("Could not create Community in Unity. Missing Community or Community ID");
 		}
@@ -76,7 +77,7 @@ class UnityCommunityWebClient implements CommunityWebClient {
 		try {
 			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientException e) {
-			throw new UnityCommunityCreateException(e.getMessage());
+			throw new UnityCommunityOperationException(e.getMessage());
 		}
 		try {
 			String createCommunityUsersPath = UriComponentsBuilder.newInstance()
@@ -86,12 +87,12 @@ class UnityCommunityWebClient implements CommunityWebClient {
 			unityClient.post(createCommunityUsersPath);
 		} catch (WebClientException e) {
 			this.delete(community.getId());
-			throw new UnityCommunityCreateException(e.getMessage());
+			throw new UnityCommunityOperationException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void update(Community community) {
+	public void update(CommunityGroup community) {
 		if (community == null || isEmpty(community.getId())) {
 			throw new IllegalArgumentException("Could not update Community in Unity. Missing Community or Community ID");
 		}
@@ -107,7 +108,7 @@ class UnityCommunityWebClient implements CommunityWebClient {
 			group.setDisplayedName(new I18nString(community.getName()));
 			unityClient.put(GROUP_BASE, group);
 		} catch (WebClientException e) {
-			throw new UnityCommunityUpdateException(e.getMessage());
+			throw new UnityCommunityOperationException(e.getMessage());
 		}
 	}
 
@@ -126,11 +127,11 @@ class UnityCommunityWebClient implements CommunityWebClient {
 		try {
 			unityClient.delete(deleteCommunityPath, queryParams);
 		} catch (WebClientException e) {
-			throw new UnityCommunityDeleteException(e.getMessage());
+			throw new UnityCommunityOperationException(e.getMessage());
 		}
 	}
 
-	private Map<String, Object> uriVariables(Community community) {
+	private Map<String, Object> uriVariables(CommunityGroup community) {
 		return uriVariables(community.getId());
 	}
 

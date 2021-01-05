@@ -46,7 +46,7 @@ class CommunityEntityRepositoryTest {
 		CommunityEntity entityToSave = CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build();
 
 		//when
@@ -63,13 +63,13 @@ class CommunityEntityRepositoryTest {
 		CommunityEntity old = communityEntityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		CommunityEntity toUpdate = CommunityEntity.builder()
 				.id(old.getId())
 				.name("new_name")
 				.description("new_description")
-				.logoImage(imgTestFile2)
+				.logo(imgTestFile2, "jpg")
 				.build();
 
 		//when
@@ -84,12 +84,12 @@ class CommunityEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldFindCommunityById() {
+	void shouldFindCreatedCommunity() {
 		//given
 		CommunityEntity toFind = communityEntityRepository.save(CommunityEntity.builder()
 				.name("name1")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -100,33 +100,17 @@ class CommunityEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldFindCommunityByCommunityId() {
-		//given
-		CommunityEntity toFind = communityEntityRepository.save(CommunityEntity.builder()
-				.name("name1")
-				.description("description")
-				.logoImage(imgTestFile)
-				.build());
-
-		//when
-		Optional<CommunityEntity> byCommunityId = communityEntityRepository.findById(toFind.getId());
-
-		//then
-		assertThat(byCommunityId).isPresent();
-	}
-
-	@Test
-	void shouldFindAllAvailableCommunitys() {
+	void shouldFindAllAvailableCommunities() {
 		//given
 		communityEntityRepository.save(CommunityEntity.builder()
 				.name("name1")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		communityEntityRepository.save(CommunityEntity.builder()
 				.name("name2")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -137,12 +121,12 @@ class CommunityEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldCheckIfExistsByCommunityId() {
+	void savedCommunityExistsByCommunityId() {
 		//given
 		CommunityEntity site = communityEntityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when + then
@@ -151,12 +135,12 @@ class CommunityEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldCheckIfExistsByName() {
+	void savedCommunityExistsByName() {
 		//given
 		CommunityEntity site = communityEntityRepository.save(CommunityEntity.builder()
 				.name("name")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -169,28 +153,12 @@ class CommunityEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldDeleteEntity() {
+	void shouldDeleteCommunity() {
 		//given
 		CommunityEntity entityToRemove = communityEntityRepository.save(CommunityEntity.builder()
 				.name("name1")
 				.description("description")
-				.logoImage(imgTestFile)
-				.build());
-
-		//when
-		communityEntityRepository.deleteById(entityToRemove.getId());
-
-		//then
-		assertThat(communityEntityRepository.findAll()).hasSize(0);
-	}
-
-	@Test
-	void shouldDeleteEntityByCommunityId() {
-		//given
-		CommunityEntity entityToRemove = communityEntityRepository.save(CommunityEntity.builder()
-				.name("name1")
-				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 
 		//when
@@ -206,12 +174,12 @@ class CommunityEntityRepositoryTest {
 		communityEntityRepository.save(CommunityEntity.builder()
 				.name("name1")
 				.description("description")
-				.logoImage(imgTestFile)
+				.logo(imgTestFile, "jpg")
 				.build());
 		communityEntityRepository.save(CommunityEntity.builder()
 				.name("name2")
 				.description("description2")
-				.logoImage(imgTestFile2)
+				.logo(imgTestFile2, "jpg")
 				.build());
 
 		//when

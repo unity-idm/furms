@@ -5,7 +5,7 @@
 
 package io.imunity.furms.unity.client.communities;
 
-import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,13 +23,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class UnityCommunityWebClientTest {
+class UnityCommunityGroupsDAOTest {
 
 	@Mock
 	private UnityClient unityClient;
 
 	@InjectMocks
-	private UnityCommunityWebClient unityCommunityWebClient;
+	private UnityCommunityGroupsDAO unityCommunityWebClient;
 
 	@Test
 	void shouldGetMetaInfoAboutCommunity() {
@@ -40,27 +40,26 @@ class UnityCommunityWebClientTest {
 		when(unityClient.get(contains(id), eq(Group.class))).thenReturn(group);
 
 		//when
-		Optional<Community> site = unityCommunityWebClient.get(id);
+		Optional<CommunityGroup> community = unityCommunityWebClient.get(id);
 
 		//then
-		assertThat(site).isPresent();
-		assertThat(site.get().getId()).isEqualTo(id);
-		assertThat(site.get().getName()).isEqualTo("test");
+		assertThat(community).isPresent();
+		assertThat(community.get().getId()).isEqualTo(id);
+		assertThat(community.get().getName()).isEqualTo("test");
 	}
 
 	@Test
 	void shouldCreateCommunity() {
 		//given
-		Community site = Community.builder()
+		CommunityGroup community = CommunityGroup.builder()
 				.id(UUID.randomUUID().toString())
 				.name("test")
-				.description("description")
 				.build();
-		doNothing().when(unityClient).post(contains(site.getId()), any());
+		doNothing().when(unityClient).post(contains(community.getId()), any());
 		doNothing().when(unityClient).post(contains("users"), any());
 
 		//when
-		unityCommunityWebClient.create(site);
+		unityCommunityWebClient.create(community);
 
 		//then
 		verify(unityClient, times(1)).post(anyString(), any());
@@ -70,18 +69,17 @@ class UnityCommunityWebClientTest {
 	@Test
 	void shouldUpdateCommunity() {
 		//given
-		Community site = Community.builder()
+		CommunityGroup community = CommunityGroup.builder()
 				.id(UUID.randomUUID().toString())
 				.name("test")
-				.description("description")
 				.build();
-		Group group = new Group("/path/"+site.getId());
+		Group group = new Group("/path/"+community.getId());
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(site.getId()), eq(Group.class))).thenReturn(group);
-		doNothing().when(unityClient).put(contains(site.getId()), eq(Group.class));
+		when(unityClient.get(contains(community.getId()), eq(Group.class))).thenReturn(group);
+		doNothing().when(unityClient).put(contains(community.getId()), eq(Group.class));
 
 		//when
-		unityCommunityWebClient.update(site);
+		unityCommunityWebClient.update(community);
 
 		//then
 		verify(unityClient, times(1)).put(anyString(), any());

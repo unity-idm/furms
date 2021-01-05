@@ -36,6 +36,7 @@ try
 	initRoleAttributeType()
 	initOAuthClient()
 	initTestUsers()
+	initFurmsRestClient()
 
 } catch (Exception e)
 {
@@ -91,6 +92,21 @@ void initTestUsers()
 	entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
 
 	log.info("Provisioned test FURMS users")
+}
+
+void initFurmsRestClient()
+{
+	IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "furms-rest-client")
+	Identity base = entityManagement.addEntity(toAdd, EntityState.valid)
+	EntityParam entity = new EntityParam(base.getEntityId())
+
+	Attribute role = EnumAttribute.of("sys:AuthorizationRole", "/", "Contents Manager")
+	attributesManagement.createAttribute(entity, role)
+
+	PasswordToken clientPassword = new PasswordToken("AdminP@SSword1234!@&")
+	entityCredentialManagement.setEntityCredential(entity, "clientPassword", clientPassword.toJson())
+
+	log.info("Provisioned FURMS client users")
 }
 
 void initDefaultAuthzPolicy() throws EngineException
@@ -160,9 +176,7 @@ void assignNameAttributeAndUserPasswordToAdminAccount() throws EngineException
 		{
 			attributesManagement.createAttribute(entity, nameA)
 			PasswordToken userPassword = new PasswordToken("a")
-			PasswordToken clientPassword = new PasswordToken("AdminP@SSword1234!@&")
 			entityCredentialManagement.setEntityCredential(entity, "userPassword", userPassword.toJson())
-			entityCredentialManagement.setEntityCredential(entity, "clientPassword", clientPassword.toJson())
 		}
 	} catch (IllegalIdentityValueException e)
 	{

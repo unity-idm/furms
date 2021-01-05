@@ -49,7 +49,7 @@ class CommunityDatabaseRepository implements CommunityRepository {
 		CommunityEntity saved = repository.save(CommunityEntity.builder()
 				.name(community.getName())
 				.description(community.getDescription())
-				.logoImage(community.getLogoImage())
+				.logo(community.getLogo().getImage(), community.getLogo().getType())
 				.build());
 		return saved.getId().toString();
 	}
@@ -64,7 +64,7 @@ class CommunityDatabaseRepository implements CommunityRepository {
 						.id(oldEntity.getId())
 						.name(community.getName())
 						.description(community.getDescription())
-						.logoImage(community.getLogoImage())
+						.logo(community.getLogo().getImage(), community.getLogo().getType())
 						.build())
 				.map(repository::save)
 				.map(CommunityEntity::getId)
@@ -94,9 +94,18 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	private void validateCommunityName(final Community community) {
-		if (community == null || isEmpty(community.getName()) || !isUniqueName(community.getName())) {
+		if (community == null || isEmpty(community.getName()) || isNameUnique(community)) {
 			throw new IllegalArgumentException("Incorrect Community name input.");
 		}
+	}
+
+	private boolean isNameUnique(Community community) {
+		String id = community.getId();
+		return !isUniqueName(community.getName()) && (id == null || !getName(id).equals(community.getName()));
+	}
+
+	private String getName(String id) {
+		return repository.findById(fromString(id)).get().getName();
 	}
 
 	private void validateCommunityId(final Community community) {

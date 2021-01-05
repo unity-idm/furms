@@ -64,6 +64,17 @@
 			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<artifactId>furms-domain</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>furms-model-api</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<version>${project.version}</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.h2database</groupId>

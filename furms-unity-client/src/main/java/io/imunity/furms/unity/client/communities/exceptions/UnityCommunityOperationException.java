@@ -5,10 +5,8 @@
 
 package io.imunity.furms.unity.client.communities.exceptions;
 
-public class UnityCommunityUpdateException extends UnityCommunityException {
-
-	public UnityCommunityUpdateException(String message) {
+public class UnityCommunityOperationException extends RuntimeException {
+	public UnityCommunityOperationException(String message) {
 		super(message);
 	}
-
 }
