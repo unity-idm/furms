@@ -5,7 +5,7 @@
 
 package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.spi.tokens.TokenRevoker;
+import io.imunity.furms.spi.tokens.AccessTokenRevoker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -14,13 +14,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @Component
-public class UnityTokenRevoker implements TokenRevoker {
+public class UnityAccessTokenRevoker implements AccessTokenRevoker {
 	private final UnityClient unityClient;
 
 	@Value("${spring.security.oauth2.client.provider.unity.revoke}")
 	private String uri;
 
-	public UnityTokenRevoker(UnityClient unityClient) {
+	public UnityAccessTokenRevoker(UnityClient unityClient) {
 		this.unityClient = unityClient;
 	}
 

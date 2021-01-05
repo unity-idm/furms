@@ -6,8 +6,8 @@
 package io.imunity.furms.spi.roles;
 
 
-import io.imunity.furms.domain.roles.ResourceId;
-import io.imunity.furms.domain.roles.Role;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 
 import java.util.Map;
 import java.util.Set;

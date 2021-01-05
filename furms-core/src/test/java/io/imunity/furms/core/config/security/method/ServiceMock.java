@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.roles.Capability.*;
-import static io.imunity.furms.domain.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
 @FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)

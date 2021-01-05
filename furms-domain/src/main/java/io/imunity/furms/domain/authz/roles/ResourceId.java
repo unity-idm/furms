@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.roles;
+package io.imunity.furms.domain.authz.roles;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -5,10 +5,9 @@
 
 package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.domain.roles.ResourceId;
-import io.imunity.furms.domain.roles.Role;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.spi.roles.RoleLoader;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -18,7 +17,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import java.util.*;
 import java.util.stream.Collector;
 
-import static io.imunity.furms.domain.roles.Role.translateRole;
+import static io.imunity.furms.domain.authz.roles.Role.translateRole;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate;
 import static java.util.Collections.emptyMap;
@@ -28,9 +27,7 @@ import static java.util.stream.Collectors.*;
 public class UnityRoleLoader implements RoleLoader {
 
 	private final UnityClient unityClient;
-
-	@Value("${furms.unity.grouped-attributes-url}")
-	private String uri;
+	private final String URI = "entity/{entityId}/groups/attributes";
 
 	public UnityRoleLoader(UnityClient unityClient) {
 		this.unityClient = unityClient;
@@ -64,7 +61,7 @@ public class UnityRoleLoader implements RoleLoader {
 
 	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
 		String path = UriComponentsBuilder.newInstance()
-			.pathSegment(uri)
+			.pathSegment(URI)
 			.uriVariables(Map.of("entityId", persistentId))
 			.build()
 			.toUriString();

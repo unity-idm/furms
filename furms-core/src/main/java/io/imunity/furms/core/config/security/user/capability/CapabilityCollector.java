@@ -6,9 +6,9 @@
 package io.imunity.furms.core.config.security.user.capability;
 
 
-import io.imunity.furms.domain.roles.Capability;
-import io.imunity.furms.domain.roles.ResourceId;
-import io.imunity.furms.domain.roles.Role;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 
 import java.util.HashSet;
 import java.util.Map;

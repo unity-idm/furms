@@ -5,6 +5,6 @@
 
 package io.imunity.furms.spi.tokens;
 
-public interface TokenRevoker {
+public interface AccessTokenRevoker {
 	void revoke(String accessToken, String clientId);
 }

@@ -3,13 +3,13 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.roles;
+package io.imunity.furms.domain.authz.roles;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.domain.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static java.util.Collections.emptyList;
 
 public enum Role {

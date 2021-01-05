@@ -5,30 +5,17 @@
 
 package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.domain.roles.ResourceId;
-import io.imunity.furms.domain.roles.ResourceType;
-import io.imunity.furms.unity.client.unity.exception.WrongGroupException;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.AntPathMatcher;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UnityGroupParserTest {
 
 	private final UUID id = UUID.randomUUID();
-
-	@Test
-	void name() {
-		AntPathMatcher matcher = new AntPathMatcher();
-		List<String> collect = List.of("/fenix/users", "/", "/fenix/sites/alalalala/users").stream()
-			.filter(x -> matcher.match("/fenix/**/users", x))
-			.collect(Collectors.toList());
-		System.out.println(collect);
-	}
 
 	@Test
 	public void shouldReturnUuidAndResourceTypeSite(){
@@ -63,7 +50,7 @@ class UnityGroupParserTest {
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNotCorrect(){
 		assertThrows(
-			WrongGroupException.class,
+			IllegalArgumentException.class,
 			() -> UnityGroupParser.getResourceId("/fenix/")
 		);
 	}
@@ -71,7 +58,7 @@ class UnityGroupParserTest {
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNull(){
 		assertThrows(
-			WrongGroupException.class,
+			IllegalArgumentException.class,
 			() -> UnityGroupParser.getResourceId(null)
 		);
 	}

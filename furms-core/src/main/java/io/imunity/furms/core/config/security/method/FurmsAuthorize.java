@@ -5,8 +5,8 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.domain.roles.Capability;
-import io.imunity.furms.domain.roles.ResourceType;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

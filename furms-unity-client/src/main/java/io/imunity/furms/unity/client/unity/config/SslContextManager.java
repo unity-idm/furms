@@ -22,13 +22,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 @Component
-public class SslContextManager {
+class SslContextManager {
 	@Value("${unity.client.ssl.trust-store}")
 	private Resource keyStore;
 	@Value("${unity.client.ssl.trust-store-password}")
 	private String keyStorePassword;
 
-	public SSLContext getSslContextForRestTemplate() {
+	SSLContext getSslContextForRestTemplate() {
 		try {
 			return new SSLContextBuilder()
 				.loadTrustMaterial(keyStore.getFile(), keyStorePassword.toCharArray())
@@ -38,7 +38,7 @@ public class SslContextManager {
 		}
 	}
 
-	public SslContext getSslContextForWebClient(){
+	SslContext getSslContextForWebClient(){
 		try {
 			FileInputStream trustStoreInputStream = new FileInputStream(keyStore.getFile());
 			KeyStore trustStore = KeyStore.getInstance("jks");

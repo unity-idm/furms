@@ -26,7 +26,6 @@ furms:
       admin-url: https://localhost:2443/rest-admin/v1
       admin-user: a
       admin-password: AdminP@SSword1234!@&
-      grouped-attributes-url: entity/{entityId}/groups/attributes
       url: https://localhost:2443
       ssl:
          trust-store: classpath:demoTruststore.jks
