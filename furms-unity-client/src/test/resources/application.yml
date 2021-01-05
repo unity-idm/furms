@@ -3,3 +3,21 @@ furms:
     admin-url: https://unity-furms/rest-admin/v1
     admin-user: test
     admin-password: test
+    url: https://localhost:2443
+    ssl:
+      trust-store: classpath:demoTruststore.jks
+      trust-store-password: unicore
+
+unity:
+  client:
+    ssl:
+      trust-store: ${furms.unity.ssl.trust-store}
+      trust-store-password: ${furms.unity.ssl.trust-store-password}
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          unity:
+            revoke: ${furms.unity.url}/oauth2/revoke
