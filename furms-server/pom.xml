@@ -49,7 +49,6 @@
 		<dependency>
 			<artifactId>furms-persistence-spi</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -61,7 +60,6 @@
 		<dependency>
 			<artifactId>furms-core</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
