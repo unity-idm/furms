@@ -47,9 +47,19 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<artifactId>furms-core</artifactId>
+			<artifactId>furms-persistence-spi</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<artifactId>furms-unity-client</artifactId>
 			<groupId>io.imunity.furms</groupId>
 			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<artifactId>furms-core</artifactId>
+			<groupId>io.imunity.furms</groupId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -57,12 +67,6 @@
 			<groupId>io.imunity.furms</groupId>
 			<version>${project.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>

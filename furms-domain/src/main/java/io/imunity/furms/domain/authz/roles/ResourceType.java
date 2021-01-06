@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.resource;
+package io.imunity.furms.domain.authz.roles;
 
 public enum  ResourceType {
 	APP_LEVEL, SITE, COMMUNITY, PROJECT

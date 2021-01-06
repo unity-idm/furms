@@ -3,12 +3,10 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user;
+package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.resource.ResourceType;
-import io.imunity.furms.core.config.security.user.unity.UnityGroupParser;
-import io.imunity.furms.core.config.security.user.unity.exception.WrongGroupException;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -52,7 +50,7 @@ class UnityGroupParserTest {
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNotCorrect(){
 		assertThrows(
-			WrongGroupException.class,
+			IllegalArgumentException.class,
 			() -> UnityGroupParser.getResourceId("/fenix/")
 		);
 	}
@@ -60,7 +58,7 @@ class UnityGroupParserTest {
 	@Test
 	public void shouldThrowsExceptionWhenGroupIsNull(){
 		assertThrows(
-			WrongGroupException.class,
+			IllegalArgumentException.class,
 			() -> UnityGroupParser.getResourceId(null)
 		);
 	}
