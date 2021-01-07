@@ -9,7 +9,7 @@ public final class LoginFlowConst {
 	public static final String PUBLIC_URL = "/front/public/";
 	public static final String LOGIN_URL = "/front/public/login";
 	public static final String LOGIN_ERROR_URL = "/front/public/login/error";
-	public static final String LOGIN_SUCCESS_URL = "/front/fenix/admin/sites";
+	public static final String LOGIN_SUCCESS_URL = "/front/choose/role";
 	public static final String LOGOUT_URL = "/logout";
 	public static final String LOGOUT_SUCCESS_URL = "/front/public/logout";
 
