@@ -17,5 +17,11 @@ public final class LoginFlowConst {
 	public static final String AUTH_REQ_PARAM_URL = "/oauth2/authorization/param";
 	public static final String REGISTRATION_ID = "/unity";
 
+	public static final String FENIX_START_URL = "fenix/admin/sites";
+	public static final String SITE_START_URL = "site/admin/policy/documents";
+	public static final String COMMUNITY_START_URL = "community/admin/dashboard";
+	public static final String PROJECT_START_URL = "project/admin/users";
+	public static final String USER_START_URL = "users/settings/profile";
+
 	public static final String PROXY_AUTH_PARAM = "showSignInOptions";
 }

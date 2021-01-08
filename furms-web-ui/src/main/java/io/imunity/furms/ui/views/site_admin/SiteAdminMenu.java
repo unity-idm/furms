@@ -9,6 +9,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.PreserveOnRefresh;
+import io.imunity.furms.api.authz.RoleTranslator;
 import io.imunity.furms.ui.views.components.FurmsLayout;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 public class SiteAdminMenu extends AppLayout{
 	private final FurmsLayout furmsLayout;
 
-	SiteAdminMenu() {
+	SiteAdminMenu(RoleTranslator roleTranslator) {
 		setPrimarySection(AppLayout.Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
@@ -30,7 +31,9 @@ public class SiteAdminMenu extends AppLayout{
 				PendingRequestsView.class,
 				SiteAdministratorsView.class,
 				SettingsView.class
-			));
+			),
+			roleTranslator
+		);
 		addToNavbar(false, furmsLayout.createNavbar());
 		addToDrawer(furmsLayout.createDrawerContent());
 	}

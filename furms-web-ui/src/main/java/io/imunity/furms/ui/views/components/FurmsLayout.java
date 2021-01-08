@@ -7,7 +7,6 @@ package io.imunity.furms.ui.views.components;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,6 +17,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.server.VaadinService;
+import io.imunity.furms.api.authz.RoleTranslator;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +25,13 @@ import java.util.Optional;
 import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_URL;
 
 public class FurmsLayout {
+	private final RoleTranslator roleTranslator;
 	private final List<Class<? extends Component>> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
 
-	public FurmsLayout(List<Class<? extends Component>> menuContent){
+	public FurmsLayout(List<Class<? extends Component>> menuContent, RoleTranslator roleTranslator){
+		this.roleTranslator = roleTranslator;
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
@@ -68,7 +70,10 @@ public class FurmsLayout {
 		rightNavbarSite.setAlignItems(FlexComponent.Alignment.CENTER);
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
-		rightNavbarSite.add(new Text(getTranslation("navbar.text")), new ComboBox<>(), logout);
+
+		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator.translateRolesToUserScopes());
+
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelect, logout);
 		return rightNavbarSite;
 	}
 
