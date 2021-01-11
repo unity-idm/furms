@@ -11,9 +11,9 @@ import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
-import static io.imunity.furms.domain.constant.RoutesConst.FENIX_BASE_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
 
-@Route(value = FENIX_BASE_URL, layout = FenixAdminMenu.class)
+@Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.page.title")
 public class SitesView extends FurmsViewComponent {
 	SitesView() {

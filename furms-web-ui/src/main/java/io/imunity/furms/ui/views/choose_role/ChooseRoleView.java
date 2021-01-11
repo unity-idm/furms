@@ -10,8 +10,8 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.components.FurmsSelect;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
@@ -21,9 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static io.imunity.furms.domain.constant.RoutesConst.CHOOSE_ROLE;
 import static java.util.stream.Collectors.toList;
 
-@Route("choose/role")
+@Route(CHOOSE_ROLE)
 @PageTitle(key = "view.choose-role.title")
 public class ChooseRoleView extends FurmsViewComponent {
 	ChooseRoleView(RoleTranslator roleTranslator) {

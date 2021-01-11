@@ -4,13 +4,12 @@
  */
 package io.imunity.furms.ui.mvc;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_URL;
-
+import io.imunity.furms.ui.config.FurmsI18NProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import io.imunity.furms.ui.config.FurmsI18NProvider;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_URL;
 
 @Controller
 public class LogoutView {

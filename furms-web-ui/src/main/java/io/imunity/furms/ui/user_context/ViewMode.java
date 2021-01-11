@@ -8,8 +8,8 @@ package io.imunity.furms.ui.user_context;
 import static io.imunity.furms.domain.constant.RoutesConst.*;
 
 public enum ViewMode {
-	FENIX(FENIX_BASE_URL, 1), SITE(SITE_BASE_URL, 2), COMMUNITY(COMMUNITY_BASE_URL, 3),
-	PROJECT(PROJECT_BASE_URL, 4), USER(USER_BASE_URL, 5);
+	FENIX(FENIX_ADMIN_LANDING_PAGE, 1), SITE(SITE_BASE_LANDING_PAGE, 2), COMMUNITY(COMMUNITY_BASE_LANDING_PAGE, 3),
+	PROJECT(PROJECT_BASE_LANDING_PAGE, 4), USER(USER_BASE_LANDING_PAGE, 5);
 
 	public final String route;
 	public final int order;

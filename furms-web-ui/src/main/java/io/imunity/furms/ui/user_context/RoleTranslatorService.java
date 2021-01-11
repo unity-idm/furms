@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_BASE_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 import static io.imunity.furms.ui.user_context.ViewMode.*;
 import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
@@ -65,7 +65,7 @@ class RoleTranslatorService implements RoleTranslator {
 				site = siteService.findById(resourceId.id.toString())
 					.orElseThrow(() -> new IllegalArgumentException("This shouldn't happen, wrong resource id"));
 				return Stream.of(
-					new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_BASE_URL),
+					new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
 					userSettings
 				);
 			case COMMUNITY_ADMIN:

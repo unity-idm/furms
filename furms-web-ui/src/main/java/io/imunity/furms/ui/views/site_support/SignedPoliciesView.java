@@ -9,9 +9,9 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 
-import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_BASE_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 
-@Route(value = SITE_SUPPORT_BASE_URL, layout = SiteSupportMenu.class)
+@Route(value = SITE_SUPPORT_LANDING_PAGE, layout = SiteSupportMenu.class)
 @PageTitle(key = "view.site-support.signed-policies.page.title")
 public class SignedPoliciesView extends FurmsViewComponent {
 }

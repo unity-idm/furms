@@ -4,18 +4,8 @@
  */
 package io.imunity.furms.core.config.security;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT;
-import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT_LOGOUT_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_ERROR_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_SUCCESS_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.PUBLIC_URL;
-
-import java.lang.invoke.MethodHandles;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +20,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
-import io.imunity.furms.spi.roles.RoleLoader;
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.domain.constant.RoutesConst.*;
 
 @EnableWebSecurity
 @Configuration

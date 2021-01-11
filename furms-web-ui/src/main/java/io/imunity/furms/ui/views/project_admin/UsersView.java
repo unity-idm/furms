@@ -9,9 +9,9 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 
-import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
 
-@Route(value = PROJECT_BASE_URL, layout = ProjectAdminMenu.class)
+@Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
 public class UsersView extends FurmsViewComponent {
 }

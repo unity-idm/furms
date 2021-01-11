@@ -4,8 +4,6 @@
  */
 package io.imunity.furms.ui.config;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT;
-
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.vaadin.flow.spring.SpringServlet;
 import com.vaadin.flow.spring.annotation.EnableVaadin;
+
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 
 
 @Configuration
