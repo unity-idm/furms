@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.components;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,7 +23,7 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 
 public class FurmsLayout {
 	private final RoleTranslator roleTranslator;
@@ -63,7 +64,7 @@ public class FurmsLayout {
 		Icon logout = new Icon(VaadinIcon.SIGN_OUT);
 		logout.getStyle().set("cursor", "pointer");
 		logout.addClickListener(
-			event -> UI.getCurrent().getPage().setLocation(LOGOUT_URL)
+			event -> UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL)
 		);
 
 		HorizontalLayout rightNavbarSite = new HorizontalLayout();

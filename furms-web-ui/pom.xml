@@ -74,13 +74,23 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-testbench</artifactId>
-			<scope>test</scope>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-model-api</artifactId>
+		</dependency>
+		
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-testbench</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
