@@ -6,16 +6,16 @@
 package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Text;
-import io.imunity.furms.domain.authz.UserScopeContent;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
 import java.util.Objects;
 
 public class FurmsSelectText extends Text {
-	public final UserScopeContent userScopeContent;
+	public final FurmsViewUserContext furmsViewUserContext;
 
-	public FurmsSelectText(UserScopeContent userScopeContent) {
-		super(userScopeContent.name);
-		this.userScopeContent = userScopeContent;
+	public FurmsSelectText(FurmsViewUserContext furmsViewUserContext) {
+		super(furmsViewUserContext.name);
+		this.furmsViewUserContext = furmsViewUserContext;
 	}
 
 	@Override
@@ -23,11 +23,11 @@ public class FurmsSelectText extends Text {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		FurmsSelectText furmsSelectText = (FurmsSelectText) o;
-		return Objects.equals(userScopeContent, furmsSelectText.userScopeContent);
+		return Objects.equals(furmsViewUserContext, furmsSelectText.furmsViewUserContext);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(userScopeContent);
+		return Objects.hash(furmsViewUserContext);
 	}
 }

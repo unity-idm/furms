@@ -17,12 +17,12 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.server.VaadinService;
-import io.imunity.furms.api.authz.RoleTranslator;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_URL;
 
 public class FurmsLayout {
 	private final RoleTranslator roleTranslator;
@@ -71,7 +71,7 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator.translateRolesToUserScopes());
+		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator.translateRolesToUserViewContexts());
 
 		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelect, logout);
 		return rightNavbarSite;

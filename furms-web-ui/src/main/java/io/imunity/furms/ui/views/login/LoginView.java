@@ -12,7 +12,7 @@ import io.imunity.furms.ui.views.components.PageTitle;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.*;
+import static io.imunity.furms.domain.constant.RoutesConst.*;
 
 
 @Route("public/login")

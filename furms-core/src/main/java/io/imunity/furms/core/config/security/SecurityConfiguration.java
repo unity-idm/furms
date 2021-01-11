@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.*;
+import static io.imunity.furms.domain.constant.RoutesConst.*;
 
 @EnableWebSecurity
 @Configuration

@@ -12,7 +12,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.AUTH_REQ_BASE_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.AUTH_REQ_BASE_URL;
 
 @Route("public/logout")
 @PageTitle(key = "view.logout-page.title")

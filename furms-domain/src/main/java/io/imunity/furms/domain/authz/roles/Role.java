@@ -16,7 +16,6 @@ public enum Role {
 	FENIX_ADMIN(
 		"furmsFenixRole",
 		"ADMIN",
-		RoleLevel.FENIX,
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
 			FENIX_ADMINS_MANAGEMENT
@@ -25,17 +24,15 @@ public enum Role {
 			SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE
 		)
 	),
-	FENIX_SUPPORT(
-		"furmsFenixRole",
+	SITE_SUPPORT(
+		"furmsSiteRole",
 		"SUPPORT",
-		RoleLevel.FENIX,
 		emptyList(),
 		emptyList()
 	),
 	SITE_ADMIN(
 		"furmsSiteRole",
 		"ADMIN",
-		RoleLevel.SITE,
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_ADMINS_MANAGEMENT
 		),
@@ -44,7 +41,6 @@ public enum Role {
 	COMMUNITY_ADMIN(
 		"furmsCommunityRole",
 		"ADMIN",
-		RoleLevel.COMMUNITY,
 		List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE,
 			COMMUNITY_ADMINS_MANAGEMENT
@@ -54,7 +50,6 @@ public enum Role {
 	PROJECT_ADMIN(
 		"furmsProjectRole",
 		"ADMIN",
-		RoleLevel.PROJECT,
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_WRITE, PROJECT_ADMINS_MANAGEMENT,
 			PROJECT_MEMBER_MANAGEMENT
@@ -64,7 +59,6 @@ public enum Role {
 	PROJECT_MEMBER(
 		"furmsProjectRole",
 		"MEMBER",
-		RoleLevel.PROJECT,
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ
 		),
@@ -73,15 +67,13 @@ public enum Role {
 
 	public final String unityRoleAttribute;
 	public final String unityRoleValue;
-	public final RoleLevel roleLevel;
 	public final List<Capability> capabilities;
 	public final List<Capability> additionalCapabilities;
 
-	Role(String unityRoleAttribute, String unityRoleValue, RoleLevel roleLevel, List<Capability> capabilities,
+	Role(String unityRoleAttribute, String unityRoleValue, List<Capability> capabilities,
 	     List<Capability> additionalCapabilities) {
 		this.unityRoleAttribute = unityRoleAttribute;
 		this.unityRoleValue = unityRoleValue;
-		this.roleLevel = roleLevel;
 		this.capabilities = List.copyOf(capabilities);
 		this.additionalCapabilities = List.copyOf(additionalCapabilities);
 	}

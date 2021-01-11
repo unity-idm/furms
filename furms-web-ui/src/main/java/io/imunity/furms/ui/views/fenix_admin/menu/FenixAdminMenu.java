@@ -8,7 +8,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.PreserveOnRefresh;
-import io.imunity.furms.api.authz.RoleTranslator;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.components.FurmsLayout;
 import io.imunity.furms.ui.views.fenix_admin.communites.CommunitiesView;
 import io.imunity.furms.ui.views.fenix_admin.logs.AuditLogView;

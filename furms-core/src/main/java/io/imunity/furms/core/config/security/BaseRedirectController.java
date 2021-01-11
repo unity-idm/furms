@@ -8,7 +8,7 @@ package io.imunity.furms.core.config.security;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
 
 
 @Controller
