@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsUserContext;
+import io.imunity.furms.core.config.security.user.FurmsUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,8 +64,8 @@ public class AuthTest {
 			.thenReturn(grantedAuthorities);
 		when(oAuth2User.getAttributes()).thenReturn(attributes);
 
-		FurmsUserContext furmsUserContext = new FurmsUserContext(oAuth2User, "name", roles);
-		when(authentication.getPrincipal()).thenReturn(furmsUserContext);
+		FurmsUser furmsUser = new FurmsUser(oAuth2User, "name", roles);
+		when(authentication.getPrincipal()).thenReturn(furmsUser);
 		when(authentication.isAuthenticated()).thenReturn(true);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);

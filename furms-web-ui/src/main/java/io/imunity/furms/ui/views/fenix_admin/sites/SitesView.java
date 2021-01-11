@@ -44,7 +44,9 @@ import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyConte
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static java.util.stream.Collectors.toList;
 
-@Route(value = "fenix/admin/sites", layout = FenixAdminMenu.class)
+import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
+
+@Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.page.title")
 @CssImport("./styles/components/dropdown-menu.css")
 public class SitesView extends FurmsViewComponent {

@@ -35,3 +35,8 @@ vaadin-tab[selected] {
 #breadcrumb a, #breadcrumb span {
 	color: var(--lumo-body-text-color);
 }
+
+.select-span-separator {
+	margin: auto;
+	display: table;
+}
