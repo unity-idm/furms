@@ -24,12 +24,12 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		setItems(data.values().stream().flatMap(Collection::stream).map(FurmsSelectText::new));
 		addSeparators(data);
 		setTextRenderer(Text::getText);
-		addValueChangeListener(x -> {
-			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, x.getValue().furmsViewUserContext);
-			UI.getCurrent().navigate(x.getValue().furmsViewUserContext.viewMode.route);
+		addValueChangeListener(event -> {
+			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);
+			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.viewMode.route);
 		});
 		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
-			.ifPresent(x -> setValue(new FurmsSelectText(x)));
+			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
 	}
 
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
