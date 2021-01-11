@@ -115,13 +115,10 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return new FurmsOAuth2UserService(restTemplate, roleLoader);
 	}
 	
-	private static class NonErrorDispacherTypeRequestMatcher implements RequestMatcher
-	{
+	private static class NonErrorDispacherTypeRequestMatcher implements RequestMatcher {
 		@Override
-		public boolean matches(HttpServletRequest request)
-		{
-			if (request.getDispatcherType() ==  DispatcherType.ERROR)
-			{
+		public boolean matches(HttpServletRequest request) {
+			if (request.getDispatcherType() == DispatcherType.ERROR) {
 				LOG.trace("Skipping error dispatched request processing by security filters: {}", request);
 				return false;
 			}
