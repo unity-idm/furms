@@ -4,18 +4,8 @@
  */
 package io.imunity.furms.core.config.security;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT;
-import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT_LOGOUT_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_ERROR_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_SUCCESS_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_URL;
-import static io.imunity.furms.domain.constant.LoginFlowConst.PUBLIC_URL;
-
-import java.lang.invoke.MethodHandles;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -30,15 +20,18 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
-import io.imunity.furms.spi.roles.RoleLoader;
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.domain.constant.RoutesConst.*;
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	
+
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
@@ -57,15 +50,15 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 			// Allow query string for login.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
-			
+
 			// Restrict access to our application, except for DispatcherType.ERROR
 			.and().requestMatchers().requestMatchers(new NonErrorDispacherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 
-			
+
 			// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
 			.and().csrf().disable()
-			
+
 
 			// Configure logout
 			.logout().logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
@@ -91,7 +84,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(
 			"/css/**",
-			
+
 			// client-side JS code
 			"/VAADIN/**", FRONT + "/VAADIN/**",
 
@@ -114,7 +107,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
 		return new FurmsOAuth2UserService(restTemplate, roleLoader);
 	}
-	
+
 	private static class NonErrorDispacherTypeRequestMatcher implements RequestMatcher {
 		@Override
 		public boolean matches(HttpServletRequest request) {

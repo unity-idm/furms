@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static io.imunity.furms.domain.constant.LoginFlowConst.PROXY_AUTH_PARAM;
+import static io.imunity.furms.domain.constant.RoutesConst.PROXY_AUTH_PARAM;
 
 class FurmsEntryPoint extends LoginUrlAuthenticationEntryPoint {
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();

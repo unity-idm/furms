@@ -24,8 +24,8 @@ public enum Role {
 			SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE
 		)
 	),
-	FENIX_SUPPORT(
-		"furmsFenixRole",
+	SITE_SUPPORT(
+		"furmsSiteRole",
 		"SUPPORT",
 		emptyList(),
 		emptyList()
@@ -70,7 +70,8 @@ public enum Role {
 	public final List<Capability> capabilities;
 	public final List<Capability> additionalCapabilities;
 
-	Role(String unityRoleAttribute, String unityRoleValue, List<Capability> capabilities, List<Capability> additionalCapabilities) {
+	Role(String unityRoleAttribute, String unityRoleValue, List<Capability> capabilities,
+	     List<Capability> additionalCapabilities) {
 		this.unityRoleAttribute = unityRoleAttribute;
 		this.unityRoleValue = unityRoleValue;
 		this.capabilities = List.copyOf(capabilities);

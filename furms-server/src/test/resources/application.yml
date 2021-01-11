@@ -7,13 +7,6 @@ server:
       key-password: the!test
       enabled-protocols: TLSv1.2
 
-reactor:
-   netty:
-      http:
-         client:
-            logging:
-               level: DEBUG
-
 logging:
    level:
       org.springframework.security.oauth2: TRACE
@@ -21,6 +14,8 @@ logging:
       org.springframework.security.web: INFO
       org.apache.http: DEBUG
       httpclient.wire: DEBUG
+      org.springframework.web.reactive.function.client.ExchangeFunctions: TRACE
+
 
 furms:
    unity:
