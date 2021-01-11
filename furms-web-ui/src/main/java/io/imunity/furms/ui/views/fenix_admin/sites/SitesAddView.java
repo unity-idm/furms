@@ -9,9 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -38,7 +36,7 @@ public class SitesAddView extends FurmsViewComponent {
 
 	private final VerticalLayout layout;
 
-	private final Div errorMessage;
+	private final TextField name;
 
 	SitesAddView(SiteService siteService) {
 		this.siteService = siteService;
@@ -47,11 +45,9 @@ public class SitesAddView extends FurmsViewComponent {
 		layout.setPadding(true);
 		layout.setSpacing(true);
 
-		addHeader();
+		name = new TextField();
 
-		errorMessage = new Div();
-		errorMessage.getStyle().set("color", "red");
-		layout.add(errorMessage);
+		addHeader();
 
 		addForm();
 
@@ -76,7 +72,6 @@ public class SitesAddView extends FurmsViewComponent {
 		Binder<SiteDataAdd> binder = new Binder<>(SiteDataAdd.class);
 		binder.setBean(formData);
 
-		TextField name = new TextField();
 		name.setPlaceholder("Site name...");
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
@@ -89,9 +84,12 @@ public class SitesAddView extends FurmsViewComponent {
 		Button save = new Button("Save");
 		save.addThemeVariants(LUMO_PRIMARY);
 		save.addClickListener(e -> doSaveAction(formData, binder));
+		save.setEnabled(false);
+		binder.addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors()));
 
 		binder.forField(name)
-				.withValidator(value -> value != null && !value.trim().isBlank(), "Site name has to be specified.")
+				.withValidator(getNotEmptyStringValidator(), "Site name has to be specified.")
+				.withValidator(siteService::isNameUnique, "Site name has to be unique.")
 				.bind(SiteDataAdd::getName, SiteDataAdd::setName);
 
 		FlexLayout buttons = new FlexLayout(cancel, save);
@@ -104,7 +102,6 @@ public class SitesAddView extends FurmsViewComponent {
 	}
 
 	private void doSaveAction(SiteDataAdd formData, Binder<SiteDataAdd> binder) {
-		errorMessage.setText(null);
 		binder.validate();
 		if (binder.isValid()) {
 			try {
@@ -113,7 +110,8 @@ public class SitesAddView extends FurmsViewComponent {
 						.build());
 				UI.getCurrent().navigate(SitesView.class);
 			} catch (IllegalArgumentException exception) {
-				errorMessage.setText(exception.getMessage());
+				name.setErrorMessage(exception.getMessage());
+				name.setInvalid(true);
 			}
 		}
 	}

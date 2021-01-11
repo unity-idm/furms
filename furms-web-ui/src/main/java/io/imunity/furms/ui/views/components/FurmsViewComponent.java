@@ -6,6 +6,7 @@ package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -25,5 +26,9 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 	@Override
 	public String getPageTitle() {
 		return getTranslation(getClass().getAnnotation(PageTitle.class).key());
+	}
+
+	protected SerializablePredicate<? super String> getNotEmptyStringValidator() {
+		return value -> value != null && !value.trim().isBlank();
 	}
 }

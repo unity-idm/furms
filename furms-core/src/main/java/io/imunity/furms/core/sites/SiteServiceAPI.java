@@ -55,4 +55,14 @@ class SiteServiceAPI implements SiteService {
 
 		siteRepository.delete(id);
 	}
+
+	@Override
+	public boolean isNameUnique(String name) {
+		try {
+			validator.validateName(name);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
 }
