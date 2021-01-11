@@ -4,6 +4,11 @@
  */
 package io.imunity.furms.ui.views.components;
 
+import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT_LOGOUT_URL;
+
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -18,11 +23,6 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.server.VaadinService;
-
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.furms.domain.constant.LoginFlowConst.LOGOUT_URL;
 
 public class FurmsLayout {
 	private final List<Class<? extends Component>> menuContent;
@@ -61,7 +61,7 @@ public class FurmsLayout {
 		Icon logout = new Icon(VaadinIcon.SIGN_OUT);
 		logout.getStyle().set("cursor", "pointer");
 		logout.addClickListener(
-			event -> UI.getCurrent().getPage().setLocation(LOGOUT_URL)
+			event -> UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL)
 		);
 
 		HorizontalLayout rightNavbarSite = new HorizontalLayout();

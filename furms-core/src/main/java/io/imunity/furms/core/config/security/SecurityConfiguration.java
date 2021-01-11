@@ -4,8 +4,20 @@
  */
 package io.imunity.furms.core.config.security;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
-import io.imunity.furms.spi.roles.RoleLoader;
+import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT;
+import static io.imunity.furms.domain.constant.LoginFlowConst.FRONT_LOGOUT_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_ERROR_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_SUCCESS_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.LoginFlowConst.PUBLIC_URL;
+
+import java.lang.invoke.MethodHandles;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -15,19 +27,18 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
-import static io.imunity.furms.domain.constant.LoginFlowConst.*;
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.spi.roles.RoleLoader;
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-	private static final String REQUEST_TYPE_PARAMETER = "v-r";
-	private static final List<String> REQUESTED_TYPES = List.of("uidl", "heartbeat", "push");
-
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
@@ -44,20 +55,20 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			// Allow all flow internal requests.
-			.authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
-
 			// Allow query string for login.
-			.and().authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
-
-			// Restrict access to our application.
+			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
+			
+			// Restrict access to our application, except for DispatcherType.ERROR
+			.and().requestMatchers().requestMatchers(new NonErrorDispacherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 
+			
 			// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
 			.and().csrf().disable()
+			
 
 			// Configure logout
-			.logout().logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL, "GET"))
+			.logout().logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
 			.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
@@ -79,22 +90,19 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(
+			"/css/**",
+			
 			// client-side JS code
-			"/VAADIN/**", "/front/VAADIN/**",
+			"/VAADIN/**", FRONT + "/VAADIN/**",
 
 			// the standard favicon URI
-			"/front/favicon.ico",
+			FRONT + "/favicon.ico", "/favicon.ico",
 
 			// web application manifest
-			"/front/manifest.webmanifest", "/front/sw.js", "/front/offline-page.html",
+			FRONT + "/manifest.webmanifest", FRONT + "/sw.js", FRONT + "/offline-page.html",
 
 			// icons and images
-			"/front/icons/**", "/front/images/**");
-	}
-
-	private static boolean isFrameworkInternalRequest(HttpServletRequest request) {
-		String parameterValue = request.getParameter(REQUEST_TYPE_PARAMETER);
-		return parameterValue != null && REQUESTED_TYPES.contains(parameterValue);
+			FRONT + "/icons/**", FRONT + "/images/**");
 	}
 
 	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate) {
@@ -105,5 +113,19 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private DefaultOAuth2UserService getOAuth2UserService(RestTemplate restTemplate) {
 		return new FurmsOAuth2UserService(restTemplate, roleLoader);
+	}
+	
+	private static class NonErrorDispacherTypeRequestMatcher implements RequestMatcher
+	{
+		@Override
+		public boolean matches(HttpServletRequest request)
+		{
+			if (request.getDispatcherType() ==  DispatcherType.ERROR)
+			{
+				LOG.trace("Skipping error dispatched request processing by security filters: {}", request);
+				return false;
+			}
+			return true;
+		}
 	}
 }

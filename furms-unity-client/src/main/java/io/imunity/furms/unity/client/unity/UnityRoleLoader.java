@@ -5,23 +5,33 @@
 
 package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.spi.roles.RoleLoader;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
-
-import java.util.*;
-import java.util.stream.Collector;
-
 import static io.imunity.furms.domain.authz.roles.Role.translateRole;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collector;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.spi.roles.RoleLoader;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 @Service
 public class UnityRoleLoader implements RoleLoader {
@@ -51,12 +61,20 @@ public class UnityRoleLoader implements RoleLoader {
 
 	private Collector<Attribute, ?, Map<ResourceId, Set<Role>>> getAttributeMapCollector() {
 		return groupingBy(
-			attribute -> getResourceId(attribute.getGroupPath()),
+			this::attr2Resource,
 			mapping(
-				attribute -> translateRole(attribute.getName(), attribute.getValues().iterator().next()),
+				this::attr2Role, 
 				filtering(Optional::isPresent, mapping(Optional::get, toSet()))
 			)
 		);
+	}
+
+	private ResourceId attr2Resource(Attribute attribute) {
+		return getResourceId(attribute.getGroupPath());
+	}
+
+	private Optional<Role> attr2Role(Attribute attribute) {
+		return translateRole(attribute.getName(), attribute.getValues().iterator().next());
 	}
 
 	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
