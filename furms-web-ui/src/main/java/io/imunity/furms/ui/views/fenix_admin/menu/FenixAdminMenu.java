@@ -7,6 +7,8 @@ package io.imunity.furms.ui.views.fenix_admin.menu;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.components.FurmsLayout;
@@ -20,7 +22,7 @@ import java.util.List;
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 @PreserveOnRefresh
-public class FenixAdminMenu extends AppLayout {
+public class FenixAdminMenu extends AppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
 	FenixAdminMenu(RoleTranslator roleTranslator) {
@@ -39,8 +41,7 @@ public class FenixAdminMenu extends AppLayout {
 	}
 
 	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
+	public void afterNavigation(AfterNavigationEvent event) {
 		furmsLayout.afterNavigation(getContent());
 	}
 }

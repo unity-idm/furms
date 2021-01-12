@@ -19,8 +19,8 @@ logging:
 
 furms:
    unity:
-      admin-url: https://localhost:2443/rest-admin/v1
-      admin-user: a
+      admin-url: ${furms.unity.url}/rest-admin/v1
+      admin-user: furms-rest-client
       admin-password: AdminP@SSword1234!@&
       url: https://localhost:2443
       ssl:
@@ -29,10 +29,17 @@ furms:
       oAuth:
          clientId: oauth-client
          clientSecret: oauth-pass1
+   front:
+      language: en
+      accepted-img-files:
+         - image/jpeg
+         - image/png
+         - image/gif
    url: https://localhost:${server.port}
-   language: en
 
 spring:
+   profiles:
+      active: demo-data-provisioning
    datasource:
       url: jdbc:h2:file:./target/db/furms;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_UPPER=TRUE;DB_CLOSE_ON_EXIT=FALSE
       username: sa
