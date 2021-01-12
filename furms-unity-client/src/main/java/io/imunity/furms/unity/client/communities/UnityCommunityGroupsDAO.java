@@ -7,12 +7,8 @@ package io.imunity.furms.unity.client.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
-import io.imunity.furms.unity.client.communities.exceptions.UnityCommunityOperationException;
 import io.imunity.furms.unity.client.unity.UnityClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
@@ -22,8 +18,8 @@ import java.util.Optional;
 
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.client.common.UnityPaths.META;
-import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_ID;
-import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_ID_USERS;
+import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_PATTERN;
+import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_USERS_PATTERN;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -44,22 +40,16 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_ID)
+				.pathSegment(FENIX_COMMUNITY_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
-		try {
-			Group group = unityClient.get(path, Group.class);
-			return Optional.ofNullable(CommunityGroup.builder()
-					.id(id)
-					.name(group.getDisplayedName().getDefaultValue())
-					.build());
-		} catch (WebClientResponseException e) {
-			if (HttpStatus.valueOf(e.getRawStatusCode()).is5xxServerError()) {
-				throw e;
-			}
-			return Optional.empty();
-		}
+
+		Group group = unityClient.get(path, Group.class);
+		return Optional.ofNullable(CommunityGroup.builder()
+			.id(id)
+			.name(group.getDisplayedName().getDefaultValue())
+			.build());
 	}
 
 	@Override
@@ -69,26 +59,16 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		}
 		Map<String, Object> uriVariables = uriVariables(community);
 		String groupPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_COMMUNITY_ID)
+				.path(FENIX_COMMUNITY_PATTERN)
 				.uriVariables(uriVariables)
 				.toUriString();
 		Group group = new Group(groupPath);
 		group.setDisplayedName(new I18nString(community.getName()));
-		try {
-			unityClient.post(GROUP_BASE, group);
-		} catch (WebClientException e) {
-			throw new UnityCommunityOperationException(e.getMessage());
-		}
-		try {
-			String createCommunityUsersPath = UriComponentsBuilder.newInstance()
-					.path(GROUP_BASE)
-					.pathSegment(groupPath + FENIX_COMMUNITY_ID_USERS)
-					.toUriString();
-			unityClient.post(createCommunityUsersPath);
-		} catch (WebClientException e) {
-			this.delete(community.getId());
-			throw new UnityCommunityOperationException(e.getMessage());
-		}
+		unityClient.post(GROUP_BASE, group);
+		String createCommunityUsersPath = UriComponentsBuilder.newInstance()
+			.path(GROUP_BASE)
+			.pathSegment(groupPath + FENIX_COMMUNITY_USERS_PATTERN)
+			.toUriString();unityClient.post(createCommunityUsersPath);
 	}
 
 	@Override
@@ -99,17 +79,13 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		Map<String, Object> uriVariables = uriVariables(community);
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_ID)
+				.pathSegment(FENIX_COMMUNITY_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
-		try {
-			Group group = unityClient.get(metaCommunityPath, Group.class);
-			group.setDisplayedName(new I18nString(community.getName()));
-			unityClient.put(GROUP_BASE, group);
-		} catch (WebClientException e) {
-			throw new UnityCommunityOperationException(e.getMessage());
-		}
+		Group group = unityClient.get(metaCommunityPath, Group.class);
+		group.setDisplayedName(new I18nString(community.getName()));
+		unityClient.put(GROUP_BASE, group);
 	}
 
 	@Override
@@ -121,14 +97,10 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		Map<String, Object> queryParams = Map.of("recursive", TRUE);
 		String deleteCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_ID)
+				.pathSegment(FENIX_COMMUNITY_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
-		try {
-			unityClient.delete(deleteCommunityPath, queryParams);
-		} catch (WebClientException e) {
-			throw new UnityCommunityOperationException(e.getMessage());
-		}
+		unityClient.delete(deleteCommunityPath, queryParams);
 	}
 
 	private Map<String, Object> uriVariables(CommunityGroup community) {

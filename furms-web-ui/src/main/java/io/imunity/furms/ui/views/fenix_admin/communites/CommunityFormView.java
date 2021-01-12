@@ -45,54 +45,51 @@ import static java.util.Optional.ofNullable;
 @Route(value = "fenix/admin/communities/form", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.community.form.page.title")
 class CommunityFormView extends FurmsViewComponent {
+	private final static int hundredMB = 100000000;
 	private final Binder<CommunityViewModel> binder = new BeanValidationBinder<>(CommunityViewModel.class);
 	private final Image image = new Image();
 	private final CommunityService communityService;
 	private final String[] acceptedImgFiles;
 
 	private BreadCrumbParameter breadCrumbParameter;
-	private FurmsImage logo;
+	private FurmsImage logo = new FurmsImage(null, (String) null);
 
 	CommunityFormView(CommunityService communityService, FrontProperties frontProperties) {
 		this.communityService = communityService;
 		this.acceptedImgFiles = frontProperties.getAcceptedImgFiles().toArray(String[]::new);
 
-		TextField name = new TextField(getTranslation("view.community.form.text.field.name"));
-		TextField description = new TextField(getTranslation("view.community.form.text.field.description"));
+		TextField name = new TextField(getTranslation("view.community.form.field.name"));
+		TextField description = new TextField(getTranslation("view.community.form.field.description"));
 		Button saveButton = createSaveButton();
 		Button closeButton = createCloseButton();
-		Upload upload = createUploadComponent(saveButton);
+		Upload upload = createUploadComponent();
 
 		binder.forField(name)
 			.withValidator(
-				x -> Objects.nonNull(x) && !x.isBlank(),
-				getTranslation("view.community.form.error.validation.text.field.name")
+				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
+				getTranslation("view.community.form.error.validation.field.name")
 			)
 			.bind(CommunityViewModel::getName, CommunityViewModel::setName);
 		binder.forField(description)
 			.withValidator(
-				x -> Objects.nonNull(x) && !x.isBlank(),
-				getTranslation("view.community.form.error.validation.text.field.description")
+				value -> Objects.isNull(value) || value.length() <= 510,
+				getTranslation("view.community.form.error.validation.field.description")
 			)
 			.bind(CommunityViewModel::getDescription, CommunityViewModel::setDescription);
-		binder.addStatusChangeListener(env -> setButtonEnabled(saveButton));
+		binder.addStatusChangeListener(env -> binder.isValid());
 
 		VerticalLayout verticalLayout = new VerticalLayout(name, description);
-		verticalLayout.setClassName("furms-vertical-layout-padding");
+		verticalLayout.setClassName("no-left-padding");
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(image, upload);
 		horizontalLayout.setClassName("furms-upload-layout");
-		image.setId("logo");
+		image.setId("community-logo");
 
 		getContent().add(
 			verticalLayout,
 			horizontalLayout,
 			new HorizontalLayout(saveButton, closeButton)
 		);
-	}
-
-	private void setButtonEnabled(Button saveButton) {
-		saveButton.setEnabled(binder.isValid() && logo != null);
 	}
 
 	private Button createCloseButton() {
@@ -103,23 +100,25 @@ class CommunityFormView extends FurmsViewComponent {
 		return closeButton;
 	}
 
-	private Upload createUploadComponent(Button saveButton) {
+	private Upload createUploadComponent() {
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		Upload upload = new Upload(memoryBuffer);
 		upload.setAcceptedFileTypes(acceptedImgFiles);
+		upload.setMaxFileSize(hundredMB);
+		upload.setDropAllowed(true);
 		upload.addFinishedListener(event -> {
 			logo = loadFile(memoryBuffer, event.getMIMEType());
 			InputStream inputStream = memoryBuffer.getInputStream();
 			StreamResource streamResource = new StreamResource(event.getFileName(), () -> inputStream);
 			image.setSrc(streamResource);
 			image.setVisible(true);
-			setButtonEnabled(saveButton);
 		});
-		upload.addFileRejectedListener(event -> Notification.show(event.getErrorMessage()));
+		upload.addFileRejectedListener(event ->
+			Notification.show(getTranslation("view.community.form.error.validation.file"))
+		);
 		upload.getElement().addEventListener("file-remove", event -> {
-			logo = null;
+			logo = new FurmsImage(null, (String)null);
 			image.setVisible(false);
-			setButtonEnabled(saveButton);
 		});
 		return upload;
 	}
@@ -152,7 +151,7 @@ class CommunityFormView extends FurmsViewComponent {
 	private void setFormPools(CommunityViewModel communityViewModel) {
 		binder.setBean(communityViewModel);
 		logo = communityViewModel.getLogoImage();
-		image.setVisible(logo != null);
+		image.setVisible(logo != null && logo.getImage() != null);
 		if(logo != null) {
 			StreamResource resource =
 				new StreamResource(

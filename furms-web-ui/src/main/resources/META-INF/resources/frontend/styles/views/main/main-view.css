@@ -46,7 +46,7 @@ vaadin-tab[selected] {
 	color: var(--lumo-body-text-color);
 }
 
-.furms-vertical-layout-padding {
+.no-left-padding {
 	padding-left: 0;
 }
 
@@ -67,7 +67,7 @@ vaadin-tab[selected] {
 	text-decoration: underline;
 }
 
-#logo {
+#community-logo {
   max-width: 150px;
 }
 

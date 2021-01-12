@@ -7,19 +7,23 @@ package io.imunity.furms.domain.images;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 public class FurmsImage {
 	private final byte[] image;
-	private final FurmsImageType type;
+	private final FurmsImageExtension type;
 
-	public FurmsImage(byte[] logoImage, FurmsImageType type) {
+	public FurmsImage(byte[] logoImage, FurmsImageExtension type) {
 		this.image = logoImage;
 		this.type = type;
 	}
 
 	public FurmsImage(byte[] logoImage, String type) {
 		this.image = logoImage;
-		this.type = FurmsImageType.valueOf(type.toUpperCase());
+		this.type = Optional.ofNullable(type)
+			.map(String::toUpperCase)
+			.map(FurmsImageExtension::valueOf)
+			.orElse(null);
 	}
 
 	public byte[] getImage() {
@@ -27,7 +31,10 @@ public class FurmsImage {
 	}
 
 	public String getType() {
-		return type.name().toLowerCase();
+		return Optional.ofNullable(type)
+			.map(Enum::name)
+			.map(String::toLowerCase)
+			.orElse(null);
 	}
 
 	@Override

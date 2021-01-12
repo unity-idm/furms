@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -70,7 +69,7 @@ class CommunityDatabaseRepositoryTest {
 	}
 
 	@Test
-	void shouldNotFindByIdIfNotExists() {
+	void shouldNotFindByIdIfDoesntExist() {
 		//given
 		UUID wrongId = generateId();
 		entityRepository.save(CommunityEntity.builder()
@@ -124,53 +123,6 @@ class CommunityDatabaseRepositoryTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isNotNull();
 		assertThat(byId.get().getName()).isEqualTo("name");
-	}
-
-	@Test
-	void shouldNotCreatCommunityDueToRequestWithEmptyName() {
-		//given
-		Community requestWithEmptyName = Community.builder()
-				.name("")
-				.build();
-		entityRepository.save(CommunityEntity.builder()
-				.name("non_unique_name")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build());
-
-		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
-	}
-
-	@Test
-	void shouldNotCreatCommunityDueToNullRequest() {
-		//given
-		entityRepository.save(CommunityEntity.builder()
-			.name("non_unique_name")
-			.description("description")
-			.logo(imgTestFile, "jpg")
-			.build());
-
-		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.create(null));
-	}
-
-	@Test
-	void shouldNotCreateCommunityDueToNonUniqueNameRequest() {
-		//given
-		entityRepository.save(CommunityEntity.builder()
-			.name("non_unique_name")
-			.description("description")
-			.logo(imgTestFile, "jpg")
-			.build());
-		Community nonUniqueNameRequest = Community.builder()
-			.name("non_unique_name")
-			.description("description")
-			.logo(imgTestFile2, "jpg")
-			.build();
-
-		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nonUniqueNameRequest));
 	}
 
 	@Test

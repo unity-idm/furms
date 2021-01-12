@@ -9,6 +9,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.util.Assert.notNull;
@@ -30,6 +31,7 @@ class CommunityServiceValidator {
 		notNull(request, "Community object cannot be null.");
 		validateId(request.getId());
 		validateName(request);
+		validateDescription(request);
 	}
 
 	void validateDelete(String id) {
@@ -37,9 +39,18 @@ class CommunityServiceValidator {
 	}
 
 	private void validateName(Community community) {
-		notNull(community.getName(), "Community user facing name has to be declared.");
+		notNull(community.getName(), "Community name has to be declared.");
 		if (isNameUnique(community)) {
-			throw new IllegalArgumentException("Community user facing  name has to be unique.");
+			throw new IllegalArgumentException("Community name has to be unique.");
+		}
+		if (community.getName().length() > 255) {
+			throw new IllegalArgumentException("Community name is too long.");
+		}
+	}
+
+	private void validateDescription(Community community) {
+		if (Objects.nonNull(community.getDescription()) && community.getDescription().length() > 510) {
+			throw new IllegalArgumentException("Community description is too long.");
 		}
 	}
 

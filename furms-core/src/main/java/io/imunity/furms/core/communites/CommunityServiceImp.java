@@ -7,6 +7,7 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ class CommunityServiceImp implements CommunityService {
 	public void create(Community community) {
 		validator.validateCreate(community);
 		String id = communityRepository.create(community);
-//		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
+		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
 	}
 
 	@Override
@@ -52,7 +53,7 @@ class CommunityServiceImp implements CommunityService {
 	public void update(Community community) {
 		validator.validateUpdate(community);
 		communityRepository.update(community);
-//		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
+		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
 	}
 
 	@Override
@@ -60,6 +61,6 @@ class CommunityServiceImp implements CommunityService {
 	public void delete(String id) {
 		validator.validateDelete(id);
 		communityRepository.delete(id);
-//		communityGroupsDAO.delete(id);
+		communityGroupsDAO.delete(id);
 	}
 }

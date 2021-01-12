@@ -6,6 +6,6 @@
 package io.imunity.furms.unity.client.communities;
 
 class UnityCommunityPaths {
-	final static String FENIX_COMMUNITY_ID = "/fenix/communities/{id}";
-	final static String FENIX_COMMUNITY_ID_USERS = "/users";
+	final static String FENIX_COMMUNITY_PATTERN = "/fenix/communities/{id}";
+	final static String FENIX_COMMUNITY_USERS_PATTERN = "/users";
 }

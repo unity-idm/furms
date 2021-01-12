@@ -49,7 +49,7 @@ class SiteDatabaseRepositoryTest {
 	}
 
 	@Test
-	void shouldNotFindByIdIfNotExists() {
+	void shouldNotFindByIdIfDoesntExist() {
 		//given
 		UUID wrongId = generateId();
 		entityRepository.save(SiteEntity.builder()

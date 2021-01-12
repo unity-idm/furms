@@ -11,7 +11,7 @@ CREATE TABLE site (
 CREATE TABLE community (
     id   UUID PRIMARY KEY    NOT NULL,
     name VARCHAR(255) UNIQUE NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    logo_image BYTEA NOT NULL,
-    logo_type VARCHAR(255) NOT NULL
+    description VARCHAR(510),
+    logo_image BYTEA,
+    logo_type VARCHAR(255)
 );

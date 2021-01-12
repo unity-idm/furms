@@ -40,9 +40,9 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.ui.views.fenix_admin.communites.constant.CommunityConst.ADMINISTRATORS;
-import static io.imunity.furms.ui.views.fenix_admin.communites.constant.CommunityConst.ALLOCATIONS;
-import static io.imunity.furms.ui.views.fenix_admin.communites.constant.CommunityConst.PARAM;
+import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.PARAM_NAME;
 import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
@@ -94,8 +94,8 @@ public class CommunitiesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(CommunityViewModel c) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(
-			createRouterIcon(USERS, c.getId(), ADMINISTRATORS),
-			createRouterIcon(PIE_CHART, c.getId(), ALLOCATIONS),
+			createRouterIcon(USERS, c.getId(), ADMINISTRATORS_PARAM),
+			createRouterIcon(PIE_CHART, c.getId(), ALLOCATIONS_PARAM),
 			createTooltipIcon(c.getId())
 		);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -137,12 +137,12 @@ public class CommunitiesView extends FurmsViewComponent {
 		Span administratorsSpan = new Span(getTranslation("view.communities.tooltip.administrators"));
 		Div administratorsDiv = new Div(createTooltipIcon(USERS), administratorsSpan);
 		administratorsDiv.addClassName("tooltip-div");
-		RouterLink administratorsPool = createRouterPool(administratorsDiv, communityId, ADMINISTRATORS);
+		RouterLink administratorsPool = createRouterPool(administratorsDiv, communityId, ADMINISTRATORS_PARAM);
 
 		Span allocationSpan = new Span(getTranslation("view.communities.tooltip.allocations"));
 		Div allocationsDiv = new Div(createTooltipIcon(PIE_CHART), allocationSpan);
 		allocationsDiv.addClassName("tooltip-div");
-		RouterLink allocationsPool = createRouterPool(allocationsDiv, communityId, ALLOCATIONS);
+		RouterLink allocationsPool = createRouterPool(allocationsDiv, communityId, ALLOCATIONS_PARAM);
 
 		tooltip.add(editCommunityDiv, deleteCommunityDiv, administratorsPool, allocationsPool);
 		tooltip.getThemeNames().add(Lumo.LIGHT);
@@ -162,7 +162,7 @@ public class CommunitiesView extends FurmsViewComponent {
 
 	private RouterLink createRouterPool(Component component, String id, String param) {
 		RouterLink routerLink = new RouterLink("", CommunityView.class, id);
-		routerLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM, param)));
+		routerLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, param)));
 		routerLink.add(component);
 		routerLink.setClassName("furms-color");
 		return routerLink;

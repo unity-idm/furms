@@ -45,7 +45,6 @@ class CommunityDatabaseRepository implements CommunityRepository {
 
 	@Override
 	public String create(Community community) {
-		validateCommunityName(community);
 		CommunityEntity saved = repository.save(CommunityEntity.builder()
 				.name(community.getName())
 				.description(community.getDescription())
@@ -56,9 +55,6 @@ class CommunityDatabaseRepository implements CommunityRepository {
 
 	@Override
 	public String update(Community community) {
-		validateCommunityId(community);
-		validateCommunityName(community);
-
 		return repository.findById(fromString(community.getId()))
 				.map(oldEntity -> CommunityEntity.builder()
 						.id(oldEntity.getId())
@@ -91,26 +87,5 @@ class CommunityDatabaseRepository implements CommunityRepository {
 			throw new IllegalArgumentException("Incorrect delete Community input.");
 		}
 		repository.deleteById(fromString(id));
-	}
-
-	private void validateCommunityName(final Community community) {
-		if (community == null || isEmpty(community.getName()) || isNameUnique(community)) {
-			throw new IllegalArgumentException("Incorrect Community name input.");
-		}
-	}
-
-	private boolean isNameUnique(Community community) {
-		String id = community.getId();
-		return !isUniqueName(community.getName()) && (id == null || !getName(id).equals(community.getName()));
-	}
-
-	private String getName(String id) {
-		return repository.findById(fromString(id)).get().getName();
-	}
-
-	private void validateCommunityId(final Community community) {
-		if (community == null || isEmpty(community.getId()) || !repository.existsById(fromString(community.getId()))) {
-			throw new IllegalArgumentException("Incorrect Community name input.");
-		}
 	}
 }

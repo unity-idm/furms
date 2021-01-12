@@ -103,6 +103,9 @@ void initFurmsRestClient()
 	Attribute role = EnumAttribute.of("sys:AuthorizationRole", "/", "Contents Manager")
 	attributesManagement.createAttribute(entity, role)
 
+	Attribute name = StringAttribute.of(NAME_ATTR, "/", "FURMS client user")
+	attributesManagement.createAttribute(entity, name)
+
 	PasswordToken clientPassword = new PasswordToken("AdminP@SSword1234!@&")
 	entityCredentialManagement.setEntityCredential(entity, "clientPassword", clientPassword.toJson())
 

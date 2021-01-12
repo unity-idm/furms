@@ -19,7 +19,7 @@ import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
 import java.util.*;
 
-import static io.imunity.furms.ui.views.fenix_admin.communites.constant.CommunityConst.*;
+import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.*;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.community.page.title")
@@ -37,16 +37,16 @@ public class CommunityView extends FurmsViewComponent {
 		this.communityService = communityService;
 
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community.tab.1"), CommunityView.class);
-		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM, ADMINISTRATORS)));
+		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
-		paramToTab.put(ADMINISTRATORS, administratorsTab);
+		paramToTab.put(ADMINISTRATORS_PARAM, administratorsTab);
 		defaultTab = administratorsTab;
 		links.add(adminsRouterLink);
 
 		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community.tab.2"), CommunityView.class);
-		allocRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM, ALLOCATIONS)));
+		allocRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ALLOCATIONS_PARAM)));
 		Tab allocationsTab = new Tab(allocRouterLink);
-		paramToTab.put(ALLOCATIONS, allocationsTab);
+		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);
 		links.add(allocRouterLink);
 
 		Div page1 = new Div();
@@ -79,7 +79,7 @@ public class CommunityView extends FurmsViewComponent {
 		String param = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
-			.getOrDefault(PARAM, List.of(ADMINISTRATORS))
+			.getOrDefault(PARAM_NAME, List.of(ADMINISTRATORS_PARAM))
 			.iterator().next();
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);

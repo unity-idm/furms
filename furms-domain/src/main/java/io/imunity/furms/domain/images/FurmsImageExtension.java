@@ -5,6 +5,6 @@
 
 package io.imunity.furms.domain.images;
 
-public enum FurmsImageType {
+public enum FurmsImageExtension {
 	JPG, JPEG, PNG, GIF
 }
