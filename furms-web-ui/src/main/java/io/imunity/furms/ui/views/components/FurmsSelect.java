@@ -35,14 +35,14 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		});
 		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
-		if(items.size() == 1){
-			setValue(items.get(0));
-		}
 	}
 
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
 		FurmsSelectText component = null;
 		for (Map.Entry<ViewMode, List<FurmsViewUserContext>> entry : data.entrySet()) {
+			if(entry.getKey() == ViewMode.USER){
+				continue;
+			}
 			if(component != null){
 				Span text = new Span(entry.getKey().name());
 				text.addClassName("select-span-separator");

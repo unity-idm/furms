@@ -39,6 +39,9 @@ class RoleTranslatorService implements RoleTranslator {
 	}
 
 	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(){
+		if(authzService.getRoles().isEmpty()){
+			return Map.of(USER, List.of(new FurmsViewUserContext("User settings", USER)));
+		}
 		return authzService.getRoles().entrySet().stream()
 			.flatMap(this::getFurmsUserContextStream)
 			.distinct()
@@ -60,7 +63,7 @@ class RoleTranslatorService implements RoleTranslator {
 		FurmsViewUserContext userSettings = new FurmsViewUserContext("User settings", USER);
 		switch (role) {
 			case FENIX_ADMIN:
-				return Stream.of(new FurmsViewUserContext("FENIX ADMIN", FENIX), userSettings);
+				return Stream.of(new FurmsViewUserContext("Fenix Admin", FENIX), userSettings);
 			case SITE_ADMIN:
 				return siteService.findById(resourceId.id.toString())
 					.map(site -> Stream.of(new FurmsViewUserContext(site.getId(), site.getName(), SITE), userSettings))
