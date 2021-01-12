@@ -5,10 +5,10 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsUserContext;
-import io.imunity.furms.core.config.security.user.capability.Capability;
-import io.imunity.furms.core.config.security.user.resource.ResourceId;
-import io.imunity.furms.core.config.security.user.resource.ResourceType;
+import io.imunity.furms.core.config.security.user.FurmsUser;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
@@ -27,7 +27,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	}
 
 	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType, String id) {
-		FurmsUserContext principal = (FurmsUserContext)authentication.getPrincipal();
+		FurmsUser principal = (FurmsUser)authentication.getPrincipal();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 
 		return getCapabilities(principal.roles, resourceId).contains(capability);

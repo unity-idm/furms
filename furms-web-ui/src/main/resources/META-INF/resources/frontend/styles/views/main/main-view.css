@@ -70,3 +70,8 @@ vaadin-tab[selected] {
 #logo {
   max-width: 150px;
 }
+
+.select-span-separator {
+	margin: auto;
+	display: table;
+}

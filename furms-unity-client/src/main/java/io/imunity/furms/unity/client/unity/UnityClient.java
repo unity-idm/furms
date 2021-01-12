@@ -5,6 +5,8 @@
 
 package io.imunity.furms.unity.client.unity;
 
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -33,6 +35,10 @@ public class UnityClient {
 		return get(path, clazz, emptyMap());
 	}
 
+	public <T> T get(String path, ParameterizedTypeReference<T> typeReference) {
+		return get(path, typeReference, emptyMap());
+	}
+
 	public <T> T get(String path, Class<T> clazz, Map<String, Object> queryParams) {
 		MultiValueMap<String, String> params = createParams(queryParams);
 		return webClient.get()
@@ -40,6 +46,15 @@ public class UnityClient {
 				.retrieve()
 				.bodyToMono(clazz)
 				.block();
+	}
+
+	public <T> T get(String path, ParameterizedTypeReference<T> typeReference, Map<String, Object> queryParams) {
+		MultiValueMap<String, String> params = createParams(queryParams);
+		return webClient.get()
+			.uri(uriBuilder -> uri(uriBuilder, path, params))
+			.retrieve()
+			.bodyToMono(typeReference)
+			.block();
 	}
 
 	public void post(String path) {
@@ -52,6 +67,15 @@ public class UnityClient {
 				.bodyValue(body == null ? "" : body)
 				.retrieve()
 				.bodyToMono(Void.class).block();
+	}
+
+	public void post(URI uri, MediaType mediaType) {
+		webClient.post()
+			.uri(u -> uri)
+			.contentType(mediaType)
+			.bodyValue("")
+			.retrieve()
+			.bodyToMono(Void.class).block();
 	}
 
 	public void put(String path, Object body) {
