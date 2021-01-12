@@ -9,6 +9,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
@@ -26,16 +28,11 @@ import static java.util.stream.Collectors.toList;
 
 @Route(CHOOSE_ROLE)
 @PageTitle(key = "view.choose-role.title")
-public class ChooseRoleView extends FurmsViewComponent {
+public class ChooseRoleView extends FurmsViewComponent implements AfterNavigationObserver {
+	private final Map<ViewMode, List<FurmsViewUserContext>> data;
+
 	ChooseRoleView(RoleTranslator roleTranslator) {
-		Map<ViewMode, List<FurmsViewUserContext>> data = roleTranslator.translateRolesToUserViewContexts();
-		List<FurmsViewUserContext> collect = data.values().stream()
-			.flatMap(Collection::stream)
-			.collect(toList());
-		if(collect.size() == 1) {
-			UI.getCurrent().navigate(collect.get(0).viewMode.route);
-			return;
-		}
+		data = roleTranslator.translateRolesToUserViewContexts();
 		FurmsSelect furmsSelect = new FurmsSelect(data);
 		VerticalLayout layout =
 			new VerticalLayout(new H4(getTranslation("view.choose-role.select")), furmsSelect);
@@ -44,5 +41,15 @@ public class ChooseRoleView extends FurmsViewComponent {
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 		getContent().add(layout);
 		getContent().setSizeFull();
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+		List<FurmsViewUserContext> viewUserContexts = data.values().stream()
+			.flatMap(Collection::stream)
+			.collect(toList());
+		if(viewUserContexts.size() == 1) {
+			UI.getCurrent().navigate(viewUserContexts.get(0).viewMode.route);
+		}
 	}
 }
