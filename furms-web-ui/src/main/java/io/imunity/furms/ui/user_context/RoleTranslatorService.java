@@ -9,9 +9,11 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.sites.Site;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,8 @@ import static java.util.stream.Collectors.*;
 class RoleTranslatorService implements RoleTranslator {
 	private final SiteService siteService;
 	private final AuthzService authzService;
+
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public RoleTranslatorService(SiteService siteService, AuthzService authzService) {
 		this.siteService = siteService;
@@ -58,16 +62,23 @@ class RoleTranslatorService implements RoleTranslator {
 			case FENIX_ADMIN:
 				return Stream.of(new FurmsViewUserContext("FENIX ADMIN", FENIX), userSettings);
 			case SITE_ADMIN:
-				Site site = siteService.findById(resourceId.id.toString())
-					.orElseThrow(() -> new IllegalArgumentException("This shouldn't happen, wrong resource id"));
-				return Stream.of(new FurmsViewUserContext(site.getId(), site.getName(), SITE), userSettings);
+				return siteService.findById(resourceId.id.toString())
+					.map(site -> Stream.of(new FurmsViewUserContext(site.getId(), site.getName(), SITE), userSettings))
+					.orElseGet(() -> {
+						LOG.warn("Wrong resource id. Data are not synchronized");
+						return Stream.empty();
+					});
 			case SITE_SUPPORT:
-				site = siteService.findById(resourceId.id.toString())
-					.orElseThrow(() -> new IllegalArgumentException("This shouldn't happen, wrong resource id"));
-				return Stream.of(
-					new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
-					userSettings
-				);
+			return siteService.findById(resourceId.id.toString())
+				.map(site ->
+					Stream.of(
+						new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
+						userSettings)
+				)
+				.orElseGet(() -> {
+					LOG.warn("Wrong resource id. Data are not synchronized");
+					return Stream.empty();
+				});
 			case COMMUNITY_ADMIN:
 				//TODO it will be change when communityService will be available
 				return Stream.of(

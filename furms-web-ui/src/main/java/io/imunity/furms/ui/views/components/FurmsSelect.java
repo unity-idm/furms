@@ -18,18 +18,26 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class FurmsSelect extends Select<FurmsSelectText> {
 	public FurmsSelect(Map<ViewMode, List<FurmsViewUserContext>> data) {
-		setItems(data.values().stream().flatMap(Collection::stream).map(FurmsSelectText::new));
+		List<FurmsSelectText> items = data.values().stream()
+			.flatMap(Collection::stream)
+			.map(FurmsSelectText::new)
+			.collect(toList());
+		setItems(items);
 		addSeparators(data);
 		setTextRenderer(Text::getText);
 		addValueChangeListener(event -> {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);
-			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.viewMode.route);
+			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.route);
 		});
 		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
+		if(items.size() == 1){
+			setValue(items.get(0));
+		}
 	}
 
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
