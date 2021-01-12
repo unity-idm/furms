@@ -17,8 +17,8 @@ public final class RoutesConst {
 	public static final String LOGOUT_URL = PUBLIC_URL + "/logout";
 	public static final String FRONT_LOGOUT_URL = FRONT + LOGOUT_URL;
 
-	public static final String AUTH_REQ_BASE_URL = "/oauth2/authorization";
-	public static final String AUTH_REQ_PARAM_URL = "/oauth2/authorization/param";
+	public static final String OAUTH_START_URL = "/oauth2/authorization";
+	public static final String OAUTH_START_WITH_AUTOPROXY_URL = "/oauth2/authorization/param";
 	public static final String REGISTRATION_ID = "/unity";
 
 	public static final String FENIX_ADMIN_LANDING_PAGE = "fenix/admin/sites";

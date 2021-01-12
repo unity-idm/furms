@@ -4,8 +4,18 @@
  */
 package io.imunity.furms.core.config.security;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
-import io.imunity.furms.spi.roles.RoleLoader;
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_SUCCESS_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.PUBLIC_URL;
+
+import java.lang.invoke.MethodHandles;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +30,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.domain.constant.RoutesConst.*;
+import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.spi.roles.RoleLoader;
 
 @EnableWebSecurity
 @Configuration
@@ -48,10 +55,10 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			// Allow query string for login.
+			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
 
-			// Restrict access to our application, except for DispatcherType.ERROR
+			// Restrict access to our application, except for DispatcherType.ERROR.
 			.and().requestMatchers().requestMatchers(new NonErrorDispacherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 

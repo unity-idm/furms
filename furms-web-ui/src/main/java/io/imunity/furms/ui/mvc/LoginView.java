@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
-import static io.imunity.furms.domain.constant.RoutesConst.AUTH_REQ_BASE_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.AUTH_REQ_PARAM_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.OAUTH_START_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.OAUTH_START_WITH_AUTOPROXY_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.PROXY_AUTH_PARAM;
@@ -34,9 +34,9 @@ public class LoginView {
 	public String redirectToAuthN(@RequestParam Map<String, String> params) {
 
 		boolean showSignInOptions = params.containsKey(PROXY_AUTH_PARAM);
-		String forwardURL = AUTH_REQ_PARAM_URL;
+		String forwardURL = OAUTH_START_WITH_AUTOPROXY_URL;
 		if (showSignInOptions)
-			forwardURL = AUTH_REQ_BASE_URL;
+			forwardURL = OAUTH_START_URL;
 
 		return "redirect:" + forwardURL + REGISTRATION_ID;
 	}
