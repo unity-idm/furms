@@ -49,7 +49,7 @@ public class ChooseRoleView extends FurmsViewComponent implements AfterNavigatio
 			.flatMap(Collection::stream)
 			.collect(toList());
 		if(viewUserContexts.size() == 1) {
-			UI.getCurrent().navigate(viewUserContexts.get(0).viewMode.route);
+			UI.getCurrent().navigate(viewUserContexts.get(0).route);
 		}
 	}
 }
