@@ -36,6 +36,41 @@ vaadin-tab[selected] {
 	color: var(--lumo-body-text-color);
 }
 
+.furms-view {
+	padding-right: 1rem;
+	padding-left: 1rem;
+	font-family: var(--lumo-font-family);
+}
+
+.furms-view h4, .furms-color {
+	color: var(--lumo-body-text-color);
+}
+
+.no-left-padding {
+	padding-left: 0;
+}
+
+.furms-upload-layout {
+	padding-bottom: 1em;
+	height: 125px;
+}
+
+.tooltip-icon-padding {
+	padding-right: 0.25rem;
+}
+
+.tooltip-div {
+	cursor: pointer;
+}
+
+.tooltip-div span:hover {
+	text-decoration: underline;
+}
+
+#community-logo {
+  max-width: 150px;
+}
+
 .select-span-separator {
 	margin: auto;
 	display: table;

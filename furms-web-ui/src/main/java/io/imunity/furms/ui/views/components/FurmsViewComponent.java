@@ -16,7 +16,11 @@ import java.util.Optional;
 
 public abstract class FurmsViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle {
 
-	public Optional<String> getParameter(){
+	public FurmsViewComponent() {
+		getContent().setClassName("furms-view");
+	}
+
+	public Optional<BreadCrumbParameter> getParameter(){
 		return Optional.empty();
 	}
 

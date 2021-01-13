@@ -7,15 +7,17 @@ package io.imunity.furms.ui.config;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Locale;
 
 @SpringComponent
 class LanguageInitListener implements VaadinServiceInitListener
 {
-	@Value("${furms.language}")
-	private String language;
+	private final String language;
+
+	public LanguageInitListener(FrontProperties frontProperties) {
+		this.language = frontProperties.getLanguage();
+	}
 
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent)

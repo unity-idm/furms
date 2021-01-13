@@ -18,15 +18,20 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class FurmsSelect extends Select<FurmsSelectText> {
 	public FurmsSelect(Map<ViewMode, List<FurmsViewUserContext>> data) {
-		setItems(data.values().stream().flatMap(Collection::stream).map(FurmsSelectText::new));
+		List<FurmsSelectText> items = data.values().stream()
+			.flatMap(Collection::stream)
+			.map(FurmsSelectText::new)
+			.collect(toList());
+		setItems(items);
 		addSeparators(data);
 		setTextRenderer(Text::getText);
 		addValueChangeListener(event -> {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);
-			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.viewMode.route);
+			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.route);
 		});
 		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
@@ -35,6 +40,9 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
 		FurmsSelectText component = null;
 		for (Map.Entry<ViewMode, List<FurmsViewUserContext>> entry : data.entrySet()) {
+			if(entry.getKey() == ViewMode.USER){
+				continue;
+			}
 			if(component != null){
 				Span text = new Span(entry.getKey().name());
 				text.addClassName("select-span-separator");

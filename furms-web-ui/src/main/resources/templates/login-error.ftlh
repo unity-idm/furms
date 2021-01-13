@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title th:text="${title}"></title>
+    <title>${title}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" href="/css/public.css">
 </head>
 <body>
 	<div class="center">
-		<p th:text="${message}" />
+		<p>${message}</p>
 	</div>
 </body>
 </html>

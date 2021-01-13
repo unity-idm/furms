@@ -21,9 +21,9 @@ class ParamAuthorizationRequestResolver implements OAuth2AuthorizationRequestRes
 
 	ParamAuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
 		authorizationRequestResolver =
-			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, RoutesConst.AUTH_REQ_BASE_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, RoutesConst.OAUTH_START_URL);
 		authorizationParamRequestResolver =
-			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, RoutesConst.AUTH_REQ_PARAM_URL);
+			new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, RoutesConst.OAUTH_START_WITH_AUTOPROXY_URL);
 	}
 
 	@Override

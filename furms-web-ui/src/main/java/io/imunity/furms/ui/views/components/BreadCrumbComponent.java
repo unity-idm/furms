@@ -8,19 +8,20 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import static io.imunity.furms.ui.views.components.FurmsLayout.getPageTitle;
 import static java.util.stream.Collectors.toList;
 
 class BreadCrumbComponent extends Composite<Div> {
-	private final Stack<Pair<Class<? extends FurmsViewComponent>, Optional<String>>> bredCrumbs = new Stack<>();
+	private final Stack<BreadCrumb> bredCrumbs = new Stack<>();
 	private final List<Class<? extends Component>> menuRouts;
 
 	BreadCrumbComponent(List<Class<? extends Component>> menuRouts){
@@ -31,26 +32,30 @@ class BreadCrumbComponent extends Composite<Div> {
 
 	public void update(FurmsViewComponent component){
 		Class<? extends FurmsViewComponent> componentClass = component.getClass();
+		BreadCrumb route = new BreadCrumb(componentClass, component.getParameter().orElse(null));
+
 		if(menuRouts.contains(componentClass))
 			bredCrumbs.removeAllElements();
 
-		Pair<Class<? extends FurmsViewComponent>, Optional<String>> route =
-			Pair.of(componentClass, component.getParameter());
 		if(!bredCrumbs.contains(route))
 			bredCrumbs.push(route);
+		else if (bredCrumbs.peek().isParamChanged(route)){
+			bredCrumbs.pop();
+			bredCrumbs.push(route);
+		}
 		else
 			while (!bredCrumbs.peek().equals(route))
 				bredCrumbs.pop();
-
 		updateView();
 	}
 
 	private void updateView() {
 		List<Component> components = new ArrayList<>();
-		RouterLink firstRouterLink = createRouterLink(bredCrumbs.firstElement());
+		RouterLink firstRouterLink = createRouterLink(bredCrumbs.firstElement()).findFirst().get();
 		List<Component> nextComponents = bredCrumbs.stream()
 			.skip(1)
-			.map(this::createNextRouterLink)
+			.flatMap(this::createNextRouterLink)
+			.distinct()
 			.collect(toList());
 		components.add(firstRouterLink);
 		components.addAll(nextComponents);
@@ -59,15 +64,29 @@ class BreadCrumbComponent extends Composite<Div> {
 		getContent().add(components.toArray(Component[]::new));
 	}
 
-	private Component createNextRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> route) {
-		Span span = new Span(" > ");
-		span.add(createRouterLink(route));
-		return span;
+	private Stream<Component> createNextRouterLink(BreadCrumb route) {
+		return createRouterLink(route)
+			.map(x -> {
+				Span span = new Span(" > ");
+				span.add(x);
+				return span;
+			});
 	}
 
-	private RouterLink createRouterLink(Pair<Class<? extends FurmsViewComponent>, Optional<String>> route) {
-		return route.getValue()
-			.map(v -> new RouterLink(v, route.getKey(), v))
-			.orElseGet(() -> new RouterLink(getPageTitle(route.getKey()), route.getKey()));
+	private Stream<RouterLink> createRouterLink(BreadCrumb route) {
+		return route.getBreadCrumbParameter()
+			.map(p -> getRouterLink(route.getRouteClass(), p))
+			.orElseGet(() -> Stream.of(new RouterLink(getPageTitle(route.getRouteClass()), route.getRouteClass())));
+	}
+
+
+	private Stream<RouterLink> getRouterLink(Class<? extends FurmsViewComponent> routeClass, BreadCrumbParameter p) {
+		RouterLink basicRoute = new RouterLink(p.name, routeClass, p.id);
+		if(p.parameter != null) {
+			RouterLink routerLink = new RouterLink(p.parameter, routeClass, p.id);
+			routerLink.setQueryParameters(QueryParameters.simple(Map.of("tab", p.parameter)));
+			return Stream.of(basicRoute, routerLink);
+		}
+		return Stream.of(basicRoute);
 	}
 }

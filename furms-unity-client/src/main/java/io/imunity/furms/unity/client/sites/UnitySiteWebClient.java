@@ -22,10 +22,10 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.META;
 import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID;
 import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID_USERS;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.GROUP_BASE;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.META;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
