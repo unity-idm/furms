@@ -37,42 +37,35 @@
 		<dependency>
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-rest-api</artifactId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<artifactId>furms-web-ui</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<artifactId>furms-core</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<artifactId>furms-database-module</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<artifactId>furms-unity-client</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<artifactId>furms-domain</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>furms-model-api</artifactId>
 			<groupId>io.imunity.furms</groupId>
-			<version>${project.version}</version>
 		</dependency>
 
 
