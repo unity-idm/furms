@@ -12,9 +12,10 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.components.FurmsLayout;
+import io.imunity.furms.ui.views.fenix_admin.administrators.FenixAdministratorsView;
 import io.imunity.furms.ui.views.fenix_admin.communites.CommunitiesView;
+import io.imunity.furms.ui.views.fenix_admin.dashboard.DashboardView;
 import io.imunity.furms.ui.views.fenix_admin.logs.AuditLogView;
-import io.imunity.furms.ui.views.fenix_admin.privileges.PrivilegedUsersView;
 import io.imunity.furms.ui.views.fenix_admin.sites.SitesView;
 
 import java.util.List;
@@ -29,10 +30,11 @@ public class FenixAdminMenu extends AppLayout implements AfterNavigationObserver
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
+				DashboardView.class,
 				SitesView.class,
 				CommunitiesView.class,
 				AuditLogView.class,
-				PrivilegedUsersView.class
+				FenixAdministratorsView.class
 			),
 			roleTranslator
 		);

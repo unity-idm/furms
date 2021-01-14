@@ -58,6 +58,18 @@
 					"CREATE_OR_UPDATE"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": true
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"/fenix",
+					"REQUIRE_EXISTING_GROUP"
+				]
+			}
 		}
 	]
 }

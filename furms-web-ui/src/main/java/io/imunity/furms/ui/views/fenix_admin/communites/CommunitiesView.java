@@ -46,7 +46,7 @@ import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.PA
 import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.communities.page.title")
+@PageTitle(key = "view.fenix-admin.communities.page.title")
 public class CommunitiesView extends FurmsViewComponent {
 	private final CommunityService communityService;
 	private final Grid<CommunityViewModel> grid;
