@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.basic.*
 @Field final String NAME_ATTR = "name"
 @Field final String EMAIL_ATTR = "email"
 @Field final String MOBILE_ATTR = "mobile"
-@Field final String COMMON_ATTR_FILE = "common"
+@Field final String COMMON_ATTR_FILE = "furmsAttributes"
 
 //run only if it is the first start of the server on clean DB.
 if (!isColdStart)
@@ -33,7 +33,6 @@ try
 	initAuthAttrTypes()
 	assignNameAttributeAndUserPasswordToAdminAccount()
 	initBaseGroups()
-	initRoleAttributeType()
 	initOAuthClient()
 	initTestUsers()
 	initFurmsRestClient()
@@ -62,18 +61,22 @@ void initCommonAttrTypesFromResource() throws EngineException
 void initAuthAttrTypes() throws EngineException
 {
 	def furmsSiteRole = new AttributeType("furmsSiteRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsSiteRole.setMinElements(1);
 	furmsSiteRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN", "SUPPORT")
 			.getSerializedConfiguration())
 
 	def furmsFenixRole = new AttributeType("furmsFenixRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsFenixRole.setMinElements(1);
 	furmsFenixRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN")
 			.getSerializedConfiguration())
 
 	def furmsCommunityRole = new AttributeType("furmsCommunityRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsCommunityRole.setMinElements(1);
 	furmsCommunityRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN")
 			.getSerializedConfiguration())
 
 	def furmsProjectRole = new AttributeType("furmsProjectRole", EnumAttributeSyntax.ID, msgSrc)
+	furmsProjectRole.setMinElements(1);
 	furmsProjectRole.setValueSyntaxConfiguration(new EnumAttributeSyntax("ADMIN", "MEMBER")
 			.getSerializedConfiguration())
 
@@ -195,14 +198,6 @@ void initBaseGroups()
 	groupsManagement.addGroup(new Group("/fenix/sites"))
 	groupsManagement.addGroup(new Group("/fenix/communities"))
 	log.info("Provisioned base Furms groups")
-}
-
-void initRoleAttributeType()
-{
-	AttributeType role = new AttributeType("role", "string")
-	role.setMinElements(1)
-	attributeTypeManagement.addAttributeType(role)
-	log.info("Provisioned role attribute type")
 }
 
 void initOAuthClient()

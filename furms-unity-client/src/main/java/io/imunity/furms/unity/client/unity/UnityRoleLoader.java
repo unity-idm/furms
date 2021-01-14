@@ -8,7 +8,7 @@ package io.imunity.furms.unity.client.unity;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.spi.roles.RoleLoader;
-import io.imunity.furms.spi.roles.RoleLoaderException;
+import io.imunity.furms.spi.roles.RoleLoadingException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -38,7 +38,7 @@ public class UnityRoleLoader implements RoleLoader {
 	}
 
 	@Override
-	public Map<ResourceId, Set<Role>> loadUserRoles(String sub) throws RoleLoaderException{
+	public Map<ResourceId, Set<Role>> loadUserRoles(String sub) throws RoleLoadingException{
 		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
 		Map<ResourceId, Set<Role>> resourceIdSetMap = loadUserRoles(attributes);
 		return resourceIdSetMap;
@@ -71,7 +71,7 @@ public class UnityRoleLoader implements RoleLoader {
 		return translateRole(attribute.getName(), attribute.getValues().iterator().next());
 	}
 
-	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) throws RoleLoaderException{
+	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) throws RoleLoadingException{
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(URI)
 			.uriVariables(Map.of("entityId", persistentId))
@@ -81,7 +81,7 @@ public class UnityRoleLoader implements RoleLoader {
 		try {
 			return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of("groupsPatterns", "/fenix/**/users"));
 		} catch (WebClientResponseException e) {
-			throw new RoleLoaderException(e.getStatusCode().value(), e);
+			throw new RoleLoadingException(e.getStatusCode().value(), e);
 		}
 	}
 }

@@ -5,8 +5,10 @@
 
 package io.imunity.furms.server;
 
-import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +18,12 @@ import java.io.IOException;
 @Component
 @Profile("demo-data-provisioning")
 class DemoCommunityInitializer {
-	private final CommunityService communityRepository;
+	private final CommunityRepository communityRepository;
+	private final CommunityGroupsDAO communityGroupsDAO;
 
-	DemoCommunityInitializer(CommunityService CommunityService) {
-		this.communityRepository = CommunityService;
+	public DemoCommunityInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO) {
+		this.communityRepository = communityRepository;
+		this.communityGroupsDAO = communityGroupsDAO;
 	}
 
 	@PostConstruct
@@ -39,8 +43,10 @@ class DemoCommunityInitializer {
 				.logo(imgPRACEFile, "png")
 				.build();
 
-			communityRepository.create(community);
-			communityRepository.create(community2);
+			String communityId = communityRepository.create(community);
+			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
+			String community2Id = communityRepository.create(community2);
+			communityGroupsDAO.create(new CommunityGroup(community2Id, community.getName()));
 		}
 	}
 }

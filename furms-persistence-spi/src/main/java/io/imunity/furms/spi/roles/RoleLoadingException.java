@@ -5,10 +5,10 @@
 
 package io.imunity.furms.spi.roles;
 
-public class RoleLoaderException extends Exception{
+public class RoleLoadingException extends RuntimeException {
 	public final String code;
 
-	public RoleLoaderException(int code, Throwable cause) {
+	public RoleLoadingException(int code, Throwable cause) {
 		super(cause);
 		this.code = String.valueOf(code);
 	}

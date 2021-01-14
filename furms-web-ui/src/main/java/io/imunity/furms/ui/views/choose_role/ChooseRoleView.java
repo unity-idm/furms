@@ -50,7 +50,6 @@ public class ChooseRoleView extends FurmsViewComponent implements AfterNavigatio
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		getContent().add(logoutLayout, layout);
-		getContent().setSizeFull();
 	}
 
 	@Override

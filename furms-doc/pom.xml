@@ -42,7 +42,6 @@
 		<dependency>
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-rest-api</artifactId>
-			<version>${project.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
