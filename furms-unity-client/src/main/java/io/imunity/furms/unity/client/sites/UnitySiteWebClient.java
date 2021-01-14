@@ -10,7 +10,6 @@ import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.unity.client.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
@@ -54,7 +53,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getMessage());
+			throw new UnityFailureException(e.getStatusText());
 		}
 	}
 
@@ -72,8 +71,8 @@ class UnitySiteWebClient implements SiteWebClient {
 		group.setDisplayedName(new I18nString(site.getName()));
 		try {
 			unityClient.post(GROUP_BASE, group);
-		} catch (WebClientException e) {
-			throw new UnityFailureException(e.getMessage());
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getStatusText());
 		}
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
@@ -81,8 +80,8 @@ class UnitySiteWebClient implements SiteWebClient {
 					.pathSegment(groupPath + FENIX_SITE_ID_USERS)
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
-		} catch (WebClientException e) {
-			throw new UnityFailureException(e.getMessage());
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getStatusText());
 		}
 	}
 
@@ -102,8 +101,8 @@ class UnitySiteWebClient implements SiteWebClient {
 			Group group = unityClient.get(metaSitePath, Group.class);
 			group.setDisplayedName(new I18nString(site.getName()));
 			unityClient.put(GROUP_BASE, group);
-		} catch (WebClientException e) {
-			throw new UnityFailureException(e.getMessage());
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getStatusText());
 		}
 	}
 
@@ -121,8 +120,8 @@ class UnitySiteWebClient implements SiteWebClient {
 				.buildAndExpand().encode().toUriString();
 		try {
 			unityClient.delete(deleteSitePath, queryParams);
-		} catch (WebClientException e) {
-			throw new UnityFailureException(e.getMessage());
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getStatusText());
 		}
 	}
 

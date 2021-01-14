@@ -161,6 +161,20 @@ public class SitesView extends FurmsViewComponent {
 		return new Div(save, cancel);
 	}
 
+	private Button addMenuButton(String label, VaadinIcon icon) {
+		Button button = new Button(label, icon.create());
+		button.addThemeVariants(LUMO_TERTIARY);
+		return button;
+	}
+
+	private void actionOpenSiteFormAdd(ClickEvent<Button> buttonClickEvent) {
+		UI.getCurrent().navigate(SitesAddView.class);
+	}
+
+	private void actionOpenAdministrators(SiteGridItem site) {
+		UI.getCurrent().navigate(SitesDetailsView.class, site.getId());
+	}
+
 	private void actionUpdate(Editor<SiteGridItem> siteEditor) {
 		if (siteEditor.getBinder().isValid()) {
 			Optional<Component> component = siteEditor.getGrid().getColumnByKey("name")
@@ -182,23 +196,11 @@ public class SitesView extends FurmsViewComponent {
 				} catch (IllegalArgumentException e) {
 					name.setErrorMessage(e.getMessage());
 					name.setInvalid(true);
+				} catch (RuntimeException e) {
+					showErrorNotification(getTranslation("view.sites.form.error.unexpected", "update"));
 				}
 			}
 		}
-	}
-
-	private Button addMenuButton(String label, VaadinIcon icon) {
-		Button button = new Button(label, icon.create());
-		button.addThemeVariants(LUMO_TERTIARY);
-		return button;
-	}
-
-	private void actionOpenSiteFormAdd(ClickEvent<Button> buttonClickEvent) {
-		UI.getCurrent().navigate(SitesAddView.class);
-	}
-
-	private void actionOpenAdministrators(SiteGridItem site) {
-		UI.getCurrent().navigate(SitesDetailsView.class, site.getId());
 	}
 
 	private void actionEditSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
@@ -206,8 +208,13 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void actionDeleteSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
-		siteService.delete(site.getId());
-		siteGrid.setItems(fetchSites());
+		try {
+			siteService.delete(site.getId());
+		} catch (RuntimeException e) {
+			showErrorNotification(getTranslation("view.sites.form.error.unexpected", "delete"));
+		} finally {
+			siteGrid.setItems(fetchSites());
+		}
 	}
 
 	private List<SiteGridItem> fetchSites() {

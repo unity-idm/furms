@@ -112,6 +112,8 @@ public class SitesAddView extends FurmsViewComponent {
 			} catch (IllegalArgumentException exception) {
 				name.setErrorMessage(exception.getMessage());
 				name.setInvalid(true);
+			} catch (RuntimeException exception) {
+				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "save"));
 			}
 		}
 	}

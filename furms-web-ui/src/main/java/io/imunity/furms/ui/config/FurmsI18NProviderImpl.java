@@ -8,6 +8,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toMap;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +35,7 @@ class FurmsI18NProviderImpl implements FurmsI18NProvider {
 
 	@Override
 	public String getTranslation(String s, Locale locale, Object... objects) {
-		return translationMap.get(locale.getLanguage()).getString(s);
+		return MessageFormat.format(translationMap.get(locale.getLanguage()).getString(s), objects);
 	}
 	
 	@Override
