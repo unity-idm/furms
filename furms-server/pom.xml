@@ -64,10 +64,9 @@
 			<groupId>io.imunity.furms</groupId>
 		</dependency>
 		<dependency>
-			<artifactId>furms-model-api</artifactId>
+			<artifactId>furms-persistence-spi</artifactId>
 			<groupId>io.imunity.furms</groupId>
 		</dependency>
-
 
 		<dependency>
 			<groupId>com.h2database</groupId>
