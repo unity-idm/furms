@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import static org.springframework.util.Assert.notNull;
 
 @Component
-class SiteServiceAPIValidator {
+class SiteServiceValidator {
 
 	private final SiteRepository siteRepository;
 
-	SiteServiceAPIValidator(SiteRepository siteRepository) {
+	SiteServiceValidator(SiteRepository siteRepository) {
 		this.siteRepository = siteRepository;
 	}
 

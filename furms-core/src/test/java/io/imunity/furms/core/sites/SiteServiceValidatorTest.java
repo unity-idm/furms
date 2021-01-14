@@ -18,13 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-class SiteServiceAPIValidatorTest {
+class SiteServiceValidatorTest {
 
 	@Mock
 	private SiteRepository siteRepository;
 
 	@InjectMocks
-	private SiteServiceAPIValidator validator;
+	private SiteServiceValidator validator;
 
 	@BeforeEach
 	void setUp() {

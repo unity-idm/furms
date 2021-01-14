@@ -7,11 +7,8 @@ package io.imunity.furms.unity.client.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteWebClient;
-import io.imunity.furms.unity.client.sites.exceptions.UnitySiteCreateException;
-import io.imunity.furms.unity.client.sites.exceptions.UnitySiteDeleteException;
-import io.imunity.furms.unity.client.sites.exceptions.UnitySiteUpdateException;
+import io.imunity.furms.unity.client.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -57,10 +54,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {
-			if (HttpStatus.valueOf(e.getRawStatusCode()).is5xxServerError()) {
-				throw e;
-			}
-			return Optional.empty();
+			throw new UnityFailureException(e.getMessage());
 		}
 	}
 
@@ -79,7 +73,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientException e) {
-			throw new UnitySiteCreateException(e.getMessage());
+			throw new UnityFailureException(e.getMessage());
 		}
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
@@ -88,8 +82,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
 		} catch (WebClientException e) {
-			this.delete(site.getId());
-			throw new UnitySiteCreateException(e.getMessage());
+			throw new UnityFailureException(e.getMessage());
 		}
 	}
 
@@ -110,7 +103,7 @@ class UnitySiteWebClient implements SiteWebClient {
 			group.setDisplayedName(new I18nString(site.getName()));
 			unityClient.put(GROUP_BASE, group);
 		} catch (WebClientException e) {
-			throw new UnitySiteUpdateException(e.getMessage());
+			throw new UnityFailureException(e.getMessage());
 		}
 	}
 
@@ -129,7 +122,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.delete(deleteSitePath, queryParams);
 		} catch (WebClientException e) {
-			throw new UnitySiteDeleteException(e.getMessage());
+			throw new UnityFailureException(e.getMessage());
 		}
 	}
 

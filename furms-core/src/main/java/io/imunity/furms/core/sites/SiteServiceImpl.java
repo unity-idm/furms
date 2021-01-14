@@ -8,21 +8,25 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.sites.SiteWebClient;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
 
 @Service
-class SiteServiceAPI implements SiteService {
+class SiteServiceImpl implements SiteService {
 
 	private final SiteRepository siteRepository;
-	private final SiteServiceAPIValidator validator;
+	private final SiteServiceValidator validator;
+	private final SiteWebClient webClient;
 
-	SiteServiceAPI(SiteRepository siteRepository,
-	               SiteServiceAPIValidator validator) {
+	SiteServiceImpl(SiteRepository siteRepository,
+	                SiteServiceValidator validator,
+	                SiteWebClient webClient) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
+		this.webClient = webClient;
 	}
 
 	@Override
@@ -39,14 +43,20 @@ class SiteServiceAPI implements SiteService {
 	public void create(Site site) {
 		validator.validateCreate(site);
 
-		siteRepository.create(site);
+		String siteId = siteRepository.create(site);
+		Site createdSite = siteRepository.findById(siteId)
+				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
+		webClient.create(createdSite);
 	}
 
 	@Override
 	public void update(Site site) {
 		validator.validateUpdate(site);
 
-		siteRepository.update(site);
+		String siteId = siteRepository.update(site);
+		Site updatedSite = siteRepository.findById(siteId)
+				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
+		webClient.update(updatedSite);
 	}
 
 	@Override
@@ -54,6 +64,7 @@ class SiteServiceAPI implements SiteService {
 		validator.validateDelete(id);
 
 		siteRepository.delete(id);
+		webClient.delete(id);
 	}
 
 	@Override

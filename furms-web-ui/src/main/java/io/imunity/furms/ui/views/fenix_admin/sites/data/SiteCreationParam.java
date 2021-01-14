@@ -7,11 +7,11 @@ package io.imunity.furms.ui.views.fenix_admin.sites.data;
 
 import java.util.Objects;
 
-public class SiteDataAdd {
+public class SiteCreationParam {
 
 	private String name;
 
-	public SiteDataAdd() {
+	public SiteCreationParam() {
 	}
 
 	public String getName() {
@@ -26,7 +26,7 @@ public class SiteDataAdd {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		SiteDataAdd that = (SiteDataAdd) o;
+		SiteCreationParam that = (SiteCreationParam) o;
 		return Objects.equals(name, that.name);
 	}
 
@@ -37,7 +37,7 @@ public class SiteDataAdd {
 
 	@Override
 	public String toString() {
-		return "SiteDataAdd{" +
+		return "SiteCreationParam{" +
 				"name='" + name + '\'' +
 				'}';
 	}

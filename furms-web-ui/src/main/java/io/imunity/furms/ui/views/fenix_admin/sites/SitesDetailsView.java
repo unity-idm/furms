@@ -12,7 +12,7 @@ import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/sites/details", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.sites.details.page.title")
+@PageTitle(key = "view.sites.details.title")
 public class SitesDetailsView extends FurmsViewComponent {
 	SitesDetailsView() {
 		getContent().add(new Label("Placeholder"));

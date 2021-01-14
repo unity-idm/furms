@@ -20,7 +20,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix_admin.sites.data.SiteDataAdd;
+import io.imunity.furms.ui.views.fenix_admin.sites.data.SiteCreationParam;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
@@ -28,22 +28,22 @@ import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyConte
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.sites.add.page.title")
+@PageTitle(key = "view.sites.add.title")
 @CssImport("./styles/components/dropdown-menu.css")
 public class SitesAddView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 
-	private final VerticalLayout layout;
+	private final VerticalLayout mainContent;
 
 	private final TextField name;
 
 	SitesAddView(SiteService siteService) {
 		this.siteService = siteService;
 
-		layout = new VerticalLayout();
-		layout.setPadding(true);
-		layout.setSpacing(true);
+		mainContent = new VerticalLayout();
+		mainContent.setPadding(true);
+		mainContent.setSpacing(true);
 
 		name = new TextField();
 
@@ -51,57 +51,57 @@ public class SitesAddView extends FurmsViewComponent {
 
 		addForm();
 
-		getContent().add(layout);
+		getContent().add(mainContent);
 	}
 
 	private void addHeader() {
 		FlexLayout headerLayout = new FlexLayout();
 		headerLayout.setWidthFull();
 
-		H4 title = new H4("Create new Site");
+		H4 title = new H4(getTranslation("view.sites.add.title"));
 
 		headerLayout.add(title);
 
-		layout.add(headerLayout);
+		mainContent.add(headerLayout);
 	}
 
 	private void addForm() {
 		FormLayout formLayout = new FormLayout();
 		formLayout.setWidth("50%");
-		SiteDataAdd formData = new SiteDataAdd();
-		Binder<SiteDataAdd> binder = new Binder<>(SiteDataAdd.class);
+		SiteCreationParam formData = new SiteCreationParam();
+		Binder<SiteCreationParam> binder = new Binder<>(SiteCreationParam.class);
 		binder.setBean(formData);
 
-		name.setPlaceholder("Site name...");
+		name.setPlaceholder(getTranslation("view.sites.add.form.name.placeholder"));
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
 		name.setWidthFull();
 
-		Button cancel = new Button("Cancel");
+		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"));
 		cancel.addThemeVariants(LUMO_TERTIARY);
 		cancel.addClickListener(e -> doCancelAction());
 
-		Button save = new Button("Save");
+		Button save = new Button(getTranslation("view.sites.add.form.button.save"));
 		save.addThemeVariants(LUMO_PRIMARY);
 		save.addClickListener(e -> doSaveAction(formData, binder));
 		save.setEnabled(false);
 		binder.addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors()));
 
 		binder.forField(name)
-				.withValidator(getNotEmptyStringValidator(), "Site name has to be specified.")
-				.withValidator(siteService::isNameUnique, "Site name has to be unique.")
-				.bind(SiteDataAdd::getName, SiteDataAdd::setName);
+				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
+				.withValidator(siteService::isNameUnique, getTranslation("view.sites.form.error.validation.field.name.unique"))
+				.bind(SiteCreationParam::getName, SiteCreationParam::setName);
 
 		FlexLayout buttons = new FlexLayout(cancel, save);
 		buttons.setJustifyContentMode(END);
 
-		formLayout.addFormItem(name, "Name");
+		formLayout.addFormItem(name, getTranslation("view.sites.add.form.name"));
 		formLayout.add(buttons);
 
-		layout.add(formLayout);
+		mainContent.add(formLayout);
 	}
 
-	private void doSaveAction(SiteDataAdd formData, Binder<SiteDataAdd> binder) {
+	private void doSaveAction(SiteCreationParam formData, Binder<SiteCreationParam> binder) {
 		binder.validate();
 		if (binder.isValid()) {
 			try {

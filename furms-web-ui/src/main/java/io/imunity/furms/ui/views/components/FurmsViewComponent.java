@@ -33,6 +33,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 	}
 
 	protected SerializablePredicate<? super String> getNotEmptyStringValidator() {
-		return value -> value != null && !value.trim().isBlank();
+		return value -> value != null && !value.isBlank();
 	}
 }

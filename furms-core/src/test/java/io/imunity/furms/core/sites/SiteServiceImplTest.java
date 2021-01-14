@@ -7,6 +7,7 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.sites.SiteWebClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,20 +19,26 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SiteServiceAPITest {
+class SiteServiceImplTest {
 
 	@Mock
 	private SiteRepository repository;
-	private SiteServiceAPIValidator validator;
-	private SiteServiceAPI service;
+	@Mock
+	private SiteWebClient webClient;
+	private SiteServiceValidator validator;
+	private SiteServiceImpl service;
 
 	@BeforeEach
 	void setUp() {
-		validator = new SiteServiceAPIValidator(repository);
-		service = new SiteServiceAPI(repository, validator);
+		validator = new SiteServiceValidator(repository);
+		service = new SiteServiceImpl(repository, validator, webClient);
 	}
 
 	@Test
@@ -74,9 +81,15 @@ class SiteServiceAPITest {
 				.name("name")
 				.build();
 		when(repository.isUniqueName(request.getName())).thenReturn(true);
+		when(repository.create(request)).thenReturn(request.getId());
+		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
+
+		//then
+		verify(repository, times(1)).create(request);
+		verify(webClient, times(1)).create(request);
 	}
 
 	@Test
@@ -100,9 +113,15 @@ class SiteServiceAPITest {
 				.build();
 		when(repository.exists(request.getId())).thenReturn(true);
 		when(repository.isUniqueName(request.getName())).thenReturn(true);
+		when(repository.update(request)).thenReturn(request.getId());
+		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when
 		service.update(request);
+
+		//then
+		verify(repository, times(1)).update(request);
+		verify(webClient, times(1)).update(request);
 	}
 
 	@Test
@@ -113,6 +132,9 @@ class SiteServiceAPITest {
 
 		//when
 		service.delete(id);
+
+		verify(repository, times(1)).delete(id);
+		verify(webClient, times(1)).delete(id);
 	}
 
 	@Test

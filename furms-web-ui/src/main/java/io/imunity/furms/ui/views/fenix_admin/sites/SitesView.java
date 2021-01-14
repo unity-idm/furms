@@ -28,7 +28,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix_admin.sites.data.SiteDataGrid;
+import io.imunity.furms.ui.views.fenix_admin.sites.data.SiteGridItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,74 +47,74 @@ import static java.util.stream.Collectors.toList;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
 
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
-@PageTitle(key = "view.sites.page.title")
+@PageTitle(key = "view.sites.main.title")
 @CssImport("./styles/components/dropdown-menu.css")
 public class SitesView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 
-	private final VerticalLayout layout;
+	private final VerticalLayout mainContent;
 
 	SitesView(SiteService siteService) {
 		this.siteService = siteService;
 
-		layout = new VerticalLayout();
-		layout.setPadding(true);
-		layout.setSpacing(true);
+		mainContent = new VerticalLayout();
+		mainContent.setPadding(true);
+		mainContent.setSpacing(true);
 
 		addHeader();
 		addTable();
 
-		getContent().add(layout);
+		getContent().add(mainContent);
 	}
 
 	private void addHeader() {
 		FlexLayout headerLayout = new FlexLayout();
 		headerLayout.setWidthFull();
 
-		H4 title = new H4("Sites");
+		H4 title = new H4(getTranslation("view.sites.main.title"));
 
-		Button addButton = new Button("Add", new Icon(PLUS_CIRCLE_O));
+		Button addButton = new Button(getTranslation("view.sites.main.add.button"), new Icon(PLUS_CIRCLE_O));
 		addButton.addClickListener(this::actionOpenSiteFormAdd);
 
 		headerLayout.add(title, addButton);
 		headerLayout.setJustifyContentMode(BETWEEN);
 
-		layout.add(headerLayout);
+		mainContent.add(headerLayout);
 	}
 
 	private void addTable() {
 		FlexLayout tableLayout = new FlexLayout();
 		tableLayout.setWidthFull();
 
-		List<SiteDataGrid> sites = fetchSites();
+		List<SiteGridItem> sites = fetchSites();
 
-		Grid<SiteDataGrid> siteGrid = new Grid<>();
+		Grid<SiteGridItem> siteGrid = new Grid<>();
 		siteGrid.setHeightByRows(true);
 		siteGrid.setItems(sites);
 
-		Binder<SiteDataGrid> siteBinder = new Binder<>(SiteDataGrid.class);
-		Editor<SiteDataGrid> siteEditor = siteGrid.getEditor();
+		Binder<SiteGridItem> siteBinder = new Binder<>(SiteGridItem.class);
+		Editor<SiteGridItem> siteEditor = siteGrid.getEditor();
 		siteEditor.setBinder(siteBinder);
 		siteEditor.setBuffered(true);
 
 		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesDetailsView.class, site.getId()))
-				.setHeader("Name")
+				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
 				.setEditorComponent(addEditForm(siteBinder));
 
 		siteGrid.addComponentColumn(site -> addMenu(site, siteGrid))
-				.setHeader("Actions")
+				.setHeader(getTranslation("view.sites.main.grid.column.actions"))
 				.setKey("actions")
 				.setEditorComponent(addEditButtons(siteEditor))
 				.setTextAlign(END);
 
 		tableLayout.add(siteGrid);
 
-		layout.add(tableLayout);
+		mainContent.add(tableLayout);
 	}
 
-	private Component addMenu(SiteDataGrid site, Grid<SiteDataGrid> siteGrid) {
+	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		Button button = new Button(MENU.create());
 		button.addThemeVariants(LUMO_TERTIARY);
 		button.setClassName("dropdown-menu");
@@ -123,32 +123,35 @@ public class SitesView extends FurmsViewComponent {
 		contextMenu.setId(site.getId());
 		contextMenu.setOpenOnClick(true);
 		contextMenu.setTarget(button);
-		contextMenu.addItem(addMenuButton("Edit", EDIT), e -> actionEditSite(site, siteGrid));
-		contextMenu.addItem(addMenuButton("Delete", TRASH), e -> actionDeleteSite(site, siteGrid));
-		contextMenu.addItem(addMenuButton("Administrators", GROUP), e -> actionOpenAdministrators(site));
+		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
+				e -> actionEditSite(site, siteGrid));
+		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
+				e -> actionDeleteSite(site, siteGrid));
+		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
+				e -> actionOpenAdministrators(site));
 
-		layout.add(contextMenu);
+		mainContent.add(contextMenu);
 
 		return button;
 	}
 
-	private Component addEditForm(Binder<SiteDataGrid> siteBinder) {
+	private Component addEditForm(Binder<SiteGridItem> siteBinder) {
 		TextField siteNameField = new TextField();
 		siteNameField.setValueChangeMode(EAGER);
 		siteBinder.forField(siteNameField)
-				.withValidator(getNotEmptyStringValidator(), "Site name has to be specified.")
-				.withValidator(siteService::isNameUnique, "Site name has to be unique.")
-				.bind(SiteDataGrid::getName, SiteDataGrid::setName);
+				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
+				.withValidator(siteService::isNameUnique, getTranslation("view.sites.form.error.validation.field.name.unique"))
+				.bind(SiteGridItem::getName, SiteGridItem::setName);
 
 		return new Div(siteNameField);
 	}
 
-	private Component addEditButtons(Editor<SiteDataGrid> siteEditor) {
-		Button save = new Button("Save", e -> actionUpdate(siteEditor));
+	private Component addEditButtons(Editor<SiteGridItem> siteEditor) {
+		Button save = new Button(getTranslation("view.sites.main.grid.editor.button.save"), e -> actionUpdate(siteEditor));
 		save.addThemeVariants(LUMO_TERTIARY);
 		save.addClassName("save");
 
-		Button cancel = new Button("Cancel", e -> siteEditor.cancel());
+		Button cancel = new Button(getTranslation("view.sites.main.grid.editor.button.cancel"), e -> siteEditor.cancel());
 		cancel.addThemeVariants(LUMO_TERTIARY);
 		cancel.addClassName("cancel");
 
@@ -158,7 +161,7 @@ public class SitesView extends FurmsViewComponent {
 		return new Div(save, cancel);
 	}
 
-	private void actionUpdate(Editor<SiteDataGrid> siteEditor) {
+	private void actionUpdate(Editor<SiteGridItem> siteEditor) {
 		if (siteEditor.getBinder().isValid()) {
 			Optional<Component> component = siteEditor.getGrid().getColumnByKey("name")
 					.getEditorComponent().getChildren()
@@ -168,13 +171,13 @@ public class SitesView extends FurmsViewComponent {
 				TextField name = component.map(c -> (TextField) c).get();
 				try {
 					if (siteEditor.getItem().getName().equals(name.getValue())) {
-						throw new IllegalArgumentException("New site name has to be different.");
+						throw new IllegalArgumentException(getTranslation("view.sites.form.error.validation.field.name.different"));
 					}
 					siteService.update(Site.builder()
 							.id(siteEditor.getItem().getId())
 							.name(name.getValue())
 							.build());
-					siteEditor.save();
+					siteEditor.cancel();
 					siteEditor.getGrid().setItems(fetchSites());
 				} catch (IllegalArgumentException e) {
 					name.setErrorMessage(e.getMessage());
@@ -194,22 +197,22 @@ public class SitesView extends FurmsViewComponent {
 		UI.getCurrent().navigate(SitesAddView.class);
 	}
 
-	private void actionOpenAdministrators(SiteDataGrid site) {
+	private void actionOpenAdministrators(SiteGridItem site) {
 		UI.getCurrent().navigate(SitesDetailsView.class, site.getId());
 	}
 
-	private void actionEditSite(SiteDataGrid site, Grid<SiteDataGrid> siteGrid) {
+	private void actionEditSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		siteGrid.getEditor().editItem(site);
 	}
 
-	private void actionDeleteSite(SiteDataGrid site, Grid<SiteDataGrid> siteGrid) {
+	private void actionDeleteSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		siteService.delete(site.getId());
 		siteGrid.setItems(fetchSites());
 	}
 
-	private List<SiteDataGrid> fetchSites() {
+	private List<SiteGridItem> fetchSites() {
 		return siteService.findAll().stream()
-				.map(SiteDataGrid::of)
+				.map(SiteGridItem::of)
 				.collect(toList());
 	}
 }
