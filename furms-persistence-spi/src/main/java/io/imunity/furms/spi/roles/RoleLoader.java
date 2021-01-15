@@ -13,5 +13,5 @@ import java.util.Map;
 import java.util.Set;
 
 public interface RoleLoader {
-	Map<ResourceId, Set<Role>> loadUserRoles(String id);
+	Map<ResourceId, Set<Role>> loadUserRoles(String id) throws RoleLoadingException;
 }

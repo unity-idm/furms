@@ -1,0 +1,126 @@
+[
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"global": true,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "firstname",
+			"Map": {
+				"pl": "Imię",
+				"en": "Firstname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "firstname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"global": true,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "organization",
+			"Map": {
+				"pl": "Organizacja",
+				"en": "Organization"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "organization",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"global": true,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "surname",
+			"Map": {
+				"pl": "Nazwisko",
+				"en": "Surname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "surname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"global": true,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "userName",
+			"Map": {
+				"pl": "Nazwa użytkownika",
+				"en": "Username"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "userName",
+		"syntaxId": "string"
+	}
+]

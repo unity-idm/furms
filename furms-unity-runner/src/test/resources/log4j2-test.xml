@@ -17,6 +17,9 @@
 		<Logger name="unity.server.EndpointsUpdater" level="INFO"/>
 		<Logger name="unity.server.EntitiesScheduledUpdater" level="INFO"/>
 		<Logger name="unity.server.TokensManagementImpl" level="INFO"/>
+		<Logger name="unity.server.EventProcessor" level="INFO"/>
+		<Logger name="unity.server.AuditPublisher" level="INFO"/>
+		<Logger name="unity.server.AuditEventRDBMSStore" level="INFO"/>
 		
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
@@ -39,7 +42,6 @@
 		<!-- OAuth related -->
 		<Logger name="unity.server.oauth" level="TRACE"/>
 
-		<Logger name="unity.server.AdditionalAuthenticationService" level="TRACE"/>
 
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->

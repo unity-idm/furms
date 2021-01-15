@@ -27,7 +27,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			.map(FurmsSelectText::new)
 			.collect(toList());
 		setItems(items);
-		addSeparators(data);
+		//addSeparators(data); TODO FIX separators are disabled now
 		setTextRenderer(Text::getText);
 		addValueChangeListener(event -> {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);

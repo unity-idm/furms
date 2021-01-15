@@ -22,4 +22,6 @@ public interface SiteService {
 
 	void delete(String id);
 
+	boolean isNameUnique(String name);
+
 }

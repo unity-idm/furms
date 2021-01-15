@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.user_context;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -29,12 +30,14 @@ import static java.util.stream.Collectors.*;
 @Service
 class RoleTranslatorService implements RoleTranslator {
 	private final SiteService siteService;
+	private final CommunityService communityService;
 	private final AuthzService authzService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public RoleTranslatorService(SiteService siteService, AuthzService authzService) {
+	public RoleTranslatorService(SiteService siteService, CommunityService communityService, AuthzService authzService) {
 		this.siteService = siteService;
+		this.communityService = communityService;
 		this.authzService = authzService;
 	}
 
@@ -72,22 +75,27 @@ class RoleTranslatorService implements RoleTranslator {
 						return Stream.empty();
 					});
 			case SITE_SUPPORT:
-			return siteService.findById(resourceId.id.toString())
-				.map(site ->
-					Stream.of(
-						new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
-						userSettings)
-				)
-				.orElseGet(() -> {
-					LOG.warn("Wrong resource id. Data are not synchronized");
-					return Stream.empty();
-				});
+				return siteService.findById(resourceId.id.toString())
+					.map(site ->
+						Stream.of(
+							new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
+							userSettings)
+					)
+					.orElseGet(() -> {
+						LOG.warn("Wrong resource id. Data are not synchronized");
+						return Stream.empty();
+					});
 			case COMMUNITY_ADMIN:
-				//TODO it will be change when communityService will be available
-				return Stream.of(
-					new FurmsViewUserContext(resourceId.id.toString(), resourceId.id.toString(), COMMUNITY),
-					userSettings
-				);
+				return communityService.findById(resourceId.id.toString())
+					.map(community ->
+						Stream.of(
+						new FurmsViewUserContext(community.getId(), community.getName(), COMMUNITY),
+						userSettings)
+					)
+					.orElseGet(() -> {
+						LOG.warn("Wrong resource id. Data are not synchronized");
+						return Stream.empty();
+					});
 			case PROJECT_ADMIN:
 				//TODO it will be change when projectService will be available
 				return Stream.of(

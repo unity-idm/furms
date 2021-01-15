@@ -59,7 +59,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
 
 			// Restrict access to our application, except for DispatcherType.ERROR.
-			.and().requestMatchers().requestMatchers(new NonErrorDispacherTypeRequestMatcher())
+			.and().requestMatchers().requestMatchers(new NonErrorDispatcherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 
 
@@ -115,7 +115,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return new FurmsOAuth2UserService(restTemplate, roleLoader);
 	}
 
-	private static class NonErrorDispacherTypeRequestMatcher implements RequestMatcher {
+	private static class NonErrorDispatcherTypeRequestMatcher implements RequestMatcher {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			if (request.getDispatcherType() == DispatcherType.ERROR) {
