@@ -1,6 +1,7 @@
 import com.google.common.collect.Lists
 import groovy.transform.Field
 import org.apache.commons.io.FilenameUtils
+import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration
 import pl.edu.icm.unity.exceptions.EngineException
@@ -54,15 +55,27 @@ void initCommonAttrTypesFromResource() throws EngineException
 {
 	List<Resource> resources = attributeTypeSupport.getAttibuteTypeResourcesFromClasspathDir()
 	for (Resource r : resources)
-		if (FilenameUtils.getBaseName(r.getFilename()).equals(COMMON_ATTR_FILE))
-		{
-			List<AttributeType> attrTypes = attributeTypeSupport
-					.loadAttributeTypesFromResource(r)
-			for (AttributeType type : attrTypes)
-				attributeTypeManagement.addAttributeType(type)
-			log.info("Common attributes added from resource file: " + r.getFilename())
-		}
+		loadAttrsFromFile(r)
+		
+	Resource furmsAttributes = new FileSystemResource("conf/attributeTypes/" + COMMON_ATTR_FILE + ".json");
+	if (furmsAttributes.exists())
+		loadAttrsFromFile(furmsAttributes)
+	
 	log.info("Provisioned FURMS attribute types from resource")
+}
+
+void loadAttrsFromFile(Resource r)
+{
+	if (FilenameUtils.getBaseName(r.getFilename()).equals(COMMON_ATTR_FILE))
+	{
+		List<AttributeType> attrTypes = attributeTypeSupport.loadAttributeTypesFromResource(r)
+		for (AttributeType type : attrTypes)
+		{
+			attributeTypeManagement.addAttributeType(type)
+			log.info("Addin attribute type: " + type)
+    	}
+	}
+	log.info("Common attributes added from resource file: " + r.getFilename())
 }
 
 void initFurmsRestClient()
