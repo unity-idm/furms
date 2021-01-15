@@ -52,23 +52,28 @@ vaadin-tab[selected] {
 
 .furms-upload-layout {
 	padding-bottom: 1em;
-	height: 125px;
 }
 
-.tooltip-icon-padding {
+.menu-icon-padding {
 	padding-right: 0.25rem;
 }
 
-.tooltip-div {
+.menu-div {
 	cursor: pointer;
 }
 
-.tooltip-div span:hover {
+.menu-div span:hover {
 	text-decoration: underline;
 }
 
 #community-logo {
-  max-width: 150px;
+	max-width: 150px;
+	max-height: 150px;
+	object-fit: contain;
+}
+
+.description-text-area {
+	width: var(--vaadin-text-field-default-width, 24em);
 }
 
 .select-span-separator {

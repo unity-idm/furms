@@ -80,11 +80,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.vaadin.componentfactory</groupId>
-			<artifactId>tooltip</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-core</artifactId>
 		</dependency>
