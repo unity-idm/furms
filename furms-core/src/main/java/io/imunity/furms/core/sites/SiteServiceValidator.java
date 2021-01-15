@@ -12,32 +12,32 @@ import org.springframework.stereotype.Component;
 import static org.springframework.util.Assert.notNull;
 
 @Component
-class SiteServiceAPIValidator {
+class SiteServiceValidator {
 
 	private final SiteRepository siteRepository;
 
-	SiteServiceAPIValidator(SiteRepository siteRepository) {
+	SiteServiceValidator(SiteRepository siteRepository) {
 		this.siteRepository = siteRepository;
 	}
 
 	void validateCreate(Site site) {
 		notNull(site, "Site object cannot be null.");
-		validateName(site);
+		validateName(site.getName());
 	}
 
 	void validateUpdate(Site request) {
 		notNull(request, "Site object cannot be null.");
 		validateId(request.getId());
-		validateName(request);
+		validateName(request.getName());
 	}
 
 	void validateDelete(String id) {
 		validateId(id);
 	}
 
-	private void validateName(Site site) {
-		notNull(site.getName(), "Site name has to be declared.");
-		if (!siteRepository.isUniqueName(site.getName())) {
+	void validateName(String name) {
+		notNull(name, "Site name has to be declared.");
+		if (!siteRepository.isUniqueName(name)) {
 			throw new IllegalArgumentException("Site name has to be unique.");
 		}
 	}

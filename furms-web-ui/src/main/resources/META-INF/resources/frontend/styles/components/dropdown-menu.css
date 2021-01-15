@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+
+.dropdown-menu {
+	color: black;
+}
+
+.vaadin-menu-item > vaadin-button {
+	color: black;
+	margin-top: 0;
+	margin-bottom: 0;
+	--lumo-button-size: var(--lumo-size-s);
+}

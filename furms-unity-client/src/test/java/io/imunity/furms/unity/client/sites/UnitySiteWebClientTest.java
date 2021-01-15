@@ -6,12 +6,15 @@
 package io.imunity.furms.unity.client.sites;
 
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.unity.client.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -19,12 +22,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +80,21 @@ class UnitySiteWebClientTest {
 		//then
 		verify(unityClient, times(1)).post(anyString(), any());
 		verify(unityClient, times(1)).post(anyString());
+	}
+
+	@Test
+	void shouldExpectExceptionWhenCommunicationWithUnityIsBroken() {
+		//given
+		WebClientResponseException webException = new WebClientResponseException(400, "BAD_REQUEST", null, null, null);
+		doThrow(webException).when(unityClient).get(anyString(), any(Class.class));
+		doThrow(webException).when(unityClient).post(anyString());
+		doThrow(webException).when(unityClient).delete(anyString(), any());
+
+		//when + then
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.get("id"));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.create(Site.builder().id("id").build()));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.update(Site.builder().id("id").build()));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.delete("id"));
 	}
 
 	@Test
