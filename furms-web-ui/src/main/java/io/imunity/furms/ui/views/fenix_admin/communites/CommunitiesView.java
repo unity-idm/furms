@@ -5,10 +5,10 @@
 
 package io.imunity.furms.ui.views.fenix_admin.communites;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -21,7 +21,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.theme.lumo.Lumo;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.ui.views.components.BreadCrumbParameter;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
@@ -34,15 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ALIGN_JUSTIFY;
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.ADMINISTRATORS_PARAM;
-import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.ALLOCATIONS_PARAM;
-import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.PARAM_NAME;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.*;
 import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
@@ -64,7 +56,6 @@ public class CommunitiesView extends FurmsViewComponent {
 	private HorizontalLayout createHeaderLayout() {
 		Button addButton = new Button(getTranslation("view.communities.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class));
-		addButton.setClassName("furms-color");
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
 		buttonLayout.setWidthFull();
@@ -96,7 +87,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(
 			createRouterIcon(USERS, c.getId(), ADMINISTRATORS_PARAM),
 			createRouterIcon(PIE_CHART, c.getId(), ALLOCATIONS_PARAM),
-			createTooltipIcon(c.getId())
+			createContextMenu(c.getId())
 		);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
@@ -108,50 +99,44 @@ public class CommunitiesView extends FurmsViewComponent {
 			.collect(toSet());
 		grid.setItems(all);
 	}
+	
+	private Component createContextMenu(String communityId) {
+		Icon menu = MENU.create();
+		ContextMenu contextMenu = new ContextMenu();
+		contextMenu.setOpenOnClick(true);
+		contextMenu.setTarget(menu);
 
-	private Icon createTooltipIcon(String communityId) {
-		Icon icon = ALIGN_JUSTIFY.create();
-		Tooltip tooltip = createTooltip(communityId);
-		tooltip.attachToComponent(icon);
-		getContent().add(tooltip);
-		return icon;
-	}
-
-	private Tooltip createTooltip(String communityId) {
-		Tooltip tooltip = new Tooltip();
-
-		Span editSpan = new Span(getTranslation("view.communities.tooltip.edit"));
-		Div editCommunityDiv = new Div(createTooltipIcon(EDIT), editSpan);
-		editCommunityDiv.addClassName("tooltip-div");
-		editCommunityDiv.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class, communityId));
-
-		Span deleteSpan = new Span(getTranslation("view.communities.tooltip.delete"));
-		Div deleteCommunityDiv = new Div(createTooltipIcon(TRASH), deleteSpan);
-		deleteCommunityDiv.addClassName("tooltip-div");
-		deleteCommunityDiv.addClickListener(x -> {
+		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.edit"), EDIT), event ->
+			UI.getCurrent().navigate(CommunityFormView.class, communityId)
+		);
+		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.delete"), TRASH), event -> {
 			communityService.delete(communityId);
 			loadGridContent();
-			tooltip.close();
-		});
+			}
+		);
 
-		Span administratorsSpan = new Span(getTranslation("view.communities.tooltip.administrators"));
-		Div administratorsDiv = new Div(createTooltipIcon(USERS), administratorsSpan);
-		administratorsDiv.addClassName("tooltip-div");
-		RouterLink administratorsPool = createRouterPool(administratorsDiv, communityId, ADMINISTRATORS_PARAM);
+		Component adminComp = createMenuButton(getTranslation("view.communities.menu.administrators"), USERS);
+		RouterLink administratorsPool = createRouterPool(adminComp, communityId, ADMINISTRATORS_PARAM);
+		contextMenu.addItem(administratorsPool);
+		
+		Component allocationComp = createMenuButton(getTranslation("view.communities.menu.allocations"), PIE_CHART);
+		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, ALLOCATIONS_PARAM);
+		contextMenu.addItem(allocationsPool);
 
-		Span allocationSpan = new Span(getTranslation("view.communities.tooltip.allocations"));
-		Div allocationsDiv = new Div(createTooltipIcon(PIE_CHART), allocationSpan);
-		allocationsDiv.addClassName("tooltip-div");
-		RouterLink allocationsPool = createRouterPool(allocationsDiv, communityId, ALLOCATIONS_PARAM);
-
-		tooltip.add(editCommunityDiv, deleteCommunityDiv, administratorsPool, allocationsPool);
-		tooltip.getThemeNames().add(Lumo.LIGHT);
-		return tooltip;
+		getContent().add(contextMenu);
+		return menu;
 	}
 
-	private Icon createTooltipIcon(VaadinIcon iconType) {
+	private Component createMenuButton(String label, VaadinIcon icon) {
+		Span text = new Span(label);
+		Div div = new Div(createMenuIcon(icon), text);
+		div.addClassName("menu-div");
+		return div;
+	}
+	
+	private Icon createMenuIcon(VaadinIcon iconType) {
 		Icon icon = iconType.create();
-		icon.addClassNames("tooltip-icon-padding");
+		icon.addClassNames("menu-icon-padding");
 		return icon;
 	}
 
