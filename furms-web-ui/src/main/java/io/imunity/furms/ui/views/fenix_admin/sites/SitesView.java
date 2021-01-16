@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.fenix_admin.sites;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -17,8 +18,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
@@ -38,9 +39,8 @@ import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE_O;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.BETWEEN;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static java.util.stream.Collectors.toList;
 
@@ -53,34 +53,27 @@ public class SitesView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 
-	private final VerticalLayout mainContent;
-
 	SitesView(SiteService siteService) {
 		this.siteService = siteService;
 
-		mainContent = new VerticalLayout();
-		mainContent.setPadding(true);
-		mainContent.setSpacing(true);
-
 		addHeader();
 		addTable();
-
-		getContent().add(mainContent);
 	}
 
 	private void addHeader() {
 		FlexLayout headerLayout = new FlexLayout();
-		headerLayout.setWidthFull();
+		headerLayout.setSizeFull();
+		headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+		headerLayout.setAlignItems(FlexComponent.Alignment.END);
 
 		H4 title = new H4(getTranslation("view.sites.main.title"));
 
-		Button addButton = new Button(getTranslation("view.sites.main.add.button"), new Icon(PLUS_CIRCLE_O));
+		Button addButton = new Button(getTranslation("view.sites.main.add.button"), new Icon(PLUS_CIRCLE));
 		addButton.addClickListener(this::actionOpenSiteFormAdd);
 
 		headerLayout.add(title, addButton);
-		headerLayout.setJustifyContentMode(BETWEEN);
 
-		mainContent.add(headerLayout);
+		getContent().add(headerLayout);
 	}
 
 	private void addTable() {
@@ -111,13 +104,13 @@ public class SitesView extends FurmsViewComponent {
 
 		tableLayout.add(siteGrid);
 
-		mainContent.add(tableLayout);
+		getContent().add(tableLayout);
 	}
 
 	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		Button button = new Button(MENU.create());
 		button.addThemeVariants(LUMO_TERTIARY);
-		button.setClassName("dropdown-menu");
+		button.setClassName("dropdown-menu-button");
 
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setId(site.getId());
@@ -130,7 +123,7 @@ public class SitesView extends FurmsViewComponent {
 		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
 				e -> actionOpenAdministrators(site));
 
-		mainContent.add(contextMenu);
+		getContent().add(contextMenu);
 
 		return button;
 	}
@@ -150,6 +143,7 @@ public class SitesView extends FurmsViewComponent {
 		Button save = new Button(getTranslation("view.sites.main.grid.editor.button.save"), e -> actionUpdate(siteEditor));
 		save.addThemeVariants(LUMO_TERTIARY);
 		save.addClassName("save");
+		save.addClickShortcut(Key.ENTER);
 
 		Button cancel = new Button(getTranslation("view.sites.main.grid.editor.button.cancel"), e -> siteEditor.cancel());
 		cancel.addThemeVariants(LUMO_TERTIARY);
@@ -164,6 +158,7 @@ public class SitesView extends FurmsViewComponent {
 	private Button addMenuButton(String label, VaadinIcon icon) {
 		Button button = new Button(label, icon.create());
 		button.addThemeVariants(LUMO_TERTIARY);
+		button.setClassName("dropdown-menu-button");
 		return button;
 	}
 

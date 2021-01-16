@@ -5,8 +5,14 @@
 package io.imunity.furms.ui.views.components;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -21,6 +27,7 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 
 	public FurmsViewComponent() {
 		getContent().setClassName("furms-view");
+		addPreventionForMultiEnterClick();
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){
@@ -36,12 +43,20 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 	}
 
 	protected void showErrorNotification(String message) {
-		Notification error = new Notification(message, 5000, TOP_END);
+		HorizontalLayout errorLayout = new HorizontalLayout(VaadinIcon.WARNING.create(), new Label(message));
+		errorLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+		Notification error = new Notification(errorLayout);
+		error.setDuration(5000);
+		error.setPosition(TOP_END);
 		error.setThemeName("error");
 		error.setOpened(true);
 	}
 
 	protected SerializablePredicate<? super String> getNotEmptyStringValidator() {
 		return value -> value != null && !value.isBlank();
+	}
+
+	private void addPreventionForMultiEnterClick() {
+		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
 	}
 }
