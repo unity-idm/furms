@@ -4,10 +4,13 @@
  */
 package io.imunity.furms.ui.views.components;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,10 +19,8 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.server.VaadinService;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 
-import java.util.List;
-import java.util.Optional;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class FurmsLayout {
 	private final RoleTranslator roleTranslator;
@@ -39,13 +40,20 @@ public class FurmsLayout {
 		layout.setSizeFull();
 		layout.setPadding(false);
 		layout.setSpacing(false);
-		layout.getThemeList().set("spacing-s", true);
 		layout.setAlignItems(FlexComponent.Alignment.STRETCH);
+		layout.add(getLogo(), menu);
+		return layout;
+	}
+	
+	private Component getLogo()
+	{
 		HorizontalLayout logoLayout = new HorizontalLayout();
 		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoLayout.add(new H1("Furms"));
-		layout.add(logoLayout, menu);
-		return layout;
+		logoLayout.setMargin(true);
+		Image image = new Image(Images.FENIX_LOGO.path, "");
+		image.setWidthFull();
+		logoLayout.add(image);
+		return logoLayout;
 	}
 
 	public Component createNavbar(){
