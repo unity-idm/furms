@@ -8,6 +8,7 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import org.slf4j.Logger;
@@ -62,6 +63,9 @@ class SiteServiceImpl implements SiteService {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.create(createdSite);
+		} catch(UnityFailureException e) {
+			LOG.error("Could not create Site: ", e);
+			webClient.get(siteId).ifPresent(incompleteSite -> webClient.delete(incompleteSite.getId()));
 		} catch (RuntimeException e) {
 			LOG.error("Could not create Site: ", e);
 			throw e;

@@ -10,7 +10,6 @@ import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
@@ -18,14 +17,12 @@ import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.client.common.UnityPaths.META;
 import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID;
 import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID_USERS;
 import static java.lang.Boolean.TRUE;
-import static java.util.stream.Collectors.toMap;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
@@ -56,7 +53,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {
-			throw unityFailureException(e);
+			throw new UnityFailureException(e.getMessage(), e.getCause());
 		}
 	}
 
@@ -75,7 +72,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientResponseException e) {
-			throw unityFailureException(e);
+			throw new UnityFailureException(e.getMessage(), e.getCause());
 		}
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
@@ -84,7 +81,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
 		} catch (WebClientResponseException e) {
-			throw unityFailureException(e);
+			throw new UnityFailureException(e.getMessage(), e.getCause());
 		}
 	}
 
@@ -105,7 +102,7 @@ class UnitySiteWebClient implements SiteWebClient {
 			group.setDisplayedName(new I18nString(site.getName()));
 			unityClient.put(GROUP_BASE, group);
 		} catch (WebClientResponseException e) {
-			throw unityFailureException(e);
+			throw new UnityFailureException(e.getMessage(), e.getCause());
 		}
 	}
 
@@ -124,7 +121,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.delete(deleteSitePath, queryParams);
 		} catch (WebClientResponseException e) {
-			throw unityFailureException(e);
+			throw new UnityFailureException(e.getMessage(), e.getCause());
 		}
 	}
 
@@ -134,17 +131,5 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	private Map<String, Object> uriVariables(String id) {
 		return Map.of("id", id);
-	}
-
-	private UnityFailureException unityFailureException(WebClientResponseException e) {
-		return new UnityFailureException(
-				e.getMessage(),
-				e.getRawStatusCode(),
-				e.getStatusText(),
-				e.getHeaders().keySet().stream()
-						.filter(key -> !CollectionUtils.isEmpty(e.getHeaders().get(key)))
-						.collect(toMap(Function.identity(), e.getHeaders()::get)),
-				e.getRequest() == null ? "" : e.getRequest().toString(),
-				e.getResponseBodyAsString());
 	}
 }
