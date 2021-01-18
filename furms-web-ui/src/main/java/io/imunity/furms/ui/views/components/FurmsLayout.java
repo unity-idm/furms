@@ -4,12 +4,8 @@
  */
 package io.imunity.furms.ui.views.components;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -18,9 +14,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import com.vaadin.flow.server.VaadinService;
-
 import io.imunity.furms.ui.user_context.RoleTranslator;
+
+import java.util.List;
+import java.util.Optional;
+
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class FurmsLayout {
 	private final RoleTranslator roleTranslator;
@@ -105,12 +104,5 @@ public class FurmsLayout {
 	static String getPageTitle(Class<? extends Component> componentClass) {
 		String key = componentClass.getAnnotation(PageTitle.class).key();
 		return getTranslation(key);
-	}
-
-	private static String getTranslation(String key) {
-		return VaadinService.getCurrent()
-			.getInstantiator()
-			.getI18NProvider()
-			.getTranslation(key, UI.getCurrent().getLocale());
 	}
 }
