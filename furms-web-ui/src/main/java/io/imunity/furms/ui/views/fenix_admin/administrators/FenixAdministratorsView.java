@@ -26,6 +26,7 @@ import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
@@ -52,14 +53,16 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	}
 
 	private List<UserViewModel> loadAllUsers() {
-		return usersDAO.getAllUsers().stream()
+		return doAction(usersDAO::getAllUsers)
+			.orElseGet(Collections::emptyList)
+			.stream()
 			.map(UserViewModelMapper::map)
 			.collect(toList());
 	}
 
 	private HorizontalLayout createInviteUserLayout(UsersDAO usersDAO, List<UserViewModel> allUsers) {
 		TextField emailTextField = new TextField();
-		emailTextField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.email"));
+		emailTextField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.invite"));
 		String inviteLabel = getTranslation("view.fenix-admin.administrators.button.invite");
 		Button inviteButton = new Button(inviteLabel, PAPERPLANE.create());
 		inviteButton.addClickListener(event -> {
@@ -68,7 +71,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				.filter(u -> u.email.equals(value))
 				.findAny()
 				.ifPresentOrElse(
-					x -> usersDAO.addUserToAdminGroup(x.id),
+					user -> doAction(usersDAO::addFenixAdminRole, user.id),
 					() -> Notification.show(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
 				);
 		});
@@ -79,7 +82,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private HorizontalLayout createSearchFilterLayout(List<UserViewModel> allUsers, Grid<UserViewModel> grid) {
 		TextField textField = new TextField();
-		textField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.search=search"));
+		textField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
 		textField.addValueChangeListener(event -> {
 			String value = event.getValue().toLowerCase();
@@ -135,7 +138,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		contextMenu.setTarget(button);
 		String deleteLabel = getTranslation("view.fenix-admin.administrators.context.menu.delete");
 		contextMenu.addItem(addMenuButton(deleteLabel, TRASH), event -> {
-			usersDAO.deleteUser(id);
+			doAction(usersDAO::removeFenixAdminRole, id);
 			grid.setItems(loadAllUsers());
 		});
 		getContent().add(contextMenu);

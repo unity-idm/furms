@@ -62,7 +62,7 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createHeaderLayout() {
-		Button addButton = new Button(getTranslation("view.communities.button.add"), PLUS_CIRCLE.create());
+		Button addButton = new Button(getTranslation("view.fenix-admin.communities.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class));
 		addButton.setClassName("furms-color");
 
@@ -71,7 +71,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
 
-		H4 headerText = new H4(getTranslation("view.communities.header"));
+		H4 headerText = new H4(getTranslation("view.fenix-admin.communities.header"));
 		HorizontalLayout header = new HorizontalLayout(headerText, buttonLayout);
 		header.setSizeFull();
 		return header;
@@ -82,11 +82,11 @@ public class CommunitiesView extends FurmsViewComponent {
 		grid.setHeightByRows(true);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), CommunityView.class, c.getId()))
-			.setHeader(getTranslation("view.communities.grid.column.1"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"));
 		grid.addColumn(CommunityViewModel::getDescription)
-			.setHeader(getTranslation("view.communities.grid.column.2"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"));
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.communities.grid.column.3"))
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -120,12 +120,12 @@ public class CommunitiesView extends FurmsViewComponent {
 	private Tooltip createTooltip(String communityId) {
 		Tooltip tooltip = new Tooltip();
 
-		Span editSpan = new Span(getTranslation("view.communities.tooltip.edit"));
+		Span editSpan = new Span(getTranslation("view.fenix-admin.communities.tooltip.edit"));
 		Div editCommunityDiv = new Div(createTooltipIcon(EDIT), editSpan);
 		editCommunityDiv.addClassName("tooltip-div");
 		editCommunityDiv.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class, communityId));
 
-		Span deleteSpan = new Span(getTranslation("view.communities.tooltip.delete"));
+		Span deleteSpan = new Span(getTranslation("view.fenix-admin.communities.tooltip.delete"));
 		Div deleteCommunityDiv = new Div(createTooltipIcon(TRASH), deleteSpan);
 		deleteCommunityDiv.addClassName("tooltip-div");
 		deleteCommunityDiv.addClickListener(x -> {
@@ -134,12 +134,12 @@ public class CommunitiesView extends FurmsViewComponent {
 			tooltip.close();
 		});
 
-		Span administratorsSpan = new Span(getTranslation("view.communities.tooltip.administrators"));
+		Span administratorsSpan = new Span(getTranslation("view.fenix-admin.communities.tooltip.administrators"));
 		Div administratorsDiv = new Div(createTooltipIcon(USERS), administratorsSpan);
 		administratorsDiv.addClassName("tooltip-div");
 		RouterLink administratorsPool = createRouterPool(administratorsDiv, communityId, ADMINISTRATORS_PARAM);
 
-		Span allocationSpan = new Span(getTranslation("view.communities.tooltip.allocations"));
+		Span allocationSpan = new Span(getTranslation("view.fenix-admin.communities.tooltip.allocations"));
 		Div allocationsDiv = new Div(createTooltipIcon(PIE_CHART), allocationSpan);
 		allocationsDiv.addClassName("tooltip-div");
 		RouterLink allocationsPool = createRouterPool(allocationsDiv, communityId, ALLOCATIONS_PARAM);
@@ -169,6 +169,6 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){
-		return Optional.of(new BreadCrumbParameter("", getTranslation("view.communities.breadcrumb")));
+		return Optional.of(new BreadCrumbParameter("", getTranslation("view.fenix-admin.communities.breadcrumb")));
 	}
 }

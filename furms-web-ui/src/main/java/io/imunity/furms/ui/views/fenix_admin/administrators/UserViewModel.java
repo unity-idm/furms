@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
-public class UserViewModel {
+class UserViewModel {
 	public final String id;
 	public final String firstName;
 	public final String lastName;

@@ -15,8 +15,10 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
 
 @Component
@@ -30,44 +32,42 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public List<User> getAllUsers() {
-		Map<String, String> uriVariables = Map.of("rootGroupPath", "/fenix");
+		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, FENIX_GROUP);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS)
-			.pathSegment("{rootGroupPath}")
+			.pathSegment("{" + ROOT_GROUP_PATH + "}")
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
 
 		return unityClient.get(path, new ParameterizedTypeReference<List<GroupMember>>() {}).stream()
 			.map(UnityUserMapper::map)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.collect(Collectors.toList());
 	}
 
 	@Override
-	public void addUserToAdminGroup(String userId) {
-		Map<String, String> uriVariables = Map.of("groupPath", "/fenix/users", "id", userId);
-		String path = UriComponentsBuilder.newInstance()
-			.path(GROUP_BASE)
-			.pathSegment("{groupPath}")
-			.path(ENTITY_BASE)
-			.pathSegment("{id}")
-			.buildAndExpand(uriVariables)
-			.encode()
-			.toUriString();
-
-		unityClient.post(path);
+	public void addFenixAdminRole(String userId) {
+		String path = prepareRequestPath(userId);
+		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
 	@Override
-	public void deleteUser(String userId) {
-		Map<String, String> uriVariables = Map.of("id", userId);
-		String path = UriComponentsBuilder.newInstance()
+	public void removeFenixAdminRole(String userId) {
+		String path = prepareRequestPath(userId);
+		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+	}
+
+	private String prepareRequestPath(String userId) {
+		Map<String, String> uriVariables = Map.of(GROUP_PATH, FENIX_USERS_GROUP, ID, userId);
+		return UriComponentsBuilder.newInstance()
+			.path(GROUP_BASE)
+			.pathSegment("{" + GROUP_PATH + "}")
 			.path(ENTITY_BASE)
-			.pathSegment("{id}")
+			.pathSegment("{" + ID + "}")
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
-
-		unityClient.delete(path, Map.of());
 	}
 }

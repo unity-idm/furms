@@ -11,6 +11,6 @@ import java.util.List;
 
 public interface UsersDAO {
 	List<User> getAllUsers();
-	void addUserToAdminGroup(String userId);
-	void deleteUser(String userId);
+	void addFenixAdminRole(String userId);
+	void removeFenixAdminRole(String userId);
 }
