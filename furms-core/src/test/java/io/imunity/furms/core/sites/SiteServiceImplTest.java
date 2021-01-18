@@ -6,16 +6,12 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,8 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -166,31 +160,6 @@ class SiteServiceImplTest {
 					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
 					assertThat(method.getAnnotation(FurmsAuthorize.class).resourceType()).isEqualTo(SITE);
 				});
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersForAllDeclaredMethodsShouldHasCorrectlyDefinedSecurity")
-	<T> void allPublicMethodsShouldHasDefinedSecurity(
-			String methodName,
-			Class<T>[] methodParameters,
-			Capability capability,
-			String id
-	) throws NoSuchMethodException {
-		Method findById = SiteServiceImpl.class.getMethod(methodName, methodParameters);
-		FurmsAuthorize annotation = findById.getAnnotation(FurmsAuthorize.class);
-		assertThat(annotation.id()).isEqualTo(id);
-		assertThat(annotation.resourceType()).isEqualTo(SITE);
-		assertThat(annotation.capability()).isEqualTo(capability);
-	}
-
-	private static Stream<Arguments> parametersForAllDeclaredMethodsShouldHasCorrectlyDefinedSecurity() {
-		return Stream.of(
-				Arguments.of("findById",    new Class[]{String.class},  SITE_READ,  "id"),
-				Arguments.of("findAll",     new Class[]{},              SITE_READ,  ""),
-				Arguments.of("create",      new Class[]{Site.class},    SITE_WRITE, ""),
-				Arguments.of("update",      new Class[]{Site.class},    SITE_WRITE, "site.id"),
-				Arguments.of("delete",      new Class[]{String.class},  SITE_WRITE, ""),
-				Arguments.of("isNameUnique", new Class[]{String.class}, SITE_READ,  ""));
 	}
 
 }
