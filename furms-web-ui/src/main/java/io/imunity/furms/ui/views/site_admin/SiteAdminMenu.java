@@ -5,19 +5,15 @@
 
 package io.imunity.furms.ui.views.site_admin;
 
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.PreserveOnRefresh;
-import io.imunity.furms.ui.user_context.RoleTranslator;
-import io.imunity.furms.ui.views.components.FurmsLayout;
-
 import java.util.List;
 
-@JsModule("./styles/shared-styles.js")
-@CssImport("./styles/views/main/main-view.css")
-@PreserveOnRefresh
-public class SiteAdminMenu extends AppLayout{
+import com.vaadin.flow.component.applayout.AppLayout;
+
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.views.components.FurmsAppLayout;
+import io.imunity.furms.ui.views.components.FurmsLayout;
+
+public class SiteAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
 	SiteAdminMenu(RoleTranslator roleTranslator) {

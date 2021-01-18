@@ -4,6 +4,10 @@
  */
 package io.imunity.furms.ui.views.components;
 
+import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -18,10 +22,6 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
-
-import java.util.Optional;
-
-import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
 
 public abstract class FurmsViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle {
 

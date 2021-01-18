@@ -3,7 +3,7 @@
 	width: 100%;
 	font-size: var(--lumo-font-size-s);
 	font-family: var(--lumo-font-family);
-	font-weight: 600;
+	font-weight: var(--furms-font-weight);
 	padding-right: 1rem;
 	padding-left: 1rem;
 	padding-top: 0.25rem;

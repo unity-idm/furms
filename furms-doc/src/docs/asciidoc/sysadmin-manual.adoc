@@ -5,5 +5,46 @@ image::logo-fenix.png[scaledwidth=75%]
 
 = FURMS system administration manual
 
+== Installation of FURMS system from scratch
+This section describes how to install the FURMS system from scratch. 
+The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM.
 
+Perform steps from the following sections in order to install, configure and manage FURMS system.
 
+=== Install Ansible
+Install the Ansible tooling on the host which will control FURMS system through scripts.
+Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
+
+=== FURMS devops tools installation utility
+In order to install the latest released FURMS devops tooling, use the `FURMS devops tools installation utility`.
+Enter to the directory of your choice and run the following commands:
+```
+> export ENVIRONMENT_DIR=/home/furms-app/staging
+> curl -L https://raw.githubusercontent.com/unity-idm/furms-devops/main/install-tooling/install_furms_devops_tooling.py -o $ENVIRONMENT_DIR/install_furms_devops_tooling.py
+> chmod +x $ENVIRONMENT_DIR/install_furms_devops_tooling.py
+```
+=== FURMS Ansible scripts
+Use the `FURMS devops tools installation utility` to install the latest Ansible scripts. 
+Enter to the directory where the utility was installed, and execute the following:
+```
+> cd $ENVIRONMENT_DIR
+> ./install_furms_devops_tooling.py
+Installation of latest FURMS devops tools into /home/furms-app/staging
+Command finished successfully
+> ls -l
+lrwxrwxrwx. 1 furms-app furms-app   32 01-16 12:27 furms-devops-tooling -> furms-devops-tooling-1.0.0
+drwxr-xr-x. 5 furms-app furms-app 4096 10-28 15:36 furms-devops-tooling-1.0.0
+-rwxr-x---. 1 furms-app furms-app 3057 01-16 12:25 install_furms_devops_tooling.py
+```
+
+=== Setup Ansible configuration files
+Create the following files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed), 
+taking into account previous example that would be in `/home/furms-app/staging` directory.
+
+==== Inventory
+
+==== Group vars
+
+=== Install FURMS stack
+
+=== Start FURMS stack
