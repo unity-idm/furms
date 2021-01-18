@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 import static io.imunity.furms.ui.user_context.ViewMode.*;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
@@ -113,6 +114,6 @@ class RoleTranslatorService implements RoleTranslator {
 	}
 
 	private String getName(String name) {
-		return name + " admin";
+		return name + " " + getTranslation("admin");
 	}
 }
