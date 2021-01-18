@@ -20,6 +20,7 @@
 		<Logger name="unity.server.EventProcessor" level="INFO"/>
 		<Logger name="unity.server.AuditPublisher" level="INFO"/>
 		<Logger name="unity.server.AuditEventRDBMSStore" level="INFO"/>
+		<Logger name="unity.server.AuditEventListener" level="INFO"/>
 		
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
