@@ -22,14 +22,14 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
-class CommunityServiceImp implements CommunityService {
+class CommunityServiceImpl implements CommunityService {
 	private final CommunityRepository communityRepository;
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final CommunityServiceValidator validator;
 
-	CommunityServiceImp(CommunityRepository communityRepository,
-	                    CommunityGroupsDAO communityGroupsDAO,
-	                    CommunityServiceValidator validator) {
+	CommunityServiceImpl(CommunityRepository communityRepository,
+	                     CommunityGroupsDAO communityGroupsDAO,
+	                     CommunityServiceValidator validator) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.validator = validator;

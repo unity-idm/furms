@@ -7,6 +7,7 @@ package io.imunity.furms.db.communities;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.communities.Community;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("COMMUNITY")
-class CommunityEntity extends UUIDIdentifiable {
+public class CommunityEntity extends UUIDIdentifiable implements Persistable<UUID> {
 
 	private final String name;
 	private final String description;
@@ -85,6 +86,11 @@ class CommunityEntity extends UUIDIdentifiable {
 			", logoImage=" + Arrays.toString(logoImage) +
 			", logoType='" + logoType + '\'' +
 			'}';
+	}
+
+	@Override
+	public boolean isNew() {
+		return id == null;
 	}
 
 	public static class CommunityEntityBuilder {
