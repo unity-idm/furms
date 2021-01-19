@@ -58,6 +58,32 @@
 					"CREATE_OR_UPDATE"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'sub'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"attr['sub']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": true
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"'/fenix'",
+					"REQUIRE_EXISTING_GROUP"
+				]
+			}
 		}
 	]
 }

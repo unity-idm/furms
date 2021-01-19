@@ -38,7 +38,7 @@ import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.*;
 import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.communities.page.title")
+@PageTitle(key = "view.fenix-admin.communities.page.title")
 public class CommunitiesView extends FurmsViewComponent {
 	private final CommunityService communityService;
 	private final Grid<CommunityViewModel> grid;
@@ -54,7 +54,7 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createHeaderLayout() {
-		Button addButton = new Button(getTranslation("view.communities.button.add"), PLUS_CIRCLE.create());
+		Button addButton = new Button(getTranslation("view.fenix-admin.communities.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class));
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
@@ -62,7 +62,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
 
-		H4 headerText = new H4(getTranslation("view.communities.header"));
+		H4 headerText = new H4(getTranslation("view.fenix-admin.communities.header"));
 		HorizontalLayout header = new HorizontalLayout(headerText, buttonLayout);
 		header.setSizeFull();
 		return header;
@@ -73,11 +73,11 @@ public class CommunitiesView extends FurmsViewComponent {
 		grid.setHeightByRows(true);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), CommunityView.class, c.getId()))
-			.setHeader(getTranslation("view.communities.grid.column.1"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"));
 		grid.addColumn(CommunityViewModel::getDescription)
-			.setHeader(getTranslation("view.communities.grid.column.2"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"));
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.communities.grid.column.3"))
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -99,7 +99,7 @@ public class CommunitiesView extends FurmsViewComponent {
 			.collect(toSet());
 		grid.setItems(all);
 	}
-	
+
 	private Component createContextMenu(String communityId) {
 		Icon menu = MENU.create();
 		ContextMenu contextMenu = new ContextMenu();
@@ -118,7 +118,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		Component adminComp = createMenuButton(getTranslation("view.communities.menu.administrators"), USERS);
 		RouterLink administratorsPool = createRouterPool(adminComp, communityId, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
-		
+
 		Component allocationComp = createMenuButton(getTranslation("view.communities.menu.allocations"), PIE_CHART);
 		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
@@ -133,7 +133,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		div.addClassName("menu-div");
 		return div;
 	}
-	
+
 	private Icon createMenuIcon(VaadinIcon iconType) {
 		Icon icon = iconType.create();
 		icon.addClassNames("menu-icon-padding");
@@ -154,6 +154,6 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){
-		return Optional.of(new BreadCrumbParameter("", getTranslation("view.communities.breadcrumb")));
+		return Optional.of(new BreadCrumbParameter("", getTranslation("view.fenix-admin.communities.breadcrumb")));
 	}
 }

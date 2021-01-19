@@ -44,7 +44,7 @@ import java.util.UUID;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "fenix/admin/communities/form", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.community.form.page.title")
+@PageTitle(key = "view.fenix-admin.community.form.page.title")
 class CommunityFormView extends FurmsViewComponent {
 	private final static int hundredMB = 100000000;
 	private final Binder<CommunityViewModel> binder = new BeanValidationBinder<>(CommunityViewModel.class);
@@ -69,13 +69,13 @@ class CommunityFormView extends FurmsViewComponent {
 		binder.forField(name)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
-				getTranslation("view.community.form.error.validation.field.name")
+				getTranslation("view.fenix-admin.community.form.error.validation.field.name")
 			)
 			.bind(CommunityViewModel::getName, CommunityViewModel::setName);
 		binder.forField(description)
 			.withValidator(
 				value -> Objects.isNull(value) || value.length() <= 510,
-				getTranslation("view.community.form.error.validation.field.description")
+				getTranslation("view.fenix-admin.community.form.error.validation.field.description")
 			)
 			.bind(CommunityViewModel::getDescription, CommunityViewModel::setDescription);
 		binder.addStatusChangeListener(env -> binder.isValid());
@@ -95,7 +95,7 @@ class CommunityFormView extends FurmsViewComponent {
 	}
 
 	private Button createCloseButton() {
-		Button closeButton = new Button(getTranslation("view.community.form.button.cancel"));
+		Button closeButton = new Button(getTranslation("view.fenix-admin.community.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickShortcut(Key.ESCAPE);
 		closeButton.addClickListener(x -> UI.getCurrent().navigate(CommunitiesView.class));
@@ -116,7 +116,7 @@ class CommunityFormView extends FurmsViewComponent {
 			image.setVisible(true);
 		});
 		upload.addFileRejectedListener(event ->
-			Notification.show(getTranslation("view.community.form.error.validation.file"))
+			Notification.show(getTranslation("view.fenix-admin.community.form.error.validation.file"))
 		);
 		upload.getElement().addEventListener("file-remove", event -> {
 			logo = new FurmsImage(null, (String)null);
@@ -134,7 +134,7 @@ class CommunityFormView extends FurmsViewComponent {
 	}
 
 	private Button createSaveButton() {
-		Button saveButton = new Button(getTranslation("view.community.form.button.save"));
+		Button saveButton = new Button(getTranslation("view.fenix-admin.community.form.button.save"));
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
 			CommunityViewModel communityViewModel = binder.getBean();
@@ -171,7 +171,7 @@ class CommunityFormView extends FurmsViewComponent {
 			.map(Optional::get)
 			.map(CommunityViewModelMapper::map)
 			.orElseGet(CommunityViewModel::new);
-		String trans = parameter == null ? "view.community.form.parameter.new" : "view.community.form.parameter.update";
+		String trans = parameter == null ? "view.fenix-admin.community.form.parameter.new" : "view.fenix-admin.community.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
 		setFormPools(communityViewModel);
 	}
