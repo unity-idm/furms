@@ -2,14 +2,17 @@ ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../../main/java]
 
 image::logo-fenix.png[scaledwidth=75%]
+:icons: font
+
 
 = FURMS user manual
 
+include::user-manual-intro.adoc[]
 
-== Fenix federation management
+include::user-manual-fenix.adoc[]
 
-== Community management
+include::user-manual-community.adoc[]
 
-== Project management
+include::user-manual-project.adoc[]
 
-== End User support
+include::user-manual-enduser.adoc[]

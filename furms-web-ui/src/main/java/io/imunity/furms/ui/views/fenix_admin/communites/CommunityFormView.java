@@ -13,6 +13,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -58,8 +59,9 @@ class CommunityFormView extends FurmsViewComponent {
 		this.communityService = communityService;
 		this.acceptedImgFiles = frontProperties.getAcceptedImgFiles().toArray(String[]::new);
 
-		TextField name = new TextField(getTranslation("view.fenix-admin.community.form.field.name"));
-		TextField description = new TextField(getTranslation("view.fenix-admin.community.form.field.description"));
+		TextField name = new TextField(getTranslation("view.community.form.field.name"));
+		TextArea description = new TextArea(getTranslation("view.community.form.field.description"));
+		description.setClassName("description-text-area");
 		Button saveButton = createSaveButton();
 		Button closeButton = createCloseButton();
 		Upload upload = createUploadComponent();
@@ -134,7 +136,6 @@ class CommunityFormView extends FurmsViewComponent {
 	private Button createSaveButton() {
 		Button saveButton = new Button(getTranslation("view.fenix-admin.community.form.button.save"));
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		saveButton.addClickShortcut(Key.ENTER);
 		saveButton.addClickListener(x -> {
 			CommunityViewModel communityViewModel = binder.getBean();
 			communityViewModel.setLogoImage(logo);

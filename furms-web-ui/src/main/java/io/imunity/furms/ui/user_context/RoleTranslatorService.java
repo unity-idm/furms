@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 import static io.imunity.furms.ui.user_context.ViewMode.*;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
@@ -66,10 +67,13 @@ class RoleTranslatorService implements RoleTranslator {
 		FurmsViewUserContext userSettings = new FurmsViewUserContext("User settings", USER);
 		switch (role) {
 			case FENIX_ADMIN:
-				return Stream.of(new FurmsViewUserContext("Fenix Admin", FENIX), userSettings);
+				return Stream.of(new FurmsViewUserContext("Fenix admin", FENIX), userSettings);
 			case SITE_ADMIN:
 				return siteService.findById(resourceId.id.toString())
-					.map(site -> Stream.of(new FurmsViewUserContext(site.getId(), site.getName(), SITE), userSettings))
+					.map(site -> Stream.of(
+						new FurmsViewUserContext(site.getId(), getName(site.getName()), SITE),
+						userSettings)
+					)
 					.orElseGet(() -> {
 						LOG.warn("Wrong resource id. Data are not synchronized");
 						return Stream.empty();
@@ -78,7 +82,7 @@ class RoleTranslatorService implements RoleTranslator {
 				return siteService.findById(resourceId.id.toString())
 					.map(site ->
 						Stream.of(
-							new FurmsViewUserContext(site.getId(), site.getName(), SITE, SITE_SUPPORT_LANDING_PAGE),
+							new FurmsViewUserContext(site.getId(), getName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE),
 							userSettings)
 					)
 					.orElseGet(() -> {
@@ -89,7 +93,7 @@ class RoleTranslatorService implements RoleTranslator {
 				return communityService.findById(resourceId.id.toString())
 					.map(community ->
 						Stream.of(
-						new FurmsViewUserContext(community.getId(), community.getName(), COMMUNITY),
+						new FurmsViewUserContext(community.getId(), getName(community.getName()), COMMUNITY),
 						userSettings)
 					)
 					.orElseGet(() -> {
@@ -107,5 +111,9 @@ class RoleTranslatorService implements RoleTranslator {
 			default:
 				throw new IllegalArgumentException("This shouldn't happen, viewMode level should be always declared");
 		}
+	}
+
+	private String getName(String name) {
+		return name + " " + getTranslation("admin");
 	}
 }

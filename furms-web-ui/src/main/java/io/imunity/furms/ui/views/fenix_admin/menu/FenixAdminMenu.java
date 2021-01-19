@@ -4,13 +4,13 @@
  */
 package io.imunity.furms.ui.views.fenix_admin.menu;
 
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.JsModule;
+import java.util.List;
+
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PreserveOnRefresh;
+
 import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.views.components.FurmsAppLayout;
 import io.imunity.furms.ui.views.components.FurmsLayout;
 import io.imunity.furms.ui.views.fenix_admin.administrators.FenixAdministratorsView;
 import io.imunity.furms.ui.views.fenix_admin.communites.CommunitiesView;
@@ -18,12 +18,7 @@ import io.imunity.furms.ui.views.fenix_admin.dashboard.DashboardView;
 import io.imunity.furms.ui.views.fenix_admin.logs.AuditLogView;
 import io.imunity.furms.ui.views.fenix_admin.sites.SitesView;
 
-import java.util.List;
-
-@JsModule("./styles/shared-styles.js")
-@CssImport("./styles/views/main/main-view.css")
-@PreserveOnRefresh
-public class FenixAdminMenu extends AppLayout implements AfterNavigationObserver {
+public class FenixAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
 	FenixAdminMenu(RoleTranslator roleTranslator) {

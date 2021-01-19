@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * App status checking (mostly devops).
  */
 @RestController
-@RequestMapping("/app-health")
+@RequestMapping("/public/app-health")
 class AppHealthRESTController {
 	@GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
 	public String getAppStatus() {
