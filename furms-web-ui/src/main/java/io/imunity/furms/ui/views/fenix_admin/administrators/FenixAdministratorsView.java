@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
@@ -28,9 +29,11 @@ import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.stream.Collectors.toList;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
@@ -53,7 +56,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	}
 
 	private List<UserViewModel> loadAllUsers() {
-		return doAction(usersDAO::getAllUsers)
+		return handleExceptions(usersDAO::getAllUsers)
 			.orElseGet(Collections::emptyList)
 			.stream()
 			.map(UserViewModelMapper::map)
@@ -71,7 +74,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				.filter(u -> u.email.equals(value))
 				.findAny()
 				.ifPresentOrElse(
-					user -> doAction(usersDAO::addFenixAdminRole, user.id),
+					user -> handleExceptions(() -> usersDAO.addFenixAdminRole(user.id)),
 					() -> Notification.show(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
 				);
 		});
@@ -88,9 +91,9 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			String value = event.getValue().toLowerCase();
 			List<UserViewModel> filteredUsers = allUsers.stream()
 				.filter(user ->
-					user.firstName.toLowerCase().contains(value) ||
-						user.lastName.toLowerCase().contains(value)  ||
-							user.email.toLowerCase().contains(value)
+					filterColumn(user.firstName, value)
+						|| filterColumn(user.lastName, value)
+						|| filterColumn(user.email, value)
 				)
 				.collect(toList());
 			grid.setItems(filteredUsers);
@@ -101,8 +104,17 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		return search;
 	}
 
+	private boolean filterColumn(String column, String value) {
+		return Optional.ofNullable(column)
+			.map(String::toLowerCase)
+			.map(c -> c.contains(value))
+			.orElse(false);
+	}
+
 	private Grid<UserViewModel> createGrid(List<UserViewModel> users) {
 		Grid<UserViewModel> grid = new Grid<>(UserViewModel.class, false);
+		grid.getStyle().set("word-wrap", "break-word");
+		grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 		grid.addComponentColumn(c -> new Div(c.icon, new Span(c.firstName)))
 			.setHeader(getTranslation("view.fenix-admin.administrators.grid.column.1"));
 		grid.addColumn(c -> c.lastName).setHeader(getTranslation("view.fenix-admin.administrators.grid.column.2"));
@@ -138,7 +150,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		contextMenu.setTarget(button);
 		String deleteLabel = getTranslation("view.fenix-admin.administrators.context.menu.delete");
 		contextMenu.addItem(addMenuButton(deleteLabel, TRASH), event -> {
-			doAction(usersDAO::removeFenixAdminRole, id);
+			handleExceptions(() -> usersDAO.removeFenixAdminRole(id));
 			grid.setItems(loadAllUsers());
 		});
 		getContent().add(contextMenu);
