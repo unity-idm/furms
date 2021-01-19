@@ -42,6 +42,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.CSSClasses.DROPDOWN_MENU_BUTTON;
 import static java.util.stream.Collectors.toList;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
@@ -110,7 +111,7 @@ public class SitesView extends FurmsViewComponent {
 	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		Button button = new Button(MENU.create());
 		button.addThemeVariants(LUMO_TERTIARY);
-		button.setClassName("dropdown-menu-button");
+		button.setClassName(DROPDOWN_MENU_BUTTON);
 
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setId(site.getId());
@@ -158,7 +159,7 @@ public class SitesView extends FurmsViewComponent {
 	private Button addMenuButton(String label, VaadinIcon icon) {
 		Button button = new Button(label, icon.create());
 		button.addThemeVariants(LUMO_TERTIARY);
-		button.setClassName("dropdown-menu-button");
+		button.setClassName(DROPDOWN_MENU_BUTTON);
 		return button;
 	}
 

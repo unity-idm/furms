@@ -63,11 +63,13 @@ class SiteServiceImpl implements SiteService {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.create(createdSite);
-		} catch(UnityFailureException e) {
-			LOG.error("Could not create Site: ", e);
-			webClient.get(siteId).ifPresent(incompleteSite -> webClient.delete(incompleteSite.getId()));
 		} catch (RuntimeException e) {
 			LOG.error("Could not create Site: ", e);
+			try {
+				webClient.get(siteId).ifPresent(incompleteSite -> webClient.delete(incompleteSite.getId()));
+			} catch (RuntimeException ex) {
+				LOG.error("Failed to rollback, problem during unity group deletion: ", e);
+			}
 			throw e;
 		}
 	}
