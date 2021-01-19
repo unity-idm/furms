@@ -12,7 +12,7 @@ import io.imunity.furms.ui.views.components.PageTitle;
 import io.imunity.furms.ui.views.fenix_admin.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/auditLog", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.audit-log.page.title")
+@PageTitle(key = "view.fenix-admin.audit-log.page.title")
 public class AuditLogView extends FurmsViewComponent {
 	AuditLogView() {
 		getContent().add(new Label("Placeholder"));

@@ -22,7 +22,7 @@ import java.util.*;
 import static io.imunity.furms.ui.views.fenix_admin.communites.CommunityConst.*;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
-@PageTitle(key = "view.community.page.title")
+@PageTitle(key = "view.fenix-admin.community.page.title")
 public class CommunityView extends FurmsViewComponent {
 	private final CommunityService communityService;
 
@@ -36,14 +36,14 @@ public class CommunityView extends FurmsViewComponent {
 	CommunityView(CommunityService communityService) {
 		this.communityService = communityService;
 
-		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community.tab.1"), CommunityView.class);
+		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
 		paramToTab.put(ADMINISTRATORS_PARAM, administratorsTab);
 		defaultTab = administratorsTab;
 		links.add(adminsRouterLink);
 
-		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community.tab.2"), CommunityView.class);
+		RouterLink allocRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.2"), CommunityView.class);
 		allocRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ALLOCATIONS_PARAM)));
 		Tab allocationsTab = new Tab(allocRouterLink);
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);

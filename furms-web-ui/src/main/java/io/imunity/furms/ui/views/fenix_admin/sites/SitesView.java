@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- *  See LICENSE file for licensing information.
+ * See LICENSE file for licensing information.
  */
 
 package io.imunity.furms.ui.views.fenix_admin.sites;
@@ -47,8 +47,8 @@ import static java.util.stream.Collectors.toList;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
 
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
-@PageTitle(key = "view.sites.main.title")
 @CssImport("./styles/components/dropdown-menu.css")
+@PageTitle(key = "view.fenix-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
 
 	private final SiteService siteService;
