@@ -1,4 +1,4 @@
-:versionlimit: icon:wrench[] temporary version 1 limitation icon:wrench[]
+:versionlimit: icon:wrench[] temporary v1 limitation icon:wrench[]
 
 NOTE: In various places in the following text is used to mark a limitation which is specific to the current release: +
 {versionlimit} +
@@ -9,17 +9,19 @@ Fenix User and Resource Management Service (FURMS for short) is a central system
 FURMS is organized around three main concepts: sites, communities and projects:
 
 - _Site_ represents a service provider. Site administrator defines resources offered by the site.
-- _Community_ is an umbrellas over a set of related research projects. Human Brain Project can be considered as an example of FURMS community.
+- _Community_ is an umbrella over a set of related research projects. Human Brain Project can be considered as an example of FURMS community.
 - _Project_, defined under a community, groups users who are working together. Project, and its members are consuming resources which are contributed by sites. 
 
-FURMS organizes the process of allocating resources offered by sites to communities and subsequently to individual projects. What is more FURMS aggregates and presents resource usage metrics.
+FURMS organizes the process of resources distribution offered by sites to communities and subsequently to individual projects. What is more FURMS aggregates and presents resource usage metrics.
 
 Resource allocation process works as follows:
 
-. Site administrator defines a resource
+. Site administrator defines a resource.
 . Site administrator creates one or more _resource credits_ which define an amount of contributed resource usage units.
 . Fenix administrator can see unallocated resource credits and assign them to communities. In majority of cases a single resource credit can be split across multiple communities.
-. Community administrator can in turn distribute community resource credits to community projects.
-. Project administrator can control which project users have access to individual resources which are available for the project.
+. Community administrator can in turn distribute community resource credits to projects in the community.
+. Project administrator can control which project users have access to individual resources which were granted to the project.
 
-FURMS has dedicated UI modes for each type of its user. User who has only a single role in the system will simply see only the view which is matching her or his role. Users with multiple roles can switch the view mode with a dropdown situated in the top right corner of the screen.
+FURMS has dedicated UI modes for each type of its user. User who has only a single role in the system will simply see the only view matching her or his role. Users with multiple roles can switch the view mode with a dropdown situated in the top right corner of the screen.
+
+In order to authenticate to FURMS user has to contain an account which is available for the Fenix Central Identity Provider.

@@ -11,6 +11,8 @@ include::user-manual-intro.adoc[]
 
 include::user-manual-fenix.adoc[]
 
+include::user-manual-site.adoc[]
+
 include::user-manual-community.adoc[]
 
 include::user-manual-project.adoc[]

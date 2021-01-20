@@ -1,2 +1,23 @@
 == Community management
 
+
+=== Managing projects
+
+Community admin can create projects providing set of initial project settings. Selected project settings can be also changed subsequently by project admins.
+
+When creating a project, community admin needs to setup project leader, who will also become the initial project admin. Additional administrators can be also setup by community admin after activating from the "Administrators" option from the project's context menu.
+
+NOTE: Project administrators can also themselves manage administrators of their project, and so Community admin is not the only person controlling the set of administrators.
+
+{versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.
+
+=== Managing community administrators
+
+FURMS allows for having multiple users with the community administrator role. Each community admin can add (and remove) other administrators from the "Community admins" view. 
+
+{versionlimit} Adding community admins is currently limited to users who has signed in to FURMS at least once.
+
+
+=== Distributing resources to projects
+
+{versionlimit} This functionality is not available yet.
