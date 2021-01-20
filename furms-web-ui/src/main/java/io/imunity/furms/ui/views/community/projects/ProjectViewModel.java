@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin.projects;
+package io.imunity.furms.ui.views.community.projects;
 
 import io.imunity.furms.domain.images.FurmsImage;
 

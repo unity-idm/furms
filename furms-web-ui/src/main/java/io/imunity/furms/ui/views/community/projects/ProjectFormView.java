@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin.projects;
+package io.imunity.furms.ui.views.community.projects;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -28,11 +28,11 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.config.FrontProperties;
-import io.imunity.furms.ui.views.community_admin.CommunityAdminMenu;
-import io.imunity.furms.ui.views.components.BreadCrumbParameter;
-import io.imunity.furms.ui.views.components.FurmsViewComponent;
-import io.imunity.furms.ui.views.components.PageTitle;
+import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

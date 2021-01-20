@@ -73,7 +73,7 @@ public class ProjectGroup {
 			return this;
 		}
 
-		public ProjectGroupBuilder communityGroup(String communityId) {
+		public ProjectGroupBuilder communityId(String communityId) {
 			this.communityId = communityId;
 			return this;
 		}

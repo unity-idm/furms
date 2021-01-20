@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin.projects;
+package io.imunity.furms.ui.views.community.projects;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -11,27 +11,28 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.ui.views.community_admin.CommunityAdminMenu;
-import io.imunity.furms.ui.views.components.FurmsViewComponent;
-import io.imunity.furms.ui.views.components.PageTitle;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createMenuButton;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.views.community_admin.projects.ProjectConst.*;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
@@ -47,7 +48,7 @@ public class ProjectsView extends FurmsViewComponent {
 
 		loadGridContent();
 
-		getContent().add(createHeaderLayout(), new HorizontalLayout(grid));
+		getContent().add(createHeaderLayout(), createSearchFilterLayout(grid), new HorizontalLayout(grid));
 	}
 
 	private HorizontalLayout createHeaderLayout() {
@@ -80,10 +81,27 @@ public class ProjectsView extends FurmsViewComponent {
 		return grid;
 	}
 
+	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewModel> grid) {
+		TextField textField = new TextField();
+		textField.setPlaceholder(getTranslation("view.community-admin.projects.field.search"));
+		textField.setPrefixComponent(SEARCH.create());
+		textField.addValueChangeListener(event -> {
+			String value = event.getValue().toLowerCase();
+			List<ProjectViewModel> filteredUsers = loadProjectsViewsModels().stream()
+				.filter(project -> project.name.toLowerCase().contains(value))
+				.collect(toList());
+			grid.setItems(filteredUsers);
+		});
+
+		HorizontalLayout search = new HorizontalLayout(textField);
+		search.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		return search;
+	}
+
 	private HorizontalLayout createLastColumnContent(ProjectViewModel projectViewModel) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(
-			createRouterIcon(USERS, projectViewModel.id, ADMINISTRATORS_PARAM),
-			createRouterIcon(PIE_CHART, projectViewModel.id, ALLOCATIONS_PARAM),
+			createRouterIcon(USERS, projectViewModel.id, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
+			createRouterIcon(PIE_CHART, projectViewModel.id, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(projectViewModel.id, projectViewModel.communityId)
 		);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -108,55 +126,31 @@ public class ProjectsView extends FurmsViewComponent {
 			}
 		);
 
-		Component adminComp = createMenuButton(
+		Component adminComponent = createMenuButton(
 			getTranslation("view.community-admin.projects.menu.administrators"),
 			USERS
 		);
-		RouterLink administratorsPool = createRouterPool(adminComp, projectId, ADMINISTRATORS_PARAM);
+		RouterLink administratorsPool = createRouterPool(adminComponent, projectId, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
-		Component allocationComp = createMenuButton(
+		Component allocationComponent = createMenuButton(
 			getTranslation("view.community-admin.projects.menu.allocations"),
 			PIE_CHART
 		);
 
-		RouterLink allocationsPool = createRouterPool(allocationComp, projectId, ALLOCATIONS_PARAM);
+		RouterLink allocationsPool = createRouterPool(allocationComponent, projectId, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 		getContent().add(contextMenu);
 		return menu;
 	}
 
 	private void loadGridContent() {
-		Set<ProjectViewModel> all = projectService.findAll(getCurrentResourceId()).stream()
+		grid.setItems(loadProjectsViewsModels());
+	}
+
+	private Set<ProjectViewModel> loadProjectsViewsModels() {
+		return projectService.findAll(getCurrentResourceId()).stream()
 			.map(ProjectViewModelMapper::map)
 			.collect(toSet());
-		grid.setItems(all);
-	}
-
-	//TODO EXTRACT IT
-	private Component createMenuButton(String label, VaadinIcon icon) {
-		Span text = new Span(label);
-		Div div = new Div(createMenuIcon(icon), text);
-		div.addClassName("menu-div");
-		return div;
-	}
-
-	private Icon createMenuIcon(VaadinIcon iconType) {
-		Icon icon = iconType.create();
-		icon.addClassNames("menu-icon-padding");
-		return icon;
-	}
-
-	private RouterLink createRouterIcon(VaadinIcon iconType, String id, String param) {
-		Icon icon = iconType.create();
-		return createRouterPool(icon, id, param);
-	}
-
-	private RouterLink createRouterPool(Component component, String id, String param) {
-		RouterLink routerLink = new RouterLink("", ProjectView.class, id);
-		routerLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, param)));
-		routerLink.add(component);
-		routerLink.setClassName("furms-color");
-		return routerLink;
 	}
 }

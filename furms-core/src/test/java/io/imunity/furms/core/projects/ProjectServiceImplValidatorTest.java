@@ -14,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,42 +35,156 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
-		Project community = Project.builder()
+		Project project = Project.builder()
+			.communityId("id")
 			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		when(projectRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateCreate(community));
+		assertDoesNotThrow(() -> validator.validateCreate(project));
 	}
 
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
-		final Project community = Project.builder()
+		Project project = Project.builder()
+			.communityId("id")
 			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
+		Project secondProject = Project.builder().name("a").build();
+		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(community));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
+	}
+
+	@Test
+	void shouldNotPassCreateForNonExistingCommunityId() {
+		//given
+		Project project = Project.builder()
+			.communityId("id")
+			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(false);
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
+	}
+
+	@Test
+	void shouldNotPassCreateForNullCommunityId() {
+		//given
+		Project project = Project.builder()
+			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
+	}
+
+	@Test
+	void shouldNotPassCreateForNullAcronym() {
+		//given
+		Project project = Project.builder()
+			.communityId("id")
+			.name("name")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+
+		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
+		Project secondProject = Project.builder().name("a").build();
+		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
+	}
+
+	@Test
+	void shouldNotPassCreateForNullResearchField() {
+		//given
+		Project project = Project.builder()
+			.communityId("id")
+			.name("name")
+			.acronym("Acronym")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+
+		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
+		Project secondProject = Project.builder().name("a").build();
+		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
+	}
+
+	@Test
+	void shouldNotPassCreateForInvalidTime() {
+		//given
+		Project project = Project.builder()
+			.communityId("id")
+			.name("name")
+			.researchField("research field")
+			.startTime(LocalDateTime.now().plusWeeks(1))
+			.endTime(LocalDateTime.now())
+			.build();
+
+		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
+		Project secondProject = Project.builder().name("a").build();
+		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(project));
 	}
 
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final Project community = Project.builder()
+		final Project project = Project.builder()
 			.id("id")
+			.communityId("id")
 			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
-		when(projectRepository.exists(community.getId())).thenReturn(true);
+		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
+		when(projectRepository.exists(project.getId())).thenReturn(true);
 		when(projectRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.findById(any())).thenReturn(Optional.of(project));
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate(community));
+		assertDoesNotThrow(() -> validator.validateUpdate(project));
 	}
 
 	@Test
@@ -75,7 +192,12 @@ class ProjectServiceImplValidatorTest {
 		//given
 		Project community = Project.builder()
 			.id("id")
+			.communityId("id")
 			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.exists(community.getId())).thenReturn(false);
@@ -89,12 +211,22 @@ class ProjectServiceImplValidatorTest {
 		//given
 		Project community = Project.builder()
 			.id("id")
+			.communityId("id")
 			.name("name")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+		Project secondProject = Project.builder()
+			.communityId("id")
+			.name("a")
 			.build();
 
 		when(projectRepository.exists(community.getId())).thenReturn(true);
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
-
+		when(communityRepository.exists(any())).thenReturn(true);
+		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
 	}

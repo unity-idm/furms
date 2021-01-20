@@ -6,17 +6,18 @@
 package io.imunity.furms.db.projects;
 
 
+import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
@@ -27,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectDatabaseRepositoryTest {
 
 	@Autowired
+	private CommunityRepository communityRepository;
+
+	@Autowired
 	private ProjectDatabaseRepository repository;
 
 	@Autowired
@@ -35,10 +39,30 @@ class ProjectDatabaseRepositoryTest {
 	private byte[] imgTestFile;
 	private byte[] imgTestFile2;
 
+	private UUID communityId;
+	private UUID communityId2;
+
+	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
+	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
+	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
+	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
+
 	@BeforeAll
 	void init() throws IOException {
 		imgTestFile = getClass().getClassLoader().getResourceAsStream("test.jpg").readAllBytes();
 		imgTestFile2 = getClass().getClassLoader().getResourceAsStream("test2.jpg").readAllBytes();
+		Community community = Community.builder()
+			.name("name")
+			.description("description")
+			.logo(imgTestFile, "jpg")
+			.build();
+		Community community2 = Community.builder()
+			.name("name2")
+			.description("description2")
+			.logo(imgTestFile2, "jpg")
+			.build();
+		communityId = UUID.fromString(communityRepository.create(community));
+		communityId2 = UUID.fromString(communityRepository.create(community2));
 	}
 
 	@BeforeEach
@@ -46,14 +70,25 @@ class ProjectDatabaseRepositoryTest {
 		entityRepository.deleteAll();
 	}
 
+	@AfterAll
+	void clean(){
+		entityRepository.deleteAll();
+	}
+
 	@Test
 	void shouldFindCreatedProject() {
 		//given
 		ProjectEntity entity = entityRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 
 		//when
 		Optional<Project> byId = repository.findById(entity.getId().toString());
@@ -72,10 +107,16 @@ class ProjectDatabaseRepositoryTest {
 		//given
 		UUID wrongId = generateId();
 		entityRepository.save(ProjectEntity.builder()
-				.name("random_site")
-				.description("description")
+				.communityId(communityId)
+				.name("name")
+				.description("new_description")
 				.logo(imgTestFile, "jpg")
-				.build());
+				.acronym("acronym")
+				.researchField("research filed")
+				.startTime(startTime)
+				.endTime(endTime)
+				.build()
+		);
 
 		//when
 		Optional<Project> byId = repository.findById(wrongId.toString());
@@ -88,31 +129,48 @@ class ProjectDatabaseRepositoryTest {
 	void shouldFindAllProjects() {
 		//given
 		entityRepository.save(ProjectEntity.builder()
-				.name("name1")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 		entityRepository.save(ProjectEntity.builder()
-				.name("name2")
-				.description("description")
-				.logo(imgTestFile2, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name2")
+			.description("new_description")
+			.logo(imgTestFile2, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 
-//		//when
-//		Set<Project> all = repository.findAll();
-//
-//		//then
-//		assertThat(all).hasSize(2);
+		//when
+		Set<Project> all = repository.findAll(communityId.toString());
+
+		//then
+		assertThat(all).hasSize(2);
 	}
 
 	@Test
 	void shouldCreateProject() {
 		//given
 		Project request = Project.builder()
-				.name("name")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build();
+			.communityId(communityId.toString())
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build();
 
 		//when
 		String newProjectId = repository.create(request);
@@ -128,16 +186,27 @@ class ProjectDatabaseRepositoryTest {
 	void shouldUpdateProject() {
 		//given
 		ProjectEntity old = entityRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 		Project requestToUpdate = Project.builder()
-				.id(old.getId().toString())
-				.name("new_name")
-				.description("new_description")
-				.logo(imgTestFile2, "jpg")
-				.build();
+			.id(old.getId().toString())
+			.communityId(communityId.toString())
+			.name("new_name")
+			.description("new_description")
+			.logo(imgTestFile2, "jpg")
+			.acronym("new_acronym")
+			.researchField("new_research filed")
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build();
 
 		//when
 		repository.update(requestToUpdate);
@@ -149,16 +218,26 @@ class ProjectDatabaseRepositoryTest {
 		assertThat(byId.get().getDescription()).isEqualTo("new_description");
 		assertThat(byId.get().getLogo().getImage()).isEqualTo(imgTestFile2);
 		assertThat(byId.get().getLogo().getType()).isEqualTo("jpg");
+		assertThat(byId.get().getAcronym()).isEqualTo("new_acronym");
+		assertThat(byId.get().getResearchField()).isEqualTo("new_research filed");
+		assertThat(byId.get().getStartTime()).isEqualTo(newStartTime);
+		assertThat(byId.get().getEndTime()).isEqualTo(newEndTime);
 	}
 
 	@Test
 	void savedProjectExists() {
 		//given
 		ProjectEntity entity = entityRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("new_description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 
 		//when + then
 		assertThat(repository.exists(entity.getId().toString())).isTrue();
@@ -179,10 +258,16 @@ class ProjectDatabaseRepositoryTest {
 	void shouldReturnTrueForUniqueName() {
 		//given
 		entityRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("new_description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
 		String uniqueName = "unique_name";
 
 		//when + then
@@ -193,10 +278,15 @@ class ProjectDatabaseRepositoryTest {
 	void shouldReturnFalseForNonUniqueName() {
 		//given
 		ProjectEntity existedProject = entityRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("new_description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build());
 
 		//when + then
 		assertThat(repository.isUniqueName(existedProject.getName())).isFalse();

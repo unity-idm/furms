@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin.projects;
+package io.imunity.furms.ui.views.community.projects;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
@@ -12,15 +12,14 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.ui.views.community_admin.CommunityAdminMenu;
-import io.imunity.furms.ui.views.components.BreadCrumbParameter;
-import io.imunity.furms.ui.views.components.FurmsViewComponent;
-import io.imunity.furms.ui.views.components.PageTitle;
-import io.imunity.furms.ui.views.fenix_admin.communites.CommunityView;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.*;
 
-import static io.imunity.furms.ui.views.community_admin.projects.ProjectConst.*;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
 
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
@@ -37,14 +36,14 @@ class ProjectView extends FurmsViewComponent {
 	ProjectView(ProjectService projectService) {
 		this.projectService = projectService;
 
-		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), CommunityView.class);
+		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), ProjectView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
 		paramToTab.put(ADMINISTRATORS_PARAM, administratorsTab);
 		defaultTab = administratorsTab;
 		links.add(adminsRouterLink);
 
-		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.2"), CommunityView.class);
+		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.2"), ProjectView.class);
 		allocRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ALLOCATIONS_PARAM)));
 		Tab allocationsTab = new Tab(allocRouterLink);
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);

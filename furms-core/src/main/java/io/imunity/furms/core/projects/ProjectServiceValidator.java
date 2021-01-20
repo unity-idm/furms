@@ -7,6 +7,7 @@ package io.imunity.furms.core.projects;
 
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,10 +18,10 @@ import static org.springframework.util.Assert.notNull;
 
 @Component
 class ProjectServiceValidator {
-	private final io.imunity.furms.spi.projects.ProjectRepository projectRepository;
+	private final ProjectRepository projectRepository;
 	private final CommunityRepository communityRepository;
 
-	ProjectServiceValidator(io.imunity.furms.spi.projects.ProjectRepository projectRepository, CommunityRepository communityRepository) {
+	ProjectServiceValidator(ProjectRepository projectRepository, CommunityRepository communityRepository) {
 		this.projectRepository = projectRepository;
 		this.communityRepository = communityRepository;
 	}
@@ -30,7 +31,9 @@ class ProjectServiceValidator {
 		validateCommunityId(project.getCommunityId());
 		validateName(project);
 		validateLength("description", project.getDescription(), 510);
+		notNull(project.getAcronym(), "Acronym cannot be null.");
 		validateLength("acronym", project.getAcronym(), 8);
+		notNull(project.getResearchField(), "Research field cannot be null.");
 		validateLength("researchField", project.getResearchField(), 255);
 		validateTime(project.getStartTime(), project.getEndTime());
 	}
@@ -41,7 +44,9 @@ class ProjectServiceValidator {
 		validateUpdateCommunityId(project);
 		validateName(project);
 		validateLength("description", project.getDescription(), 510);
+		notNull(project.getAcronym(), "Acronym cannot be null.");
 		validateLength("acronym", project.getAcronym(), 8);
+		notNull(project.getResearchField(), "Research field cannot be null.");
 		validateLength("researchField", project.getResearchField(), 255);
 		validateTime(project.getStartTime(), project.getEndTime());
 	}

@@ -8,10 +8,7 @@ package io.imunity.furms.db.projects;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -63,6 +60,11 @@ class ProjectEntityRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
+		projectRepository.deleteAll();
+	}
+
+	@AfterAll
+	void clean(){
 		projectRepository.deleteAll();
 	}
 
@@ -199,10 +201,15 @@ class ProjectEntityRepositoryTest {
 	void savedProjectExistsByProjectId() {
 		//given
 		ProjectEntity site = projectRepository.save(ProjectEntity.builder()
-				.name("name")
-				.description("description")
-				.logo(imgTestFile, "jpg")
-				.build());
+			.communityId(communityId)
+			.name("name")
+			.description("description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build());
 
 		//when + then
 		assertThat(projectRepository.existsById(site.getId())).isTrue();

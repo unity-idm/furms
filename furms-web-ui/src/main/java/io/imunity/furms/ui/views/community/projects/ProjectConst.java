@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin.projects;
+package io.imunity.furms.ui.views.community.projects;
 
 class ProjectConst {
 	final static String ADMINISTRATORS_PARAM = "Administrators";

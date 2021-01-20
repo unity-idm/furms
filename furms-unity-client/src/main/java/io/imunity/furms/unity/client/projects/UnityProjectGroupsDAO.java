@@ -48,6 +48,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		return Optional.ofNullable(ProjectGroup.builder()
 			.id(projectId)
 			.name(group.getDisplayedName().getDefaultValue())
+			.communityId(communityId)
 			.build());
 	}
 
@@ -64,8 +65,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			.buildAndExpand().encode().toUriString();
 
 		unityClient.post(groupPath, null, Map.of("withParents", true));
-
-		update(projectGroup);
+		updateGroupName(projectGroup);
 	}
 
 	@Override
@@ -73,6 +73,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		if (projectGroup == null || isEmpty(projectGroup.getId()) || isEmpty(projectGroup.getCommunityId())) {
 			throw new IllegalArgumentException("Could not update Project in Unity. Missing Community or Project ID");
 		}
+		updateGroupName(projectGroup);
+	}
+
+	private void updateGroupName(ProjectGroup projectGroup) {
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
 				.path(FENIX_PROJECT_PATTERN)

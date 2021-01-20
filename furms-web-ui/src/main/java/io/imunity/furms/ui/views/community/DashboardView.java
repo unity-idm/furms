@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin;
+package io.imunity.furms.ui.views.community;
 
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.components.FurmsViewComponent;

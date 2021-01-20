@@ -3,16 +3,14 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin;
+package io.imunity.furms.ui.views.community;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import io.imunity.furms.ui.user_context.RoleTranslator;
-import io.imunity.furms.ui.views.community_admin.projects.ProjectsView;
-import io.imunity.furms.ui.views.components.FurmsAppLayout;
-import io.imunity.furms.ui.views.components.FurmsLayout;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.views.community.projects.ProjectsView;
 
 import java.util.List;
 
