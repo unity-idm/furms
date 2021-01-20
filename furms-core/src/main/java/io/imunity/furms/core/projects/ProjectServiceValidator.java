@@ -38,7 +38,7 @@ class ProjectServiceValidator {
 	void validateUpdate(Project project) {
 		notNull(project, "Project object cannot be null.");
 		validateId(project.getId());
-		validateCommunityId(project.getCommunityId());
+		validateUpdateCommunityId(project);
 		validateName(project);
 		validateLength("description", project.getDescription(), 510);
 		validateLength("acronym", project.getAcronym(), 8);
@@ -90,5 +90,13 @@ class ProjectServiceValidator {
 		if (!communityRepository.exists(id)) {
 			throw new IllegalArgumentException("Community with declared ID is not exists.");
 		}
+	}
+
+	private void validateUpdateCommunityId(Project project) {
+		validateCommunityId(project.getCommunityId());
+		projectRepository.findById(project.getId())
+			.map(Project::getCommunityId)
+			.filter(id -> id.equals(project.getCommunityId()))
+			.orElseThrow(() -> new IllegalArgumentException("Community ID change is forbidden"));
 	}
 }

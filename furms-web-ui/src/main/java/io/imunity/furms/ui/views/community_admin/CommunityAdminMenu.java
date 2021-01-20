@@ -5,14 +5,16 @@
 
 package io.imunity.furms.ui.views.community_admin;
 
-import java.util.List;
-
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.community_admin.projects.ProjectsView;
 import io.imunity.furms.ui.views.components.FurmsAppLayout;
 import io.imunity.furms.ui.views.components.FurmsLayout;
 
-public class CommunityAdminMenu extends FurmsAppLayout {
+import java.util.List;
+
+public class CommunityAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
 	CommunityAdminMenu(RoleTranslator roleTranslator) {
@@ -32,8 +34,7 @@ public class CommunityAdminMenu extends FurmsAppLayout {
 	}
 
 	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
+	public void afterNavigation(AfterNavigationEvent event) {
 		furmsLayout.afterNavigation(getContent());
 	}
 }

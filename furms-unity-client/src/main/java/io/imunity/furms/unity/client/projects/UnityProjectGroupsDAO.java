@@ -75,12 +75,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		}
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
-				.path(GROUP_BASE)
-				.pathSegment(FENIX_PROJECT_USERS_PATTERN)
-				.path(META)
+				.path(FENIX_PROJECT_PATTERN)
 				.uriVariables(uriVariables)
-				.buildAndExpand().encode().toUriString();
-		Group group = unityClient.get(metaCommunityPath, Group.class);
+				.buildAndExpand().toUriString();
+		Group group = new Group(metaCommunityPath);
 		group.setDisplayedName(new I18nString(projectGroup.getName()));
 		unityClient.put(GROUP_BASE, group);
 	}

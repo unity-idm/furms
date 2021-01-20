@@ -8,6 +8,7 @@ package io.imunity.furms.core.config.security.method;
 import io.imunity.furms.core.config.security.user.FurmsUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,9 @@ public class AuthTest {
 
 	@MockBean
 	AuthenticationManager authenticationManager;
+
+	@MockBean
+	ProjectRepository projectRepository;
 
 	@Mock
 	Authentication authentication;

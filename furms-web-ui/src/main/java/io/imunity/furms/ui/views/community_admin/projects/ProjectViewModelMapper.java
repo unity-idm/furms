@@ -11,6 +11,7 @@ class ProjectViewModelMapper {
 	static ProjectViewModel map(Project project){
 		return ProjectViewModel.builder()
 			.id(project.getId())
+			.communityId(project.getCommunityId())
 			.name(project.getName())
 			.description(project.getDescription())
 			.logo(project.getLogo())
@@ -24,6 +25,7 @@ class ProjectViewModelMapper {
 	static Project map(ProjectViewModel project){
 		return Project.builder()
 			.id(project.id)
+			.communityId(project.communityId)
 			.name(project.name)
 			.description(project.description)
 			.logo(project.logo)

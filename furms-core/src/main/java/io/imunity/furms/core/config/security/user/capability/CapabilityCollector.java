@@ -9,21 +9,50 @@ package io.imunity.furms.core.config.security.user.capability;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.projects.ProjectRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+
+@Component
 public class CapabilityCollector {
-	public static Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
+	private final ProjectRepository projectRepository;
+
+	public CapabilityCollector(ProjectRepository projectRepository) {
+		this.projectRepository = projectRepository;
+	}
+
+	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
 		Set<Capability> capabilities = getAdditionalCapabilities(roles);
+
+		Map<ResourceId, ResourceId> projectIds = roles.keySet().stream()
+			.filter(x -> x.type.equals(COMMUNITY))
+			.flatMap(this::mapResources)
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		resourceId = projectIds.getOrDefault(resourceId, resourceId);
+
 		for(Role role: roles.getOrDefault(resourceId, new HashSet<>())){
 			capabilities.addAll(role.capabilities);
 		}
 		return capabilities;
 	}
 
-	private static Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {
+	private Stream<Map.Entry<ResourceId, ResourceId>> mapResources(ResourceId x) {
+		return projectRepository.findAll(x.id.toString()).stream()
+			.map(Project::getId)
+			.map(y -> new ResourceId(y, PROJECT))
+			.map(y -> Map.entry(y, x));
+	}
+
+	private Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {
 		Set<Capability> capabilities = new HashSet<>();
 		Set<Role> roles = new HashSet<>();
 

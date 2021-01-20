@@ -25,12 +25,12 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.ui.views.community_admin.CommunityAdminMenu;
 import io.imunity.furms.ui.views.components.FurmsViewComponent;
 import io.imunity.furms.ui.views.components.PageTitle;
-import io.imunity.furms.ui.views.fenix_admin.communites.CommunityView;
 
 import java.util.Map;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.views.community_admin.projects.ProjectConst.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -51,7 +51,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createHeaderLayout() {
-		Button addButton = new Button(getTranslation("view.communities.button.add"), PLUS_CIRCLE.create());
+		Button addButton = new Button(getTranslation("view.community-admin.projects.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(ProjectFormView.class));
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
@@ -59,7 +59,7 @@ public class ProjectsView extends FurmsViewComponent {
 		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
 
-		H4 headerText = new H4(getTranslation("view.communities.header"));
+		H4 headerText = new H4(getTranslation("view.community-admin.projects.header"));
 		HorizontalLayout header = new HorizontalLayout(headerText, buttonLayout);
 		header.setSizeFull();
 		return header;
@@ -70,21 +70,21 @@ public class ProjectsView extends FurmsViewComponent {
 		grid.setHeightByRows(true);
 
 		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectsView.class, c.id))
-			.setHeader(getTranslation("view.communities.grid.column.1"));
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"));
 		grid.addColumn(c -> c.description)
-			.setHeader(getTranslation("view.communities.grid.column.2"));
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"));
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.communities.grid.column.3"))
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
 	}
 
-	private HorizontalLayout createLastColumnContent(ProjectViewModel c) {
+	private HorizontalLayout createLastColumnContent(ProjectViewModel projectViewModel) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(
-			createRouterIcon(USERS, c.id, ADMINISTRATORS_PARAM),
-			createRouterIcon(PIE_CHART, c.id, ALLOCATIONS_PARAM),
-			createContextMenu(c.id, c.communityId)
+			createRouterIcon(USERS, projectViewModel.id, ADMINISTRATORS_PARAM),
+			createRouterIcon(PIE_CHART, projectViewModel.id, ALLOCATIONS_PARAM),
+			createContextMenu(projectViewModel.id, projectViewModel.communityId)
 		);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
@@ -96,29 +96,38 @@ public class ProjectsView extends FurmsViewComponent {
 		contextMenu.setOpenOnClick(true);
 		contextMenu.setTarget(menu);
 
-		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.edit"), EDIT), event ->
-			UI.getCurrent().navigate(ProjectFormView.class, communityId)
+		contextMenu.addItem(createMenuButton(
+			getTranslation("view.community-admin.projects.menu.edit"), EDIT),
+			event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
 		);
-		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.delete"), TRASH), event -> {
-			projectService.delete(projectId, communityId);
+		contextMenu.addItem(createMenuButton(
+			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
+			event -> {
+				projectService.delete(projectId, communityId);
 				loadGridContent();
 			}
 		);
 
-		Component adminComp = createMenuButton(getTranslation("view.communities.menu.administrators"), USERS);
-		RouterLink administratorsPool = createRouterPool(adminComp, communityId, ADMINISTRATORS_PARAM);
+		Component adminComp = createMenuButton(
+			getTranslation("view.community-admin.projects.menu.administrators"),
+			USERS
+		);
+		RouterLink administratorsPool = createRouterPool(adminComp, projectId, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
-		Component allocationComp = createMenuButton(getTranslation("view.communities.menu.allocations"), PIE_CHART);
-		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, ALLOCATIONS_PARAM);
-		contextMenu.addItem(allocationsPool);
+		Component allocationComp = createMenuButton(
+			getTranslation("view.community-admin.projects.menu.allocations"),
+			PIE_CHART
+		);
 
+		RouterLink allocationsPool = createRouterPool(allocationComp, projectId, ALLOCATIONS_PARAM);
+		contextMenu.addItem(allocationsPool);
 		getContent().add(contextMenu);
 		return menu;
 	}
 
 	private void loadGridContent() {
-		Set<ProjectViewModel> all = projectService.findAll().stream()
+		Set<ProjectViewModel> all = projectService.findAll(getCurrentResourceId()).stream()
 			.map(ProjectViewModelMapper::map)
 			.collect(toSet());
 		grid.setItems(all);
@@ -144,7 +153,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private RouterLink createRouterPool(Component component, String id, String param) {
-		RouterLink routerLink = new RouterLink("", CommunityView.class, id);
+		RouterLink routerLink = new RouterLink("", ProjectView.class, id);
 		routerLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, param)));
 		routerLink.add(component);
 		routerLink.setClassName("furms-color");

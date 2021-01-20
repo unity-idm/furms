@@ -19,6 +19,7 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
@@ -42,14 +43,14 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "communityId")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<Project> findAll(String communityId) {
 		return projectRepository.findAll(communityId);
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT)
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "project.communityId")
 	public void create(Project project) {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
@@ -67,10 +68,10 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT)
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String projectId, String communityId) {
 		validator.validateDelete(projectId);
 		projectRepository.delete(projectId);
-		projectGroupsDAO.delete(projectId, communityId);
+		projectGroupsDAO.delete(communityId, projectId);
 	}
 }

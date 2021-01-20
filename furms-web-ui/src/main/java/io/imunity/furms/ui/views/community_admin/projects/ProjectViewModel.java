@@ -32,9 +32,9 @@ class ProjectViewModel {
 		this.endTime = endTime;
 	}
 
-	ProjectViewModel() {
+	ProjectViewModel(String communityId) {
 		this.id = null;
-		this.communityId = null;
+		this.communityId = communityId;
 	}
 
 	public String getId() {

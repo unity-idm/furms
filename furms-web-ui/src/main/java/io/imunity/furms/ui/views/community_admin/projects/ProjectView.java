@@ -23,7 +23,7 @@ import java.util.*;
 import static io.imunity.furms.ui.views.community_admin.projects.ProjectConst.*;
 
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
-@PageTitle(key = "view.community-admin.projects.page.title")
+@PageTitle(key = "view.community-admin.project.page.title")
 class ProjectView extends FurmsViewComponent {
 	private final ProjectService projectService;
 
@@ -37,14 +37,14 @@ class ProjectView extends FurmsViewComponent {
 	ProjectView(ProjectService projectService) {
 		this.projectService = projectService;
 
-		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community.tab.1"), CommunityView.class);
+		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
 		paramToTab.put(ADMINISTRATORS_PARAM, administratorsTab);
 		defaultTab = administratorsTab;
 		links.add(adminsRouterLink);
 
-		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community.tab.2"), CommunityView.class);
+		RouterLink allocRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.2"), CommunityView.class);
 		allocRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ALLOCATIONS_PARAM)));
 		Tab allocationsTab = new Tab(allocRouterLink);
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);
