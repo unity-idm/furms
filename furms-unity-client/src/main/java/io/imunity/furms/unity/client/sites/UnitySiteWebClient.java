@@ -7,7 +7,7 @@ package io.imunity.furms.unity.client.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteWebClient;
-import io.imunity.furms.unity.client.exceptions.UnityFailureException;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -53,7 +53,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getStatusText());
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 
@@ -72,7 +72,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getStatusText());
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
@@ -81,7 +81,7 @@ class UnitySiteWebClient implements SiteWebClient {
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getStatusText());
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 
@@ -102,7 +102,7 @@ class UnitySiteWebClient implements SiteWebClient {
 			group.setDisplayedName(new I18nString(site.getName()));
 			unityClient.put(GROUP_BASE, group);
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getStatusText());
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 
@@ -121,7 +121,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			unityClient.delete(deleteSitePath, queryParams);
 		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getStatusText());
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 
@@ -132,5 +132,4 @@ class UnitySiteWebClient implements SiteWebClient {
 	private Map<String, Object> uriVariables(String id) {
 		return Map.of("id", id);
 	}
-
 }

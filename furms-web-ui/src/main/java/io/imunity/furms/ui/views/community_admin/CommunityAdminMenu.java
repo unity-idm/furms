@@ -11,6 +11,8 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.community_admin.projects.ProjectsView;
 import io.imunity.furms.ui.views.components.FurmsAppLayout;
 import io.imunity.furms.ui.views.components.FurmsLayout;
+import io.imunity.furms.ui.components.FurmsAppLayout;
+import io.imunity.furms.ui.components.FurmsLayout;
 
 import java.util.List;
 

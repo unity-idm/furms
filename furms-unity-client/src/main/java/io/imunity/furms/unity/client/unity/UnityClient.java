@@ -73,13 +73,22 @@ public class UnityClient {
 				.bodyToMono(Void.class).block();
 	}
 
+	public void post(String path, Object body, Map<String, Object> queryParams) {
+		MultiValueMap<String, String> params = createParams(queryParams);
+		webClient.post()
+				.uri(uriBuilder -> uri(uriBuilder, path, params))
+				.bodyValue(body == null ? "" : body)
+				.retrieve()
+				.bodyToMono(Void.class).block();
+	}
+
 	public void post(URI uri, MediaType mediaType) {
 		webClient.post()
-			.uri(u -> uri)
-			.contentType(mediaType)
-			.bodyValue("")
-			.retrieve()
-			.bodyToMono(Void.class).block();
+				.uri(u -> uri)
+				.contentType(mediaType)
+				.bodyValue("")
+				.retrieve()
+				.bodyToMono(Void.class).block();
 	}
 
 	public void put(String path, Object body) {

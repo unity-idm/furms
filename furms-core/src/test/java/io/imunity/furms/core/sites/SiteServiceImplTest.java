@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.sites;
 
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
@@ -14,13 +15,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -145,6 +148,18 @@ class SiteServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+	}
+
+
+	@Test
+	void allPublicMethodsShouldBeSecured() {
+		Method[] declaredMethods = SiteServiceImpl.class.getDeclaredMethods();
+		Stream.of(declaredMethods)
+				.filter(method -> Modifier.isPublic(method.getModifiers()))
+				.forEach(method -> {
+					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
+					assertThat(method.getAnnotation(FurmsAuthorize.class).resourceType()).isEqualTo(SITE);
+				});
 	}
 
 }

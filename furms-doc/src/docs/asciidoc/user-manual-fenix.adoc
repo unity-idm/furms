@@ -1,2 +1,43 @@
 == Fenix federation management
 
+Fenix administrator is responsible for:
+
+* creating sites,
+* creating communities,
+* distributing site provided resource credits to communities.
+
+=== Managing sites
+
+Fenix admin can create sites providing only the basic information: site name. Additional site attributes are supposed to be setup by the site admin.
+
+{versionlimit} Sites can be removed freely at this point. In the next versions removing a site will be subject to many constraints.
+
+After creating a site, Fenix admin should provide at least a single administrator for the site. The appropriate view can be activated from the site's context menu "Administrators". From there the Fenix admin can freely add and remove site administrators. 
+
+NOTE: Site administrators can also themselves manage administrators of their site, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial site admin must be always performed by the Fenix admin.
+
+{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
+
+=== Managing communities
+
+Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.
+
+{versionlimit} Communities can be removed freely at this point. In the next versions removing a community will be subject to many constraints.
+
+After creating a community, Fenix admin should provide at least a single administrator for it. The appropriate view can be activated from the community's context menu "Administrators". From there the Fenix admin can freely add and remove community administrators. 
+
+NOTE: Community administrators can also themselves manage administrators of their community, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial community admin must be always performed by the Fenix admin.
+
+{versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.
+
+=== Managing Fenix administrators
+
+FURMS allows for having multiple users with the Fenix administrator role. Each Fenix admin can add (and remove) other administrators from the "Fenix administrators" view. 
+
+{versionlimit} Adding Fenix administrators is currently limited to users who has signed in to FURMS at least once.
+
+
+=== Distributing resources to communities
+
+{versionlimit} This functionality is not available yet.
+

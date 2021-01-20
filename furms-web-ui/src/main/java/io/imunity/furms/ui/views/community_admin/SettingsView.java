@@ -6,8 +6,8 @@
 package io.imunity.furms.ui.views.community_admin;
 
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.views.components.FurmsViewComponent;
-import io.imunity.furms.ui.views.components.PageTitle;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
 
 @Route(value = "community/admin/settings", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.settings.page.title")

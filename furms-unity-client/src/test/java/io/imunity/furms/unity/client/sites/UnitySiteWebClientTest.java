@@ -6,14 +6,13 @@
 package io.imunity.furms.unity.client.sites;
 
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.unity.client.exceptions.UnityFailureException;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
