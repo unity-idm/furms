@@ -7,7 +7,6 @@ package io.imunity.furms.db.communities;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.communities.Community;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Arrays;
@@ -15,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("COMMUNITY")
-public class CommunityEntity extends UUIDIdentifiable implements Persistable<UUID> {
+public class CommunityEntity extends UUIDIdentifiable {
 
 	private final String name;
 	private final String description;
@@ -64,7 +63,8 @@ public class CommunityEntity extends UUIDIdentifiable implements Persistable<UUI
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CommunityEntity that = (CommunityEntity) o;
-		return Objects.equals(name, that.name) &&
+		return Objects.equals(id, that.id) &&
+			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
 			Arrays.equals(logoImage, that.logoImage) &&
 			Objects.equals(logoType, that.logoType);
@@ -72,7 +72,7 @@ public class CommunityEntity extends UUIDIdentifiable implements Persistable<UUI
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(name, description, logoType);
+		int result = Objects.hash(id, name, description, logoType);
 		result = 31 * result + Arrays.hashCode(logoImage);
 		return result;
 	}
@@ -86,11 +86,6 @@ public class CommunityEntity extends UUIDIdentifiable implements Persistable<UUI
 			", logoImage=" + Arrays.toString(logoImage) +
 			", logoType='" + logoType + '\'' +
 			'}';
-	}
-
-	@Override
-	public boolean isNew() {
-		return id == null;
 	}
 
 	public static class CommunityEntityBuilder {

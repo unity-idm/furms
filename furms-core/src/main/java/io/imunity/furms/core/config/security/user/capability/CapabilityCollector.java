@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 public class CapabilityCollector {
@@ -33,11 +33,7 @@ public class CapabilityCollector {
 	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
 		Set<Capability> capabilities = getAdditionalCapabilities(roles);
 
-		Map<ResourceId, ResourceId> projectIds = roles.keySet().stream()
-			.filter(x -> x.type.equals(COMMUNITY))
-			.flatMap(this::mapResources)
-			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-		resourceId = projectIds.getOrDefault(resourceId, resourceId);
+		resourceId = handleCommunityAdminProjectResources(roles, resourceId);
 
 		for(Role role: roles.getOrDefault(resourceId, new HashSet<>())){
 			capabilities.addAll(role.capabilities);
@@ -45,11 +41,19 @@ public class CapabilityCollector {
 		return capabilities;
 	}
 
-	private Stream<Map.Entry<ResourceId, ResourceId>> mapResources(ResourceId x) {
-		return projectRepository.findAll(x.id.toString()).stream()
+	private ResourceId handleCommunityAdminProjectResources(Map<ResourceId, Set<Role>> roles, ResourceId resourceId) {
+		Map<ResourceId, ResourceId> projectIds = roles.keySet().stream()
+			.filter(rId -> rId.type.equals(COMMUNITY))
+			.flatMap(this::mapResources)
+			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+		return projectIds.getOrDefault(resourceId, resourceId);
+	}
+
+	private Stream<Map.Entry<ResourceId, ResourceId>> mapResources(ResourceId resourceId) {
+		return projectRepository.findAll(resourceId.id.toString()).stream()
 			.map(Project::getId)
-			.map(y -> new ResourceId(y, PROJECT))
-			.map(y -> Map.entry(y, x));
+			.map(id -> new ResourceId(id, PROJECT))
+			.map(rId -> Map.entry(rId, resourceId));
 	}
 
 	private Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {

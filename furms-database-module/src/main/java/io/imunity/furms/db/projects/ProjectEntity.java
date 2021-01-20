@@ -11,6 +11,8 @@ import io.imunity.furms.domain.projects.Project;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table("PROJECT")
@@ -92,6 +94,46 @@ class ProjectEntity extends UUIDIdentifiable {
 
 	public static ProjectEntityBuilder builder() {
 		return new ProjectEntityBuilder();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProjectEntity that = (ProjectEntity) o;
+		return Objects.equals(id, that.id) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(description, that.description) &&
+			Arrays.equals(logoImage, that.logoImage) &&
+			Objects.equals(logoType, that.logoType) &&
+			Objects.equals(acronym, that.acronym) &&
+			Objects.equals(researchField, that.researchField) &&
+			Objects.equals(startTime, that.startTime) &&
+			Objects.equals(endTime, that.endTime);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(id, communityId, name, description, logoType, acronym, researchField, startTime, endTime);
+		result = 31 * result + Arrays.hashCode(logoImage);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "ProjectEntity{" +
+			"id=" + id +
+			", communityId=" + communityId +
+			", name='" + name + '\'' +
+			", description='" + description + '\'' +
+			", logoImage=" + Arrays.toString(logoImage) +
+			", logoType='" + logoType + '\'' +
+			", acronym='" + acronym + '\'' +
+			", researchField='" + researchField + '\'' +
+			", startTime=" + startTime +
+			", endTime=" + endTime +
+			'}';
 	}
 
 	public static class ProjectEntityBuilder {

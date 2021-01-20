@@ -8,6 +8,7 @@ package io.imunity.furms.domain.projects;
 import io.imunity.furms.domain.images.FurmsImage;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Project {
 
@@ -72,6 +73,42 @@ public class Project {
 
 	public static ProjectEntityBuilder builder() {
 		return new ProjectEntityBuilder();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Project project = (Project) o;
+		return Objects.equals(id, project.id) &&
+			Objects.equals(communityId, project.communityId) &&
+			Objects.equals(name, project.name) &&
+			Objects.equals(description, project.description) &&
+			Objects.equals(logo, project.logo) &&
+			Objects.equals(acronym, project.acronym) &&
+			Objects.equals(researchField, project.researchField) &&
+			Objects.equals(startTime, project.startTime) &&
+			Objects.equals(endTime, project.endTime);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, communityId, name, description, logo, acronym, researchField, startTime, endTime);
+	}
+
+	@Override
+	public String toString() {
+		return "Project{" +
+			"id='" + id + '\'' +
+			", communityId='" + communityId + '\'' +
+			", name='" + name + '\'' +
+			", description='" + description + '\'' +
+			", logo=" + logo +
+			", acronym='" + acronym + '\'' +
+			", researchField='" + researchField + '\'' +
+			", startTime=" + startTime +
+			", endTime=" + endTime +
+			'}';
 	}
 
 	public static class ProjectEntityBuilder {

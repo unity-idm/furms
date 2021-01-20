@@ -93,7 +93,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public void delete(String id) {
 		if (isEmpty(id)) {
-			throw new IllegalArgumentException("Incorrect delete Community input.");
+			throw new IllegalArgumentException("Incorrect delete Project input.");
 		}
 		repository.deleteById(fromString(id));
 	}
