@@ -3,9 +3,11 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.unity.client.exceptions;
+package io.imunity.furms.spi.exceptions;
 
 public class UnityFailureException extends RuntimeException {
-	public UnityFailureException(String message) {
+
+	public UnityFailureException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }

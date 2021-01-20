@@ -5,13 +5,12 @@
 
 package io.imunity.furms.ui.views.fenix_admin.sites;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
@@ -24,34 +23,23 @@ import io.imunity.furms.ui.views.fenix_admin.sites.data.SiteCreationParam;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.END;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
-@CssImport("./styles/components/dropdown-menu.css")
 public class SitesAddView extends FurmsViewComponent {
 
 	private final SiteService siteService;
-
-	private final VerticalLayout mainContent;
 
 	private final TextField name;
 
 	SitesAddView(SiteService siteService) {
 		this.siteService = siteService;
 
-		mainContent = new VerticalLayout();
-		mainContent.setPadding(true);
-		mainContent.setSpacing(true);
-
 		name = new TextField();
 
 		addHeader();
-
 		addForm();
-
-		getContent().add(mainContent);
 	}
 
 	private void addHeader() {
@@ -62,12 +50,12 @@ public class SitesAddView extends FurmsViewComponent {
 
 		headerLayout.add(title);
 
-		mainContent.add(headerLayout);
+		getContent().add(headerLayout);
 	}
 
 	private void addForm() {
 		FormLayout formLayout = new FormLayout();
-		formLayout.setWidth("50%");
+		formLayout.setSizeFull();
 		SiteCreationParam formData = new SiteCreationParam();
 		Binder<SiteCreationParam> binder = new Binder<>(SiteCreationParam.class);
 		binder.setBean(formData);
@@ -77,14 +65,15 @@ public class SitesAddView extends FurmsViewComponent {
 		name.setValueChangeMode(EAGER);
 		name.setWidthFull();
 
-		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"));
+		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"), e -> doCancelAction());
 		cancel.addThemeVariants(LUMO_TERTIARY);
-		cancel.addClickListener(e -> doCancelAction());
+		cancel.addClassName("sites-add-form-button");
 
-		Button save = new Button(getTranslation("view.sites.add.form.button.save"));
+		Button save = new Button(getTranslation("view.sites.add.form.button.save"), e -> doSaveAction(formData, binder));
 		save.addThemeVariants(LUMO_PRIMARY);
-		save.addClickListener(e -> doSaveAction(formData, binder));
-		save.setEnabled(false);
+		save.addClickShortcut(Key.ENTER);
+		save.addClassName("sites-add-form-button");
+
 		binder.addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors()));
 
 		binder.forField(name)
@@ -92,13 +81,16 @@ public class SitesAddView extends FurmsViewComponent {
 				.withValidator(siteService::isNameUnique, getTranslation("view.sites.form.error.validation.field.name.unique"))
 				.bind(SiteCreationParam::getName, SiteCreationParam::setName);
 
-		FlexLayout buttons = new FlexLayout(cancel, save);
-		buttons.setJustifyContentMode(END);
-
+		formLayout.setResponsiveSteps(
+				new FormLayout.ResponsiveStep("1em", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+				new FormLayout.ResponsiveStep("60em", 2)
+		);
 		formLayout.addFormItem(name, getTranslation("view.sites.add.form.name"));
-		formLayout.add(buttons);
 
-		mainContent.add(formLayout);
+		FlexLayout buttons = new FlexLayout(cancel, save);
+		buttons.setAlignContent(FlexLayout.ContentAlignment.START);
+
+		getContent().add(formLayout, buttons);
 	}
 
 	private void doSaveAction(SiteCreationParam formData, Binder<SiteCreationParam> binder) {

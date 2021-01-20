@@ -6,7 +6,9 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import org.slf4j.Logger;
@@ -16,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class SiteServiceImpl implements SiteService {
@@ -35,17 +41,20 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
 	public Optional<Site> findById(String id) {
 		return siteRepository.findById(id);
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<Site> findAll() {
 		return siteRepository.findAll();
 	}
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
 	public void create(Site site) {
 		validator.validateCreate(site);
 
@@ -55,13 +64,19 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.create(createdSite);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage());
+			LOG.error("Could not create Site: ", e);
+			try {
+				webClient.get(siteId).ifPresent(incompleteSite -> webClient.delete(incompleteSite.getId()));
+			} catch (RuntimeException ex) {
+				LOG.error("Failed to rollback, problem during unity group deletion: ", e);
+			}
 			throw e;
 		}
 	}
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "site.id")
 	public void update(Site site) {
 		validator.validateUpdate(site);
 
@@ -71,13 +86,14 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.update(updatedSite);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage());
+			LOG.error("Could not update Site: ", e);
 			throw e;
 		}
 	}
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
 	public void delete(String id) {
 		validator.validateDelete(id);
 
@@ -85,12 +101,13 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.delete(id);
 		} catch (RuntimeException e) {
-			LOG.error(e.getMessage());
+			LOG.error("Could not delete Site: ", e);
 			throw e;
 		}
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public boolean isNameUnique(String name) {
 		try {
 			validator.validateName(name);

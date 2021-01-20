@@ -8,5 +8,5 @@ package io.imunity.furms.core.config.security.method;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = "io.imunity.furms.core.config.security.method")
-public class CoreRunner {
+public class TestSecurityContextConfig {
 }

@@ -4,13 +4,15 @@
  */
 
 
-.dropdown-menu {
+.dropdown-menu-button {
 	color: black;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	--lumo-button-size: none;
+	font-weight: inherit;
 }
 
-.vaadin-menu-item > vaadin-button {
-	color: black;
-	margin-top: 0;
-	margin-bottom: 0;
-	--lumo-button-size: var(--lumo-size-s);
+.dropdown-menu-button iron-icon {
+	padding: 0;
+	box-sizing: unset !important;
 }
