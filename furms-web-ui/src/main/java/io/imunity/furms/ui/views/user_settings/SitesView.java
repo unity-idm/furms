@@ -6,8 +6,8 @@
 package io.imunity.furms.ui.views.user_settings;
 
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.views.components.FurmsViewComponent;
-import io.imunity.furms.ui.views.components.PageTitle;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
 
 @Route(value = "users/settings/sites", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.sites.page.title")

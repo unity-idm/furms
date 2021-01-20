@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.user_settings;
+package io.imunity.furms.ui.views.project;
 
 import java.util.List;
 
@@ -11,19 +11,19 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 
-public class UserSettingsMenu extends FurmsAppLayout {
+public class ProjectAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
-	UserSettingsMenu(RoleTranslator roleTranslator) {
+	ProjectAdminMenu(RoleTranslator roleTranslator) {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
-				ProfileView.class,
-				SitesView.class,
-				ProjectsView.class,
-				PolicyDocumentsView.class,
-				SSHKeysView.class,
-				APIKeyView.class
+				UsersView.class,
+				ResourceAccessView.class,
+				ResourceAllocationsView.class,
+				AlarmsView.class,
+				ProjectAdministratorsView.class,
+				SettingsView.class
 			),
 			roleTranslator
 		);
