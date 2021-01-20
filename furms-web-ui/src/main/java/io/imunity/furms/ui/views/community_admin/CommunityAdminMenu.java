@@ -8,8 +8,8 @@ package io.imunity.furms.ui.views.community_admin;
 import java.util.List;
 
 import io.imunity.furms.ui.user_context.RoleTranslator;
-import io.imunity.furms.ui.views.components.FurmsAppLayout;
-import io.imunity.furms.ui.views.components.FurmsLayout;
+import io.imunity.furms.ui.components.FurmsAppLayout;
+import io.imunity.furms.ui.components.FurmsLayout;
 
 public class CommunityAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
