@@ -59,8 +59,8 @@ class CommunityFormView extends FurmsViewComponent {
 		this.communityService = communityService;
 		this.acceptedImgFiles = frontProperties.getAcceptedImgFiles().toArray(String[]::new);
 
-		TextField name = new TextField(getTranslation("view.community.form.field.name"));
-		TextArea description = new TextArea(getTranslation("view.community.form.field.description"));
+		TextField name = new TextField(getTranslation("view.fenix-admin.community.form.field.name"));
+		TextArea description = new TextArea(getTranslation("view.fenix-admin.community.form.field.description"));
 		description.setClassName("description-text-area");
 		Button saveButton = createSaveButton();
 		Button closeButton = createCloseButton();
