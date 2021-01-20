@@ -71,7 +71,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		ProjectEntity entityToSave = ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("acronym")
@@ -103,7 +103,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		ProjectEntity old = ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -114,7 +114,7 @@ class ProjectEntityRepositoryTest {
 		projectRepository.save(old);
 		ProjectEntity toUpdate = ProjectEntity.builder()
 			.name("new_name")
-			.community(communityId2)
+			.communityId(communityId2)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")
@@ -145,7 +145,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		ProjectEntity toFind = ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -167,7 +167,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -178,7 +178,7 @@ class ProjectEntityRepositoryTest {
 		);
 		projectRepository.save(ProjectEntity.builder()
 			.name("new_name")
-			.community(communityId2)
+			.communityId(communityId2)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")
@@ -214,7 +214,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		ProjectEntity site = projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -237,7 +237,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		ProjectEntity entityToRemove = projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -258,7 +258,7 @@ class ProjectEntityRepositoryTest {
 		//given
 		projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.community(communityId)
+			.communityId(communityId)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -268,7 +268,7 @@ class ProjectEntityRepositoryTest {
 			.build());
 		projectRepository.save(ProjectEntity.builder()
 			.name("new_name")
-			.community(communityId2)
+			.communityId(communityId2)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")

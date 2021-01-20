@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
@@ -37,8 +36,8 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
-	public Set<Project> findAll() {
-		return stream(repository.findAll().spliterator(), false)
+	public Set<Project> findAll(String communityId) {
+		return repository.findAllByCommunityId(fromString(communityId))
 				.map(ProjectEntity::toProject)
 				.collect(toSet());
 	}
@@ -46,31 +45,31 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public String create(Project project) {
 		ProjectEntity saved = repository.save(ProjectEntity.builder()
-			.community(project.getCommunityId())
+			.communityId(UUID.fromString(project.getCommunityId()))
 			.name(project.getName())
 			.description(project.getDescription())
 			.logo(project.getLogo().getImage(), project.getLogo().getType())
 			.acronym(project.getAcronym())
 			.researchField(project.getResearchField())
-			.startTime(project.getStart())
-			.endTime(project.getEnd())
+			.startTime(project.getStartTime())
+			.endTime(project.getEndTime())
 			.build());
 		return saved.getId().toString();
 	}
 
 	@Override
 	public String update(Project project) {
-		return repository.findById(fromString(project.getId()))
+		return repository.findById(UUID.fromString(project.getId()))
 				.map(oldEntity -> ProjectEntity.builder()
 					.id(UUID.fromString(project.getId()))
-					.community(project.getCommunityId())
+					.communityId(UUID.fromString(project.getCommunityId()))
 					.name(project.getName())
 					.description(project.getDescription())
 					.logo(project.getLogo().getImage(), project.getLogo().getType())
 					.acronym(project.getAcronym())
 					.researchField(project.getResearchField())
-					.startTime(project.getStart())
-					.endTime(project.getEnd())
+					.startTime(project.getStartTime())
+					.endTime(project.getEndTime())
 					.build())
 				.map(repository::save)
 				.map(ProjectEntity::getId)

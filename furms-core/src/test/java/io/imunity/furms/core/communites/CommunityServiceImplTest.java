@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
-class CommunityServiceImpTest {
+class CommunityServiceImplTest {
 	@Mock
 	private CommunityRepository communityRepository;
 	@Mock

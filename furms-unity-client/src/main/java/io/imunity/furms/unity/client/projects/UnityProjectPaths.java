@@ -5,6 +5,7 @@
 
 package io.imunity.furms.unity.client.projects;
 
-public class UnityProjectPaths {
-	public final static String FENIX_PROJECT_PATTERN = "/fenix/communities/{community_id}/projects/{project_id}";
+class UnityProjectPaths {
+	final static String FENIX_PROJECT_USERS_PATTERN = "/fenix/communities/{communityId}/projects/{projectId}/users";
+	final static String FENIX_PROJECT_PATTERN = "/fenix/communities/{communityId}/projects/{projectId}";
 }

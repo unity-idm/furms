@@ -10,9 +10,9 @@ CREATE TABLE project (
     description VARCHAR(510),
     logo_image BYTEA,
     logo_type VARCHAR(255),
-    acronym VARCHAR(255),
-    research_field VARCHAR(255),
-    start_time TIMESTAMP,
-    end_time TIMESTAMP,
+    acronym VARCHAR(255) NOT NULL,
+    research_field VARCHAR(255) NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
     FOREIGN KEY (community_id) REFERENCES community(id)
 );

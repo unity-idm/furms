@@ -3,10 +3,11 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.communites;
+package io.imunity.furms.core.projects;
 
-import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,21 +20,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CommunityServiceImpValidatorTest {
+class ProjectServiceImplValidatorTest {
+	@Mock
+	private ProjectRepository projectRepository;
 	@Mock
 	private CommunityRepository communityRepository;
 
 	@InjectMocks
-	private CommunityServiceValidator validator;
+	private ProjectServiceValidator validator;
 
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
-		Community community = Community.builder()
+		Project community = Project.builder()
 			.name("name")
 			.build();
 
-		when(communityRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(community));
@@ -42,11 +45,11 @@ class CommunityServiceImpValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
-		final Community community = Community.builder()
+		final Project community = Project.builder()
 			.name("name")
 			.build();
 
-		when(communityRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(community));
@@ -55,13 +58,13 @@ class CommunityServiceImpValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final Community community = Community.builder()
+		final Project community = Project.builder()
 			.id("id")
 			.name("name")
 			.build();
 
-		when(communityRepository.exists(community.getId())).thenReturn(true);
-		when(communityRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.exists(community.getId())).thenReturn(true);
+		when(projectRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(community));
@@ -70,12 +73,12 @@ class CommunityServiceImpValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
-		Community community = Community.builder()
+		Project community = Project.builder()
 			.id("id")
 			.name("name")
 			.build();
 
-		when(communityRepository.exists(community.getId())).thenReturn(false);
+		when(projectRepository.exists(community.getId())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
@@ -84,13 +87,13 @@ class CommunityServiceImpValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
-		Community community = Community.builder()
+		Project community = Project.builder()
 			.id("id")
 			.name("name")
 			.build();
 
-		when(communityRepository.exists(community.getId())).thenReturn(true);
-		when(communityRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.exists(community.getId())).thenReturn(true);
+		when(projectRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
@@ -101,7 +104,7 @@ class CommunityServiceImpValidatorTest {
 		//given
 		final String id = "id";
 
-		when(communityRepository.exists(id)).thenReturn(true);
+		when(projectRepository.exists(id)).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -112,7 +115,7 @@ class CommunityServiceImpValidatorTest {
 		//given
 		final String id = "id";
 
-		when(communityRepository.exists(id)).thenReturn(false);
+		when(projectRepository.exists(id)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));

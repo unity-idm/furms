@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static io.imunity.furms.unity.client.projects.UnityProjectPaths.FENIX_PROJECT_PATTERN;
+import static io.imunity.furms.unity.client.projects.UnityProjectPaths.FENIX_PROJECT_USERS_PATTERN;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -38,7 +39,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		Map<String, Object> uriVariables = getUriVariables(communityId, projectId);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_PROJECT_PATTERN)
+				.pathSegment(FENIX_PROJECT_USERS_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -57,17 +58,14 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		}
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String groupPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_PROJECT_PATTERN)
-				.uriVariables(uriVariables)
-				.toUriString();
-		Group group = new Group(groupPath);
-		group.setDisplayedName(new I18nString(projectGroup.getName()));
-		unityClient.post(GROUP_BASE, group);
-		String createCommunityUsersPath = UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
-			.pathSegment(groupPath + USERS_PATTERN)
-			.toUriString();
-		unityClient.post(createCommunityUsersPath);
+			.pathSegment(FENIX_PROJECT_USERS_PATTERN)
+			.uriVariables(uriVariables)
+			.buildAndExpand().encode().toUriString();
+
+		unityClient.post(groupPath, null, Map.of("withParents", true));
+
+		update(projectGroup);
 	}
 
 	@Override
@@ -78,7 +76,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_PROJECT_PATTERN)
+				.pathSegment(FENIX_PROJECT_USERS_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();

@@ -43,7 +43,7 @@ class ProjectEntity extends UUIDIdentifiable {
 	public Project toProject() {
 		return Project.builder()
 			.id(id.toString())
-			.community(communityId)
+			.communityId(communityId.toString())
 			.name(name)
 			.description(description)
 			.logo(logoImage, logoType)
@@ -114,7 +114,7 @@ class ProjectEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ProjectEntityBuilder community(UUID communityId) {
+		public ProjectEntityBuilder communityId(UUID communityId) {
 			this.communityId = communityId;
 			return this;
 		}

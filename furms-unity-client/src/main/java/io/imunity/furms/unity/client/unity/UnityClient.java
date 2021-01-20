@@ -62,8 +62,12 @@ public class UnityClient {
 	}
 
 	public void post(String path, Object body) {
+		post(path, body, emptyMap());
+	}
+
+	public void post(String path, Object body, Map<String, Object> queryParams) {
 		webClient.post()
-				.uri(uriBuilder -> uri(uriBuilder, path))
+				.uri(uriBuilder -> uri(uriBuilder, path, createParams(queryParams)))
 				.bodyValue(body == null ? "" : body)
 				.retrieve()
 				.bodyToMono(Void.class).block();

@@ -13,7 +13,7 @@ import java.util.Set;
 public interface ProjectRepository {
 	Optional<Project> findById(String id);
 
-	Set<Project> findAll();
+	Set<Project> findAll(String communityId);
 
 	String create(Project community);
 

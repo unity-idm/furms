@@ -18,11 +18,11 @@ public class Project {
 	private final FurmsImage logo;
 	private final String acronym;
 	private final String researchField;
-	private final LocalDateTime start;
-	private final LocalDateTime end;
+	private final LocalDateTime startTime;
+	private final LocalDateTime endTime;
 
 	public Project(String id, String communityId, String name, String description, FurmsImage logo,
-	               String acronym, String researchField, LocalDateTime start, LocalDateTime end) {
+	               String acronym, String researchField, LocalDateTime startTime, LocalDateTime end) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -30,8 +30,8 @@ public class Project {
 		this.logo = logo;
 		this.acronym = acronym;
 		this.researchField = researchField;
-		this.start = start;
-		this.end = end;
+		this.startTime = startTime;
+		this.endTime = end;
 	}
 
 	public String getId() {
@@ -62,12 +62,12 @@ public class Project {
 		return researchField;
 	}
 
-	public LocalDateTime getStart() {
-		return start;
+	public LocalDateTime getStartTime() {
+		return startTime;
 	}
 
-	public LocalDateTime getEnd() {
-		return end;
+	public LocalDateTime getEndTime() {
+		return endTime;
 	}
 
 	public static ProjectEntityBuilder builder() {
@@ -93,7 +93,7 @@ public class Project {
 			return this;
 		}
 
-		public ProjectEntityBuilder community(String communityId) {
+		public ProjectEntityBuilder communityId(String communityId) {
 			this.communityId = communityId;
 			return this;
 		}
