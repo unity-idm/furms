@@ -106,20 +106,20 @@ public class CommunitiesView extends FurmsViewComponent {
 		contextMenu.setOpenOnClick(true);
 		contextMenu.setTarget(menu);
 
-		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.edit"), EDIT), event ->
+		contextMenu.addItem(createMenuButton(getTranslation("view.fenix-admin.communities.menu.edit"), EDIT), event ->
 			UI.getCurrent().navigate(CommunityFormView.class, communityId)
 		);
-		contextMenu.addItem(createMenuButton(getTranslation("view.communities.menu.delete"), TRASH), event -> {
+		contextMenu.addItem(createMenuButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH), event -> {
 			communityService.delete(communityId);
 			loadGridContent();
 			}
 		);
 
-		Component adminComp = createMenuButton(getTranslation("view.communities.menu.administrators"), USERS);
+		Component adminComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
 		RouterLink administratorsPool = createRouterPool(adminComp, communityId, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
-		Component allocationComp = createMenuButton(getTranslation("view.communities.menu.allocations"), PIE_CHART);
+		Component allocationComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.allocations"), PIE_CHART);
 		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 
