@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "fenix/admin/communities/form", layout = FenixAdminMenu.class)
@@ -78,7 +79,6 @@ class CommunityFormView extends FurmsViewComponent {
 				getTranslation("view.fenix-admin.community.form.error.validation.field.description")
 			)
 			.bind(CommunityViewModel::getDescription, CommunityViewModel::setDescription);
-		binder.addStatusChangeListener(env -> binder.isValid());
 
 		VerticalLayout verticalLayout = new VerticalLayout(name, description);
 		verticalLayout.setClassName("no-left-padding");
@@ -137,16 +137,23 @@ class CommunityFormView extends FurmsViewComponent {
 		Button saveButton = new Button(getTranslation("view.fenix-admin.community.form.button.save"));
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
-			CommunityViewModel communityViewModel = binder.getBean();
-			communityViewModel.setLogoImage(logo);
-			Community community = CommunityViewModelMapper.map(communityViewModel);
-			if(community.getId() == null)
-				communityService.create(community);
-			else
-				communityService.update(community);
-			UI.getCurrent().navigate(CommunitiesView.class);
+			binder.validate();
+			if(binder.isValid())
+				saveCommunity();
 		});
+
 		return saveButton;
+	}
+
+	private void saveCommunity() {
+		CommunityViewModel communityViewModel = binder.getBean();
+		communityViewModel.setLogoImage(logo);
+		Community community = CommunityViewModelMapper.map(communityViewModel);
+		if (community.getId() == null)
+			handleExceptions(() -> communityService.create(community));
+		else
+			handleExceptions(() -> communityService.update(community));
+		UI.getCurrent().navigate(CommunitiesView.class);
 	}
 
 	private void setFormPools(CommunityViewModel communityViewModel) {
@@ -166,7 +173,7 @@ class CommunityFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		CommunityViewModel communityViewModel = ofNullable(parameter)
-			.map(communityService::findById)
+			.flatMap(id -> handleExceptions(() -> communityService.findById(id)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.map(CommunityViewModelMapper::map)

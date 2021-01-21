@@ -29,11 +29,13 @@ import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModel;
 import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -94,7 +96,9 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		Set<CommunityViewModel> all = communityService.findAll().stream()
+		Set<CommunityViewModel> all = handleExceptions(communityService::findAll)
+			.orElseGet(Collections::emptySet)
+			.stream()
 			.map(CommunityViewModelMapper::map)
 			.collect(toSet());
 		grid.setItems(all);
@@ -110,7 +114,7 @@ public class CommunitiesView extends FurmsViewComponent {
 			UI.getCurrent().navigate(CommunityFormView.class, communityId)
 		);
 		contextMenu.addItem(createMenuButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH), event -> {
-			communityService.delete(communityId);
+			handleExceptions(() -> communityService.delete(communityId));
 			loadGridContent();
 			}
 		);
