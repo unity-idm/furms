@@ -99,7 +99,7 @@ class ProjectDatabaseRepositoryTest {
 		assertThat(project.getId()).isEqualTo(entity.getId().toString());
 		assertThat(project.getName()).isEqualTo(entity.getName());
 		assertThat(project.getDescription()).isEqualTo(entity.getDescription());
-		assertThat(project.getLogo()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
+		assertThat(project.getLogo().get()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
 	}
 
 	@Test
