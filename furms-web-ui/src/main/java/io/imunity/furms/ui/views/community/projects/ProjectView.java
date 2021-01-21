@@ -19,7 +19,9 @@ import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.*;
 
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
+import static java.util.function.Function.identity;
 
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
@@ -75,7 +77,9 @@ class ProjectView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String projectId) {
-		Project project = projectService.findById(projectId).orElseThrow(IllegalStateException::new);
+		Project project = handleExceptions(() -> projectService.findById(projectId))
+			.flatMap(identity())
+			.orElseThrow(IllegalStateException::new);
 		String param = event.getLocation()
 			.getQueryParameters()
 			.getParameters()

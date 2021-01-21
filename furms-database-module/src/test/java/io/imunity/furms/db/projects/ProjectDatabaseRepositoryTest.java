@@ -216,8 +216,8 @@ class ProjectDatabaseRepositoryTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 		assertThat(byId.get().getDescription()).isEqualTo("new_description");
-		assertThat(byId.get().getLogo().getImage()).isEqualTo(imgTestFile2);
-		assertThat(byId.get().getLogo().getType()).isEqualTo("jpg");
+		assertThat(byId.get().getLogo().get().getImage()).isEqualTo(imgTestFile2);
+		assertThat(byId.get().getLogo().get().getType()).isEqualTo("jpg");
 		assertThat(byId.get().getAcronym()).isEqualTo("new_acronym");
 		assertThat(byId.get().getResearchField()).isEqualTo("new_research filed");
 		assertThat(byId.get().getStartTime()).isEqualTo(newStartTime);

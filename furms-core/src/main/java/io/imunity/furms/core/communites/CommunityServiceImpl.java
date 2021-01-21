@@ -11,9 +11,12 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,6 +26,8 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final CommunityRepository communityRepository;
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final CommunityServiceValidator validator;
@@ -54,6 +59,7 @@ class CommunityServiceImpl implements CommunityService {
 		validator.validateCreate(community);
 		String id = communityRepository.create(community);
 		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
+		LOG.info("Community with given ID: {} was created: {}", id, community);
 	}
 
 	@Override
@@ -63,6 +69,8 @@ class CommunityServiceImpl implements CommunityService {
 		validator.validateUpdate(community);
 		communityRepository.update(community);
 		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
+		LOG.info("Community was updated: {}", community);
+
 	}
 
 	@Override
@@ -72,5 +80,6 @@ class CommunityServiceImpl implements CommunityService {
 		validator.validateDelete(id);
 		communityRepository.delete(id);
 		communityGroupsDAO.delete(id);
+		LOG.info("Community with given ID: {} was deleted", id);
 	}
 }

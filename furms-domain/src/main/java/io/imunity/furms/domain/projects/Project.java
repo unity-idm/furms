@@ -9,6 +9,7 @@ import io.imunity.furms.domain.images.FurmsImage;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Project {
 
@@ -16,13 +17,13 @@ public class Project {
 	private final String communityId;
 	private final String name;
 	private final String description;
-	private final FurmsImage logo;
+	private final Optional<FurmsImage> logo;
 	private final String acronym;
 	private final String researchField;
 	private final LocalDateTime startTime;
 	private final LocalDateTime endTime;
 
-	public Project(String id, String communityId, String name, String description, FurmsImage logo,
+	public Project(String id, String communityId, String name, String description, Optional<FurmsImage> logo,
 	               String acronym, String researchField, LocalDateTime startTime, LocalDateTime end) {
 		this.id = id;
 		this.communityId = communityId;
@@ -51,7 +52,7 @@ public class Project {
 		return description;
 	}
 
-	public FurmsImage getLogo() {
+	public Optional<FurmsImage> getLogo() {
 		return logo;
 	}
 
@@ -103,7 +104,6 @@ public class Project {
 			", communityId='" + communityId + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
-			", logo=" + logo +
 			", acronym='" + acronym + '\'' +
 			", researchField='" + researchField + '\'' +
 			", startTime=" + startTime +
@@ -112,11 +112,11 @@ public class Project {
 	}
 
 	public static class ProjectEntityBuilder {
-		protected String id;
+		private String id;
 		private String communityId;
 		private String name;
 		private String description;
-		private FurmsImage logo;
+		private Optional<FurmsImage> logo;
 		private String acronym;
 		private String researchField;
 		private LocalDateTime start;
@@ -145,13 +145,16 @@ public class Project {
 			return this;
 		}
 
-		public ProjectEntityBuilder logo(FurmsImage logo) {
+		public ProjectEntityBuilder logo(Optional<FurmsImage> logo) {
 			this.logo = logo;
 			return this;
 		}
 
 		public ProjectEntityBuilder logo(byte[] logoImage, String logoType) {
-			this.logo = new FurmsImage(logoImage, logoType);
+			if(logoImage == null)
+				this.logo = Optional.empty();
+			else
+				this.logo = Optional.of(new FurmsImage(logoImage, logoType));
 			return this;
 		}
 

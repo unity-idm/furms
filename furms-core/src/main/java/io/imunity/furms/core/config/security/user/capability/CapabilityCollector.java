@@ -33,7 +33,8 @@ public class CapabilityCollector {
 	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
 		Set<Capability> capabilities = getAdditionalCapabilities(roles);
 
-		resourceId = handleCommunityAdminProjectResources(roles, resourceId);
+		if(resourceId.type.equals(PROJECT))
+			resourceId = getCommunityResourceIdAssociatedWithProject(roles, resourceId);
 
 		for(Role role: roles.getOrDefault(resourceId, new HashSet<>())){
 			capabilities.addAll(role.capabilities);
@@ -41,19 +42,26 @@ public class CapabilityCollector {
 		return capabilities;
 	}
 
-	private ResourceId handleCommunityAdminProjectResources(Map<ResourceId, Set<Role>> roles, ResourceId resourceId) {
-		Map<ResourceId, ResourceId> projectIds = roles.keySet().stream()
+	/**
+	 * Community Admin should have access to all projects own by his community.
+	 * To implement this requirement method has to check if user is Community Admin and then if community owns project.
+	 * If so method returns community ResourceId instead of project ResourceId.
+	 */
+	private ResourceId getCommunityResourceIdAssociatedWithProject(Map<ResourceId, Set<Role>> roles, ResourceId projectId) {
+		Map<ResourceId, ResourceId> projectToCommunity = roles.entrySet().stream()
+			.filter(role -> role.getValue().contains(Role.COMMUNITY_ADMIN))
+			.map(Map.Entry::getKey)
 			.filter(rId -> rId.type.equals(COMMUNITY))
-			.flatMap(this::mapResources)
+			.flatMap(this::mapProjectToCommunityResourceId)
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-		return projectIds.getOrDefault(resourceId, resourceId);
+		return projectToCommunity.getOrDefault(projectId, projectId);
 	}
 
-	private Stream<Map.Entry<ResourceId, ResourceId>> mapResources(ResourceId resourceId) {
-		return projectRepository.findAll(resourceId.id.toString()).stream()
+	private Stream<Map.Entry<ResourceId, ResourceId>> mapProjectToCommunityResourceId(ResourceId communityResourceId) {
+		return projectRepository.findAll(communityResourceId.id.toString()).stream()
 			.map(Project::getId)
 			.map(id -> new ResourceId(id, PROJECT))
-			.map(rId -> Map.entry(rId, resourceId));
+			.map(rId -> Map.entry(rId, communityResourceId));
 	}
 
 	private Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {

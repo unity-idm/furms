@@ -13,11 +13,6 @@ public class FurmsImage {
 	private final byte[] image;
 	private final FurmsImageExtension type;
 
-	public FurmsImage() {
-		this.image = null;
-		this.type = null;
-	}
-
 	public FurmsImage(byte[] logoImage, FurmsImageExtension type) {
 		this.image = logoImage;
 		this.type = type;

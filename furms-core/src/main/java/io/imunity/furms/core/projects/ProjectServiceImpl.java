@@ -11,9 +11,12 @@ import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,6 +27,8 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final ProjectServiceValidator validator;
@@ -55,6 +60,8 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
+		LOG.info("Project with given ID: {} was created: {}", id, project);
+
 	}
 
 	@Override
@@ -64,6 +71,8 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateUpdate(project);
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
+		LOG.info("Project was updated {}", project);
+
 	}
 
 	@Override
@@ -73,5 +82,6 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateDelete(projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
+		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 }

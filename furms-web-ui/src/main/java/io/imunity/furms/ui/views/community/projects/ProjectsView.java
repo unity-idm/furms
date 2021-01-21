@@ -23,6 +23,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import static io.imunity.furms.ui.utils.MenuComponentFactory.createMenuButton;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
 import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -121,7 +123,7 @@ public class ProjectsView extends FurmsViewComponent {
 		contextMenu.addItem(createMenuButton(
 			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
 			event -> {
-				projectService.delete(projectId, communityId);
+				handleExceptions(() -> projectService.delete(projectId, communityId));
 				loadGridContent();
 			}
 		);
@@ -149,7 +151,9 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private Set<ProjectViewModel> loadProjectsViewsModels() {
-		return projectService.findAll(getCurrentResourceId()).stream()
+		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
+			.orElseGet(Collections::emptySet)
+			.stream()
 			.map(ProjectViewModelMapper::map)
 			.collect(toSet());
 	}

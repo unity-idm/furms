@@ -8,11 +8,14 @@ package io.imunity.furms.unity.client.projects;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.unity.UnityClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,6 +27,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnityProjectGroupsDAO implements ProjectGroupsDAO {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final UnityClient unityClient;
 
@@ -66,6 +70,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 
 		unityClient.post(groupPath, null, Map.of("withParents", true));
 		updateGroupName(projectGroup);
+		LOG.debug("Project group {} under Community group {} was crated in Unity", projectGroup.getId(), projectGroup.getCommunityId());
 	}
 
 	@Override
@@ -74,6 +79,8 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			throw new IllegalArgumentException("Could not update Project in Unity. Missing Community or Project ID");
 		}
 		updateGroupName(projectGroup);
+		LOG.debug("Project group {} name was updated to: {}", projectGroup.getId(), projectGroup.getName());
+
 	}
 
 	private void updateGroupName(ProjectGroup projectGroup) {
@@ -100,6 +107,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		unityClient.delete(deleteCommunityPath, queryParams);
+		LOG.debug("Project group {} under Community group {} was deleted", projectId, communityId);
 	}
 
 	private Map<String, Object> getUriVariables(String communityId, String projectId) {

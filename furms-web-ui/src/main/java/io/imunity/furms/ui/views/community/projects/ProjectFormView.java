@@ -42,13 +42,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.form.page.title")
 class ProjectFormView extends FurmsViewComponent {
-	private final static int hundredMB = 100000000;
+	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
 	private final Image image = new Image();
 	private final ProjectService projectService;
@@ -74,7 +75,7 @@ class ProjectFormView extends FurmsViewComponent {
 		Button saveButton = createSaveButton();
 		Button closeButton = createCloseButton();
 
-		prepareValidator(name, description, acronym, startTime, endTime, researchField, saveButton);
+		prepareValidator(name, description, acronym, startTime, endTime, researchField);
 
 		VerticalLayout verticalLayout = new VerticalLayout(name, description, acronym, startTime, endTime, researchField, leader);
 		verticalLayout.setClassName("no-left-padding");
@@ -91,7 +92,7 @@ class ProjectFormView extends FurmsViewComponent {
 	}
 
 	private void prepareValidator(TextField name, TextArea description, TextField acronym, DateTimePicker startTime,
-	                              DateTimePicker endTime, TextField researchField, Button button) {
+	                              DateTimePicker endTime, TextField researchField) {
 		binder.forField(name)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
@@ -118,24 +119,23 @@ class ProjectFormView extends FurmsViewComponent {
 			.bind(ProjectViewModel::getResearchField, ProjectViewModel::setResearchField);
 		binder.forField(startTime)
 			.withValidator(
-				time -> Objects.nonNull(startTime) && ofNullable(endTime.getValue()).map(c -> c.isAfter(time)).orElse(true),
+				time -> Objects.nonNull(time) && ofNullable(endTime.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.community-admin.project.form.error.validation.field.start-time")
 			)
 			.bind(ProjectViewModel::getStartTime, ProjectViewModel::setStartTime);
 		binder.forField(endTime)
 			.withValidator(
-				time -> Objects.nonNull(startTime) && ofNullable(startTime.getValue()).map(c -> c.isBefore(time)).orElse(true),
+				time -> Objects.nonNull(time) && ofNullable(startTime.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.community-admin.project.form.error.validation.field.end-time")
 			)
 			.bind(ProjectViewModel::getEndTime, ProjectViewModel::setEndTime);
-		binder.addStatusChangeListener(env -> button.setEnabled(binder.isValid()));
 	}
 
 	private Upload createUploadComponent() {
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		Upload upload = new Upload(memoryBuffer);
 		upload.setAcceptedFileTypes(acceptedImgFiles);
-		upload.setMaxFileSize(hundredMB);
+		upload.setMaxFileSize(MAX_IMAGE_SIZE_BYTES);
 		upload.setDropAllowed(true);
 		upload.addFinishedListener(event -> {
 			logo = Optional.of(loadFile(memoryBuffer, event.getMIMEType()));
@@ -174,21 +174,27 @@ class ProjectFormView extends FurmsViewComponent {
 		Button saveButton = new Button(getTranslation("view.community-admin.project.form.button.save"));
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
-			ProjectViewModel projectViewModel = binder.getBean();
-			projectViewModel.setLogo(logo.orElseGet(FurmsImage::new));
-			Project project = ProjectViewModelMapper.map(projectViewModel);
-			if(project.getId() == null)
-				projectService.create(project);
-			else
-				projectService.update(project);
-			UI.getCurrent().navigate(ProjectsView.class);
+			binder.validate();
+			if(binder.isValid())
+				saveProject();
 		});
 		return saveButton;
 	}
 
+	private void saveProject() {
+		ProjectViewModel projectViewModel = binder.getBean();
+		projectViewModel.setLogo(logo);
+		Project project = ProjectViewModelMapper.map(projectViewModel);
+		if(project.getId() == null)
+			handleExceptions(() -> projectService.create(project));
+		else
+			handleExceptions(() -> projectService.update(project));
+		UI.getCurrent().navigate(ProjectsView.class);
+	}
+
 	private void setFormPools(ProjectViewModel projectViewModel) {
 		binder.setBean(projectViewModel);
-		logo = Optional.ofNullable(projectViewModel.getLogo());
+		logo = projectViewModel.getLogo();
 		image.setVisible(logo.isPresent() && logo.get().getImage() != null);
 		if(logo.isPresent()) {
 			StreamResource resource =
@@ -203,7 +209,7 @@ class ProjectFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		ProjectViewModel projectViewModel = ofNullable(parameter)
-			.map(projectService::findById)
+			.flatMap(id -> handleExceptions(() -> projectService.findById(id)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.map(ProjectViewModelMapper::map)
