@@ -22,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -30,6 +31,7 @@ import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
@@ -43,11 +45,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	FenixAdministratorsView(UsersDAO usersDAO) {
 		this.usersDAO = usersDAO;
-		List<UserViewModel> users = loadAllUsers();
 
-		Grid<UserViewModel> grid = createGrid(users);
-		HorizontalLayout inviteUserLayout = createInviteUserLayout(usersDAO, users);
-		HorizontalLayout searchLayout = createSearchFilterLayout(users, grid);
+		Grid<UserViewModel> grid = createGrid(loadUsers(usersDAO::getAdminUsers));
+		HorizontalLayout inviteUserLayout = createInviteUserLayout(grid);
+		HorizontalLayout searchLayout = createSearchFilterLayout(grid);
 
 		getContent().add(
 			new H4(getTranslation("view.fenix-admin.administrators.header")),
@@ -55,26 +56,29 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		);
 	}
 
-	private List<UserViewModel> loadAllUsers() {
-		return handleExceptions(usersDAO::getAllUsers)
+	private List<UserViewModel> loadUsers(Supplier<List<User>> supplier) {
+		return handleExceptions(supplier)
 			.orElseGet(Collections::emptyList)
 			.stream()
 			.map(UserViewModelMapper::map)
 			.collect(toList());
 	}
 
-	private HorizontalLayout createInviteUserLayout(UsersDAO usersDAO, List<UserViewModel> allUsers) {
+	private HorizontalLayout createInviteUserLayout(Grid<UserViewModel> grid) {
 		TextField emailTextField = new TextField();
 		emailTextField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.invite"));
 		String inviteLabel = getTranslation("view.fenix-admin.administrators.button.invite");
 		Button inviteButton = new Button(inviteLabel, PAPERPLANE.create());
 		inviteButton.addClickListener(event -> {
 			String value = emailTextField.getValue();
-			allUsers.stream()
+			loadUsers(usersDAO::getAllUsers).stream()
 				.filter(u -> u.email.equals(value))
 				.findAny()
 				.ifPresentOrElse(
-					user -> handleExceptions(() -> usersDAO.addFenixAdminRole(user.id)),
+					user -> {
+						handleExceptions(() -> usersDAO.addFenixAdminRole(user.id));
+						grid.setItems(loadUsers(usersDAO::getAdminUsers));
+						},
 					() -> Notification.show(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
 				);
 		});
@@ -83,13 +87,13 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		return horizontalLayout;
 	}
 
-	private HorizontalLayout createSearchFilterLayout(List<UserViewModel> allUsers, Grid<UserViewModel> grid) {
+	private HorizontalLayout createSearchFilterLayout(Grid<UserViewModel> grid) {
 		TextField textField = new TextField();
 		textField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
 		textField.addValueChangeListener(event -> {
 			String value = event.getValue().toLowerCase();
-			List<UserViewModel> filteredUsers = allUsers.stream()
+			List<UserViewModel> filteredUsers = loadUsers(usersDAO::getAdminUsers).stream()
 				.filter(user ->
 					filterColumn(user.firstName, value)
 						|| filterColumn(user.lastName, value)
@@ -151,7 +155,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		String deleteLabel = getTranslation("view.fenix-admin.administrators.context.menu.delete");
 		contextMenu.addItem(addMenuButton(deleteLabel, TRASH), event -> {
 			handleExceptions(() -> usersDAO.removeFenixAdminRole(id));
-			grid.setItems(loadAllUsers());
+			grid.setItems(loadUsers(usersDAO::getAdminUsers));
 		});
 		getContent().add(contextMenu);
 		return button;
