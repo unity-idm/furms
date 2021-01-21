@@ -19,7 +19,9 @@ import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.*;
 
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
+import static java.util.function.Function.identity;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.community.page.title")
@@ -75,7 +77,9 @@ public class CommunityView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String communityId) {
-		Community community = communityService.findById(communityId).orElseThrow(IllegalStateException::new);
+		Community community = handleExceptions(() -> communityService.findById(communityId))
+			.flatMap(identity())
+			.orElseThrow(IllegalStateException::new);
 		String param = event.getLocation()
 			.getQueryParameters()
 			.getParameters()

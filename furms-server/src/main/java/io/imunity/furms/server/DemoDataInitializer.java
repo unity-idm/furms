@@ -74,7 +74,7 @@ class DemoDataInitializer {
 			String communityId = communityRepository.create(community);
 			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
 			String community2Id = communityRepository.create(community2);
-			communityGroupsDAO.create(new CommunityGroup(community2Id, community.getName()));
+			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 
 			Project project = Project.builder()
 				.name("Neuroinforamtics")
@@ -129,6 +129,7 @@ class DemoDataInitializer {
 			projectGroupsDAO.create(new ProjectGroup(project3Id, project3.getName(), community2Id));
 			String project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
+			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 		}
 	}
 

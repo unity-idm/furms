@@ -31,8 +31,17 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
+	public List<User> getAdminUsers() {
+		return getUsers(FENIX_USERS_GROUP);
+	}
+
+	@Override
 	public List<User> getAllUsers() {
-		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, FENIX_GROUP);
+		return getUsers(FENIX_GROUP);
+	}
+
+	private List<User> getUsers(String usersGroupPath) {
+		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, usersGroupPath);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS)
 			.pathSegment("{" + ROOT_GROUP_PATH + "}")
