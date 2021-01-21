@@ -63,7 +63,7 @@ class DemoDataInitializer {
 			String communityId = communityRepository.create(community);
 			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
 			String community2Id = communityRepository.create(community2);
-			communityGroupsDAO.create(new CommunityGroup(community2Id, community.getName()));
+			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 		}
 	}
 
