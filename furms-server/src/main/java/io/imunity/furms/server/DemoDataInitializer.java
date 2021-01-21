@@ -129,7 +129,6 @@ class DemoDataInitializer {
 			projectGroupsDAO.create(new ProjectGroup(project3Id, project3.getName(), community2Id));
 			String project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
-			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 		}
 	}
 
