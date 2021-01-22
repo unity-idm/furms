@@ -1,2 +1,36 @@
 == Site management
 
+FURMS site acts a resource provider. Site defines resources (which are always site specific in FURMS), and advertises amounts of those resources available to the Fenix infrastructure. 
+
+Additionally site can define policy documents which are need to be accepted in order to access the site or its resources.
+
+=== Site settings
+
+Under site settings menu entry, site administrator can provide details about the site. It is advised to fill up the form, as initially site definition consists of a minimal set of attributes (like name) only.
+
+=== Policy documents
+
+{versionlimit} This functionality is not available yet.
+
+=== Services
+
+{versionlimit} This functionality is not available yet.
+
+=== Resource types
+
+{versionlimit} This functionality is not available yet.
+
+=== Resource credits
+
+{versionlimit} This functionality is not available yet.
+
+=== Site agent connection and requests
+
+{versionlimit} This functionality is not available yet.
+
+=== Managing site administrators
+
+FURMS allows for multiple users with the site administrator role. Each site administrator can add (and remove) other administrators from the "Site administrators" view. 
+
+{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
+

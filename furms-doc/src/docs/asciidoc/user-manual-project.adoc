@@ -1,2 +1,41 @@
 == Project management
 
+FURMS project groups users who work on a common topic and consume resources provided by sites and assigned by communities.
+
+Each project must have a _project leader_, who is a formal representative and a responsible person. Besides this formal role, project has one or more administrators, who can manage the project in FURMS.
+
+Project management in FURMS consists of two main operations:
+
+- managing users who work within the project,
+- managing access of project users to resources allocated to the project.  
+
+What is more, FURMS collects resource usage information from sites on which resources are consumed. This information can be used to track budget consumption and its spread over time.
+
+
+=== Project settings
+
+Under project settings menu entry, project administrator can control project details. Some of the settings are under control of the parent community and therefore are presented as read-only values.
+
+=== Managing users
+
+{versionlimit} This functionality is not available yet.
+
+=== Resource access
+
+{versionlimit} This functionality is not available yet.
+
+=== Resource allocations
+
+{versionlimit} This functionality is not available yet.
+
+=== Defining alarms
+
+{versionlimit} This functionality is not available yet.
+
+=== Managing project administrators
+
+FURMS project can have multiple administrators. Each project administrator can add (and remove) other administrators from the "Site administrators" view.
+
+NOTE: Project must have a single _project leader_ defined. Typically this is one of the administrators but this is not strictly necessary.  
+
+{versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.

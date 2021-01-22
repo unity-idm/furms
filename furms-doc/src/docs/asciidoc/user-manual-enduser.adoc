@@ -1,2 +1,10 @@
 == End User support
 
+Every user that signs into FURMS has access to her/his FURMS profile & settings view. For the users who have no additional roles, this is the only accessible view, others can activate it from the top-right view chooser.
+
+User settings allows every FURMS user to check:
+
+* personal information which is exposed to FURMS by the Fenix infrastructure,
+* user's projects list.
+
+{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including management of personal SSH keys and site access details.   
