@@ -18,7 +18,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.ui.community.model.CommunityViewModel;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

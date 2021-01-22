@@ -21,8 +21,8 @@ import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.community.CommunityFormComponent;
-import io.imunity.furms.ui.community.model.CommunityViewModel;
-import io.imunity.furms.ui.community.model.CommunityViewModelMapper;
+import io.imunity.furms.ui.community.CommunityViewModel;
+import io.imunity.furms.ui.community.CommunityViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Optional;

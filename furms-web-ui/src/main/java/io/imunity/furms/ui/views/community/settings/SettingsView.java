@@ -16,8 +16,8 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-import io.imunity.furms.ui.community.model.CommunityViewModel;
-import io.imunity.furms.ui.community.model.CommunityViewModelMapper;
+import io.imunity.furms.ui.community.CommunityViewModel;
+import io.imunity.furms.ui.community.CommunityViewModelMapper;
 
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
