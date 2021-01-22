@@ -16,6 +16,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
@@ -48,15 +49,13 @@ public class ProjectsView extends FurmsViewComponent {
 		this.projectService = projectService;
 		this.grid = createCommunityGrid();
 
+		Button addButton = createAddButton();
 		loadGridContent();
 
-		getContent().add(createHeaderLayout(), createSearchFilterLayout(grid), new HorizontalLayout(grid));
+		getContent().add(createHeaderLayout(addButton), createSearchFilterLayout(grid, addButton), new HorizontalLayout(grid));
 	}
 
-	private HorizontalLayout createHeaderLayout() {
-		Button addButton = new Button(getTranslation("view.community-admin.projects.button.add"), PLUS_CIRCLE.create());
-		addButton.addClickListener(x -> UI.getCurrent().navigate(ProjectFormView.class));
-
+	private HorizontalLayout createHeaderLayout(Button addButton) {
 		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
 		buttonLayout.setWidthFull();
 		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -68,11 +67,17 @@ public class ProjectsView extends FurmsViewComponent {
 		return header;
 	}
 
+	private Button createAddButton() {
+		Button addButton = new Button(getTranslation("view.community-admin.projects.button.add"), PLUS_CIRCLE.create());
+		addButton.addClickListener(x -> UI.getCurrent().navigate(ProjectFormView.class));
+		return addButton;
+	}
+
 	private Grid<ProjectViewModel> createCommunityGrid() {
 		Grid<ProjectViewModel> grid = new Grid<>(ProjectViewModel.class, false);
 		grid.setHeightByRows(true);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectsView.class, c.id))
+		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectView.class, c.id))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"));
 		grid.addColumn(c -> c.description)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"));
@@ -83,16 +88,21 @@ public class ProjectsView extends FurmsViewComponent {
 		return grid;
 	}
 
-	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewModel> grid) {
+	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewModel> grid, Button addButton) {
 		TextField textField = new TextField();
 		textField.setPlaceholder(getTranslation("view.community-admin.projects.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
+		textField.setValueChangeMode(ValueChangeMode.EAGER);
+		textField.setClearButtonVisible(true);
 		textField.addValueChangeListener(event -> {
-			String value = event.getValue().toLowerCase();
+			String value = textField.getValue().toLowerCase();
 			List<ProjectViewModel> filteredUsers = loadProjectsViewsModels().stream()
 				.filter(project -> project.name.toLowerCase().contains(value))
 				.collect(toList());
 			grid.setItems(filteredUsers);
+			//This is a work around to fix disappearing text cursor
+			addButton.focus();
+			textField.focus();
 		});
 
 		HorizontalLayout search = new HorizontalLayout(textField);
