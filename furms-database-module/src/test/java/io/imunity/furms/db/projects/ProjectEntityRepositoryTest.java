@@ -66,6 +66,8 @@ class ProjectEntityRepositoryTest {
 	@AfterAll
 	void clean(){
 		projectRepository.deleteAll();
+		communityRepository.delete(communityId.toString());
+		communityRepository.delete(communityId2.toString());
 	}
 
 	@Test
