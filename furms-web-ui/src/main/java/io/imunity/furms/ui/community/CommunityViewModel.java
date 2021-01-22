@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.communites.model;
+package io.imunity.furms.ui.community;
 
 import io.imunity.furms.domain.images.FurmsImage;
 

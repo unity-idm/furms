@@ -53,14 +53,13 @@ class ProjectFormView extends FurmsViewComponent {
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
 	private final Image image = new Image();
 	private final ProjectService projectService;
-	private final String[] acceptedImgFiles;
+	private final static String[] acceptedImgFiles = {"image/jpeg", "image/png", "image/gif"};
 
 	private BreadCrumbParameter breadCrumbParameter;
 	private Optional<FurmsImage> logo = empty();
 
 	ProjectFormView(ProjectService communityService, FrontProperties frontProperties) {
 		this.projectService = communityService;
-		this.acceptedImgFiles = frontProperties.getAcceptedImgFiles().toArray(String[]::new);
 
 		TextField name = new TextField(getTranslation("view.community-admin.project.form.field.name"));
 		TextArea description = new TextArea(getTranslation("view.community-admin.project.form.field.description"));

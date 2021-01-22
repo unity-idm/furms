@@ -9,37 +9,23 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.ui.config.FrontProperties;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModel;
-import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModelMapper;
+import io.imunity.furms.ui.community.CommunityFormComponent;
+import io.imunity.furms.ui.community.CommunityViewModel;
+import io.imunity.furms.ui.community.CommunityViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
@@ -47,49 +33,20 @@ import static java.util.Optional.ofNullable;
 @Route(value = "fenix/admin/communities/form", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.community.form.page.title")
 class CommunityFormView extends FurmsViewComponent {
-	private final static int hundredMB = 100000000;
 	private final Binder<CommunityViewModel> binder = new BeanValidationBinder<>(CommunityViewModel.class);
-	private final Image image = new Image();
+	private final CommunityFormComponent communityFormComponent;
 	private final CommunityService communityService;
-	private final String[] acceptedImgFiles;
-
 	private BreadCrumbParameter breadCrumbParameter;
-	private FurmsImage logo = new FurmsImage(null, (String) null);
 
-	CommunityFormView(CommunityService communityService, FrontProperties frontProperties) {
+	CommunityFormView(CommunityService communityService) {
 		this.communityService = communityService;
-		this.acceptedImgFiles = frontProperties.getAcceptedImgFiles().toArray(String[]::new);
+		this.communityFormComponent = new CommunityFormComponent(binder);
 
-		TextField name = new TextField(getTranslation("view.fenix-admin.community.form.field.name"));
-		TextArea description = new TextArea(getTranslation("view.fenix-admin.community.form.field.description"));
-		description.setClassName("description-text-area");
 		Button saveButton = createSaveButton();
 		Button closeButton = createCloseButton();
-		Upload upload = createUploadComponent();
-
-		binder.forField(name)
-			.withValidator(
-				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
-				getTranslation("view.fenix-admin.community.form.error.validation.field.name")
-			)
-			.bind(CommunityViewModel::getName, CommunityViewModel::setName);
-		binder.forField(description)
-			.withValidator(
-				value -> Objects.isNull(value) || value.length() <= 510,
-				getTranslation("view.fenix-admin.community.form.error.validation.field.description")
-			)
-			.bind(CommunityViewModel::getDescription, CommunityViewModel::setDescription);
-
-		VerticalLayout verticalLayout = new VerticalLayout(name, description);
-		verticalLayout.setClassName("no-left-padding");
-
-		HorizontalLayout horizontalLayout = new HorizontalLayout(image, upload);
-		horizontalLayout.setClassName("furms-upload-layout");
-		image.setId("community-logo");
 
 		getContent().add(
-			verticalLayout,
-			horizontalLayout,
+			communityFormComponent,
 			new HorizontalLayout(saveButton, closeButton)
 		);
 	}
@@ -100,37 +57,6 @@ class CommunityFormView extends FurmsViewComponent {
 		closeButton.addClickShortcut(Key.ESCAPE);
 		closeButton.addClickListener(x -> UI.getCurrent().navigate(CommunitiesView.class));
 		return closeButton;
-	}
-
-	private Upload createUploadComponent() {
-		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		Upload upload = new Upload(memoryBuffer);
-		upload.setAcceptedFileTypes(acceptedImgFiles);
-		upload.setMaxFileSize(hundredMB);
-		upload.setDropAllowed(true);
-		upload.addFinishedListener(event -> {
-			logo = loadFile(memoryBuffer, event.getMIMEType());
-			InputStream inputStream = memoryBuffer.getInputStream();
-			StreamResource streamResource = new StreamResource(event.getFileName(), () -> inputStream);
-			image.setSrc(streamResource);
-			image.setVisible(true);
-		});
-		upload.addFileRejectedListener(event ->
-			Notification.show(getTranslation("view.fenix-admin.community.form.error.validation.file"))
-		);
-		upload.getElement().addEventListener("file-remove", event -> {
-			logo = new FurmsImage(null, (String)null);
-			image.setVisible(false);
-		});
-		return upload;
-	}
-
-	private FurmsImage loadFile(MemoryBuffer memoryBuffer, String mimeType) {
-		try {
-			return new FurmsImage(memoryBuffer.getInputStream().readAllBytes(), mimeType.split("/")[1]);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 
 	private Button createSaveButton() {
@@ -147,27 +73,13 @@ class CommunityFormView extends FurmsViewComponent {
 
 	private void saveCommunity() {
 		CommunityViewModel communityViewModel = binder.getBean();
-		communityViewModel.setLogoImage(logo);
+		communityViewModel.setLogoImage(communityFormComponent.getLogo());
 		Community community = CommunityViewModelMapper.map(communityViewModel);
 		if (community.getId() == null)
 			handleExceptions(() -> communityService.create(community));
 		else
 			handleExceptions(() -> communityService.update(community));
 		UI.getCurrent().navigate(CommunitiesView.class);
-	}
-
-	private void setFormPools(CommunityViewModel communityViewModel) {
-		binder.setBean(communityViewModel);
-		logo = communityViewModel.getLogoImage();
-		image.setVisible(logo != null && logo.getImage() != null);
-		if(logo != null) {
-			StreamResource resource =
-				new StreamResource(
-					UUID.randomUUID().toString() + "." + logo.getType(),
-					() -> new ByteArrayInputStream(logo.getImage())
-				);
-			image.setSrc(resource);
-		}
 	}
 
 	@Override
@@ -180,7 +92,7 @@ class CommunityFormView extends FurmsViewComponent {
 			.orElseGet(CommunityViewModel::new);
 		String trans = parameter == null ? "view.fenix-admin.community.form.parameter.new" : "view.fenix-admin.community.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		setFormPools(communityViewModel);
+		communityFormComponent.setFormPools(communityViewModel);
 	}
 
 	@Override
