@@ -8,6 +8,8 @@ package io.imunity.furms.core.config.security.method;
 import io.imunity.furms.core.config.security.user.FurmsUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,9 @@ public class AuthTest {
 
 	@MockBean
 	AuthenticationManager authenticationManager;
+
+	@MockBean
+	ProjectRepository projectRepository;
 
 	@Mock
 	Authentication authentication;
@@ -102,6 +107,7 @@ public class AuthTest {
 		assertThat(throwable).isNull();
 	}
 
+
 	@Test
 	public void authShouldNotPassWrongResourceId(){
 		UUID uuid = UUID.randomUUID();
@@ -125,6 +131,31 @@ public class AuthTest {
 		roles.put(new ResourceId(uuid, COMMUNITY), Set.of(Role.SITE_ADMIN));
 
 		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(uuid.toString()));
+	}
+
+	@Test
+	public void authShouldNotPassCommunityAdminDoesntOwnProject(){
+		UUID uuid = UUID.randomUUID();
+		UUID uuid2 = UUID.randomUUID();
+		roles.put(new ResourceId(uuid, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN));
+		Project project = Project.builder().id(uuid2.toString()).build();
+
+		Mockito.when(projectRepository.findAll(uuid.toString())).thenReturn(Set.of(project));
+
+		assertThrows(AccessDeniedException.class, () -> mockService.getProject(UUID.randomUUID().toString()));
+	}
+
+	@Test
+	public void authShouldPassCommunityAdminOwnProject(){
+		UUID communityUUID = UUID.randomUUID();
+		UUID projectUUID = UUID.randomUUID();
+		roles.put(new ResourceId(communityUUID, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN));
+		Project project = Project.builder().id(projectUUID.toString()).build();
+
+		Mockito.when(projectRepository.findAll(communityUUID.toString())).thenReturn(Set.of(project));
+
+		Throwable throwable = catchThrowable(() -> mockService.getProject(projectUUID.toString()));
+		assertThat(throwable).isNull();
 	}
 
 	@Test

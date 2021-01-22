@@ -11,14 +11,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.communites.CommunityService;
@@ -35,6 +31,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createMenuButton;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
 import static java.util.stream.Collectors.toSet;
@@ -87,8 +86,8 @@ public class CommunitiesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(CommunityViewModel c) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(
-			createRouterIcon(USERS, c.getId(), ADMINISTRATORS_PARAM),
-			createRouterIcon(PIE_CHART, c.getId(), ALLOCATIONS_PARAM),
+			createRouterIcon(USERS, c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
+			createRouterIcon(PIE_CHART, c.getId(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(c.getId())
 		);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -120,41 +119,15 @@ public class CommunitiesView extends FurmsViewComponent {
 		);
 
 		Component adminComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
-		RouterLink administratorsPool = createRouterPool(adminComp, communityId, ADMINISTRATORS_PARAM);
+		RouterLink administratorsPool = createRouterPool(adminComp, communityId, CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
 		Component allocationComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.allocations"), PIE_CHART);
-		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, ALLOCATIONS_PARAM);
+		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 
 		getContent().add(contextMenu);
 		return menu;
-	}
-
-	private Component createMenuButton(String label, VaadinIcon icon) {
-		Span text = new Span(label);
-		Div div = new Div(createMenuIcon(icon), text);
-		div.addClassName("menu-div");
-		return div;
-	}
-
-	private Icon createMenuIcon(VaadinIcon iconType) {
-		Icon icon = iconType.create();
-		icon.addClassNames("menu-icon-padding");
-		return icon;
-	}
-
-	private RouterLink createRouterIcon(VaadinIcon iconType, String id, String param) {
-		Icon icon = iconType.create();
-		return createRouterPool(icon, id, param);
-	}
-
-	private RouterLink createRouterPool(Component component, String id, String param) {
-		RouterLink routerLink = new RouterLink("", CommunityView.class, id);
-		routerLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, param)));
-		routerLink.add(component);
-		routerLink.setClassName("furms-color");
-		return routerLink;
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){

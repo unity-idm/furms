@@ -12,8 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 
 @Service
 @FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
@@ -31,6 +30,11 @@ public class ServiceMock{
 
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id")
 	public Optional<Object> getCommunity(String id) {
+		return Optional.empty();
+	}
+
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
+	public Optional<Object> getProject(String id) {
 		return Optional.empty();
 	}
 

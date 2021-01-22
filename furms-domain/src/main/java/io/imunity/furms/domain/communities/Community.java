@@ -64,7 +64,6 @@ public class Community {
 			"id='" + id + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
-			", logo=" + logo +
 			'}';
 	}
 

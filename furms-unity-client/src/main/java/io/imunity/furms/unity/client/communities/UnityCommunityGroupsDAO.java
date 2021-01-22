@@ -16,10 +16,8 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.client.common.UnityPaths.META;
+import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_PATTERN;
-import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_USERS_PATTERN;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -67,7 +65,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		unityClient.post(GROUP_BASE, group);
 		String createCommunityUsersPath = UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
-			.pathSegment(groupPath + FENIX_COMMUNITY_USERS_PATTERN)
+			.pathSegment(groupPath + USERS_PATTERN)
 			.toUriString();unityClient.post(createCommunityUsersPath);
 	}
 

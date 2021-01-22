@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("COMMUNITY")
-class CommunityEntity extends UUIDIdentifiable {
+public class CommunityEntity extends UUIDIdentifiable {
 
 	private final String name;
 	private final String description;
@@ -63,7 +63,8 @@ class CommunityEntity extends UUIDIdentifiable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CommunityEntity that = (CommunityEntity) o;
-		return Objects.equals(name, that.name) &&
+		return Objects.equals(id, that.id) &&
+			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
 			Arrays.equals(logoImage, that.logoImage) &&
 			Objects.equals(logoType, that.logoType);
@@ -71,7 +72,7 @@ class CommunityEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(name, description, logoType);
+		int result = Objects.hash(id, name, description, logoType);
 		result = 31 * result + Arrays.hashCode(logoImage);
 		return result;
 	}

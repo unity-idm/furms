@@ -26,20 +26,20 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
-class CommunityServiceImpTest {
+class CommunityServiceImplTest {
 	@Mock
 	private CommunityRepository communityRepository;
 	@Mock
 	private CommunityGroupsDAO communityGroupsDAO;
 
-	private CommunityServiceImp service;
+	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeAll
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository);
-		service = new CommunityServiceImp(communityRepository, communityGroupsDAO, validator);
+		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator);
 		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
 	}
 

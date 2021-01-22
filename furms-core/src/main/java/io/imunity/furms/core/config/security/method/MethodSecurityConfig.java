@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
+import io.imunity.furms.core.config.security.user.capability.CapabilityCollector;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -16,9 +17,15 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+	private final CapabilityCollector capabilityCollector;
+
+	public MethodSecurityConfig(CapabilityCollector capabilityCollector) {
+		this.capabilityCollector = capabilityCollector;
+	}
+
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
-		return new FurmsMethodSecurityExpressionHandler();
+		return new FurmsMethodSecurityExpressionHandler(capabilityCollector);
 	}
 
 	@Override

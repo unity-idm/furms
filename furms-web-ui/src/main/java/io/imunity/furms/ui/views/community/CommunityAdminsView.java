@@ -3,13 +3,13 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community_admin;
+package io.imunity.furms.ui.views.community;
 
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 
-@Route(value = "community/admin/groups", layout = CommunityAdminMenu.class)
-@PageTitle(key = "view.community-admin.groups.page.title")
-public class GroupsView extends FurmsViewComponent {
+@Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
+@PageTitle(key = "view.community-admin.administrators.page.title")
+public class CommunityAdminsView extends FurmsViewComponent {
 }

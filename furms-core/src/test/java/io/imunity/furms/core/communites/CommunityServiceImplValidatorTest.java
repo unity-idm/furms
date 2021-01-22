@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CommunityServiceImpValidatorTest {
+class CommunityServiceImplValidatorTest {
 	@Mock
 	private CommunityRepository communityRepository;
 
