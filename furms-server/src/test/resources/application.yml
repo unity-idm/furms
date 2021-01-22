@@ -31,10 +31,6 @@ furms:
          clientSecret: oauth-pass1
    front:
       language: en
-      accepted-img-files:
-         - image/jpeg
-         - image/png
-         - image/gif
    url: https://localhost:${server.port}
 
 spring:

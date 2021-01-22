@@ -21,12 +21,11 @@ import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModel;
-import io.imunity.furms.ui.views.fenix.communites.model.CommunityViewModelMapper;
+import io.imunity.furms.ui.community.model.CommunityViewModel;
+import io.imunity.furms.ui.community.model.CommunityViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
