@@ -27,8 +27,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class CommunityFormComponent extends Composite<Div> {
-	private final static int hundredMB = 100000000;
-	private final static String[] acceptedImgFiles = {"image/jpeg", "image/png", "image/gif"};
+	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
+	private final static String[] ACCEPTED_IMG_FILES = {"image/jpeg", "image/png", "image/gif"};
 	private final Binder<CommunityViewModel> binder;
 	private final Image image = new Image();
 
@@ -67,8 +67,8 @@ public class CommunityFormComponent extends Composite<Div> {
 	private Upload createUploadComponent() {
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		Upload upload = new Upload(memoryBuffer);
-		upload.setAcceptedFileTypes(acceptedImgFiles);
-		upload.setMaxFileSize(hundredMB);
+		upload.setAcceptedFileTypes(ACCEPTED_IMG_FILES);
+		upload.setMaxFileSize(MAX_IMAGE_SIZE_BYTES);
 		upload.setDropAllowed(true);
 		upload.addFinishedListener(event -> {
 			logo = loadFile(memoryBuffer, event.getMIMEType());
