@@ -10,22 +10,6 @@
 	padding-bottom: 0.25rem;
 }
 
-vaadin-tab {
-	font-size: var(--lumo-font-size-s);
-	height: var(--lumo-size-l);
-	font-weight: 600;
-	color: var(--lumo-body-text-color);
-}
-
-vaadin-tab:hover {
-	background-color: var(--lumo-contrast-5pct);
-}
-
-vaadin-tab[selected] {
-	background-color: var(--lumo-primary-color-10pct);
-	color: var(--lumo-primary-text-color);
-}
-
 #breadcrumb {
 	display: flex;
 	align-items: center;
@@ -42,7 +26,7 @@ vaadin-tab[selected] {
 	font-family: var(--lumo-font-family);
 }
 
-.furms-view h4, .furms-color {
+.furms-view h4 {
 	color: var(--lumo-body-text-color);
 }
 
@@ -52,18 +36,6 @@ vaadin-tab[selected] {
 
 .furms-upload-layout {
 	padding-bottom: 1em;
-}
-
-.menu-icon-padding {
-	padding-right: 0.25rem;
-}
-
-.menu-div {
-	cursor: pointer;
-}
-
-.menu-div span:hover {
-	text-decoration: underline;
 }
 
 #community-logo {
@@ -84,3 +56,4 @@ vaadin-tab[selected] {
 .sites-add-form-button {
 	margin: 15px 5px 15px 5px;
 }
+

@@ -5,50 +5,46 @@
 
 package io.imunity.furms.ui.views.fenix.sites;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
 
-import java.util.List;
-import java.util.Optional;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
-import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.CSSClasses.DROPDOWN_MENU_BUTTON;
-import static java.util.stream.Collectors.toList;
-
-import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
-
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
-@CssImport("./styles/components/dropdown-menu.css")
 @PageTitle(key = "view.fenix-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
 
@@ -62,19 +58,10 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void addHeader() {
-		FlexLayout headerLayout = new FlexLayout();
-		headerLayout.setSizeFull();
-		headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
-
-		H4 title = new H4(getTranslation("view.sites.main.title"));
-
 		Button addButton = new Button(getTranslation("view.sites.main.add.button"), new Icon(PLUS_CIRCLE));
 		addButton.addClickListener(this::actionOpenSiteFormAdd);
 
-		headerLayout.add(title, addButton);
-
-		getContent().add(headerLayout);
+		getContent().add(new ViewHeaderLayout(getTranslation("view.sites.main.title"), addButton));
 	}
 
 	private void addTable() {
@@ -83,8 +70,7 @@ public class SitesView extends FurmsViewComponent {
 
 		List<SiteGridItem> sites = fetchSites();
 
-		Grid<SiteGridItem> siteGrid = new Grid<>();
-		siteGrid.setHeightByRows(true);
+		SparseGrid<SiteGridItem> siteGrid = new SparseGrid<>(SiteGridItem.class);
 		siteGrid.setItems(sites);
 
 		Binder<SiteGridItem> siteBinder = new Binder<>(SiteGridItem.class);
@@ -109,24 +95,18 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
-		Button button = new Button(MENU.create());
-		button.addThemeVariants(LUMO_TERTIARY);
-		button.setClassName(DROPDOWN_MENU_BUTTON);
-
-		ContextMenu contextMenu = new ContextMenu();
+		GridActionMenu contextMenu = new GridActionMenu();
 		contextMenu.setId(site.getId());
-		contextMenu.setOpenOnClick(true);
-		contextMenu.setTarget(button);
-		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
+		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
 				e -> actionEditSite(site, siteGrid));
-		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
+		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
 				e -> actionDeleteSite(site, siteGrid));
-		contextMenu.addItem(addMenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
+		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
 				e -> actionOpenAdministrators(site));
 
 		getContent().add(contextMenu);
 
-		return button;
+		return contextMenu.getTarget();
 	}
 
 	private Component addEditForm(Binder<SiteGridItem> siteBinder) {
@@ -154,13 +134,6 @@ public class SitesView extends FurmsViewComponent {
 		siteEditor.addOpenListener(e -> save.setEnabled(false));
 
 		return new Div(save, cancel);
-	}
-
-	private Button addMenuButton(String label, VaadinIcon icon) {
-		Button button = new Button(label, icon.create());
-		button.addThemeVariants(LUMO_TERTIARY);
-		button.setClassName(DROPDOWN_MENU_BUTTON);
-		return button;
 	}
 
 	private void actionOpenSiteFormAdd(ClickEvent<Button> buttonClickEvent) {

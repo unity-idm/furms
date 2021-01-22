@@ -32,12 +32,25 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	font-weight: var(--furms-font-weight);
 }
 
+vaadin-tab {
+	font-size: var(--lumo-font-size-s);
+	height: var(--lumo-size-l);
+	font-weight: var(--furms-font-weight);
+	color: var(--lumo-body-text-color);
+}
+
+vaadin-tab:hover {
+	background-color: var(--lumo-contrast-5pct);
+}
+
 vaadin-tab[selected] {
     background-color: var(--lumo-primary-color);
     color: white;
 }
 
-vaadin-tab {
-	font-weight: var(--furms-font-weight);
+vaadin-context-menu-item {
+	padding-top: 0;
+	padding-bottom: 0;
 }
+
 

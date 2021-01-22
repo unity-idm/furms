@@ -5,20 +5,22 @@
 
 package io.imunity.furms.ui.utils;
 
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
+
+import java.util.Map;
+
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.ui.components.FurmsViewComponent;
 
-import java.util.Map;
+import io.imunity.furms.ui.components.FurmsViewComponent;
 
 public class RouterLinkFactory {
 	public static RouterLink createRouterIcon(VaadinIcon iconType, String id,
 	                                          Class<? extends FurmsViewComponent> route,
 	                                          String paramName, String paramValue) {
-		Icon icon = iconType.create();
+		Component icon = createActionButton(iconType);
 		return createRouterPool(icon, id, route, paramName, paramValue);
 	}
 
@@ -28,7 +30,6 @@ public class RouterLinkFactory {
 		RouterLink routerLink = new RouterLink("", route, id);
 		routerLink.setQueryParameters(QueryParameters.simple(Map.of(paramName, paramValue)));
 		routerLink.add(component);
-		routerLink.setClassName("furms-color");
 		return routerLink;
 	}
 }

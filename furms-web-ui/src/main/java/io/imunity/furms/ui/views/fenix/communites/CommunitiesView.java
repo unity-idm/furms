@@ -5,37 +5,44 @@
 
 package io.imunity.furms.ui.views.fenix.communites;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.community.CommunityViewModel;
-import io.imunity.furms.ui.community.CommunityViewModelMapper;
-import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.PARAM_NAME;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.MenuComponentFactory.createMenuButton;
-import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
-import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
-import static java.util.stream.Collectors.toSet;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
+import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.ui.community.CommunityViewModel;
+import io.imunity.furms.ui.community.CommunityViewModelMapper;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.communities.page.title")
@@ -57,20 +64,11 @@ public class CommunitiesView extends FurmsViewComponent {
 		Button addButton = new Button(getTranslation("view.fenix-admin.communities.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(CommunityFormView.class));
 
-		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
-		buttonLayout.setWidthFull();
-		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
-
-		H4 headerText = new H4(getTranslation("view.fenix-admin.communities.header"));
-		HorizontalLayout header = new HorizontalLayout(headerText, buttonLayout);
-		header.setSizeFull();
-		return header;
+		return new ViewHeaderLayout(getTranslation("view.fenix-admin.communities.header"), addButton);
 	}
 
 	private Grid<CommunityViewModel> createCommunityGrid() {
-		Grid<CommunityViewModel> grid = new Grid<>(CommunityViewModel.class, false);
-		grid.setHeightByRows(true);
+		Grid<CommunityViewModel> grid = new SparseGrid<>(CommunityViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), CommunityView.class, c.getId()))
 			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"));
@@ -89,6 +87,7 @@ public class CommunitiesView extends FurmsViewComponent {
 			createRouterIcon(PIE_CHART, c.getId(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(c.getId())
 		);
+		horizontalLayout.setSpacing(false);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
 	}
@@ -103,32 +102,30 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private Component createContextMenu(String communityId) {
-		Icon menu = MENU.create();
-		ContextMenu contextMenu = new ContextMenu();
-		contextMenu.setOpenOnClick(true);
-		contextMenu.setTarget(menu);
+		GridActionMenu contextMenu = new GridActionMenu();
 
-		contextMenu.addItem(createMenuButton(getTranslation("view.fenix-admin.communities.menu.edit"), EDIT), event ->
+		contextMenu.addItem(createActionButton(getTranslation("view.fenix-admin.communities.menu.edit"), EDIT), event ->
 			UI.getCurrent().navigate(CommunityFormView.class, communityId)
 		);
-		contextMenu.addItem(createMenuButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH), event -> {
+		contextMenu.addItem(createActionButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH), event -> {
 			handleExceptions(() -> communityService.delete(communityId));
 			loadGridContent();
 			}
 		);
 
-		Component adminComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
+		Component adminComp = createActionButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
 		RouterLink administratorsPool = createRouterPool(adminComp, communityId, CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
-		Component allocationComp = createMenuButton(getTranslation("view.fenix-admin.communities.menu.allocations"), PIE_CHART);
+		Component allocationComp = createActionButton(getTranslation("view.fenix-admin.communities.menu.allocations"), PIE_CHART);
 		RouterLink allocationsPool = createRouterPool(allocationComp, communityId, CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 
 		getContent().add(contextMenu);
-		return menu;
+		return contextMenu.getTarget();
 	}
 
+	@Override
 	public Optional<BreadCrumbParameter> getParameter(){
 		return Optional.of(new BreadCrumbParameter("", getTranslation("view.fenix-admin.communities.breadcrumb")));
 	}

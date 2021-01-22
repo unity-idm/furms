@@ -5,38 +5,46 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
+import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.PARAM_NAME;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.MenuComponentFactory.createMenuButton;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
-import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.projects.page.title")
@@ -56,15 +64,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createHeaderLayout(Button addButton) {
-		HorizontalLayout buttonLayout = new HorizontalLayout(addButton);
-		buttonLayout.setWidthFull();
-		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
-
-		H4 headerText = new H4(getTranslation("view.community-admin.projects.header"));
-		HorizontalLayout header = new HorizontalLayout(headerText, buttonLayout);
-		header.setSizeFull();
-		return header;
+		return new ViewHeaderLayout(getTranslation("view.community-admin.projects.header"), addButton);
 	}
 
 	private Button createAddButton() {
@@ -74,8 +74,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private Grid<ProjectViewModel> createCommunityGrid() {
-		Grid<ProjectViewModel> grid = new Grid<>(ProjectViewModel.class, false);
-		grid.setHeightByRows(true);
+		Grid<ProjectViewModel> grid = new SparseGrid<>(ProjectViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectView.class, c.id))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"));
@@ -121,16 +120,13 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private Component createContextMenu(String projectId, String communityId) {
-		Icon menu = MENU.create();
-		ContextMenu contextMenu = new ContextMenu();
-		contextMenu.setOpenOnClick(true);
-		contextMenu.setTarget(menu);
+		GridActionMenu contextMenu = new GridActionMenu();
 
-		contextMenu.addItem(createMenuButton(
+		contextMenu.addItem(createActionButton(
 			getTranslation("view.community-admin.projects.menu.edit"), EDIT),
 			event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
 		);
-		contextMenu.addItem(createMenuButton(
+		contextMenu.addItem(createActionButton(
 			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
 			event -> {
 				handleExceptions(() -> projectService.delete(projectId, communityId));
@@ -138,14 +134,14 @@ public class ProjectsView extends FurmsViewComponent {
 			}
 		);
 
-		Component adminComponent = createMenuButton(
+		Component adminComponent = createActionButton(
 			getTranslation("view.community-admin.projects.menu.administrators"),
 			USERS
 		);
 		RouterLink administratorsPool = createRouterPool(adminComponent, projectId, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
-		Component allocationComponent = createMenuButton(
+		Component allocationComponent = createActionButton(
 			getTranslation("view.community-admin.projects.menu.allocations"),
 			PIE_CHART
 		);
@@ -153,7 +149,7 @@ public class ProjectsView extends FurmsViewComponent {
 		RouterLink allocationsPool = createRouterPool(allocationComponent, projectId, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 		getContent().add(contextMenu);
-		return menu;
+		return contextMenu.getTarget();
 	}
 
 	private void loadGridContent() {
