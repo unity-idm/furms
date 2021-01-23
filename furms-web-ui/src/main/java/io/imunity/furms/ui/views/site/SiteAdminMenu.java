@@ -9,9 +9,10 @@ import java.util.List;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class SiteAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
@@ -20,13 +21,13 @@ public class SiteAdminMenu extends FurmsAppLayout {
 		setPrimarySection(AppLayout.Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
-				PolicyDocumentsView.class,
-				ServicesView.class,
-				ResourceTypesView.class,
-				ResourceCreditsView.class,
-				PendingRequestsView.class,
-				SiteAdministratorsView.class,
-				SettingsView.class
+				MenuComponent.builder(PolicyDocumentsView.class).build(),
+				MenuComponent.builder(ServicesView.class).build(),
+				MenuComponent.builder(ResourceTypesView.class).build(),
+				MenuComponent.builder(ResourceCreditsView.class).build(),
+				MenuComponent.builder(PendingRequestsView.class).build(),
+				MenuComponent.builder(SiteAdministratorsView.class).build(),
+				MenuComponent.builder(SettingsView.class).build()
 			),
 			roleTranslator
 		);

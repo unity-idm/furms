@@ -4,12 +4,8 @@
  */
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.RouterLink;
+import static io.imunity.furms.ui.components.FurmsLayout.getPageTitle;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +13,18 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Stream;
 
-import static io.imunity.furms.ui.components.FurmsLayout.getPageTitle;
-import static java.util.stream.Collectors.toList;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.RouterLink;
 
 class BreadCrumbComponent extends Composite<Div> {
 	private final Stack<BreadCrumb> bredCrumbs = new Stack<>();
-	private final List<Class<? extends Component>> menuRouts;
+	private final List<MenuComponent> menuRouts;
 
-	BreadCrumbComponent(List<Class<? extends Component>> menuRouts){
+	BreadCrumbComponent(List<MenuComponent> menuRouts){
 		getContent().setId("breadcrumb");
 		getContent().setSizeFull();
 		this.menuRouts = menuRouts;
@@ -34,7 +34,7 @@ class BreadCrumbComponent extends Composite<Div> {
 		Class<? extends FurmsViewComponent> componentClass = component.getClass();
 		BreadCrumb route = new BreadCrumb(componentClass, component.getParameter().orElse(null));
 
-		if(menuRouts.contains(componentClass))
+		if(menuRouts.stream().map(menu -> menu.component).collect(toList()).contains(componentClass))
 			bredCrumbs.removeAllElements();
 
 		if(!bredCrumbs.contains(route))

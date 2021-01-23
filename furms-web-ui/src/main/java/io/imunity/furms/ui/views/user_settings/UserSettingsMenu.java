@@ -7,9 +7,10 @@ package io.imunity.furms.ui.views.user_settings;
 
 import java.util.List;
 
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class UserSettingsMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
@@ -18,12 +19,12 @@ public class UserSettingsMenu extends FurmsAppLayout {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
-				ProfileView.class,
-				SitesView.class,
-				ProjectsView.class,
-				PolicyDocumentsView.class,
-				SSHKeysView.class,
-				APIKeyView.class
+				MenuComponent.builder(ProfileView.class).build(),
+				MenuComponent.builder(SitesView.class).build(),
+				MenuComponent.builder(ProjectsView.class).build(),
+				MenuComponent.builder(PolicyDocumentsView.class).build(),
+				MenuComponent.builder(SSHKeysView.class).build(),
+				MenuComponent.builder(APIKeyView.class).build()
 			),
 			roleTranslator
 		);

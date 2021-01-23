@@ -5,6 +5,13 @@
 
 package io.imunity.furms.ui.views.landing;
 
+import static io.imunity.furms.domain.constant.RoutesConst.CHOOSE_ROLE;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
@@ -14,20 +21,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
-import io.imunity.furms.ui.user_context.ViewMode;
+
 import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.LogoutIconFactory;
 import io.imunity.furms.ui.components.PageTitle;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static io.imunity.furms.domain.constant.RoutesConst.CHOOSE_ROLE;
-import static java.util.stream.Collectors.toList;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 
 @Route(CHOOSE_ROLE)
 @PageTitle(key = "view.landing.title")

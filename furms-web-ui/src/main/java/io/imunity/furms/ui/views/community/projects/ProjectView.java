@@ -5,11 +5,28 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.PARAM_NAME;
+import static java.util.function.Function.identity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -17,15 +34,9 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
-import java.util.*;
-
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
-import static java.util.function.Function.identity;
-
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
-class ProjectView extends FurmsViewComponent {
+public class ProjectView extends FurmsViewComponent {
 	private final ProjectService projectService;
 
 	private final Tab defaultTab;

@@ -22,6 +22,7 @@ import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 public class FurmsSelect extends Select<FurmsSelectText> {
+	
 	public FurmsSelect(Map<ViewMode, List<FurmsViewUserContext>> data) {
 		List<FurmsSelectText> items = data.values().stream()
 			.flatMap(Collection::stream)
@@ -30,14 +31,14 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		setItems(items);
 		//addSeparators(data); TODO FIX separators are disabled now
 		setTextRenderer(Text::getText);
+		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
+			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
 		addValueChangeListener(event -> {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);
 			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.route);
 		});
-		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
-			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
 		FurmsSelectText component = null;

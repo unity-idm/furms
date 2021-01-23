@@ -4,6 +4,11 @@
  */
 package io.imunity.furms.ui.components;
 
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Image;
@@ -14,20 +19,16 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
+
 import io.imunity.furms.ui.user_context.RoleTranslator;
-
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class FurmsLayout {
 	private final RoleTranslator roleTranslator;
-	private final List<Class<? extends Component>> menuContent;
+	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
 
-	public FurmsLayout(List<Class<? extends Component>> menuContent, RoleTranslator roleTranslator){
+	public FurmsLayout(List<MenuComponent> menuContent, RoleTranslator roleTranslator){
 		this.roleTranslator = roleTranslator;
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
@@ -88,7 +89,7 @@ public class FurmsLayout {
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		tabs.setId("tabs");
 		Component[] components = menuContent.stream()
-			.map(c -> new TabComponent(getPageTitle(c), c))
+			.map(c -> new TabComponent(getPageTitle(c.component), c))
 			.toArray(Tab[]::new);
 		tabs.add(components);
 		return tabs;
@@ -97,7 +98,7 @@ public class FurmsLayout {
 	private Optional<TabComponent> getTabForComponent(Component component) {
 		return menu.getChildren()
 			.map(TabComponent.class::cast)
-			.filter(tab -> tab.componentClass.equals(component.getClass()))
+			.filter(tab -> tab.componentClass.contains(component.getClass()))
 			.findFirst();
 	}
 

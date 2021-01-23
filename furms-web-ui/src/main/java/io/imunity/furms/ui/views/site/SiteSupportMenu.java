@@ -7,9 +7,10 @@ package io.imunity.furms.ui.views.site;
 
 import java.util.List;
 
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class SiteSupportMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
@@ -18,7 +19,7 @@ public class SiteSupportMenu extends FurmsAppLayout {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
-				SignedPoliciesView.class
+				MenuComponent.builder(SignedPoliciesView.class).build()
 			),
 			roleTranslator
 		);
