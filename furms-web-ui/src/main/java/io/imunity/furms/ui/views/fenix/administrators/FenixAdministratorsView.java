@@ -90,7 +90,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		});
 		HorizontalLayout horizontalLayout = new HorizontalLayout(emailTextField, inviteButton);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		horizontalLayout.setSpacing(false);
+		horizontalLayout.setSpacing(true);
 		return horizontalLayout;
 	}
 

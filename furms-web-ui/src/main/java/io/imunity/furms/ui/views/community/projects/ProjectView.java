@@ -30,6 +30,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsTabs;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
@@ -73,7 +74,7 @@ public class ProjectView extends FurmsViewComponent {
 		tabsToPages.put(administratorsTab, page1);
 		tabsToPages.put(allocationsTab, page2);
 
-		tabs = new Tabs(administratorsTab, allocationsTab);
+		tabs = new FurmsTabs(administratorsTab, allocationsTab);
 		Div pages = new Div(page1, page2);
 
 		tabs.addSelectedChangeListener(event -> {

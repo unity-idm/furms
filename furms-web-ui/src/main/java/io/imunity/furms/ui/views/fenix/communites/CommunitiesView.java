@@ -28,7 +28,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
@@ -39,6 +38,7 @@ import io.imunity.furms.ui.community.CommunityViewModelMapper;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -82,14 +82,11 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnContent(CommunityViewModel c) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout(
+		return new GridActionsButtonLayout(
 			createRouterIcon(USERS, c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
 			createRouterIcon(PIE_CHART, c.getId(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(c.getId())
 		);
-		horizontalLayout.setSpacing(false);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
 	}
 
 	private void loadGridContent() {

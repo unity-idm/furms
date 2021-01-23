@@ -41,6 +41,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -110,13 +111,11 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnContent(ProjectViewModel projectViewModel) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout(
+		return new GridActionsButtonLayout(
 			createRouterIcon(USERS, projectViewModel.id, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
 			createRouterIcon(PIE_CHART, projectViewModel.id, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(projectViewModel.id, projectViewModel.communityId)
 		);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
 	}
 
 	private Component createContextMenu(String projectId, String communityId) {
