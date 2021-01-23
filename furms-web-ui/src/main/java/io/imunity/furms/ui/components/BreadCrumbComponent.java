@@ -4,12 +4,12 @@
  */
 package io.imunity.furms.ui.components;
 
-import static io.imunity.furms.ui.components.FurmsLayout.getPageTitle;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Stream;
 
@@ -33,10 +33,17 @@ class BreadCrumbComponent extends Composite<Div> {
 	public void update(FurmsViewComponent component){
 		Class<? extends FurmsViewComponent> componentClass = component.getClass();
 		BreadCrumb route = new BreadCrumb(componentClass, component.getParameter().orElse(null));
+		
+		getSubview(componentClass).ifPresent(menuElement -> {
+			if (bredCrumbs.isEmpty()) {
+				bredCrumbs.push(new BreadCrumb(menuElement.component, null));
+			}
+		});
 
-		if(menuRouts.stream().map(menu -> menu.component).collect(toList()).contains(componentClass))
+		if(isChangingMenuViews(componentClass)) {
 			bredCrumbs.removeAllElements();
-
+		}
+		
 		if(!bredCrumbs.contains(route))
 			bredCrumbs.push(route);
 		else if (bredCrumbs.peek().isParamChanged(route)){
@@ -47,6 +54,18 @@ class BreadCrumbComponent extends Composite<Div> {
 			while (!bredCrumbs.peek().equals(route))
 				bredCrumbs.pop();
 		updateView();
+	}
+
+	private Optional<MenuComponent> getSubview(Class<? extends FurmsViewComponent> componentClass) {
+		for (MenuComponent menu : menuRouts) {
+			if (menu.subViews.contains(componentClass))
+				return Optional.of(menu);
+		}
+		return Optional.empty();
+	}
+
+	private boolean isChangingMenuViews(Class<? extends FurmsViewComponent> componentClass) {
+		return menuRouts.stream().map(menu -> menu.component).collect(toList()).contains(componentClass);
 	}
 
 	private void updateView() {
@@ -76,7 +95,7 @@ class BreadCrumbComponent extends Composite<Div> {
 	private Stream<RouterLink> createRouterLink(BreadCrumb route) {
 		return route.getBreadCrumbParameter()
 			.map(p -> getRouterLink(route.getRouteClass(), p))
-			.orElseGet(() -> Stream.of(new RouterLink(getPageTitle(route.getRouteClass()), route.getRouteClass())));
+			.orElseGet(() -> Stream.of(new RouterLink(FurmsLayout.getPageTitle(route.getRouteClass()), route.getRouteClass())));
 	}
 
 
