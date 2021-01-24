@@ -5,25 +5,23 @@
 
 package io.imunity.furms.db.transaction;
 
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.spi.communites.CommunityRepository;
 
 @SpringBootTest
-@TestInstance(PER_CLASS)
 class TransactionTest extends DBIntegrationTest {
 	@Autowired
 	private ServiceMock serviceMockImpl;
@@ -33,7 +31,7 @@ class TransactionTest extends DBIntegrationTest {
 	private byte[] imgTestFile;
 	private byte[] imgTestFile2;
 
-	@BeforeAll
+	@BeforeEach
 	void init() throws IOException {
 		imgTestFile = getClass().getClassLoader().getResourceAsStream("test.jpg").readAllBytes();
 		imgTestFile2 = getClass().getClassLoader().getResourceAsStream("test2.jpg").readAllBytes();
