@@ -6,13 +6,8 @@
 package io.imunity.furms.db.projects;
 
 
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -20,12 +15,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.communites.CommunityRepository;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ProjectDatabaseRepositoryTest {
+class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private CommunityRepository communityRepository;
@@ -40,14 +44,13 @@ class ProjectDatabaseRepositoryTest {
 	private byte[] imgTestFile2;
 
 	private UUID communityId;
-	private UUID communityId2;
 
 	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
 	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
 	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
 	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
 
-	@BeforeAll
+	@BeforeEach
 	void init() throws IOException {
 		imgTestFile = getClass().getClassLoader().getResourceAsStream("test.jpg").readAllBytes();
 		imgTestFile2 = getClass().getClassLoader().getResourceAsStream("test2.jpg").readAllBytes();
@@ -62,19 +65,7 @@ class ProjectDatabaseRepositoryTest {
 			.logo(imgTestFile2, "jpg")
 			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
-		communityId2 = UUID.fromString(communityRepository.create(community2));
-	}
-
-	@BeforeEach
-	void setUp() {
-		entityRepository.deleteAll();
-	}
-
-	@AfterAll
-	void clean(){
-		entityRepository.deleteAll();
-		communityRepository.delete(communityId.toString());
-		communityRepository.delete(communityId2.toString());
+		UUID.fromString(communityRepository.create(community2));
 	}
 
 	@Test

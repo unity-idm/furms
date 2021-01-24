@@ -88,4 +88,9 @@ class CommunityDatabaseRepository implements CommunityRepository {
 		}
 		repository.deleteById(fromString(id));
 	}
+
+	@Override
+	public void deleteAll() {
+		repository.deleteAll();
+	}
 }

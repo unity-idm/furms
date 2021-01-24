@@ -6,6 +6,7 @@
 package io.imunity.furms.db.projects;
 
 
+import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.junit.jupiter.api.*;
@@ -21,8 +22,7 @@ import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ProjectEntityRepositoryTest {
+class ProjectEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private CommunityRepository communityRepository;
@@ -40,7 +40,7 @@ class ProjectEntityRepositoryTest {
 	private byte[] imgTestFile;
 	private byte[] imgTestFile2;
 
-	@BeforeAll
+	@BeforeEach
 	void init() throws IOException {
 		imgTestFile = getClass().getClassLoader().getResourceAsStream("test.jpg").readAllBytes();
 		imgTestFile2 = getClass().getClassLoader().getResourceAsStream("test2.jpg").readAllBytes();
@@ -56,18 +56,6 @@ class ProjectEntityRepositoryTest {
 			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
 		communityId2 = UUID.fromString(communityRepository.create(community2));
-	}
-
-	@BeforeEach
-	void setUp() {
-		projectRepository.deleteAll();
-	}
-
-	@AfterAll
-	void clean(){
-		projectRepository.deleteAll();
-		communityRepository.delete(communityId.toString());
-		communityRepository.delete(communityId2.toString());
 	}
 
 	@Test

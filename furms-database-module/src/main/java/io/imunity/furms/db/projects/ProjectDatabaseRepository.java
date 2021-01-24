@@ -97,4 +97,9 @@ class ProjectDatabaseRepository implements ProjectRepository {
 		}
 		repository.deleteById(fromString(id));
 	}
+	
+	@Override
+	public void deleteAll() {
+		repository.deleteAll();
+	}
 }

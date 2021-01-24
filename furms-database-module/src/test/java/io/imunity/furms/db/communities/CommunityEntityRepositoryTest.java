@@ -13,15 +13,18 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import io.imunity.furms.db.DBIntegrationTest;
+
 import java.io.IOException;
 import java.util.Optional;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CommunityEntityRepositoryTest {
+class CommunityEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private CommunityEntityRepository communityEntityRepository;

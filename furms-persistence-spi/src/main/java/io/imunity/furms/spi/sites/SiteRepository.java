@@ -25,4 +25,6 @@ public interface SiteRepository {
 	boolean isUniqueName(String name);
 
 	void delete(String id);
+	
+	void deleteAll();
 }

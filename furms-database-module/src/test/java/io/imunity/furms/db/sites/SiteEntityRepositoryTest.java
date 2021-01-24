@@ -10,13 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import io.imunity.furms.db.DBIntegrationTest;
+
 import java.util.Optional;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class SiteEntityRepositoryTest {
+class SiteEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteEntityRepository siteEntityRepository;

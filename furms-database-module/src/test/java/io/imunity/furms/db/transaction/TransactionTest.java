@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.transaction;
 
+import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 
 @SpringBootTest
 @TestInstance(PER_CLASS)
-class TransactionTest {
+class TransactionTest extends DBIntegrationTest {
 	@Autowired
 	private ServiceMock serviceMockImpl;
 	@Autowired

@@ -89,6 +89,11 @@ class SiteDatabaseRepository implements SiteRepository {
 		repository.deleteById(fromString(id));
 	}
 
+	@Override
+	public void deleteAll() {
+		repository.deleteAll();
+	}
+	
 	private void validateSiteName(final Site site) {
 		if (site == null || isEmpty(site.getName()) || !isUniqueName(site.getName())) {
 			throw new IllegalArgumentException("Incorrect Site name input.");
