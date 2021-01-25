@@ -23,10 +23,13 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
+import io.imunity.furms.ui.utils.NotificationUtils;
+import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Optional;
 
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
@@ -73,13 +76,16 @@ class CommunityFormView extends FurmsViewComponent {
 
 	private void saveCommunity() {
 		CommunityViewModel communityViewModel = binder.getBean();
-		communityViewModel.setLogoImage(communityFormComponent.getLogo());
 		Community community = CommunityViewModelMapper.map(communityViewModel);
+		OptionalException<Void> optionalException;
 		if (community.getId() == null)
-			handleExceptions(() -> communityService.create(community));
+			optionalException = getResultOrException(() -> communityService.create(community));
 		else
-			handleExceptions(() -> communityService.update(community));
-		UI.getCurrent().navigate(CommunitiesView.class);
+			optionalException = getResultOrException(() -> communityService.update(community));
+		optionalException.getThrowable().ifPresentOrElse(
+			throwable -> NotificationUtils.showErrorNotification(getTranslation("community.error.message")),
+			() -> UI.getCurrent().navigate(CommunitiesView.class)
+		);
 	}
 
 	@Override

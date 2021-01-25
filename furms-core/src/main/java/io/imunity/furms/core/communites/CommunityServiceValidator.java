@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.imunity.furms.utils.ValidationUtils.check;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -41,7 +44,7 @@ class CommunityServiceValidator {
 	private void validateName(Community community) {
 		notNull(community.getName(), "Community name has to be declared.");
 		if (isNameUnique(community)) {
-			throw new IllegalArgumentException("Community name has to be unique.");
+			throw new DuplicatedNameValidationError("Community name has to be unique.");
 		}
 		if (community.getName().length() > 255) {
 			throw new IllegalArgumentException("Community name is too long.");
@@ -62,8 +65,7 @@ class CommunityServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Community ID has to be declared.");
-		if (!communityRepository.exists(id)) {
-			throw new IllegalArgumentException("Community with declared ID is not exists.");
-		}
+		check(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
+
 	}
 }

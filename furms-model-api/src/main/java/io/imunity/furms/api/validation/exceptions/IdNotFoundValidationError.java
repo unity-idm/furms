@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.api.sites.exceptions;
+package io.imunity.furms.api.validation.exceptions;
 
 public class IdNotFoundValidationError extends IllegalArgumentException {
 
