@@ -179,4 +179,26 @@ class SiteEntityRepositoryTest {
 		assertThat(siteEntityRepository.findAll()).hasSize(0);
 	}
 
+	@Test
+	void shouldReturnTrueForExistingCombinationIdAndName() {
+		//given
+		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+
+		//when + then
+		assertThat(siteEntityRepository.existsByIdAndName(entity.getId(), entity.getName())).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForWrongCombinationIdAndName() {
+		//given
+		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+
+		//when + then
+		assertThat(siteEntityRepository.existsByIdAndName(entity.getId(), "otherName")).isFalse();
+	}
+
 }

@@ -13,7 +13,7 @@ public class FurmsImage {
 	private final byte[] image;
 	private final FurmsImageExtension type;
 
-	public FurmsImage(byte[] logoImage, FurmsImageExtension type) {
+	private FurmsImage(byte[] logoImage, FurmsImageExtension type) {
 		this.image = logoImage;
 		this.type = type;
 	}
@@ -35,6 +35,10 @@ public class FurmsImage {
 			.map(Enum::name)
 			.map(String::toLowerCase)
 			.orElse(null);
+	}
+
+	public static FurmsImage empty() {
+		return new FurmsImage(new byte[0], (String) null);
 	}
 
 	@Override

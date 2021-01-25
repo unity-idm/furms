@@ -115,7 +115,7 @@ class SiteServiceImplTest {
 				.name("name")
 				.build();
 		when(repository.exists(request.getId())).thenReturn(true);
-		when(repository.isUniqueName(request.getName())).thenReturn(true);
+		when(repository.isUniqueName(request.getId(), request.getName())).thenReturn(true);
 		when(repository.update(request)).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
@@ -150,6 +150,51 @@ class SiteServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
 	}
 
+	@Test
+	void shouldReturnTrueForUniqueName() {
+		//given
+		final String name = "name";
+		when(repository.isUniqueName(name)).thenReturn(true);
+
+		//when
+		assertThat(service.isNameUnique(name)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNomUniqueName() {
+		//given
+		final String name = "name";
+		when(repository.isUniqueName(name)).thenReturn(false);
+
+		//when
+		assertThat(service.isNameUnique(name)).isFalse();
+	}
+
+	@Test
+	void shouldReturnTrueForUniqueNameIsUsingInValidatedSite() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
+		when(repository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
+
+		//when
+		assertThat(service.isNameUnique(site.getId(), site.getName())).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonUniqueName() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
+		when(repository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
+
+		//when
+		assertThat(service.isNameUnique(site.getId(), site.getName())).isFalse();
+	}
 
 	@Test
 	void allPublicMethodsShouldBeSecured() {

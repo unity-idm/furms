@@ -115,4 +115,15 @@ class SiteServiceImpl implements SiteService {
 			return false;
 		}
 	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
+	public boolean isNameUnique(String id, String name) {
+		try {
+			validator.validateUniqueName(id, name);
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
 }

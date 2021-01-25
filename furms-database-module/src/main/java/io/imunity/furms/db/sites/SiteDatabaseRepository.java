@@ -48,6 +48,8 @@ class SiteDatabaseRepository implements SiteRepository {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
 				.name(site.getName())
+				.connectionInfo(site.getConnectionInfo())
+				.logo(site.getLogo())
 				.build());
 		return saved.getId().toString();
 	}
@@ -61,6 +63,8 @@ class SiteDatabaseRepository implements SiteRepository {
 				.map(oldEntity -> SiteEntity.builder()
 						.id(oldEntity.getId())
 						.name(site.getName())
+						.connectionInfo(site.getConnectionInfo())
+						.logo(site.getLogo())
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
@@ -82,6 +86,11 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
+	public boolean isUniqueName(String id, String name) {
+		return repository.existsByIdAndName(fromString(id), name) || isUniqueName(name);
+	}
+
+	@Override
 	public void delete(String id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Incorrect delete Site input.");
@@ -90,7 +99,7 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	private void validateSiteName(final Site site) {
-		if (site == null || isEmpty(site.getName()) || !isUniqueName(site.getName())) {
+		if (site == null || isEmpty(site.getName())) {
 			throw new IllegalArgumentException("Incorrect Site name input.");
 		}
 	}

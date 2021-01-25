@@ -12,4 +12,6 @@ import java.util.UUID;
 interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 
 	boolean existsByName(String name);
+
+	boolean existsByIdAndName(UUID id, String name);
 }

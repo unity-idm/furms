@@ -26,6 +26,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.grid.editor.EditorOpenEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -35,6 +36,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.sites.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -44,11 +46,15 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
 
+import java.util.Objects;
+
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
 
 	private final SiteService siteService;
+
+	private SiteGridItem bufferedSiteGridItem;
 
 	SitesView(SiteService siteService) {
 		this.siteService = siteService;
@@ -78,10 +84,13 @@ public class SitesView extends FurmsViewComponent {
 		siteEditor.setBinder(siteBinder);
 		siteEditor.setBuffered(true);
 
+		siteEditor.addOpenListener(event -> onEditorOpen(event, siteBinder));
+		siteEditor.addCloseListener(event -> onEditorClose(siteBinder));
+
 		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesDetailsView.class, site.getId()))
 				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
-				.setEditorComponent(addEditForm(siteBinder));
+				.setEditorComponent(addEditForm(siteEditor));
 
 		siteGrid.addComponentColumn(site -> addMenu(site, siteGrid))
 				.setHeader(getTranslation("view.sites.main.grid.column.actions"))
@@ -109,12 +118,13 @@ public class SitesView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Component addEditForm(Binder<SiteGridItem> siteBinder) {
+	private Component addEditForm(Editor<SiteGridItem> siteEditor) {
 		TextField siteNameField = new TextField();
 		siteNameField.setValueChangeMode(EAGER);
-		siteBinder.forField(siteNameField)
+		siteEditor.getBinder().forField(siteNameField)
 				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
-				.withValidator(siteService::isNameUnique, getTranslation("view.sites.form.error.validation.field.name.unique"))
+				.withValidator(siteName -> siteService.isNameUnique(siteEditor.getItem().getId(), siteName),
+							getTranslation("view.sites.form.error.validation.field.name.unique"))
 				.bind(SiteGridItem::getName, SiteGridItem::setName);
 
 		return new Div(siteNameField);
@@ -130,7 +140,7 @@ public class SitesView extends FurmsViewComponent {
 		cancel.addThemeVariants(LUMO_TERTIARY);
 		cancel.addClassName("cancel");
 
-		siteEditor.getBinder().addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors()));
+		siteEditor.getBinder().addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors() && isNameChanged(siteEditor)));
 		siteEditor.addOpenListener(e -> save.setEnabled(false));
 
 		return new Div(save, cancel);
@@ -153,19 +163,16 @@ public class SitesView extends FurmsViewComponent {
 			if (component.isPresent()) {
 				TextField name = component.map(c -> (TextField) c).get();
 				try {
-					if (siteEditor.getItem().getName().equals(name.getValue())) {
-						throw new IllegalArgumentException(getTranslation("view.sites.form.error.validation.field.name.different"));
-					}
 					siteService.update(Site.builder()
 							.id(siteEditor.getItem().getId())
 							.name(name.getValue())
 							.build());
 					siteEditor.cancel();
 					siteEditor.getGrid().setItems(fetchSites());
-				} catch (IllegalArgumentException e) {
-					name.setErrorMessage(e.getMessage());
+				} catch (DuplicatedNameValidationError e) {
+					name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 					name.setInvalid(true);
-				} catch (RuntimeException e) {
+				} catch (IllegalArgumentException e) {
 					showErrorNotification(getTranslation("view.sites.form.error.unexpected", "update"));
 				}
 			}
@@ -191,4 +198,20 @@ public class SitesView extends FurmsViewComponent {
 				.map(SiteGridItem::of)
 				.collect(toList());
 	}
+
+	private void onEditorOpen(EditorOpenEvent<SiteGridItem> event, Binder<SiteGridItem> siteBinder) {
+		bufferedSiteGridItem = event.getItem().clone();
+		siteBinder.setBean(event.getItem());
+	}
+
+
+	private void onEditorClose(Binder<SiteGridItem> siteBinder) {
+		bufferedSiteGridItem = null;
+		siteBinder.setBean(null);
+	}
+
+	private boolean isNameChanged(Editor<SiteGridItem> siteEditor) {
+		return bufferedSiteGridItem != null && !Objects.equals(bufferedSiteGridItem.getName(), siteEditor.getItem().getName());
+	}
+
 }

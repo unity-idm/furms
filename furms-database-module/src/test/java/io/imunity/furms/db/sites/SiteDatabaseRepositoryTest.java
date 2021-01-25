@@ -104,17 +104,10 @@ class SiteDatabaseRepositoryTest {
 				.name("")
 				.build();
 		Site nullRequest = null;
-		entityRepository.save(SiteEntity.builder()
-				.name("non_unique_name")
-				.build());
-		Site nonUniqueNameRequest = Site.builder()
-				.name("non_unique_name")
-				.build();
 
 		//when + then
 		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
 		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nonUniqueNameRequest));
 	}
 
 	@Test
@@ -182,6 +175,30 @@ class SiteDatabaseRepositoryTest {
 		assertThat(repository.isUniqueName(existedSite.getName())).isFalse();
 	}
 
+	@Test
+	void shouldReturnTrueForUniqueCombinationIdAndName() {
+		//given
+		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+
+		//when + then
+		assertThat(repository.isUniqueName(existedSite.getId().toString(), existedSite.getName())).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNameUsingByOtherSite() {
+		//given
+		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+		SiteEntity existedSite2 = entityRepository.save(SiteEntity.builder()
+				.name("name2")
+				.build());
+
+		//when + then
+		assertThat(repository.isUniqueName(existedSite.getId().toString(), existedSite2.getName())).isFalse();
+	}
 
 
 }

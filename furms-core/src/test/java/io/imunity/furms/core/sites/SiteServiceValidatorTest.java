@@ -7,17 +7,20 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class SiteServiceValidatorTest {
 
 	@Mock
@@ -25,11 +28,6 @@ class SiteServiceValidatorTest {
 
 	@InjectMocks
 	private SiteServiceValidator validator;
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test
 	void shouldPassCreateForUniqueName() {
@@ -66,7 +64,7 @@ class SiteServiceValidatorTest {
 				.build();
 
 		when(siteRepository.exists(site.getId())).thenReturn(true);
-		when(siteRepository.isUniqueName(any())).thenReturn(true);
+		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(site));
@@ -95,7 +93,7 @@ class SiteServiceValidatorTest {
 				.build();
 
 		when(siteRepository.exists(site.getId())).thenReturn(true);
-		when(siteRepository.isUniqueName(any())).thenReturn(false);
+		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
@@ -121,6 +119,34 @@ class SiteServiceValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldPassForUniqueCombinationIdAndName() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
+
+		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
+
+		//when+then
+		assertDoesNotThrow(() -> validator.validateUniqueName(site.getId(), site.getName()));
+	}
+
+	@Test
+	void shouldNotPassForNonUniqueCombinationIdAndName() {
+		//given
+		final Site site = Site.builder()
+				.id("id")
+				.name("name")
+				.build();
+
+		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUniqueName(site.getId(), site.getName()));
 	}
 
 }

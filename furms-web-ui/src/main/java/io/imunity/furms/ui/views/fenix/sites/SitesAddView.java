@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.sites.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -101,8 +102,8 @@ public class SitesAddView extends FurmsViewComponent {
 						.name(formData.getName())
 						.build());
 				UI.getCurrent().navigate(SitesView.class);
-			} catch (IllegalArgumentException exception) {
-				name.setErrorMessage(exception.getMessage());
+			} catch (DuplicatedNameValidationError e) {
+				name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 				name.setInvalid(true);
 			} catch (RuntimeException exception) {
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "save"));

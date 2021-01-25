@@ -24,4 +24,6 @@ public interface SiteService {
 
 	boolean isNameUnique(String name);
 
+	boolean isNameUnique(String id, String name);
+
 }
