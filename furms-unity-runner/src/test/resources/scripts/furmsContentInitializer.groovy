@@ -5,17 +5,17 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration
 import pl.edu.icm.unity.exceptions.EngineException
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider
-import pl.edu.icm.unity.stdext.attr.*
+import pl.edu.icm.unity.stdext.attr.EnumAttribute
+import pl.edu.icm.unity.stdext.attr.StringAttribute
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
-import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider
-import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider
 import pl.edu.icm.unity.types.basic.*
 
 @Field final String NAME_ATTR = "name"
+@Field final String FIRSTNAME_ATTR = "firstname"
+@Field final String SURNAME_ATTR = "surname"
 @Field final String EMAIL_ATTR = "email"
 @Field final String COMMON_ATTR_FILE = "furmsAttributes"
 
@@ -120,7 +120,13 @@ void setupAdminUser() throws EngineException
 	
 	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", "admin@domain.com")
 	attributesManagement.createAttribute(entity, emailA)
-	
+
+	Attribute firstnameA = StringAttribute.of(FIRSTNAME_ATTR, "/", "John")
+	attributesManagement.createAttribute(entity, firstnameA)
+
+	Attribute surnameA = StringAttribute.of(SURNAME_ATTR, "/", "Doe")
+	attributesManagement.createAttribute(entity, surnameA)
+
 	String adminP = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_PASSWORD)
 	PasswordToken pToken = new PasswordToken(adminP)
 	entityCredentialManagement.setEntityCredential(entity, "userPassword", pToken.toJson())
