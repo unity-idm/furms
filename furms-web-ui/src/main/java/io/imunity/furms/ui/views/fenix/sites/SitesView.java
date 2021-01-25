@@ -124,7 +124,7 @@ public class SitesView extends FurmsViewComponent {
 		siteNameField.setValueChangeMode(EAGER);
 		siteEditor.getBinder().forField(siteNameField)
 				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
-				.withValidator(siteName -> siteService.isNameUnique(siteEditor.getItem().getId(), siteName),
+				.withValidator(siteName -> !siteService.isNamePresentIgnoringRecord(siteName, siteEditor.getItem().getId()),
 							getTranslation("view.sites.form.error.validation.field.name.unique"))
 				.bind(SiteGridItem::getName, SiteGridItem::setName);
 

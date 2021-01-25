@@ -13,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,7 +34,7 @@ class SiteServiceValidatorTest {
 				.name("name")
 				.build();
 
-		when(siteRepository.isUniqueName(any())).thenReturn(true);
+		when(siteRepository.isNamePresent(site.getName())).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(site));
@@ -49,7 +47,7 @@ class SiteServiceValidatorTest {
 				.name("name")
 				.build();
 
-		when(siteRepository.isUniqueName(any())).thenReturn(false);
+		when(siteRepository.isNamePresent(site.getName())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(site));
@@ -64,7 +62,7 @@ class SiteServiceValidatorTest {
 				.build();
 
 		when(siteRepository.exists(site.getId())).thenReturn(true);
-		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
+		when(siteRepository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(site));
@@ -93,7 +91,7 @@ class SiteServiceValidatorTest {
 				.build();
 
 		when(siteRepository.exists(site.getId())).thenReturn(true);
-		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
+		when(siteRepository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(site));
@@ -129,10 +127,10 @@ class SiteServiceValidatorTest {
 				.name("name")
 				.build();
 
-		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
+		when(siteRepository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(false);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUniqueName(site.getId(), site.getName()));
+		assertDoesNotThrow(() -> validator.validateIsNamePresentIgnoringRecord(site.getName(), site.getId()));
 	}
 
 	@Test
@@ -143,10 +141,10 @@ class SiteServiceValidatorTest {
 				.name("name")
 				.build();
 
-		when(siteRepository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
+		when(siteRepository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUniqueName(site.getId(), site.getName()));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateIsNamePresentIgnoringRecord(site.getName(), site.getId()));
 	}
 
 }

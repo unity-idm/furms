@@ -153,7 +153,7 @@ class SiteDatabaseRepositoryTest {
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueName() {
+	void shouldReturnFalseForNonPresentName() {
 		//given
 		entityRepository.save(SiteEntity.builder()
 				.name("name")
@@ -161,33 +161,22 @@ class SiteDatabaseRepositoryTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNamePresent(uniqueName)).isFalse();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnTrueIfNamePresent() {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedSite.getName())).isFalse();
+		assertThat(repository.isNamePresent(existedSite.getName())).isTrue();
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueCombinationIdAndName() {
-		//given
-		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
-				.name("name")
-				.build());
-
-		//when + then
-		assertThat(repository.isUniqueName(existedSite.getId().toString(), existedSite.getName())).isTrue();
-	}
-
-	@Test
-	void shouldReturnFalseForNameUsingByOtherSite() {
+	void shouldReturnTrueIfNameIsPresentOutOfSpecificRecord() {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
@@ -197,7 +186,18 @@ class SiteDatabaseRepositoryTest {
 				.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedSite.getId().toString(), existedSite2.getName())).isFalse();
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite2.getId().toString())).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseIfNameIsPresentOnlyInSpecificRecord() {
+		//given
+		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+
+		//when + then
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite.getId().toString())).isFalse();
 	}
 
 

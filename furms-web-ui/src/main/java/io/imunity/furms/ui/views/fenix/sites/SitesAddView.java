@@ -80,7 +80,7 @@ public class SitesAddView extends FurmsViewComponent {
 
 		binder.forField(name)
 				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
-				.withValidator(siteService::isNameUnique, getTranslation("view.sites.form.error.validation.field.name.unique"))
+				.withValidator(siteService::isNamePresent, getTranslation("view.sites.form.error.validation.field.name.unique"))
 				.bind(SiteCreationParam::getName, SiteCreationParam::setName);
 
 		formLayout.setResponsiveSteps(

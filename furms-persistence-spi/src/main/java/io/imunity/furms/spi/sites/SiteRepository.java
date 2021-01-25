@@ -22,9 +22,9 @@ public interface SiteRepository {
 
 	boolean exists(String id);
 
-	boolean isUniqueName(String name);
+	boolean isNamePresent(String name);
 
-	boolean isUniqueName(String id, String name);
+	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
 
 	void delete(String id);
 }

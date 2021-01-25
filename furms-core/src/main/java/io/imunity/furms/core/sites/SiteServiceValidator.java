@@ -31,7 +31,7 @@ class SiteServiceValidator {
 	void validateUpdate(Site request) {
 		notNull(request, "Site object cannot be null.");
 		validateId(request.getId());
-		validateUniqueName(request.getId(), request.getName());
+		validateIsNamePresentIgnoringRecord(request.getName(), request.getId());
 	}
 
 	void validateDelete(String id) {
@@ -40,13 +40,13 @@ class SiteServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "Site name has to be declared.");
-		check(siteRepository.isUniqueName(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
+		check(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
 	}
 
-	void validateUniqueName(String id, String name) {
-		notNull(id, "Site id has to be declared.");
+	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
+		notNull(recordToIgnore, "Site id has to be declared.");
 		notNull(name, "Invalid Site name: Site name is empty.");
-		check(siteRepository.isUniqueName(id, name), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
+		check(!siteRepository.isNamePresentIgnoringRecord(name, recordToIgnore), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
 	}
 
 	private void validateId(String id) {

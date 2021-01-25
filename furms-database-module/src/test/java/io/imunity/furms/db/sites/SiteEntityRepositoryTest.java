@@ -180,25 +180,28 @@ class SiteEntityRepositoryTest {
 	}
 
 	@Test
-	void shouldReturnTrueForExistingCombinationIdAndName() {
+	void shouldReturnTrueIfNameIsPresentOutOfSpecificRecord() {
 		//given
 		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
+		SiteEntity entity2 = siteEntityRepository.save(SiteEntity.builder()
+				.name("name2")
+				.build());
 
 		//when + then
-		assertThat(siteEntityRepository.existsByIdAndName(entity.getId(), entity.getName())).isTrue();
+		assertThat(siteEntityRepository.existsByNameAndIdIsNot(entity.getName(), entity2.getId())).isTrue();
 	}
 
 	@Test
-	void shouldReturnFalseForWrongCombinationIdAndName() {
+	void shouldReturnFalseIfNameIsPresentOnlyInSpecificRecord() {
 		//given
 		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
 
 		//when + then
-		assertThat(siteEntityRepository.existsByIdAndName(entity.getId(), "otherName")).isFalse();
+		assertThat(siteEntityRepository.existsByNameAndIdIsNot("otherName", entity.getId())).isFalse();
 	}
 
 }

@@ -45,7 +45,7 @@ class SiteServiceImplTest {
 	}
 
 	@Test
-	void shouldReturnSiteIfExistsInRepository() {
+	void shouldReturnSiteIfExistsInRepository(  ) {
 		//given
 		final String id = "id";
 		when(repository.findById(id)).thenReturn(Optional.of(Site.builder()
@@ -83,7 +83,7 @@ class SiteServiceImplTest {
 		final Site request = Site.builder()
 				.name("name")
 				.build();
-		when(repository.isUniqueName(request.getName())).thenReturn(true);
+		when(repository.isNamePresent(request.getName())).thenReturn(false);
 		when(repository.create(request)).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
@@ -101,7 +101,7 @@ class SiteServiceImplTest {
 		final Site request = Site.builder()
 				.name("name")
 				.build();
-		when(repository.isUniqueName(request.getName())).thenReturn(false);
+		when(repository.isNamePresent(request.getName())).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -115,7 +115,7 @@ class SiteServiceImplTest {
 				.name("name")
 				.build();
 		when(repository.exists(request.getId())).thenReturn(true);
-		when(repository.isUniqueName(request.getId(), request.getName())).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.getName(), request.getId())).thenReturn(false);
 		when(repository.update(request)).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
@@ -154,46 +154,46 @@ class SiteServiceImplTest {
 	void shouldReturnTrueForUniqueName() {
 		//given
 		final String name = "name";
-		when(repository.isUniqueName(name)).thenReturn(true);
+		when(repository.isNamePresent(name)).thenReturn(false);
 
 		//when
-		assertThat(service.isNameUnique(name)).isTrue();
+		assertThat(service.isNamePresent(name)).isTrue();
 	}
 
 	@Test
 	void shouldReturnFalseForNomUniqueName() {
 		//given
 		final String name = "name";
-		when(repository.isUniqueName(name)).thenReturn(false);
+		when(repository.isNamePresent(name)).thenReturn(true);
 
 		//when
-		assertThat(service.isNameUnique(name)).isFalse();
+		assertThat(service.isNamePresent(name)).isFalse();
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueNameIsUsingInValidatedSite() {
+	void shouldReturnTrueIfNamePresentOutOfSpecificRecord() {
 		//given
 		final Site site = Site.builder()
 				.id("id")
 				.name("name")
 				.build();
-		when(repository.isUniqueName(site.getId(), site.getName())).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(true);
 
 		//when
-		assertThat(service.isNameUnique(site.getId(), site.getName())).isTrue();
+		assertThat(service.isNamePresentIgnoringRecord(site.getName(), site.getId())).isTrue();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnFalseIfNamePresentInSpecificRecord() {
 		//given
 		final Site site = Site.builder()
 				.id("id")
 				.name("name")
 				.build();
-		when(repository.isUniqueName(site.getId(), site.getName())).thenReturn(false);
+		when(repository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(false);
 
 		//when
-		assertThat(service.isNameUnique(site.getId(), site.getName())).isFalse();
+		assertThat(service.isNamePresentIgnoringRecord(site.getName(), site.getId())).isFalse();
 	}
 
 	@Test

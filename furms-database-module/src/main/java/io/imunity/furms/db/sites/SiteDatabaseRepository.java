@@ -82,13 +82,13 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNamePresent(String name) {
+		return repository.existsByName(name);
 	}
 
 	@Override
-	public boolean isUniqueName(String id, String name) {
-		return repository.existsByIdAndName(fromString(id), name) || isUniqueName(name);
+	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
+		return repository.existsByNameAndIdIsNot(name, fromString(recordToIgnore));
 	}
 
 	@Override

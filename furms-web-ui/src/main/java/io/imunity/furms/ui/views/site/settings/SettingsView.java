@@ -83,7 +83,7 @@ public class SettingsView extends FurmsViewComponent {
 		binder.forField(name)
 				.withValidator(getNotEmptyStringValidator(),
 						getTranslation("view.site-admin.settings.form.name.validation.required"))
-				.withValidator(siteName -> siteService.isNameUnique(binder.getBean().getId(), siteName),
+				.withValidator(siteName -> !siteService.isNamePresentIgnoringRecord(siteName, binder.getBean().getId()),
 						getTranslation("view.site-admin.settings.form.name.validation.unique"))
 				.bind(SiteSettingsDto::getName, SiteSettingsDto::setName);
 
