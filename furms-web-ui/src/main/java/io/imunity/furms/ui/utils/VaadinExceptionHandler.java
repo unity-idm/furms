@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.utils;
 
-import com.vaadin.flow.component.notification.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +12,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class VaadinExceptionHandler {
@@ -37,9 +36,4 @@ public class VaadinExceptionHandler {
 		});
 	}
 
-	public static void showErrorNotification(String message) {
-		Notification error = new Notification(message, 5000, TOP_END);
-		error.setThemeName("error");
-		error.setOpened(true);
-	}
 }

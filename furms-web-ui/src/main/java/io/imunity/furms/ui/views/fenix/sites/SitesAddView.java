@@ -25,6 +25,7 @@ import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")

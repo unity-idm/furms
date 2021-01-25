@@ -42,26 +42,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 		return getTranslation(getClass().getAnnotation(PageTitle.class).key());
 	}
 
-	protected void showErrorNotification(String message) {
-		HorizontalLayout errorLayout = new HorizontalLayout(VaadinIcon.WARNING.create(), new Label(message));
-		errorLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		Notification error = new Notification(errorLayout);
-		error.setDuration(5000);
-		error.setPosition(TOP_END);
-		error.setThemeName("error");
-		error.setOpened(true);
-	}
-
-	protected void showSuccessNotification(String message) {
-		HorizontalLayout successLayout = new HorizontalLayout(new Label(message));
-		successLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		Notification success = new Notification(successLayout);
-		success.setDuration(5000);
-		success.setPosition(TOP_END);
-		success.setThemeName("success");
-		success.setOpened(true);
-	}
-
 	protected SerializablePredicate<? super String> getNotEmptyStringValidator() {
 		return value -> value != null && !value.isBlank();
 	}

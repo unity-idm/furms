@@ -40,7 +40,6 @@ public class FurmsImageUpload extends HorizontalLayout
 	private FurmsImage oldValue;
 
 	public FurmsImageUpload() {
-		super();
 		readOnly = false;
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);

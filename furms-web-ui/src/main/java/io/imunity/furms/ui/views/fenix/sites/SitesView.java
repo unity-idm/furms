@@ -14,6 +14,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;

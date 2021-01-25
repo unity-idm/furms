@@ -11,6 +11,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
+import static io.imunity.furms.utils.ValidationUtils.check;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -39,25 +40,18 @@ class SiteServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "Site name has to be declared.");
-		if (!siteRepository.isUniqueName(name)) {
-			throw new DuplicatedNameValidationError("Site name has to be unique.");
-		}
+		check(siteRepository.isUniqueName(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
 	}
 
 	void validateUniqueName(String id, String name) {
 		notNull(id, "Site id has to be declared.");
-		notNull(name, "Site name has to be declared.");
-
-		if (!siteRepository.isUniqueName(id, name)) {
-			throw new DuplicatedNameValidationError("Site name has to be unique.");
-		}
+		notNull(name, "Invalid Site name: Site name is empty.");
+		check(siteRepository.isUniqueName(id, name), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
 	}
 
 	private void validateId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		if (!siteRepository.exists(id)) {
-			throw new IdNotFoundValidationError("Site with declared ID is not exists.");
-		}
+		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
 }

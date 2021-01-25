@@ -36,6 +36,8 @@ import java.util.Objects;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "site/admin/settings", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.settings.page.title")
