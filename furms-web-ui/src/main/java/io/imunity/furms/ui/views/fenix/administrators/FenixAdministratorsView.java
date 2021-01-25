@@ -16,6 +16,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.domain.users.User;
@@ -42,8 +43,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		this.usersDAO = usersDAO;
 
 		Grid<UserViewModel> grid = createGrid(loadUsers(usersDAO::getAdminUsers));
-		HorizontalLayout inviteUserLayout = createInviteUserLayout(grid);
-		HorizontalLayout searchLayout = createSearchFilterLayout(grid);
+		TextField emailTextField = createEmailField();
+		Button inviteButton = createInviteButton(grid, emailTextField);
+		HorizontalLayout inviteUserLayout = createInviteUserLayout(emailTextField, inviteButton);
+		HorizontalLayout searchLayout = createSearchFilterLayout(grid, inviteButton);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.administrators.header"), 
 				inviteUserLayout);
@@ -58,9 +61,20 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.collect(toList());
 	}
 
-	private HorizontalLayout createInviteUserLayout(Grid<UserViewModel> grid) {
+	private HorizontalLayout createInviteUserLayout(TextField emailTextField, Button inviteButton) {
+		HorizontalLayout horizontalLayout = new HorizontalLayout(emailTextField, inviteButton);
+		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		horizontalLayout.setSpacing(true);
+		return horizontalLayout;
+	}
+
+	private TextField createEmailField() {
 		TextField emailTextField = new TextField();
 		emailTextField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.invite"));
+		return emailTextField;
+	}
+
+	private Button createInviteButton(Grid<UserViewModel> grid, TextField emailTextField) {
 		String inviteLabel = getTranslation("view.fenix-admin.administrators.button.invite");
 		Button inviteButton = new Button(inviteLabel, PAPERPLANE.create());
 		inviteButton.addClickListener(event -> {
@@ -77,13 +91,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 					() -> showErrorNotification(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
 				);
 		});
-		HorizontalLayout horizontalLayout = new HorizontalLayout(emailTextField, inviteButton);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		horizontalLayout.setSpacing(true);
-		return horizontalLayout;
+		return inviteButton;
 	}
 
-	private HorizontalLayout createSearchFilterLayout(Grid<UserViewModel> grid) {
+	private HorizontalLayout createSearchFilterLayout(Grid<UserViewModel> grid, Button inviteButton) {
 		TextField textField = new TextField();
 		textField.setValueChangeMode(ValueChangeMode.EAGER);
 		textField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.search"));
@@ -98,6 +109,9 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				)
 				.collect(toList());
 			grid.setItems(filteredUsers);
+			//TODO This is a work around to fix disappearing text cursor
+			inviteButton.focus();
+			textField.focus();
 		});
 
 		HorizontalLayout search = new HorizontalLayout(textField);
@@ -148,8 +162,12 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		
 		String deleteLabel = getTranslation("view.fenix-admin.administrators.context.menu.remove");
 		contextMenu.addItem(addMenuButton(deleteLabel, MINUS_CIRCLE), event -> {
-			handleExceptions(() -> usersDAO.removeFenixAdminRole(id));
-			grid.setItems(loadUsers(usersDAO::getAdminUsers));
+			if(((ListDataProvider<UserViewModel>) grid.getDataProvider()).getItems().size() > 1) {
+				handleExceptions(() -> usersDAO.removeFenixAdminRole(id));
+				grid.setItems(loadUsers(usersDAO::getAdminUsers));
+			}
+			else
+				showErrorNotification(getTranslation("view.fenix-admin.administrators.error.validation.remove"));
 		});
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
