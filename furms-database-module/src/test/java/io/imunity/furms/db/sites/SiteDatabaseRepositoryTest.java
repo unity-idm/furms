@@ -105,17 +105,10 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.name("")
 				.build();
 		Site nullRequest = null;
-		entityRepository.save(SiteEntity.builder()
-				.name("non_unique_name")
-				.build());
-		Site nonUniqueNameRequest = Site.builder()
-				.name("non_unique_name")
-				.build();
 
 		//when + then
 		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
 		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nonUniqueNameRequest));
 	}
 
 	@Test
@@ -161,7 +154,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueName() {
+	void shouldReturnFalseForNonPresentName() {
 		//given
 		entityRepository.save(SiteEntity.builder()
 				.name("name")
@@ -169,20 +162,44 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNamePresent(uniqueName)).isFalse();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnTrueIfNamePresent() {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
 				.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedSite.getName())).isFalse();
+		assertThat(repository.isNamePresent(existedSite.getName())).isTrue();
 	}
 
+	@Test
+	void shouldReturnTrueIfNameIsPresentOutOfSpecificRecord() {
+		//given
+		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+		SiteEntity existedSite2 = entityRepository.save(SiteEntity.builder()
+				.name("name2")
+				.build());
+
+		//when + then
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite2.getId().toString())).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseIfNameIsPresentOnlyInSpecificRecord() {
+		//given
+		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
+				.name("name")
+				.build());
+
+		//when + then
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite.getId().toString())).isFalse();
+	}
 
 
 }

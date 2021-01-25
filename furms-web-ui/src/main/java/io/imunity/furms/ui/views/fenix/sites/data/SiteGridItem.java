@@ -9,7 +9,7 @@ import io.imunity.furms.domain.sites.Site;
 
 import java.util.Objects;
 
-public class SiteGridItem {
+public class SiteGridItem implements Cloneable {
 
 	private final String id;
 	private String name;
@@ -33,6 +33,11 @@ public class SiteGridItem {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public SiteGridItem clone() {
+		return new SiteGridItem(this.id, this.name);
 	}
 
 	@Override

@@ -107,12 +107,23 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public boolean isNameUnique(String name) {
+	public boolean isNamePresent(String name) {
 		try {
 			validator.validateName(name);
 			return true;
 		} catch (IllegalArgumentException e) {
 			return false;
+		}
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="recordToIgnore")
+	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
+		try {
+			validator.validateIsNamePresentIgnoringRecord(name, recordToIgnore);
+			return false;
+		} catch (IllegalArgumentException e) {
+			return true;
 		}
 	}
 }

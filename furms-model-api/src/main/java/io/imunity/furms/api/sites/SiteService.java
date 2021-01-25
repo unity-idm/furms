@@ -22,6 +22,8 @@ public interface SiteService {
 
 	void delete(String id);
 
-	boolean isNameUnique(String name);
+	boolean isNamePresent(String name);
+
+	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
 
 }

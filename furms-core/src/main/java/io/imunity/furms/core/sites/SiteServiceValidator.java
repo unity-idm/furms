@@ -5,10 +5,13 @@
 
 package io.imunity.furms.core.sites;
 
+import io.imunity.furms.api.sites.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.sites.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
+import static io.imunity.furms.utils.ValidationUtils.check;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -28,7 +31,7 @@ class SiteServiceValidator {
 	void validateUpdate(Site request) {
 		notNull(request, "Site object cannot be null.");
 		validateId(request.getId());
-		validateName(request.getName());
+		validateIsNamePresentIgnoringRecord(request.getName(), request.getId());
 	}
 
 	void validateDelete(String id) {
@@ -37,16 +40,18 @@ class SiteServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "Site name has to be declared.");
-		if (!siteRepository.isUniqueName(name)) {
-			throw new IllegalArgumentException("Site name has to be unique.");
-		}
+		check(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
+	}
+
+	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
+		notNull(recordToIgnore, "Site id has to be declared.");
+		notNull(name, "Invalid Site name: Site name is empty.");
+		check(!siteRepository.isNamePresentIgnoringRecord(name, recordToIgnore), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
 	}
 
 	private void validateId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		if (!siteRepository.exists(id)) {
-			throw new IllegalArgumentException("Site with declared ID is not exists.");
-		}
+		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
 }
