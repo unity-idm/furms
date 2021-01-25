@@ -5,12 +5,14 @@
 
 package io.imunity.furms.unity.client.users;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.List;
@@ -58,17 +60,35 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void addFenixAdminRole(String userId) {
-		String path = prepareRequestPath(userId);
+		String path = prepareGroupRequestPath(userId);
 		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+		String uriComponents = prepareRoleRequestPath(userId);
+		Role fenixAdmin = Role.FENIX_ADMIN;
+		Attribute attribute = new Attribute(
+			fenixAdmin.unityRoleAttribute,
+			ENUMERATION,
+			FENIX_USERS_GROUP,
+			List.of(fenixAdmin.unityRoleValue)
+		);
+		unityClient.put(uriComponents, attribute);
 	}
 
 	@Override
 	public void removeFenixAdminRole(String userId) {
-		String path = prepareRequestPath(userId);
+		String path = prepareGroupRequestPath(userId);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
-	private String prepareRequestPath(String userId) {
+	private String prepareRoleRequestPath(String userId) {
+		return UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.pathSegment("{" + ID + "}")
+			.path(ATTRIBUTE_PATTERN)
+			.buildAndExpand(Map.of(ID, userId))
+			.toUriString();
+	}
+
+	private String prepareGroupRequestPath(String userId) {
 		Map<String, String> uriVariables = Map.of(GROUP_PATH, FENIX_USERS_GROUP, ID, userId);
 		return UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
