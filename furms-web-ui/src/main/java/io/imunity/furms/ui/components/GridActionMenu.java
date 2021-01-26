@@ -5,7 +5,6 @@
 package io.imunity.furms.ui.components;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
-import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
 
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -14,7 +13,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 public class GridActionMenu extends ContextMenu {
 
 	public GridActionMenu() {
-		super(createActionButton(MENU));
+		super(new MenuButton(MENU));
 		setOpenOnClick(true);
 		addClassName("grid-action-menu");
 	}

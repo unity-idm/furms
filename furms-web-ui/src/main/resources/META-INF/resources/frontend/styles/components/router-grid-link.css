@@ -1,0 +1,7 @@
+.router-grid-link {
+	color: var(--lumo-primary-text-color);
+}
+
+a.router-grid-link:hover {
+	text-decoration: none;
+}

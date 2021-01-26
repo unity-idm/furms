@@ -13,11 +13,11 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -41,13 +41,12 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
-
-import java.util.Objects;
 
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
@@ -107,11 +106,11 @@ public class SitesView extends FurmsViewComponent {
 	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		GridActionMenu contextMenu = new GridActionMenu();
 		contextMenu.setId(site.getId());
-		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
+		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
 				e -> actionEditSite(site, siteGrid));
-		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
+		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
 				e -> actionDeleteSite(site, siteGrid));
-		contextMenu.addItem(createActionButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
+		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
 				e -> actionOpenAdministrators(site));
 
 		getContent().add(contextMenu);

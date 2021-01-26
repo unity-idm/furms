@@ -1,0 +1,8 @@
+.menu-button {
+	color: var(--lumo-primary-text-color);
+	cursor: pointer;
+}
+
+.menu-button iron-icon {
+	margin-right: 1em;
+}

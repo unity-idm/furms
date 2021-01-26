@@ -1,3 +1,7 @@
 [part~="header-cell"] ::slotted(vaadin-grid-cell-content) {
     font-weight: bold;
 }
+
+:host(.sparce-grid) [part="row"] {
+	min-height: 3em;
+}
