@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.projects;
 
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.imunity.furms.utils.ValidationUtils.check;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -59,7 +62,7 @@ class ProjectServiceValidator {
 		notNull(project.getName(), "Project name has to be declared.");
 		validateLength("name", project.getName(), 255);
 		if (isNameUnique(project)) {
-			throw new IllegalArgumentException("Project name has to be unique.");
+			throw new DuplicatedNameValidationError("Project name has to be unique.");
 		}
 	}
 
@@ -85,16 +88,12 @@ class ProjectServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Project ID has to be declared.");
-		if (!projectRepository.exists(id)) {
-			throw new IllegalArgumentException("Project with declared ID is not exists.");
-		}
+		check(projectRepository.exists(id), () -> new IdNotFoundValidationError("Project with declared ID is not exists."));
 	}
 
 	private void validateCommunityId(String id) {
 		notNull(id, "Community ID has to be declared.");
-		if (!communityRepository.exists(id)) {
-			throw new IllegalArgumentException("Community with declared ID is not exists.");
-		}
+		check(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
 	}
 
 	private void validateUpdateCommunityId(Project project) {

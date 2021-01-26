@@ -26,7 +26,6 @@ import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.MenuComponentFactory.createActionButton;
@@ -35,8 +34,8 @@ import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterIcon;
 import static io.imunity.furms.ui.utils.RouterLinkFactory.createRouterPool;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.projects.page.title")
@@ -70,9 +69,11 @@ public class ProjectsView extends FurmsViewComponent {
 
 		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectView.class, c.id))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
-			.setSortable(true);
+			.setSortable(true)
+			.setComparator(x -> x.name.toLowerCase());
 		grid.addColumn(c -> c.description)
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"));
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))
+			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -117,29 +118,12 @@ public class ProjectsView extends FurmsViewComponent {
 			getTranslation("view.community-admin.projects.menu.edit"), EDIT),
 			event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
 		);
-		Button approveButton = new Button(getTranslation("view.community-admin.projects.dialog.button.approve"));
-		approveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-		Button cancelButton = new Button(getTranslation("view.community-admin.projects.dialog.button.cancel"));
-		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-		Dialog dialog = new Dialog(
-			new VerticalLayout(
-				new Span(getTranslation("view.community-admin.projects.dialog.button.text", projectName)),
-				new HorizontalLayout(approveButton, cancelButton)
-			)
-		);
-
-		approveButton.addClickListener(event -> {
-			handleExceptions(() -> projectService.delete(projectId, communityId));
-			loadGridContent();
-			dialog.close();
-		});
-		cancelButton.addClickListener(event -> dialog.close());
+		Dialog confirmDialog = createConfirmDialog(projectId, projectName, communityId);
 
 		contextMenu.addItem(createActionButton(
 			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
-			event -> dialog.open()
+			event -> confirmDialog.open()
 		);
 
 		Component adminComponent = createActionButton(
@@ -160,15 +144,41 @@ public class ProjectsView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
+	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
+		Button confirmButton = new Button(getTranslation("view.community-admin.projects.dialog.button.approve"));
+		confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+		Button cancelButton = new Button(getTranslation("view.community-admin.projects.dialog.button.cancel"));
+		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+		Dialog dialog = new Dialog(
+			new VerticalLayout(
+				new Span(getTranslation("view.community-admin.projects.dialog.button.text", projectName)),
+				new HorizontalLayout(confirmButton, cancelButton)
+			)
+		);
+
+		confirmButton.addClickListener(event -> {
+			handleExceptions(() -> projectService.delete(projectId, communityId));
+			loadGridContent();
+			dialog.close();
+		});
+
+		cancelButton.addClickListener(event -> dialog.close());
+
+		return dialog;
+	}
+
 	private void loadGridContent() {
 		grid.setItems(loadProjectsViewsModels());
 	}
 
-	private Set<ProjectViewModel> loadProjectsViewsModels() {
+	private List<ProjectViewModel> loadProjectsViewsModels() {
 		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(ProjectViewModelMapper::map)
-			.collect(toSet());
+			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
+			.collect(toList());
 	}
 }

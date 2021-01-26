@@ -29,6 +29,8 @@ import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.config.FrontProperties;
+import io.imunity.furms.ui.utils.NotificationUtils;
+import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.io.IOException;
@@ -38,6 +40,7 @@ import java.util.Optional;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
@@ -155,7 +158,6 @@ class ProjectFormView extends FurmsViewComponent {
 			binder.getBean().setLogo(FurmsImage.empty());
 			upload.getImage().setVisible(false);
 		});
-		upload.getImage().setId("community-logo");
 		return upload;
 	}
 
@@ -181,11 +183,16 @@ class ProjectFormView extends FurmsViewComponent {
 	private void saveProject() {
 		ProjectViewModel projectViewModel = binder.getBean();
 		Project project = ProjectViewModelMapper.map(projectViewModel);
+		OptionalException<Void> optionalException;
 		if(project.getId() == null)
-			handleExceptions(() -> projectService.create(project));
+			optionalException = getResultOrException(() -> projectService.create(project));
 		else
-			handleExceptions(() -> projectService.update(project));
-		UI.getCurrent().navigate(ProjectsView.class);
+			optionalException = getResultOrException(() -> projectService.update(project));
+
+		optionalException.getThrowable().ifPresentOrElse(
+			throwable -> NotificationUtils.showErrorNotification(getTranslation("project.error.message")),
+			() -> UI.getCurrent().navigate(ProjectsView.class)
+		);
 	}
 
 	private void setFormPools(ProjectViewModel projectViewModel) {
