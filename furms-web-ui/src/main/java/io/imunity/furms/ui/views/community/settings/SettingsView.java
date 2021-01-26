@@ -52,7 +52,6 @@ public class SettingsView extends FurmsViewComponent {
 			binder.validate();
 			if(binder.isValid()) {
 				CommunityViewModel communityViewModel = binder.getBean();
-				communityViewModel.setLogoImage(communityFormComponent.getLogo());
 				Community community = CommunityViewModelMapper.map(communityViewModel);
 				handleExceptions(() -> communityService.update(community));
 			}
