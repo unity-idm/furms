@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.utils;
 
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,9 @@ public class VaadinExceptionHandler {
 	public static <T> Optional<T> handleExceptions(Supplier<T> supplier){
 		try {
 			return Optional.ofNullable(supplier.get());
+		}catch (DuplicatedNameValidationError e){
+			showErrorNotification(getTranslation("name.duplicated.error.message"));
+			return Optional.empty();
 		}catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
@@ -36,4 +40,24 @@ public class VaadinExceptionHandler {
 		});
 	}
 
+	public static <T> OptionalException<T> getResultOrException(Supplier<T> supplier){
+		try {
+			return OptionalException.of(supplier.get());
+		}catch (DuplicatedNameValidationError e){
+			showErrorNotification(getTranslation("name.duplicated.error.message"));
+			return OptionalException.of(e);
+		}catch (Exception e){
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("base.error.message"));
+			return OptionalException.of(e);
+		}
+	}
+
+	public static OptionalException<Void> getResultOrException(Runnable runnable){
+		return getResultOrException(() -> {
+			runnable.run();
+			return null;
+		});
+	}
+	
 }

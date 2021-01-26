@@ -5,8 +5,8 @@
 
 package io.imunity.furms.core.sites;
 
-import io.imunity.furms.api.sites.exceptions.DuplicatedNameValidationError;
-import io.imunity.furms.api.sites.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
