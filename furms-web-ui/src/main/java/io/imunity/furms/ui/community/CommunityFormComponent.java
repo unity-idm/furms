@@ -75,7 +75,6 @@ public class CommunityFormComponent extends Composite<Div> {
 			binder.getBean().setLogoImage(FurmsImage.empty());
 			upload.getImage().setVisible(false);
 		});
-		upload.getImage().setId("community-logo");
 		return upload;
 	}
 

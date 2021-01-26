@@ -34,14 +34,8 @@
 	padding-left: 0;
 }
 
-.furms-upload-layout {
-	padding-bottom: 1em;
-}
-
-#community-logo {
-	max-width: 150px;
-	max-height: 150px;
-	object-fit: contain;
+.no-top-margin {
+	margin-top: 0;
 }
 
 .description-text-area {
