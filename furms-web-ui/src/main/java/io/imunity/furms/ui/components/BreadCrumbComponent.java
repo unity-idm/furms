@@ -36,6 +36,7 @@ class BreadCrumbComponent extends Composite<Div> {
 		
 		getSubview(componentClass).ifPresent(menuElement -> {
 			if (bredCrumbs.isEmpty()) {
+				// entering page directly from URL link
 				bredCrumbs.push(new BreadCrumb(menuElement.component, null));
 			}
 		});
@@ -65,7 +66,10 @@ class BreadCrumbComponent extends Composite<Div> {
 	}
 
 	private boolean isChangingMenuViews(Class<? extends FurmsViewComponent> componentClass) {
-		return menuRouts.stream().map(menu -> menu.component).collect(toList()).contains(componentClass);
+		return menuRouts.stream()
+				.map(menu -> menu.component)
+				.collect(toList())
+				.contains(componentClass);
 	}
 
 	private void updateView() {
