@@ -8,7 +8,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 
-@CssImport(value = "./styles/components/sparce-grid.css", themeFor = "vaadin-grid")
+@CssImport(value = "./styles/components/sparse-grid.css", themeFor = "vaadin-grid")
 public class SparseGrid<T> extends Grid<T> {
 
 	public SparseGrid(Class<T> beanType) {

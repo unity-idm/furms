@@ -2,6 +2,6 @@
     font-weight: bold;
 }
 
-:host(.sparce-grid) [part="row"] {
+:host(.sparse-grid) [part="row"] {
 	min-height: 3em;
 }
