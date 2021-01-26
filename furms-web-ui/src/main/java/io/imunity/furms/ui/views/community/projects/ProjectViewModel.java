@@ -8,20 +8,20 @@ package io.imunity.furms.ui.views.community.projects;
 import io.imunity.furms.domain.images.FurmsImage;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 class ProjectViewModel {
 	public final String id;
 	public final String communityId;
 	public String name;
 	public String description;
-	public Optional<FurmsImage> logo = Optional.empty();
+	public FurmsImage logo;
 	public String acronym;
 	public String researchField;
 	public LocalDateTime startTime;
 	public LocalDateTime endTime;
 
-	private ProjectViewModel(String id, String communityId, String name, String description, Optional<FurmsImage> logo, String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime) {
+	private ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
+	                         String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -36,6 +36,7 @@ class ProjectViewModel {
 	ProjectViewModel(String communityId) {
 		this.id = null;
 		this.communityId = communityId;
+		this.logo = FurmsImage.empty();
 	}
 
 	public String getId() {
@@ -62,11 +63,11 @@ class ProjectViewModel {
 		this.description = description;
 	}
 
-	public Optional<FurmsImage> getLogo() {
+	public FurmsImage getLogo() {
 		return logo;
 	}
 
-	public void setLogo(Optional<FurmsImage> logo) {
+	public void setLogo(FurmsImage logo) {
 		this.logo = logo;
 	}
 
@@ -111,7 +112,7 @@ class ProjectViewModel {
 		public String communityId;
 		public String name;
 		public String description;
-		public Optional<FurmsImage> logo;
+		public FurmsImage logo;
 		public String acronym;
 		public String researchField;
 		public LocalDateTime startTime;
@@ -144,7 +145,7 @@ class ProjectViewModel {
 			return this;
 		}
 
-		public ProjectViewModelBuilder logo(Optional<FurmsImage> logo) {
+		public ProjectViewModelBuilder logo(FurmsImage logo) {
 			this.logo = logo;
 			return this;
 		}

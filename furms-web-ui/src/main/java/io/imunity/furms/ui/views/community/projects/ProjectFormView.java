@@ -11,14 +11,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
@@ -29,49 +25,50 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.config.FrontProperties;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.form.page.title")
 class ProjectFormView extends FurmsViewComponent {
-	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
-	private final Image image = new Image();
 	private final ProjectService projectService;
-	private final static String[] acceptedImgFiles = {"image/jpeg", "image/png", "image/gif"};
+	private final FurmsImageUpload upload;
 
 	private BreadCrumbParameter breadCrumbParameter;
-	private Optional<FurmsImage> logo = empty();
 
 	ProjectFormView(ProjectService communityService, FrontProperties frontProperties) {
 		this.projectService = communityService;
+		this.upload = createUploadComponent();
 
 		TextField name = new TextField(getTranslation("view.community-admin.project.form.field.name"));
+		name.setValueChangeMode(EAGER);
 		TextArea description = new TextArea(getTranslation("view.community-admin.project.form.field.description"));
 		description.setClassName("description-text-area");
+		description.setValueChangeMode(EAGER);
 		TextField acronym = new TextField(getTranslation("view.community-admin.project.form.field.acronym"));
+		acronym.setValueChangeMode(EAGER);
 		DateTimePicker startTime = new DateTimePicker(getTranslation("view.community-admin.project.form.field.start-time"));
 		DateTimePicker endTime = new DateTimePicker(getTranslation("view.community-admin.project.form.field.end-time"));
 		TextField researchField = new TextField(getTranslation("view.community-admin.project.form.field.research-field"));
+		researchField.setValueChangeMode(EAGER);
 		ComboBox<String> leader = new ComboBox<>(getTranslation("view.community-admin.project.form.field.project-leader"));
-		Upload upload = createUploadComponent();
 
 		Button saveButton = createSaveButton();
+		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button closeButton = createCloseButton();
 
 		prepareValidator(name, description, acronym, startTime, endTime, researchField);
@@ -79,13 +76,9 @@ class ProjectFormView extends FurmsViewComponent {
 		VerticalLayout verticalLayout = new VerticalLayout(name, description, acronym, startTime, endTime, researchField, leader);
 		verticalLayout.setClassName("no-left-padding");
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(image, upload);
-		horizontalLayout.setClassName("furms-upload-layout");
-		image.setId("community-logo");
-
 		getContent().add(
 			verticalLayout,
-			horizontalLayout,
+			upload,
 			new HorizontalLayout(saveButton, closeButton)
 		);
 	}
@@ -94,8 +87,12 @@ class ProjectFormView extends FurmsViewComponent {
 	                              DateTimePicker endTime, TextField researchField) {
 		binder.forField(name)
 			.withValidator(
-				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
-				getTranslation("view.community-admin.project.form.error.validation.field.name")
+				value -> Objects.nonNull(value) && !value.isBlank(),
+				getTranslation("view.community-admin.project.form.error.validation.field.name.1")
+			)
+			.withValidator(
+				value -> value.length() <= 20,
+				getTranslation("view.community-admin.project.form.error.validation.field.name.2")
 			)
 			.bind(ProjectViewModel::getName, ProjectViewModel::setName);
 		binder.forField(description)
@@ -106,14 +103,22 @@ class ProjectFormView extends FurmsViewComponent {
 			.bind(ProjectViewModel::getDescription, ProjectViewModel::setDescription);
 		binder.forField(acronym)
 			.withValidator(
-				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 8,
-				getTranslation("view.community-admin.project.form.error.validation.field.acronym")
+				value -> Objects.nonNull(value) && !value.isBlank(),
+				getTranslation("view.community-admin.project.form.error.validation.field.acronym.1")
+			)
+			.withValidator(
+				value -> value.length() <= 8,
+				getTranslation("view.community-admin.project.form.error.validation.field.acronym.2")
 			)
 			.bind(ProjectViewModel::getAcronym, ProjectViewModel::setAcronym);
 		binder.forField(researchField)
 			.withValidator(
-				value -> Objects.nonNull(value) && !value.isBlank() && value.length() <= 255,
-				getTranslation("view.community-admin.project.form.error.validation.field.research-field")
+				value -> Objects.nonNull(value) && !value.isBlank(),
+				getTranslation("view.community-admin.project.form.error.validation.field.research-field.1")
+			)
+			.withValidator(
+				value -> value.length() <= 20,
+				getTranslation("view.community-admin.project.form.error.validation.field.research-field.2")
 			)
 			.bind(ProjectViewModel::getResearchField, ProjectViewModel::setResearchField);
 		binder.forField(startTime)
@@ -130,35 +135,28 @@ class ProjectFormView extends FurmsViewComponent {
 			.bind(ProjectViewModel::getEndTime, ProjectViewModel::setEndTime);
 	}
 
-	private Upload createUploadComponent() {
-		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		Upload upload = new Upload(memoryBuffer);
-		upload.setAcceptedFileTypes(acceptedImgFiles);
-		upload.setMaxFileSize(MAX_IMAGE_SIZE_BYTES);
-		upload.setDropAllowed(true);
+	private FurmsImageUpload createUploadComponent() {
+		FurmsImageUpload upload = new FurmsImageUpload();
 		upload.addFinishedListener(event -> {
-			logo = Optional.of(loadFile(memoryBuffer, event.getMIMEType()));
-			InputStream inputStream = memoryBuffer.getInputStream();
-			StreamResource streamResource = new StreamResource(event.getFileName(), () -> inputStream);
-			image.setSrc(streamResource);
-			image.setVisible(true);
+			try {
+				binder.getBean().setLogo(upload.loadFile(event.getMIMEType()));
+				StreamResource streamResource =
+					new StreamResource(event.getFileName(), upload.getMemoryBuffer()::getInputStream);
+				upload.getImage().setSrc(streamResource);
+				upload.getImage().setVisible(true);
+			} catch (IOException e) {
+				showErrorNotification(getTranslation("view.community-admin.project.form.error.validation.file"));
+			}
 		});
 		upload.addFileRejectedListener(event ->
-			Notification.show(getTranslation("view.community-admin.project.form.error.validation.file"))
+			showErrorNotification(getTranslation("view.community-admin.project.form.error.validation.file"))
 		);
-		upload.getElement().addEventListener("file-remove", event -> {
-			logo = Optional.empty();
-			image.setVisible(false);
+		upload.addFileRemovedListener( event -> {
+			binder.getBean().setLogo(FurmsImage.empty());
+			upload.getImage().setVisible(false);
 		});
+		upload.getImage().setId("community-logo");
 		return upload;
-	}
-
-	private FurmsImage loadFile(MemoryBuffer memoryBuffer, String mimeType) {
-		try {
-			return new FurmsImage(memoryBuffer.getInputStream().readAllBytes(), mimeType.split("/")[1]);
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 
 	private Button createCloseButton() {
@@ -182,7 +180,6 @@ class ProjectFormView extends FurmsViewComponent {
 
 	private void saveProject() {
 		ProjectViewModel projectViewModel = binder.getBean();
-		projectViewModel.setLogo(logo);
 		Project project = ProjectViewModelMapper.map(projectViewModel);
 		if(project.getId() == null)
 			handleExceptions(() -> projectService.create(project));
@@ -193,16 +190,7 @@ class ProjectFormView extends FurmsViewComponent {
 
 	private void setFormPools(ProjectViewModel projectViewModel) {
 		binder.setBean(projectViewModel);
-		logo = projectViewModel.getLogo();
-		image.setVisible(logo.isPresent() && logo.get().getImage() != null);
-		if(logo.isPresent()) {
-			StreamResource resource =
-				new StreamResource(
-					UUID.randomUUID().toString() + "." + logo.get().getType(),
-					() -> new ByteArrayInputStream(logo.get().getImage())
-				);
-			image.setSrc(resource);
-		}
+		upload.setValue(projectViewModel.getLogo());
 	}
 
 	@Override

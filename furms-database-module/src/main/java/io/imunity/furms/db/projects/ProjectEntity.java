@@ -13,7 +13,6 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Table("PROJECT")
@@ -172,11 +171,9 @@ class ProjectEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ProjectEntityBuilder logo(Optional<FurmsImage> furmsImage) {
-			if(furmsImage.isPresent()) {
-				this.logoImage = furmsImage.get().getImage();
-				this.logoType = furmsImage.get().getType();
-			}
+		public ProjectEntityBuilder logo(FurmsImage furmsImage) {
+			this.logoImage = furmsImage.getImage();
+			this.logoType = furmsImage.getType();
 			return this;
 		}
 

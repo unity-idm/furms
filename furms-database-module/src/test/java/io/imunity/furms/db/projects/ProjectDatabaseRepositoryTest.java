@@ -6,8 +6,16 @@
 package io.imunity.furms.db.projects;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -15,17 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.communites.CommunityRepository;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -92,7 +91,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(project.getId()).isEqualTo(entity.getId().toString());
 		assertThat(project.getName()).isEqualTo(entity.getName());
 		assertThat(project.getDescription()).isEqualTo(entity.getDescription());
-		assertThat(project.getLogo().get()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
+		assertThat(project.getLogo()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
 	}
 
 	@Test
@@ -209,8 +208,8 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 		assertThat(byId.get().getDescription()).isEqualTo("new_description");
-		assertThat(byId.get().getLogo().get().getImage()).isEqualTo(imgTestFile2);
-		assertThat(byId.get().getLogo().get().getType()).isEqualTo("jpg");
+		assertThat(byId.get().getLogo().getImage()).isEqualTo(imgTestFile2);
+		assertThat(byId.get().getLogo().getType()).isEqualTo("jpg");
 		assertThat(byId.get().getAcronym()).isEqualTo("new_acronym");
 		assertThat(byId.get().getResearchField()).isEqualTo("new_research filed");
 		assertThat(byId.get().getStartTime()).isEqualTo(newStartTime);

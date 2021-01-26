@@ -8,10 +8,14 @@ package io.imunity.furms.ui.views.community.projects;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -65,7 +69,8 @@ public class ProjectsView extends FurmsViewComponent {
 		Grid<ProjectViewModel> grid = new SparseGrid<>(ProjectViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectView.class, c.id))
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"));
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
+			.setSortable(true);
 		grid.addColumn(c -> c.description)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"));
 		grid.addComponentColumn(this::createLastColumnContent)
@@ -101,23 +106,40 @@ public class ProjectsView extends FurmsViewComponent {
 		return new GridActionsButtonLayout(
 			createRouterIcon(USERS, projectViewModel.id, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
 			createRouterIcon(PIE_CHART, projectViewModel.id, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
-			createContextMenu(projectViewModel.id, projectViewModel.communityId)
+			createContextMenu(projectViewModel.id, projectViewModel.name, projectViewModel.communityId)
 		);
 	}
 
-	private Component createContextMenu(String projectId, String communityId) {
+	private Component createContextMenu(String projectId, String projectName, String communityId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(createActionButton(
 			getTranslation("view.community-admin.projects.menu.edit"), EDIT),
 			event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
 		);
+		Button approveButton = new Button(getTranslation("view.community-admin.projects.dialog.button.approve"));
+		approveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+		Button cancelButton = new Button(getTranslation("view.community-admin.projects.dialog.button.cancel"));
+		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+		Dialog dialog = new Dialog(
+			new VerticalLayout(
+				new Span(getTranslation("view.community-admin.projects.dialog.button.text", projectName)),
+				new HorizontalLayout(approveButton, cancelButton)
+			)
+		);
+
+		approveButton.addClickListener(event -> {
+			handleExceptions(() -> projectService.delete(projectId, communityId));
+			loadGridContent();
+			dialog.close();
+		});
+		cancelButton.addClickListener(event -> dialog.close());
+
 		contextMenu.addItem(createActionButton(
 			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
-			event -> {
-				handleExceptions(() -> projectService.delete(projectId, communityId));
-				loadGridContent();
-			}
+			event -> dialog.open()
 		);
 
 		Component adminComponent = createActionButton(

@@ -34,6 +34,19 @@
 	padding-left: 0;
 }
 
+.no-top-margin {
+	margin-top: 0;
+}
+
+.furms-upload-label{
+	padding-bottom: 0.5em;
+	color: var(--lumo-secondary-text-color);
+	padding-bottom: 0.5em;
+	font-family: var(--lumo-font-family);
+	font-weight: 500;
+	font-size: var(--lumo-font-size-s);
+}
+
 .furms-upload-layout {
 	padding-bottom: 1em;
 }
