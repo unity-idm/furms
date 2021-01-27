@@ -148,9 +148,8 @@ public class FurmsImageUpload extends VerticalLayout
 
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super FurmsImageUpload> listener) {
-		return ComponentUtil.addListener(this, 
-				AbstractField.ComponentValueChangeEvent.class, 
-				event -> listener.valueChanged(this));
+		ComponentEventListener componentListener = event -> listener.valueChanged(this);
+		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
 	}
 
 	public FurmsImage loadFile(String mimeType) throws IOException {
