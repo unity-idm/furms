@@ -81,7 +81,7 @@ public class SettingsView extends FurmsViewComponent {
 		closeButton.addClickListener(event ->{
 			loadProject();
 			closeButton.setVisible(false);
-			projectFormComponent.getUpload();
+			projectFormComponent.getUpload().clean();
 		});
 		return closeButton;
 	}

@@ -5,11 +5,6 @@
 
 package io.imunity.furms.ui.components;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
@@ -26,8 +21,12 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.dom.DomEventListener;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-
+import elemental.json.Json;
 import io.imunity.furms.domain.images.FurmsImage;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 @CssImport("./styles/components/furms-image-upload.css")
 public class FurmsImageUpload extends VerticalLayout
@@ -68,6 +67,10 @@ public class FurmsImageUpload extends VerticalLayout
 		Label logo = new Label(getTranslation("logo"));
 		logo.setClassName("furms-upload-label");
 		add(logo, horizontalLayout);
+	}
+
+	public void clean() {
+		upload.getElement().setPropertyJson("files", Json.createArray());
 	}
 
 	public void addFinishedListener(ComponentEventListener<FinishedEvent> finishedListener) {
