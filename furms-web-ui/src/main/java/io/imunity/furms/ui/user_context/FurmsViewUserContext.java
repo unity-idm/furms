@@ -12,12 +12,14 @@ public class FurmsViewUserContext {
 	public final String name;
 	public final String route;
 	public final ViewMode viewMode;
+	public final boolean redirectable;
 
 	public FurmsViewUserContext(String id, String name, ViewMode viewMode) {
 		this.id = id;
 		this.name = name;
 		this.route = viewMode.route;
 		this.viewMode = viewMode;
+		this.redirectable = true;
 	}
 
 	public FurmsViewUserContext(String id, String name, ViewMode viewMode, String route) {
@@ -25,6 +27,15 @@ public class FurmsViewUserContext {
 		this.name = name;
 		this.route = route;
 		this.viewMode = viewMode;
+		this.redirectable = true;
+	}
+
+	public FurmsViewUserContext(FurmsViewUserContext furmsViewUserContext, boolean redirectable) {
+		this.id = furmsViewUserContext.id;
+		this.name = furmsViewUserContext.name;
+		this.route = furmsViewUserContext.route;
+		this.viewMode = furmsViewUserContext.viewMode;
+		this.redirectable = redirectable;
 	}
 
 	public FurmsViewUserContext(String name, ViewMode viewMode) {

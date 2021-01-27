@@ -47,6 +47,7 @@ class RoleTranslatorService implements RoleTranslator {
 	}
 
 	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(){
+		authzService.reloadRoles();
 		if(authzService.getRoles().isEmpty()){
 			return Map.of(USER, List.of(new FurmsViewUserContext("User settings", USER)));
 		}
