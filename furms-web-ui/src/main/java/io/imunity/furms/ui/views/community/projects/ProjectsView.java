@@ -5,23 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.ADMINISTRATORS_PARAM;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.ALLOCATIONS_PARAM;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.PARAM_NAME;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -37,17 +20,21 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.RouterGridLink;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.project.ProjectViewModel;
+import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.projects.page.title")

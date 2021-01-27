@@ -3,13 +3,13 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community.projects;
+package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.images.FurmsImage;
 
 import java.time.LocalDateTime;
 
-class ProjectViewModel {
+public class ProjectViewModel {
 	public final String id;
 	public final String communityId;
 	public String name;
@@ -33,7 +33,7 @@ class ProjectViewModel {
 		this.endTime = endTime;
 	}
 
-	ProjectViewModel(String communityId) {
+	public ProjectViewModel(String communityId) {
 		this.id = null;
 		this.communityId = communityId;
 		this.logo = FurmsImage.empty();
