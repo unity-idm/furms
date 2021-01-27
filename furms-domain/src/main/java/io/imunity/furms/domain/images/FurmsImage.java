@@ -13,11 +13,6 @@ public class FurmsImage {
 	private final byte[] image;
 	private final FurmsImageExtension type;
 
-	private FurmsImage(byte[] logoImage, FurmsImageExtension type) {
-		this.image = logoImage;
-		this.type = type;
-	}
-
 	public FurmsImage(byte[] logoImage, String type) {
 		this.image = logoImage;
 		this.type = Optional.ofNullable(type)

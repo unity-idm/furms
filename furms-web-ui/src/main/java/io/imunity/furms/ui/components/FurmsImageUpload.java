@@ -5,6 +5,11 @@
 
 package io.imunity.furms.ui.components;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
@@ -21,11 +26,8 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.dom.DomEventListener;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-import io.imunity.furms.domain.images.FurmsImage;
-import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import io.imunity.furms.domain.images.FurmsImage;
 
 @CssImport("./styles/components/furms-image-upload.css")
 public class FurmsImageUpload extends VerticalLayout
@@ -146,8 +148,9 @@ public class FurmsImageUpload extends VerticalLayout
 
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super FurmsImageUpload> listener) {
-		ComponentEventListener componentListener = event -> listener.valueChanged(this);
-		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
+		return ComponentUtil.addListener(this, 
+				AbstractField.ComponentValueChangeEvent.class, 
+				event -> listener.valueChanged(this));
 	}
 
 	public FurmsImage loadFile(String mimeType) throws IOException {
