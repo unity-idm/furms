@@ -120,6 +120,8 @@ public class SitesView extends FurmsViewComponent {
 
 	private Component addEditForm(Editor<SiteGridItem> siteEditor) {
 		TextField siteNameField = new TextField();
+		siteNameField.setMaxLength(SitesAddView.MAX_SITE_NAME_LENGTH);
+		siteNameField.setWidthFull();
 		siteNameField.setValueChangeMode(EAGER);
 		siteEditor.getBinder().forField(siteNameField)
 				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))

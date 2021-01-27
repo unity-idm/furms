@@ -5,6 +5,11 @@
 
 package io.imunity.furms.ui.views.fenix.sites;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
@@ -22,15 +28,12 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
 public class SitesAddView extends FurmsViewComponent {
 
+	public static final int MAX_SITE_NAME_LENGTH = 20;
+	
 	private final SiteService siteService;
 
 	private final TextField name;
@@ -39,7 +42,8 @@ public class SitesAddView extends FurmsViewComponent {
 		this.siteService = siteService;
 
 		name = new TextField();
-
+		name.focus();
+		
 		addHeader();
 		addForm();
 	}
@@ -66,6 +70,7 @@ public class SitesAddView extends FurmsViewComponent {
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
 		name.setWidthFull();
+		name.setMaxLength(MAX_SITE_NAME_LENGTH);
 
 		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"), e -> doCancelAction());
 		cancel.addThemeVariants(LUMO_TERTIARY);
