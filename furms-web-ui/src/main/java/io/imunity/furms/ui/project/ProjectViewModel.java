@@ -8,6 +8,7 @@ package io.imunity.furms.ui.project;
 import io.imunity.furms.domain.images.FurmsImage;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class ProjectViewModel {
 	public final String id;
@@ -37,6 +38,18 @@ public class ProjectViewModel {
 		this.id = null;
 		this.communityId = communityId;
 		this.logo = FurmsImage.empty();
+	}
+
+	public ProjectViewModel(ProjectViewModel projectViewModel) {
+		this.id = projectViewModel.id;
+		this.communityId = projectViewModel.communityId;
+		this.name = projectViewModel.name;
+		this.description = projectViewModel.description;
+		this.logo = projectViewModel.logo;
+		this.acronym = projectViewModel.acronym;
+		this.researchField = projectViewModel.researchField;
+		this.startTime = projectViewModel.startTime;
+		this.endTime = projectViewModel.endTime;
 	}
 
 	public String getId() {
@@ -113,7 +126,33 @@ public class ProjectViewModel {
 				acronym.toLowerCase().contains(value) ||
 				researchField.toLowerCase().contains(value);
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProjectViewModel that = (ProjectViewModel) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	public boolean equalsFields(ProjectViewModel that) {
+		if (this == that) return true;
+		if (that == null) return false;
+		return Objects.equals(id, that.id) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(description, that.description) &&
+			Objects.equals(acronym, that.acronym) &&
+			Objects.equals(researchField, that.researchField) &&
+			Objects.equals(startTime, that.startTime) &&
+			Objects.equals(endTime, that.endTime);
+	}
+
 	public static final class ProjectViewModelBuilder {
 		public String id;
 		public String communityId;

@@ -87,7 +87,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
-				getTranslation("view.community-admin.project.form.error.validation.field.nameField.1")
+				getTranslation("view.community-admin.project.form.error.validation.field.name")
 			)
 			.bind(ProjectViewModel::getName, ProjectViewModel::setName);
 		binder.forField(descriptionField)
@@ -95,13 +95,13 @@ public class ProjectFormComponent extends Composite<Div> {
 		binder.forField(acronymField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
-				getTranslation("view.community-admin.project.form.error.validation.field.acronymField.1")
+				getTranslation("view.community-admin.project.form.error.validation.field.acronym")
 			)
 			.bind(ProjectViewModel::getAcronym, ProjectViewModel::setAcronym);
 		binder.forField(researchField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
-				getTranslation("view.community-admin.project.form.error.validation.field.research-field.1")
+				getTranslation("view.community-admin.project.form.error.validation.field.research-field")
 			)
 			.bind(ProjectViewModel::getResearchField, ProjectViewModel::setResearchField);
 		binder.forField(startTimePicker)
@@ -134,7 +134,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		upload.addFileRejectedListener(event ->
 			showErrorNotification(getTranslation("view.community-admin.project.form.error.validation.file"))
 		);
-		upload.addFileRemovedListener( event -> {
+		upload.addFileRemovedListener(event -> {
 			binder.getBean().setLogo(FurmsImage.empty());
 			upload.getImage().setVisible(false);
 		});
@@ -144,5 +144,9 @@ public class ProjectFormComponent extends Composite<Div> {
 	public void setFormPools(ProjectViewModel projectViewModel) {
 		binder.setBean(projectViewModel);
 		uploadComponent.setValue(projectViewModel.getLogo());
+	}
+
+	public FurmsImageUpload getUpload() {
+		return uploadComponent;
 	}
 }

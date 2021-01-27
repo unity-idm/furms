@@ -56,7 +56,6 @@ class ProjectFormView extends FurmsViewComponent {
 		);
 	}
 
-
 	private Button createCloseButton() {
 		Button closeButton = new Button(getTranslation("view.community-admin.project.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
