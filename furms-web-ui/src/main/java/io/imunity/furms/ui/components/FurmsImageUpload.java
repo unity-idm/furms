@@ -9,6 +9,7 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.FileRejectedEvent;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+@CssImport("./styles/components/furms-image-upload.css")
 public class FurmsImageUpload extends HorizontalLayout
 		implements HasValue<FurmsImageUpload, FurmsImage>, HasValue.ValueChangeEvent<FurmsImage> {
 
