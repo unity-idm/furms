@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.projects;
 
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.LimitedProject;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -148,6 +150,48 @@ class ProjectServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(projectRepository).update(eq(request));
+		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
+	}
+
+	@Test
+	void shouldAllowToUpdateLimitedProject() {
+		//given
+		Project project = Project.builder()
+			.id("id")
+			.communityId("id")
+			.description("description")
+			.name("userFacingName")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+		FurmsImage empty = FurmsImage.empty();
+		LimitedProject request = new LimitedProject("id", "description_new", empty);
+		ProjectGroup groupRequest = ProjectGroup.builder()
+			.id("id")
+			.name("userFacingName")
+			.communityId("id")
+			.build();
+		when(communityRepository.exists(request.getId())).thenReturn(true);
+		when(projectRepository.exists(request.getId())).thenReturn(true);
+		when(projectRepository.findById(request.getId())).thenReturn(Optional.of(project));
+
+		//when
+		service.limitedUpdate(request);
+
+		Project updatedProject = Project.builder()
+			.id("id")
+			.communityId("id")
+			.description("description_new")
+			.logo(empty)
+			.name("userFacingName")
+			.acronym("acronym")
+			.researchField("research field")
+			.startTime(LocalDateTime.now())
+			.endTime(LocalDateTime.now().plusWeeks(1))
+			.build();
+		orderVerifier.verify(projectRepository).update(eq(updatedProject));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
 	}
 

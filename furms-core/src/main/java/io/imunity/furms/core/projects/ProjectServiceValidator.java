@@ -7,6 +7,7 @@ package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.domain.projects.LimitedProject;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -52,6 +53,12 @@ class ProjectServiceValidator {
 		notNull(project.getResearchField(), "Research field cannot be null.");
 		validateLength("researchField", project.getResearchField(), 255);
 		validateTime(project.getStartTime(), project.getEndTime());
+	}
+
+	void validateLimitedUpdate(LimitedProject project) {
+		notNull(project, "Project object cannot be null.");
+		validateId(project.getId());
+		validateLength("description", project.getDescription(), 510);
 	}
 
 	void validateDelete(String id) {
