@@ -17,18 +17,18 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
-import io.imunity.furms.ui.utils.NotificationUtils;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Optional;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
@@ -83,7 +83,7 @@ class CommunityFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> communityService.update(community));
 		optionalException.getThrowable().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation("community.error.message")),
+			throwable -> showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(CommunitiesView.class)
 		);
 	}

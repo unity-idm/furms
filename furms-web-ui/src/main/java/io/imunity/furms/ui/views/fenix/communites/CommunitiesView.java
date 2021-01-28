@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
 import static java.util.stream.Collectors.toSet;
@@ -111,7 +113,9 @@ public class CommunitiesView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String communityId, String communityName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.community.dialog.text", communityName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> communityService.delete(communityId));
+			getResultOrException(() -> communityService.delete(communityId))
+				.getThrowable()
+				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), communityName)));
 			loadGridContent();
 		});
 		return furmsDialog;

@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.communites;
 
-import io.imunity.furms.api.validation.exceptions.CommunityHasProjectsException;
+import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.communities.Community;
@@ -43,8 +43,8 @@ class CommunityServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
-		if(projectRepository.findAll(id).isEmpty())
-			throw new CommunityHasProjectsException("Removing Community cannot have projects");
+		if(!projectRepository.findAll(id).isEmpty())
+			throw new RemovingCommunityException("Removing Community cannot have projects");
 	}
 
 	private void validateName(Community community) {

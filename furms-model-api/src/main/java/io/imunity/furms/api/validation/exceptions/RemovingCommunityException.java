@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class CommunityHasProjectsException extends RuntimeException{
+public class RemovingCommunityException extends RuntimeException{
 
-	public CommunityHasProjectsException(String message) {
+	public RemovingCommunityException(String message) {
 		super(message);
 	}
 }
