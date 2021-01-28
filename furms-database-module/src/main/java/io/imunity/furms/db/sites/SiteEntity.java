@@ -5,16 +5,17 @@
 
 package io.imunity.furms.db.sites;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.sites.Site;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("SITE")
+import org.springframework.data.relational.core.mapping.Table;
+
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.sites.Site;
+
+@Table("site")
 class SiteEntity extends UUIDIdentifiable {
 
 	private final String name;
