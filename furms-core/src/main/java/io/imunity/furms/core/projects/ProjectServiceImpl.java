@@ -81,7 +81,7 @@ class ProjectServiceImpl implements ProjectService {
 	public void limitedUpdate(LimitedProject limitedProject) {
 		validator.validateLimitedUpdate(limitedProject);
 		Project project = projectRepository.findById(limitedProject.getId())
-			.orElseThrow(() -> new IllegalArgumentException("alala"));
+			.orElseThrow(() -> new IllegalArgumentException("Project ID doesn't exist"));
 		Project updatedProject = Project.builder()
 			.id(project.getId())
 			.communityId(project.getCommunityId())
