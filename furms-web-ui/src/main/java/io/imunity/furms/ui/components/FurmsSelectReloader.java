@@ -7,5 +7,5 @@ package io.imunity.furms.ui.components;
 
 @FunctionalInterface
 public interface FurmsSelectReloader {
-	void reload(String name);
+	void reload();
 }

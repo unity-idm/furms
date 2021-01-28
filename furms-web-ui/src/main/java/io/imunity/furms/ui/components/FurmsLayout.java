@@ -71,13 +71,8 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator.translateRolesToUserViewContexts());
-		UI.getCurrent().getSession().setAttribute(
-			FurmsSelectReloader.class,
-			x -> {
-				furmsSelect.reloadComponent(roleTranslator.translateRolesToUserViewContexts());
-			}
-		);
+		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator);
+		UI.getCurrent().getSession().setAttribute(FurmsSelectReloader.class, furmsSelect::reloadComponent);
 
 		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelect, logout);
 		return rightNavbarSite;

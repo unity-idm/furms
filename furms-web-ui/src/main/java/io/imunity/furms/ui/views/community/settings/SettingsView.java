@@ -114,7 +114,7 @@ public class SettingsView extends FurmsViewComponent {
 						() -> {
 							oldCommunity = communityViewModel;
 							disableEditorMode();
-							UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload(communityViewModel.getName());
+							UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 							showSuccessNotification(getTranslation("view.community-admin.settings.update.success"));
 						}
 					);
