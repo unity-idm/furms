@@ -102,7 +102,7 @@ public class ProjectsView extends FurmsViewComponent {
 		textField.addValueChangeListener(event -> {
 			String value = textField.getValue().toLowerCase();
 			List<ProjectViewModel> filteredUsers = loadProjectsViewsModels().stream()
-				.filter(project -> project.name.toLowerCase().contains(value))
+				.filter(project -> project.matches(value))
 				.collect(toList());
 			grid.setItems(filteredUsers);
 			//TODO This is a work around to fix disappearing text cursor

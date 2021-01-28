@@ -107,6 +107,13 @@ class ProjectViewModel {
 		return new ProjectViewModelBuilder();
 	}
 
+	public boolean matches(String value) {
+		return name.toLowerCase().contains(value) || 
+				description.toLowerCase().contains(value) ||
+				acronym.toLowerCase().contains(value) ||
+				researchField.toLowerCase().contains(value);
+	}
+	
 	public static final class ProjectViewModelBuilder {
 		public String id;
 		public String communityId;
