@@ -11,14 +11,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.common.base.Strings;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.core.config.security.user.FurmsUser;
-import io.imunity.furms.domain.constant.AttributesConst;
+import io.imunity.furms.domain.constant.CommonAttribute;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SingleColumnFormLayout;
 
 @Route(value = USER_BASE_LANDING_PAGE, layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.profile.page.title")
@@ -29,12 +29,12 @@ public class ProfileView extends FurmsViewComponent {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		FurmsUser user = (FurmsUser) authentication.getPrincipal();
 
-		FormLayout mainLayout = new FormLayout();
+		SingleColumnFormLayout mainLayout = new SingleColumnFormLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1));
-		String firstname = user.getAttribute(AttributesConst.FIRSTNAME);
-		String surname = user.getAttribute(AttributesConst.SURNAME);
-		String email = user.getAttribute(AttributesConst.EMAIL);
+		
+		String firstname = user.getAttribute(CommonAttribute.FIRSTNAME.name);
+		String surname = user.getAttribute(CommonAttribute.SURNAME.name);
+		String email = user.getAttribute(CommonAttribute.EMAIL.name);
 
 		mainLayout.addFormItem(new Label(Strings.isNullOrEmpty(firstname) ? "" : firstname),
 				getTranslation("view.user-settings.profile.firstname"));
