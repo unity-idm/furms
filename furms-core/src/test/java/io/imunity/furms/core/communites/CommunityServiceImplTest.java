@@ -9,6 +9,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -31,6 +32,8 @@ class CommunityServiceImplTest {
 	private CommunityRepository communityRepository;
 	@Mock
 	private CommunityGroupsDAO communityGroupsDAO;
+	@Mock
+	private ProjectRepository projectRepository;
 
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
@@ -38,7 +41,7 @@ class CommunityServiceImplTest {
 	@BeforeAll
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository);
+		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
 		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator);
 		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
 	}
