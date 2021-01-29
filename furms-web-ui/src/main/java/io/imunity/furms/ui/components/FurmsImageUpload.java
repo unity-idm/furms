@@ -69,7 +69,7 @@ public class FurmsImageUpload extends VerticalLayout
 		add(logo, horizontalLayout);
 	}
 
-	public void clean() {
+	public void cleanCurrentFileName() {
 		upload.getElement().setPropertyJson("files", Json.createArray());
 	}
 
