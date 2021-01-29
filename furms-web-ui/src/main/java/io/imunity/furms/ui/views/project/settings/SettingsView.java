@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.views.project.settings;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.project.ProjectFormComponent;
-import io.imunity.furms.ui.project.ProjectViewModel;
-import io.imunity.furms.ui.project.ProjectViewModelMapper;
-import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-
-import java.util.Optional;
-
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -28,12 +12,30 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrExcept
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.function.Function.identity;
 
+import java.util.Optional;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.project.ProjectFormComponent;
+import io.imunity.furms.ui.project.ProjectViewModel;
+import io.imunity.furms.ui.project.ProjectViewModelMapper;
+import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+
 @Route(value = "project/admin/settings", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.settings.page.title")
 public class SettingsView extends FurmsViewComponent {
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
 	private final Button updateButton = createUpdateButton();
-	private final Button closeButton = createCloseButton();
+	private final Button cancelButton = createCloseButton();
 	private final ProjectFormComponent projectFormComponent;
 	private final ProjectService projectService;
 
@@ -59,20 +61,22 @@ public class SettingsView extends FurmsViewComponent {
 				enableEditorMode();
 		});
 
+		
+		FormButtons buttons = new FormButtons(updateButton, cancelButton);
 		getContent().add(
-			projectFormComponent,
-			updateButton, closeButton
+			projectFormComponent, buttons
 		);
 	}
 
 	private void enableEditorMode() {
+		updateButton.setVisible(true);
 		updateButton.setEnabled(binder.isValid());
-		closeButton.setVisible(true);
+		cancelButton.setVisible(true);
 	}
 
 	private void disableEditorMode() {
-		closeButton.setVisible(false);
-		updateButton.setEnabled(false);
+		cancelButton.setVisible(false);
+		updateButton.setVisible(false);
 	}
 
 	private Button createCloseButton() {
