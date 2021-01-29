@@ -9,6 +9,7 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -144,7 +145,8 @@ public class FurmsImageUpload extends HorizontalLayout
 
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super FurmsImageUpload> listener) {
-		ComponentEventListener componentListener = event -> listener.valueChanged(this);
+		@SuppressWarnings("rawtypes")
+		ComponentEventListener<ComponentValueChangeEvent> componentListener = event -> listener.valueChanged(this);
 		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
 	}
 
