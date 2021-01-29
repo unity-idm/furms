@@ -5,12 +5,22 @@
 
 package io.imunity.furms.ui.views.community.settings;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.function.Function.identity;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.ui.community.CommunityFormComponent;
@@ -20,15 +30,6 @@ import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import java.util.Optional;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.function.Function.identity;
 
 @Route(value = "community/admin/settings", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.settings.page.title")
@@ -110,7 +111,7 @@ public class SettingsView extends FurmsViewComponent {
 				getResultOrException(() -> communityService.update(community))
 					.getThrowable()
 					.ifPresentOrElse(
-						e -> showErrorNotification(getTranslation("community.error.message")),
+						e -> showErrorNotification(getTranslation("name.duplicated.error.message")),
 						() -> {
 							oldCommunity = communityViewModel;
 							disableEditorMode();
