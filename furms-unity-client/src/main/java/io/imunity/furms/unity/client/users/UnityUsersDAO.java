@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.unity.UnityClient;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,6 +41,16 @@ class UnityUsersDAO implements UsersDAO {
 	@Override
 	public List<User> getAllUsers() {
 		return getUsers(FENIX_GROUP);
+	}
+
+	@Override
+	public Optional<User> findByEmail(String email) {
+		if (Strings.isBlank(email)) {
+			return Optional.empty();
+		}
+		return getAllUsers().stream()
+				.filter(user -> user.email.equals(email))
+				.findFirst();
 	}
 
 	private List<User> getUsers(String usersGroupPath) {
