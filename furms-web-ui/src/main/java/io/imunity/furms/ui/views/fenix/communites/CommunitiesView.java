@@ -21,15 +21,16 @@ import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
-import static java.util.stream.Collectors.toSet;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.communities.page.title")
@@ -58,9 +59,12 @@ public class CommunitiesView extends FurmsViewComponent {
 		Grid<CommunityViewModel> grid = new SparseGrid<>(CommunityViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), CommunityView.class, c.getId()))
-			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"))
+			.setSortable(true)
+			.setComparator(CommunityViewModel::getName);
 		grid.addColumn(CommunityViewModel::getDescription)
-			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"))
+			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -77,12 +81,13 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		Set<CommunityViewModel> all = handleExceptions(communityService::findAll)
+		List<CommunityViewModel> allCommunities = handleExceptions(communityService::findAll)
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(CommunityViewModelMapper::map)
-			.collect(toSet());
-		grid.setItems(all);
+			.sorted(comparing(projectViewModel -> projectViewModel.getName().toLowerCase()))
+			.collect(toList());
+		grid.setItems(allCommunities);
 	}
 
 	private Component createContextMenu(String communityId, String communityName) {
