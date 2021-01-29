@@ -1,6 +1,6 @@
 :versionlimit: icon:wrench[] temporary v1 limitation icon:wrench[]
 
-NOTE: In various places in the following text is used to mark a limitation which is specific to the current release: +
+NOTE: In various places in this document, the following text is used to mark a limitation which is specific to the current release: +
 {versionlimit} +
 All such marked limitations will be removed in the final release.
 
