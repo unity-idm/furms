@@ -5,40 +5,40 @@
 
 package io.imunity.furms.ui.components;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
-
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
+import java.util.List;
+import java.util.Map;
+
 public class FurmsSelect extends Select<FurmsSelectText> {
-	
-	public FurmsSelect(Map<ViewMode, List<FurmsViewUserContext>> data) {
-		List<FurmsSelectText> items = data.values().stream()
-			.flatMap(Collection::stream)
-			.map(FurmsSelectText::new)
-			.collect(toList());
+	private final FurmsSelectService furmsSelectService;
+	public FurmsSelect(RoleTranslator roleTranslator) {
+		furmsSelectService = new FurmsSelectService(roleTranslator);
+		List<FurmsSelectText> items = furmsSelectService.loadItems();
+
 		setItems(items);
-		//addSeparators(data); TODO FIX separators are disabled now
 		setTextRenderer(Text::getText);
-		ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class))
+		//addSeparators(data); TODO FIX separators are disabled now
+
+		furmsSelectService.loadSelectedItem()
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
-		addValueChangeListener(event -> {
-			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, event.getValue().furmsViewUserContext);
-			UI.getCurrent().navigate(event.getValue().furmsViewUserContext.route);
-		});
+
+		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
 	}
-	
+
+	void reloadComponent(){
+		setItems(furmsSelectService.reloadItems());
+		furmsSelectService.loadSelectedItem()
+			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
+	}
+
+
 	@SuppressWarnings("unused")
 	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
 		FurmsSelectText component = null;

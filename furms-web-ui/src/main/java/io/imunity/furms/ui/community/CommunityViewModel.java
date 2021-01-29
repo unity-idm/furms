@@ -16,10 +16,17 @@ public class CommunityViewModel {
 	private FurmsImage logo;
 
 	public CommunityViewModel(){
-		logo = new FurmsImage(null, (String) null);
+		logo = FurmsImage.empty();
 	}
 
-	public CommunityViewModel(String id, String name, String description, FurmsImage logo) {
+	public CommunityViewModel(CommunityViewModel model){
+		this.id = model.id;
+		this.name = model.name;
+		this.description = model.description;
+		this.logo = new FurmsImage(model.logo.getImage(), model.logo.getType());
+	}
+
+	CommunityViewModel(String id, String name, String description, FurmsImage logo) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -74,6 +81,15 @@ public class CommunityViewModel {
 	public int hashCode() {
 		return Objects.hash(id);
 	}
+
+	public boolean equalsFields(CommunityViewModel that) {
+		if (this == that) return true;
+		if (that == null) return false;
+		return Objects.equals(id, that.id) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(description, that.description);
+	}
+
 
 	@Override
 	public String toString() {
