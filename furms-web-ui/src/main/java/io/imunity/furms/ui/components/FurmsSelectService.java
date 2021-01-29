@@ -5,16 +5,17 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.UI;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
+import com.vaadin.flow.component.UI;
+
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class FurmsSelectService {
 	private final RoleTranslator roleTranslator;
@@ -33,17 +34,16 @@ public class FurmsSelectService {
 	List<FurmsSelectText> reloadItems(){
 		List<FurmsSelectText> items = loadItems();
 		String id = loadSelectedItemId();
-		items.stream()
-			.filter(selectText -> equalsIds(id, selectText.furmsViewUserContext.id))
-			.findAny()
-			.ifPresent(furmsSelectText -> {
-				FurmsViewUserContext furmsViewUserContext =
-					new FurmsViewUserContext(furmsSelectText.furmsViewUserContext, false);
+		
+		for (int idx = 0; idx < items.size(); idx++) {
+			FurmsSelectText furmsSelectText = items.get(idx);
+			if (equalsIds(id, furmsSelectText.furmsViewUserContext.id)) {
+				FurmsViewUserContext furmsViewUserContext = 
+						new FurmsViewUserContext(furmsSelectText.furmsViewUserContext, false);
 				FurmsSelectText selectText = new FurmsSelectText(furmsViewUserContext);
-				setSelectedItem(furmsViewUserContext);
-				items.remove(furmsSelectText);
-				items.add(selectText);
-			});
+				items.set(idx, selectText);
+			}
+		}
 		return items;
 	}
 
