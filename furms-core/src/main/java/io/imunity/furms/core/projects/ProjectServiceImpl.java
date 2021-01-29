@@ -12,6 +12,7 @@ import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,13 @@ class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
+	private final UsersDAO usersDAO;
 	private final ProjectServiceValidator validator;
 
-	ProjectServiceImpl(ProjectRepository projectRepository,
-	                   ProjectGroupsDAO projectGroupsDAO,
-	                   ProjectServiceValidator validator) {
+	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO, ProjectServiceValidator validator) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
+		this.usersDAO = usersDAO;
 		this.validator = validator;
 	}
 
@@ -60,8 +61,8 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
+		usersDAO.addProjectAdminRole(project.getCommunityId(), id, project.getLeaderId());
 		LOG.info("Project with given ID: {} was created: {}", id, project);
-
 	}
 
 	@Override
@@ -71,8 +72,8 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateUpdate(project);
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
+		usersDAO.addProjectAdminRole(project.getCommunityId(), project.getId(), project.getLeaderId());
 		LOG.info("Project was updated {}", project);
-
 	}
 
 	@Override

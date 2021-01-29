@@ -12,13 +12,17 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.LimitedProject;
+import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.project.ProjectViewModelMapper;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
@@ -39,9 +43,10 @@ public class SettingsView extends FurmsViewComponent {
 
 	private ProjectViewModel oldProject;
 
-	SettingsView(ProjectService projectService) {
+	SettingsView(ProjectService projectService, UsersDAO usersDAO) {
 		this.projectService = projectService;
-		this.projectFormComponent = new ProjectFormComponent(binder, false);
+		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(usersDAO.getAllUsers());
+		this.projectFormComponent = new ProjectFormComponent(binder, false, users);
 
 		projectFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
 		projectFormComponent.getUpload().addFileRemovedListener(x -> enableEditorMode());

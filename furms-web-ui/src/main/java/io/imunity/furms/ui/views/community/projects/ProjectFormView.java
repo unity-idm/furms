@@ -17,16 +17,20 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.project.ProjectViewModelMapper;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -43,9 +47,10 @@ class ProjectFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectFormView(ProjectService projectService) {
+	ProjectFormView(ProjectService projectService, UsersDAO usersDAO) {
 		this.projectService = projectService;
-		this.projectFormComponent = new ProjectFormComponent(binder, true);
+		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(usersDAO.getAllUsers());
+		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button closeButton = createCloseButton();

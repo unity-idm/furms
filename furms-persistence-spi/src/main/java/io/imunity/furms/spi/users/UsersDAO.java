@@ -13,5 +13,6 @@ public interface UsersDAO {
 	List<User> getAdminUsers();
 	List<User> getAllUsers();
 	void addFenixAdminRole(String userId);
+	void addProjectAdminRole(String communityId, String projectId, String userId);
 	void removeFenixAdminRole(String userId);
 }
