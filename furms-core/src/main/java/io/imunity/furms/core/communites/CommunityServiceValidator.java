@@ -5,10 +5,12 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -20,9 +22,11 @@ import static org.springframework.util.Assert.notNull;
 @Component
 class CommunityServiceValidator {
 	private final CommunityRepository communityRepository;
+	private final ProjectRepository projectRepository;
 
-	CommunityServiceValidator(CommunityRepository communityRepository) {
+	CommunityServiceValidator(CommunityRepository communityRepository, ProjectRepository projectRepository) {
 		this.communityRepository = communityRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	void validateCreate(Community community) {
@@ -39,6 +43,8 @@ class CommunityServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		if(!projectRepository.findAll(id).isEmpty())
+			throw new RemovingCommunityException("Removing Community cannot have projects");
 	}
 
 	private void validateName(Community community) {
