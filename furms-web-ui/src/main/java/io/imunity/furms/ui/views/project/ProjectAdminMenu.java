@@ -5,14 +5,17 @@
 
 package io.imunity.furms.ui.views.project;
 
-import java.util.List;
-
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.views.project.settings.SettingsView;
 
-public class ProjectAdminMenu extends FurmsAppLayout {
+import java.util.List;
+
+public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
 	ProjectAdminMenu(RoleTranslator roleTranslator) {
@@ -33,8 +36,7 @@ public class ProjectAdminMenu extends FurmsAppLayout {
 	}
 
 	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
+	public void afterNavigation(AfterNavigationEvent event) {
 		furmsLayout.afterNavigation(getContent());
 	}
 }

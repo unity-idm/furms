@@ -19,6 +19,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.project.ProjectViewModel;
+import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.Collections;

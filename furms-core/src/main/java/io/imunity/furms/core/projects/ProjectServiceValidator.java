@@ -7,6 +7,7 @@ package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.imunity.furms.core.constant.ValidationConst.*;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static org.springframework.util.Assert.notNull;
 
@@ -33,11 +35,11 @@ class ProjectServiceValidator {
 		notNull(project, "Project object cannot be null.");
 		validateCommunityId(project.getCommunityId());
 		validateName(project);
-		validateLength("description", project.getDescription(), 510);
+		validateLength("description", project.getDescription(), MAX_DESCRIPTION_LENGTH);
 		notNull(project.getAcronym(), "Acronym cannot be null.");
-		validateLength("acronym", project.getAcronym(), 8);
+		validateLength("acronym", project.getAcronym(), MAX_ACRONYM_LENGTH);
 		notNull(project.getResearchField(), "Research field cannot be null.");
-		validateLength("researchField", project.getResearchField(), 255);
+		validateLength("researchField", project.getResearchField(), MAX_NAME_LENGTH);
 		validateTime(project.getStartTime(), project.getEndTime());
 	}
 
@@ -46,12 +48,18 @@ class ProjectServiceValidator {
 		validateId(project.getId());
 		validateUpdateCommunityId(project);
 		validateName(project);
-		validateLength("description", project.getDescription(), 510);
+		validateLength("description", project.getDescription(), MAX_DESCRIPTION_LENGTH);
 		notNull(project.getAcronym(), "Acronym cannot be null.");
-		validateLength("acronym", project.getAcronym(), 8);
+		validateLength("acronym", project.getAcronym(), MAX_ACRONYM_LENGTH);
 		notNull(project.getResearchField(), "Research field cannot be null.");
-		validateLength("researchField", project.getResearchField(), 255);
+		validateLength("researchField", project.getResearchField(), MAX_NAME_LENGTH);
 		validateTime(project.getStartTime(), project.getEndTime());
+	}
+
+	void validateLimitedUpdate(ProjectAdminControlledAttributes project) {
+		notNull(project, "Project object cannot be null.");
+		validateId(project.getId());
+		validateLength("description", project.getDescription(), MAX_DESCRIPTION_LENGTH);
 	}
 
 	void validateDelete(String id) {
@@ -60,7 +68,7 @@ class ProjectServiceValidator {
 
 	private void validateName(Project project) {
 		notNull(project.getName(), "Project name has to be declared.");
-		validateLength("name", project.getName(), 255);
+		validateLength("name", project.getName(), MAX_NAME_LENGTH);
 		if (isNameUnique(project)) {
 			throw new DuplicatedNameValidationError("Project name has to be unique.");
 		}
