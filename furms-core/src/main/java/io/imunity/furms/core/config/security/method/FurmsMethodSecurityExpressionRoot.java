@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsUser;
+import io.imunity.furms.core.config.security.user.FurmsAuthenticatedUser;
 import io.imunity.furms.core.config.security.user.capability.CapabilityCollector;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -29,7 +29,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	}
 
 	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType, String id) {
-		FurmsUser principal = (FurmsUser)authentication.getPrincipal();
+		FurmsAuthenticatedUser principal = (FurmsAuthenticatedUser)authentication.getPrincipal();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 
 		return capabilityCollector.getCapabilities(principal.roles, resourceId).contains(capability);

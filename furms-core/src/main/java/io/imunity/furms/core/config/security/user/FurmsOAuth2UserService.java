@@ -37,7 +37,7 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 		String sub = oAuth2User.getAttribute("sub");
 		try {
 			Map<ResourceId, Set<Role>> roles = roleLoader.loadUserRoles(sub);
-			return new FurmsUser(oAuth2User, key, roles);
+			return new FurmsAuthenticatedUser(oAuth2User, key, roles);
 		}catch (RoleLoadingException e){
 			throw new OAuth2AuthenticationException(new OAuth2Error(e.code), e);
 		}

@@ -38,7 +38,7 @@ public class UnityRoleLoader implements RoleLoader {
 	}
 
 	@Override
-	public Map<ResourceId, Set<Role>> loadUserRoles(String sub) throws RoleLoadingException{
+	public Map<ResourceId, Set<Role>> loadUserRoles(String sub) {
 		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
 		Map<ResourceId, Set<Role>> resourceIdSetMap = loadUserRoles(attributes);
 		return resourceIdSetMap;
@@ -71,7 +71,7 @@ public class UnityRoleLoader implements RoleLoader {
 		return translateRole(attribute.getName(), attribute.getValues().iterator().next());
 	}
 
-	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) throws RoleLoadingException{
+	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(URI)
 			.uriVariables(Map.of("entityId", persistentId))

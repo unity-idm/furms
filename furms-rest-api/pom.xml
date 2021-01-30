@@ -30,5 +30,10 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-model-api</artifactId>
+		</dependency>
+		
 	</dependencies>
 </project>

@@ -6,7 +6,7 @@
 package io.imunity.furms.core.authz;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.config.security.user.FurmsUser;
+import io.imunity.furms.core.config.security.user.FurmsAuthenticatedUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.spi.roles.RoleLoader;
@@ -26,19 +26,19 @@ public class AuthzServiceImpl implements AuthzService {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		FurmsAuthenticatedUser authentication = (FurmsAuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return authentication.getAttributes();
 	}
 
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		FurmsAuthenticatedUser authentication = (FurmsAuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return authentication.roles;
 	}
 
 	@Override
 	public void reloadRoles() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		FurmsAuthenticatedUser authentication = (FurmsAuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String id = authentication.getAttribute("sub");
 		authentication.roles.clear();
 		authentication.roles.putAll(roleLoader.loadUserRoles(id));

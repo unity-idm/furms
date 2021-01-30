@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsUser;
+import io.imunity.furms.core.config.security.user.FurmsAuthenticatedUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
@@ -69,7 +69,7 @@ public class AuthTest {
 			.thenReturn(grantedAuthorities);
 		when(oAuth2User.getAttributes()).thenReturn(attributes);
 
-		FurmsUser furmsUser = new FurmsUser(oAuth2User, "name", roles);
+		FurmsAuthenticatedUser furmsUser = new FurmsAuthenticatedUser(oAuth2User, "name", roles);
 		when(authentication.getPrincipal()).thenReturn(furmsUser);
 		when(authentication.isAuthenticated()).thenReturn(true);
 
