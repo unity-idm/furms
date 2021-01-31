@@ -25,20 +25,18 @@ import java.util.List;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
@@ -47,6 +45,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.project.ProjectViewModel;
+import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
@@ -159,28 +159,12 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
-		Button confirmButton = new Button(getTranslation("view.community-admin.projects.dialog.button.approve"));
-		confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-		Button cancelButton = new Button(getTranslation("view.community-admin.projects.dialog.button.cancel"));
-		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-		Dialog dialog = new Dialog(
-			new VerticalLayout(
-				new Span(getTranslation("view.community-admin.projects.dialog.button.text", projectName)),
-				new HorizontalLayout(confirmButton, cancelButton)
-			)
-		);
-
-		confirmButton.addClickListener(event -> {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.projects.dialog.text", projectName));
+		furmsDialog.addConfirmButtonClickListener(event -> {
 			handleExceptions(() -> projectService.delete(projectId, communityId));
 			loadGridContent();
-			dialog.close();
 		});
-
-		cancelButton.addClickListener(event -> dialog.close());
-
-		return dialog;
+		return furmsDialog;
 	}
 
 	private void loadGridContent() {

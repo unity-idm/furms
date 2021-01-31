@@ -23,6 +23,8 @@ html {
   --lumo-primary-color: #006997;
   --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
   --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;
   
   /* custom furms variables */
   --furms-font-weight: 500;

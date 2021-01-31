@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.user.FurmsUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,23 @@ import java.util.Set;
 
 @Service
 public class AuthzServiceImpl implements AuthzService {
+	private final RoleLoader roleLoader;
+
+	public AuthzServiceImpl(RoleLoader roleLoader) {
+		this.roleLoader = roleLoader;
+	}
+
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
 		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return authentication.roles;
+	}
+
+	@Override
+	public void reloadRoles() {
+		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String id = authentication.getAttribute("sub");
+		authentication.roles.clear();
+		authentication.roles.putAll(roleLoader.loadUserRoles(id));
 	}
 }

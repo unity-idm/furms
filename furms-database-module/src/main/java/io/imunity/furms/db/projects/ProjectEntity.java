@@ -5,17 +5,18 @@
 
 package io.imunity.furms.db.projects;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("PROJECT")
+import org.springframework.data.relational.core.mapping.Table;
+
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+
+@Table("project")
 class ProjectEntity extends UUIDIdentifiable {
 
 	private final UUID communityId;

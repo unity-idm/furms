@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.utils;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,12 @@ public class VaadinExceptionHandler {
 		try {
 			return Optional.ofNullable(supplier.get());
 		}catch (DuplicatedNameValidationError e){
+			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("name.duplicated.error.message"));
+			return Optional.empty();
+		}catch (RemovingCommunityException e){
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("community.removing.error.message"));
 			return Optional.empty();
 		}catch (Exception e){
 			LOG.error(e.getMessage(), e);
@@ -44,12 +50,14 @@ public class VaadinExceptionHandler {
 		try {
 			return OptionalException.of(supplier.get());
 		}catch (DuplicatedNameValidationError e){
-			showErrorNotification(getTranslation("name.duplicated.error.message"));
-			return OptionalException.of(e);
+			LOG.error(e.getMessage(), e);
+			return OptionalException.of(new FrontException("name.duplicated.error.message", e));
+		}catch (RemovingCommunityException e){
+			LOG.error(e.getMessage(), e);
+			return OptionalException.of(new FrontException("community.removing.error.message", e));
 		}catch (Exception e){
 			LOG.error(e.getMessage(), e);
-			showErrorNotification(getTranslation("base.error.message"));
-			return OptionalException.of(e);
+			return OptionalException.of(new FrontException("base.error.message", e));
 		}
 	}
 

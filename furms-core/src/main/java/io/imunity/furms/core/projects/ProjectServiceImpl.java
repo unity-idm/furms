@@ -7,6 +7,7 @@ package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -20,8 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
@@ -73,6 +73,28 @@ class ProjectServiceImpl implements ProjectService {
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
 		LOG.info("Project was updated {}", project);
 
+	}
+
+	@Override
+	@Transactional
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "attributes.id")
+	public void update(ProjectAdminControlledAttributes attributes) {
+		validator.validateLimitedUpdate(attributes);
+		Project project = projectRepository.findById(attributes.getId()).get();
+		Project updatedProject = Project.builder()
+			.id(project.getId())
+			.communityId(project.getCommunityId())
+			.name(project.getName())
+			.acronym(project.getAcronym())
+			.researchField(project.getResearchField())
+			.startTime(project.getStartTime())
+			.endTime(project.getEndTime())
+			.description(attributes.getDescription())
+			.logo(attributes.getLogo())
+			.build();
+		projectRepository.update(updatedProject);
+		projectGroupsDAO.update(new ProjectGroup(updatedProject.getId(), updatedProject.getName(), updatedProject.getCommunityId()));
+		LOG.info("Project was updated {}", attributes);
 	}
 
 	@Override

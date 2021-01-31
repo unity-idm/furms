@@ -18,6 +18,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsImageUpload;
@@ -36,6 +37,7 @@ import java.util.Objects;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormUtils.findFormField;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
@@ -43,6 +45,8 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotificatio
 @PageTitle(key = "view.site-admin.settings.page.title")
 @CssImport("./styles/views/site/settings/site-settings.css")
 public class SettingsView extends FurmsViewComponent {
+
+	private final static String NAME_FIELD_ID = "name";
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -79,12 +83,11 @@ public class SettingsView extends FurmsViewComponent {
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
 		name.setWidth("40em");
+		name.setId(NAME_FIELD_ID);
 
 		binder.forField(name)
 				.withValidator(getNotEmptyStringValidator(),
 						getTranslation("view.site-admin.settings.form.name.validation.required"))
-				.withValidator(siteName -> !siteService.isNamePresentIgnoringRecord(siteName, binder.getBean().getId()),
-						getTranslation("view.site-admin.settings.form.name.validation.unique"))
 				.bind(SiteSettingsDto::getName, SiteSettingsDto::setName);
 
 		return name;
@@ -169,6 +172,12 @@ public class SettingsView extends FurmsViewComponent {
 						.build());
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.site-admin.settings.form.button.save.success"));
+			} catch (DuplicatedNameValidationError e) {
+				findFormField(binder, TextField.class, NAME_FIELD_ID)
+						.ifPresent(textField -> {
+							textField.setErrorMessage(getTranslation("view.site-admin.settings.form.name.validation.unique"));
+							textField.setInvalid(true);
+						});
 			} catch (RuntimeException exception) {
 				showErrorNotification(getTranslation("view.site-admin.settings.form.error.unexpected"));
 			}
