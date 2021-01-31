@@ -7,6 +7,8 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -24,6 +27,7 @@ import java.util.stream.Stream;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -194,6 +198,99 @@ class SiteServiceImplTest {
 
 		//when
 		assertThat(service.isNamePresentIgnoringRecord(site.getName(), site.getId())).isFalse();
+	}
+
+	@Test
+	void shouldReturnAllSiteAdmins() {
+		//given
+		String siteId = "id";
+		when(webClient.getAllAdmins(siteId)).thenReturn(List.of(new User("id", "firstName", "lastName", "email")));
+
+		//when
+		List<User> allAdmins = service.findAllAdmins(siteId);
+
+		//then
+		assertThat(allAdmins).hasSize(1);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenSiteIdIsEmptyForFindAllAdmins() {
+		//then
+		assertThrows(IllegalArgumentException.class, () -> service.findAllAdmins(null));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllAdmins(""));
+	}
+
+	@Test
+	void shouldAddAdminToSite() {
+		//given
+		String siteId = "siteId";
+		String userId = "userId";
+
+		//when
+		service.addAdmin(siteId, userId);
+
+		//then
+		verify(webClient, times(1)).addAdmin(siteId, userId);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenSiteIdOrUserIdAreEmptyForAddAdmin() {
+		//then
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, null));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", null));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("testId", null));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, ""));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, "testId"));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", ""));
+	}
+
+	@Test
+	void shouldTryRollbackAndThrowExceptionWhenWebClientFailedForAddAdmin() {
+		//given
+		String siteId = "siteId";
+		String userId = "userId";
+		doThrow(UnityFailureException.class).when(webClient).addAdmin(siteId, userId);
+		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
+
+		//then
+		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
+		verify(webClient, times(1)).get(siteId);
+		verify(webClient, times(1)).removeAdmin(siteId, userId);
+	}
+
+	@Test
+	void shouldRemoveAdminFromSite() {
+		//given
+		String siteId = "siteId";
+		String userId = "userId";
+
+		//when
+		service.removeAdmin(siteId, userId);
+
+		//then
+		verify(webClient, times(1)).removeAdmin(siteId, userId);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenSiteIdOrUserIdAreEmptyForRemoveAdmin() {
+		//then
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("testId", null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, ""));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, "testId"));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", ""));
+	}
+
+	@Test
+	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
+		//given
+		String siteId = "siteId";
+		String userId = "userId";
+		doThrow(UnityFailureException.class).when(webClient).removeAdmin(siteId, userId);
+
+		//then
+		assertThrows(UnityFailureException.class, () -> service.removeAdmin(siteId, userId));
 	}
 
 	@Test

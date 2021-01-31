@@ -14,7 +14,6 @@ import io.imunity.furms.ui.components.administrators.AdministratorsView;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
@@ -25,8 +24,8 @@ public class FenixAdministratorsView extends AdministratorsView {
 	}
 
 	@Override
-	protected Supplier<List<User>> fetchUsers() {
-		return usersDAO::getAdminUsers;
+	protected List<User> fetchUsers() {
+		return usersDAO.getAdminUsers();
 	}
 
 	@Override

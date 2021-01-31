@@ -6,7 +6,9 @@
 package io.imunity.furms.api.sites;
 
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,5 +27,11 @@ public interface SiteService {
 	boolean isNamePresent(String name);
 
 	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+
+	List<User> findAllAdmins(String id);
+
+	void addAdmin(String siteId, String userId);
+
+	void removeAdmin(String siteId, String userId);
 
 }

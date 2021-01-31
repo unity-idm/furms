@@ -28,7 +28,6 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
@@ -42,7 +41,7 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class AdministratorsView extends FurmsViewComponent {
 
-	protected abstract Supplier<List<User>> fetchUsers();
+	protected abstract List<User> fetchUsers();
 	protected abstract void addUser(String id);
 	protected abstract void removeUser(String id);
 
@@ -51,9 +50,19 @@ public abstract class AdministratorsView extends FurmsViewComponent {
 	protected final UsersDAO usersDAO;
 
 	public AdministratorsView(UsersDAO usersDAO) {
+		this(usersDAO, true);
+	}
+
+	public AdministratorsView(UsersDAO usersDAO, boolean renderOnInit) {
 		this.usersDAO = usersDAO;
 		this.grid = new SparseGrid<>(UserViewModel.class);
 
+		if (renderOnInit) {
+			render();
+		}
+	}
+
+	protected void render() {
 		addHeader();
 		addSearchForm();
 		addGrid();
@@ -167,7 +176,7 @@ public abstract class AdministratorsView extends FurmsViewComponent {
 	}
 
 	private List<UserViewModel> loadUsers() {
-		return handleExceptions(fetchUsers())
+		return handleExceptions(() -> fetchUsers())
 				.orElseGet(Collections::emptyList)
 				.stream()
 				.map(UserViewModel::new)
