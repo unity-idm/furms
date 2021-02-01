@@ -13,9 +13,12 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static java.util.stream.Collectors.toList;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -90,6 +93,8 @@ public class SitesView extends FurmsViewComponent {
 		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesDetailsView.class, site.getId()))
 				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
+				.setSortable(true)
+				.setComparator(SiteGridItem::getName)
 				.setEditorComponent(addEditForm(siteEditor));
 
 		siteGrid.addComponentColumn(site -> addMenu(site, siteGrid))
@@ -120,7 +125,7 @@ public class SitesView extends FurmsViewComponent {
 
 	private Component addEditForm(Editor<SiteGridItem> siteEditor) {
 		TextField siteNameField = new TextField();
-		siteNameField.setMaxLength(SitesAddView.MAX_SITE_NAME_LENGTH);
+		siteNameField.setMaxLength(NAME_MAX_LENGTH);
 		siteNameField.setWidthFull();
 		siteNameField.setValueChangeMode(EAGER);
 		siteEditor.getBinder().forField(siteNameField)
@@ -171,6 +176,8 @@ public class SitesView extends FurmsViewComponent {
 							.build());
 					siteEditor.cancel();
 					siteEditor.getGrid().setItems(fetchSites());
+					showSuccessNotification(getTranslation("view.sites.form.save.success"));
+					reloadRolePicker();
 				} catch (DuplicatedNameValidationError e) {
 					name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 					name.setInvalid(true);
@@ -198,6 +205,7 @@ public class SitesView extends FurmsViewComponent {
 	private List<SiteGridItem> fetchSites() {
 		return siteService.findAll().stream()
 				.map(SiteGridItem::of)
+				.sorted(Comparator.comparing(SiteGridItem::getName))
 				.collect(toList());
 	}
 
