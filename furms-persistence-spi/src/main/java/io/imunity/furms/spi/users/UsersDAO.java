@@ -11,7 +11,11 @@ import java.util.List;
 
 public interface UsersDAO {
 	List<User> getAdminUsers();
+	List<User> getProjectUsers(String communityId, String projectId);
 	List<User> getAllUsers();
+	boolean isProjectMember(String communityId, String projectId, String userId);
+	void addProjectMemberRole(String communityId, String projectId, String userId);
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
+	void removeProjectMemberRole(String communityId, String projectId, String userId);
 }

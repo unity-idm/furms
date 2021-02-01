@@ -12,4 +12,9 @@ public class UnityPaths {
 	public final static String META = "/meta";
 	public final static String USERS_PATTERN = "/users";
 	public final static String ATTRIBUTE_PATTERN = "/attribute";
+	public final static String ATTRIBUTES_PATTERN = "/attributes";
+	public final static String GROUP = "group";
+	public final static String COMMUNITY_ID = "communityId";
+	public final static String PROJECT_ID = "projectId";
+	public final static String PROJECTS_PATTERN = "/fenix/communities/{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}/users";
 }

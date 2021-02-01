@@ -9,14 +9,17 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,13 +34,14 @@ class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
+	private final UsersDAO usersDAO;
 	private final ProjectServiceValidator validator;
 
-	ProjectServiceImpl(ProjectRepository projectRepository,
-	                   ProjectGroupsDAO projectGroupsDAO,
-	                   ProjectServiceValidator validator) {
+	ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
+	                          UsersDAO usersDAO, ProjectServiceValidator validator) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
+		this.usersDAO = usersDAO;
 		this.validator = validator;
 	}
 
@@ -83,5 +87,28 @@ class ProjectServiceImpl implements ProjectService {
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
 		LOG.info("Project with given ID: {} was deleted", projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	public List<User> findUsers(String communityId, String projectId){
+		return usersDAO.getProjectUsers(communityId, projectId);
+	}
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	public boolean isMember(String communityId, String projectId, String userId) {
+		return usersDAO.isProjectMember(communityId, projectId, userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
+	public void addMember(String communityId, String projectId, String userId){
+		usersDAO.addProjectMemberRole(communityId, projectId, userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
+	public void removeMember(String communityId, String projectId, String userId){
+		usersDAO.removeProjectMemberRole(communityId, projectId, userId);
 	}
 }

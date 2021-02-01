@@ -5,18 +5,15 @@
 
 package io.imunity.furms.ui.user_context;
 
-import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
-import static io.imunity.furms.ui.user_context.ViewMode.COMMUNITY;
-import static io.imunity.furms.ui.user_context.ViewMode.FENIX;
-import static io.imunity.furms.ui.user_context.ViewMode.PROJECT;
-import static io.imunity.furms.ui.user_context.ViewMode.SITE;
-import static io.imunity.furms.ui.user_context.ViewMode.USER;
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
-import static java.util.Comparator.comparingInt;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
@@ -25,16 +22,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
+import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
+import static io.imunity.furms.ui.user_context.ViewMode.*;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static java.util.Comparator.comparingInt;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.*;
 
 @Service
 class RoleTranslatorService implements RoleTranslator {
@@ -129,9 +122,7 @@ class RoleTranslatorService implements RoleTranslator {
 			case PROJECT_MEMBER:
 				return projectService.findById(resourceId.id.toString())
 					.map(project ->
-						Stream.of(
-							new FurmsViewUserContext(project.getId(), getMemberName(project.getName()), PROJECT),
-							userSettings)
+						Stream.of(userSettings)
 					)
 					.orElseGet(() -> {
 						LOG.warn("Wrong resource id. Data are not synchronized");
@@ -144,9 +135,5 @@ class RoleTranslatorService implements RoleTranslator {
 
 	private String getAdminName(String name) {
 		return name + " " + getTranslation("admin");
-	}
-
-	private String getMemberName(String name) {
-		return name + " " + getTranslation("member");
 	}
 }

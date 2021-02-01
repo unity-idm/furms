@@ -5,21 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.administrators;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -34,15 +19,23 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.user_context.UserViewModel;
+import io.imunity.furms.ui.user_context.UserViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
