@@ -18,6 +18,7 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +43,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.DeleteConfirmationDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.MenuButton;
@@ -50,10 +52,14 @@ import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
+
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
 
@@ -183,6 +189,8 @@ public class SitesView extends FurmsViewComponent {
 					name.setInvalid(true);
 				} catch (IllegalArgumentException e) {
 					showErrorNotification(getTranslation("view.sites.form.error.unexpected", "update"));
+				} catch (RuntimeException e) {
+					LOG.error("Could not update Site.", e);
 				}
 			}
 		}
@@ -193,13 +201,17 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void actionDeleteSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
-		try {
-			siteService.delete(site.getId());
-		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("view.sites.form.error.unexpected", "delete"));
-		} finally {
-			siteGrid.setItems(fetchSites());
-		}
+		new DeleteConfirmationDialog(getTranslation("view.sites.main.confirmation.dialog.delete", site.getName()), event -> {
+			try {
+				siteService.delete(site.getId());
+				showSuccessNotification(getTranslation("view.sites.main.grid.item.menu.delete.success", site.getName()));
+			} catch (RuntimeException e) {
+				LOG.error("Could not create Site. ", e);
+				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "delete"));
+			} finally {
+				siteGrid.setItems(fetchSites());
+			}
+		}).open();
 	}
 
 	private List<SiteGridItem> fetchSites() {

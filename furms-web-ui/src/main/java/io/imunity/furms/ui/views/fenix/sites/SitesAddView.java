@@ -30,10 +30,16 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
 public class SitesAddView extends FurmsViewComponent {
+
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
 
@@ -113,6 +119,7 @@ public class SitesAddView extends FurmsViewComponent {
 				name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 				name.setInvalid(true);
 			} catch (RuntimeException exception) {
+				LOG.error("Could not create Site. ", exception);
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "save"));
 			}
 		}

@@ -176,8 +176,8 @@ public class SettingsView extends FurmsViewComponent {
 			} catch (DuplicatedNameValidationError e) {
 				name.setErrorMessage(getTranslation("view.site-admin.settings.form.name.validation.unique"));
 				name.setInvalid(true);
-			} catch (RuntimeException exception) {
-				LOG.error("Error during update Site settings {}. {}",binder.getBean().getId(), exception);
+			} catch (RuntimeException e) {
+				LOG.error("Error during update Site settings.", e);
 				showErrorNotification(getTranslation("view.site-admin.settings.form.error.unexpected"));
 			}
 		}
