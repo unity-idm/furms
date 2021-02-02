@@ -11,8 +11,8 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.LimitedProject;
-import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
@@ -43,9 +43,9 @@ public class SettingsView extends FurmsViewComponent {
 
 	private ProjectViewModel oldProject;
 
-	SettingsView(ProjectService projectService, UsersDAO usersDAO) {
+	SettingsView(ProjectService projectService, UserService userService) {
 		this.projectService = projectService;
-		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(usersDAO.getAllUsers());
+		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
 		this.projectFormComponent = new ProjectFormComponent(binder, false, users);
 
 		projectFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());

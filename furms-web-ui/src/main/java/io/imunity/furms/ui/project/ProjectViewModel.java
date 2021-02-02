@@ -54,6 +54,7 @@ public class ProjectViewModel {
 		this.researchField = projectViewModel.researchField;
 		this.startTime = projectViewModel.startTime;
 		this.endTime = projectViewModel.endTime;
+		this.projectLeader = projectViewModel.projectLeader;
 	}
 
 	public String getId() {
