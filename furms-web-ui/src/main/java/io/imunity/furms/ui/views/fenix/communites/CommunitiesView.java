@@ -5,43 +5,32 @@
 
 package io.imunity.furms.ui.views.fenix.communites;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ADMINISTRATORS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ALLOCATIONS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.PARAM_NAME;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.RouterGridLink;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "fenix/admin/communities", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.communities.page.title")
@@ -70,9 +59,12 @@ public class CommunitiesView extends FurmsViewComponent {
 		Grid<CommunityViewModel> grid = new SparseGrid<>(CommunityViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), CommunityView.class, c.getId()))
-			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"))
+			.setSortable(true)
+			.setComparator(CommunityViewModel::getName);
 		grid.addColumn(CommunityViewModel::getDescription)
-			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"));
+			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.2"))
+			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.3"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -84,29 +76,31 @@ public class CommunitiesView extends FurmsViewComponent {
 		return new GridActionsButtonLayout(
 			new RouterGridLink(USERS, c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
 			new RouterGridLink(PIE_CHART, c.getId(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
-			createContextMenu(c.getId())
+			createContextMenu(c.getId(), c.getName())
 		);
 	}
 
 	private void loadGridContent() {
-		Set<CommunityViewModel> all = handleExceptions(communityService::findAll)
+		List<CommunityViewModel> allCommunities = handleExceptions(communityService::findAll)
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(CommunityViewModelMapper::map)
-			.collect(toSet());
-		grid.setItems(all);
+			.sorted(comparing(projectViewModel -> projectViewModel.getName().toLowerCase()))
+			.collect(toList());
+		grid.setItems(allCommunities);
 	}
 
-	private Component createContextMenu(String communityId) {
+	private Component createContextMenu(String communityId, String communityName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(getTranslation("view.fenix-admin.communities.menu.edit"), EDIT), event ->
 			UI.getCurrent().navigate(CommunityFormView.class, communityId)
 		);
-		contextMenu.addItem(new MenuButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH), event -> {
-			handleExceptions(() -> communityService.delete(communityId));
-			loadGridContent();
-			}
+
+		Dialog confirmDialog = createConfirmDialog(communityId, communityName);
+		contextMenu.addItem(
+			new MenuButton(getTranslation("view.fenix-admin.communities.menu.delete"), TRASH),
+			event -> confirmDialog.open()
 		);
 
 		MenuButton adminComp = new MenuButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
@@ -119,6 +113,17 @@ public class CommunitiesView extends FurmsViewComponent {
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
+	}
+
+	private Dialog createConfirmDialog(String communityId, String communityName) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.community.dialog.text", communityName));
+		furmsDialog.addConfirmButtonClickListener(event -> {
+			getResultOrException(() -> communityService.delete(communityId))
+				.getThrowable()
+				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), communityName)));
+			loadGridContent();
+		});
+		return furmsDialog;
 	}
 
 	@Override

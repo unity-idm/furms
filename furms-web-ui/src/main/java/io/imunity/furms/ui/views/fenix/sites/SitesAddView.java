@@ -23,6 +23,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
@@ -94,8 +95,7 @@ public class SitesAddView extends FurmsViewComponent {
 		);
 		formLayout.addFormItem(name, getTranslation("view.sites.add.form.name"));
 
-		FlexLayout buttons = new FlexLayout(cancel, save);
-		buttons.setAlignContent(FlexLayout.ContentAlignment.START);
+		FormButtons buttons = new FormButtons(cancel, save);
 
 		getContent().add(formLayout, buttons);
 	}

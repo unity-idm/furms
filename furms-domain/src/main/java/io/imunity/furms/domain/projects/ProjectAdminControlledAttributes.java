@@ -9,12 +9,12 @@ import io.imunity.furms.domain.images.FurmsImage;
 
 import java.util.Objects;
 
-public class LimitedProject {
+public class ProjectAdminControlledAttributes {
 	private final String id;
 	private final String description;
 	private final FurmsImage logo;
 
-	public LimitedProject(String id, String description, FurmsImage logo) {
+	public ProjectAdminControlledAttributes(String id, String description, FurmsImage logo) {
 		this.id = id;
 		this.description = description;
 		this.logo = logo;
@@ -36,7 +36,7 @@ public class LimitedProject {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		LimitedProject that = (LimitedProject) o;
+		ProjectAdminControlledAttributes that = (ProjectAdminControlledAttributes) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(logo, that.logo);
@@ -49,7 +49,7 @@ public class LimitedProject {
 
 	@Override
 	public String toString() {
-		return "LimitedProject{" +
+		return "AdminControlledProjectAttributes{" +
 			"id='" + id + '\'' +
 			", description='" + description + '\'' +
 			", logo=" + logo +

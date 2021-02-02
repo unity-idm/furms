@@ -5,23 +5,32 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityServiceImplValidatorTest {
 	@Mock
 	private CommunityRepository communityRepository;
+
+	@Mock
+	private ProjectRepository projectRepository;
 
 	@InjectMocks
 	private CommunityServiceValidator validator;
@@ -116,6 +125,18 @@ class CommunityServiceImplValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldNotPassDeleteForExistingProjects() {
+		//given
+		final String id = "id";
+
+		when(communityRepository.exists(id)).thenReturn(true);
+		when(projectRepository.findAll(id)).thenReturn(Set.of(mock(Project.class)));
+
+		//when+then
+		assertThrows(RemovingCommunityException.class, () -> validator.validateDelete(id));
 	}
 
 }

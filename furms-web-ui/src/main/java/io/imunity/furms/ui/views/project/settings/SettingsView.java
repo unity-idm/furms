@@ -5,12 +5,24 @@
 
 package io.imunity.furms.ui.views.project.settings;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.function.Function.identity;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.LimitedProject;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -37,7 +49,7 @@ import static java.util.function.Function.identity;
 public class SettingsView extends FurmsViewComponent {
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
 	private final Button updateButton = createUpdateButton();
-	private final Button closeButton = createCloseButton();
+	private final Button cancelButton = createCloseButton();
 	private final ProjectFormComponent projectFormComponent;
 	private final ProjectService projectService;
 
@@ -64,20 +76,22 @@ public class SettingsView extends FurmsViewComponent {
 				enableEditorMode();
 		});
 
+
+		FormButtons buttons = new FormButtons(updateButton, cancelButton);
 		getContent().add(
-			projectFormComponent,
-			updateButton, closeButton
+			projectFormComponent, buttons
 		);
 	}
 
 	private void enableEditorMode() {
+		updateButton.setVisible(true);
 		updateButton.setEnabled(binder.isValid());
-		closeButton.setVisible(true);
+		cancelButton.setVisible(true);
 	}
 
 	private void disableEditorMode() {
-		closeButton.setVisible(false);
-		updateButton.setEnabled(false);
+		cancelButton.setVisible(false);
+		updateButton.setVisible(false);
 	}
 
 	private Button createCloseButton() {
@@ -86,7 +100,7 @@ public class SettingsView extends FurmsViewComponent {
 		closeButton.addClickListener(event ->{
 			loadProject();
 			closeButton.setVisible(false);
-			projectFormComponent.getUpload().clean();
+			projectFormComponent.getUpload().cleanCurrentFileName();
 		});
 		return closeButton;
 	}
@@ -109,8 +123,8 @@ public class SettingsView extends FurmsViewComponent {
 			binder.validate();
 			if(binder.isValid()) {
 				ProjectViewModel projectViewModel = new ProjectViewModel(binder.getBean());
-				LimitedProject project = new LimitedProject(projectViewModel.id, projectViewModel.description, projectViewModel.logo);
-				getResultOrException(() -> projectService.limitedUpdate(project))
+				ProjectAdminControlledAttributes project = new ProjectAdminControlledAttributes(projectViewModel.id, projectViewModel.description, projectViewModel.logo);
+				getResultOrException(() -> projectService.update(project))
 					.getThrowable()
 					.ifPresentOrElse(
 						e -> showErrorNotification(getTranslation("project.error.message")),

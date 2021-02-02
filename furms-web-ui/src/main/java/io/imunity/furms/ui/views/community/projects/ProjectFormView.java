@@ -5,20 +5,28 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
@@ -53,12 +61,10 @@ class ProjectFormView extends FurmsViewComponent {
 		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
-		Button closeButton = createCloseButton();
+		Button cancelButton = createCloseButton();
 
-		getContent().add(
-			projectFormComponent,
-			new HorizontalLayout(saveButton, closeButton)
-		);
+		FormButtons buttons = new FormButtons(cancelButton, saveButton);
+		getContent().add(projectFormComponent, buttons);
 	}
 
 	private Button createCloseButton() {

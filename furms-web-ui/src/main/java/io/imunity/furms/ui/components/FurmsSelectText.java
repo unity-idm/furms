@@ -5,10 +5,12 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.Text;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-
 import java.util.Objects;
+
+import com.google.common.base.MoreObjects;
+import com.vaadin.flow.component.Text;
+
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
 public class FurmsSelectText extends Text {
 	public final FurmsViewUserContext furmsViewUserContext;
@@ -29,5 +31,11 @@ public class FurmsSelectText extends Text {
 	@Override
 	public int hashCode() {
 		return Objects.hash(furmsViewUserContext);
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this).add("super", super.toString())
+				.add("furmsViewUserContext", furmsViewUserContext).toString();
 	}
 }

@@ -9,11 +9,10 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.FileRejectedEvent;
 import com.vaadin.flow.component.upload.FinishedEvent;
 import com.vaadin.flow.component.upload.Upload;
@@ -29,7 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @CssImport("./styles/components/furms-image-upload.css")
-public class FurmsImageUpload extends VerticalLayout
+public class FurmsImageUpload extends HorizontalLayout
 		implements HasValue<FurmsImageUpload, FurmsImage>, HasValue.ValueChangeEvent<FurmsImage> {
 
 	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
@@ -61,15 +60,10 @@ public class FurmsImageUpload extends VerticalLayout
 				new FurmsImage(image.getSrc().getBytes(), createMimeType(event.getMIMEType()))));
 		addFileRemovedListener(event -> setValueAndFireEventChange(null));
 
-		setClassName("no-left-padding");
-		HorizontalLayout horizontalLayout = new HorizontalLayout(image, upload);
-		horizontalLayout.setClassName("no-top-margin");
-		Label logo = new Label(getTranslation("logo"));
-		logo.setClassName("furms-upload-label");
-		add(logo, horizontalLayout);
+		add(image, upload);
 	}
 
-	public void clean() {
+	public void cleanCurrentFileName() {
 		upload.getElement().setPropertyJson("files", Json.createArray());
 	}
 
