@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.views.site.settings;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -143,7 +142,6 @@ public class SettingsView extends FurmsViewComponent {
 		Button save = new Button(getTranslation("view.site-admin.settings.form.button.save"),
 				e -> doSaveAction(binder));
 		save.addThemeVariants(LUMO_PRIMARY);
-		save.addClickShortcut(Key.ENTER);
 		save.addClassName("sites-add-form-button");
 		save.setEnabled(false);
 

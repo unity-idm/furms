@@ -22,7 +22,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 
 	public FurmsViewComponent() {
 		getContent().setClassName("furms-view");
-		addPreventionForMultiEnterClick();
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){
@@ -45,7 +44,7 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 		UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 	}
 
-	private void addPreventionForMultiEnterClick() {
+	protected void addPreventionForMultiEnterClick() {
 		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
 	}
 }

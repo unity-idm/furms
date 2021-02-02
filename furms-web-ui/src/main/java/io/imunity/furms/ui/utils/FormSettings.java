@@ -5,8 +5,8 @@
 
 package io.imunity.furms.ui.utils;
 
-public interface FormSettings {
+public class FormSettings {
 
-	int NAME_MAX_LENGTH = 20;
+	public static final int NAME_MAX_LENGTH = 20;
 
 }

@@ -43,7 +43,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.DeleteConfirmationDialog;
+import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.MenuButton;
@@ -70,6 +70,8 @@ public class SitesView extends FurmsViewComponent {
 
 		addHeader();
 		addTable();
+
+		addPreventionForMultiEnterClick();
 	}
 
 	private void addHeader() {
@@ -187,10 +189,9 @@ public class SitesView extends FurmsViewComponent {
 				} catch (DuplicatedNameValidationError e) {
 					name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 					name.setInvalid(true);
-				} catch (IllegalArgumentException e) {
-					showErrorNotification(getTranslation("view.sites.form.error.unexpected", "update"));
 				} catch (RuntimeException e) {
 					LOG.error("Could not update Site.", e);
+					showErrorNotification(getTranslation("view.sites.form.error.unexpected", "update"));
 				}
 			}
 		}
@@ -201,7 +202,8 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void actionDeleteSite(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
-		new DeleteConfirmationDialog(getTranslation("view.sites.main.confirmation.dialog.delete", site.getName()), event -> {
+		FurmsDialog cancelDialog = new FurmsDialog(getTranslation("view.sites.main.confirmation.dialog.delete", site.getName()));
+		cancelDialog.addConfirmButtonClickListener(event -> {
 			try {
 				siteService.delete(site.getId());
 				showSuccessNotification(getTranslation("view.sites.main.grid.item.menu.delete.success", site.getName()));
@@ -211,7 +213,8 @@ public class SitesView extends FurmsViewComponent {
 			} finally {
 				siteGrid.setItems(fetchSites());
 			}
-		}).open();
+		});
+		cancelDialog.open();
 	}
 
 	private List<SiteGridItem> fetchSites() {
