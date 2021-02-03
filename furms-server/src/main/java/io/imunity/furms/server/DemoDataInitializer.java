@@ -5,6 +5,14 @@
 
 package io.imunity.furms.server;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
@@ -16,12 +24,7 @@ import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.time.LocalDateTime;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Component
 @Profile("demo-data-provisioning")
@@ -31,7 +34,7 @@ class DemoDataInitializer {
 
 	private final SiteRepository siteRepository;
 	private final SiteWebClient siteWebClient;
-
+	private final UsersDAO usersDAO;
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
 
@@ -40,13 +43,15 @@ class DemoDataInitializer {
 	                                             ProjectRepository projectRepository,
 	                                             ProjectGroupsDAO projectGroupsDAO,
 	                                             SiteRepository siteRepository,
-	                                             SiteWebClient siteWebClient) {
+	                                             SiteWebClient siteWebClient,
+	                                             UsersDAO usersDAO) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.siteRepository = siteRepository;
 		this.siteWebClient = siteWebClient;
+		this.usersDAO = usersDAO;
 	}
 
 	@PostConstruct
@@ -56,6 +61,11 @@ class DemoDataInitializer {
 	}
 
 	private void initCommunitiesAndProjects() throws IOException {
+		
+		String testAdminId = usersDAO.getAllUsers().stream()
+				.filter(user -> "admin@domain.com".equals(user.email))
+				.map(user -> user.id).findFirst()
+				.orElse(null);
 		if(communityRepository.findAll().isEmpty()) {
 			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();
 			Community community = Community.builder()
@@ -85,6 +95,7 @@ class DemoDataInitializer {
 				.researchField("AI")
 				.startTime(LocalDateTime.now())
 				.endTime(LocalDateTime.now().plusWeeks(20))
+				.leaderId(testAdminId)
 				.build();
 
 			Project project2 = Project.builder()
@@ -96,12 +107,16 @@ class DemoDataInitializer {
 				.researchField("AI")
 				.startTime(LocalDateTime.now())
 				.endTime(LocalDateTime.now().plusWeeks(10))
+				.leaderId(testAdminId)
 				.build();
 
 			String projectId = projectRepository.create(project);
 			projectGroupsDAO.create(new ProjectGroup(projectId, project.getName(), communityId));
 			String project2Id = projectRepository.create(project2);
 			projectGroupsDAO.create(new ProjectGroup(project2Id, project2.getName(), communityId));
+
+			usersDAO.addProjectAdminRole(communityId, projectId, testAdminId);
+			usersDAO.addProjectAdminRole(communityId, project2Id, testAdminId);
 
 			Project project3 = Project.builder()
 				.name("Neuroinforamtics2")
@@ -112,6 +127,7 @@ class DemoDataInitializer {
 				.researchField("AI")
 				.startTime(LocalDateTime.now())
 				.endTime(LocalDateTime.now().plusWeeks(30))
+				.leaderId(testAdminId)
 				.build();
 
 			Project project4 = Project.builder()
@@ -123,12 +139,16 @@ class DemoDataInitializer {
 				.researchField("AI")
 				.startTime(LocalDateTime.now())
 				.endTime(LocalDateTime.now().plusWeeks(13))
+				.leaderId(testAdminId)
 				.build();
 
 			String project3Id = projectRepository.create(project3);
 			projectGroupsDAO.create(new ProjectGroup(project3Id, project3.getName(), community2Id));
 			String project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
+			
+			usersDAO.addProjectAdminRole(community2Id, project3Id, testAdminId);
+			usersDAO.addProjectAdminRole(community2Id, project4Id, testAdminId);
 		}
 	}
 
