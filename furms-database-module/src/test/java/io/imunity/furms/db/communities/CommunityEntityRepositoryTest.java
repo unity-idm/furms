@@ -6,24 +6,21 @@
 package io.imunity.furms.db.communities;
 
 
-import org.junit.jupiter.api.BeforeAll;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import io.imunity.furms.db.DBIntegrationTest;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 @SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CommunityEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
@@ -32,15 +29,10 @@ class CommunityEntityRepositoryTest extends DBIntegrationTest {
 	private byte[] imgTestFile;
 	private byte[] imgTestFile2;
 
-	@BeforeAll
+	@BeforeEach
 	void init() throws IOException {
 		imgTestFile = getClass().getClassLoader().getResourceAsStream("test.jpg").readAllBytes();
 		imgTestFile2 = getClass().getClassLoader().getResourceAsStream("test2.jpg").readAllBytes();
-	}
-
-	@BeforeEach
-	void setUp() {
-		communityEntityRepository.deleteAll();
 	}
 
 	@Test

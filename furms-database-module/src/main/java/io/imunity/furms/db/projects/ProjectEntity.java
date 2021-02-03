@@ -5,16 +5,15 @@
 
 package io.imunity.furms.db.projects;
 
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
-
-import org.springframework.data.relational.core.mapping.Table;
-
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
 
 @Table("project")
 class ProjectEntity extends UUIDIdentifiable {
@@ -28,9 +27,10 @@ class ProjectEntity extends UUIDIdentifiable {
 	private final String researchField;
 	private final LocalDateTime startTime;
 	private final LocalDateTime endTime;
+	private final String leaderId;
 
 	public ProjectEntity(UUID id, UUID communityId, String name, String description, byte[] logoImage, String logoType,
-	                     String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime) {
+	                     String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime, String leaderId) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -41,6 +41,7 @@ class ProjectEntity extends UUIDIdentifiable {
 		this.researchField = researchField;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.leaderId = leaderId;
 	}
 
 	public Project toProject() {
@@ -54,6 +55,7 @@ class ProjectEntity extends UUIDIdentifiable {
 			.researchField(researchField)
 			.startTime(startTime)
 			.endTime(endTime)
+			.leaderId(leaderId)
 			.build();
 	}
 
@@ -111,12 +113,13 @@ class ProjectEntity extends UUIDIdentifiable {
 			Objects.equals(acronym, that.acronym) &&
 			Objects.equals(researchField, that.researchField) &&
 			Objects.equals(startTime, that.startTime) &&
-			Objects.equals(endTime, that.endTime);
+			Objects.equals(endTime, that.endTime) &&
+			Objects.equals(leaderId, that.leaderId);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, communityId, name, description, logoType, acronym, researchField, startTime, endTime);
+		int result = Objects.hash(id, communityId, name, description, logoType, acronym, researchField, startTime, endTime, leaderId);
 		result = 31 * result + Arrays.hashCode(logoImage);
 		return result;
 	}
@@ -134,6 +137,7 @@ class ProjectEntity extends UUIDIdentifiable {
 			", researchField='" + researchField + '\'' +
 			", startTime=" + startTime +
 			", endTime=" + endTime +
+			", projectLeaderId=" + leaderId +
 			'}';
 	}
 
@@ -148,6 +152,7 @@ class ProjectEntity extends UUIDIdentifiable {
 		private String researchField;
 		private LocalDateTime start;
 		private LocalDateTime end;
+		private String leaderId;
 
 		private ProjectEntityBuilder() {
 		}
@@ -204,9 +209,14 @@ class ProjectEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectEntityBuilder leaderId(String projectLeaderId) {
+			this.leaderId = projectLeaderId;
+			return this;
+		}
+
 		public ProjectEntity build() {
 			return new ProjectEntity(
-				id, communityId, name, description, logoImage, logoType, acronym, researchField, start, end
+				id, communityId, name, description, logoImage, logoType, acronym, researchField, start, end, leaderId
 			);
 		}
 	}

@@ -3,12 +3,13 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community.projects;
+package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
-class ProjectViewModelMapper {
-	static ProjectViewModel map(Project project){
+public class ProjectViewModelMapper {
+	public static ProjectViewModel map(Project project){
 		return ProjectViewModel.builder()
 			.id(project.getId())
 			.communityId(project.getCommunityId())
@@ -19,10 +20,11 @@ class ProjectViewModelMapper {
 			.researchField(project.getResearchField())
 			.startTime(project.getStartTime())
 			.endTime(project.getEndTime())
+			.projectLeader(new FurmsViewUserModel(project.getLeaderId()))
 			.build();
 	}
 
-	static Project map(ProjectViewModel project){
+	public static Project map(ProjectViewModel project){
 		return Project.builder()
 			.id(project.id)
 			.communityId(project.communityId)
@@ -33,6 +35,7 @@ class ProjectViewModelMapper {
 			.researchField(project.researchField)
 			.startTime(project.startTime)
 			.endTime(project.endTime)
+			.leaderId(project.projectLeader.id)
 			.build();
 	}
 }

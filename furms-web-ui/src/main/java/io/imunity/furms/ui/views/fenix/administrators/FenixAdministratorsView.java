@@ -19,11 +19,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.user_context.UserViewModel;
-import io.imunity.furms.ui.user_context.UserViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Collections;
@@ -40,12 +38,12 @@ import static java.util.stream.Collectors.toList;
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
 public class FenixAdministratorsView extends FurmsViewComponent {
-	private final UsersDAO usersDAO;
+	private final UserService userService;
 
-	FenixAdministratorsView(UsersDAO usersDAO) {
-		this.usersDAO = usersDAO;
+	FenixAdministratorsView(UserService userService) {
+		this.userService = userService;
 
-		Grid<UserViewModel> grid = createGrid(loadUsers(usersDAO::getAdminUsers));
+		Grid<UserViewModel> grid = createGrid(loadUsers(userService::getFenixAdmins));
 		TextField emailTextField = createEmailField();
 		Button inviteButton = createInviteButton(grid, emailTextField);
 		HorizontalLayout inviteUserLayout = createInviteUserLayout(emailTextField, inviteButton);
@@ -82,13 +80,13 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		Button inviteButton = new Button(inviteLabel, PAPERPLANE.create());
 		inviteButton.addClickListener(event -> {
 			String value = emailTextField.getValue();
-			loadUsers(usersDAO::getAllUsers).stream()
+			loadUsers(userService::getAllUsers).stream()
 				.filter(u -> u.email.equals(value))
 				.findAny()
 				.ifPresentOrElse(
 					user -> {
-						handleExceptions(() -> usersDAO.addFenixAdminRole(user.id));
-						grid.setItems(loadUsers(usersDAO::getAdminUsers));
+						handleExceptions(() -> userService.addFenixAdminRole(user.id));
+						grid.setItems(loadUsers(userService::getFenixAdmins));
 						emailTextField.clear();
 						},
 					() -> showErrorNotification(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
@@ -104,7 +102,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		textField.setPrefixComponent(SEARCH.create());
 		textField.addValueChangeListener(event -> {
 			String value = event.getValue().toLowerCase();
-			List<UserViewModel> filteredUsers = loadUsers(usersDAO::getAdminUsers).stream()
+			List<UserViewModel> filteredUsers = loadUsers(userService::getFenixAdmins).stream()
 				.filter(user ->
 					filterColumn(user.firstName, value)
 						|| filterColumn(user.lastName, value)
@@ -171,8 +169,8 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		String deleteLabel = getTranslation("view.fenix-admin.administrators.context.menu.remove");
 		contextMenu.addItem(addMenuButton(deleteLabel, MINUS_CIRCLE), event -> {
 			if(grid.getDataProvider().size(new Query<>()) > 1) {
-				handleExceptions(() -> usersDAO.removeFenixAdminRole(id));
-				grid.setItems(loadUsers(usersDAO::getAdminUsers));
+				handleExceptions(() -> userService.removeFenixAdminRole(id));
+				grid.setItems(loadUsers(userService::getFenixAdmins));
 			}
 			else
 				showErrorNotification(getTranslation("view.fenix-admin.administrators.error.validation.remove"));

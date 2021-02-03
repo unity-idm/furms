@@ -21,9 +21,10 @@ public class Project {
 	private final String researchField;
 	private final LocalDateTime startTime;
 	private final LocalDateTime endTime;
+	private final String leaderId;
 
-	public Project(String id, String communityId, String name, String description, FurmsImage logo,
-	               String acronym, String researchField, LocalDateTime startTime, LocalDateTime end) {
+	public Project(String id, String communityId, String name, String description, FurmsImage logo, String acronym,
+	               String researchField, LocalDateTime startTime, LocalDateTime endTime, String projectLeaderId) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -32,7 +33,8 @@ public class Project {
 		this.acronym = acronym;
 		this.researchField = researchField;
 		this.startTime = startTime;
-		this.endTime = end;
+		this.endTime = endTime;
+		this.leaderId = projectLeaderId;
 	}
 
 	public String getId() {
@@ -71,6 +73,10 @@ public class Project {
 		return endTime;
 	}
 
+	public String getLeaderId() {
+		return leaderId;
+	}
+
 	public static ProjectEntityBuilder builder() {
 		return new ProjectEntityBuilder();
 	}
@@ -88,12 +94,13 @@ public class Project {
 			Objects.equals(acronym, project.acronym) &&
 			Objects.equals(researchField, project.researchField) &&
 			Objects.equals(startTime, project.startTime) &&
-			Objects.equals(endTime, project.endTime);
+			Objects.equals(endTime, project.endTime) &&
+			Objects.equals(leaderId, project.leaderId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, communityId, name, description, logo, acronym, researchField, startTime, endTime);
+		return Objects.hash(id, communityId, name, description, logo, acronym, researchField, startTime, endTime, leaderId);
 	}
 
 	@Override
@@ -107,6 +114,7 @@ public class Project {
 			", researchField='" + researchField + '\'' +
 			", startTime=" + startTime +
 			", endTime=" + endTime +
+			", projectLeaderId=" + leaderId +
 			'}';
 	}
 
@@ -120,6 +128,7 @@ public class Project {
 		private String researchField;
 		private LocalDateTime start;
 		private LocalDateTime end;
+		private String leaderId;
 
 		private ProjectEntityBuilder() {
 		}
@@ -174,8 +183,13 @@ public class Project {
 			return this;
 		}
 
+		public ProjectEntityBuilder leaderId(String projectLeaderId) {
+			this.leaderId = projectLeaderId;
+			return this;
+		}
+
 		public Project build() {
-			return new Project(id, communityId, name, description, logo, acronym, researchField, start, end);
+			return new Project(id, communityId, name, description, logo, acronym, researchField, start, end, leaderId);
 		}
 	}
 }

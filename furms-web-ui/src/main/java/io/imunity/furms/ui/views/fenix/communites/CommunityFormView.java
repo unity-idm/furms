@@ -16,7 +16,6 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
@@ -29,6 +28,7 @@ import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -48,12 +48,10 @@ class CommunityFormView extends FurmsViewComponent {
 		this.communityFormComponent = new CommunityFormComponent(binder);
 
 		Button saveButton = createSaveButton();
-		Button closeButton = createCloseButton();
+		Button cancelButton = createCloseButton();
 
-		getContent().add(
-			communityFormComponent,
-			new HorizontalLayout(saveButton, closeButton)
-		);
+		FormButtons buttons = new FormButtons(cancelButton, saveButton);
+		getContent().add(communityFormComponent, buttons);
 	}
 
 	private Button createCloseButton() {

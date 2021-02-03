@@ -11,11 +11,15 @@ public class UnityConst {
 
 	public static final String GROUP_PATH = "groupPath";
 	public static final String ID = "id";
+	public static final String COMMUNITY_ID = "communityId";
+	public static final String PROJECT_ID = "projectId";
 	public static final String ROOT_GROUP_PATH = "rootGroupPath";
 
 	public static final String FENIX_GROUP = "/fenix";
 	public static final String FENIX_USERS_GROUP = "/fenix/users";
 	public static final String FENIX_PROJECT_USERS_GROUP = "/fenix/communities/users";
+
+	public static final String PROJECT_USERS_GROUP = "/fenix/communities/{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}/users";
 
 	public static final String ENUMERATION = "enumeration";
 }

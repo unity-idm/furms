@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface AuthzService {
+	Map<String, Object> getAttributes();
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
 	String getCurrentUserId();

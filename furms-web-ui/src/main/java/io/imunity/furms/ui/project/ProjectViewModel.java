@@ -3,13 +3,15 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.community.projects;
+package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-class ProjectViewModel {
+public class ProjectViewModel {
 	public final String id;
 	public final String communityId;
 	public String name;
@@ -19,9 +21,11 @@ class ProjectViewModel {
 	public String researchField;
 	public LocalDateTime startTime;
 	public LocalDateTime endTime;
+	public FurmsViewUserModel projectLeader;
 
-	private ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
-	                         String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime) {
+	public ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
+	                        String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime,
+	                        FurmsViewUserModel projectLeader) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -31,12 +35,26 @@ class ProjectViewModel {
 		this.researchField = researchField;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.projectLeader = projectLeader;
 	}
 
-	ProjectViewModel(String communityId) {
+	public ProjectViewModel(String communityId) {
 		this.id = null;
 		this.communityId = communityId;
 		this.logo = FurmsImage.empty();
+	}
+
+	public ProjectViewModel(ProjectViewModel projectViewModel) {
+		this.id = projectViewModel.id;
+		this.communityId = projectViewModel.communityId;
+		this.name = projectViewModel.name;
+		this.description = projectViewModel.description;
+		this.logo = projectViewModel.logo;
+		this.acronym = projectViewModel.acronym;
+		this.researchField = projectViewModel.researchField;
+		this.startTime = projectViewModel.startTime;
+		this.endTime = projectViewModel.endTime;
+		this.projectLeader = projectViewModel.projectLeader;
 	}
 
 	public String getId() {
@@ -103,6 +121,14 @@ class ProjectViewModel {
 		this.endTime = endTime;
 	}
 
+	public FurmsViewUserModel getProjectLeader() {
+		return projectLeader;
+	}
+
+	public void setProjectLeader(FurmsViewUserModel projectLeader) {
+		this.projectLeader = projectLeader;
+	}
+
 	public static ProjectViewModelBuilder builder(){
 		return new ProjectViewModelBuilder();
 	}
@@ -113,7 +139,33 @@ class ProjectViewModel {
 				acronym.toLowerCase().contains(value) ||
 				researchField.toLowerCase().contains(value);
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProjectViewModel that = (ProjectViewModel) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	public boolean equalsFields(ProjectViewModel that) {
+		if (this == that) return true;
+		if (that == null) return false;
+		return Objects.equals(id, that.id) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(description, that.description) &&
+			Objects.equals(acronym, that.acronym) &&
+			Objects.equals(researchField, that.researchField) &&
+			Objects.equals(startTime, that.startTime) &&
+			Objects.equals(endTime, that.endTime);
+	}
+
 	public static final class ProjectViewModelBuilder {
 		public String id;
 		public String communityId;
@@ -124,6 +176,7 @@ class ProjectViewModel {
 		public String researchField;
 		public LocalDateTime startTime;
 		public LocalDateTime endTime;
+		public FurmsViewUserModel projectLeader;
 
 		private ProjectViewModelBuilder() {
 		}
@@ -177,8 +230,13 @@ class ProjectViewModel {
 			return this;
 		}
 
+		public ProjectViewModelBuilder projectLeader(FurmsViewUserModel projectLeader) {
+			this.projectLeader = projectLeader;
+			return this;
+		}
+
 		public ProjectViewModel build() {
-			return new ProjectViewModel(id, communityId, name, description, logo, acronym, researchField, startTime, endTime);
+			return new ProjectViewModel(id, communityId, name, description, logo, acronym, researchField, startTime, endTime, projectLeader);
 		}
 	}
 }

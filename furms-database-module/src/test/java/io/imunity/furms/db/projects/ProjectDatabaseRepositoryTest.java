@@ -6,16 +6,8 @@
 package io.imunity.furms.db.projects;
 
 
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -23,11 +15,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.communites.CommunityRepository;
 
 @SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
@@ -64,7 +63,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 			.logo(imgTestFile2, "jpg")
 			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
-		UUID.fromString(communityRepository.create(community2));
+		communityRepository.create(community2);
 	}
 
 	@Test

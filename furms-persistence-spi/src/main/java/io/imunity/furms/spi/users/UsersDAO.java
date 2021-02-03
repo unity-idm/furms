@@ -16,6 +16,7 @@ public interface UsersDAO {
 	boolean isProjectMember(String communityId, String projectId, String userId);
 	void addProjectMemberRole(String communityId, String projectId, String userId);
 	void addFenixAdminRole(String userId);
+	void addProjectAdminRole(String communityId, String projectId, String userId);
 	void removeFenixAdminRole(String userId);
 	void removeProjectMemberRole(String communityId, String projectId, String userId);
 }

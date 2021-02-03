@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.projects;
 
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.User;
 
@@ -20,6 +21,8 @@ public interface ProjectService {
 	void create(Project project);
 
 	void update(Project project);
+
+	void update(ProjectAdminControlledAttributes project);
 
 	void delete(String projectId, String communityId);
 

@@ -26,6 +26,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
+import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -35,8 +36,7 @@ import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 @PageTitle(key = "view.community-admin.settings.page.title")
 public class SettingsView extends FurmsViewComponent {
 	private final Binder<CommunityViewModel> binder = new BeanValidationBinder<>(CommunityViewModel.class);
-	private final Button closeButton = createCloseButton();
-	private final Button updateButton = createUpdateButton();
+	private final FormButtons formButtons;
 
 	private final CommunityService communityService;
 	private final CommunityFormComponent communityFormComponent;
@@ -46,45 +46,42 @@ public class SettingsView extends FurmsViewComponent {
 	public SettingsView(CommunityService communityService) {
 		this.communityService = communityService;
 		this.communityFormComponent = new CommunityFormComponent(binder);
+		this.formButtons = new FormButtons(createCancelButton(), createUpdateButton());
 
 		communityFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
 		communityFormComponent.getUpload().addFileRemovedListener(x -> enableEditorMode());
 		Optional<CommunityViewModel> communityViewModel = getCommunityViewModel();
-		if(communityViewModel.isPresent()){
+		if (communityViewModel.isPresent()){
 			oldCommunity = communityViewModel.get();
 			communityFormComponent.setFormPools(new CommunityViewModel(oldCommunity));
 			disableEditorMode();
 		}
 
 		binder.addStatusChangeListener(status -> {
-			if(oldCommunity.equalsFields(binder.getBean()))
+			if (oldCommunity.equalsFields(binder.getBean()))
 				disableEditorMode();
 			else
 				enableEditorMode();
 		});
 
-		getContent().add(
-			communityFormComponent,
-			updateButton, closeButton
-		);
+		getContent().add(communityFormComponent, formButtons);
 	}
 
 	private void enableEditorMode() {
-		updateButton.setEnabled(binder.isValid());
-		closeButton.setVisible(true);
+		formButtons.setVisible(true);
+		formButtons.setEnabled(binder.isValid());
 	}
 
 	private void disableEditorMode() {
-		closeButton.setVisible(false);
-		updateButton.setEnabled(false);
+		formButtons.setVisible(false);
 	}
 
-	private Button createCloseButton() {
+	private Button createCancelButton() {
 		Button closeButton = new Button(getTranslation("view.community-admin.settings.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickListener(event ->{
 			loadCommunity();
-			closeButton.setVisible(false);
+			formButtons.setVisible(false);
 		});
 		return closeButton;
 	}
@@ -105,7 +102,7 @@ public class SettingsView extends FurmsViewComponent {
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.addClickListener(x -> {
 			binder.validate();
-			if(binder.isValid()) {
+			if (binder.isValid()) {
 				CommunityViewModel communityViewModel = new CommunityViewModel(binder.getBean());
 				Community community = CommunityViewModelMapper.map(communityViewModel);
 				getResultOrException(() -> communityService.update(community))
