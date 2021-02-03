@@ -22,6 +22,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.user_context.UserViewModel;
+import io.imunity.furms.ui.user_context.UserViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.Collections;

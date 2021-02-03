@@ -19,7 +19,8 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static io.imunity.furms.domain.authz.roles.Role.*;
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_MEMBER;
 import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static java.util.stream.Collectors.toList;
@@ -99,13 +100,6 @@ class UnityUsersDAO implements UsersDAO {
 		);
 	}
 
-	private String prepareGroupPath(String communityId, String projectId) {
-		return UriComponentsBuilder.newInstance()
-			.path(PROJECTS_PATTERN)
-			.buildAndExpand(Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId))
-			.toUriString();
-	}
-
 	@Override
 	public void addProjectMemberRole(String communityId, String projectId, String userId) {
 		String groupPath = prepareGroupPath(communityId, projectId);
@@ -161,7 +155,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	private String prepareGroupPath(String communityId, String projectId) {
 		return UriComponentsBuilder.newInstance()
-			.path(PROJECT_USERS_GROUP)
+			.path(PROJECTS_PATTERN)
 			.buildAndExpand(Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId))
 			.toUriString();
 	}
