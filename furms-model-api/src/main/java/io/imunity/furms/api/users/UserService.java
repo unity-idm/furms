@@ -11,4 +11,7 @@ import java.util.List;
 
 public interface UserService {
 	List<User> getAllUsers();
+	List<User> getFenixAdmins();
+	void addFenixAdminRole(String userId);
+	void removeFenixAdminRole(String userId);
 }

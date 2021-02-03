@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
@@ -28,5 +29,23 @@ public class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
 	public List<User> getAllUsers(){
 		return usersDAO.getAllUsers();
+	}
+
+	@Override
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	public List<User> getFenixAdmins(){
+		return usersDAO.getAdminUsers();
+	}
+
+	@Override
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	public void addFenixAdminRole(String userId) {
+		usersDAO.addFenixAdminRole(userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	public void removeFenixAdminRole(String userId){
+		usersDAO.removeFenixAdminRole(userId);
 	}
 }
