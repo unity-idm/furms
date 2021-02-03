@@ -69,7 +69,7 @@ class UnityUsersDAO implements UsersDAO {
 			.toUriString();
 
 		return unityClient.get(path, new ParameterizedTypeReference<List<GroupMember>>() {}).stream()
-			.filter(x -> x.getAttributes().stream().anyMatch(predicate))
+			.filter(groupMember -> groupMember.getAttributes().stream().anyMatch(predicate))
 			.map(UnityUserMapper::map)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -80,9 +80,9 @@ class UnityUsersDAO implements UsersDAO {
 	public boolean isProjectMember(String communityId, String projectId, String userId) {
 		List<Attribute> attributes = getAttributes(communityId, projectId, userId);
 		return attributes.stream()
-			.filter(x -> x.getName().equals(PROJECT_MEMBER.unityRoleAttribute))
-			.flatMap(x -> x.getValues().stream())
-			.anyMatch(x -> x.equals(PROJECT_MEMBER.unityRoleValue));
+			.filter(attribute -> attribute.getName().equals(PROJECT_MEMBER.unityRoleAttribute))
+			.flatMap(attribute -> attribute.getValues().stream())
+			.anyMatch(attribute -> attribute.equals(PROJECT_MEMBER.unityRoleValue));
 	}
 
 	private List<Attribute> getAttributes(String communityId, String projectId, String userId) {
