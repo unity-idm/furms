@@ -8,7 +8,9 @@ package io.imunity.furms.ui.views.fenix.sites;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -28,13 +30,17 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
 public class SitesAddView extends FurmsViewComponent {
 
-	public static final int MAX_SITE_NAME_LENGTH = 20;
-	
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final SiteService siteService;
 
 	private final TextField name;
@@ -71,7 +77,7 @@ public class SitesAddView extends FurmsViewComponent {
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
 		name.setWidthFull();
-		name.setMaxLength(MAX_SITE_NAME_LENGTH);
+		name.setMaxLength(NAME_MAX_LENGTH);
 
 		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"), e -> doCancelAction());
 		cancel.addThemeVariants(LUMO_TERTIARY);
@@ -82,7 +88,9 @@ public class SitesAddView extends FurmsViewComponent {
 		save.addClickShortcut(Key.ENTER);
 		save.addClassName("sites-add-form-button");
 
-		binder.addStatusChangeListener(status -> save.setEnabled(!status.hasValidationErrors()));
+		FormButtons buttons = new FormButtons(cancel, save);
+
+		binder.addStatusChangeListener(status -> save.setEnabled(!isBlank(name.getValue()) && !status.hasValidationErrors()));
 
 		binder.forField(name)
 				.withValidator(getNotEmptyStringValidator(), getTranslation("view.sites.form.error.validation.field.name.required"))
@@ -95,7 +103,6 @@ public class SitesAddView extends FurmsViewComponent {
 		);
 		formLayout.addFormItem(name, getTranslation("view.sites.add.form.name"));
 
-		FormButtons buttons = new FormButtons(cancel, save);
 
 		getContent().add(formLayout, buttons);
 	}
@@ -112,6 +119,7 @@ public class SitesAddView extends FurmsViewComponent {
 				name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 				name.setInvalid(true);
 			} catch (RuntimeException exception) {
+				LOG.error("Could not create Site. ", exception);
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "save"));
 			}
 		}

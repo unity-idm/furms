@@ -7,6 +7,7 @@ package io.imunity.furms.ui.components;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.BeforeEvent;
@@ -21,7 +22,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 
 	public FurmsViewComponent() {
 		getContent().setClassName("furms-view");
-		addPreventionForMultiEnterClick();
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){
@@ -40,7 +40,11 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 		return value -> value != null && !value.isBlank();
 	}
 
-	private void addPreventionForMultiEnterClick() {
+	protected void reloadRolePicker() {
+		UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+	}
+
+	protected void addPreventionForMultiEnterClick() {
 		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
 	}
 }
