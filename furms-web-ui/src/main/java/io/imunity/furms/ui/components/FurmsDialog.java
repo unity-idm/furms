@@ -14,7 +14,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-
 public class FurmsDialog extends Dialog {
 	private final Button confirmButton = new Button(getTranslation("view.community-admin.projects.dialog.button.approve"));
 	private final Button cancelButton = new Button(getTranslation("view.community-admin.projects.dialog.button.cancel"));

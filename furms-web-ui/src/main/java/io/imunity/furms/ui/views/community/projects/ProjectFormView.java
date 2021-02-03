@@ -23,6 +23,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
@@ -31,9 +32,19 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.project.ProjectViewModelMapper;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+
+import java.util.List;
+import java.util.Optional;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.form.page.title")
@@ -44,9 +55,10 @@ class ProjectFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectFormView(ProjectService projectService) {
+	ProjectFormView(ProjectService projectService, UserService userService) {
 		this.projectService = projectService;
-		this.projectFormComponent = new ProjectFormComponent(binder, true);
+		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
+		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();

@@ -25,6 +25,12 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
+	public Map<String, Object> getAttributes() {
+		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return authentication.getAttributes();
+	}
+
+	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
 		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return authentication.roles;
@@ -36,5 +42,11 @@ public class AuthzServiceImpl implements AuthzService {
 		String id = authentication.getAttribute("sub");
 		authentication.roles.clear();
 		authentication.roles.putAll(roleLoader.loadUserRoles(id));
+	}
+
+	@Override
+	public String getCurrentUserId(){
+		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return authentication.getAttribute("sub");
 	}
 }

@@ -36,8 +36,7 @@ import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 @PageTitle(key = "view.community-admin.settings.page.title")
 public class SettingsView extends FurmsViewComponent {
 	private final Binder<CommunityViewModel> binder = new BeanValidationBinder<>(CommunityViewModel.class);
-	private final Button cancelButton = createCancelButton();
-	private final Button updateButton = createUpdateButton();
+	private final FormButtons formButtons;
 
 	private final CommunityService communityService;
 	private final CommunityFormComponent communityFormComponent;
@@ -47,6 +46,7 @@ public class SettingsView extends FurmsViewComponent {
 	public SettingsView(CommunityService communityService) {
 		this.communityService = communityService;
 		this.communityFormComponent = new CommunityFormComponent(binder);
+		this.formButtons = new FormButtons(createCancelButton(), createUpdateButton());
 
 		communityFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
 		communityFormComponent.getUpload().addFileRemovedListener(x -> enableEditorMode());
@@ -64,21 +64,16 @@ public class SettingsView extends FurmsViewComponent {
 				enableEditorMode();
 		});
 
-		FormButtons buttons = new FormButtons(updateButton, cancelButton);
-		getContent().add(
-			communityFormComponent, buttons
-		);
+		getContent().add(communityFormComponent, formButtons);
 	}
 
 	private void enableEditorMode() {
-		updateButton.setVisible(true);
-		updateButton.setEnabled(binder.isValid());
-		cancelButton.setVisible(true);
+		formButtons.setVisible(true);
+		formButtons.setEnabled(binder.isValid());
 	}
 
 	private void disableEditorMode() {
-		cancelButton.setVisible(false);
-		updateButton.setVisible(false);
+		formButtons.setVisible(false);
 	}
 
 	private Button createCancelButton() {
@@ -86,7 +81,7 @@ public class SettingsView extends FurmsViewComponent {
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickListener(event ->{
 			loadCommunity();
-			closeButton.setVisible(false);
+			formButtons.setVisible(false);
 		});
 		return closeButton;
 	}

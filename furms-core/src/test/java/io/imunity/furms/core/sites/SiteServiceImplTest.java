@@ -6,6 +6,7 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -129,6 +130,39 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(request);
 		verify(webClient, times(1)).update(request);
+	}
+
+	@Test
+	void shouldUpdateOnlySentFields() {
+		//given
+		final Site oldSite = Site.builder()
+				.id("id")
+				.name("name")
+				.logo(new FurmsImage(new byte[0], "png"))
+				.connectionInfo("connectionInfo")
+				.build();
+		final Site request = Site.builder()
+				.id("id")
+				.name("brandNewName")
+				.build();
+		final Site expectedSite = Site.builder()
+				.id(oldSite.getId())
+				.name(request.getName())
+				.logo(oldSite.getLogo())
+				.connectionInfo(oldSite.getConnectionInfo())
+				.build();
+
+		when(repository.exists(request.getId())).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.getName(), request.getId())).thenReturn(false);
+		when(repository.update(expectedSite)).thenReturn(request.getId());
+		when(repository.findById(request.getId())).thenReturn(Optional.of(expectedSite));
+
+		//when
+		service.update(request);
+
+		//then
+		verify(repository, times(1)).update(expectedSite);
+		verify(webClient, times(1)).update(expectedSite);
 	}
 
 	@Test

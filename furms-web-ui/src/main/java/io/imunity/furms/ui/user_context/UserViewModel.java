@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.administrators;
+package io.imunity.furms.ui.user_context;
 
 import com.vaadin.flow.component.icon.Icon;
 
@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
-class UserViewModel {
+public class UserViewModel {
 	public final String id;
 	public final String firstName;
 	public final String lastName;

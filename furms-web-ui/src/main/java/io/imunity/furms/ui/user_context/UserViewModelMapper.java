@@ -3,12 +3,12 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.administrators;
+package io.imunity.furms.ui.user_context;
 
 import io.imunity.furms.domain.users.User;
 
-class UserViewModelMapper {
-	static UserViewModel map(User user){
+public class UserViewModelMapper {
+	public static UserViewModel map(User user){
 		return new UserViewModel(user.id, user.firstName, user.lastName, user.email);
 	}
 }

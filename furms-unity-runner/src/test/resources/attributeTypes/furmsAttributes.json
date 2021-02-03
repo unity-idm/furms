@@ -199,7 +199,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 2,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,

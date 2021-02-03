@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.views.fenix.administrators;
 
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.ui.components.PageTitle;

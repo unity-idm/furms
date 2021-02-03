@@ -15,12 +15,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
+import io.imunity.furms.ui.components.FurmsUserComboBox;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
-import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.TOP;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.Optional.ofNullable;
@@ -31,17 +34,19 @@ public class ProjectFormComponent extends Composite<Div> {
 	private static final int MAX_ACRONYM_LENGTH = 8;
 
 	private final Binder<ProjectViewModel> binder;
+	private final List<FurmsViewUserModel> userModels;
 	private final FurmsImageUpload uploadComponent = createUploadComponent();
 
-	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean disabe) {
+	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean disable, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
+		this.userModels = userModels;
 
-		FormLayout formLayout = new FormLayout();
+		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
-		nameField.setEnabled(disabe);
+		nameField.setEnabled(disable);
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
 		TextArea descriptionField = new TextArea();
@@ -53,37 +58,37 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField acronymField = new TextField();
 		acronymField.setValueChangeMode(EAGER);
 		acronymField.setMaxLength(MAX_ACRONYM_LENGTH);
-		acronymField.setEnabled(disabe);
+		acronymField.setEnabled(disable);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
 		DateTimePicker startTimePicker = new DateTimePicker();
-		startTimePicker.setEnabled(disabe);
+		startTimePicker.setEnabled(disable);
 		formLayout.addFormItem(startTimePicker, getTranslation("view.community-admin.project.form.field.start-time"));
 
 		DateTimePicker endTimePicker = new DateTimePicker();
-		endTimePicker.setEnabled(disabe);
+		endTimePicker.setEnabled(disable);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
 		TextField researchField = new TextField();
 		researchField.setValueChangeMode(EAGER);
 		researchField.setMaxLength(MAX_NAME_LENGTH);
-		researchField.setEnabled(disabe);
+		researchField.setEnabled(disable);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
-		ComboBox<String> leaderComboBox = new ComboBox<>();
-		leaderComboBox.setEnabled(disabe);
-		formLayout.addFormItem(leaderComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
+		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
+		furmsUserComboBox.comboBox.setEnabled(disable);
+		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 
 		formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));
 
-		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField);
-		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1, TOP));
+		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, furmsUserComboBox.comboBox);
 
 		getContent().add(formLayout);
 	}
 
 	private void prepareValidator(TextField nameField, TextArea descriptionField, TextField acronymField,
-	                              DateTimePicker startTimePicker, DateTimePicker endTimePicker, TextField researchField) {
+	                              DateTimePicker startTimePicker, DateTimePicker endTimePicker, TextField researchField,
+	                              ComboBox<FurmsViewUserModel> leaderComboBox ) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
@@ -116,6 +121,12 @@ public class ProjectFormComponent extends Composite<Div> {
 				getTranslation("view.community-admin.project.form.error.validation.field.end-time")
 			)
 			.bind(ProjectViewModel::getEndTime, ProjectViewModel::setEndTime);
+		binder.forField(leaderComboBox)
+			.withValidator(
+				Objects::nonNull,
+				getTranslation("view.community-admin.project.form.error.validation.field.leader")
+			)
+			.bind(ProjectViewModel::getProjectLeader, ProjectViewModel::setProjectLeader);
 	}
 
 	private FurmsImageUpload createUploadComponent() {
@@ -142,8 +153,18 @@ public class ProjectFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ProjectViewModel projectViewModel) {
+		userModels.stream()
+			.filter(user -> user.id.equals(getUserId(projectViewModel)))
+			.findAny()
+			.ifPresent(user -> projectViewModel.projectLeader = user);
 		binder.setBean(projectViewModel);
 		uploadComponent.setValue(projectViewModel.getLogo());
+	}
+
+	private String getUserId(ProjectViewModel projectViewModel) {
+		return ofNullable(projectViewModel.projectLeader)
+			.map(user -> user.id)
+			.orElse(null);
 	}
 
 	public FurmsImageUpload getUpload() {

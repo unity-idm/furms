@@ -24,6 +24,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.utils.ValidationUtils.check;
+import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Service
@@ -87,7 +88,9 @@ class SiteServiceImpl implements SiteService {
 	public void update(Site site) {
 		validator.validateUpdate(site);
 
-		String siteId = siteRepository.update(site);
+		Site oldSite = siteRepository.findById(site.getId()).get();
+
+		String siteId = siteRepository.update(merge(oldSite, site));
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
 		Site updatedSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
@@ -182,4 +185,13 @@ class SiteServiceImpl implements SiteService {
 		}
 	}
 
+	private Site merge(Site oldSite, Site site) {
+		check(oldSite.getId().equals(site.getId()),() -> new IllegalArgumentException("There are different Sites during merge"));
+		return Site.builder()
+				.id(oldSite.getId())
+				.name(site.getName())
+				.logo(ofNullable(site.getLogo()).orElse(oldSite.getLogo()))
+				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
+				.build();
+	}
 }
