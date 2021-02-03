@@ -5,6 +5,14 @@
 
 package io.imunity.furms.ui.project;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.util.Optional.ofNullable;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -15,18 +23,11 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
-import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.TOP;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static java.util.Optional.ofNullable;
 
 public class ProjectFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -41,7 +42,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		this.binder = binder;
 		this.userModels = userModels;
 
-		FormLayout formLayout = new FormLayout();
+		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -88,7 +89,6 @@ public class ProjectFormComponent extends Composite<Div> {
 		formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));
 
 		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, leaderComboBox);
-		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1, TOP));
 
 		getContent().add(formLayout);
 	}

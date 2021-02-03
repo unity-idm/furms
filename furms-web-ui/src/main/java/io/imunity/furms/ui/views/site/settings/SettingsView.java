@@ -5,6 +5,20 @@
 
 package io.imunity.furms.ui.views.site.settings;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -15,30 +29,19 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "site/admin/settings", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.settings.page.title")
@@ -63,18 +66,15 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private void addForm() {
-		FormLayout formLayout = new FormLayout();
-		formLayout.setClassName("form-layout");
+		FormLayout formLayout = new FurmsFormLayout();
 
 		Binder<SiteSettingsDto> binder = new Binder<>(SiteSettingsDto.class);
 		binder.setBean(loadSite());
 
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
-		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
+		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.add(buttonsRow(binder));
-
-		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1));
 
 		getContent().add(formLayout);
 	}
@@ -83,7 +83,6 @@ public class SettingsView extends FurmsViewComponent {
 		name.setPlaceholder(getTranslation("view.site-admin.settings.form.name.placeholder"));
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
-		name.setWidth("40em");
 		name.setMaxLength(NAME_MAX_LENGTH);
 		name.setId(NAME_FIELD_ID);
 
@@ -126,6 +125,7 @@ public class SettingsView extends FurmsViewComponent {
 	private Component connectionInfoRow(Binder<SiteSettingsDto> binder) {
 		TextArea textArea = new TextArea();
 		textArea.setValueChangeMode(EAGER);
+		textArea.setClassName("description-text-area");
 		textArea.setPlaceholder(getTranslation("view.site-admin.settings.form.info.placeholder"));
 		binder.forField(textArea)
 				.bind(SiteSettingsDto::getConnectionInfo, SiteSettingsDto::setConnectionInfo);
@@ -134,30 +134,36 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private Component buttonsRow(Binder<SiteSettingsDto> binder) {
-		Button refresh = new Button(getTranslation("view.site-admin.settings.form.button.refresh"),
-				e -> doRefreshAction(binder));
-		refresh.addThemeVariants(LUMO_TERTIARY);
-		refresh.addClassName("sites-add-form-button");
-
-		Button save = new Button(getTranslation("view.site-admin.settings.form.button.save"),
-				e -> doSaveAction(binder));
+		
+		Button cancel = new Button(getTranslation("view.site-admin.settings.form.button.cancel"));
+		cancel.addThemeVariants(LUMO_TERTIARY);
+		Button save = new Button(getTranslation("view.site-admin.settings.form.button.save"));
 		save.addThemeVariants(LUMO_PRIMARY);
-		save.addClassName("sites-add-form-button");
-		save.setEnabled(false);
-
-		binder.addValueChangeListener(value -> {
-			save.setEnabled(!binder.validate().hasErrors() && isChanged(binder.getBean()));
+		FormButtons formButtons = new FormButtons(cancel, save);
+		formButtons.setVisible(false);
+		
+		cancel.addClickListener(event -> {
+			refreshBinder(binder);
+			formButtons.setVisible(false);
+		});
+		save.addClickListener(event -> {
+			doSaveAction(binder, formButtons);
 		});
 
-		return new FormButtons(refresh, save);
+		binder.addValueChangeListener(value -> {
+			if (isChanged(binder.getBean())) {
+				formButtons.setVisible(true);
+				formButtons.setEnabled(binder.isValid());
+			}
+			else {
+				formButtons.setVisible(false);
+			}
+		});
+
+		return formButtons;
 	}
 
-	private void doRefreshAction(Binder<SiteSettingsDto> binder) {
-		refreshBinder(binder);
-		showSuccessNotification(getTranslation("view.site-admin.settings.form.button.refresh.success"));
-	}
-
-	private void doSaveAction(Binder<SiteSettingsDto> binder) {
+	private void doSaveAction(Binder<SiteSettingsDto> binder, FormButtons formButtons) {
 		binder.validate();
 		if (binder.isValid()) {
 			try {
@@ -171,6 +177,7 @@ public class SettingsView extends FurmsViewComponent {
 				refreshBinder(binder);
 				reloadRolePicker();
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
+				formButtons.setVisible(false);
 			} catch (DuplicatedNameValidationError e) {
 				name.setErrorMessage(getTranslation("view.site-admin.settings.form.name.validation.unique"));
 				name.setInvalid(true);
@@ -206,7 +213,6 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {
-		binder.setBean(null);
 		binder.setBean(loadSite());
 	}
 }

@@ -12,6 +12,11 @@ import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -30,10 +35,6 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
@@ -81,12 +82,10 @@ public class SitesAddView extends FurmsViewComponent {
 
 		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"), e -> doCancelAction());
 		cancel.addThemeVariants(LUMO_TERTIARY);
-		cancel.addClassName("sites-add-form-button");
 
 		Button save = new Button(getTranslation("view.sites.add.form.button.save"), e -> doSaveAction(formData, binder));
 		save.addThemeVariants(LUMO_PRIMARY);
 		save.addClickShortcut(Key.ENTER);
-		save.addClassName("sites-add-form-button");
 
 		FormButtons buttons = new FormButtons(cancel, save);
 
