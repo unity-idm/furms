@@ -16,15 +16,14 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.GroupMember;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static io.imunity.furms.domain.authz.roles.Role.*;
 import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 class UnityUsersDAO implements UsersDAO {
@@ -111,24 +110,27 @@ class UnityUsersDAO implements UsersDAO {
 	public void addProjectMemberRole(String communityId, String projectId, String userId) {
 		String groupPath = prepareGroupPath(communityId, projectId);
 
+		String addToGroupPath = prepareGroupRequestPath(userId, groupPath);
+		unityClient.post(addToGroupPath, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+
 		Role projectMember = PROJECT_MEMBER;
-		List<String> attributes = getProjectRoleValues(communityId, projectId, userId, projectMember);
+		Set<String> attributes = getProjectRoleValues(communityId, projectId, userId);
 		attributes.add(projectMember.unityRoleValue);
 
 		Attribute attribute = new Attribute(
 			projectMember.unityRoleAttribute,
 			ENUMERATION,
 			groupPath,
-			attributes
+			new ArrayList<>(attributes)
 		);
 
-		String path = prepareRoleRequestPath(userId);
-		unityClient.put(path, attribute);
+		String addRolePath = prepareRoleRequestPath(userId);
+		unityClient.put(addRolePath, attribute);
 	}
 
 	@Override
 	public void addFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId);
+		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
 		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 		String uriComponents = prepareRoleRequestPath(userId);
 		Role fenixAdmin = FENIX_ADMIN;
@@ -143,33 +145,39 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void removeFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId);
+		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
 	@Override
 	public void removeProjectMemberRole(String communityId, String projectId, String userId) {
-		String groupPath = prepareGroupPath(communityId, projectId);
 		String uriComponents = prepareRoleRequestPath(userId);
-
 		Role projectMember = PROJECT_MEMBER;
-		List<String> projectRoleValues = getProjectRoleValues(communityId, projectId, userId, projectMember);
+		Set<String> projectRoleValues = getProjectRoleValues(communityId, projectId, userId);
+		projectRoleValues.remove(projectMember.unityRoleValue);
 
+		if(projectRoleValues.isEmpty()){
+			String groupPath = prepareGroupPath(communityId, projectId);
+			String path = prepareGroupRequestPath(userId, groupPath);
+			unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+			return;
+		}
+
+		String groupPath = prepareGroupPath(communityId, projectId);
 		Attribute attribute = new Attribute(
 			projectMember.unityRoleAttribute,
 			ENUMERATION,
 			groupPath,
-			projectRoleValues
+			new ArrayList<>(projectRoleValues)
 		);
 		unityClient.put(uriComponents, attribute);
 	}
 
-	private List<String> getProjectRoleValues(String communityId, String projectId, String userId, Role projectMember) {
+	private Set<String> getProjectRoleValues(String communityId, String projectId, String userId) {
 		return getAttributes(communityId, projectId, userId).stream()
-			.filter(attribute -> attribute.getName().equals(projectMember.unityRoleAttribute))
+			.filter(attribute -> attribute.getName().equals(PROJECT_MEMBER.unityRoleAttribute))
 			.flatMap(attribute -> attribute.getValues().stream())
-			.filter(attribute -> !attribute.equals(projectMember.unityRoleValue))
-			.collect(toList());
+			.collect(toSet());
 	}
 
 	private String prepareRoleRequestPath(String userId) {
@@ -181,8 +189,8 @@ class UnityUsersDAO implements UsersDAO {
 			.toUriString();
 	}
 
-	private String prepareGroupRequestPath(String userId) {
-		Map<String, String> uriVariables = Map.of(GROUP_PATH, FENIX_USERS_GROUP, ID, userId);
+	private String prepareGroupRequestPath(String userId, String path) {
+		Map<String, String> uriVariables = Map.of(GROUP_PATH, path, ID, userId);
 		return UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
 			.pathSegment("{" + GROUP_PATH + "}")
