@@ -111,24 +111,25 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public List<User> findUsers(String communityId, String projectId){
 		return usersDAO.getProjectUsers(communityId, projectId);
 	}
+
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public boolean isMember(String communityId, String projectId, String userId) {
 		return usersDAO.isProjectMember(communityId, projectId, userId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addMember(String communityId, String projectId, String userId){
 		usersDAO.addProjectMemberRole(communityId, projectId, userId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeMember(String communityId, String projectId, String userId){
 		usersDAO.removeProjectMemberRole(communityId, projectId, userId);
 	}
