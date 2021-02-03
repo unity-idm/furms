@@ -12,6 +12,7 @@ import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.project.settings.SettingsView;
+import io.imunity.furms.ui.views.project.users.UsersView;
 
 import java.util.List;
 

@@ -43,4 +43,10 @@ public class AuthzServiceImpl implements AuthzService {
 		authentication.roles.clear();
 		authentication.roles.putAll(roleLoader.loadUserRoles(id));
 	}
+
+	@Override
+	public String getCurrentUserId(){
+		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return authentication.getAttribute("sub");
+	}
 }

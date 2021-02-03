@@ -17,8 +17,9 @@ public class UnityConst {
 
 	public static final String FENIX_GROUP = "/fenix";
 	public static final String FENIX_USERS_GROUP = "/fenix/users";
+	public static final String FENIX_PROJECT_USERS_GROUP = "/fenix/communities/users";
 
-	public static final String PROJECT_USERS_GROUP = "/fenix/communities/{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}/users";
+	public static final String PROJECTS_PATTERN = "/fenix/communities/{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}/users";
 
 	public static final String ENUMERATION = "enumeration";
 }
