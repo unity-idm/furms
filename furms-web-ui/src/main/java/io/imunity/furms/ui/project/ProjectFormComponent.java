@@ -5,29 +5,28 @@
 
 package io.imunity.furms.ui.project;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static java.util.Optional.ofNullable;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
+import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.util.Optional.ofNullable;
 
 public class ProjectFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -76,19 +75,13 @@ public class ProjectFormComponent extends Composite<Div> {
 		researchField.setEnabled(disable);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
-		ComboBox<FurmsViewUserModel> leaderComboBox = new ComboBox<>();
-		leaderComboBox.setEnabled(disable);
-		leaderComboBox.setItemLabelGenerator(x -> x.firstname + " " + x.lastname);
-		leaderComboBox.setItems(userModels);
-		Label emailLabel = new Label();
-		leaderComboBox.addValueChangeListener(event -> emailLabel.setText(event.getValue().email));
-
-		formLayout.addFormItem(leaderComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
-		formLayout.add(emailLabel);
+		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
+		furmsUserComboBox.comboBox.setEnabled(disable);
+		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 
 		formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));
 
-		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, leaderComboBox);
+		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, furmsUserComboBox.comboBox);
 
 		getContent().add(formLayout);
 	}

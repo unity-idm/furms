@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.fenix.administrators;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -22,6 +23,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.user_context.UserViewModel;
 import io.imunity.furms.ui.user_context.UserViewModelMapper;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
@@ -46,9 +49,9 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		this.userService = userService;
 
 		Grid<UserViewModel> grid = createGrid(loadUsers(userService::getFenixAdmins));
-		TextField emailTextField = createEmailField();
-		Button inviteButton = createInviteButton(grid, emailTextField);
-		HorizontalLayout inviteUserLayout = createInviteUserLayout(emailTextField, inviteButton);
+		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(FurmsViewUserModelMapper.mapList(userService.getAllUsers()));
+		Button inviteButton = createInviteButton(grid, furmsUserComboBox.comboBox);
+		HorizontalLayout inviteUserLayout = createInviteUserLayout(furmsUserComboBox, inviteButton);
 		HorizontalLayout searchLayout = createSearchFilterLayout(grid, inviteButton);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.administrators.header"), 
@@ -64,24 +67,18 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.collect(toList());
 	}
 
-	private HorizontalLayout createInviteUserLayout(TextField emailTextField, Button inviteButton) {
+	private HorizontalLayout createInviteUserLayout(Component emailTextField, Button inviteButton) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout(emailTextField, inviteButton);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		horizontalLayout.setSpacing(true);
 		return horizontalLayout;
 	}
 
-	private TextField createEmailField() {
-		TextField emailTextField = new TextField();
-		emailTextField.setPlaceholder(getTranslation("view.fenix-admin.administrators.field.invite"));
-		return emailTextField;
-	}
-
-	private Button createInviteButton(Grid<UserViewModel> grid, TextField emailTextField) {
+	private Button createInviteButton(Grid<UserViewModel> grid, ComboBox<FurmsViewUserModel> userComboBox) {
 		String inviteLabel = getTranslation("view.fenix-admin.administrators.button.invite");
 		Button inviteButton = new Button(inviteLabel, PAPERPLANE.create());
 		inviteButton.addClickListener(event -> {
-			String value = emailTextField.getValue();
+			String value = userComboBox.getValue().email;
 			loadUsers(userService::getAllUsers).stream()
 				.filter(u -> u.email.equals(value))
 				.findAny()
@@ -89,7 +86,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 					user -> {
 						handleExceptions(() -> userService.addFenixAdminRole(user.id));
 						grid.setItems(loadUsers(userService::getFenixAdmins));
-						emailTextField.clear();
+						userComboBox.clear();
 						},
 					() -> showErrorNotification(getTranslation("view.fenix-admin.administrators.error.validation.field.invite"))
 				);
