@@ -18,10 +18,8 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.client.common.UnityPaths.META;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID_USERS;
+import static io.imunity.furms.unity.client.common.UnityConst.*;
+import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -42,7 +40,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -64,7 +62,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		}
 		Map<String, Object> uriVariables = uriVariables(site);
 		String groupPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_SITE_ID)
+				.path(SITE_PATTERN)
 				.uriVariables(uriVariables)
 				.toUriString();
 		Group group = new Group(groupPath);
@@ -77,7 +75,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
 					.path(GROUP_BASE)
-					.pathSegment(groupPath + FENIX_SITE_ID_USERS)
+					.pathSegment(groupPath + USERS_PATTERN)
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
 		} catch (WebClientResponseException e) {
@@ -93,7 +91,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		Map<String, Object> uriVariables = uriVariables(site);
 		String metaSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -112,10 +110,10 @@ class UnitySiteWebClient implements SiteWebClient {
 			throw new IllegalArgumentException("Missing Site ID");
 		}
 		Map<String, Object> uriVariables = uriVariables(id);
-		Map<String, Object> queryParams = Map.of("recursive", TRUE);
+		Map<String, Object> queryParams = Map.of(RECURSIVE, TRUE);
 		String deleteSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		try {
@@ -130,6 +128,6 @@ class UnitySiteWebClient implements SiteWebClient {
 	}
 
 	private Map<String, Object> uriVariables(String id) {
-		return Map.of("id", id);
+		return Map.of(ID, id);
 	}
 }
