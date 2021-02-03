@@ -60,7 +60,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void addFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId);
+		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
 		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 		String uriComponents = prepareRoleRequestPath(userId);
 		Role fenixAdmin = Role.FENIX_ADMIN;
@@ -74,8 +74,31 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
+	public void addProjectAdminRole(String communityId, String projectId, String userId) {
+		String groupPath = prepareGroupPath(communityId, projectId);
+		String path = prepareGroupRequestPath(userId, groupPath);
+		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+		String uriComponents = prepareRoleRequestPath(userId);
+		Role projectAdmin = Role.PROJECT_ADMIN;
+		Attribute attribute = new Attribute(
+			projectAdmin.unityRoleAttribute,
+			ENUMERATION,
+			groupPath,
+			List.of(projectAdmin.unityRoleValue)
+		);
+		unityClient.put(uriComponents, attribute);
+	}
+
+	private String prepareGroupPath(String communityId, String projectId) {
+		return UriComponentsBuilder.newInstance()
+			.path(PROJECT_USERS_GROUP)
+			.buildAndExpand(Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId))
+			.toUriString();
+	}
+
+	@Override
 	public void removeFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId);
+		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
@@ -88,8 +111,8 @@ class UnityUsersDAO implements UsersDAO {
 			.toUriString();
 	}
 
-	private String prepareGroupRequestPath(String userId) {
-		Map<String, String> uriVariables = Map.of(GROUP_PATH, FENIX_USERS_GROUP, ID, userId);
+	private String prepareGroupRequestPath(String userId, String path) {
+		Map<String, String> uriVariables = Map.of(GROUP_PATH, path, ID, userId);
 		return UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
 			.pathSegment("{" + GROUP_PATH + "}")

@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 public class ProjectViewModelMapper {
 	public static ProjectViewModel map(Project project){
@@ -19,6 +20,7 @@ public class ProjectViewModelMapper {
 			.researchField(project.getResearchField())
 			.startTime(project.getStartTime())
 			.endTime(project.getEndTime())
+			.projectLeader(new FurmsViewUserModel(project.getLeaderId()))
 			.build();
 	}
 
@@ -33,6 +35,7 @@ public class ProjectViewModelMapper {
 			.researchField(project.researchField)
 			.startTime(project.startTime)
 			.endTime(project.endTime)
+			.leaderId(project.projectLeader.id)
 			.build();
 	}
 }

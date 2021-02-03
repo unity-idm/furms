@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -20,9 +21,11 @@ public class ProjectViewModel {
 	public String researchField;
 	public LocalDateTime startTime;
 	public LocalDateTime endTime;
+	public FurmsViewUserModel projectLeader;
 
-	private ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
-	                         String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime) {
+	public ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
+	                        String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime,
+	                        FurmsViewUserModel projectLeader) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -32,6 +35,7 @@ public class ProjectViewModel {
 		this.researchField = researchField;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.projectLeader = projectLeader;
 	}
 
 	public ProjectViewModel(String communityId) {
@@ -50,6 +54,7 @@ public class ProjectViewModel {
 		this.researchField = projectViewModel.researchField;
 		this.startTime = projectViewModel.startTime;
 		this.endTime = projectViewModel.endTime;
+		this.projectLeader = projectViewModel.projectLeader;
 	}
 
 	public String getId() {
@@ -116,6 +121,14 @@ public class ProjectViewModel {
 		this.endTime = endTime;
 	}
 
+	public FurmsViewUserModel getProjectLeader() {
+		return projectLeader;
+	}
+
+	public void setProjectLeader(FurmsViewUserModel projectLeader) {
+		this.projectLeader = projectLeader;
+	}
+
 	public static ProjectViewModelBuilder builder(){
 		return new ProjectViewModelBuilder();
 	}
@@ -163,6 +176,7 @@ public class ProjectViewModel {
 		public String researchField;
 		public LocalDateTime startTime;
 		public LocalDateTime endTime;
+		public FurmsViewUserModel projectLeader;
 
 		private ProjectViewModelBuilder() {
 		}
@@ -216,8 +230,13 @@ public class ProjectViewModel {
 			return this;
 		}
 
+		public ProjectViewModelBuilder projectLeader(FurmsViewUserModel projectLeader) {
+			this.projectLeader = projectLeader;
+			return this;
+		}
+
 		public ProjectViewModel build() {
-			return new ProjectViewModel(id, communityId, name, description, logo, acronym, researchField, startTime, endTime);
+			return new ProjectViewModel(id, communityId, name, description, logo, acronym, researchField, startTime, endTime, projectLeader);
 		}
 	}
 }

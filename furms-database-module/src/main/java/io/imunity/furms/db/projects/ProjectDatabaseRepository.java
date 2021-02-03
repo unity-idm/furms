@@ -53,6 +53,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 			.researchField(project.getResearchField())
 			.startTime(project.getStartTime())
 			.endTime(project.getEndTime())
+			.leaderId(project.getLeaderId())
 			.build());
 		return saved.getId().toString();
 	}
@@ -70,6 +71,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 					.researchField(project.getResearchField())
 					.startTime(project.getStartTime())
 					.endTime(project.getEndTime())
+					.leaderId(project.getLeaderId())
 					.build())
 				.map(repository::save)
 				.map(ProjectEntity::getId)
