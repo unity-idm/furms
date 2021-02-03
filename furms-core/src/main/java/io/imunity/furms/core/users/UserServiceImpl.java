@@ -12,6 +12,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
@@ -35,6 +36,15 @@ public class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public List<User> getFenixAdmins(){
 		return usersDAO.getAdminUsers();
+	}
+
+	@Override
+	public void invite(String email) {
+		Optional<User> user = usersDAO.findByEmail(email);
+		if (user.isEmpty()) {
+			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
+		}
+		addFenixAdminRole(user.get().id);
 	}
 
 	@Override

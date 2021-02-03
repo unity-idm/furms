@@ -12,6 +12,7 @@ import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +43,12 @@ class SiteServiceImplTest {
 	private SiteWebClient webClient;
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
+	private UsersDAO usersDAO;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository);
-		service = new SiteServiceImpl(repository, validator, webClient);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO);
 	}
 
 	@Test

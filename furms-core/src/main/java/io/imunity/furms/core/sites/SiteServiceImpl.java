@@ -11,6 +11,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,26 +36,29 @@ class SiteServiceImpl implements SiteService {
 	private final SiteRepository siteRepository;
 	private final SiteServiceValidator validator;
 	private final SiteWebClient webClient;
+	private final UsersDAO usersDAO;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
-	                SiteWebClient webClient) {
+	                SiteWebClient webClient,
+	                UsersDAO usersDAO) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
+		this.usersDAO = usersDAO;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
 	public Optional<Site> findById(String id) {
-		LOG.info("Getting Site with id={}", id);
+		LOG.debug("Getting Site with id={}", id);
 		return siteRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<Site> findAll() {
-		LOG.info("Getting all Sites");
+		LOG.debug("Getting all Sites");
 		return siteRepository.findAll();
 	}
 
@@ -65,12 +69,12 @@ class SiteServiceImpl implements SiteService {
 		validator.validateCreate(site);
 
 		String siteId = siteRepository.create(site);
-		LOG.info("Created Site in repository with ID={}", siteId);
 		Site createdSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
+		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
-			LOG.info("Created Site in Unity with ID={}", siteId);
+			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not create Site: ", e);
 			try {
@@ -96,7 +100,7 @@ class SiteServiceImpl implements SiteService {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
-			LOG.info("Updated Site in Unity with ID={}", siteId);
+			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
 			throw e;
@@ -146,8 +150,20 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
 	public List<User> findAllAdmins(String id) {
 		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
-		LOG.info("Getting Site Administrators from Unity for Site ID={}", id);
+		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
 		return webClient.getAllAdmins(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
+	public void inviteAdmin(String siteId, String email) {
+		check(!isEmpty(siteId) && !isEmpty(email),
+				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
+		Optional<User> user = usersDAO.findByEmail(email);
+		if (user.isEmpty()) {
+			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
+		}
+		addAdmin(siteId, user.get().id);
 	}
 
 	@Override
@@ -164,7 +180,7 @@ class SiteServiceImpl implements SiteService {
 			try {
 				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeAdmin(siteId, userId));
 			} catch (RuntimeException ex) {
-				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", e);
+				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", ex);
 			}
 			throw e;
 		}

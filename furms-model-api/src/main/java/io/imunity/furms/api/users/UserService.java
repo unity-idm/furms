@@ -12,6 +12,7 @@ import java.util.List;
 public interface UserService {
 	List<User> getAllUsers();
 	List<User> getFenixAdmins();
+	void invite(String email);
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
 }

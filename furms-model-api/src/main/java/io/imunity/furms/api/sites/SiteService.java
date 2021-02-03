@@ -30,8 +30,9 @@ public interface SiteService {
 
 	List<User> findAllAdmins(String id);
 
+	void inviteAdmin(String siteId, String email);
+
 	void addAdmin(String siteId, String userId);
 
 	void removeAdmin(String siteId, String userId);
-
 }
