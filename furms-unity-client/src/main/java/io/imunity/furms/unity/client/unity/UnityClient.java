@@ -91,6 +91,15 @@ public class UnityClient {
 				.bodyToMono(Void.class).block();
 	}
 
+	public void put(String path, Object body, Map<String, Object> queryParams) {
+		MultiValueMap<String, String> params = createParams(queryParams);
+		webClient.put()
+				.uri(uriBuilder -> uri(uriBuilder, path, params))
+				.bodyValue(body == null ? "" : body)
+				.retrieve()
+				.bodyToMono(Void.class).block();
+	}
+
 	public void delete(String path, Map<String, Object> queryParams) {
 		MultiValueMap<String, String> params = createParams(queryParams);
 		webClient.delete()

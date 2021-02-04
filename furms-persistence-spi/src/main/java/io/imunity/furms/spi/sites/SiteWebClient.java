@@ -6,7 +6,9 @@
 package io.imunity.furms.spi.sites;
 
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SiteWebClient {
@@ -19,4 +21,9 @@ public interface SiteWebClient {
 
 	void delete(String id);
 
+	List<User> getAllAdmins(String id);
+
+	void addAdmin(String siteId, String userId);
+
+	void removeAdmin(String siteId, String userId);
 }

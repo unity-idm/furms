@@ -51,7 +51,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
+import io.imunity.furms.ui.views.fenix.sites.add.SitesAddView;
+import io.imunity.furms.ui.views.fenix.sites.admins.SitesAdminsView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,7 @@ public class SitesView extends FurmsViewComponent {
 		siteEditor.addOpenListener(event -> onEditorOpen(event, siteBinder));
 		siteEditor.addCloseListener(event -> onEditorClose(siteBinder));
 
-		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesDetailsView.class, site.getId()))
+		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesAdminsView.class, site.getId()))
 				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
 				.setSortable(true)
@@ -166,7 +167,7 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void actionOpenAdministrators(SiteGridItem site) {
-		UI.getCurrent().navigate(SitesDetailsView.class, site.getId());
+		UI.getCurrent().navigate(SitesAdminsView.class, site.getId());
 	}
 
 	private void actionUpdate(Editor<SiteGridItem> siteEditor) {
