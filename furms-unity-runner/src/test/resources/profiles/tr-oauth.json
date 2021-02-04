@@ -61,14 +61,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'sub'"
+				"conditionValue": "attr contains 'email'"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"email",
 					"/",
-					"attr['sub']",
+					"attr['email']",
 					"CREATE_OR_UPDATE"
 				]
 			}
