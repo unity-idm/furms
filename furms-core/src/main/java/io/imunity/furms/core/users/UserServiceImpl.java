@@ -5,20 +5,26 @@
 
 package io.imunity.furms.core.users;
 
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.spi.users.UsersDAO;
+
 @Service
 public class UserServiceImpl implements UserService {
+	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UsersDAO usersDAO;
 
 	public UserServiceImpl(UsersDAO usersDAO) {
@@ -40,12 +46,29 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void addFenixAdminRole(String userId) {
+		LOG.info("Adding FENIX admin role to {}", userId);
 		usersDAO.addFenixAdminRole(userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void removeFenixAdminRole(String userId){
+		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
+	public void setUserStatus(String fenixUserId, UserStatus status)
+	{
+		LOG.info("Setting {} status to {}", fenixUserId, status);
+		usersDAO.setUserStatus(fenixUserId, status);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
+	public UserStatus getUserStatus(String fenixUserId)
+	{
+		return usersDAO.getUserStatus(fenixUserId);
 	}
 }

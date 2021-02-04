@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.imunity.furms.api.user.UserService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.openapi.APIDocConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,8 +45,9 @@ public class CentralIdPRestAPIController {
 			@ApiResponse(responseCode = "404", description = "User not found", content = { @Content }) })
 	@GetMapping("/user/{fenixUserId}")
 	public UserRecordJson getUserRecord(@PathVariable("fenixUserId") String fenixUserId) {
-		
-		return new UserRecordJson(userService.getUserRecord(fenixUserId));
+		//TODO
+		//return new UserRecordJson(userService.getUserRecord(fenixUserId));
+		throw new UnsupportedOperationException();
 	}
 
 	

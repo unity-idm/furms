@@ -7,12 +7,17 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.List;
@@ -121,5 +126,31 @@ class UnityUsersDAO implements UsersDAO {
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
+	}
+	
+	@Override
+	public void setUserStatus(String fenixUserId, UserStatus status)
+	{
+		EntityState unityStatus = status == UserStatus.ENABLED ? EntityState.valid : EntityState.disabled;
+		String uri = UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.path(fenixUserId)
+			.path("/status/")
+			.path(unityStatus.name())
+			.toUriString();
+		unityClient.put(uri);
+	}
+
+	@Override
+	public UserStatus getUserStatus(String fenixUserId)
+	{
+		String uri = UriComponentsBuilder.newInstance()
+				.path(ENTITY_BASE)
+				.path(fenixUserId)
+				.toUriString();
+		ObjectNode response = unityClient.get(uri, ObjectNode.class);
+		String statusStr = response.get("entityInformation").get("state").asText();
+		EntityState unityState = EntityState.valueOf(statusStr);
+		return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;
 	}
 }
