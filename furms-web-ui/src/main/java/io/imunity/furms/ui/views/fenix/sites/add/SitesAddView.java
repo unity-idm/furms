@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.sites;
+package io.imunity.furms.ui.views.fenix.sites.add;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
@@ -34,7 +34,7 @@ import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
+import io.imunity.furms.ui.views.fenix.sites.SitesView;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")

@@ -22,8 +22,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.user_context.UserViewModel;
-import io.imunity.furms.ui.user_context.UserViewModelMapper;
+import io.imunity.furms.ui.components.administrators.AdministratorsGridItem;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 import java.util.Collections;
@@ -46,7 +45,7 @@ public class UsersView extends FurmsViewComponent {
 	UsersView(ProjectService projectService, AuthzService authzService) {
 		this.projectService = projectService;
 		this.project = projectService.findById(getCurrentResourceId()).get();
-		Grid<UserViewModel> grid = createGrid(loadUsers());
+		Grid<AdministratorsGridItem> grid = createGrid(loadUsers());
 		HorizontalLayout searchLayout = createSearchFilterLayout(grid);
 
 		String userId = authzService.getCurrentUserId();
@@ -56,7 +55,7 @@ public class UsersView extends FurmsViewComponent {
 		getContent().add(headerLayout, searchLayout ,grid);
 	}
 
-	private HorizontalLayout createMembershipLayout(Grid<UserViewModel> grid, String userId) {
+	private HorizontalLayout createMembershipLayout(Grid<AdministratorsGridItem> grid, String userId) {
 		Button joinButton = new Button(getTranslation("view.project-admin.users.button.join"));
 		Button demitButton = new Button(getTranslation("view.project-admin.users.button.demit"));
 		if(projectService.isMember(project.getCommunityId(), project.getId(), userId))
@@ -80,43 +79,43 @@ public class UsersView extends FurmsViewComponent {
 		return new HorizontalLayout(joinButton, demitButton);
 	}
 
-	private List<UserViewModel> loadUsers() {
+	private List<AdministratorsGridItem> loadUsers() {
 		return handleExceptions(() -> projectService.findUsers(project.getCommunityId(), project.getId()))
 			.orElseGet(Collections::emptyList)
 			.stream()
-			.map(UserViewModelMapper::map)
+			.map(AdministratorsGridItem::new)
 			.collect(toList());
 	}
 
-	private Grid<UserViewModel> createGrid(List<UserViewModel> users) {
-		Grid<UserViewModel> grid = new SparseGrid<>(UserViewModel.class);
+	private Grid<AdministratorsGridItem> createGrid(List<AdministratorsGridItem> users) {
+		Grid<AdministratorsGridItem> grid = new SparseGrid<>(AdministratorsGridItem.class);
 		grid.getStyle().set("word-wrap", "break-word");
 		grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
-		grid.addComponentColumn(c -> new Div(new Span(c.firstName + " " + c.lastName)))
+		grid.addComponentColumn(c -> new Div(new Span(c.getFirstName() + " " + c.getLastName())))
 			.setHeader(getTranslation("view.project-admin.users.grid.column.1"))
 			.setFlexGrow(30);
-		grid.addColumn(c -> c.email)
+		grid.addColumn(c -> c.getEmail())
 			.setHeader(getTranslation("view.project-admin.users.grid.column.2"))
 			.setFlexGrow(60);
 		grid.addColumn(c -> "Active")
 			.setHeader(getTranslation("view.project-admin.users.grid.column.3"))
 			.setFlexGrow(1);
 		grid.addComponentColumn(c -> {
-			HorizontalLayout horizontalLayout = new HorizontalLayout(addMenu(grid, c.id));
+			HorizontalLayout horizontalLayout = new HorizontalLayout(addMenu(grid, c.getId()));
 			horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 			return horizontalLayout;
 		})
 			.setHeader(getTranslation("view.project-admin.users.grid.column.4"))
 			.setTextAlign(ColumnTextAlign.END);
 		grid.addItemClickListener(event -> {
-			event.getItem().icon = grid.isDetailsVisible(event.getItem()) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+			event.getItem().setIcon(grid.isDetailsVisible(event.getItem()) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create());
 			grid.getDataProvider().refreshItem(event.getItem());
 		});
 		grid.setItems(users);
 		return grid;
 	}
 
-	private Component addMenu(Grid<UserViewModel> grid, String id) {
+	private Component addMenu(Grid<AdministratorsGridItem> grid, String id) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		String deleteLabel = getTranslation("view.project-admin.users.context.menu.remove");
@@ -134,18 +133,18 @@ public class UsersView extends FurmsViewComponent {
 		return button;
 	}
 
-	private HorizontalLayout createSearchFilterLayout(Grid<UserViewModel> grid) {
+	private HorizontalLayout createSearchFilterLayout(Grid<AdministratorsGridItem> grid) {
 		TextField textField = new TextField();
 		textField.setValueChangeMode(ValueChangeMode.EAGER);
 		textField.setPlaceholder(getTranslation("view.project-admin.users.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
 		textField.addValueChangeListener(event -> {
 			String value = event.getValue().toLowerCase();
-			List<UserViewModel> filteredUsers = loadUsers().stream()
+			List<AdministratorsGridItem> filteredUsers = loadUsers().stream()
 				.filter(user ->
-					filterColumn(user.firstName, value)
-						|| filterColumn(user.lastName, value)
-						|| filterColumn(user.email, value)
+					filterColumn(user.getFirstName(), value)
+						|| filterColumn(user.getLastName(), value)
+						|| filterColumn(user.getEmail(), value)
 				)
 				.collect(toList());
 			textField.blur();
