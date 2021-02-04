@@ -5,11 +5,11 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.vaadin.flow.component.Key;
@@ -30,21 +30,15 @@ import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
+import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
+import io.imunity.furms.ui.utils.ResourceGetter;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.form.page.title")
@@ -52,11 +46,13 @@ class ProjectFormView extends FurmsViewComponent {
 	private final Binder<ProjectViewModel> binder = new BeanValidationBinder<>(ProjectViewModel.class);
 	private final ProjectFormComponent projectFormComponent;
 	private final ProjectService projectService;
+	private final ProjectModelResolver resolver;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectFormView(ProjectService projectService, UserService userService) {
+	ProjectFormView(ProjectService projectService, UserService userService, ProjectModelResolver resolver) {
 		this.projectService = projectService;
+		this.resolver = resolver;
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
 		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		Button saveButton = createSaveButton();
@@ -103,13 +99,14 @@ class ProjectFormView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		
 		ProjectViewModel projectViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> projectService.findById(id)))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.map(ProjectViewModelMapper::map)
-			.orElseGet(() -> new ProjectViewModel(getCurrentResourceId()));
-		String trans = parameter == null ? "view.community-admin.project.form.parameter.new" : "view.community-admin.project.form.parameter.update";
+			.flatMap(id -> handleExceptions(() -> resolver.resolve(id)))
+			.orElseGet(() -> new ProjectViewModel(ResourceGetter.getCurrentResourceId()));
+		
+		String trans = parameter == null 
+				? "view.community-admin.project.form.parameter.new" 
+				: "view.community-admin.project.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
 		projectFormComponent.setFormPools(projectViewModel);
 	}

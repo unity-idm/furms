@@ -5,27 +5,47 @@
 
 package io.imunity.furms.unity.client.users;
 
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.users.UsersDAO;
-import io.imunity.furms.unity.client.unity.UnityClient;
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_MEMBER;
+import static io.imunity.furms.unity.client.common.UnityConst.COMMUNITY_ID;
+import static io.imunity.furms.unity.client.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_GROUP;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.GROUP_PATH;
+import static io.imunity.furms.unity.client.common.UnityConst.ID;
+import static io.imunity.furms.unity.client.common.UnityConst.IDENTITY_TYPE;
+import static io.imunity.furms.unity.client.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_ID;
+import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.ROOT_GROUP_PATH;
+import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTES_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTE_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityPaths.ENTITY_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_MEMBERS;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.users.UsersDAO;
+import io.imunity.furms.unity.client.unity.UnityClient;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.GroupMember;
-
-import java.util.*;
-import java.util.function.Predicate;
-
-import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_MEMBER;
-import static io.imunity.furms.unity.client.common.UnityConst.*;
-import static io.imunity.furms.unity.client.common.UnityPaths.*;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 class UnityUsersDAO implements UsersDAO {
@@ -227,5 +247,17 @@ class UnityUsersDAO implements UsersDAO {
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
+	}
+
+	// TODO: this method should directly query unity entity admin endpoint to get the user details
+	// instead of retrieving all.
+	@Override
+	public Optional<User> findById(String userId) {
+		if (Strings.isBlank(userId)) {
+			return Optional.empty();
+		}
+		return getAllUsers().stream()
+				.filter(user -> user.id.equals(userId))
+				.findFirst();
 	}
 }
