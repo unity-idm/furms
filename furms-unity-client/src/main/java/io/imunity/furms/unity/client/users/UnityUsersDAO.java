@@ -38,7 +38,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public List<User> getAdminUsers() {
-		return getUsers(FENIX_USERS_GROUP);
+		return getUsers(FENIX_PATTERN);
 	}
 
 	@Override
@@ -135,14 +135,14 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void addFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
+		String path = prepareGroupRequestPath(userId, FENIX_PATTERN);
 		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 		String uriComponents = prepareRoleRequestPath(userId);
 		Role fenixAdmin = FENIX_ADMIN;
 		Attribute attribute = new Attribute(
 			fenixAdmin.unityRoleAttribute,
 			ENUMERATION,
-			FENIX_USERS_GROUP,
+			FENIX_PATTERN,
 			List.of(fenixAdmin.unityRoleValue)
 		);
 		unityClient.put(uriComponents, attribute);
@@ -166,14 +166,14 @@ class UnityUsersDAO implements UsersDAO {
 
 	private String prepareGroupPath(String communityId, String projectId) {
 		return UriComponentsBuilder.newInstance()
-			.path(PROJECTS_PATTERN)
+			.path(PROJECT_PATTERN)
 			.buildAndExpand(Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId))
 			.toUriString();
 	}
 
 	@Override
 	public void removeFenixAdminRole(String userId) {
-		String path = prepareGroupRequestPath(userId, FENIX_USERS_GROUP);
+		String path = prepareGroupRequestPath(userId, FENIX_PATTERN);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
