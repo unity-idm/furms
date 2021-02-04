@@ -11,6 +11,8 @@ public class UnityConst {
 	public static final String ENUMERATION = "enumeration";
 	public static final String RECURSIVE = "recursive";
 	public static final String WITH_PARENTS = "withParents";
+	public static final String GROUPS_PATTERNS = "groupsPatterns";
+	public static final String ALL_GROUPS_PATTERNS = "/fenix/**/users";
 
 	public static final String GROUP_PATH = "groupPath";
 	public static final String ID = "id";
