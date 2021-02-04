@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void invite(String email) {
+	public void inviteFenixAdmin(String email) {
 		Optional<User> user = usersDAO.findByEmail(email);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");

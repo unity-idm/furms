@@ -48,7 +48,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private void doInviteAction(TextField email) {
 		try {
-			userService.invite(email.getValue());
+			userService.inviteFenixAdmin(email.getValue());
 			email.clear();
 			grid.reloadGrid();
 		} catch (IllegalArgumentException e) {
