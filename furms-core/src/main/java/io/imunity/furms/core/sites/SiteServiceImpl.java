@@ -147,7 +147,7 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
 	public List<User> findAllAdmins(String id) {
 		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
@@ -155,7 +155,7 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, String email) {
 		check(!isEmpty(siteId) && !isEmpty(email),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
@@ -167,7 +167,7 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addAdmin(String siteId, String userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
@@ -187,7 +187,7 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void removeAdmin(String siteId, String userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site Administrator. Missing Site ID or User ID"));
