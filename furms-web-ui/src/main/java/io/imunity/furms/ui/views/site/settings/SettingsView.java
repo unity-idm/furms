@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,6 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -190,11 +190,7 @@ public class SettingsView extends FurmsViewComponent {
 
 	private SiteSettingsDto loadSite() {
 		try {
-			Object attribute = UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class.getName());
-			if (!(attribute instanceof FurmsViewUserContext)) {
-				throw new IllegalArgumentException();
-			}
-			FurmsViewUserContext context = (FurmsViewUserContext) attribute;
+			FurmsViewUserContext context = getActualViewUserContext();
 			bufferedSettings = siteService.findById(context.id)
 					.map(SiteSettingsDto::new)
 					.orElseThrow(IllegalArgumentException::new);

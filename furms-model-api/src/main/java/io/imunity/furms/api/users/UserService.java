@@ -13,7 +13,7 @@ import io.imunity.furms.domain.users.User;
 public interface UserService {
 	List<User> getAllUsers();
 	List<User> getFenixAdmins();
-	void invite(String email);
+	void inviteFenixAdmin(String email);
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
 	Optional<User> findById(String userId);
