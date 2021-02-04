@@ -5,18 +5,19 @@
 
 package io.imunity.furms.core.users;
 
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.stereotype.Service;
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import org.springframework.stereotype.Service;
+
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -57,5 +58,11 @@ public class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void removeFenixAdminRole(String userId){
 		usersDAO.removeFenixAdminRole(userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	public Optional<User> findById(String userId) {
+		return usersDAO.findById(userId);
 	}
 }

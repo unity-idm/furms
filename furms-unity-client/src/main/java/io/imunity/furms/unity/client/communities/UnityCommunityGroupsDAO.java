@@ -16,8 +16,8 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
-import static io.imunity.furms.unity.client.communities.UnityCommunityPaths.FENIX_COMMUNITY_PATTERN;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -38,7 +38,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_PATTERN)
+				.pathSegment(COMMUNITY_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -57,7 +57,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		}
 		Map<String, Object> uriVariables = uriVariables(community);
 		String groupPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_COMMUNITY_PATTERN)
+				.path(COMMUNITY_PATTERN)
 				.uriVariables(uriVariables)
 				.toUriString();
 		Group group = new Group(groupPath);
@@ -77,7 +77,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		Map<String, Object> uriVariables = uriVariables(community);
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_PATTERN)
+				.pathSegment(COMMUNITY_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -92,10 +92,10 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 			throw new IllegalArgumentException("Missing Community ID");
 		}
 		Map<String, Object> uriVariables = uriVariables(id);
-		Map<String, Object> queryParams = Map.of("recursive", TRUE);
+		Map<String, Object> queryParams = Map.of(RECURSIVE, TRUE);
 		String deleteCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_COMMUNITY_PATTERN)
+				.pathSegment(COMMUNITY_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		unityClient.delete(deleteCommunityPath, queryParams);
@@ -106,7 +106,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	private Map<String, Object> uriVariables(String id) {
-		return Map.of("id", id);
+		return Map.of(ID, id);
 	}
 
 }

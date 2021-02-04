@@ -5,10 +5,10 @@
 
 package io.imunity.furms.spi.users;
 
-import io.imunity.furms.domain.users.User;
-
 import java.util.List;
 import java.util.Optional;
+
+import io.imunity.furms.domain.users.User;
 
 public interface UsersDAO {
 	List<User> getAdminUsers();
@@ -21,4 +21,5 @@ public interface UsersDAO {
 	void addProjectAdminRole(String communityId, String projectId, String userId);
 	void removeFenixAdminRole(String userId);
 	void removeProjectMemberRole(String communityId, String projectId, String userId);
+	Optional<User> findById(String userId);
 }

@@ -5,30 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.Query;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.SparseGrid;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
@@ -38,6 +14,35 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import com.google.common.collect.ImmutableList;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.value.ValueChangeMode;
+
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.SparseGrid;
 
 public class AdministratorsGridComponent extends VerticalLayout {
 
@@ -87,8 +92,10 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		grid.getStyle().set("word-wrap", "break-word");
 		grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
-		grid.addComponentColumn(c -> new Div(c.getIcon(), new Span(c.getFirstName() + " " + c.getLastName())))
+		Column<AdministratorsGridItem> fullNameCol = grid.addComponentColumn(FullNameColumn::new)
 				.setHeader(getTranslation("component.administrators.grid.column.1"))
+				.setSortable(true)
+				.setComparator(FullNameColumn::compareTo)
 				.setFlexGrow(30);
 		grid.addColumn(AdministratorsGridItem::getEmail)
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
@@ -104,6 +111,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 			event.getItem().setIcon(grid.isDetailsVisible(event.getItem()) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create());
 			grid.getDataProvider().refreshItem(event.getItem());
 		});
+		grid.sort(ImmutableList.of(new GridSortOrder<>(fullNameCol, SortDirection.ASCENDING)));
 		reloadGrid();
 
 		add(grid);
@@ -159,5 +167,16 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				.map(c -> c.contains(value))
 				.orElse(false);
 	}
-
+	
+	private static class FullNameColumn extends Div {
+		private FullNameColumn(AdministratorsGridItem c) {
+			super(c.getIcon(), new Span(c.getFirstName() + " " + c.getLastName()));
+		}
+		
+		private static int compareTo(AdministratorsGridItem c1, AdministratorsGridItem c2) {
+			String c1FullName = c1.getFirstName() + " " + c1.getLastName();
+			String c2FullName = c2.getFirstName() + " " + c2.getLastName();
+			return c1FullName.compareTo(c2FullName);
+		}
+	}
 }

@@ -14,13 +14,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static io.imunity.furms.unity.client.common.UnityConst.FENIX_USERS_GROUP;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
 
 class UnityGroupParser {
 	final static Predicate<Attribute> usersGroupPredicate = a -> a.getGroupPath().endsWith("users");
 
 	private final static Map<String, ResourceType> resourcesPatterns = Map.of(
-		FENIX_USERS_GROUP, ResourceType.APP_LEVEL,
+		FENIX_PATTERN, ResourceType.APP_LEVEL,
 		"/fenix/sites/*/users", ResourceType.SITE,
 		"/fenix/communities/*/users", ResourceType.COMMUNITY,
 		"/fenix/communities/*/projects/*/users", ResourceType.PROJECT

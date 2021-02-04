@@ -5,6 +5,8 @@
 
 package io.imunity.furms.unity.client.common;
 
+import static io.imunity.furms.unity.client.common.UnityConst.ID;
+
 public class UnityPaths {
 	public final static String GROUP_BASE = "/group/";
 	public final static String ENTITY_BASE = "/entity/";
@@ -14,4 +16,5 @@ public class UnityPaths {
 	public final static String ATTRIBUTE_PATTERN = "/attribute";
 	public final static String ATTRIBUTES_PATTERN = "/attributes";
 	public final static String GROUP = "group";
+	public final static String GROUP_ATTRIBUTES = "entity/{"+ ID +"}/groups/attributes";
 }

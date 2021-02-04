@@ -5,15 +5,16 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
-import io.imunity.furms.ui.user_context.FurmsViewUserModel;
-
 import java.util.List;
 import java.util.Optional;
 
-public class FurmsUserComboBox extends Div {
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+
+public class FurmsUserComboBox extends VerticalLayout {
 	public final ComboBox<FurmsViewUserModel>  comboBox = new ComboBox<>();
 
 	public FurmsUserComboBox(List<FurmsViewUserModel> userModels) {
@@ -25,7 +26,9 @@ public class FurmsUserComboBox extends Div {
 				value -> emailLabel.setText(value.email),
 				() -> emailLabel.setText(null))
 		);
-		getStyle().set("display", "inline-grid");
+		setSpacing(false);
+		setMargin(false);
+		getStyle().set("padding", "unset");
 		add(comboBox, emailLabel);
 	}
 }

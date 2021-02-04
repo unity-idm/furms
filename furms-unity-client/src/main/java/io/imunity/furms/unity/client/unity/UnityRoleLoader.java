@@ -20,6 +20,8 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.Role.translateRole;
+import static io.imunity.furms.unity.client.common.UnityConst.ID;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate;
 import static java.util.function.Function.identity;
@@ -29,7 +31,6 @@ import static java.util.stream.Collectors.*;
 public class UnityRoleLoader implements RoleLoader {
 
 	private final UnityClient unityClient;
-	private final String URI = "entity/{entityId}/groups/attributes";
 
 	public UnityRoleLoader(UnityClient unityClient) {
 		this.unityClient = unityClient;
@@ -74,8 +75,8 @@ public class UnityRoleLoader implements RoleLoader {
 
 	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) throws RoleLoadingException{
 		String path = UriComponentsBuilder.newInstance()
-			.pathSegment(URI)
-			.uriVariables(Map.of("entityId", persistentId))
+			.pathSegment(GROUP_ATTRIBUTES)
+			.uriVariables(Map.of(ID, persistentId))
 			.build()
 			.toUriString();
 

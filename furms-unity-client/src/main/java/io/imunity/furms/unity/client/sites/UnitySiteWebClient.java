@@ -5,42 +5,42 @@
 
 package io.imunity.furms.unity.client.sites;
 
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.sites.SiteWebClient;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.unity.client.unity.UnityClient;
-import io.imunity.furms.unity.client.users.UnityUserMapper;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMember;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.unity.client.common.UnityConst.GROUP_PATH;
 import static io.imunity.furms.unity.client.common.UnityConst.ID;
 import static io.imunity.furms.unity.client.common.UnityConst.IDENTITY_TYPE;
 import static io.imunity.furms.unity.client.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.client.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTE_PATTERN;
 import static io.imunity.furms.unity.client.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_MEMBERS;
 import static io.imunity.furms.unity.client.common.UnityPaths.META;
 import static io.imunity.furms.unity.client.common.UnityPaths.USERS_PATTERN;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID;
-import static io.imunity.furms.unity.client.sites.UnitySitePaths.FENIX_SITE_ID_USERS;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.unity.client.unity.UnityClient;
+import io.imunity.furms.unity.client.users.UnityUserMapper;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMember;
 
 @Component
 class UnitySiteWebClient implements SiteWebClient {
@@ -60,7 +60,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -81,7 +81,7 @@ class UnitySiteWebClient implements SiteWebClient {
 				() -> new IllegalArgumentException("Could not create Site in Unity. Missing Site or Site ID"));
 		Map<String, Object> uriVariables = uriVariables(site);
 		String groupPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_SITE_ID)
+				.path(SITE_PATTERN)
 				.uriVariables(uriVariables)
 				.toUriString();
 		Group group = new Group(groupPath);
@@ -94,7 +94,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		try {
 			String createSiteUsersPath = UriComponentsBuilder.newInstance()
 					.path(GROUP_BASE)
-					.pathSegment(groupPath + FENIX_SITE_ID_USERS)
+					.pathSegment(groupPath + USERS_PATTERN)
 					.toUriString();
 			unityClient.post(createSiteUsersPath);
 		} catch (WebClientResponseException e) {
@@ -108,7 +108,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		Map<String, Object> uriVariables = uriVariables(site);
 		String metaSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -128,7 +128,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		Map<String, Object> queryParams = Map.of(RECURSIVE_PARAM, TRUE);
 		String deleteSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_SITE_ID)
+				.pathSegment(SITE_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		try {
@@ -205,7 +205,7 @@ class UnitySiteWebClient implements SiteWebClient {
 	}
 
 	private Map<String, Object> uriVariables(String id) {
-		return Map.of("id", id);
+		return Map.of(ID, id);
 	}
 
 	private String siteAdminPath(String siteId, String userId) {
@@ -222,7 +222,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	private String siteUsersPath(String siteId) {
 		return UriComponentsBuilder.newInstance()
-				.path(FENIX_SITE_ID)
+				.path(SITE_PATTERN)
 				.path(USERS_PATTERN)
 				.buildAndExpand(Map.of(ID, siteId))
 				.encode().toUriString();
