@@ -15,11 +15,13 @@ class UnityProperties {
 	private final String adminUrl;
 	private final String adminUser;
 	private final String adminPassword;
+	private final String url;
 
-	UnityProperties(String adminUrl, String adminUser, String adminPassword) {
+	UnityProperties(String adminUrl, String adminUser, String adminPassword, String url) {
 		this.adminUrl = adminUrl;
 		this.adminUser = adminUser;
 		this.adminPassword = adminPassword;
+		this.url = url;
 	}
 
 	public String getAdminUrl() {
@@ -32,5 +34,9 @@ class UnityProperties {
 
 	public String getAdminPassword() {
 		return adminPassword;
+	}
+
+	public String getUrl() {
+		return url;
 	}
 }
