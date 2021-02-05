@@ -15,23 +15,22 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.Role.translateRole;
+import static io.imunity.furms.unity.client.common.UnityConst.ID;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 @Service
 public class UnityRoleLoader implements RoleLoader {
 
 	private final UnityClient unityClient;
-	private final String URI = "entity/{entityId}/groups/attributes";
 
 	public UnityRoleLoader(UnityClient unityClient) {
 		this.unityClient = unityClient;
@@ -56,9 +55,9 @@ public class UnityRoleLoader implements RoleLoader {
 	private Collector<Attribute, ?, Map<ResourceId, Set<Role>>> getAttributeMapCollector() {
 		return groupingBy(
 			this::attr2Resource,
-			mapping(
+			flatMapping(
 				this::attr2Role, 
-				filtering(Optional::isPresent, mapping(Optional::get, toSet()))
+				mapping(identity(), toSet())
 			)
 		);
 	}
@@ -67,14 +66,17 @@ public class UnityRoleLoader implements RoleLoader {
 		return getResourceId(attribute.getGroupPath());
 	}
 
-	private Optional<Role> attr2Role(Attribute attribute) {
-		return translateRole(attribute.getName(), attribute.getValues().iterator().next());
+	private Stream<Role> attr2Role(Attribute attribute) {
+		return attribute.getValues().stream()
+			.map(value -> translateRole(attribute.getName(), value))
+			.filter(Optional::isPresent)
+			.map(Optional::get);
 	}
 
 	private Map<String, List<Attribute>> loadUserAttributes(String persistentId) {
 		String path = UriComponentsBuilder.newInstance()
-			.pathSegment(URI)
-			.uriVariables(Map.of("entityId", persistentId))
+			.pathSegment(GROUP_ATTRIBUTES)
+			.uriVariables(Map.of(ID, persistentId))
 			.build()
 			.toUriString();
 

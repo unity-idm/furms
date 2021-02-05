@@ -6,6 +6,8 @@ package io.imunity.furms.ui.components;
 
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
+
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.QueryParameters;
@@ -21,10 +23,17 @@ public class RouterGridLink extends RouterLink {
 			String paramValue) {
 		super("", route, id);
 		addClassName("router-grid-link");
-		setQueryParameters(QueryParameters.simple(Map.of(paramName, paramValue)));
+		if (!StringUtils.isEmpty(paramName))
+			setQueryParameters(QueryParameters.simple(Map.of(paramName, paramValue)));
 		add(component);
 	}
 
+	public RouterGridLink(VaadinIcon iconType,
+			String id,
+			Class<? extends FurmsViewComponent> route) {
+		this(new MenuButton(iconType), id, route, null, null);
+	}
+	
 	public RouterGridLink(VaadinIcon iconType,
 			String id,
 			Class<? extends FurmsViewComponent> route,

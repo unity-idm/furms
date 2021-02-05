@@ -11,6 +11,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public void inviteFenixAdmin(String email) {
+		Optional<User> user = usersDAO.findByEmail(email);
+		if (user.isEmpty()) {
+			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
+		}
+		addFenixAdminRole(user.get().id);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void addFenixAdminRole(String userId) {
 		LOG.info("Adding FENIX admin role to {}", userId);
@@ -59,16 +69,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
-	public void setUserStatus(String fenixUserId, UserStatus status)
-	{
+	public void setUserStatus(String fenixUserId, UserStatus status) {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		usersDAO.setUserStatus(fenixUserId, status);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
-	public UserStatus getUserStatus(String fenixUserId)
-	{
+	public UserStatus getUserStatus(String fenixUserId) {
 		return usersDAO.getUserStatus(fenixUserId);
+	}
+	
+	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	public Optional<User> findById(String userId) {
+		return usersDAO.findById(userId);
 	}
 }

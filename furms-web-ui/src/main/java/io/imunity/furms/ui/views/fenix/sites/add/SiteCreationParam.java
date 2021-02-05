@@ -3,15 +3,15 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.sites.data;
+package io.imunity.furms.ui.views.fenix.sites.add;
 
 import java.util.Objects;
 
-public class SiteCreationParam {
+class SiteCreationParam {
 
 	private String name;
 
-	public SiteCreationParam() {
+	SiteCreationParam() {
 	}
 
 	public String getName() {

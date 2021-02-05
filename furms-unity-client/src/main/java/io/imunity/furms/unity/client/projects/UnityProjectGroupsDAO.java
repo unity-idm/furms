@@ -19,9 +19,9 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.client.common.UnityPaths.*;
-import static io.imunity.furms.unity.client.projects.UnityProjectPaths.FENIX_PROJECT_PATTERN;
-import static io.imunity.furms.unity.client.projects.UnityProjectPaths.FENIX_PROJECT_USERS_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.*;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.META;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -43,7 +43,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		Map<String, Object> uriVariables = getUriVariables(communityId, projectId);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_PROJECT_USERS_PATTERN)
+				.pathSegment(PROJECT_PATTERN)
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
@@ -64,11 +64,11 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String groupPath = UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
-			.pathSegment(FENIX_PROJECT_USERS_PATTERN)
+			.pathSegment(PROJECT_PATTERN)
 			.uriVariables(uriVariables)
 			.buildAndExpand().encode().toUriString();
 
-		unityClient.post(groupPath, null, Map.of("withParents", true));
+		unityClient.post(groupPath, null, Map.of(WITH_PARENTS, true));
 		updateGroupName(projectGroup);
 		LOG.debug("Project group {} under Community group {} was crated in Unity", projectGroup.getId(), projectGroup.getCommunityId());
 	}
@@ -86,7 +86,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	private void updateGroupName(ProjectGroup projectGroup) {
 		Map<String, Object> uriVariables = getUriVariables(projectGroup.getCommunityId(), projectGroup.getId());
 		String metaCommunityPath = UriComponentsBuilder.newInstance()
-				.path(FENIX_PROJECT_PATTERN)
+				.path(PROJECT_GROUP_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().toUriString();
 		Group group = new Group(metaCommunityPath);
@@ -100,10 +100,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			throw new IllegalArgumentException("Missing Community or Project ID");
 		}
 		Map<String, Object> uriVariables = getUriVariables(communityId, projectId);
-		Map<String, Object> queryParams = Map.of("recursive", TRUE);
+		Map<String, Object> queryParams = Map.of(RECURSIVE, TRUE);
 		String deleteCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
-				.pathSegment(FENIX_PROJECT_PATTERN)
+				.pathSegment(PROJECT_GROUP_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		unityClient.delete(deleteCommunityPath, queryParams);
@@ -111,6 +111,6 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	private Map<String, Object> getUriVariables(String communityId, String projectId) {
-		return Map.of("communityId", communityId, "projectId", projectId);
+		return Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId);
 	}
 }

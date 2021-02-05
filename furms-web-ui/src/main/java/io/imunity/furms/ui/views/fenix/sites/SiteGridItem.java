@@ -3,18 +3,18 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.sites.data;
+package io.imunity.furms.ui.views.fenix.sites;
 
 import io.imunity.furms.domain.sites.Site;
 
 import java.util.Objects;
 
-public class SiteGridItem implements Cloneable {
+class SiteGridItem implements Cloneable {
 
 	private final String id;
 	private String name;
 
-	public static SiteGridItem of(Site site) {
+	static SiteGridItem of(Site site) {
 		return new SiteGridItem(site.getId(), site.getName());
 	}
 

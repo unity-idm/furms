@@ -37,14 +37,16 @@ class DemoDataInitializer {
 	private final UsersDAO usersDAO;
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
+	private final UnityServerDetector unityDetector;
 
 	public DemoDataInitializer(CommunityRepository communityRepository,
-	                                             CommunityGroupsDAO communityGroupsDAO,
-	                                             ProjectRepository projectRepository,
-	                                             ProjectGroupsDAO projectGroupsDAO,
-	                                             SiteRepository siteRepository,
-	                                             SiteWebClient siteWebClient,
-	                                             UsersDAO usersDAO) {
+			CommunityGroupsDAO communityGroupsDAO,
+			ProjectRepository projectRepository,
+			ProjectGroupsDAO projectGroupsDAO,
+			SiteRepository siteRepository,
+			SiteWebClient siteWebClient,
+			UsersDAO usersDAO,
+			UnityServerDetector unityDetector) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.projectRepository = projectRepository;
@@ -52,10 +54,12 @@ class DemoDataInitializer {
 		this.siteRepository = siteRepository;
 		this.siteWebClient = siteWebClient;
 		this.usersDAO = usersDAO;
+		this.unityDetector = unityDetector;
 	}
 
 	@PostConstruct
-	public void init() throws IOException {
+	public void init() throws IOException, InterruptedException {
+		unityDetector.waitForUnityToStartUp();
 		initCommunitiesAndProjects();
 		initSites();
 	}

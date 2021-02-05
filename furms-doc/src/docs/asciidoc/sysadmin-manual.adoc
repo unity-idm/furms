@@ -7,13 +7,18 @@ image::logo-fenix.png[scaledwidth=75%]
 
 == Installation of FURMS system from scratch
 This section describes how to install the FURMS system from scratch. 
-The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM.
+The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM. 
 
 Perform steps from the following sections in order to install, configure and manage FURMS system.
 
-=== Install Ansible
+=== Prerequisites
+
+==== Ansible
 Install the Ansible tooling on the host which will control FURMS system through scripts.
 Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
+
+==== Database
+Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-Idm. This information will be used later on in the Ansible group variable file to setup database configuration during installation.
 
 === FURMS devops tools installation utility
 In order to install the latest released FURMS devops tooling, use the `FURMS devops tools installation utility`.
@@ -36,15 +41,233 @@ lrwxrwxrwx. 1 furms-app furms-app   32 01-16 12:27 furms-devops-tooling -> furms
 drwxr-xr-x. 5 furms-app furms-app 4096 10-28 15:36 furms-devops-tooling-1.0.0
 -rwxr-x---. 1 furms-app furms-app 3057 01-16 12:25 install_furms_devops_tooling.py
 ```
+The aforementioned tool can be run at will, and the consecutive executions will update the FURMS Ansible scripts to the latest version.
 
 === Setup Ansible configuration files
-Create the following files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed), 
-taking into account previous example that would be in `/home/furms-app/staging` directory.
+Create the inventory and group variables files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed). Taking into account previous example, execute the following commands to achive it:
+```
+touch /home/furms-app/staging/inventory
+mkdir -p /home/furms-app/staging/group_vars
+touch /home/furms-app/staging/group_vars/all.yml
+``` 
 
 ==== Inventory
+Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS System on a local machine, can be found in `$ENVIRONMENT_DIR/furms-devops-tooling/local-cfg-sample/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
 
 ==== Group vars
+All of the FURMS deployment settings are configured in the `all.yml` file. The example of this file can be found in `$ENVIRONMENT_DIR/furms-devops-tooling/local-cfg-sample/group_vars/all.yml` file. The following table provides description of all configuration options.
+
+[width="100%",cols="<20,<12,<68",frame="all",options="header"]
+|===
+|Property name |Type |Description
+
+|installDir
+|string
+|Directory name where FURMS services will be installed e.g. "{{inventory_dir}}/services"
+
+|furmsVersion
+|string
+|Version of released furms software e.g. "1.0.0"
+
+3+^e| --- Unity configuration ---
+
+|unity.host
+|string
+|The hostname or IP address for HTTP connections.
+
+|unity.port
+|integer [0-65535]
+|The HTTP port to be used.
+
+|unity.advertisedHost
+|string
+|The hostname or IP address (optionally with port), which is advertised externally whenever the server has to provide its address. Examples: login.unity.com or login.unity.com:8443
+
+|unity.initialAdminUsername
+|string
+|Username of the FENIX administrator to be installed in the system upon first installation.
+
+|unity.initialAdminPassword
+|string
+|Password of the FENIX administrator to be installed to the empty database.
+
+|unity.proxyCount
+|integer [0 - 32]
+|If set to 0 then it is assumed then Unity server is not behind a proxy. Otherwise the number should specify the number of (local, trusted) proxies that are protecting the server from the actual clients. In effect the assumed client IP will be taken from the X-Forwarded-For header, stripping the trailing ones from intermediary proxies. Note that only proxy servers setting X-Forwarded-For are supported.
+
+
+
+|unity.apiClient
+|-
+|This setting provides the information to setup Unity entity utilized by FURMS service to communicate with Unity via REST Admin API.
+
+|unity.apiClient.username
+|string
+|Username of API client
+
+|unity.apiClient.password
+|string
+|Password of API client
+
+
+
+|unity.pki.keyStore.file
+|filesystem path
+|Credential location. In case of jks, pkcs12 and pem store it is the only location required. In case when credential is provided in two files, it is the certificate file path.
+
+|unity.pki.keyStore.type
+|[jks, pkcs12, der, pem]
+|Format of the credential. It is guessed when not given. Note that pem might be either a PEM keystore with certificates and keys (in PEM format) or a pair of PEM files (one with certificate and second with private key).
+
+|unity.pki.keyStore.keyAlias
+|string
+|Keystore alias of the key entry to be used. Can be ignored if the keystore contains only one key entry. Only applicable for jks and pkcs12.
+
+|unity.pki.keyStore.password
+|string
+|Password required to load the credential.
+
+|unity.pki.trustStore.file
+|filesystem path
+|The JKS format keystore path.
+
+|unity.pki.trustStore.password
+|string
+|The password of the keystore type truststore.
+
+
+
+|unity.storage.url
+|string
+|The hostname or IP address (optionally with port) that points to the PostgreSQL instance e.g. localhost:5432
+
+|unity.storage.dbName
+|string
+|PostgreSQL database name utilized by Unity instance.
+
+|unity.storage.username
+|string
+|Unity database username.
+
+|unity.storage.password
+|string
+|Unity database password.
+
+
+|unity.cIdP
+|-
+|The following settings utilizes the Central IdP OAuth client's credentials on Unity side to enable logging via Central IdP.
+
+|unity.cIdP.clientId
+|string
+|Client identifier, obtained during Unity’s registration at the Central IdP.
+
+|unity.cIdP.clientSecret
+|string
+|Client secret, obtained during Unity’s registration at the Central IdP
+
+|unity.cIdP.discoveryEndpoint
+|string
+|Central IdP OpenID Connect Discovery endpoint address e.g. https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration
+
+
+
+|unity.oauthClient
+|-
+|These settings defines the OAuth Client at Unity side that is utilized by FURMS service for authentication purposes.
+
+|unity.oauthClient.username
+|string
+|Username of FURMS OAuth Client
+
+|unity.oauthClient.password
+|string
+|Password of FURMS OAuth Client
+
+
+
+3+^e| --- FURMS service configuration ---
+
+
+|furmsServer.host
+|string
+|The hostname or IP address for HTTP connections.
+
+
+|furmsServer.port
+|integer [0 - 65535]
+|The HTTP port to be used.
+
+|furmsServer.advertisedHost
+|string
+|The hostname or IP address (optionally with port), which is advertised externally whenever the server has to provide its address. Examples: furms.example.com or furms.example.com:8443
+
+
+
+|furmsServer.pki.keyStore.file
+|filesystem path
+|Credential location. In case of jks, pkcs12 and pem store it is the only location required. In case when credential is provided in two files, it is the certificate file path.
+
+|furmsServer.pki.keyStore.type
+|[jks, pkcs12, der, pem]
+|Format of the credential. It is guessed when not given. Note that pem might be either a PEM keystore with certificates and keys (in PEM format) or a pair of PEM files (one with certificate and second with private key).
+
+|furmsServer.pki.keyStore.keyAlias
+|string
+|Keystore alias of the key entry to be used. Can be ignored if the keystore contains only one key entry. Only applicable for jks and pkcs12.
+
+|furmsServer.pki.keyStore.password
+|string
+|Password required to load the credential.
+
+|furmsServer.pki.trustStore.file
+|filesystem path
+|The JKS format keystore path.
+
+|furmsServer.pki.trustStore.password
+|string
+|The password of the keystore type truststore
+
+
+
+|furmsServer.storage.url
+|string
+|The hostname or IP address (optionally with port) that points to the PostgreSQL instance e.g. localhost:5432
+
+|furmsServer.storage.dbName
+|string
+|PostgreSQL database name utilized by FURMS service instance.
+
+|furmsServer.storage.username
+|string
+|FURMS service database username
+
+|furmsServer.storage.password
+|string
+|FURMS service database password
+
+|===
 
 === Install FURMS stack
+Once configuration is finished, the following command will install the Unity as well as FURMS service in the infrastructure:
+```
+> cd $ENVIRONMENT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/install-stack.yml
+```
 
 === Start FURMS stack
+Once FURMS stack has been installed, the following command starts the FURMS stack - unity server as well as FURMS service:
+```
+> cd $ENVIRONMENT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/start-stack.yml
+```
+
+=== Stop FURMS stack
+At eny time the FURMS stack can be stopped using the following command:
+```
+> cd $ENVIRONMENT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
+```
+
+=== Best practices ===
+

@@ -8,9 +8,9 @@ package io.imunity.furms.ui.views.fenix.sites;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.GROUP;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
@@ -23,6 +23,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -46,14 +49,15 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix.sites.data.SiteGridItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.imunity.furms.ui.views.fenix.sites.add.SitesAddView;
+import io.imunity.furms.ui.views.fenix.sites.admins.SitesAdminsView;
 
 @Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
@@ -98,14 +102,14 @@ public class SitesView extends FurmsViewComponent {
 		siteEditor.addOpenListener(event -> onEditorOpen(event, siteBinder));
 		siteEditor.addCloseListener(event -> onEditorClose(siteBinder));
 
-		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesDetailsView.class, site.getId()))
+		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesAdminsView.class, site.getId()))
 				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
 				.setSortable(true)
 				.setComparator(SiteGridItem::getName)
 				.setEditorComponent(addEditForm(siteEditor));
 
-		siteGrid.addComponentColumn(site -> addMenu(site, siteGrid))
+		siteGrid.addComponentColumn(site -> createLastColumnContent(site, siteGrid))
 				.setHeader(getTranslation("view.sites.main.grid.column.actions"))
 				.setKey("actions")
 				.setEditorComponent(addEditButtons(siteEditor))
@@ -115,15 +119,22 @@ public class SitesView extends FurmsViewComponent {
 
 		getContent().add(tableLayout);
 	}
+	
+	private Component createLastColumnContent(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
+		return new GridActionsButtonLayout(
+				new RouterGridLink(USERS, site.getId(), SitesAdminsView.class),
+				createContextMenu(site, siteGrid)
+			);
+	}
 
-	private Component addMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
+	private Component createContextMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		GridActionMenu contextMenu = new GridActionMenu();
 		contextMenu.setId(site.getId());
 		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
 				e -> actionEditSite(site, siteGrid));
 		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
 				e -> actionDeleteSite(site, siteGrid));
-		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), GROUP),
+		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.administrators"), USERS),
 				e -> actionOpenAdministrators(site));
 
 		getContent().add(contextMenu);
@@ -146,12 +157,14 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private Component addEditButtons(Editor<SiteGridItem> siteEditor) {
-		Button save = new Button(getTranslation("view.sites.main.grid.editor.button.save"), e -> actionUpdate(siteEditor));
+		Button save = new Button(getTranslation("view.sites.main.grid.editor.button.save"),
+				e -> updateAction(siteEditor));
 		save.addThemeVariants(LUMO_TERTIARY);
 		save.addClassName("save");
 		save.addClickShortcut(Key.ENTER);
 
-		Button cancel = new Button(getTranslation("view.sites.main.grid.editor.button.cancel"), e -> siteEditor.cancel());
+		Button cancel = new Button(getTranslation("view.sites.main.grid.editor.button.cancel"),
+				e -> cancelAction(siteEditor));
 		cancel.addThemeVariants(LUMO_TERTIARY);
 		cancel.addClassName("cancel");
 
@@ -160,16 +173,25 @@ public class SitesView extends FurmsViewComponent {
 
 		return new Div(save, cancel);
 	}
+	
+	private void cancelAction(Editor<SiteGridItem> siteEditor) {
+		siteEditor.cancel();
+		refreshGrid(siteEditor);
+	}
 
 	private void actionOpenSiteFormAdd(ClickEvent<Button> buttonClickEvent) {
 		UI.getCurrent().navigate(SitesAddView.class);
 	}
 
 	private void actionOpenAdministrators(SiteGridItem site) {
-		UI.getCurrent().navigate(SitesDetailsView.class, site.getId());
+		UI.getCurrent().navigate(SitesAdminsView.class, site.getId());
+	}
+	
+	private void refreshGrid(Editor<SiteGridItem> siteEditor) {
+		siteEditor.getGrid().setItems(fetchSites());
 	}
 
-	private void actionUpdate(Editor<SiteGridItem> siteEditor) {
+	private void updateAction(Editor<SiteGridItem> siteEditor) {
 		if (siteEditor.getBinder().isValid()) {
 			Optional<Component> component = siteEditor.getGrid().getColumnByKey("name")
 					.getEditorComponent().getChildren()
@@ -183,7 +205,7 @@ public class SitesView extends FurmsViewComponent {
 							.name(name.getValue())
 							.build());
 					siteEditor.cancel();
-					siteEditor.getGrid().setItems(fetchSites());
+					refreshGrid(siteEditor);
 					showSuccessNotification(getTranslation("view.sites.form.save.success"));
 					reloadRolePicker();
 				} catch (DuplicatedNameValidationError e) {

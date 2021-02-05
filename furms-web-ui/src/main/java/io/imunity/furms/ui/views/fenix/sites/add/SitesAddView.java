@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.sites;
+package io.imunity.furms.ui.views.fenix.sites.add;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
@@ -31,10 +31,11 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import io.imunity.furms.ui.views.fenix.sites.data.SiteCreationParam;
+import io.imunity.furms.ui.views.fenix.sites.SitesView;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
@@ -68,7 +69,7 @@ public class SitesAddView extends FurmsViewComponent {
 	}
 
 	private void addForm() {
-		FormLayout formLayout = new FormLayout();
+		FormLayout formLayout = new FurmsFormLayout();
 		formLayout.setSizeFull();
 		SiteCreationParam formData = new SiteCreationParam();
 		Binder<SiteCreationParam> binder = new Binder<>(SiteCreationParam.class);
@@ -77,7 +78,6 @@ public class SitesAddView extends FurmsViewComponent {
 		name.setPlaceholder(getTranslation("view.sites.add.form.name.placeholder"));
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
-		name.setWidthFull();
 		name.setMaxLength(NAME_MAX_LENGTH);
 
 		Button cancel = new Button(getTranslation("view.sites.add.form.button.cancel"), e -> doCancelAction());
@@ -96,10 +96,6 @@ public class SitesAddView extends FurmsViewComponent {
 				.withValidator(siteService::isNamePresent, getTranslation("view.sites.form.error.validation.field.name.unique"))
 				.bind(SiteCreationParam::getName, SiteCreationParam::setName);
 
-		formLayout.setResponsiveSteps(
-				new FormLayout.ResponsiveStep("1em", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
-				new FormLayout.ResponsiveStep("60em", 2)
-		);
 		formLayout.addFormItem(name, getTranslation("view.sites.add.form.name"));
 
 

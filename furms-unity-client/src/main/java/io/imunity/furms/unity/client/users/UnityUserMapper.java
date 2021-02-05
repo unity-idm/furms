@@ -18,10 +18,10 @@ import java.util.Optional;
 
 import static io.imunity.furms.unity.client.common.UnityConst.PERSISTENT_IDENTITY;
 
-class UnityUserMapper {
+public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	static Optional<User> map(GroupMember groupMember){
+	public static Optional<User> map(GroupMember groupMember){
 		User user = buildUser(groupMember);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");

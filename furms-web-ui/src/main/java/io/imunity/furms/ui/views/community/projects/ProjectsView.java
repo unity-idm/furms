@@ -45,8 +45,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
-import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
@@ -55,9 +55,11 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private final ProjectService projectService;
 	private final Grid<ProjectViewModel> grid;
+	private final ProjectModelResolver resolver;
 
-	public ProjectsView(ProjectService projectService) {
+	public ProjectsView(ProjectService projectService, ProjectModelResolver resolver) {
 		this.projectService = projectService;
+		this.resolver = resolver;
 		this.grid = createCommunityGrid();
 
 		Button addButton = createAddButton();
@@ -175,7 +177,7 @@ public class ProjectsView extends FurmsViewComponent {
 		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(ProjectViewModelMapper::map)
+			.map(resolver::resolve)
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.collect(toList());
 	}

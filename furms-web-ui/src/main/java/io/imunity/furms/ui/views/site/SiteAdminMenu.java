@@ -13,6 +13,7 @@ import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
 import io.imunity.furms.ui.views.site.settings.SettingsView;
 
 public class SiteAdminMenu extends FurmsAppLayout {
