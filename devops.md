@@ -1,6 +1,7 @@
 [back](index)
-## [LATEST](ver/1.0.0-a1/sysadmin-manual.html)
+## [LATEST](ver/1.0.0-a2/sysadmin-manual.html)
 ## All versions
+* [1.0.0-a2](ver/1.0.0-a2/sysadmin-manual.html)
 * [1.0.0-a1](ver/1.0.0-a1/sysadmin-manual.html)
 * [0.0.2](ver/0.0.2/sysadmin-manual.html)
 * [0.0.1](ver/0.0.1/sysadmin-manual.html)
