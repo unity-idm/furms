@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>io.imunity.furms</groupId>
 		<artifactId>furms-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0-a1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

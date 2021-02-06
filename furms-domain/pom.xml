@@ -9,7 +9,7 @@
 	<parent>
 		<artifactId>furms-parent</artifactId>
 		<groupId>io.imunity.furms</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0-a1</version>
 	</parent>
 
 </project>
