@@ -89,7 +89,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 |furmsVersion
 |string
-|Version of released FURMS software e.g. "1.0.0"
+|Version of released FURMS software e.g. "1.0"
 
 3+^e| --- Unity-IdM configuration ---
 
@@ -280,6 +280,9 @@ Once configuration is finished, the following command will install the Unity-IdM
 > ansible-playbook -i inventory furms-devops-tooling/install-stack.yml
 ```
 
+After installation the services are available in directory pointed out in `installDir`  property defined in `$ENVIRONMENT_DIR/group_vars/all.yml` file.
+
+
 === Start FURMS stack
 Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
 ```
@@ -295,13 +298,12 @@ At eny time the FURMS stack can be stopped using the following command:
 ```
 
 == FURMS system minor update procedure
-FURMS system may be released with a minor update. Such version is marked with a change of the last number in the distribution version. Database backup is advised, however in minor update the risk is minimal - revision releases typically do not introduce database changes, nor Unity-IdM update. Perform the following steps to update the system:
+FURMS system may be released with a minor update. Such version is marked with a change of the last number in the distribution version. Database backup is advised, however in minor update the risk is minimal - revision releases typically do not introduce database changes, nor Unity-IdM update. The following steps provide example how to update the FURMS service into `1.0.1` version:
 
 * <<Stop FURMS stack>>
-* Update the `furmsVersion` variable in `$ENVIRONMENT_DIR/group_vars/all.yml`
 * Install minor update:
 ** enter the `$ENVIRONMENT_DIR` directory,
-** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml`
+** execute: `ansible-playbook -i inventory ansible/install-minor-update.yml --extra-vars "furmsServiceVersion=1.0.1"`
 * <<Start FURMS stack>>
 
 
