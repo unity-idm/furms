@@ -294,7 +294,7 @@ At eny time the FURMS stack can be stopped using the following command:
 > ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
 ```
 
-=== FURMS system minor update procedure
+== FURMS system minor update procedure
 FURMS system may be released with a minor update. Such version is marked with a change of the last number in the distribution version. Database backup is advised, however in minor update the risk is minimal - revision releases typically do not introduce database changes, nor Unity-IdM update. Perform the following steps to update the system:
 
 * <<Stop FURMS stack>>
