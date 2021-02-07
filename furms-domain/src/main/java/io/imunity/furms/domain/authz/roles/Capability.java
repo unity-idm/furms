@@ -6,7 +6,7 @@
 package io.imunity.furms.domain.authz.roles;
 
 public enum Capability {
-	FENIX_MAINTENANCE,
+	USERS_MAINTENANCE,
 	AUTHENTICATED, 
 	PROFILE, 
 	FENIX_ADMINS_MANAGEMENT,  

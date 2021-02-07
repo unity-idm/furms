@@ -5,11 +5,11 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.user.FurmsAuthenticatedUser;
-import io.imunity.furms.core.config.security.user.capability.CapabilityCollector;
+import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
@@ -32,7 +32,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		FurmsAuthenticatedUser principal = (FurmsAuthenticatedUser)authentication.getPrincipal();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 
-		return capabilityCollector.getCapabilities(principal.roles, resourceId).contains(capability);
+		return capabilityCollector.getCapabilities(principal.getRoles(), resourceId).contains(capability);
 	}
 
 	/***

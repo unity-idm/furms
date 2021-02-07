@@ -262,7 +262,7 @@ class UnityUsersDAO implements UsersDAO {
 			.path("/status/")
 			.path(unityStatus.name())
 			.toUriString();
-		unityClient.put(uri);
+		unityClient.put(uri, Map.of("identityType", "identifier"));
 	}
 
 	@Override
@@ -271,7 +271,7 @@ class UnityUsersDAO implements UsersDAO {
 				.path(ENTITY_BASE)
 				.path(fenixUserId)
 				.toUriString();
-		ObjectNode response = unityClient.get(uri, ObjectNode.class);
+		ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
 		String statusStr = response.get("entityInformation").get("state").asText();
 		EntityState unityState = EntityState.valueOf(statusStr);
 		return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;

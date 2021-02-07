@@ -6,7 +6,7 @@
 package io.imunity.furms.core.users;
 
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.FENIX_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
@@ -68,14 +68,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public void setUserStatus(String fenixUserId, UserStatus status) {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		usersDAO.setUserStatus(fenixUserId, status);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserStatus getUserStatus(String fenixUserId) {
 		return usersDAO.getUserStatus(fenixUserId);
 	}

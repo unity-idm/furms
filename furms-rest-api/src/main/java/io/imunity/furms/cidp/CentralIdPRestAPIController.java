@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping(value = "/v1/cidp", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/rest-api/v1/cidp", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Central IdP Endpoint",
 	description = "API intended for use by Fenix Central IdP, providing access to FURMS user attributes and "
 			+ "basic user management.")
