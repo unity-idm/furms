@@ -303,7 +303,7 @@ FURMS system may be released with a minor update. Such version is marked with a 
 * <<Stop FURMS stack>>
 * Install minor update:
 ** enter the `$ENVIRONMENT_DIR` directory,
-** execute: `ansible-playbook -i inventory ansible/install-minor-update.yml --extra-vars "furmsServiceVersion=1.0.1"`
+** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml --extra-vars "furmsServiceVersion=1.0.1"`
 * <<Start FURMS stack>>
 
 
