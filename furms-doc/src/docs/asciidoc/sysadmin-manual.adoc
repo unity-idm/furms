@@ -107,11 +107,11 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 |unity.initialAdminUsername
 |string
-|Username of the FENIX administrator to be installed in the system upon first installation.
+|Username of the FENIX administrator to be installed in the system upon first installation. This is also the initial Unity-IdM administrator.
 
 |unity.initialAdminPassword
 |string
-|Password of the FENIX administrator to be installed to the empty database.
+|Password of the FENIX & Unity-IdM administrator to be installed to the empty database.
 
 |unity.proxyCount
 |integer [0 - 32]
