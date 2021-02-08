@@ -7,10 +7,12 @@ package io.imunity.furms.unity.client.users;
 
 import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_MEMBER;
+import static io.imunity.furms.unity.client.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.client.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.client.common.UnityConst.ENUMERATION;
 import static io.imunity.furms.unity.client.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.GROUPS_PATTERNS;
 import static io.imunity.furms.unity.client.common.UnityConst.GROUP_PATH;
 import static io.imunity.furms.unity.client.common.UnityConst.ID;
 import static io.imunity.furms.unity.client.common.UnityConst.IDENTITY_TYPE;
@@ -18,10 +20,8 @@ import static io.imunity.furms.unity.client.common.UnityConst.PERSISTENT_IDENTIT
 import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_ID;
 import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_PATTERN;
 import static io.imunity.furms.unity.client.common.UnityConst.ROOT_GROUP_PATH;
-import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTES_PATTERN;
 import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTE_PATTERN;
 import static io.imunity.furms.unity.client.common.UnityPaths.ENTITY_BASE;
-import static io.imunity.furms.unity.client.common.UnityPaths.GROUP;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_MEMBERS;
@@ -137,18 +137,15 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	private List<Attribute> getAttributes(String communityId, String projectId, String userId) {
-		String groupPath = prepareGroupPath(communityId, projectId);
 		String path = UriComponentsBuilder.newInstance()
-			.path(ENTITY_BASE)
-			.pathSegment("{" + ID + "}")
-			.path(ATTRIBUTES_PATTERN)
-			.buildAndExpand(Map.of(ID, userId))
+			.pathSegment(GROUP_ATTRIBUTES)
+			.uriVariables(Map.of(ID, userId))
+			.build()
 			.toUriString();
-		return unityClient.get(
-			path,
-			new ParameterizedTypeReference<>() {},
-			Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY, GROUP, groupPath)
-		);
+		String groupPath = prepareGroupPath(communityId, projectId);
+		Map<String, List<Attribute>> groupedAttributes =
+			unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS));
+		return groupedAttributes.getOrDefault(groupPath, Collections.emptyList());
 	}
 
 	@Override

@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/furms-psql-dbtest
+    username: ${FURMS_TESTDB_USER:sa}
+    password: ${FURMS_TESTDB_PASSWD:sa}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true

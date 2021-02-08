@@ -15,6 +15,8 @@ public interface ProjectRepository {
 
 	Set<Project> findAll(String communityId);
 
+	Set<Project> findAll();
+
 	String create(Project community);
 
 	String update(Project community);

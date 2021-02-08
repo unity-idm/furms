@@ -18,6 +18,8 @@ public interface ProjectService {
 
 	Set<Project> findAll(String communityId);
 
+	Set<Project> findAll();
+
 	void create(Project project);
 
 	void update(Project project);
@@ -31,6 +33,8 @@ public interface ProjectService {
 	boolean isMember(String communityId, String projectId, String userId);
 
 	void addMember(String communityId, String projectId, String userId);
+
+	void inviteMember(String communityId, String projectId, String email);
 
 	void removeMember(String communityId, String projectId, String userId);
 }

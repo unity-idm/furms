@@ -6,19 +6,38 @@ image::logo-fenix.png[scaledwidth=75%]
 = FURMS system administration manual
 
 == Installation of FURMS system from scratch
-This section describes how to install the FURMS system from scratch. 
-The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM. 
-
-Perform steps from the following sections in order to install, configure and manage FURMS system.
+This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM. 
 
 === Prerequisites
+
+=== Java
+FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are about to be running.
 
 ==== Ansible
 Install the Ansible tooling on the host which will control FURMS system through scripts.
 Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
 
 ==== Database
-Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-Idm. This information will be used later on in the Ansible group variable file to setup database configuration during installation.
+Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-Idm. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.
+
+=== Installation best practices ===
+There are two recommended configurations of FURMS system that can be used to install the services:
+
+* behind HTTP proxy
+* exposed directly
+
+Depending upon which is selected, there are some ramifications on the configuration to be made.
+
+==== HTTP proxy configuration
+It is assumed that in this configuration the proxy has installed the certificates signed by legitimate authorities. In this case the FURMS system can be equipped with self-signed certificates. One pair of PKI credential for Unity-IdM and the other for FURMS Service. 
+
+Note that for such configuration the FURMS service truststore needs to be carefully prepared. The general rule of a thumb is that it must contain at least the  public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
+
+==== Services exposed directly
+In this configuration, both Unity-IdM as well as a FURMS service must be equipped with PKI credentials signed by legitimate authorities. The truststore in both cases can be configured to use the system one. On RHEL like system the default place of a trustore is ```/etc/pki/java/cacerts```, and on Ubuntu like systems  ```/etc/ssl/certs/java/cacerts```.
+
+
+NOTE: In both setup cases, there are configuration options in the Ansible group variables file, that needs to be properly filled according to your infrastructure setup ```*.advertisedHost```,  ```unity.proxyCount```. Please refer to the description of the variables in the incoming sections.
 
 === FURMS devops tools installation utility
 In order to install the latest released FURMS devops tooling, use the `FURMS devops tools installation utility`.
@@ -44,18 +63,21 @@ drwxr-xr-x. 5 furms-app furms-app 4096 10-28 15:36 furms-devops-tooling-1.0.0
 The aforementioned tool can be run at will, and the consecutive executions will update the FURMS Ansible scripts to the latest version.
 
 === Setup Ansible configuration files
-Create the inventory and group variables files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed). Taking into account previous example, execute the following commands to achive it:
+Create the inventory and group variables files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed). You can base on the example files that are delivered with the Ansible tooling. Taking into account the example from previous sections, execute the following commands: 
 ```
-touch /home/furms-app/staging/inventory
-mkdir -p /home/furms-app/staging/group_vars
-touch /home/furms-app/staging/group_vars/all.yml
+> cd $ENVIRONMENT_DIR
+> cp -r furms-devops-tooling/local-cfg-sample/* .
 ``` 
+The following files should be copied to the current directory:
+
+* ```inventory```
+* ```group_vars/all.yml```
 
 ==== Inventory
-Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS System on a local machine, can be found in `$ENVIRONMENT_DIR/furms-devops-tooling/local-cfg-sample/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
+Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS system on a local machine, can be found now in `$ENVIRONMENT_DIR/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
 
 ==== Group vars
-All of the FURMS deployment settings are configured in the `all.yml` file. The example of this file can be found in `$ENVIRONMENT_DIR/furms-devops-tooling/local-cfg-sample/group_vars/all.yml` file. The following table provides description of all configuration options.
+All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$ENVIRONMENT_DIR/group_vars/all.yml` file. The following table provides description of all configuration options.
 
 [width="100%",cols="<20,<12,<68",frame="all",options="header"]
 |===
@@ -67,9 +89,9 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |furmsVersion
 |string
-|Version of released furms software e.g. "1.0.0"
+|Version of released FURMS software e.g. "1.0"
 
-3+^e| --- Unity configuration ---
+3+^e| --- Unity-IdM configuration ---
 
 |unity.host
 |string
@@ -81,25 +103,24 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |unity.advertisedHost
 |string
-|The hostname or IP address (optionally with port), which is advertised externally whenever the server has to provide its address. Examples: login.unity.com or login.unity.com:8443
+|The hostname or IP address (optionally with port), which is advertised externally. Examples: login.unity.com or login.unity.com:8443. If host is not advertised externally this value must be set to the ```unity.host:unity.port``` setting.
 
 |unity.initialAdminUsername
 |string
-|Username of the FENIX administrator to be installed in the system upon first installation.
+|Username of the FENIX administrator to be installed in the system upon first installation. This is also the initial Unity-IdM administrator.
 
 |unity.initialAdminPassword
 |string
-|Password of the FENIX administrator to be installed to the empty database.
+|Password of the FENIX & Unity-IdM administrator to be installed to the empty database.
 
 |unity.proxyCount
 |integer [0 - 32]
-|If set to 0 then it is assumed then Unity server is not behind a proxy. Otherwise the number should specify the number of (local, trusted) proxies that are protecting the server from the actual clients. In effect the assumed client IP will be taken from the X-Forwarded-For header, stripping the trailing ones from intermediary proxies. Note that only proxy servers setting X-Forwarded-For are supported.
+|If set to 0 then it is assumed then Unity-IdM server is not behind a proxy. Otherwise the number should specify the number of (local, trusted) proxies that are protecting the server from the actual clients. In effect the assumed client IP will be taken from the X-Forwarded-For header, stripping the trailing ones from intermediary proxies. Note that only proxy servers setting X-Forwarded-For are supported.
 
 
 
 |unity.apiClient
-|-
-|This setting provides the information to setup Unity entity utilized by FURMS service to communicate with Unity via REST Admin API.
+2+|This setting provides the information to setup the entity utilized by FURMS service to communicate with Unity-IdM via REST Admin API.
 
 |unity.apiClient.username
 |string
@@ -113,11 +134,11 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |unity.pki.keyStore.file
 |filesystem path
-|Credential location. In case of jks, pkcs12 and pem store it is the only location required. In case when credential is provided in two files, it is the certificate file path.
+|Credential location.
 
 |unity.pki.keyStore.type
 |[jks, pkcs12, der, pem]
-|Format of the credential. It is guessed when not given. Note that pem might be either a PEM keystore with certificates and keys (in PEM format) or a pair of PEM files (one with certificate and second with private key).
+|Format of the credential.
 
 |unity.pki.keyStore.keyAlias
 |string
@@ -126,6 +147,10 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 |unity.pki.keyStore.password
 |string
 |Password required to load the credential.
+
+
+|unity.pki.trustStore
+2+|The Unity-IdM trustrore must contain the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
 
 |unity.pki.trustStore.file
 |filesystem path
@@ -143,20 +168,19 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |unity.storage.dbName
 |string
-|PostgreSQL database name utilized by Unity instance.
+|PostgreSQL database name used by Unity-IdM instance.
 
 |unity.storage.username
 |string
-|Unity database username.
+|Unity-IdM database username.
 
 |unity.storage.password
 |string
-|Unity database password.
+|Unity-IdM database password.
 
 
 |unity.cIdP
-|-
-|The following settings utilizes the Central IdP OAuth client's credentials on Unity side to enable logging via Central IdP.
+2+| Configuration that contains the Central IdP OAuth client's credentials used on Unity-IdM side for authentication via Central IdP.
 
 |unity.cIdP.clientId
 |string
@@ -173,8 +197,7 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 
 |unity.oauthClient
-|-
-|These settings defines the OAuth Client at Unity side that is utilized by FURMS service for authentication purposes.
+2+|Provides the information to setup the OAuth Client credentials at Unity-IdM side, which are utilized by FURMS service for authentication purposes.
 
 |unity.oauthClient.username
 |string
@@ -200,17 +223,16 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |furmsServer.advertisedHost
 |string
-|The hostname or IP address (optionally with port), which is advertised externally whenever the server has to provide its address. Examples: furms.example.com or furms.example.com:8443
-
+|The hostname or IP address (optionally with port), which is advertised externally. Examples: login.unity.com or login.unity.com:8443. If host is not advertised externally this value must be set to the ```furmsServer.host:furmsServer.port``` setting.
 
 
 |furmsServer.pki.keyStore.file
 |filesystem path
-|Credential location. In case of jks, pkcs12 and pem store it is the only location required. In case when credential is provided in two files, it is the certificate file path.
+|Credential location.
 
 |furmsServer.pki.keyStore.type
 |[jks, pkcs12, der, pem]
-|Format of the credential. It is guessed when not given. Note that pem might be either a PEM keystore with certificates and keys (in PEM format) or a pair of PEM files (one with certificate and second with private key).
+|Format of the credential.
 
 |furmsServer.pki.keyStore.keyAlias
 |string
@@ -220,6 +242,8 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 |string
 |Password required to load the credential.
 
+|furmsServer.pki.trustStore
+2+|The FURMS service trustrore must contain the public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
 |furmsServer.pki.trustStore.file
 |filesystem path
 |The JKS format keystore path.
@@ -236,7 +260,7 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |furmsServer.storage.dbName
 |string
-|PostgreSQL database name utilized by FURMS service instance.
+|PostgreSQL database name used by FURMS service instance.
 
 |furmsServer.storage.username
 |string
@@ -248,15 +272,19 @@ All of the FURMS deployment settings are configured in the `all.yml` file. The e
 
 |===
 
+
 === Install FURMS stack
-Once configuration is finished, the following command will install the Unity as well as FURMS service in the infrastructure:
+Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service in the infrastructure:
 ```
 > cd $ENVIRONMENT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/install-stack.yml
 ```
 
+After installation the services are available in directory pointed out in `installDir`  property defined in `$ENVIRONMENT_DIR/group_vars/all.yml` file.
+
+
 === Start FURMS stack
-Once FURMS stack has been installed, the following command starts the FURMS stack - unity server as well as FURMS service:
+Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
 ```
 > cd $ENVIRONMENT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/start-stack.yml
@@ -269,5 +297,23 @@ At eny time the FURMS stack can be stopped using the following command:
 > ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
 ```
 
-=== Best practices ===
+== FURMS system minor update procedure
+FURMS system may be released with a minor update. Such version is marked with a change of the last number in the distribution version. Database backup is advised, however in minor update the risk is minimal - revision releases typically do not introduce database changes, nor Unity-IdM update. The following steps provide example how to update the FURMS service into `1.0.1` version:
+
+* <<Stop FURMS stack>>
+* Install minor update:
+** enter the `$ENVIRONMENT_DIR` directory,
+** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml --extra-vars "furmsServiceVersion=1.0.1"`
+* <<Start FURMS stack>>
+
+
+
+
+
+
+
+
+
+
+
 

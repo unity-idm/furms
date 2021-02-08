@@ -60,7 +60,7 @@ public enum Role {
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_LIMITED_WRITE, PROJECT_ADMINS_MANAGEMENT,
-			PROJECT_MEMBER_MANAGEMENT
+			PROJECT_MEMBER_MANAGEMENT, PROJECT_LEAVE
 		),
 		List.of(READ_ALL_USERS)
 	),
@@ -68,9 +68,9 @@ public enum Role {
 		"furmsProjectRole",
 		"MEMBER",
 		List.of(
-			AUTHENTICATED, PROFILE, PROJECT_READ
+			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_LEAVE
 		),
-		emptyList()
+		List.of(PROJECT_READ)
 	);
 
 	public final String unityRoleAttribute;
