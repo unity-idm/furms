@@ -119,7 +119,7 @@ class RoleTranslatorService implements RoleTranslator {
 						LOG.warn("Wrong resource id. Data are not synchronized");
 						return Stream.empty();
 					});
-			case PROJECT_MEMBER:
+			case PROJECT_USER:
 				return projectService.findById(resourceId.id.toString())
 					.map(project ->
 						Stream.of(userSettings)

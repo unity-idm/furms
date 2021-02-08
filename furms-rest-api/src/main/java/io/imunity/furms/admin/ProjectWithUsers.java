@@ -6,13 +6,13 @@ package io.imunity.furms.admin;
 
 import java.util.List;
 
-class ProjectWithMembers {
+class ProjectWithUsers {
 	
 	final Project project;
-	final List<String> memberFenixUserIds;
+	final List<String> userFenixUserIds;
 
-	ProjectWithMembers(Project project, List<String> memberFenixUserIds) {
+	ProjectWithUsers(Project project, List<String> userFenixUserIds) {
 		this.project = project;
-		this.memberFenixUserIds = memberFenixUserIds;
+		this.userFenixUserIds = userFenixUserIds;
 	}
 }

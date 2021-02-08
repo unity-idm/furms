@@ -67,7 +67,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		demitButton = new Button(getTranslation("view.project-admin.users.button.demit"));
 		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteMember(project.getCommunityId(), project.getId(), inviteUser.getEmail());
+			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.setItems(loadUsers());
 			loadAppropriateButton();
 			inviteUser.clear();
@@ -82,20 +82,20 @@ public class UsersView extends FurmsLandingViewComponent {
 		joinButton.addClickListener(x -> {
 			joinButton.setVisible(false);
 			demitButton.setVisible(true);
-			projectService.addMember(project.getCommunityId(), project.getId(), currentUserId);
+			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.setItems(loadUsers());
 		});
 		demitButton.addClickListener(x -> {
 			joinButton.setVisible(true);
 			demitButton.setVisible(false);
-			projectService.removeMember(project.getCommunityId(), project.getId(), currentUserId);
+			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.setItems(loadUsers());
 		});
 		return new HorizontalLayout(joinButton, demitButton);
 	}
 
 	private void loadAppropriateButton() {
-		if(projectService.isMember(project.getCommunityId(), project.getId(), currentUserId)) {
+		if(projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)) {
 			joinButton.setVisible(false);
 			demitButton.setVisible(true);
 		}
@@ -149,7 +149,7 @@ public class UsersView extends FurmsLandingViewComponent {
 
 		String deleteLabel = getTranslation("view.project-admin.users.context.menu.remove");
 		contextMenu.addItem(addMenuButton(deleteLabel, MINUS_CIRCLE), event -> {
-			handleExceptions(() -> projectService.removeMember(project.getCommunityId(), project.getId(), id));
+			handleExceptions(() -> projectService.removeUser(project.getCommunityId(), project.getId(), id));
 			grid.setItems(loadUsers());
 			loadAppropriateButton();
 		});

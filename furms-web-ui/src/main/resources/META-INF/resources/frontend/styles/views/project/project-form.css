@@ -1,0 +1,8 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.project-leader-combo-box {
+	width: var(--vaadin-text-field-default-width, 24em);
+}

@@ -55,7 +55,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "404", description = "Project not found", content = {
 					@Content }) })
 	@GetMapping("/{projectId}")
-	public ProjectWithMembers get(@PathVariable("projectId") String projectId) {
+	public ProjectWithUsers get(@PathVariable("projectId") String projectId) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 

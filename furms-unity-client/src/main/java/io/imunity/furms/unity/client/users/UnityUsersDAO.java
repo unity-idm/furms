@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_MEMBER;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.*;
 import static java.util.stream.Collectors.toList;
@@ -46,8 +46,8 @@ class UnityUsersDAO implements UsersDAO {
 		String path = prepareGroupPath(communityId, projectId);
 		return getUsers(path,
 			attribute ->
-				attribute.getName().equals(PROJECT_MEMBER.unityRoleAttribute) &&
-				attribute.getValues().contains(PROJECT_MEMBER.unityRoleValue)
+				attribute.getName().equals(PROJECT_USER.unityRoleAttribute) &&
+				attribute.getValues().contains(PROJECT_USER.unityRoleValue)
 		);
 	}
 
@@ -91,9 +91,9 @@ class UnityUsersDAO implements UsersDAO {
 	public boolean isProjectMember(String communityId, String projectId, String userId) {
 		List<Attribute> attributes = getAttributes(communityId, projectId, userId);
 		return attributes.stream()
-			.filter(attribute -> attribute.getName().equals(PROJECT_MEMBER.unityRoleAttribute))
+			.filter(attribute -> attribute.getName().equals(PROJECT_USER.unityRoleAttribute))
 			.flatMap(attribute -> attribute.getValues().stream())
-			.anyMatch(attribute -> attribute.equals(PROJECT_MEMBER.unityRoleValue));
+			.anyMatch(attribute -> attribute.equals(PROJECT_USER.unityRoleValue));
 	}
 
 	private List<Attribute> getAttributes(String communityId, String projectId, String userId) {
@@ -115,7 +115,7 @@ class UnityUsersDAO implements UsersDAO {
 		String addToGroupPath = prepareGroupRequestPath(userId, groupPath);
 		unityClient.post(addToGroupPath, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 
-		Role projectMember = PROJECT_MEMBER;
+		Role projectMember = PROJECT_USER;
 		Set<String> attributes = getProjectRoleValues(communityId, projectId, userId);
 		attributes.add(projectMember.unityRoleValue);
 
@@ -177,7 +177,7 @@ class UnityUsersDAO implements UsersDAO {
 	@Override
 	public void removeProjectMemberRole(String communityId, String projectId, String userId) {
 		String uriComponents = prepareRoleRequestPath(userId);
-		Role projectMember = PROJECT_MEMBER;
+		Role projectMember = PROJECT_USER;
 		Set<String> projectRoleValues = getProjectRoleValues(communityId, projectId, userId);
 		projectRoleValues.remove(projectMember.unityRoleValue);
 
@@ -200,7 +200,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	private Set<String> getProjectRoleValues(String communityId, String projectId, String userId) {
 		return getAttributes(communityId, projectId, userId).stream()
-			.filter(attribute -> attribute.getName().equals(PROJECT_MEMBER.unityRoleAttribute))
+			.filter(attribute -> attribute.getName().equals(PROJECT_USER.unityRoleAttribute))
 			.flatMap(attribute -> attribute.getValues().stream())
 			.collect(toSet());
 	}
