@@ -57,6 +57,12 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	public Set<Project> findAll() {
+		return projectRepository.findAll();
+	}
+
+	@Override
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "project.communityId")
 	public void create(Project project) {
@@ -139,7 +145,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
 	public void removeMember(String communityId, String projectId, String userId){
 		usersDAO.removeProjectMemberRole(communityId, projectId, userId);
 	}

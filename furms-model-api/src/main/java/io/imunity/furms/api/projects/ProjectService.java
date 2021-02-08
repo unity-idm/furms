@@ -18,6 +18,8 @@ public interface ProjectService {
 
 	Set<Project> findAll(String communityId);
 
+	Set<Project> findAll();
+
 	void create(Project project);
 
 	void update(Project project);

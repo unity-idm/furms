@@ -20,7 +20,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.Role.translateRole;
-import static io.imunity.furms.unity.client.common.UnityConst.ID;
+import static io.imunity.furms.unity.client.common.UnityConst.*;
 import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate;
@@ -81,7 +81,7 @@ public class UnityRoleLoader implements RoleLoader {
 			.toUriString();
 
 		try {
-			return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of("groupsPatterns", "/fenix/**/users"));
+			return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS));
 		} catch (WebClientResponseException e) {
 			throw new RoleLoadingException(e.getStatusCode().value(), e);
 		}
