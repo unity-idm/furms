@@ -5,6 +5,13 @@
 
 package io.imunity.furms.unity.client.unity;
 
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,14 +20,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
 
 @Component
 public class UnityClient {
@@ -113,9 +112,14 @@ public class UnityClient {
 	}
 
 	private MultiValueMap<String, String> createParams(Map<String, Object> queryParams) {
-		Map<String, List<String>> mutatedQueryParams = queryParams.keySet().stream()
-				.collect(toMap(Function.identity(),
-						key -> List.of(queryParams.get(key).toString())));
+		@SuppressWarnings("unchecked") //FIXME - actually not very smart - can cause problems
+		Map<String, List<String>> mutatedQueryParams = queryParams.entrySet().stream()
+				.collect(toMap(entry -> entry.getKey(),
+						entry -> {
+							Object value = entry.getValue();
+							return value instanceof List ? 
+									(List<String>)value : List.of(value.toString());
+						}));
 		return new LinkedMultiValueMap<>(mutatedQueryParams);
 	}
 

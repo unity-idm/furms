@@ -5,11 +5,12 @@
 
 package io.imunity.furms.spi.users;
 
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.domain.users.UserStatus;
-
 import java.util.List;
 import java.util.Optional;
+
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserStatus;
 
 
 public interface UsersDAO {
@@ -26,4 +27,5 @@ public interface UsersDAO {
 	UserStatus getUserStatus(String fenixUserId);
 	void removeProjectMemberRole(String communityId, String projectId, String userId);
 	Optional<User> findById(String userId);
+	UserAttributes getUserAttributes(String fenixUserId);
 }

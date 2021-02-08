@@ -5,29 +5,35 @@
 
 package io.imunity.furms.unity.client.unity;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
-import org.springframework.util.AntPathMatcher;
-import pl.edu.icm.unity.types.basic.Attribute;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
+import org.springframework.util.AntPathMatcher;
 
-class UnityGroupParser {
-	final static Predicate<Attribute> usersGroupPredicate = a -> a.getGroupPath().endsWith("users");
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
+import pl.edu.icm.unity.types.basic.Attribute;
 
-	private final static Map<String, ResourceType> resourcesPatterns = Map.of(
+public class UnityGroupParser {
+	public final static Predicate<String> usersGroupPredicate = group -> group.endsWith("users");
+	public final static Predicate<Attribute> usersGroupPredicate4Attr = a -> a.getGroupPath().endsWith("users");
+
+	private static final Map<String, ResourceType> resourcesPatterns = Map.of(
 		FENIX_PATTERN, ResourceType.APP_LEVEL,
 		"/fenix/sites/*/users", ResourceType.SITE,
 		"/fenix/communities/*/users", ResourceType.COMMUNITY,
 		"/fenix/communities/*/projects/*/users", ResourceType.PROJECT
 	);
-	private final static AntPathMatcher matcher = new AntPathMatcher();
+	private static final AntPathMatcher matcher = new AntPathMatcher();
 
-	static ResourceId getResourceId(String group){
+	public static ResourceId attr2Resource(Attribute attribute) {
+		return getResourceId(attribute.getGroupPath());
+	}
+	
+	public static ResourceId getResourceId(String group){
 		if(group == null)
 			throw new IllegalArgumentException("Group cannot be a null");
 

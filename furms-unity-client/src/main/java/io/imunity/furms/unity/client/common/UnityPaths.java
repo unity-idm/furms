@@ -17,4 +17,5 @@ public class UnityPaths {
 	public final static String ATTRIBUTES_PATTERN = "/attributes";
 	public final static String GROUP = "group";
 	public final static String GROUP_ATTRIBUTES = "entity/{"+ ID +"}/groups/attributes";
+	public final static String ENTITY_GROUPS = "entity/{"+ ID +"}/groups";
 }

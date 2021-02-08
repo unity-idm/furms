@@ -4,16 +4,17 @@
  */
 package io.imunity.furms.domain.users;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 public class UserRecord {
 	public final UserStatus userStatus;
-	public final List<Attribute> attributes;
-	public final List<CommunityMembership> communities;
+	public final Set<Attribute> attributes;
+	public final Set<CommunityMembership> communities;
 	
-	public UserRecord(UserStatus userStatus, List<Attribute> attributes, List<CommunityMembership> communities) {
+	public UserRecord(UserStatus userStatus, Collection<Attribute> attributes, Collection<CommunityMembership> communities) {
 		this.userStatus = userStatus;
-		this.attributes = List.copyOf(attributes);
-		this.communities = List.copyOf(communities);
+		this.attributes = Set.copyOf(attributes);
+		this.communities = Set.copyOf(communities);
 	}
 }

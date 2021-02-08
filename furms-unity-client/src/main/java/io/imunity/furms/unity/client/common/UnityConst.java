@@ -18,6 +18,7 @@ public class UnityConst {
 	public static final String PROJECT_ID = "projectId";
 	public static final String ROOT_GROUP_PATH = "rootGroupPath";
 
+	public static final String ROOT_GROUP = "/";
 	public static final String FENIX_GROUP = "/fenix";
 	public static final String FENIX_PATTERN = "/fenix/users";
 	public final static String SITE_PATTERN = "/fenix/sites/{"+ ID +"}";

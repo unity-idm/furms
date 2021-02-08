@@ -6,6 +6,7 @@
 package io.imunity.furms.api.users;
 
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 
 import java.util.List;
@@ -21,4 +22,5 @@ public interface UserService {
 	void setUserStatus(String fenixUserId, UserStatus status);
 	UserStatus getUserStatus(String fenixUserId);
 	Optional<User> findById(String userId);
+	UserRecord getUserRecord(String fenixUserId);
 }

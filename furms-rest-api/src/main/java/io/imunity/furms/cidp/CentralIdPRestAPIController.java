@@ -45,9 +45,7 @@ public class CentralIdPRestAPIController {
 			@ApiResponse(responseCode = "404", description = "User not found", content = { @Content }) })
 	@GetMapping("/user/{fenixUserId}")
 	public UserRecordJson getUserRecord(@PathVariable("fenixUserId") String fenixUserId) {
-		//TODO
-		//return new UserRecordJson(userService.getUserRecord(fenixUserId));
-		throw new UnsupportedOperationException();
+		return new UserRecordJson(userService.getUserRecord(fenixUserId));
 	}
 
 	
