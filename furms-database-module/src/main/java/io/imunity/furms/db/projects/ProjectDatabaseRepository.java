@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
@@ -40,6 +41,13 @@ class ProjectDatabaseRepository implements ProjectRepository {
 		return repository.findAllByCommunityId(fromString(communityId))
 				.map(ProjectEntity::toProject)
 				.collect(toSet());
+	}
+
+	@Override
+	public Set<Project> findAll() {
+		return stream(repository.findAll().spliterator(), false)
+			.map(ProjectEntity::toProject)
+			.collect(toSet());
 	}
 
 	@Override
