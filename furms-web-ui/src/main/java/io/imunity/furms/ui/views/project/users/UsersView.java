@@ -17,15 +17,18 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.AdministratorsGridItem;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,45 +41,68 @@ import static java.util.stream.Collectors.toList;
 
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
-public class UsersView extends FurmsViewComponent {
+public class UsersView extends FurmsLandingViewComponent {
 	private final ProjectService projectService;
-	private final Project project;
+	private final AuthzService authzService;
+	private final UserService userService;
+	private Project project;
+	private String currentUserId;
+	private Button joinButton;
+	private Button demitButton;
 
-	UsersView(ProjectService projectService, AuthzService authzService) {
+	UsersView(ProjectService projectService, AuthzService authzService, UserService userService) {
 		this.projectService = projectService;
-		this.project = projectService.findById(getCurrentResourceId()).get();
+		this.authzService = authzService;
+		this.userService = userService;
+		loadPageContent();
+	}
+
+	private void loadPageContent() {
+		project = projectService.findById(getCurrentResourceId()).get();
 		Grid<AdministratorsGridItem> grid = createGrid(loadUsers());
 		HorizontalLayout searchLayout = createSearchFilterLayout(grid);
 
-		String userId = authzService.getCurrentUserId();
-		HorizontalLayout membershipLayout = createMembershipLayout(grid, userId);
-		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.project-admin.users.header", project.getName()),
-			membershipLayout);
-		getContent().add(headerLayout, searchLayout ,grid);
+		currentUserId = authzService.getCurrentUserId();
+		joinButton = new Button(getTranslation("view.project-admin.users.button.join"));
+		demitButton = new Button(getTranslation("view.project-admin.users.button.demit"));
+		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		inviteUser.addInviteAction(event -> {
+			projectService.inviteMember(project.getCommunityId(), project.getId(), inviteUser.getEmail());
+			grid.setItems(loadUsers());
+			loadAppropriateButton();
+			inviteUser.clear();
+		});
+		HorizontalLayout membershipLayout = createMembershipLayout(grid, joinButton, demitButton);
+		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
+		getContent().add(headerLayout, inviteUser, searchLayout, grid);
 	}
 
-	private HorizontalLayout createMembershipLayout(Grid<AdministratorsGridItem> grid, String userId) {
-		Button joinButton = new Button(getTranslation("view.project-admin.users.button.join"));
-		Button demitButton = new Button(getTranslation("view.project-admin.users.button.demit"));
-		if(projectService.isMember(project.getCommunityId(), project.getId(), userId))
-			joinButton.setVisible(false);
-		else
-			demitButton.setVisible(false);
-
+	private HorizontalLayout createMembershipLayout(Grid<AdministratorsGridItem> grid, Button joinButton, Button demitButton) {
+		loadAppropriateButton();
 		joinButton.addClickListener(x -> {
 			joinButton.setVisible(false);
 			demitButton.setVisible(true);
-			projectService.addMember(project.getCommunityId(), project.getId(), userId);
+			projectService.addMember(project.getCommunityId(), project.getId(), currentUserId);
 			grid.setItems(loadUsers());
 		});
-
 		demitButton.addClickListener(x -> {
 			joinButton.setVisible(true);
 			demitButton.setVisible(false);
-			projectService.removeMember(project.getCommunityId(), project.getId(), userId);
+			projectService.removeMember(project.getCommunityId(), project.getId(), currentUserId);
 			grid.setItems(loadUsers());
 		});
 		return new HorizontalLayout(joinButton, demitButton);
+	}
+
+	private void loadAppropriateButton() {
+		if(projectService.isMember(project.getCommunityId(), project.getId(), currentUserId)) {
+			joinButton.setVisible(false);
+			demitButton.setVisible(true);
+		}
+		else {
+			demitButton.setVisible(false);
+			joinButton.setVisible(true);
+		}
 	}
 
 	private List<AdministratorsGridItem> loadUsers() {
@@ -84,6 +110,7 @@ public class UsersView extends FurmsViewComponent {
 			.orElseGet(Collections::emptyList)
 			.stream()
 			.map(AdministratorsGridItem::new)
+			.sorted(Comparator.comparing(AdministratorsGridItem::getEmail))
 			.collect(toList());
 	}
 
@@ -93,10 +120,12 @@ public class UsersView extends FurmsViewComponent {
 		grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 		grid.addComponentColumn(c -> new Div(new Span(c.getFirstName() + " " + c.getLastName())))
 			.setHeader(getTranslation("view.project-admin.users.grid.column.1"))
-			.setFlexGrow(30);
-		grid.addColumn(c -> c.getEmail())
+			.setFlexGrow(30)
+			.setSortable(true);
+		grid.addColumn(AdministratorsGridItem::getEmail)
 			.setHeader(getTranslation("view.project-admin.users.grid.column.2"))
-			.setFlexGrow(60);
+			.setFlexGrow(60)
+			.setSortable(true);
 		grid.addColumn(c -> "Active")
 			.setHeader(getTranslation("view.project-admin.users.grid.column.3"))
 			.setFlexGrow(1);
@@ -122,6 +151,7 @@ public class UsersView extends FurmsViewComponent {
 		contextMenu.addItem(addMenuButton(deleteLabel, MINUS_CIRCLE), event -> {
 			handleExceptions(() -> projectService.removeMember(project.getCommunityId(), project.getId(), id));
 			grid.setItems(loadUsers());
+			loadAppropriateButton();
 		});
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
@@ -164,4 +194,9 @@ public class UsersView extends FurmsViewComponent {
 			.orElse(false);
 	}
 
+	@Override
+	public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+		getContent().removeAll();
+		loadPageContent();
+	}
 }

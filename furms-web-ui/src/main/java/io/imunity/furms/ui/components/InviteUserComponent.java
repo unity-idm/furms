@@ -10,34 +10,38 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
+
+import java.util.List;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 
 public class InviteUserComponent extends HorizontalLayout {
 
-
 	private final Button inviteButton;
-	private final TextField email;
+	private final FurmsUserComboBox furmsUserComboBox;
 
-	public InviteUserComponent() {
-		super();
+	public InviteUserComponent(List<User> users) {
 		setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		setSpacing(true);
 
-		email = new TextField();
-		email.setPlaceholder(getTranslation("component.invite.field.placeholder"));
-
+		furmsUserComboBox = new FurmsUserComboBox(FurmsViewUserModelMapper.mapList(users));
+		furmsUserComboBox.setAlignItems(Alignment.END);
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
-
-		add(email, inviteButton);
+		inviteButton.setMinWidth("auto");
+		add(furmsUserComboBox, inviteButton);
 	}
 
 	public void addInviteAction(ComponentEventListener<ClickEvent<Button>> inviteAction) {
 		inviteButton.addClickListener(inviteAction);
 	}
 
-	public TextField getEmail() {
-		return email;
+	public String getEmail() {
+		return furmsUserComboBox.comboBox.getValue().email;
+	}
+
+	public void clear() {
+		furmsUserComboBox.comboBox.clear();
 	}
 }

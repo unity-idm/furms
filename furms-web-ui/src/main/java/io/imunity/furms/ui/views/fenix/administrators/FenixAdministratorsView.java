@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.administrators;
 
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -40,21 +39,17 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	}
 
 	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent();
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser.getEmail()));
+		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
 		getContent().add(new ViewHeaderLayout(getTranslation("view.fenix-admin.header"), inviteUser));
 	}
 
-	private void doInviteAction(TextField email) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
-			userService.inviteFenixAdmin(email.getValue());
-			email.clear();
+			userService.inviteFenixAdmin(inviteUserComponent.getEmail());
+			inviteUserComponent.clear();
 			grid.reloadGrid();
-		} catch (IllegalArgumentException e) {
-			email.setErrorMessage(getTranslation("view.fenix-admin.invite.error.validation.field.invite"));
-			email.setInvalid(true);
-			LOG.error("Could not invite user. ", e);
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);

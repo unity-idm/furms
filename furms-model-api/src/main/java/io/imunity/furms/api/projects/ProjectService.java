@@ -32,5 +32,7 @@ public interface ProjectService {
 
 	void addMember(String communityId, String projectId, String userId);
 
+	void inviteMember(String communityId, String projectId, String email);
+
 	void removeMember(String communityId, String projectId, String userId);
 }
