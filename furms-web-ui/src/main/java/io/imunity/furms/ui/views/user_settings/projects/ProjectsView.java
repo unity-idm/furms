@@ -47,7 +47,7 @@ public class ProjectsView extends FurmsViewComponent {
 		this.currentUserId = authzService.getCurrentUserId();
 		this.projectService = projectService;
 		this.mapper = new ProjectGridModelMapper(currentUserId, projectService);
-		this.grid = createCommunityGrid();
+		this.grid = createProjectGrid();
 		loadGridContent();
 
 		CheckboxGroup<UserStatus> checkboxGroup = createCheckboxLayout();
@@ -94,7 +94,7 @@ public class ProjectsView extends FurmsViewComponent {
 		return search;
 	}
 
-	private Grid<ProjectGridModel> createCommunityGrid() {
+	private Grid<ProjectGridModel> createProjectGrid() {
 		Grid<ProjectGridModel> grid = new SparseGrid<>(ProjectGridModel.class);
 
 		grid.addComponentColumn(project -> {
@@ -165,13 +165,9 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		if(currentFilters.isEmpty()){
-			grid.setItems(loadProjectsViewsModels());
-			return;
-		}
 		grid.setItems(loadProjectsViewsModels()
 			.stream()
-			.filter(x -> currentFilters.contains(x.status))
+			.filter(project -> currentFilters.isEmpty() || currentFilters.contains(project.status))
 		);
 	}
 
