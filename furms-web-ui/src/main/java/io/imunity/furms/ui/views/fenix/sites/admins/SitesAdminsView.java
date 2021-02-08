@@ -5,12 +5,11 @@
 
 package io.imunity.furms.ui.views.fenix.sites.admins;
 
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -31,12 +30,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
+	private final UserService userService;
 
 	private AdministratorsGridComponent grid;
 	private String siteId;
 
-	SitesAdminsView(SiteService siteService) {
+	SitesAdminsView(SiteService siteService, UserService userService) {
 		this.siteService = siteService;
+		this.userService = userService;
 	}
 
 	@Override
@@ -55,21 +56,17 @@ public class SitesAdminsView extends FurmsViewComponent {
 	}
 
 	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent();
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser.getEmail()));
+		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
 		getContent().add(new ViewHeaderLayout(getTranslation("view.sites.administrators.title"), inviteUser));
 	}
 
-	private void doInviteAction(TextField email) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
-			siteService.inviteAdmin(siteId, email.getValue());
-			email.clear();
+			siteService.inviteAdmin(siteId, inviteUserComponent.getEmail());
+			inviteUserComponent.clear();
 			grid.reloadGrid();
-		} catch (IllegalArgumentException e) {
-			email.setErrorMessage(getTranslation("view.sites.invite.error.validation.field.invite"));
-			email.setInvalid(true);
-			LOG.error("Could not invite Site Administrator. ", e);
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);

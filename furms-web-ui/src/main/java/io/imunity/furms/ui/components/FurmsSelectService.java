@@ -5,17 +5,16 @@
 
 package io.imunity.furms.ui.components;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
+import com.vaadin.flow.component.UI;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import com.vaadin.flow.component.UI;
-
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class FurmsSelectService {
 	private final RoleTranslator roleTranslator;
