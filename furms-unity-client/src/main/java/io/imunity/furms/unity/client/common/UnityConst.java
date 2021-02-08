@@ -22,7 +22,8 @@ public class UnityConst {
 	public static final String FENIX_GROUP = "/fenix";
 	public static final String FENIX_PATTERN = "/fenix/users";
 	public final static String SITE_PATTERN = "/fenix/sites/{"+ ID +"}";
-	public final static String COMMUNITY_PATTERN = "/fenix/communities/{"+ ID +"}";
-	public final static String PROJECT_GROUP_PATTERN = "/fenix/communities/{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}";
+	public final static String COMMUNITY_PREFIX = "/fenix/communities/";
+	public final static String COMMUNITY_PATTERN = COMMUNITY_PREFIX + "{"+ ID +"}";
+	public final static String PROJECT_GROUP_PATTERN = COMMUNITY_PREFIX + "{"+ COMMUNITY_ID +"}/projects/{"+ PROJECT_ID +"}";
 	public static final String PROJECT_PATTERN = PROJECT_GROUP_PATTERN + "/users";
 }

@@ -321,7 +321,7 @@ class UnityUsersDAO implements UsersDAO {
 	{
 		Map<ResourceId, Set<Attribute>> ret = new HashMap<>(resourceToAttributesMap);
 		userGroups.stream()
-			.filter(UnityGroupParser.usersGroupPredicate)
+			.filter(UnityGroupParser.COMMUNITY_BASE_GROUP_PREDICATE)
 			.map(UnityGroupParser::getResourceId)
 			.filter(resourceId -> !resourceToAttributesMap.containsKey(resourceId))
 			.forEach(resourceId -> ret.put(resourceId, Collections.emptySet()));

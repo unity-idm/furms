@@ -5,6 +5,7 @@
 
 package io.imunity.furms.unity.client.unity;
 
+import static io.imunity.furms.unity.client.common.UnityConst.COMMUNITY_PREFIX;
 import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
 
 import java.util.Map;
@@ -18,16 +19,19 @@ import io.imunity.furms.domain.authz.roles.ResourceType;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 public class UnityGroupParser {
-	public final static Predicate<String> usersGroupPredicate = group -> group.endsWith("users");
-	public final static Predicate<Attribute> usersGroupPredicate4Attr = a -> a.getGroupPath().endsWith("users");
+	private static final AntPathMatcher matcher = new AntPathMatcher();
+	public final static Predicate<String> COMMUNITY_BASE_GROUP_PREDICATE = 
+			group -> matcher.match(COMMUNITY_PREFIX + "*", group);
+	public final static Predicate<Attribute> usersGroupPredicate4Attr = a -> a.getGroupPath().endsWith("/users");
 
 	private static final Map<String, ResourceType> resourcesPatterns = Map.of(
 		FENIX_PATTERN, ResourceType.APP_LEVEL,
 		"/fenix/sites/*/users", ResourceType.SITE,
 		"/fenix/communities/*/users", ResourceType.COMMUNITY,
-		"/fenix/communities/*/projects/*/users", ResourceType.PROJECT
+		"/fenix/communities/*/projects/*/users", ResourceType.PROJECT,
+		"/fenix/communities/*", ResourceType.COMMUNITY,
+		"/fenix/communities/*/projects/*", ResourceType.PROJECT
 	);
-	private static final AntPathMatcher matcher = new AntPathMatcher();
 
 	public static ResourceId attr2Resource(Attribute attribute) {
 		return getResourceId(attribute.getGroupPath());
@@ -42,8 +46,10 @@ public class UnityGroupParser {
 
 		if(groupElements.length < 2)
 			throw new IllegalArgumentException("Group should contain at least two elements");
-		if(groupElements.length > 2){
-			id = UUID.fromString(groupElements[groupElements.length - 2]);
+		if(groupElements.length > 2) {
+			int idIndex = groupElements[groupElements.length - 1].equals("users") ? 
+					groupElements.length - 2 : groupElements.length - 1;
+			id = UUID.fromString(groupElements[idIndex]);
 		}
 		ResourceType type = getResourceType(group);
 		return new ResourceId(id, type);

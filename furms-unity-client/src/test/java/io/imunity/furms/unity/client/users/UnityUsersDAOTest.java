@@ -70,18 +70,20 @@ public class UnityUsersDAOTest {
 	@Test
 	public void shouldParseProjectResourceAttributes() {
 		UUID id = UUID.randomUUID();
+		UUID idC = UUID.randomUUID();
 		String idStr = id.toString();
 		UnityClient unityClient = mock(UnityClient.class);
 		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/fenix/communities/foo/projects/" + id + "/users", 
-					List.of(new Attribute("attr1", "string", "/fenix/communities/foo/projects/" + id + "/users", List.of("val1")))));
+					List.of(new Attribute("attr1", "string", "/fenix/communities/" + idC + "/projects/" + id + "/users", List.of("val1")))));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
-					"/fenix/communities/foo", "/fenix/communities/foo/projects",
-					"/fenix/communities/foo/projects/" + id, 
-					"/fenix/communities/foo/projects/" + id + "/users"));
+					"/fenix/communities/" + idC, 
+					"/fenix/communities/" + idC + "/projects",
+					"/fenix/communities/" + idC + "/projects/" + id, 
+					"/fenix/communities/" + idC + "/projects/" + id + "/users"));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
@@ -103,7 +105,7 @@ public class UnityUsersDAOTest {
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
-					"/fenix/communities/" + id, "/fenix/communities/" + id + "/users"));
+					"/fenix/communities/" + id));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
