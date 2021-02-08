@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.site.administrators;
 
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -33,13 +34,15 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 	private final AdministratorsGridComponent grid;
 	private final String siteId;
 
-	SiteAdministratorsView(SiteService siteService, UserService userService) {
+	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
 		this.userService = userService;
 		this.siteId = getActualViewUserContext().id;
 		this.grid = new AdministratorsGridComponent(
 				() -> siteService.findAllAdmins(siteId),
-				userId -> siteService.removeAdmin(siteId, userId));
+				userId -> siteService.removeAdmin(siteId, userId),
+				authzService.getCurrentUserId()
+			);
 
 		addHeader();
 		getContent().add(grid);

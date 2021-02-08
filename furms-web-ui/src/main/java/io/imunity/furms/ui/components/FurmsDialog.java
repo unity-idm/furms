@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -25,10 +26,13 @@ public class FurmsDialog extends Dialog {
 		cancelButton.addClickListener(event -> close());
 		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
+		HorizontalLayout horizontalLayout = new HorizontalLayout(cancelButton, confirmButton);
+		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		horizontalLayout.setWidthFull();
 		add(
 			new VerticalLayout(
 				new Span(label),
-				new HorizontalLayout(confirmButton, cancelButton)
+				horizontalLayout
 			)
 		);
 	}

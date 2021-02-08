@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -35,14 +19,26 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
-
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class AdministratorsGridComponent extends VerticalLayout {
 
@@ -50,13 +46,13 @@ public class AdministratorsGridComponent extends VerticalLayout {
 
 	private final Supplier<List<User>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
+	private final String currentUserId;
 
-	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction) {
-		super();
+	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
 		this.fetchUsersAction = fetchUsersAction;
 		this.removeUserAction = removeUserAction;
 		this.grid = new SparseGrid<>(AdministratorsGridItem.class);
-
+		this.currentUserId = currentUserId;
 		addSearchForm();
 		addGrid();
 	}
@@ -96,7 +92,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.1"))
 				.setSortable(true)
 				.setComparator(FullNameColumn::compareTo)
-				.setFlexGrow(30);
+				.setFlexGrow(60);
 		grid.addColumn(AdministratorsGridItem::getEmail)
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
 				.setSortable(true)
@@ -124,22 +120,40 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				MINUS_CIRCLE.create());
 		button.addThemeVariants(LUMO_TERTIARY);
 
-		contextMenu.addItem(button, event -> doRemoveItemAction(id));
+		contextMenu.addItem(button, event -> {
+			if(id.equals(currentUserId))
+				doRemoveYourself();
+			else
+				doRemoveItemAction(id);
+		});
 		add(contextMenu);
 		return contextMenu.getTarget();
 	}
 
-	private void doRemoveItemAction(String id) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.confirm"));
+	private void doRemoveYourself(){
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.yourself.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			if (grid.getDataProvider().size(new Query<>()) > 1) {
-				handleExceptions(() -> removeUserAction.accept(id));
+			if (loadUsers().size() > 1) {
+				UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
+				handleExceptions(() -> removeUserAction.accept(currentUserId));
 				reloadGrid();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
 		});
 		furmsDialog.open();
+	}
+
+	private void doRemoveItemAction(String id) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.confirm"));
+		furmsDialog.addConfirmButtonClickListener(event -> {
+			if (loadUsers().size() > 1) {
+				handleExceptions(() -> removeUserAction.accept(id));
+				reloadGrid();
+			} else {
+				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+			}
+		});
 	}
 
 	private void loadGrid(List<AdministratorsGridItem> users) {
@@ -170,7 +184,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	
 	private static class FullNameColumn extends Div {
 		private FullNameColumn(AdministratorsGridItem c) {
-			super(c.getIcon(), new Span(c.getFirstName() + " " + c.getLastName()));
+			super(/*c.getIcon(),*/ new Span(c.getFirstName() + " " + c.getLastName()));
 		}
 		
 		private static int compareTo(AdministratorsGridItem c1, AdministratorsGridItem c2) {
