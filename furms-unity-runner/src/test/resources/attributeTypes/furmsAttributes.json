@@ -207,7 +207,7 @@
 		"syntaxState": {
 			"allowed": [
 				"ADMIN",
-				"MEMBER"
+				"USER"
 			]
 		},
 		"displayedName": {

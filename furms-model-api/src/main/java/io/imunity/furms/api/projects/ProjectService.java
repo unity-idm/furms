@@ -30,11 +30,11 @@ public interface ProjectService {
 
 	List<User> findUsers(String communityId, String projectId);
 
-	boolean isMember(String communityId, String projectId, String userId);
+	boolean isUser(String communityId, String projectId, String userId);
 
-	void addMember(String communityId, String projectId, String userId);
+	void addUser(String communityId, String projectId, String userId);
 
-	void inviteMember(String communityId, String projectId, String email);
+	void inviteUser(String communityId, String projectId, String email);
 
-	void removeMember(String communityId, String projectId, String userId);
+	void removeUser(String communityId, String projectId, String userId);
 }

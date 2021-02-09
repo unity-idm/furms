@@ -124,19 +124,19 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public boolean isMember(String communityId, String projectId, String userId) {
+	public boolean isUser(String communityId, String projectId, String userId) {
 		return usersDAO.isProjectMember(communityId, projectId, userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void addMember(String communityId, String projectId, String userId){
+	public void addUser(String communityId, String projectId, String userId){
 		usersDAO.addProjectMemberRole(communityId, projectId, userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void inviteMember(String communityId, String projectId, String email) {
+	public void inviteUser(String communityId, String projectId, String email) {
 		Optional<User> user = usersDAO.findByEmail(email);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
@@ -146,7 +146,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
-	public void removeMember(String communityId, String projectId, String userId){
+	public void removeUser(String communityId, String projectId, String userId){
 		usersDAO.removeProjectMemberRole(communityId, projectId, userId);
 	}
 }

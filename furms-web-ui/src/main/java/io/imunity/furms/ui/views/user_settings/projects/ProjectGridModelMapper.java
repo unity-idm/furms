@@ -26,7 +26,7 @@ class ProjectGridModelMapper {
 		.communityId(project.getCommunityId())
 		.name(project.getName())
 		.description(project.getDescription())
-		.status(projectService.isMember(project.getCommunityId(), project.getId(), id) ? ACTIVE : NOT_ACTIVE)
+		.status(projectService.isUser(project.getCommunityId(), project.getId(), id) ? ACTIVE : NOT_ACTIVE)
 		.build();
 	}
 }

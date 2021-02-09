@@ -64,9 +64,9 @@ public enum Role {
 		),
 		List.of(READ_ALL_USERS)
 	),
-	PROJECT_MEMBER(
+	PROJECT_USER(
 		"furmsProjectRole",
-		"MEMBER",
+		"USER",
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_LEAVE
 		),
