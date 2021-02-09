@@ -47,6 +47,7 @@ public class UnityUserMapper {
 			.orElse(null);
 	}
 
+	//FIXME unify next two, use AttributeValueMapper
 	private static String getAttributeValue(GroupMember groupMember, String attributeValue) {
 		return groupMember.getAttributes()
 			.stream()

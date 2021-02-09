@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.security.user.capability;
+package io.imunity.furms.core.config.security.method;
 
 
 import io.imunity.furms.domain.authz.roles.Capability;
@@ -23,7 +23,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static java.util.stream.Collectors.toMap;
 
 @Component
-public class CapabilityCollector {
+class CapabilityCollector {
 	private final ProjectRepository projectRepository;
 
 	public CapabilityCollector(ProjectRepository projectRepository) {

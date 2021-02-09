@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.fenix.administrators;
 
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -30,9 +31,9 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private final AdministratorsGridComponent grid;
 
-	FenixAdministratorsView(UserService userService) {
+	FenixAdministratorsView(UserService userService, AuthzService authzService) {
 		this.userService = userService;
-		this.grid = new AdministratorsGridComponent(userService::getFenixAdmins, userService::removeFenixAdminRole);
+		this.grid = new AdministratorsGridComponent(userService::getFenixAdmins, userService::removeFenixAdminRole, authzService.getCurrentUserId());
 
 		addHeader();
 		getContent().add(grid);

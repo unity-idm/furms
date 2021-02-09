@@ -5,27 +5,67 @@
 
 package io.imunity.furms.unity.client.users;
 
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.users.UsersDAO;
-import io.imunity.furms.unity.client.unity.UnityClient;
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static io.imunity.furms.unity.client.common.UnityConst.ALL_GROUPS_PATTERNS;
+import static io.imunity.furms.unity.client.common.UnityConst.COMMUNITY_ID;
+import static io.imunity.furms.unity.client.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_GROUP;
+import static io.imunity.furms.unity.client.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.GROUPS_PATTERNS;
+import static io.imunity.furms.unity.client.common.UnityConst.GROUP_PATH;
+import static io.imunity.furms.unity.client.common.UnityConst.ID;
+import static io.imunity.furms.unity.client.common.UnityConst.IDENTITY_TYPE;
+import static io.imunity.furms.unity.client.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_ID;
+import static io.imunity.furms.unity.client.common.UnityConst.PROJECT_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityConst.ROOT_GROUP_PATH;
+import static io.imunity.furms.unity.client.common.UnityPaths.ATTRIBUTE_PATTERN;
+import static io.imunity.furms.unity.client.common.UnityPaths.ENTITY_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_ATTRIBUTES;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.client.common.UnityPaths.GROUP_MEMBERS;
+import static io.imunity.furms.unity.client.unity.UnityGroupParser.usersGroupPredicate4Attr;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.spi.roles.RoleLoadingException;
+import io.imunity.furms.spi.users.UsersDAO;
+import io.imunity.furms.unity.client.common.AttributeValueMapper;
+import io.imunity.furms.unity.client.common.UnityConst;
+import io.imunity.furms.unity.client.common.UnityPaths;
+import io.imunity.furms.unity.client.unity.UnityClient;
+import io.imunity.furms.unity.client.unity.UnityGroupParser;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
-
-import java.util.*;
-import java.util.function.Predicate;
-
-import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static io.imunity.furms.unity.client.common.UnityConst.*;
-import static io.imunity.furms.unity.client.common.UnityPaths.*;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Component
 class UnityUsersDAO implements UsersDAO {
@@ -225,7 +265,31 @@ class UnityUsersDAO implements UsersDAO {
 			.encode()
 			.toUriString();
 	}
+	
+	@Override
+	public void setUserStatus(String fenixUserId, UserStatus status) {
+		EntityState unityStatus = status == UserStatus.ENABLED ? EntityState.valid : EntityState.disabled;
+		String uri = UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.path(fenixUserId)
+			.path("/status/")
+			.path(unityStatus.name())
+			.toUriString();
+		unityClient.put(uri, Map.of("identityType", "identifier"));
+	}
 
+	@Override
+	public UserStatus getUserStatus(String fenixUserId) {
+		String uri = UriComponentsBuilder.newInstance()
+				.path(ENTITY_BASE)
+				.path(fenixUserId)
+				.toUriString();
+		ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
+		String statusStr = response.get("entityInformation").get("state").asText();
+		EntityState unityState = EntityState.valueOf(statusStr);
+		return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;
+	}
+	
 	// TODO: this method should directly query unity entity admin endpoint to get the user details
 	// instead of retrieving all.
 	@Override
@@ -237,4 +301,90 @@ class UnityUsersDAO implements UsersDAO {
 				.filter(user -> user.id.equals(userId))
 				.findFirst();
 	}
+
+	@Override
+	public UserAttributes getUserAttributes(String fenixUserId) {
+		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(fenixUserId);
+		Set<String> userGroups = fetchUserGroups(fenixUserId);
+		Map<ResourceId, Set<Attribute>> resourceToAttributesMap = getResourceToAttributesMap(userAttributes);
+		Map<ResourceId, Set<Attribute>> resourceToAttributesMapComplete = addEmptyMemberships(
+				resourceToAttributesMap, userGroups);
+		List<Attribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList()); 
+		return new UserAttributes(toFurmsAttributes(rootAttributes), toFurmsAttributesMap(resourceToAttributesMapComplete));
+	}
+
+	private Map<ResourceId, Set<Attribute>> addEmptyMemberships(
+			Map<ResourceId, Set<Attribute>> resourceToAttributesMap, Set<String> userGroups)
+	{
+		Map<ResourceId, Set<Attribute>> ret = new HashMap<>(resourceToAttributesMap);
+		userGroups.stream()
+			.filter(UnityGroupParser.COMMUNITY_BASE_GROUP_PREDICATE)
+			.map(UnityGroupParser::getResourceId)
+			.filter(resourceId -> !resourceToAttributesMap.containsKey(resourceId))
+			.forEach(resourceId -> ret.put(resourceId, Collections.emptySet()));
+		
+		return ret;
+	}
+
+	private Map<ResourceId, Set<io.imunity.furms.domain.users.Attribute>> toFurmsAttributesMap(
+			Map<ResourceId, Set<Attribute>> unityAttributesMap) {
+		return unityAttributesMap.entrySet().stream()
+				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> toFurmsAttributes(entry.getValue())));
+	}
+	
+	private Set<io.imunity.furms.domain.users.Attribute> toFurmsAttributes(Collection<Attribute> unityAttributes) {
+		return unityAttributes.stream()
+				.map(this::toFurmsAttribute)
+				.collect(Collectors.toSet());
+	}
+	
+	private io.imunity.furms.domain.users.Attribute toFurmsAttribute(Attribute unityAttribute) {
+		return new io.imunity.furms.domain.users.Attribute(unityAttribute.getName(), 
+				unityAttribute.getValues().stream()
+					.map(value -> AttributeValueMapper.toFurmsAttributeValue(unityAttribute, value))
+					.collect(Collectors.toList()));
+	}
+	
+	private Map<String, List<Attribute>> fetchUserAttributes(String fenixUserId) {
+		String path = UriComponentsBuilder.newInstance()
+			.pathSegment(GROUP_ATTRIBUTES)
+			.uriVariables(Map.of(ID, fenixUserId))
+			.build()
+			.toUriString();
+
+		try {
+			return unityClient.get(path, new ParameterizedTypeReference<>() {}, 
+					Map.of("groupsPatterns", List.of("/", "/fenix/**/users"),
+							"identityType", "identifier"));
+		} catch (WebClientResponseException e) {
+			throw new RoleLoadingException(e.getStatusCode().value(), e);
+		}
+	}
+	
+	private Set<String> fetchUserGroups(String fenixUserId) {
+		String path = UriComponentsBuilder.newInstance()
+			.pathSegment(UnityPaths.ENTITY_GROUPS)
+			.uriVariables(Map.of(ID, fenixUserId))
+			.build()
+			.toUriString();
+
+		try {
+			return unityClient.get(path, new ParameterizedTypeReference<>() {}, 
+					Map.of("identityType", "identifier"));
+		} catch (WebClientResponseException e) {
+			throw new RoleLoadingException(e.getStatusCode().value(), e);
+		}
+	}
+	
+	private static Map<ResourceId, Set<Attribute>> getResourceToAttributesMap(Map<String, List<Attribute>> attributes) {
+		return attributes.values().stream()
+			.flatMap(Collection::stream)
+			.filter(usersGroupPredicate4Attr)
+			.collect(Collectors.groupingBy(UnityGroupParser::attr2Resource, Collectors.toSet()))
+			.entrySet().stream()
+			.filter(mapEntry -> !mapEntry.getValue().isEmpty())
+			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+	
+
 }

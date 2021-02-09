@@ -1,0 +1,8 @@
+furms.psk:
+   centralIdPUser: cidp
+   centralIdPSecret: cidppass
+
+logging:
+   level:
+      org.springframework.security: INFO
+  

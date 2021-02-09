@@ -5,16 +5,18 @@
 
 package io.imunity.furms.core.authz;
 
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.config.security.user.FurmsUser;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.spi.roles.RoleLoader;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import static io.imunity.furms.core.config.security.FurmsAuthenticatedUser.getCurrent;
 
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.spi.roles.RoleLoader;
 
 @Service
 public class AuthzServiceImpl implements AuthzService {
@@ -26,27 +28,23 @@ public class AuthzServiceImpl implements AuthzService {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return authentication.getAttributes();
+		return getCurrent().getAttributes();
 	}
 
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return authentication.roles;
+		return getCurrent().getRoles();
 	}
 
 	@Override
 	public void reloadRoles() {
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String id = authentication.getAttribute("sub");
-		authentication.roles.clear();
-		authentication.roles.putAll(roleLoader.loadUserRoles(id));
+		FurmsAuthenticatedUser authentication = getCurrent();
+		String id = authentication.getStringAttribute("sub");
+		authentication.updateRoles(roleLoader.loadUserRoles(id));
 	}
 
 	@Override
 	public String getCurrentUserId(){
-		FurmsUser authentication = (FurmsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return authentication.getAttribute("sub");
+		return getCurrent().getStringAttribute("sub");
 	}
 }

@@ -4,10 +4,12 @@
  */
 package io.imunity.furms.cidp;
 
-public class UserStatusHolder {
-	private UserStatus status;
+import io.imunity.furms.domain.users.UserStatus;
 
-	public UserStatus getStatus() {
-		return status;
+public class UserStatusHolder {
+	public final UserStatus status;
+
+	public UserStatusHolder(UserStatus status) {
+		this.status = status;
 	}
 }

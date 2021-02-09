@@ -13,12 +13,20 @@ import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static java.util.Collections.emptyList;
 
 public enum Role {
+	CENTRAL_IDP(
+		"-irrelevant-",
+		"-irrelevant-",
+		emptyList(),
+		List.of(
+			USERS_MAINTENANCE
+		)
+	),
 	FENIX_ADMIN(
 		"furmsFenixRole",
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
-			FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS
+			FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS, USERS_MAINTENANCE
 		),
 		List.of(
 			SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE

@@ -5,10 +5,13 @@
 
 package io.imunity.furms.api.users;
 
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserRecord;
+import io.imunity.furms.domain.users.UserStatus;
+
 import java.util.List;
 import java.util.Optional;
 
-import io.imunity.furms.domain.users.User;
 
 public interface UserService {
 	List<User> getAllUsers();
@@ -16,5 +19,8 @@ public interface UserService {
 	void inviteFenixAdmin(String email);
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
+	void setUserStatus(String fenixUserId, UserStatus status);
+	UserStatus getUserStatus(String fenixUserId);
 	Optional<User> findById(String userId);
+	UserRecord getUserRecord(String fenixUserId);
 }

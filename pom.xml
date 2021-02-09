@@ -179,6 +179,11 @@
 				<groupId>io.imunity.furms</groupId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<artifactId>furms-server</artifactId>
+				<groupId>io.imunity.furms</groupId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

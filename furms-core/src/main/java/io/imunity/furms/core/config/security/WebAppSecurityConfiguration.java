@@ -30,12 +30,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import io.imunity.furms.core.config.security.user.FurmsOAuth2UserService;
+import io.imunity.furms.core.config.security.oauth.FurmsOAuth2UserService;
 import io.imunity.furms.spi.roles.RoleLoader;
 
 @EnableWebSecurity
 @Configuration
-class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -44,7 +44,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
 
-	SecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
+	WebAppSecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
 	                      TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;

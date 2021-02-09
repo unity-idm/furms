@@ -39,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity.furms</groupId>
-			<artifactId>furms-rest-api</artifactId>
+			<artifactId>furms-server</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -161,7 +161,7 @@
 										<argument>--server.port=3443</argument>
 									</arguments>
 								</configuration>
-							</execution>
+							</execution> 
 							<execution>
 								<id>post-integration-test</id>
 								<goals>

@@ -9,12 +9,13 @@ server:
 
 logging:
    level:
-      org.springframework.security.oauth2: TRACE
+      org.springframework.security: DEBUG
+      org.springframework.security.oauth2: DEBUG
       org.springframework.web.client.RestTemplate: DEBUG
       org.springframework.security.web: INFO
       org.apache.http: DEBUG
       httpclient.wire: DEBUG
-      org.springframework.web.reactive.function.client.ExchangeFunctions: TRACE
+      org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
 
 
 furms:
@@ -32,6 +33,9 @@ furms:
    front:
       language: en
    url: https://localhost:${server.port}
+   psk:
+      centralIdPUser: cidp
+      centralIdPSecret: cidppass
 
 spring:
    profiles:

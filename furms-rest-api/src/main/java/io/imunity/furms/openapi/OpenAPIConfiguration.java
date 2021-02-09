@@ -19,9 +19,10 @@ class OpenAPIConfiguration {
 	OpenAPI customOpenAPI(@Value("${app.version:unknown}") String version) {
 		SecurityScheme cidpSecScheme = new SecurityScheme()
 				.name(APIDocConstants.CIDP_SECURITY_SCHEME)
-				.type(SecurityScheme.Type.HTTP).scheme("bearer")
-				.description("Pre-shared token between Fenix central IdP and FURMS shall be used "
-						+ "for authentication and authorization of each request");
+				.type(SecurityScheme.Type.HTTP).scheme("BASIC")
+				.description("Pre-shared secret between Fenix central IdP and FURMS shall be used "
+						+ "for authentication and authorization of each request with "
+						+ "HTTP Basic encoding in HTTP header");
 
 		SecurityScheme apiKeyScheme = new SecurityScheme()
 				.name(APIDocConstants.FURMS_SECURITY_SCHEME)

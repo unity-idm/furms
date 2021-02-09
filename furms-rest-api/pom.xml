@@ -28,5 +28,26 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-model-api</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+    		<groupId>org.springframework.security</groupId>
+    		<artifactId>spring-security-test</artifactId>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
