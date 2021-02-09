@@ -5,17 +5,16 @@ image::logo-fenix.png[scaledwidth=75%]
 
 = FURMS system administration manual
 
-== Installation of FURMS system from scratch
-This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well Unity-IdM. 
+== FURMS installation from scratch
+This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well as Unity service. Both services work closely together. 
 
 === Prerequisites
 
 === Java
-FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are about to be running.
+FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are going to be run.
 
 ==== Ansible
-Install the Ansible tooling on the host which will control FURMS system through scripts.
-Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
+Install Ansible tooling on the host which will control FURMS system through scripts. Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
 
 ==== Database
 Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-Idm. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.
@@ -37,7 +36,7 @@ Note that for such configuration the FURMS service truststore needs to be carefu
 In this configuration, both Unity-IdM as well as a FURMS service must be equipped with PKI credentials signed by legitimate authorities. The truststore in both cases can be configured to use the system one. On RHEL like system the default place of a trustore is ```/etc/pki/java/cacerts```, and on Ubuntu like systems  ```/etc/ssl/certs/java/cacerts```.
 
 
-NOTE: In both setup cases, there are configuration options in the Ansible group variables file, that needs to be properly filled according to your infrastructure setup ```*.advertisedHost```,  ```unity.proxyCount```. Please refer to the description of the variables in the incoming sections.
+NOTE: In both setup cases, there are configuration options in the Ansible group variables file, that need to be properly filled according to your infrastructure setup ```*.advertisedHost```,  ```unity.proxyCount```. Please refer to the description of the variables in the following sections.
 
 === FURMS devops tools installation utility
 In order to install the latest released FURMS devops tooling, use the `FURMS devops tools installation utility`.
@@ -274,7 +273,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 
 === Install FURMS stack
-Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service in the infrastructure:
+Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service:
 ```
 > cd $ENVIRONMENT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/install-stack.yml
@@ -291,14 +290,14 @@ Once FURMS stack has been installed, the following command starts the FURMS stac
 ```
 
 === Stop FURMS stack
-At eny time the FURMS stack can be stopped using the following command:
+At any time the FURMS stack can be stopped using the following command:
 ```
 > cd $ENVIRONMENT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
 ```
 
 == FURMS system minor update procedure
-FURMS system may be released with a minor update. Such version is marked with a change of the last number in the distribution version. Database backup is advised, however in minor update the risk is minimal - revision releases typically do not introduce database changes, nor Unity-IdM update. The following steps provide example how to update the FURMS service into `1.0.1` version:
+Minor FURMS updates are performed whenever a newly installed software version differs only with the last number when compared to the currently installed one. Database backup is advised, however in the minor update case the risk is minimal - revision releases typically do not introduce database content migrations. The following steps provide example how to update the FURMS service into `1.0.1` version, assuming `1.0.0` is installed:
 
 * <<Stop FURMS stack>>
 * Install minor update:
