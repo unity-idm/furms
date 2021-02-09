@@ -47,8 +47,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private final UserService userService;
 	private Project project;
 	private String currentUserId;
-	private Button joinButton;
-	private Button demitButton;
+	private MembershipChangerComponent membershipLayout;
 
 	UsersView(ProjectService projectService, AuthzService authzService, UserService userService) {
 		this.projectService = projectService;
@@ -63,46 +62,28 @@ public class UsersView extends FurmsLandingViewComponent {
 		HorizontalLayout searchLayout = createSearchFilterLayout(grid);
 
 		currentUserId = authzService.getCurrentUserId();
-		joinButton = new Button(getTranslation("view.project-admin.users.button.join"));
-		demitButton = new Button(getTranslation("view.project-admin.users.button.demit"));
+		membershipLayout = new MembershipChangerComponent(
+			getTranslation("view.project-admin.users.button.join"),
+			getTranslation("view.project-admin.users.button.demit"),
+			() -> projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)
+		);
+		membershipLayout.addJoinButtonListener(event -> {
+			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
+			grid.setItems(loadUsers());
+		});
+		membershipLayout.addDemitButtonListener(event -> {
+			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
+			grid.setItems(loadUsers());
+		});
 		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.setItems(loadUsers());
-			loadAppropriateButton();
+			membershipLayout.loadAppropriateButton();
 			inviteUser.clear();
 		});
-		HorizontalLayout membershipLayout = createMembershipLayout(grid, joinButton, demitButton);
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
 		getContent().add(headerLayout, inviteUser, searchLayout, grid);
-	}
-
-	private HorizontalLayout createMembershipLayout(Grid<AdministratorsGridItem> grid, Button joinButton, Button demitButton) {
-		loadAppropriateButton();
-		joinButton.addClickListener(x -> {
-			joinButton.setVisible(false);
-			demitButton.setVisible(true);
-			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
-			grid.setItems(loadUsers());
-		});
-		demitButton.addClickListener(x -> {
-			joinButton.setVisible(true);
-			demitButton.setVisible(false);
-			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
-			grid.setItems(loadUsers());
-		});
-		return new HorizontalLayout(joinButton, demitButton);
-	}
-
-	private void loadAppropriateButton() {
-		if(projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)) {
-			joinButton.setVisible(false);
-			demitButton.setVisible(true);
-		}
-		else {
-			demitButton.setVisible(false);
-			joinButton.setVisible(true);
-		}
 	}
 
 	private List<AdministratorsGridItem> loadUsers() {
@@ -151,7 +132,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		contextMenu.addItem(addMenuButton(deleteLabel, MINUS_CIRCLE), event -> {
 			handleExceptions(() -> projectService.removeUser(project.getCommunityId(), project.getId(), id));
 			grid.setItems(loadUsers());
-			loadAppropriateButton();
+			membershipLayout.loadAppropriateButton();
 		});
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();

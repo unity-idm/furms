@@ -33,7 +33,12 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	FenixAdministratorsView(UserService userService, AuthzService authzService) {
 		this.userService = userService;
-		this.grid = new AdministratorsGridComponent(userService::getFenixAdmins, userService::removeFenixAdminRole, authzService.getCurrentUserId());
+		this.grid = new AdministratorsGridComponent(
+			userService::getFenixAdmins,
+			userService::removeFenixAdminRole,
+			authzService.getCurrentUserId(),
+			true
+		);
 
 		addHeader();
 		getContent().add(grid);

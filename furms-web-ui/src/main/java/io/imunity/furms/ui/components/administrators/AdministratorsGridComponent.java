@@ -47,6 +47,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private final Supplier<List<User>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
+	private boolean logout;
 
 	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
 		this.fetchUsersAction = fetchUsersAction;
@@ -56,6 +57,12 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		addSearchForm();
 		addGrid();
 		setPadding(false);
+	}
+
+	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction,
+	                                   String currentUserId, boolean logout) {
+		this(fetchUsersAction, removeUserAction, currentUserId);
+		this.logout = logout;
 	}
 
 	public void reloadGrid() {
@@ -136,7 +143,8 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.yourself.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (loadUsers().size() > 1) {
-				UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
+				if(logout)
+					UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
 				handleExceptions(() -> removeUserAction.accept(currentUserId));
 				reloadGrid();
 			} else {
