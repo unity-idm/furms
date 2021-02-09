@@ -269,6 +269,18 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |string
 |FURMS service database password
 
+
+|preSharedKeys.cIdP
+2+|Defines the information to setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.
+
+|preSharedKeys.cIdP.username
+|string
+|Username for Central IdP REST API credential
+
+|preSharedKeys.cIdP.password
+|string
+|Password for Central IdP REST API credential
+
 |===
 
 
