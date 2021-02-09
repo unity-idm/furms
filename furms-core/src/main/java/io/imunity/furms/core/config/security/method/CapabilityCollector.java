@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static java.util.stream.Collectors.toMap;
@@ -39,6 +40,7 @@ class CapabilityCollector {
 		for(Role role: roles.getOrDefault(resourceId, new HashSet<>())){
 			capabilities.addAll(role.capabilities);
 		}
+		capabilities.add(AUTHENTICATED);
 		return capabilities;
 	}
 

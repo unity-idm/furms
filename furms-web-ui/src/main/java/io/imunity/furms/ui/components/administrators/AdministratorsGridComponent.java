@@ -55,6 +55,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		this.currentUserId = currentUserId;
 		addSearchForm();
 		addGrid();
+		setPadding(false);
 	}
 
 	public void reloadGrid() {
@@ -92,14 +93,15 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.1"))
 				.setSortable(true)
 				.setComparator(FullNameColumn::compareTo)
-				.setFlexGrow(60);
+				.setFlexGrow(10);
 		grid.addColumn(AdministratorsGridItem::getEmail)
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
 				.setSortable(true)
 				.setFlexGrow(60);
 		grid.addColumn(c -> "Active")
 				.setHeader(getTranslation("component.administrators.grid.column.3"))
-				.setFlexGrow(1);
+				.setSortable(true)
+				.setFlexGrow(5);
 		grid.addComponentColumn(c -> addMenu(c.getId()))
 				.setHeader(getTranslation("component.administrators.grid.column.4"))
 				.setTextAlign(ColumnTextAlign.END);
@@ -154,6 +156,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
 		});
+		furmsDialog.open();
 	}
 
 	private void loadGrid(List<AdministratorsGridItem> users) {
@@ -184,9 +187,15 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	
 	private static class FullNameColumn extends Div {
 		private FullNameColumn(AdministratorsGridItem c) {
-			super(/*c.getIcon(),*/ new Span(c.getFirstName() + " " + c.getLastName()));
+			super(/*c.getIcon(),*/ new Span(getFullName(c)));
 		}
-		
+
+		private static String getFullName(AdministratorsGridItem c) {
+			return ofNullable(c.getFirstName())
+				.map(value -> value + " ").orElse("")
+				+ ofNullable(c.getLastName()).orElse("");
+		}
+
 		private static int compareTo(AdministratorsGridItem c1, AdministratorsGridItem c2) {
 			String c1FullName = c1.getFirstName() + " " + c1.getLastName();
 			String c2FullName = c2.getFirstName() + " " + c2.getLastName();
