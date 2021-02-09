@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.fenix.sites.admins;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -31,13 +32,15 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 	private final UserService userService;
+	private final String currentUserId;
 
 	private AdministratorsGridComponent grid;
 	private String siteId;
 
-	SitesAdminsView(SiteService siteService, UserService userService) {
+	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
 		this.userService = userService;
+		this.currentUserId = authzService.getCurrentUserId();
 	}
 
 	@Override
@@ -48,7 +51,9 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private void init(String siteId) {
 		this.grid = new AdministratorsGridComponent(
 				() -> siteService.findAllAdmins(siteId),
-				userId -> siteService.removeAdmin(siteId, userId));
+				userId -> siteService.removeAdmin(siteId, userId),
+				currentUserId
+		);
 		this.siteId = siteId;
 
 		addHeader();
