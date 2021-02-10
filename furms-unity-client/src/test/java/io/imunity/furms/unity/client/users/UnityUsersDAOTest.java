@@ -30,7 +30,7 @@ public class UnityUsersDAOTest {
 	@Test
 	public void shouldParseRootAttributes() {
 		UnityClient unityClient = mock(UnityClient.class);
-		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
+		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "string", "/", List.of("val1")))));
 		when(unityClient.get(eq("/entity/user1/groups"), 
@@ -50,7 +50,7 @@ public class UnityUsersDAOTest {
 		UUID id = UUID.randomUUID();
 		String idStr = id.toString();
 		UnityClient unityClient = mock(UnityClient.class);
-		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
+		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/fenix/communities/" + id + "/users", 
 					List.of(new Attribute("attr1", "string", "/fenix/communities/" + id + "/users", List.of("val1")))));
@@ -73,7 +73,7 @@ public class UnityUsersDAOTest {
 		UUID idC = UUID.randomUUID();
 		String idStr = id.toString();
 		UnityClient unityClient = mock(UnityClient.class);
-		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
+		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/fenix/communities/foo/projects/" + id + "/users", 
 					List.of(new Attribute("attr1", "string", "/fenix/communities/" + idC + "/projects/" + id + "/users", List.of("val1")))));
@@ -99,7 +99,7 @@ public class UnityUsersDAOTest {
 		UUID id = UUID.randomUUID();
 		String idStr = id.toString();
 		UnityClient unityClient = mock(UnityClient.class);
-		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
+		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Collections.emptyMap());
 		when(unityClient.get(eq("/entity/user1/groups"), 
@@ -118,7 +118,7 @@ public class UnityUsersDAOTest {
 	@Test
 	public void shouldConvertEmailAttribute() {
 		UnityClient unityClient = mock(UnityClient.class);
-		when(unityClient.get(eq("/entity/user1/groups/attributes"), 
+		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "verifiableEmail", "/", 
 					List.of("{\"value\":\"test@example.com\",\"confirmationData\":{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0},\"tags\":[]}")))));

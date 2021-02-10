@@ -6,12 +6,12 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.unity.client.common.AttributeValueMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
@@ -33,9 +33,9 @@ public class UnityUserMapper {
 	private static User buildUser(GroupMember groupMember) {
 		return User.builder()
 			.id(getId(groupMember))
-			.firstName(getAttributeValue(groupMember, "firstname"))
-			.lastName(getAttributeValue(groupMember, "surname"))
-			.email(getEmailValue(groupMember))
+			.firstName(getFirstAttributeValue(groupMember, "firstname"))
+			.lastName(getFirstAttributeValue(groupMember, "surname"))
+			.email(getFirstAttributeValue(groupMember, "email"))
 			.build();
 	}
 
@@ -47,23 +47,12 @@ public class UnityUserMapper {
 			.orElse(null);
 	}
 
-	//FIXME unify next two, use AttributeValueMapper
-	private static String getAttributeValue(GroupMember groupMember, String attributeValue) {
+	private static String getFirstAttributeValue(GroupMember groupMember, String attributeValue) {
 		return groupMember.getAttributes()
 			.stream()
 			.filter(attribute -> attribute.getName().equals(attributeValue))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.findFirst()
-			.orElse(null);
-	}
-
-	private static String getEmailValue(GroupMember groupMember) {
-		return groupMember.getAttributes()
-			.stream()
-			.filter(attribute -> attribute.getName().equals("email"))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.map(VerifiableEmail::fromJsonString)
-			.map(VerifiableElementBase::getValue)
+			.filter(attribute -> !attribute.getValues().isEmpty())
+			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.getValues().get(0)))
 			.findFirst()
 			.orElse(null);
 	}

@@ -353,9 +353,9 @@ class UnityUsersDAO implements UsersDAO {
 			.toUriString();
 
 		try {
-			return unityClient.get(path, new ParameterizedTypeReference<>() {}, 
+			return unityClient.getWithListParam(path, new ParameterizedTypeReference<>() {}, 
 					Map.of("groupsPatterns", List.of("/", "/fenix/**/users"),
-							"identityType", "identifier"));
+							"identityType", List.of("identifier")));
 		} catch (WebClientResponseException e) {
 			throw new RoleLoadingException(e.getStatusCode().value(), e);
 		}

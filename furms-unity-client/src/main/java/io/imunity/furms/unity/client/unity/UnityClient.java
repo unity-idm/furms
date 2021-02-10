@@ -38,8 +38,8 @@ public class UnityClient {
 		return get(path, typeReference, emptyMap());
 	}
 
-	public <T> T get(String path, Class<T> clazz, Map<String, Object> queryParams) {
-		MultiValueMap<String, String> params = createParams(queryParams);
+	public <T> T get(String path, Class<T> clazz, Map<String, String> queryParams) {
+		MultiValueMap<String, String> params = createStringParams(queryParams);
 		return webClient.get()
 				.uri(uriBuilder -> uri(uriBuilder, path, params))
 				.retrieve()
@@ -47,8 +47,15 @@ public class UnityClient {
 				.block();
 	}
 
-	public <T> T get(String path, ParameterizedTypeReference<T> typeReference, Map<String, Object> queryParams) {
-		MultiValueMap<String, String> params = createParams(queryParams);
+	public <T> T getWithListParam(String path, ParameterizedTypeReference<T> typeReference, Map<String, List<String>> queryParams) {
+		return get(path, typeReference, createListParams(queryParams));
+	}
+	
+	public <T> T get(String path, ParameterizedTypeReference<T> typeReference, Map<String, String> queryParams) {
+		return get(path, typeReference, createStringParams(queryParams));
+	}
+	
+	private <T> T get(String path, ParameterizedTypeReference<T> typeReference, MultiValueMap<String, String> params) {
 		return webClient.get()
 			.uri(uriBuilder -> uri(uriBuilder, path, params))
 			.retrieve()
@@ -64,8 +71,8 @@ public class UnityClient {
 		post(path, body, emptyMap());
 	}
 
-	public void post(String path, Object body, Map<String, Object> queryParams) {
-		MultiValueMap<String, String> params = createParams(queryParams);
+	public void post(String path, Object body, Map<String, String> queryParams) {
+		MultiValueMap<String, String> params = createStringParams(queryParams);
 		webClient.post()
 				.uri(uriBuilder -> uri(uriBuilder, path, params))
 				.bodyValue(body == null ? "" : body)
@@ -94,8 +101,8 @@ public class UnityClient {
 		put(path, null);
 	}
 	
-	public void put(String path, Object body, Map<String, Object> queryParams) {
-		MultiValueMap<String, String> params = createParams(queryParams);
+	public void put(String path, Object body, Map<String, String> queryParams) {
+		MultiValueMap<String, String> params = createStringParams(queryParams);
 		webClient.put()
 				.uri(uriBuilder -> uri(uriBuilder, path, params))
 				.bodyValue(body == null ? "" : body)
@@ -103,26 +110,24 @@ public class UnityClient {
 				.bodyToMono(Void.class).block();
 	}
 
-	public void delete(String path, Map<String, Object> queryParams) {
-		MultiValueMap<String, String> params = createParams(queryParams);
+	public void delete(String path, Map<String, String> queryParams) {
+		MultiValueMap<String, String> params = createStringParams(queryParams);
 		webClient.delete()
 				.uri(uriBuilder -> uri(uriBuilder, path, params))
 				.retrieve()
 				.bodyToMono(Void.class).block();
 	}
 
-	private MultiValueMap<String, String> createParams(Map<String, Object> queryParams) {
-		@SuppressWarnings("unchecked") //FIXME - actually not very smart - can cause problems
-		Map<String, List<String>> mutatedQueryParams = queryParams.entrySet().stream()
-				.collect(toMap(entry -> entry.getKey(),
-						entry -> {
-							Object value = entry.getValue();
-							return value instanceof List ? 
-									(List<String>)value : List.of(value.toString());
-						}));
-		return new LinkedMultiValueMap<>(mutatedQueryParams);
+	private MultiValueMap<String, String> createListParams(Map<String, List<String>> queryParams) {
+		return new LinkedMultiValueMap<>(queryParams);
 	}
 
+	private MultiValueMap<String, String> createStringParams(Map<String, String> queryParams) {
+		Map<String, List<String>> mutatedQueryParams = queryParams.entrySet().stream()
+				.collect(toMap(entry -> entry.getKey(), entry -> List.of(entry.getValue().toString())));
+		return new LinkedMultiValueMap<>(mutatedQueryParams);
+	}
+	
 	private URI uri(final UriBuilder uriBuilder, String path) {
 		return uri(uriBuilder, path, null);
 	}

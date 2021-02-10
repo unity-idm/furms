@@ -145,6 +145,7 @@ class UnitySiteWebClientTest {
 		verify(unityClient, times(1)).delete(anyString(), any());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void shouldGetSiteAdministrators() {
 		//given

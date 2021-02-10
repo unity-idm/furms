@@ -76,7 +76,7 @@ class UnityClientTest {
 
 		//when
 		SampleDto response = unityClient.get("/path/to/unity/test", SampleDto.class,
-				Map.of("param1", "stringValue", "param2", 1));
+				Map.of("param1", "stringValue", "param2", "1"));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);
@@ -135,7 +135,7 @@ class UnityClientTest {
 				.build()));
 
 		//when
-		unityClient.delete("/path/to/unity/test", Map.of("recursive", TRUE));
+		unityClient.delete("/path/to/unity/test", Map.of("recursive", TRUE.toString()));
 
 		//then
 		VerificationResult verificationResult = server.countRequestsMatching(request);

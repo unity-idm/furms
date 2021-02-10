@@ -125,7 +125,7 @@ class UnitySiteWebClient implements SiteWebClient {
 	public void delete(String id) {
 		check(!isEmpty(id), () -> new IllegalArgumentException("Could not delete Site from Unity. Missing Site ID"));
 		Map<String, Object> uriVariables = uriVariables(id);
-		Map<String, Object> queryParams = Map.of(RECURSIVE_PARAM, TRUE);
+		Map<String, String> queryParams = Map.of(RECURSIVE_PARAM, TRUE.toString());
 		String deleteSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
 				.pathSegment(SITE_PATTERN)
@@ -165,7 +165,7 @@ class UnitySiteWebClient implements SiteWebClient {
 	public void addAdmin(String siteId, String userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator in Unity. Missing Site ID or User ID"));
-		Map<String, Object> identityTypeParam = Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY);
+		Map<String, String> identityTypeParam = Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY);
 
 		String addAdminPath = siteAdminPath(siteId, userId);
 		try {

@@ -92,7 +92,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 			throw new IllegalArgumentException("Missing Community ID");
 		}
 		Map<String, Object> uriVariables = uriVariables(id);
-		Map<String, Object> queryParams = Map.of(RECURSIVE, TRUE);
+		Map<String, String> queryParams = Map.of(RECURSIVE, TRUE.toString());
 		String deleteCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
 				.pathSegment(COMMUNITY_PATTERN)

@@ -68,7 +68,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			.uriVariables(uriVariables)
 			.buildAndExpand().encode().toUriString();
 
-		unityClient.post(groupPath, null, Map.of(WITH_PARENTS, true));
+		unityClient.post(groupPath, null, Map.of(WITH_PARENTS, TRUE.toString()));
 		updateGroupName(projectGroup);
 		LOG.debug("Project group {} under Community group {} was crated in Unity", projectGroup.getId(), projectGroup.getCommunityId());
 	}
@@ -100,7 +100,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			throw new IllegalArgumentException("Missing Community or Project ID");
 		}
 		Map<String, Object> uriVariables = getUriVariables(communityId, projectId);
-		Map<String, Object> queryParams = Map.of(RECURSIVE, TRUE);
+		Map<String, String> queryParams = Map.of(RECURSIVE, TRUE.toString());
 		String deleteCommunityPath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
 				.pathSegment(PROJECT_GROUP_PATTERN)
