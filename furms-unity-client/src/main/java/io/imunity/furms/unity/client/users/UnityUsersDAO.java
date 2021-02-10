@@ -98,6 +98,7 @@ class UnityUsersDAO implements UsersDAO {
 		return getUsers(FENIX_GROUP);
 	}
 
+	//FIXME
 	@Override
 	public Optional<User> findByEmail(String email) {
 		if (Strings.isBlank(email)) {
