@@ -21,3 +21,7 @@ spring:
         provider:
           unity:
             revoke: ${furms.unity.url}/oauth2/revoke
+
+logging:
+   level:
+      org.springframework: DEBUG
