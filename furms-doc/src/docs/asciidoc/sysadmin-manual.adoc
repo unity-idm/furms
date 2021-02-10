@@ -161,19 +161,19 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 
 
-|unity.storage.url
+|unity.db.host
 |string
 |The hostname or IP address (optionally with port) that points to the PostgreSQL instance e.g. localhost:5432
 
-|unity.storage.dbName
+|unity.db.dbName
 |string
 |PostgreSQL database name used by Unity-IdM instance.
 
-|unity.storage.username
+|unity.db.username
 |string
 |Unity-IdM database username.
 
-|unity.storage.password
+|unity.db.password
 |string
 |Unity-IdM database password.
 
@@ -253,19 +253,19 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 
 
-|furmsServer.storage.url
+|furmsServer.db.host
 |string
 |The hostname or IP address (optionally with port) that points to the PostgreSQL instance e.g. localhost:5432
 
-|furmsServer.storage.dbName
+|furmsServer.db.dbName
 |string
 |PostgreSQL database name used by FURMS service instance.
 
-|furmsServer.storage.username
+|furmsServer.db.username
 |string
 |FURMS service database username
 
-|furmsServer.storage.password
+|furmsServer.db.password
 |string
 |FURMS service database password
 
