@@ -12,10 +12,10 @@ public class CommunityMembership {
 	public final String id;
 	public final String name;
 	public final Set<ProjectMembership> projects;
-	public final Set<Attribute> attributes;
+	public final Set<UserAttribute> attributes;
 	
 	public CommunityMembership(String id, String name, Collection<ProjectMembership> projects,
-			Collection<Attribute> attributes) {
+			Collection<UserAttribute> attributes) {
 		this.id = id;
 		this.name = name;
 		this.projects = Set.copyOf(projects);

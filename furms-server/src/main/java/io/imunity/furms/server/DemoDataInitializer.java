@@ -66,10 +66,8 @@ class DemoDataInitializer {
 
 	private void initCommunitiesAndProjects() throws IOException {
 		
-		String testAdminId = usersDAO.getAllUsers().stream()
-				.filter(user -> "admin@domain.com".equals(user.email))
-				.map(user -> user.id).findFirst()
-				.orElse(null);
+		String testAdminId = usersDAO.findByEmail("admin@domain.com")
+				.map(user -> user.id).orElse(null);
 		if(communityRepository.findAll().isEmpty()) {
 			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();
 			Community community = Community.builder()

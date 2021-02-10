@@ -15,6 +15,10 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
 
@@ -30,15 +34,17 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	}
 
 	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType, String id) {
-		if(!authentication.isAuthenticated() || hasAnonymousRole())
+		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
 		FurmsAuthenticatedUser principal = (FurmsAuthenticatedUser) authentication.getPrincipal();
 		ResourceId resourceId = new ResourceId(id, resourceType);
-		return capabilityCollector.getCapabilities(principal.getRoles(), resourceId).contains(capability);
+		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.getRoles(), resourceId);
+		capabilities.add(AUTHENTICATED);
+		return capabilities.contains(capability);
 	}
 
-	private boolean hasAnonymousRole() {
+	private boolean isAnonymousUser() {
 		return authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.anyMatch(role -> role.equals("ROLE_ANONYMOUS"));

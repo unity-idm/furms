@@ -24,6 +24,7 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
 import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.rest.cidp.CentralIdPRestAPIController;
 
 @WebMvcTest(controllers = {CentralIdPRestAPIController.class}, 
 	excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
