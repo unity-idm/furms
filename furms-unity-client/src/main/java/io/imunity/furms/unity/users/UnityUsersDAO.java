@@ -57,7 +57,6 @@ import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.roles.RoleLoadingException;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.UnityGroupParser;
@@ -278,7 +277,11 @@ class UnityUsersDAO implements UsersDAO {
 			.path("/status/")
 			.path(unityStatus.name())
 			.toUriString();
-		unityClient.put(uri, null, Map.of("identityType", "identifier"));
+		try {
+			unityClient.put(uri, null, Map.of("identityType", "identifier"));
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getMessage(), e);
+		}
 	}
 
 	@Override
@@ -364,7 +367,7 @@ class UnityUsersDAO implements UsersDAO {
 					Map.of("groupsPatterns", List.of("/", "/fenix/**/users"),
 							"identityType", List.of("identifier")));
 		} catch (WebClientResponseException e) {
-			throw new RoleLoadingException(e.getStatusCode().value(), e);
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 	
@@ -379,7 +382,7 @@ class UnityUsersDAO implements UsersDAO {
 			return unityClient.get(path, new ParameterizedTypeReference<>() {}, 
 					Map.of("identityType", "identifier"));
 		} catch (WebClientResponseException e) {
-			throw new RoleLoadingException(e.getStatusCode().value(), e);
+			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
 	
