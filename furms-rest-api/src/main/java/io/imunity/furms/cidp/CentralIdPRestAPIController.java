@@ -5,14 +5,17 @@
 package io.imunity.furms.cidp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.openapi.APIDocConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,6 +71,12 @@ public class CentralIdPRestAPIController {
 	@GetMapping("/user/{fenixUserId}/status")
 	public UserStatusHolder getUserStatus(@PathVariable("fenixUserId") String fenixUserId) {
 
-		return new UserStatusHolder(userService.getUserStatus(fenixUserId));
+		try
+		{
+			return new UserStatusHolder(userService.getUserStatus(fenixUserId));
+		} catch (UnknownUserException e) {
+			throw new ResponseStatusException(
+				           HttpStatus.NOT_FOUND, "User " + fenixUserId + " not found", e);
+		}
 	}
 }

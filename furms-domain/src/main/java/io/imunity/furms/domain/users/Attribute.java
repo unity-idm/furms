@@ -21,14 +21,12 @@ public class Attribute {
 	}
 
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(name, values);
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -40,8 +38,7 @@ public class Attribute {
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return String.format("Attribute [name=%s, values=%s]", name, values);
 	}
 }

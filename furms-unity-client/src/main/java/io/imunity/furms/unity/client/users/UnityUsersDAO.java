@@ -55,6 +55,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.roles.RoleLoadingException;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.common.AttributeValueMapper;
@@ -284,10 +285,14 @@ class UnityUsersDAO implements UsersDAO {
 				.path(ENTITY_BASE)
 				.path(fenixUserId)
 				.toUriString();
-		ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
-		String statusStr = response.get("entityInformation").get("state").asText();
-		EntityState unityState = EntityState.valueOf(statusStr);
-		return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;
+		try {
+			ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
+			String statusStr = response.get("entityInformation").get("state").asText();
+			EntityState unityState = EntityState.valueOf(statusStr);
+			return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;
+		} catch (WebClientResponseException e) {
+			throw new UnityFailureException(e.getMessage(), e);
+		}
 	}
 	
 	// TODO: this method should directly query unity entity admin endpoint to get the user details

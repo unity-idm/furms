@@ -22,10 +22,12 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.users.Attribute;
 import io.imunity.furms.domain.users.CommunityMembership;
+import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
@@ -79,13 +81,23 @@ class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public void setUserStatus(String fenixUserId, UserStatus status) {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
-		usersDAO.setUserStatus(fenixUserId, status);
+		try {
+			usersDAO.setUserStatus(fenixUserId, status);
+		} catch (UnityFailureException e) {
+			LOG.info("Failed to resolve user", e);
+			throw new UnknownUserException(fenixUserId);
+		}
 	}
 
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserStatus getUserStatus(String fenixUserId) {
-		return usersDAO.getUserStatus(fenixUserId);
+		try {
+			return usersDAO.getUserStatus(fenixUserId);
+		} catch (UnityFailureException e) {
+			LOG.info("Failed to resolve user", e);
+			throw new UnknownUserException(fenixUserId);
+		}
 	}
 	
 	@Override
@@ -97,12 +109,17 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserRecord getUserRecord(String fenixUserId) {
-		UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
-		UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
-		Set<CommunityMembership> communityMembership = 
-				membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
-		Set<Attribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
-		return new UserRecord(userStatus, rootAttribtues, communityMembership);
+		try {
+			UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
+			UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
+			Set<CommunityMembership> communityMembership = 
+					membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
+			Set<Attribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
+			return new UserRecord(userStatus, rootAttribtues, communityMembership);
+		} catch (UnityFailureException e) {
+			LOG.info("Failed to resolve user", e);
+			throw new UnknownUserException(fenixUserId);
+		}
 	}
 }
 
