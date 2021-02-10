@@ -93,7 +93,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="siteId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="siteId")
 	public void inviteAdmin(String communityId, String email) {
 		Optional<User> user = usersDAO.findByEmail(email);
 		if (user.isEmpty()) {
@@ -103,14 +103,14 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void addAdmin(String communityId, String userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(String communityId, String userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);

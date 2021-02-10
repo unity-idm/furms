@@ -21,6 +21,7 @@ import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.*;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
 import static java.util.function.Function.identity;
@@ -87,23 +88,31 @@ public class CommunityView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(String communityId, String communityName) {
-		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> communityService.findAllAdmins(communityId),
-			userId -> communityService.removeAdmin(communityId, userId),
-			currentUserId
-		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
 			getTranslation("view.fenix-admin.community.button.demit"),
 			() -> communityService.isAdmin(communityId, currentUserId)
+		);
+		AdministratorsGridComponent grid = new AdministratorsGridComponent(
+			() -> communityService.findAllAdmins(communityId),
+			userId -> {
+				communityService.removeAdmin(communityId, userId);
+				membershipLayout.loadAppropriateButton();
+			},
+			currentUserId
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
 			grid.reloadGrid();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
-			communityService.removeAdmin(communityId, currentUserId);
-			grid.reloadGrid();
+			if (communityService.findAllAdmins(communityId).size() > 1) {
+				handleExceptions(() -> communityService.removeAdmin(communityId, currentUserId));
+				grid.reloadGrid();
+			} else {
+				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+			}
+			membershipLayout.loadAppropriateButton();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.fenix-admin.community.page.header", communityName),
