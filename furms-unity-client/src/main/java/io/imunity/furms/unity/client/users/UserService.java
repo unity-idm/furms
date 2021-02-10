@@ -7,7 +7,8 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
-import io.imunity.furms.unity.client.unity.UnityClient;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,8 +19,8 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static io.imunity.furms.unity.client.common.UnityConst.*;
-import static io.imunity.furms.unity.client.common.UnityPaths.*;
+import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityPaths.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 

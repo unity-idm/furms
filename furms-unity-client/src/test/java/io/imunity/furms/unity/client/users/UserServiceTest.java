@@ -7,7 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
-import io.imunity.furms.unity.client.unity.UnityClient;
+import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.unity.client.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityConst.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;

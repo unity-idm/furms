@@ -5,7 +5,7 @@
 
 package io.imunity.furms.unity.common;
 
-import static io.imunity.furms.unity.client.common.UnityPaths.USERS_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 
 public class UnityConst {
 	public static final String IDENTITY_TYPE = "identityType";
