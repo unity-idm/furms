@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.users;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
@@ -20,10 +21,10 @@ import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
@@ -80,6 +81,8 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public void setUserStatus(String fenixUserId, UserStatus status) {
+		checkNotNull(status);
+		checkNotNull(fenixUserId);
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		try {
 			usersDAO.setUserStatus(fenixUserId, status);
@@ -92,6 +95,7 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserStatus getUserStatus(String fenixUserId) {
+		checkNotNull(fenixUserId);
 		try {
 			return usersDAO.getUserStatus(fenixUserId);
 		} catch (UnityFailureException e) {
@@ -109,6 +113,7 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserRecord getUserRecord(String fenixUserId) {
+		checkNotNull(fenixUserId);
 		try {
 			UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
 			UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);

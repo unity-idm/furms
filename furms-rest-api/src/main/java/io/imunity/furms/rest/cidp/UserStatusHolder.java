@@ -4,12 +4,16 @@
  */
 package io.imunity.furms.rest.cidp;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.imunity.furms.domain.users.UserStatus;
 
 public class UserStatusHolder {
 	public final UserStatus status;
 
-	public UserStatusHolder(UserStatus status) {
+	@JsonCreator
+	public UserStatusHolder(@JsonProperty("status") UserStatus status) {
 		this.status = status;
 	}
 }

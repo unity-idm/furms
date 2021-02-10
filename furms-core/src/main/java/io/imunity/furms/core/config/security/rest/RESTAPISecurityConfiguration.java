@@ -44,6 +44,7 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 			.antMatcher("/rest-api/**")
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+			.csrf().disable()
 			.authorizeRequests().anyRequest().authenticated().and()
 			.httpBasic();
 	}

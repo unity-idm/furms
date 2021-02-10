@@ -278,7 +278,7 @@ class UnityUsersDAO implements UsersDAO {
 			.path("/status/")
 			.path(unityStatus.name())
 			.toUriString();
-		unityClient.put(uri, Map.of("identityType", "identifier"));
+		unityClient.put(uri, null, Map.of("identityType", "identifier"));
 	}
 
 	@Override
