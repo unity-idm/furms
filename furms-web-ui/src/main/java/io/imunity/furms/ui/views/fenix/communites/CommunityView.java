@@ -5,51 +5,55 @@
 
 package io.imunity.furms.ui.views.fenix.communites;
 
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ADMINISTRATORS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ALLOCATIONS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.PARAM_NAME;
-import static java.util.function.Function.identity;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-
+import com.vaadin.flow.router.*;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
-import io.imunity.furms.ui.components.FurmsTabs;
-import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+
+import java.util.*;
+
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
+import static java.util.function.Function.identity;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.community.page.title")
 public class CommunityView extends FurmsViewComponent {
 	private final CommunityService communityService;
+	private final UserService userService;
 
-	private final Tab defaultTab;
-	private final Tabs tabs;
-	private final Map<String, Tab> paramToTab = new HashMap<>();
-	private final List<RouterLink> links = new ArrayList<>();
+	private Tab defaultTab;
+	private Tabs tabs;
+	private Map<String, Tab> paramToTab;
+	private List<RouterLink> links;
+	private final String currentUserId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	CommunityView(CommunityService communityService) {
-		this.communityService = communityService;
+	private Div page1;
+	private Div page2;
 
+	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService) {
+		this.communityService = communityService;
+		this.userService = userService;
+		this.currentUserId = authzService.getCurrentUserId();
+	}
+
+	private void loadTabs() {
+		paramToTab = new HashMap<>();
+		links = new ArrayList<>();
+		page1 = new Div();
+		page2 = new Div();
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
@@ -63,10 +67,6 @@ public class CommunityView extends FurmsViewComponent {
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);
 		links.add(allocRouterLink);
 
-		Div page1 = new Div();
-		page1.setText("Page#1");
-
-		Div page2 = new Div();
 		page2.setText("Page#2");
 		page2.setVisible(false);
 
@@ -87,8 +87,50 @@ public class CommunityView extends FurmsViewComponent {
 		getContent().add(tabs, pages);
 	}
 
+	private void loadPage1Content(String communityId, String communityName) {
+		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
+			getTranslation("view.fenix-admin.community.button.join"),
+			getTranslation("view.fenix-admin.community.button.demit"),
+			() -> communityService.isAdmin(communityId, currentUserId)
+		);
+		AdministratorsGridComponent grid = new AdministratorsGridComponent(
+			() -> communityService.findAllAdmins(communityId),
+			userId -> {
+				communityService.removeAdmin(communityId, userId);
+				membershipLayout.loadAppropriateButton();
+			},
+			currentUserId
+		);
+		membershipLayout.addJoinButtonListener(event -> {
+			communityService.addAdmin(communityId, currentUserId);
+			grid.reloadGrid();
+		});
+		membershipLayout.addDemitButtonListener(event -> {
+			if (communityService.findAllAdmins(communityId).size() > 1) {
+				handleExceptions(() -> communityService.removeAdmin(communityId, currentUserId));
+				grid.reloadGrid();
+			} else {
+				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+			}
+			membershipLayout.loadAppropriateButton();
+		});
+		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
+			getTranslation("view.fenix-admin.community.page.header", communityName),
+			membershipLayout
+		);
+		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		inviteUser.addInviteAction(event -> {
+			communityService.inviteAdmin(communityId, inviteUser.getEmail());
+			grid.reloadGrid();
+			membershipLayout.loadAppropriateButton();
+			inviteUser.clear();
+		});
+		page1.add(headerLayout, inviteUser, grid);
+	}
+
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String communityId) {
+		getContent().removeAll();
 		Community community = handleExceptions(() -> communityService.findById(communityId))
 			.flatMap(identity())
 			.orElseThrow(IllegalStateException::new);
@@ -97,10 +139,12 @@ public class CommunityView extends FurmsViewComponent {
 			.getParameters()
 			.getOrDefault(PARAM_NAME, List.of(ADMINISTRATORS_PARAM))
 			.iterator().next();
+		loadTabs();
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), communityId));
 		breadCrumbParameter = new BreadCrumbParameter(community.getId(), community.getName(), param);
+		loadPage1Content(communityId, community.getName());
 	}
 
 	@Override

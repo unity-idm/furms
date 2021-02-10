@@ -36,6 +36,7 @@ import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -47,6 +48,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private final Supplier<List<User>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
+	private boolean logout;
 
 	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
 		this.fetchUsersAction = fetchUsersAction;
@@ -56,6 +58,12 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		addSearchForm();
 		addGrid();
 		setPadding(false);
+	}
+
+	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction,
+	                                   String currentUserId, boolean logout) {
+		this(fetchUsersAction, removeUserAction, currentUserId);
+		this.logout = logout;
 	}
 
 	public void reloadGrid() {
@@ -136,8 +144,14 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.yourself.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (loadUsers().size() > 1) {
-				UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
-				handleExceptions(() -> removeUserAction.accept(currentUserId));
+				getResultOrException(() -> removeUserAction.accept(currentUserId))
+					.getThrowable().ifPresentOrElse(
+						e -> showErrorNotification(getTranslation(e.getMessage())),
+						() -> {
+							if(logout)
+								UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
+						}
+				);
 				reloadGrid();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));

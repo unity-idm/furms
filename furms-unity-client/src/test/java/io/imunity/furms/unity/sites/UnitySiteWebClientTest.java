@@ -5,54 +5,39 @@
 
 package io.imunity.furms.unity.sites;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.unity.client.UnityClient;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.Identity;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class UnitySiteWebClientTest {
 
 	@Mock
 	private UnityClient unityClient;
+
+	@Mock
+	private UserService userService;
 
 	@InjectMocks
 	private UnitySiteWebClient unitySiteWebClient;
@@ -145,18 +130,19 @@ class UnitySiteWebClientTest {
 		verify(unityClient, times(1)).delete(anyString(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	void shouldGetSiteAdministrators() {
 		//given
-		String id = UUID.randomUUID().toString();
-		when(unityClient.get(contains(id), any(ParameterizedTypeReference.class)))
-				.thenReturn(List.of(createGroupMember(id, 1, true),
-						createGroupMember(id, 2, false),
-						createGroupMember(id, 3, true)));
+		String siteId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/sites/"+ siteId +"/users";
+		when(userService.getAllUsersByRole(groupPath, SITE_ADMIN))
+			.thenReturn(List.of(
+				new User("1", "firstName", "lastName", "email"),
+				new User("3", "firstName", "lastName", "email"))
+			);
 
 		//when
-		List<User> admins = unitySiteWebClient.getAllAdmins(id);
+		List<User> admins = unitySiteWebClient.getAllAdmins(siteId);
 
 		//then
 		assertThat(admins).hasSize(2);
@@ -169,46 +155,43 @@ class UnitySiteWebClientTest {
 		//given
 		String siteId = "siteId";
 		String userId = "userId";
-		String groupPath = "/group/%2Ffenix%2Fsites%2F"+siteId+"%2Fusers/entity/"+userId;
-		String attributePath = "/entity/"+userId+"/attribute";
-		Attribute attribute = new Attribute(SITE_ADMIN.unityRoleAttribute, "enumeration",
-				"/fenix/sites/"+siteId+"/users", List.of(SITE_ADMIN.unityRoleValue));
-
+		String groupPath = "/fenix/sites/"+ siteId +"/users";
 		//when
 		unitySiteWebClient.addAdmin(siteId, userId);
 
 		//then
-		verify(unityClient, times(1)).post(eq(groupPath), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
-		verify(unityClient, times(1)).put(eq(attributePath), eq(attribute), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
+		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
+		verify(userService, times(1)).addUserToGroup(eq(userId), eq(groupPath));
 	}
 
 	@Test
-	void shouldRemoveAdmin() {
+	void shouldRemoveAdminFromGroup() {
 		//given
 		String siteId = "siteId";
 		String userId = "userId";
-		String groupPath = "/group/%2Ffenix%2Fsites%2F"+siteId+"%2Fusers/entity/"+userId;
+		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
 		//when
 		unitySiteWebClient.removeAdmin(siteId, userId);
 
 		//then
-		verify(unityClient, times(1)).delete(eq(groupPath), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
 	}
 
-	private GroupMember createGroupMember(String id, long entityId, boolean isAdmmin) {
-		List<AttributeExt> attributes = new ArrayList<>();
-		attributes.add(new AttributeExt(new Attribute("email", "", id,
-				List.of("{\"value\":\"test@domain.com\",\"confirmationData\":{\"confirmed\":true," +
-						"\"confirmationDate\":1611875237898,\"sentRequestAmount\":0},\"tags\":[]}")), true));
-		if (isAdmmin) {
-			attributes.add(new AttributeExt(new Attribute(
-					SITE_ADMIN.unityRoleAttribute, "", id, List.of(SITE_ADMIN.unityRoleValue)), true));
-		}
-		return new GroupMember(id,
-				new Entity(List.of(new Identity(PERSISTENT_IDENTITY, "", entityId, String.valueOf(entityId))),
-						new EntityInformation(entityId), new CredentialInfo("string", Map.of())),
-				attributes);
-	}
+	@Test
+	void shouldRemoveAdminRole() {
+		//given
+		String siteId = "siteId";
+		String userId = "userId";
+		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
+		//when
+		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(SITE_ADMIN))).thenReturn(Set.of(SITE_ADMIN.unityRoleValue, SITE_SUPPORT.unityRoleValue));
+		unitySiteWebClient.removeAdmin(siteId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
+		verify(userService, times(0)).removeUserFromGroup(eq(userId), eq(groupPath));
+	}
 }

@@ -6,7 +6,9 @@
 package io.imunity.furms.api.communites;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.users.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,4 +22,14 @@ public interface CommunityService {
 	void update(Community community);
 
 	void delete(String id);
+
+	List<User> findAllAdmins(String communityId);
+
+	void inviteAdmin(String communityId, String email);
+
+	void addAdmin(String communityId, String userId);
+
+	void removeAdmin(String communityId, String userId);
+
+	boolean isAdmin(String communityId, String userId);
 }

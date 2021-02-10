@@ -5,53 +5,41 @@
 
 package io.imunity.furms.unity.sites;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
-import static io.imunity.furms.unity.common.UnityConst.ID;
-import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS;
-import static io.imunity.furms.unity.common.UnityPaths.META;
-import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
-import static io.imunity.furms.utils.ValidationUtils.check;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.users.UnityUserMapper;
+import io.imunity.furms.unity.client.users.UserService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMember;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.*;
+import static io.imunity.furms.utils.ValidationUtils.check;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnitySiteWebClient implements SiteWebClient {
 
 	private static final String RECURSIVE_PARAM = "recursive";
-	private static final String ENUM_ATTRIBUTE_VALUE_SYNTAX = "enumeration";
 
 	private final UnityClient unityClient;
+	private final UserService userService;
 
-	UnitySiteWebClient(UnityClient unityClient) {
+	public UnitySiteWebClient(UnityClient unityClient, UserService userService) {
 		this.unityClient = unityClient;
+		this.userService = userService;
 	}
 
 	@Override
@@ -140,55 +128,22 @@ class UnitySiteWebClient implements SiteWebClient {
 
 
 	@Override
-	public List<User> getAllAdmins(String id) {
-		check(!isEmpty(id),
+	public List<User> getAllAdmins(String siteId) {
+		check(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
-		String sitePath = siteUsersPath(id);
-		String path = UriComponentsBuilder.newInstance()
-				.path(GROUP_MEMBERS)
-				.pathSegment("{" + GROUP_PATH + "}")
-				.buildAndExpand(Map.of(GROUP_PATH, sitePath))
-				.encode()
-				.toUriString();
-
-		return unityClient.get(path, new ParameterizedTypeReference<List<GroupMember>>() {}).stream()
-				.filter(groupMember -> groupMember.getAttributes().stream()
-						.anyMatch(attribute -> attribute.getName().equals(SITE_ADMIN.unityRoleAttribute)
-											&& attribute.getValues().contains(SITE_ADMIN.unityRoleValue)))
-				.map(UnityUserMapper::map)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toList());
+		String sitePath = getSitePath(siteId);
+		return userService.getAllUsersByRole(sitePath, SITE_ADMIN);
 	}
+
 
 	@Override
 	public void addAdmin(String siteId, String userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator in Unity. Missing Site ID or User ID"));
-		Map<String, String> identityTypeParam = Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY);
 
-		String addAdminPath = siteAdminPath(siteId, userId);
-		try {
-			unityClient.post(addAdminPath, identityTypeParam);
-		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getMessage(), e);
-		}
-
-		Attribute attribute = new Attribute(SITE_ADMIN.unityRoleAttribute,
-				ENUM_ATTRIBUTE_VALUE_SYNTAX,
-				siteUsersPath(siteId),
-				List.of(SITE_ADMIN.unityRoleValue));
-		String setAttributePath = UriComponentsBuilder.newInstance()
-				.path(ENTITY_BASE)
-				.path("{" + ID + "}")
-				.path(ATTRIBUTE_PATTERN)
-				.buildAndExpand(Map.of(ID, userId))
-				.encode().toUriString();
-		try {
-			unityClient.put(setAttributePath, attribute, identityTypeParam);
-		} catch (WebClientResponseException e) {
-			throw new UnityFailureException(e.getMessage(), e);
-		}
+		String group = getSitePath(siteId);
+		userService.addUserToGroup(userId, group);
+		userService.addUserRole(userId, group, SITE_ADMIN);
 	}
 
 	@Override
@@ -196,8 +151,11 @@ class UnitySiteWebClient implements SiteWebClient {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site Administrator in Unity. Missing Site ID or User ID"));
 
-		String path = siteAdminPath(siteId, userId);
-		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+		String group = getSitePath(siteId);
+		if(userService.getRoleValues(userId, group, SITE_ADMIN).size() > 1)
+			userService.removeUserRole(userId, group, SITE_ADMIN);
+		else
+			userService.removeUserFromGroup(userId, group);
 	}
 
 	private Map<String, Object> uriVariables(Site site) {
@@ -208,19 +166,7 @@ class UnitySiteWebClient implements SiteWebClient {
 		return Map.of(ID, id);
 	}
 
-	private String siteAdminPath(String siteId, String userId) {
-		String sitePath = siteUsersPath(siteId);
-		return UriComponentsBuilder.newInstance()
-				.path(GROUP_BASE)
-				.pathSegment("{" + GROUP_PATH + "}")
-				.path(ENTITY_BASE)
-				.path("{" + ID + "}")
-				.buildAndExpand(Map.of(GROUP_PATH, sitePath, ID, userId))
-				.encode()
-				.toUriString();
-	}
-
-	private String siteUsersPath(String siteId) {
+	private String getSitePath(String siteId) {
 		return UriComponentsBuilder.newInstance()
 				.path(SITE_PATTERN)
 				.path(USERS_PATTERN)

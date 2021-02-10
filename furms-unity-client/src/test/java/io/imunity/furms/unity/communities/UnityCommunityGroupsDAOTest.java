@@ -5,36 +5,35 @@
 
 package io.imunity.furms.unity.communities;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.UUID;
-
+import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.unity.client.UnityClient;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class UnityCommunityGroupsDAOTest {
 
 	@Mock
 	private UnityClient unityClient;
+
+	@Mock
+	private UserService userService;
 
 	@InjectMocks
 	private UnityCommunityGroupsDAO unityCommunityWebClient;
@@ -106,4 +105,52 @@ class UnityCommunityGroupsDAOTest {
 		verify(unityClient, times(1)).delete(anyString(), any());
 	}
 
+	@Test
+	void shouldGetSiteAdministrators() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId +"/users";
+		when(userService.getAllUsersByRole(groupPath, COMMUNITY_ADMIN))
+			.thenReturn(List.of(
+				new User("1", "firstName", "lastName", "email"),
+				new User("3", "firstName", "lastName", "email"))
+			);
+
+		//when
+		List<User> admins = unityCommunityWebClient.getAllAdmins(communityId);
+
+		//then
+		assertThat(admins).hasSize(2);
+		assertThat(admins.stream()
+			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+	}
+
+	@Test
+	void shouldAddAdminToSite() {
+		//given
+		String communityId = "communityId";
+		String userId = "userId";
+		String groupPath = "/fenix/communities/"+ communityId +"/users";
+		//when
+		unityCommunityWebClient.addAdmin(communityId, userId);
+
+		//then
+		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(COMMUNITY_ADMIN));
+		verify(userService, times(1)).addUserToGroup(eq(userId), eq(groupPath));
+	}
+
+	@Test
+	void shouldRemoveAdminRole() {
+		//given
+		String communityId = "communityId";
+		String userId = "userId";
+		String groupPath = "/fenix/communities/"+ communityId +"/users";
+
+		//when
+		unityCommunityWebClient.removeAdmin(communityId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(COMMUNITY_ADMIN));
+	}
 }
