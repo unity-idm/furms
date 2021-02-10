@@ -12,13 +12,13 @@ import java.util.Set;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 
 public class UserAttributes {
-	public final Set<Attribute> rootAttributes;
-	public final Map<ResourceId, Set<Attribute>> attributesByResource;
+	public final Set<UserAttribute> rootAttributes;
+	public final Map<ResourceId, Set<UserAttribute>> attributesByResource;
 	
-	public UserAttributes(Set<Attribute> rootAttributes, Map<ResourceId, Set<Attribute>> attributesByResource)
+	public UserAttributes(Set<UserAttribute> rootAttributes, Map<ResourceId, Set<UserAttribute>> attributesByResource)
 	{
 		this.rootAttributes = Set.copyOf(rootAttributes);
-		Map<ResourceId, Set<Attribute>> byResourceCopy = new HashMap<>(attributesByResource.size());
+		Map<ResourceId, Set<UserAttribute>> byResourceCopy = new HashMap<>(attributesByResource.size());
 		attributesByResource.forEach((key, value) -> byResourceCopy.put(key, Set.copyOf(value)));
 		this.attributesByResource = Collections.unmodifiableMap(byResourceCopy);
 	}

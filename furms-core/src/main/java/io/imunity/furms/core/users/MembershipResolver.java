@@ -19,7 +19,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.users.Attribute;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.ProjectMembership;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -37,13 +37,13 @@ class MembershipResolver {
 		this.projectsDAO = projectsDAO;
 	}
 	
-	Set<Attribute> filterExposedAttribtues(Set<Attribute> allAttribtues) {
+	Set<UserAttribute> filterExposedAttribtues(Set<UserAttribute> allAttribtues) {
 		return allAttribtues.stream()
 				.filter(exposedAttributePredicate())
 				.collect(Collectors.toSet());
 	}
 	
-	Set<CommunityMembership> resolveCommunitiesMembership(Map<ResourceId, Set<Attribute>> attributesByResource) {
+	Set<CommunityMembership> resolveCommunitiesMembership(Map<ResourceId, Set<UserAttribute>> attributesByResource) {
 		return attributesByResource.keySet().stream()
 				.filter(resId -> resId.type == ResourceType.COMMUNITY)
 				.map(resId -> resolveCommunityMembership(resId, attributesByResource))
@@ -53,21 +53,21 @@ class MembershipResolver {
 	}
 	
 	private Optional<CommunityMembership> resolveCommunityMembership(ResourceId community, 
-			Map<ResourceId, Set<Attribute>> attributesByResource) {
+			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
 		Optional<Community> communityOpt = communitiesDAO.findById(community.id.toString());
 		if (communityOpt.isEmpty()) {
 			LOG.warn("Community {} is defined in users directory (unity) but not in FURMS DB", community.id);
 			return Optional.empty();
 		}
 		Set<ProjectMembership> projectsMembership = resolveProjectsMembership(community, attributesByResource);
-		Set<Attribute> communityAttributes = filterExposedAttribtues(
+		Set<UserAttribute> communityAttributes = filterExposedAttribtues(
 				attributesByResource.getOrDefault(community, Collections.emptySet()));
 		return Optional.of(new CommunityMembership(community.id.toString(), communityOpt.get().getName(), 
 				projectsMembership, communityAttributes));
 	}
 
 	private Set<ProjectMembership> resolveProjectsMembership(ResourceId community, 
-			Map<ResourceId, Set<Attribute>> attributesByResource) {
+			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
 		Map<String, Project> communityProjects = projectsDAO.findAll(community.id.toString()).stream()
 				.collect(Collectors.toMap(proj -> proj.getId(), proj -> proj));
 		return attributesByResource.entrySet().stream()
@@ -78,11 +78,11 @@ class MembershipResolver {
 			.collect(Collectors.toSet());
 	}
 
-	private ProjectMembership resolveProjectMembership(Set<Attribute> attributes, Project project) {
+	private ProjectMembership resolveProjectMembership(Set<UserAttribute> attributes, Project project) {
 		return new ProjectMembership(project.getId(), project.getName(), filterExposedAttribtues(attributes));
 	}
 	
-	private Predicate<Attribute> exposedAttributePredicate() {
+	private Predicate<UserAttribute> exposedAttributePredicate() {
 		return a -> !a.name.startsWith(EXCLUDED_ATTR_PREFIX);
 	}
 	

@@ -21,6 +21,7 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.unity.client.unity.UnityClient;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -41,7 +42,7 @@ public class UnityUsersDAOTest {
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
 		
 		assertThat(userAttributes.rootAttributes).containsExactlyInAnyOrder(
-				new io.imunity.furms.domain.users.Attribute("attr1", "val1"));
+				new UserAttribute("attr1", "val1"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,7 +64,7 @@ public class UnityUsersDAOTest {
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
 		
 		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.COMMUNITY),
-				Set.of(new io.imunity.furms.domain.users.Attribute("attr1", "val1")));	
+				Set.of(new UserAttribute("attr1", "val1")));	
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,7 +90,7 @@ public class UnityUsersDAOTest {
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
 		
 		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.PROJECT),
-				Set.of(new io.imunity.furms.domain.users.Attribute("attr1", "val1")));	
+				Set.of(new UserAttribute("attr1", "val1")));	
 	}
 
 	
@@ -130,7 +131,7 @@ public class UnityUsersDAOTest {
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
 		
 		assertThat(userAttributes.rootAttributes).containsExactlyInAnyOrder(
-				new io.imunity.furms.domain.users.Attribute("attr1", "test@example.com"));
+				new UserAttribute("attr1", "test@example.com"));
 	}
 
 }

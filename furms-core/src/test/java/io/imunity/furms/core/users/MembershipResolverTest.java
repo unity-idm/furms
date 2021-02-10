@@ -20,7 +20,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.users.Attribute;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.ProjectMembership;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -39,11 +39,11 @@ public class MembershipResolverTest {
 	@Test
 	public void shouldResolveTwoCommunitiesWithProjects() {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
-		Set<Attribute> c1Attributes = Set.of(new Attribute("a1", "a1Val"));
-		Set<Attribute> c2Attributes = Set.of(new Attribute("a4", "a4Val"));
-		Set<Attribute> p1Attributes = Set.of(new Attribute("a2", "a2Val"));
-		Set<Attribute> p2Attributes = Set.of(new Attribute("a3", "a3Val"));
-		Map<ResourceId, Set<Attribute>> attrByResource = Map.of(
+		Set<UserAttribute> c1Attributes = Set.of(new UserAttribute("a1", "a1Val"));
+		Set<UserAttribute> c2Attributes = Set.of(new UserAttribute("a4", "a4Val"));
+		Set<UserAttribute> p1Attributes = Set.of(new UserAttribute("a2", "a2Val"));
+		Set<UserAttribute> p2Attributes = Set.of(new UserAttribute("a3", "a3Val"));
+		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
 				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
 				new ResourceId(COMMUNITY2_ID, ResourceType.COMMUNITY), c2Attributes,
 				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes,
@@ -72,9 +72,9 @@ public class MembershipResolverTest {
 	@Test
 	public void shouldFilterSysAttributes() {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
-		Set<Attribute> c1Attributes = Set.of(new Attribute("sys:a1", "a1Val"));
-		Set<Attribute> p1Attributes = Set.of(new Attribute("sys:a2", "a2Val"));
-		Map<ResourceId, Set<Attribute>> attrByResource = Map.of(
+		Set<UserAttribute> c1Attributes = Set.of(new UserAttribute("sys:a1", "a1Val"));
+		Set<UserAttribute> p1Attributes = Set.of(new UserAttribute("sys:a2", "a2Val"));
+		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
 				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
 				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(
@@ -93,8 +93,8 @@ public class MembershipResolverTest {
 	@Test
 	public void shouldResolveCommunityWithoutProjects() {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
-		Set<Attribute> c1Attributes = Collections.emptySet();
-		Map<ResourceId, Set<Attribute>> attrByResource = Map.of(
+		Set<UserAttribute> c1Attributes = Collections.emptySet();
+		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
 				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
@@ -112,7 +112,7 @@ public class MembershipResolverTest {
 	@Test
 	public void shouldIgnoreMissingCommunity() {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
-		Map<ResourceId, Set<Attribute>> attrByResource = Map.of();
+		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of();
 		
 		Set<CommunityMembership> membership = resolver.resolveCommunitiesMembership(attrByResource);
 		
@@ -123,9 +123,9 @@ public class MembershipResolverTest {
 	@Test
 	public void shouldIgnoreMissingProject() {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
-		Set<Attribute> c1Attributes = Collections.emptySet();
-		Set<Attribute> p1Attributes = Collections.emptySet();
-		Map<ResourceId, Set<Attribute>> attrByResource = Map.of(
+		Set<UserAttribute> c1Attributes = Collections.emptySet();
+		Set<UserAttribute> p1Attributes = Collections.emptySet();
+		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
 				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
 				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(

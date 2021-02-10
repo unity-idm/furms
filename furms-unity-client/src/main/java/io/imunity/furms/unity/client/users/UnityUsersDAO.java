@@ -53,6 +53,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -331,20 +332,20 @@ class UnityUsersDAO implements UsersDAO {
 		return ret;
 	}
 
-	private Map<ResourceId, Set<io.imunity.furms.domain.users.Attribute>> toFurmsAttributesMap(
+	private Map<ResourceId, Set<UserAttribute>> toFurmsAttributesMap(
 			Map<ResourceId, Set<Attribute>> unityAttributesMap) {
 		return unityAttributesMap.entrySet().stream()
 				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> toFurmsAttributes(entry.getValue())));
 	}
 	
-	private Set<io.imunity.furms.domain.users.Attribute> toFurmsAttributes(Collection<Attribute> unityAttributes) {
+	private Set<UserAttribute> toFurmsAttributes(Collection<Attribute> unityAttributes) {
 		return unityAttributes.stream()
 				.map(this::toFurmsAttribute)
 				.collect(Collectors.toSet());
 	}
 	
-	private io.imunity.furms.domain.users.Attribute toFurmsAttribute(Attribute unityAttribute) {
-		return new io.imunity.furms.domain.users.Attribute(unityAttribute.getName(), 
+	private UserAttribute toFurmsAttribute(Attribute unityAttribute) {
+		return new UserAttribute(unityAttribute.getName(), 
 				unityAttribute.getValues().stream()
 					.map(value -> AttributeValueMapper.toFurmsAttributeValue(unityAttribute, value))
 					.collect(Collectors.toList()));

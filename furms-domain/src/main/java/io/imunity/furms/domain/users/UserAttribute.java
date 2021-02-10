@@ -7,16 +7,16 @@ package io.imunity.furms.domain.users;
 import java.util.List;
 import java.util.Objects;
 
-public class Attribute {
+public class UserAttribute {
 	public final String name;
 	public final List<String> values;
 
-	public Attribute(String name, List<String> values) {
+	public UserAttribute(String name, List<String> values) {
 		this.name = name;
 		this.values = List.copyOf(values);
 	}
 
-	public Attribute(String name, String value) {
+	public UserAttribute(String name, String value) {
 		this(name, List.of(value));
 	}
 
@@ -33,7 +33,7 @@ public class Attribute {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Attribute other = (Attribute) obj;
+		UserAttribute other = (UserAttribute) obj;
 		return Objects.equals(name, other.name) && Objects.equals(values, other.values);
 	}
 

@@ -6,7 +6,7 @@ package io.imunity.furms.cidp;
 
 import java.util.List;
 
-import io.imunity.furms.domain.users.Attribute;
+import io.imunity.furms.domain.users.UserAttribute;
 
 public class AttributeJson {
 	public final String name;
@@ -17,7 +17,7 @@ public class AttributeJson {
 		this.values = List.copyOf(values);
 	}
 	
-	public AttributeJson(Attribute attribute) {
+	public AttributeJson(UserAttribute attribute) {
 		this(attribute.name, attribute.values);
 	}
 }

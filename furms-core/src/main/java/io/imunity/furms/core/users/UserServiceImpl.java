@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.users.Attribute;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.User;
@@ -114,7 +114,7 @@ class UserServiceImpl implements UserService {
 			UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
 			Set<CommunityMembership> communityMembership = 
 					membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
-			Set<Attribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
+			Set<UserAttribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
 			return new UserRecord(userStatus, rootAttribtues, communityMembership);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);

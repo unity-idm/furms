@@ -11,9 +11,9 @@ import java.util.Set;
 public class ProjectMembership {
 	public final String id;
 	public final String name;
-	public final Set<Attribute> attributes;
+	public final Set<UserAttribute> attributes;
 
-	public ProjectMembership(String id, String name, Collection<Attribute> attributes) {
+	public ProjectMembership(String id, String name, Collection<UserAttribute> attributes) {
 		this.id = id;
 		this.name = name;
 		this.attributes = Set.copyOf(attributes);
