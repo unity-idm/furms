@@ -117,20 +117,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |If set to 0 then it is assumed then Unity-IdM server is not behind a proxy. Otherwise the number should specify the number of (local, trusted) proxies that are protecting the server from the actual clients. In effect the assumed client IP will be taken from the X-Forwarded-For header, stripping the trailing ones from intermediary proxies. Note that only proxy servers setting X-Forwarded-For are supported.
 
 
-
-|unity.apiClient
-2+|This setting provides the information to setup the entity utilized by FURMS service to communicate with Unity-IdM via REST Admin API.
-
-|unity.apiClient.username
-|string
-|Username of API client
-
-|unity.apiClient.password
-|string
-|Password of API client
-
-
-
 |unity.pki.keyStore.file
 |filesystem path
 |Credential location.
@@ -192,20 +178,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |unity.cIdP.discoveryEndpoint
 |string
 |Central IdP OpenID Connect Discovery endpoint address e.g. https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration
-
-
-
-|unity.oauthClient
-2+|Provides the information to setup the OAuth Client credentials at Unity-IdM side, which are utilized by FURMS service for authentication purposes.
-
-|unity.oauthClient.username
-|string
-|Username of FURMS OAuth Client
-
-|unity.oauthClient.password
-|string
-|Password of FURMS OAuth Client
-
 
 
 3+^e| --- FURMS service configuration ---
