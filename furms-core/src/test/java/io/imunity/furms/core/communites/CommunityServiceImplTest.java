@@ -5,29 +5,34 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@TestInstance(Lifecycle.PER_CLASS)
 class CommunityServiceImplTest {
 	@Mock
 	private CommunityRepository communityRepository;
@@ -41,7 +46,7 @@ class CommunityServiceImplTest {
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
 
-	@BeforeAll
+	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
@@ -160,4 +165,64 @@ class CommunityServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
 	}
 
+	@Test
+	void shouldReturnAllCommunityAdmins() {
+		//given
+		String communityId = "id";
+		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(new User("id", "firstName", "lastName", "email")));
+
+		//when
+		List<User> allAdmins = service.findAllAdmins(communityId);
+
+		//then
+		assertThat(allAdmins).hasSize(1);
+	}
+
+	@Test
+	void shouldAddAdminToCommunity() {
+		//given
+		String communityId = "communityId";
+		String userId = "userId";
+
+		//when
+		service.addAdmin(communityId, userId);
+
+		//then
+		verify(communityGroupsDAO, times(1)).addAdmin(communityId, userId);
+	}
+
+	@Test
+	void shouldRemoveAdminFromCommunity() {
+		//given
+		String communityId = "communityId";
+		String userId = "userId";
+
+		//when
+		service.removeAdmin(communityId, userId);
+
+		//then
+		verify(communityGroupsDAO, times(1)).removeAdmin(communityId, userId);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
+		//given
+		String communityId = "communityId";
+		String userId = "userId";
+		doThrow(UnityFailureException.class).when(communityGroupsDAO).removeAdmin(communityId, userId);
+
+		//then
+		assertThrows(UnityFailureException.class, () -> service.removeAdmin(communityId, userId));
+	}
+
+	@Test
+	void allPublicMethodsShouldBeSecured() {
+		Method[] declaredMethods = CommunityServiceImpl.class.getDeclaredMethods();
+		Stream.of(declaredMethods)
+			.filter(method -> Modifier.isPublic(method.getModifiers()))
+			.forEach(method -> {
+				assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
+				assertThat(method.getAnnotation(FurmsAuthorize.class).resourceType()).isEqualTo(COMMUNITY);
+			});
+	}
 }

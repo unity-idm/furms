@@ -25,7 +25,6 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
@@ -88,13 +87,13 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
 	public List<User> findAllAdmins(String id) {
 		return communityGroupsDAO.getAllAdmins(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="siteId")
 	public void inviteAdmin(String communityId, String email) {
 		Optional<User> user = usersDAO.findByEmail(email);
 		if (user.isEmpty()) {
@@ -104,21 +103,21 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="communityId")
+	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="communityId")
 	public void addAdmin(String communityId, String userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="communityId")
+	@FurmsAuthorize(capability = COMMUNITY_ADMINS_MANAGEMENT, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(String communityId, String userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="communityId")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
 	public boolean isAdmin(String communityId, String userId) {
 		return communityGroupsDAO.isAdmin(communityId, userId);
 	}

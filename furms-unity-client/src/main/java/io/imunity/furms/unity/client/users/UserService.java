@@ -75,14 +75,14 @@ public class UserService {
 
 	public void removeUserRole(String userId, String group, Role role){
 		String uriComponents = prepareRoleRequestPath(userId);
-		Set<String> projectRoleValues = getRoleValues(userId, group, role);
-		projectRoleValues.remove(role.unityRoleValue);
+		Set<String> roleValues = getRoleValues(userId, group, role);
+		roleValues.remove(role.unityRoleValue);
 
 		Attribute attribute = new Attribute(
 			role.unityRoleAttribute,
 			ENUMERATION,
 			group,
-			new ArrayList<>(projectRoleValues)
+			new ArrayList<>(roleValues)
 		);
 		unityClient.put(uriComponents, attribute);
 	}
