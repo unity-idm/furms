@@ -125,10 +125,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |[jks, pkcs12, der, pem]
 |Format of the credential.
 
-|unity.pki.keyStore.keyAlias
-|string
-|Keystore alias of the key entry to be used. Can be ignored if the keystore contains only one key entry. Only applicable for jks and pkcs12.
-
 |unity.pki.keyStore.password
 |string
 |Password required to load the credential.
@@ -204,10 +200,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |furmsServer.pki.keyStore.type
 |[jks, pkcs12, der, pem]
 |Format of the credential.
-
-|furmsServer.pki.keyStore.keyAlias
-|string
-|Keystore alias of the key entry to be used. Can be ignored if the keystore contains only one key entry. Only applicable for jks and pkcs12.
 
 |furmsServer.pki.keyStore.password
 |string
