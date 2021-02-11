@@ -3,10 +3,47 @@ ifndef::sourcedir[:sourcedir: ../../main/java]
 
 image::logo-fenix.png[scaledwidth=75%]
 
+= FURMS System architecture overview
+
+FURMS system consists of two services:
+
+* Unity-IdM: an existing open source software which covers:
+** authentication
+** user provisioning
+** groups management (with persistence)
+** user management including user attributes and group memberships (with persistence)
+** notifications functionality
+
+* The FURMS service
+** a complete UI for the FURMS users (only sign-in and sign-up views will be hosted on Unity)
+** communities, projects and sites management, 
+** control and assignment of budgets
+** accounting
+** external REST API
+
+The administrative control of the FURMS system is available via the dedicated FURMS service UI, however some rarely used system administration actions will require the use of Unity-IdM administrative UI. An example of such action is the modification of email message templates used for notifications sent by FURMS. Note that only the FURMS administrators will need to use Unity-IdM administrative UI, other types of users (e.g. site admins or community admins) will not have to use it.
+
+The following figure shows high level overview of the interactions between FURMS system and FENIX infrastructure.
+
+image::furms-hld-arch.png[alt="High level overview of the interactions between FURMS system and FENIX infrastructure",width="50%",align="center",scaledwidth="50%"]
+
+== Unity-IdM
+
+Unity-IdM is an existing software providing authentication and user management service. Unity-IdM allows its users to enable authentication to their web services using various protocols, with different configurations for many relaying parties. The actual authentication can be performed using the built-in, feature-rich users database or can be delegated to one of supported upstream identity providers.
+
+
+The information obtained from upstream IdPs can be flexibly translated and merged with the local database (if needed) and re-exported using other protocols. Unity-IdM can authenticate both locally and using SAML and Oauth authentication protocols. Authentication can be performed against locally stored credentials or delegated to external service. 
+
+
+The following figure shows the high level Unity-IdM architecture
+
+image::Unity-IdM-hld-arch.png[alt="High level Unity-IdM architecture",align="center",scaledwidth="50%"]
+
+
 = FURMS system administration manual
 
 == FURMS installation from scratch
-This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well as Unity service. Both services work closely together. 
+This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well as Unity-IdM service. Both services work closely together. 
 
 === Prerequisites
 
@@ -17,7 +54,7 @@ FURMS system requires Java Runtime Environment. The version 11 is a minimal supp
 Install Ansible tooling on the host which will control FURMS system through scripts. Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
 
 ==== Database
-Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-Idm. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.
+Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-IdM. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.
 
 === Installation best practices ===
 There are two recommended configurations of FURMS system that can be used to install the services:
