@@ -88,7 +88,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 |furmsVersion
 |string
-|Version of released FURMS software e.g. "1.0"
+|Version of released FURMS software e.g. "1.0.0"
 
 3+^e| --- Unity-IdM configuration ---
 
@@ -286,7 +286,8 @@ Minor FURMS updates are performed whenever a newly installed software version di
 * <<Stop FURMS stack>>
 * Install minor update:
 ** enter the `$ENVIRONMENT_DIR` directory,
-** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml --extra-vars "furmsServiceVersion=1.0.1"`
+** update the `furmsVersion` property defined in `group_vars/all.yml` file, change its value to `1.0.1` 
+** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml`
 * <<Start FURMS stack>>
 
 
