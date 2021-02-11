@@ -293,6 +293,9 @@ The following table provides description of all configuration options.
 |===
 
 
+NOTE: Any reconfiguration of aforementioned options in the case of FURMS installation from scratch, is currently supported only by reinstallation from scratch. You have to update the settings, drop databases (if stack was already started), and install FURMS stack again.
+
+
 === Install FURMS stack
 Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service:
 ```
@@ -301,7 +304,6 @@ Once configuration is finished, the following command will install the Unity-IdM
 ```
 
 After installation the services are available in directory pointed out in `installDir`  property defined in `$FURMS_ROOT_DIR/group_vars/all.yml` file.
-
 
 === Start FURMS stack
 Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
