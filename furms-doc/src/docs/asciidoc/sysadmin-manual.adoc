@@ -1,9 +1,10 @@
+= FURMS System Administrator Manual
 ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../../main/java]
 
 image::logo-fenix.png[scaledwidth=75%]
 
-= FURMS System architecture overview
+== FURMS architecture overview
 
 FURMS system consists of two services:
 
@@ -27,7 +28,7 @@ The following figure shows high level overview of the interactions between FURMS
 
 image::furms-hld-arch.png[alt="High level overview of the interactions between FURMS system and FENIX infrastructure",width="50%",align="center",scaledwidth="50%"]
 
-== Unity-IdM
+=== Unity-IdM
 
 Unity-IdM is an existing software providing authentication and user management service. Unity-IdM allows its users to enable authentication to their web services using various protocols, with different configurations for many relaying parties. The actual authentication can be performed using the built-in, feature-rich users database or can be delegated to one of supported upstream identity providers.
 
@@ -39,15 +40,22 @@ The following figure shows the high level Unity-IdM architecture
 
 image::Unity-IdM-hld-arch.png[alt="High level Unity-IdM architecture",align="center",scaledwidth="50%"]
 
-
-= FURMS system administration manual
+More of the general information on Unity can be found at https://unity-idm.eu web page, while the reference documentation is available at the https://www.unity-idm.eu/support/ sub-page. 
 
 == FURMS installation from scratch
 This section describes how to install the FURMS system from scratch. The installation is done through Ansible scripts and covers installation of FURMS service as well as Unity-IdM service. Both services work closely together. 
 
 === Prerequisites
 
-=== Java
+==== Hardware requirements
+
+Both services can be installed on a single machine, or on two separate ones. As the communication between the servers is intensive a single host installation may be preferred. 
+
+* *Disk space*: installation of both services together requires less than 1GB of disk space. It is advised to reserve significantly more in order to preserve log files and multiple updates (each is installed in separate directory by default).
+* *RAM*: minimum of 1GB of free memory _per each service_ must be reserved. It is advised to provide 4GB per service in order to handle heavy load.  
+* *CPU*: there are no strict restrictions, however at least 2 cores per service are advised. Production environment with many users may make good use of a more powerful machine.
+
+==== Java
 FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are going to be run.
 
 ==== Ansible
@@ -189,12 +197,12 @@ The following table provides description of all configuration options.
 |Credential location.
 
 |unity.pki.keyStore.type
-|[jks, pkcs12, der, pem]
+|[jks, pkcs12]
 |Format of the credential.
 
 |unity.pki.keyStore.password
 |string
-|Password required to load the credential.
+|Password required to load the credential. Keystore must use the same key password as the keystore password.
 
 
 
@@ -228,7 +236,7 @@ The following table provides description of all configuration options.
 
 |unity.cIdP.discoveryEndpoint
 |string
-|Central IdP OpenID Connect Discovery endpoint address e.g. https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration
+|Central IdP OpenID Connect Discovery endpoint address, for production environment https://central-proxy.fenix-ri.eu/.well-known/openid-configuration and for the acceptance environment https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration
 
 
 3+^e| --- FURMS service configuration ---
@@ -253,12 +261,12 @@ The following table provides description of all configuration options.
 |Credential location.
 
 |furmsServer.pki.keyStore.type
-|[jks, pkcs12, der, pem]
+|[jks, pkcs12]
 |Format of the credential.
 
 |furmsServer.pki.keyStore.password
 |string
-|Password required to load the credential.
+|Password required to load the credential. Keystore must use the same key password as the keystore password.
 
 
 
@@ -305,19 +313,6 @@ Once configuration is finished, the following command will install the Unity-IdM
 
 After installation the services are available in directory pointed out in `installDir`  property defined in `$FURMS_ROOT_DIR/group_vars/all.yml` file.
 
-=== Start FURMS stack
-Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
-```
-> cd $FURMS_ROOT_DIR
-> ansible-playbook -i inventory furms-devops-tooling/start-stack.yml
-```
-
-=== Stop FURMS stack
-At any time the FURMS stack can be stopped using the following command:
-```
-> cd $FURMS_ROOT_DIR
-> ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
-```
 
 == FURMS system minor update procedure
 Minor FURMS updates are performed whenever a newly installed software version differs only with the last number when compared to the currently installed one. Database backup is advised, however in the minor update case the risk is minimal - revision releases typically do not introduce database content migrations. The following steps provide example how to update the FURMS service into `1.0.1` version, assuming `1.0.0` is installed:
@@ -330,7 +325,61 @@ Minor FURMS updates are performed whenever a newly installed software version di
 * <<Start FURMS stack>>
 
 
+== Operating the system
 
+=== Starting FURMS stack
+Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
+```
+> cd $FURMS_ROOT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/start-stack.yml
+```
+
+=== Stopping FURMS stack
+At any time the FURMS stack can be stopped using the following command:
+```
+> cd $FURMS_ROOT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
+```
+
+=== Runtime directories structure, log files
+
+The following listing shows example directory structure after FURMS installation: 
+
+```
+./20210211-214739
+./20210211-214739/furms-server -> furms-server-1.0.0
+./20210211-214739/furms-server-1.0.0
+./20210211-214739/furms-server-1.0.0/furms-server
+./20210211-214739/furms-server-1.0.0/logs
+./20210211-214739/unity -> unity-server-3.4.3
+./20210211-214739/unity-server-3.4.3
+./20210211-214739/unity-server-3.4.3/conf
+./20210211-214739/unity-server-3.4.3/bin
+./20210211-214739/unity-server-3.4.3/webContents
+./20210211-214739/unity-server-3.4.3/data
+./20210211-214739/unity-server-3.4.3/logs
+./20210211-214739/unity-server-3.4.3/workspace
+./20210211-214739/unity-server-3.4.3/extra
+./20210211-214739/unity-server-3.4.3/lib
+./20210211-214739/unity-server-3.4.3/conf-orig
+./current -> 20210211-214739
+./workspace
+```
+
+The ``workspace/`` directory can be ignored, it contains temporary installation data. The ``current`` symlink points to the currently active revision. It is especially relevant when there are more than one installation.
+
+Inside the ``current/`` directory there are both services installed. Logs and other runtime data like PIDs can be found there.
+
+Note that it is not advised to perform reconfigurations in the installation directories. Such changes will be lost during subsequent update with use of Ansible.
+
+=== Authentication to Unity console
+
+Access to Unity administration console should not be in general required for running FURMS, it may be however convenient to diagnose problems or to perform advanced configuration actions.
+
+Unity console is available at the configured address of Unity server:
+``https://{{unity.advertisedHost}}/console``.
+
+Login credentials are set to the ones from Ansible configuration: ``{{unity.initialAdminUsername}}`` and ``{{unity.initialAdminPassword}}``. 
 
 
 
