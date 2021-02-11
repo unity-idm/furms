@@ -125,7 +125,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	@Override
 	public List<User> getAllAdmins(String communityId, String projectId) {
 		check(!isEmpty(communityId),
-			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+			() -> new IllegalArgumentException("Could not get Project Admin from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		return userService.getAllUsersByRole(communityPath, PROJECT_ADMIN);
 	}
@@ -133,15 +133,15 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	@Override
 	public List<User> getAllUsers(String communityId, String projectId) {
 		check(!isEmpty(communityId),
-			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		return userService.getAllUsersByRole(communityPath, PROJECT_ADMIN);
+		return userService.getAllUsersByRole(communityPath, PROJECT_USER);
 	}
 
 	@Override
 	public void addAdmin(String communityId, String projectId, String userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
+			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		userService.addUserToGroup(userId, projectPath);
@@ -151,7 +151,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	@Override
 	public void addUser(String communityId, String projectId, String userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
+			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		userService.addUserToGroup(userId, projectPath);
@@ -161,7 +161,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	@Override
 	public void removeAdmin(String communityId, String projectId, String userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
+			() -> new IllegalArgumentException("Could not remove Project Admin in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
@@ -173,9 +173,9 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	@Override
 	public void removeUser(String communityId, String projectId, String userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
+			() -> new IllegalArgumentException("Could not remove Project Admin in Unity. Missing Project ID or User ID or Community "));
 
-		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
 			userService.removeUserRole(userId, projectPath, PROJECT_USER);
 		else
@@ -184,13 +184,13 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 
 	@Override
 	public boolean isAdmin(String communityId, String projectId, String userId) {
-		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		return userService.hasRole(userId, projectPath, PROJECT_ADMIN);
 	}
 
 	@Override
 	public boolean isUser(String communityId, String projectId, String userId) {
-		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		return userService.hasRole(userId, projectPath, PROJECT_USER);
 	}
 
