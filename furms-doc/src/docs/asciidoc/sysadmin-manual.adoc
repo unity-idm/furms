@@ -42,15 +42,15 @@ NOTE: In both setup cases, there are configuration options in the Ansible group 
 In order to install the latest released FURMS devops tooling, use the `FURMS devops tools installation utility`.
 Enter to the directory of your choice and run the following commands:
 ```
-> export ENVIRONMENT_DIR=/home/furms-app/staging
-> curl -L https://raw.githubusercontent.com/unity-idm/furms-devops/main/install-tooling/install_furms_devops_tooling.py -o $ENVIRONMENT_DIR/install_furms_devops_tooling.py
-> chmod +x $ENVIRONMENT_DIR/install_furms_devops_tooling.py
+> export FURMS_ROOT_DIR=/home/furms-app/staging
+> curl -L https://raw.githubusercontent.com/unity-idm/furms-devops/main/install-tooling/install_furms_devops_tooling.py -o $FURMS_ROOT_DIR/install_furms_devops_tooling.py
+> chmod +x $FURMS_ROOT_DIR/install_furms_devops_tooling.py
 ```
 === FURMS Ansible scripts
 Use the `FURMS devops tools installation utility` to install the latest Ansible scripts. 
 Enter to the directory where the utility was installed, and execute the following:
 ```
-> cd $ENVIRONMENT_DIR
+> cd $FURMS_ROOT_DIR
 > ./install_furms_devops_tooling.py
 Installation of latest FURMS devops tools into /home/furms-app/staging
 Command finished successfully
@@ -62,9 +62,9 @@ drwxr-xr-x. 5 furms-app furms-app 4096 10-28 15:36 furms-devops-tooling-1.0.0
 The aforementioned tool can be run at will, and the consecutive executions will update the FURMS Ansible scripts to the latest version.
 
 === Setup Ansible configuration files
-Create the inventory and group variables files in the `$ENVIRONMENT_DIR` directory (where FURMS devops tooling was installed). You can base on the example files that are delivered with the Ansible tooling. Taking into account the example from previous sections, execute the following commands: 
+Create the inventory and group variables files in the `$FURMS_ROOT_DIR` directory (where FURMS devops tooling was installed). You can base on the example files that are delivered with the Ansible tooling. Taking into account the example from previous sections, execute the following commands: 
 ```
-> cd $ENVIRONMENT_DIR
+> cd $FURMS_ROOT_DIR
 > cp -r furms-devops-tooling/local-cfg-sample/* .
 ``` 
 The following files should be copied to the current directory:
@@ -73,10 +73,10 @@ The following files should be copied to the current directory:
 * ```group_vars/all.yml```
 
 ==== Inventory
-Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS system on a local machine, can be found now in `$ENVIRONMENT_DIR/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
+Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS system on a local machine, can be found now in `$FURMS_ROOT_DIR/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
 
 ==== Group vars
-All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$ENVIRONMENT_DIR/group_vars/all.yml` file. The following table provides description of all configuration options.
+All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$FURMS_ROOT_DIR/group_vars/all.yml` file. The following table provides description of all configuration options.
 
 [width="100%",cols="<20,<12,<68",frame="all",options="header"]
 |===
@@ -251,24 +251,24 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 === Install FURMS stack
 Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service:
 ```
-> cd $ENVIRONMENT_DIR
+> cd $FURMS_ROOT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/install-stack.yml
 ```
 
-After installation the services are available in directory pointed out in `installDir`  property defined in `$ENVIRONMENT_DIR/group_vars/all.yml` file.
+After installation the services are available in directory pointed out in `installDir`  property defined in `$FURMS_ROOT_DIR/group_vars/all.yml` file.
 
 
 === Start FURMS stack
 Once FURMS stack has been installed, the following command starts the FURMS stack - Unity-IdM server as well as FURMS service:
 ```
-> cd $ENVIRONMENT_DIR
+> cd $FURMS_ROOT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/start-stack.yml
 ```
 
 === Stop FURMS stack
 At any time the FURMS stack can be stopped using the following command:
 ```
-> cd $ENVIRONMENT_DIR
+> cd $FURMS_ROOT_DIR
 > ansible-playbook -i inventory furms-devops-tooling/stop-stack.yml
 ```
 
@@ -277,7 +277,7 @@ Minor FURMS updates are performed whenever a newly installed software version di
 
 * <<Stop FURMS stack>>
 * Install minor update:
-** enter the `$ENVIRONMENT_DIR` directory,
+** enter the `$FURMS_ROOT_DIR` directory,
 ** update the `furmsVersion` property defined in `group_vars/all.yml` file, change its value to `1.0.1` 
 ** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml`
 * <<Start FURMS stack>>
