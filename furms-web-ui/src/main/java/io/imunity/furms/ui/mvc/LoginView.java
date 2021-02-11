@@ -44,8 +44,8 @@ public class LoginView {
 	
 	@GetMapping(LOGIN_ERROR_URL)
 	public String loginError(Model model) {
-		model.addAttribute("title", i18nProvider.getTranslation("view.error-page.title"));
-		model.addAttribute("message", i18nProvider.getTranslation("view.error-page.message"));
+		model.addAttribute("title", i18nProvider.getTranslation("view.error-page.login.title"));
+		model.addAttribute("message", i18nProvider.getTranslation("view.error-page.login.message.auth"));
 		return "login-error";
 	}
 }
