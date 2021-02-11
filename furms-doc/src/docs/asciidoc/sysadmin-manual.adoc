@@ -143,7 +143,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 * the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
 
 |trustStore.file
-|filesystem path
+|filesystem path on Ansible management host
 |The JKS format keystore path.
 
 |trustStore.password
@@ -180,7 +180,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 
 |unity.pki.keyStore.file
-|filesystem path
+|filesystem path on Ansible management host
 |Credential location.
 
 |unity.pki.keyStore.type
@@ -244,7 +244,7 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 
 
 |furmsServer.pki.keyStore.file
-|filesystem path
+|filesystem path on Ansible management host
 |Credential location.
 
 |furmsServer.pki.keyStore.type
