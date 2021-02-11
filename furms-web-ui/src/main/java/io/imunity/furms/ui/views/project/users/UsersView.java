@@ -87,7 +87,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	}
 
 	private List<AdministratorsGridItem> loadUsers() {
-		return handleExceptions(() -> projectService.findUsers(project.getCommunityId(), project.getId()))
+		return handleExceptions(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()))
 			.orElseGet(Collections::emptyList)
 			.stream()
 			.map(AdministratorsGridItem::new)

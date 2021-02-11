@@ -6,9 +6,11 @@
 package io.imunity.furms.unity.projects;
 
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 
+import io.imunity.furms.unity.client.users.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -17,12 +19,15 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.imunity.furms.domain.authz.roles.Role.*;
 import static io.imunity.furms.unity.common.UnityConst.*;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.META;
+import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -31,9 +36,11 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final UnityClient unityClient;
+	private final UserService userService;
 
-	UnityProjectGroupsDAO(UnityClient unityClient) {
+	public UnityProjectGroupsDAO(UnityClient unityClient, UserService userService) {
 		this.unityClient = unityClient;
+		this.userService = userService;
 	}
 
 	@Override
@@ -113,5 +120,84 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 
 	private Map<String, Object> getUriVariables(String communityId, String projectId) {
 		return Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId);
+	}
+
+	@Override
+	public List<User> getAllAdmins(String communityId, String projectId) {
+		check(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
+		return userService.getAllUsersByRole(communityPath, PROJECT_ADMIN);
+	}
+
+	@Override
+	public List<User> getAllUsers(String communityId, String projectId) {
+		check(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
+		return userService.getAllUsersByRole(communityPath, PROJECT_ADMIN);
+	}
+
+	@Override
+	public void addAdmin(String communityId, String projectId, String userId) {
+		check(!isEmpty(communityId) && !isEmpty(userId),
+			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
+
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
+		userService.addUserToGroup(userId, projectPath);
+		userService.addUserRole(userId, projectPath, PROJECT_ADMIN);
+	}
+
+	@Override
+	public void addUser(String communityId, String projectId, String userId) {
+		check(!isEmpty(communityId) && !isEmpty(userId),
+			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
+
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
+		userService.addUserToGroup(userId, projectPath);
+		userService.addUserRole(userId, projectPath, PROJECT_USER);
+	}
+
+	@Override
+	public void removeAdmin(String communityId, String projectId, String userId) {
+		check(!isEmpty(communityId) && !isEmpty(userId),
+			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
+
+		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
+		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
+			userService.removeUserRole(userId, projectPath, PROJECT_USER);
+		else
+			userService.removeUserFromGroup(userId, projectPath);
+	}
+
+	@Override
+	public void removeUser(String communityId, String projectId, String userId) {
+		check(!isEmpty(communityId) && !isEmpty(userId),
+			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
+
+		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
+			userService.removeUserRole(userId, projectPath, PROJECT_USER);
+		else
+			userService.removeUserFromGroup(userId, projectPath);
+	}
+
+	@Override
+	public boolean isAdmin(String communityId, String projectId, String userId) {
+		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		return userService.hasRole(userId, projectPath, PROJECT_ADMIN);
+	}
+
+	@Override
+	public boolean isUser(String communityId, String projectId, String userId) {
+		String projectPath = getProjectPath(Map.of(COMMUNITY_ID, communityId), PROJECT_PATTERN);
+		return userService.hasRole(userId, projectPath, PROJECT_USER);
+	}
+
+	private String getProjectPath(Map<String, Object> uriVariables, String pattern) {
+		return UriComponentsBuilder.newInstance()
+			.path(pattern)
+			.uriVariables(uriVariables)
+			.toUriString();
 	}
 }

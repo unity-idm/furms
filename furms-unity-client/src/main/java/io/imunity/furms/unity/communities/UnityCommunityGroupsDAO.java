@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.*;
 import static io.imunity.furms.unity.common.UnityPaths.*;
 import static io.imunity.furms.utils.ValidationUtils.check;
@@ -130,8 +129,8 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
 
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
-		if(userService.getRoleValues(userId, communityPath, SITE_ADMIN).size() > 1)
-			userService.removeUserRole(userId, communityPath, SITE_ADMIN);
+		if(userService.getRoleValues(userId, communityPath, COMMUNITY_ADMIN).size() > 1)
+			userService.removeUserRole(userId, communityPath, COMMUNITY_ADMIN);
 		else
 			userService.removeUserFromGroup(userId, communityPath);
 	}
