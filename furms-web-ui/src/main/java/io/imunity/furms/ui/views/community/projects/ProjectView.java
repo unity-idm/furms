@@ -89,8 +89,8 @@ public class ProjectView extends FurmsViewComponent {
 
 	private void loadPage1Content(Project project) {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
-			getTranslation("view.fenix-admin.community.button.join"),
-			getTranslation("view.fenix-admin.community.button.demit"),
+			getTranslation("view.community-admin.project.button.join"),
+			getTranslation("view.community-admin.project.button.demit"),
 			() -> projectService.isAdmin(project.getCommunityId(), project.getId(), currentUserId)
 		);
 		AdministratorsGridComponent grid = new AdministratorsGridComponent(
@@ -115,7 +115,7 @@ public class ProjectView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
-			getTranslation("view.fenix-admin.community.page.header", project.getName()),
+			getTranslation("view.community-admin.project.page.header", project.getName()),
 			membershipLayout
 		);
 		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());

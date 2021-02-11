@@ -5,36 +5,36 @@
 
 package io.imunity.furms.unity.projects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.UUID;
-
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.unity.client.UnityClient;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.Role.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class UnityProjectGroupsDAOTest {
 
 	@Mock
 	private UnityClient unityClient;
+
+	@Mock
+	private UserService userService;
 
 	@InjectMocks
 	private UnityProjectGroupsDAO unityProjectGroupsDAO;
@@ -112,4 +112,141 @@ class UnityProjectGroupsDAOTest {
 		verify(unityClient, times(1)).delete(anyString(), any());
 	}
 
+	@Test
+	void shouldGetProjectAdministrators() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		when(userService.getAllUsersByRole(groupPath, PROJECT_ADMIN))
+			.thenReturn(List.of(
+				new User("1", "firstName", "lastName", "email"),
+				new User("3", "firstName", "lastName", "email"))
+			);
+
+		//when
+		List<User> admins = unityProjectGroupsDAO.getAllAdmins(communityId, projectId);
+
+		//then
+		assertThat(admins).hasSize(2);
+		assertThat(admins.stream()
+			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+	}
+
+	@Test
+	void shouldAddAdminToProject() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+		//when
+		unityProjectGroupsDAO.addAdmin(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
+		verify(userService, times(1)).addUserToGroup(eq(userId), eq(groupPath));
+	}
+
+	@Test
+	void shouldRemoveAdminFromGroup() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+
+		//when
+		unityProjectGroupsDAO.removeAdmin(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
+	}
+
+	@Test
+	void shouldRemoveAdminRole() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+
+		//when
+		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(PROJECT_ADMIN))).thenReturn(Set.of(PROJECT_ADMIN.unityRoleValue, PROJECT_USER.unityRoleValue));
+		unityProjectGroupsDAO.removeAdmin(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
+		verify(userService, times(0)).removeUserFromGroup(eq(userId), eq(groupPath));
+	}
+
+	@Test
+	void shouldGetUserAdministrators() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		when(userService.getAllUsersByRole(groupPath, PROJECT_USER))
+			.thenReturn(List.of(
+				new User("1", "firstName", "lastName", "email"),
+				new User("3", "firstName", "lastName", "email"))
+			);
+
+		//when
+		List<User> admins = unityProjectGroupsDAO.getAllUsers(communityId, projectId);
+
+		//then
+		assertThat(admins).hasSize(2);
+		assertThat(admins.stream()
+			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+	}
+
+	@Test
+	void shouldAddUserToProject() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+		//when
+		unityProjectGroupsDAO.addUser(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
+		verify(userService, times(1)).addUserToGroup(eq(userId), eq(groupPath));
+	}
+
+	@Test
+	void shouldRemoveUserFromGroup() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+
+		//when
+		unityProjectGroupsDAO.removeUser(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
+	}
+
+	@Test
+	void shouldRemoveUserRole() {
+		//given
+		String communityId = UUID.randomUUID().toString();
+		String projectId = UUID.randomUUID().toString();
+		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		String userId = "userId";
+
+		//when
+		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(PROJECT_USER))).thenReturn(Set.of(PROJECT_ADMIN.unityRoleValue, PROJECT_USER.unityRoleValue));
+		unityProjectGroupsDAO.removeUser(communityId, projectId, userId);
+
+		//then
+		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
+		verify(userService, times(0)).removeUserFromGroup(eq(userId), eq(groupPath));
+	}
 }

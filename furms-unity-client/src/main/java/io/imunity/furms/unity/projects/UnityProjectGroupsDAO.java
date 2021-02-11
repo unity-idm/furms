@@ -164,8 +164,8 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			() -> new IllegalArgumentException("Could not remove Project Admin in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
-			userService.removeUserRole(userId, projectPath, PROJECT_USER);
+		if(userService.getRoleValues(userId, projectPath, PROJECT_ADMIN).size() > 1)
+			userService.removeUserRole(userId, projectPath, PROJECT_ADMIN);
 		else
 			userService.removeUserFromGroup(userId, projectPath);
 	}

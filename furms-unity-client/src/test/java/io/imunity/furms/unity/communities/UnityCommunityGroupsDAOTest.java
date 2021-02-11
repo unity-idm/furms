@@ -106,7 +106,7 @@ class UnityCommunityGroupsDAOTest {
 	}
 
 	@Test
-	void shouldGetSiteAdministrators() {
+	void shouldGetCommunityAdministrators() {
 		//given
 		String communityId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId +"/users";
@@ -126,7 +126,7 @@ class UnityCommunityGroupsDAOTest {
 	}
 
 	@Test
-	void shouldAddAdminToSite() {
+	void shouldAddAdminToCommunity() {
 		//given
 		String communityId = "communityId";
 		String userId = "userId";
