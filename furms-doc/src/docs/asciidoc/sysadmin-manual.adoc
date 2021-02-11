@@ -110,7 +110,8 @@ With regards to the inventory file, depending upon whether you are going to inst
 ```
 > cd $FURMS_ROOT_DIR
 > cp furms-devops-tooling/local-cfg-sample/inventory.local inventory  # or inventory.remote
-> cp -r furms-devops-tooling/local-cfg-sample/group_vars .
+> mkdir -p group_vars
+> cp furms-devops-tooling/local-cfg-sample/group_vars/all.yml group_vars/
 ``` 
 The following files should be copied to the current directory:
 
@@ -121,7 +122,11 @@ The following files should be copied to the current directory:
 Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. Make appropriate changes to the copied example of inventory file.
 
 ==== Group vars
-All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$FURMS_ROOT_DIR/group_vars/all.yml` file. The following table provides description of all configuration options.
+All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$FURMS_ROOT_DIR/group_vars/all.yml` file.
+
+NOTE: The devops tooling provides also a file that is filled out with example values. A file sample demonstrates the configuration of FURMS system behind a proxy, please see `$FURMS_ROOT_DIR/furms-devops-tooling/local-cfg-sample/group_vars/all.yml.behind-proxy` for a reference.
+
+The following table provides description of all configuration options.
 
 [width="100%",cols="<20,<12,<68",frame="all",options="header"]
 |===
