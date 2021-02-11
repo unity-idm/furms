@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
+@CssImport("./styles/components/furms-select.css")
 public class FurmsUserComboBox extends VerticalLayout {
 	public final ComboBox<FurmsViewUserModel>  comboBox = new ComboBox<>();
 
@@ -35,6 +37,7 @@ public class FurmsUserComboBox extends VerticalLayout {
 		setSpacing(false);
 		setMargin(false);
 		getStyle().set("padding", "unset");
+		comboBox.setClassName("furms-combo-box");
 		add(comboBox, emailLabel);
 	}
 }
