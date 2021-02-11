@@ -103,10 +103,14 @@ drwxr-xr-x. 5 furms-app furms-app 4096 10-28 15:36 furms-devops-tooling-1.0.0
 The aforementioned tool can be run at will, and the consecutive executions will update the FURMS Ansible scripts to the latest version.
 
 === Setup Ansible configuration files
-Create the inventory and group variables files in the `$FURMS_ROOT_DIR` directory (where FURMS devops tooling was installed). You can base on the example files that are delivered with the Ansible tooling. Taking into account the example from previous sections, execute the following commands: 
+Create the inventory and group variables files in the `$FURMS_ROOT_DIR` directory (where FURMS devops tooling was installed). You can base on the example files that are delivered with the Ansible tooling. 
+
+With regards to the inventory file, depending upon whether you are going to install FURMS system components on local machine, or on remote hosts, there are two different example files prepared. If you intend to install components on a local machine, then use `inventory.local` file in the example below, otherwise use `inventory.remote` to have installation performed on remote hosts.
+ 
 ```
 > cd $FURMS_ROOT_DIR
-> cp -r furms-devops-tooling/local-cfg-sample/* .
+> cp furms-devops-tooling/local-cfg-sample/inventory.local inventory  # or inventory.remote
+> cp -r furms-devops-tooling/local-cfg-sample/group_vars .
 ``` 
 The following files should be copied to the current directory:
 
@@ -114,7 +118,7 @@ The following files should be copied to the current directory:
 * ```group_vars/all.yml```
 
 ==== Inventory
-Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. The example which can be used to manage FURMS system on a local machine, can be found now in `$FURMS_ROOT_DIR/inventory`. Aforementioned inventory file can be used as a starting point to prepare your target configuration. 
+Ansible can work against multiple machines in your infrastructure. It does this by selecting systems listed in Ansible’s inventory file. Make appropriate changes to the copied example of inventory file.
 
 ==== Group vars
 All of the FURMS deployment settings are configured in the `all.yml` Ansible group file. The example of this file can be found now in `$FURMS_ROOT_DIR/group_vars/all.yml` file. The following table provides description of all configuration options.
