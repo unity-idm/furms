@@ -67,10 +67,14 @@ Depending upon which is selected, there are some ramifications on the configurat
 ==== HTTP proxy configuration
 It is assumed that in this configuration the proxy has installed the certificates signed by legitimate authorities. In this case the FURMS system can be equipped with self-signed certificates. One pair of PKI credential for Unity-IdM and the other for FURMS Service. 
 
-Note that for such configuration the FURMS service truststore needs to be carefully prepared. The general rule of a thumb is that it must contain at least the  public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
+Note that for such configuration the truststore needs to be carefully prepared. The general rule of a thumb is that it must contain at least: 
+
+* the public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential,
+* the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
+
 
 ==== Services exposed directly
-In this configuration, both Unity-IdM as well as a FURMS service must be equipped with PKI credentials signed by legitimate authorities. The truststore in both cases can be configured to use the system one. On RHEL like system the default place of a trustore is ```/etc/pki/java/cacerts```, and on Ubuntu like systems  ```/etc/ssl/certs/java/cacerts```.
+In this configuration, both Unity-IdM as well as a FURMS service must be equipped with PKI credentials signed by legitimate authorities. The truststore can be configured to use the system one. On RHEL like system the default place of a trustore is ```/etc/pki/java/cacerts```, and on Ubuntu like systems  ```/etc/ssl/certs/java/cacerts```.
 
 
 NOTE: In both setup cases, there are configuration options in the Ansible group variables file, that need to be properly filled according to your infrastructure setup ```*.advertisedHost```,  ```unity.proxyCount```. Please refer to the description of the variables in the following sections.
@@ -127,6 +131,23 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |string
 |Version of released FURMS software e.g. "1.0.0"
 
+
+|trustStore
+2+a|FURMS system trustrore used by FURMS service as well as Unity-IdM. It must contain at least:
+
+* the public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
+* the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
+
+|trustStore.file
+|filesystem path
+|The JKS format keystore path.
+
+|trustStore.password
+|string
+|The password of the keystore type truststore
+
+
+
 3+^e| --- Unity-IdM configuration ---
 
 |unity.host
@@ -165,18 +186,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |unity.pki.keyStore.password
 |string
 |Password required to load the credential.
-
-
-|unity.pki.trustStore
-2+|The Unity-IdM trustrore must contain the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
-
-|unity.pki.trustStore.file
-|filesystem path
-|The JKS format keystore path.
-
-|unity.pki.trustStore.password
-|string
-|The password of the keystore type truststore.
 
 
 
@@ -241,16 +250,6 @@ All of the FURMS deployment settings are configured in the `all.yml` Ansible gro
 |furmsServer.pki.keyStore.password
 |string
 |Password required to load the credential.
-
-|furmsServer.pki.trustStore
-2+|The FURMS service trustrore must contain the public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
-|furmsServer.pki.trustStore.file
-|filesystem path
-|The JKS format keystore path.
-
-|furmsServer.pki.trustStore.password
-|string
-|The password of the keystore type truststore
 
 
 
