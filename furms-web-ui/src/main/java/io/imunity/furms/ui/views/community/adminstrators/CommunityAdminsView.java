@@ -23,17 +23,23 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		String currentUserId = authzService.getCurrentUserId();
 		String communityId = getCurrentResourceId();
 
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> communityService.findAllAdmins(communityId)
+		);
 		AdministratorsGridComponent grid = new AdministratorsGridComponent(
 			() -> communityService.findAllAdmins(communityId),
-			userId -> communityService.removeAdmin(communityId, userId),
+			userId -> {
+				communityService.removeAdmin(communityId, userId);
+				inviteUser.reload();
+			},
 			currentUserId,
 			true
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			communityService.inviteAdmin(communityId, inviteUser.getEmail());
 			grid.reloadGrid();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.administrators.page.header"),

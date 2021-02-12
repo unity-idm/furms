@@ -50,6 +50,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
 	private boolean redirect;
+	private String searchText = "";
 
 	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
 		this.fetchUsersAction = fetchUsersAction;
@@ -78,11 +79,8 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		textField.setValueChangeMode(ValueChangeMode.EAGER);
 		textField.addValueChangeListener(event -> {
 			textField.blur();
-			String value = event.getValue().toLowerCase();
-			List<AdministratorsGridItem> filteredUsers = loadUsers().stream()
-					.filter(user -> rowContains(user, value))
-					.collect(toList());
-			UI.getCurrent().accessSynchronously(() -> loadGrid(filteredUsers));
+			searchText = event.getValue().toLowerCase();
+			UI.getCurrent().accessSynchronously(() -> loadGrid(loadUsers()));
 			textField.focus();
 		});
 
@@ -190,11 +188,12 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				.stream()
 				.map(AdministratorsGridItem::new)
 				.sorted(Comparator.comparing(AdministratorsGridItem::getEmail))
+				.filter(user -> rowContains(user, searchText))
 				.collect(toList());
 	}
 
 	private boolean rowContains(AdministratorsGridItem row, String value) {
-		return columnContains(row.getFirstName(), value)
+		return searchText.isEmpty() || columnContains(row.getFirstName(), value)
 				|| columnContains(row.getLastName(), value)
 				|| columnContains(row.getEmail(), value);
 	}

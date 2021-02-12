@@ -27,17 +27,23 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 		String projectId = getCurrentResourceId();
 		Project project = projectService.findById(projectId).get();
 
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
+		);
 		AdministratorsGridComponent grid = new AdministratorsGridComponent(
 			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
-			userId -> projectService.removeAdmin(project.getCommunityId(), project.getId(), userId),
+			userId -> {
+				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
+				inviteUser.reload();
+			},
 			currentUserId,
 			true
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.reloadGrid();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.project-admin.administrators.page.header"),

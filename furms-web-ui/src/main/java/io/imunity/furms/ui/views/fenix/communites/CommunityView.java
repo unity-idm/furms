@@ -89,6 +89,10 @@ public class CommunityView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(String communityId, String communityName) {
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> communityService.findAllAdmins(communityId)
+		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
 			getTranslation("view.fenix-admin.community.button.demit"),
@@ -99,6 +103,7 @@ public class CommunityView extends FurmsViewComponent {
 			userId -> {
 				communityService.removeAdmin(communityId, userId);
 				membershipLayout.loadAppropriateButton();
+				inviteUser.reload();
 			},
 			currentUserId
 		);
@@ -121,12 +126,11 @@ public class CommunityView extends FurmsViewComponent {
 			getTranslation("view.fenix-admin.community.page.header", communityName),
 			membershipLayout
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			communityService.inviteAdmin(communityId, inviteUser.getEmail());
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		page1.add(headerLayout, inviteUser, grid);
 	}

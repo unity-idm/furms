@@ -33,32 +33,39 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	private final AdministratorsGridComponent grid;
 	private final String siteId;
+	private final String currentUserId;
 
 	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
 		this.userService = userService;
 		this.siteId = getActualViewUserContext().id;
+		this.currentUserId = authzService.getCurrentUserId();
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> siteService.findAllAdmins(siteId)
+		);
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		this.grid = new AdministratorsGridComponent(
 				() -> siteService.findAllAdmins(siteId),
-				userId -> siteService.removeAdmin(siteId, userId),
-				authzService.getCurrentUserId()
+				userId -> {
+					siteService.removeAdmin(siteId, userId);
+					inviteUser.reload();
+				},
+				currentUserId
 			);
 
-		addHeader();
+		addHeader(inviteUser);
 		getContent().add(grid);
 	}
 
-	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
-
+	private void addHeader(InviteUserComponent inviteUser) {
 		getContent().add(new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"), inviteUser));
 	}
 
 	private void doInviteAction(InviteUserComponent inviteUser) {
 		try {
 			siteService.inviteAdmin(siteId, inviteUser.getEmail());
-			inviteUser.clear();
+			inviteUser.reload();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.site-admin.administrators.invite.error.unexpected"));

@@ -49,28 +49,33 @@ public class SitesAdminsView extends FurmsViewComponent {
 	}
 
 	private void init(String siteId) {
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> siteService.findAllAdmins(siteId)
+		);
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		this.grid = new AdministratorsGridComponent(
 				() -> siteService.findAllAdmins(siteId),
-				userId -> siteService.removeAdmin(siteId, userId),
+				userId -> {
+					siteService.removeAdmin(siteId, userId);
+					inviteUser.reload();
+				},
 				currentUserId
 		);
 		this.siteId = siteId;
 
-		addHeader();
+		addHeader(inviteUser);
 		getContent().add(grid);
 	}
 
-	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
-
+	private void addHeader(InviteUserComponent inviteUser) {
 		getContent().add(new ViewHeaderLayout(getTranslation("view.sites.administrators.title"), inviteUser));
 	}
 
 	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
 			siteService.inviteAdmin(siteId, inviteUserComponent.getEmail());
-			inviteUserComponent.clear();
+			inviteUserComponent.reload();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));

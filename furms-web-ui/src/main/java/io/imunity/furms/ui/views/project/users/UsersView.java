@@ -37,9 +37,16 @@ public class UsersView extends FurmsLandingViewComponent {
 
 	private void loadPageContent() {
 		project = projectService.findById(getCurrentResourceId()).get();
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
+		);
 		AdministratorsGridComponent grid = new AdministratorsGridComponent(
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
-			userId -> projectService.removeUser(project.getCommunityId(), project.getId(), userId),
+			userId -> {
+				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
+				inviteUser.reload();
+			},
 			currentUserId
 		);
 
@@ -57,12 +64,11 @@ public class UsersView extends FurmsLandingViewComponent {
 			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
 		});
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
 		getContent().add(headerLayout, inviteUser, grid);
