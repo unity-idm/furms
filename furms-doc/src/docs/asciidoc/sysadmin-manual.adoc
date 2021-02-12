@@ -350,25 +350,24 @@ The following listing shows example directory structure after FURMS installation
 ./20210211-214739/furms-server -> furms-server-1.0.0
 ./20210211-214739/furms-server-1.0.0
 ./20210211-214739/furms-server-1.0.0/furms-server
-./20210211-214739/furms-server-1.0.0/logs
 ./20210211-214739/unity -> unity-server-3.4.3
 ./20210211-214739/unity-server-3.4.3
 ./20210211-214739/unity-server-3.4.3/conf
 ./20210211-214739/unity-server-3.4.3/bin
 ./20210211-214739/unity-server-3.4.3/webContents
 ./20210211-214739/unity-server-3.4.3/data
-./20210211-214739/unity-server-3.4.3/logs
 ./20210211-214739/unity-server-3.4.3/workspace
 ./20210211-214739/unity-server-3.4.3/extra
 ./20210211-214739/unity-server-3.4.3/lib
 ./20210211-214739/unity-server-3.4.3/conf-orig
 ./current -> 20210211-214739
+./logs
 ./workspace
 ```
 
-The ``workspace/`` directory can be ignored, it contains temporary installation data. The ``current`` symlink points to the currently active revision. It is especially relevant when there are more than one installation.
+The ``workspace/`` directory can be ignored, it contains temporary installation data. The ``current`` symlink points to the currently active revision. It is especially relevant when there are more than one installation. There is also `logs` directory that contains log files from both, FURMS service as well as Unity-IdM.
 
-Inside the ``current/`` directory there are both services installed. Logs and other runtime data like PIDs can be found there.
+Inside the ``current/`` directory there are both services installed. The runtime data like PIDs and other can be found there.
 
 Note that it is not advised to perform reconfigurations in the installation directories. Such changes will be lost during subsequent update with use of Ansible.
 
