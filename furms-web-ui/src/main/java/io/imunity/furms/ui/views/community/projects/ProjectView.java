@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.community.projects;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -104,11 +105,13 @@ public class ProjectView extends FurmsViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (projectService.findAllAdmins(project.getCommunityId(), project.getId()).size() > 1) {
 				handleExceptions(() -> projectService.removeAdmin(project.getCommunityId(), project.getId(), currentUserId));
 				grid.reloadGrid();
+				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}

@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.views.project.users;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
@@ -39,7 +38,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private void loadPageContent() {
 		project = projectService.findById(getCurrentResourceId()).get();
 		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> projectService.findUsers(project.getCommunityId(), project.getId()),
+			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
 			userId -> projectService.removeUser(project.getCommunityId(), project.getId(), userId),
 			currentUserId
 		);
@@ -53,12 +52,10 @@ public class UsersView extends FurmsLandingViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
