@@ -93,7 +93,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="siteId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(String communityId, String email) {
 		Optional<User> user = usersDAO.findByEmail(email);
 		if (user.isEmpty()) {

@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.fenix.communites;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -104,11 +105,13 @@ public class CommunityView extends FurmsViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
 			grid.reloadGrid();
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (communityService.findAllAdmins(communityId).size() > 1) {
 				handleExceptions(() -> communityService.removeAdmin(communityId, currentUserId));
 				grid.reloadGrid();
+				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}

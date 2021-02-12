@@ -23,8 +23,10 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.views.landing.RoleChooserView;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +36,6 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -48,7 +49,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private final Supplier<List<User>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
-	private boolean logout;
+	private boolean redirect;
 
 	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
 		this.fetchUsersAction = fetchUsersAction;
@@ -61,9 +62,9 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	}
 
 	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction,
-	                                   String currentUserId, boolean logout) {
+	                                   String currentUserId, boolean redirect) {
 		this(fetchUsersAction, removeUserAction, currentUserId);
-		this.logout = logout;
+		this.redirect = redirect;
 	}
 
 	public void reloadGrid() {
@@ -147,17 +148,22 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				getResultOrException(() -> removeUserAction.accept(currentUserId))
 					.getThrowable().ifPresentOrElse(
 						e -> showErrorNotification(getTranslation(e.getMessage())),
-						() -> {
-							if(logout)
-								UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
-						}
+					this::refreshUserRoles
 				);
-				reloadGrid();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
 		});
 		furmsDialog.open();
+	}
+
+	private void refreshUserRoles() {
+		if(redirect)
+			UI.getCurrent().navigate(RoleChooserView.class);
+		else{
+			reloadGrid();
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+		}
 	}
 
 	private void doRemoveItemAction(String id) {
