@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -199,6 +198,12 @@ class SiteServiceImpl implements SiteService {
 			LOG.error("Could not remove Site Administrator: ", e);
 			throw e;
 		}
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
+	public boolean isAdmin(String siteId, String userId) {
+		return webClient.isAdmin(siteId, userId);
 	}
 
 	private Site merge(Site oldSite, Site site) {
