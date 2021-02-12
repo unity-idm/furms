@@ -5,16 +5,19 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
+import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
@@ -42,6 +45,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private final Grid<ProjectGridModel> grid;
 	private final String currentUserId;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
+	private String searchText = "";
 
 	ProjectsView(ProjectService projectService, AuthzService authzService) {
 		this.currentUserId = authzService.getCurrentUserId();
@@ -80,12 +84,9 @@ public class ProjectsView extends FurmsViewComponent {
 		textField.setValueChangeMode(ValueChangeMode.EAGER);
 		textField.setClearButtonVisible(true);
 		textField.addValueChangeListener(event -> {
-			String value = textField.getValue().toLowerCase();
-			List<ProjectGridModel> filteredUsers = loadProjectsViewsModels().stream()
-				.filter(project -> project.matches(value))
-				.collect(toList());
+			searchText = textField.getValue().toLowerCase();
 			textField.blur();
-			grid.setItems(filteredUsers);
+			loadGridContent();
 			textField.focus();
 		});
 
@@ -97,25 +98,27 @@ public class ProjectsView extends FurmsViewComponent {
 	private Grid<ProjectGridModel> createProjectGrid() {
 		Grid<ProjectGridModel> grid = new SparseGrid<>(ProjectGridModel.class);
 
-		grid.addComponentColumn(project -> {
+		Grid.Column<ProjectGridModel> firstColumn = grid.addComponentColumn(project -> {
 			Component component = new Span(project.name);
-			if(project.status.equals(ACTIVE))
+			if (project.status.equals(ACTIVE))
 				component = new RouterLink(project.name, ProjectView.class, project.id);
 			return component;
 		})
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.1"))
 			.setSortable(true)
+			.setComparator(comparing(project -> project.name))
 			.setComparator(project -> project.name.toLowerCase());
 		grid.addColumn(project -> project.description)
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.2"))
 			.setSortable(true);
 		grid.addColumn(project -> getTranslation(project.status.gridText))
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.3"))
-			.setTextAlign(ColumnTextAlign.END);
+			.setTextAlign(ColumnTextAlign.END)
+			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.4"))
 			.setTextAlign(ColumnTextAlign.END);
-
+		grid.sort(ImmutableList.of(new GridSortOrder<>(firstColumn, SortDirection.ASCENDING)));
 		return grid;
 	}
 
@@ -165,10 +168,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		grid.setItems(loadProjectsViewsModels()
-			.stream()
-			.filter(project -> currentFilters.isEmpty() || currentFilters.contains(project.status))
-		);
+		grid.setItems(loadProjectsViewsModels());
 	}
 
 	private List<ProjectGridModel> loadProjectsViewsModels() {
@@ -177,6 +177,8 @@ public class ProjectsView extends FurmsViewComponent {
 			.stream()
 			.map(mapper::map)
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
+			.filter(project -> currentFilters.isEmpty() || currentFilters.contains(project.status))
+			.filter(project -> searchText.isEmpty() || project.matches(searchText))
 			.collect(toList());
 	}
 }
