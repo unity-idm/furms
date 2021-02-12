@@ -89,6 +89,10 @@ public class ProjectView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(Project project) {
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
+		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.community-admin.project.button.join"),
 			getTranslation("view.community-admin.project.button.demit"),
@@ -99,6 +103,7 @@ public class ProjectView extends FurmsViewComponent {
 			userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				membershipLayout.loadAppropriateButton();
+				inviteUser.reload();
 			},
 			currentUserId
 		);
@@ -121,12 +126,11 @@ public class ProjectView extends FurmsViewComponent {
 			getTranslation("view.community-admin.project.page.header", project.getName()),
 			membershipLayout
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		page1.add(headerLayout, inviteUser, grid);
 	}

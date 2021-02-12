@@ -28,14 +28,26 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final UserService userService;
+	private final AuthzService authzService;
 
 	private final AdministratorsGridComponent grid;
 
 	FenixAdministratorsView(UserService userService, AuthzService authzService) {
 		this.userService = userService;
+		this.authzService = authzService;
+
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			userService::getFenixAdmins
+		);
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
+
 		this.grid = new AdministratorsGridComponent(
 			userService::getFenixAdmins,
-			userService::removeFenixAdminRole,
+			userId -> {
+				userService.removeFenixAdminRole(userId);
+				inviteUser.reload();
+			},
 			authzService.getCurrentUserId(),
 			true
 		);
@@ -45,7 +57,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	}
 
 	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			userService::getFenixAdmins
+		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
 		getContent().add(new ViewHeaderLayout(getTranslation("view.fenix-admin.header"), inviteUser));
@@ -54,7 +69,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
 			userService.inviteFenixAdmin(inviteUserComponent.getEmail());
-			inviteUserComponent.clear();
+			inviteUserComponent.reload();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
