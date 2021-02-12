@@ -28,11 +28,15 @@ public class FurmsUserComboBox extends VerticalLayout {
 			return fullName.isBlank() ? user.email : fullName;
 		});
 		comboBox.setItems(userModels);
-		Label emailLabel = new Label();
+		Label emailLabel = new Label("placeholder");
+		emailLabel.getStyle().set("visibility", "hidden");
 		comboBox.addValueChangeListener(event -> Optional.ofNullable(event.getValue())
 			.ifPresentOrElse(
-				value -> emailLabel.setText(value.email),
-				() -> emailLabel.setText(null))
+				value -> {
+					emailLabel.setText(value.email);
+					emailLabel.getStyle().set("visibility", "visible");
+				},
+				() -> emailLabel.getStyle().set("visibility", "hidden"))
 		);
 		setSpacing(false);
 		setMargin(false);

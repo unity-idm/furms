@@ -11,8 +11,9 @@ public final class RoutesConst {
 	public static final String LOGIN_URL = PUBLIC_URL + "/login";
 	public static final String LOGIN_ERROR_URL = PUBLIC_URL + "/login-error";
 
-	public static final String CHOOSE_ROLE = "choose/role";
-	public static final String LOGIN_SUCCESS_URL = FRONT + "/" + CHOOSE_ROLE;
+	public static final String ROLE_CHOOSER_URL = "role/chooser";
+	public static final String LANDING_PAGE_URL = "start/" + ROLE_CHOOSER_URL;
+	public static final String LOGIN_SUCCESS_URL = FRONT + "/" + LANDING_PAGE_URL;
 
 	public static final String LOGOUT_URL = PUBLIC_URL + "/logout";
 	public static final String FRONT_LOGOUT_URL = FRONT + LOGOUT_URL;

@@ -6,17 +6,10 @@
 package io.imunity.furms.ui.views.landing;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.LogoutIconFactory;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
@@ -26,30 +19,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.domain.constant.RoutesConst.CHOOSE_ROLE;
+import static io.imunity.furms.domain.constant.RoutesConst.LANDING_PAGE_URL;
 import static java.util.stream.Collectors.toList;
 
-@Route(CHOOSE_ROLE)
+@Route(LANDING_PAGE_URL)
 @PageTitle(key = "view.landing.title")
-public class LandingPageView extends FurmsViewComponent implements AfterNavigationObserver {
+class LandingPageView extends FurmsViewComponent implements AfterNavigationObserver {
 	private final Map<ViewMode, List<FurmsViewUserContext>> data;
 
 	LandingPageView(RoleTranslator roleTranslator) {
 		data = roleTranslator.translateRolesToUserViewContexts();
-
-		Icon logout = LogoutIconFactory.create();
-		HorizontalLayout logoutLayout = new HorizontalLayout(logout);
-		logoutLayout.setWidthFull();
-		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-
-		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator);
-		VerticalLayout layout =
-			new VerticalLayout(new H4(getTranslation("view.landing.select")), furmsSelect);
-		layout.setSizeFull();
-		layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-		layout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-		getContent().add(logoutLayout, layout);
+		RoleChooserLayout roleChooserLayout = new RoleChooserLayout(roleTranslator);
+		getContent().add(roleChooserLayout);
 	}
 
 	@Override
