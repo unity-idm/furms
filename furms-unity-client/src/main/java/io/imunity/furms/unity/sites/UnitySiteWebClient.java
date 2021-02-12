@@ -135,6 +135,11 @@ class UnitySiteWebClient implements SiteWebClient {
 		return userService.getAllUsersByRole(sitePath, SITE_ADMIN);
 	}
 
+	@Override
+	public boolean isAdmin(String siteId, String userId) {
+		String sitePath = getSitePath(siteId);
+		return userService.hasRole(userId, sitePath, SITE_ADMIN);
+	}
 
 	@Override
 	public void addAdmin(String siteId, String userId) {

@@ -23,6 +23,8 @@ public interface SiteWebClient {
 
 	List<User> getAllAdmins(String id);
 
+	boolean isAdmin(String siteId, String userId);
+
 	void addAdmin(String siteId, String userId);
 
 	void removeAdmin(String siteId, String userId);
