@@ -5,51 +5,7 @@
 
 package io.imunity.furms.unity.users;
 
-import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
-import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
-import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
-import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
-import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
-import static io.imunity.furms.unity.common.UnityConst.ID;
-import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
-import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP_PATH;
-import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.User;
@@ -63,10 +19,27 @@ import io.imunity.furms.unity.client.UnityGroupParser;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import io.imunity.furms.unity.common.UnityConst;
 import io.imunity.furms.unity.common.UnityPaths;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
+
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
+import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
+import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityPaths.*;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 class UnityUsersDAO implements UsersDAO {
@@ -80,16 +53,6 @@ class UnityUsersDAO implements UsersDAO {
 	@Override
 	public List<User> getAdminUsers() {
 		return getUsers(FENIX_PATTERN);
-	}
-
-	@Override
-	public List<User> getProjectUsers(String communityId, String projectId) {
-		String path = prepareGroupPath(communityId, projectId);
-		return getUsers(path,
-			attribute ->
-				attribute.getName().equals(PROJECT_USER.unityRoleAttribute) &&
-				attribute.getValues().contains(PROJECT_USER.unityRoleValue)
-		);
 	}
 
 	@Override
@@ -129,14 +92,6 @@ class UnityUsersDAO implements UsersDAO {
 			.collect(toList());
 	}
 
-	@Override
-	public boolean isProjectMember(String communityId, String projectId, String userId) {
-		List<Attribute> attributes = getAttributes(communityId, projectId, userId);
-		return attributes.stream()
-			.filter(attribute -> attribute.getName().equals(PROJECT_USER.unityRoleAttribute))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.anyMatch(attribute -> attribute.equals(PROJECT_USER.unityRoleValue));
-	}
 
 	private List<Attribute> getAttributes(String communityId, String projectId, String userId) {
 		String path = UriComponentsBuilder.newInstance()
@@ -148,28 +103,6 @@ class UnityUsersDAO implements UsersDAO {
 		Map<String, List<Attribute>> groupedAttributes =
 			unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS));
 		return groupedAttributes.getOrDefault(groupPath, Collections.emptyList());
-	}
-
-	@Override
-	public void addProjectMemberRole(String communityId, String projectId, String userId) {
-		String groupPath = prepareGroupPath(communityId, projectId);
-
-		String addToGroupPath = prepareGroupRequestPath(userId, groupPath);
-		unityClient.post(addToGroupPath, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
-
-		Role projectMember = PROJECT_USER;
-		Set<String> attributes = getProjectRoleValues(communityId, projectId, userId);
-		attributes.add(projectMember.unityRoleValue);
-
-		Attribute attribute = new Attribute(
-			projectMember.unityRoleAttribute,
-			ENUMERATION,
-			groupPath,
-			new ArrayList<>(attributes)
-		);
-
-		String addRolePath = prepareRoleRequestPath(userId);
-		unityClient.put(addRolePath, attribute);
 	}
 
 	@Override
@@ -214,37 +147,6 @@ class UnityUsersDAO implements UsersDAO {
 	public void removeFenixAdminRole(String userId) {
 		String path = prepareGroupRequestPath(userId, FENIX_PATTERN);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
-	}
-
-	@Override
-	public void removeProjectMemberRole(String communityId, String projectId, String userId) {
-		String uriComponents = prepareRoleRequestPath(userId);
-		Role projectMember = PROJECT_USER;
-		Set<String> projectRoleValues = getProjectRoleValues(communityId, projectId, userId);
-		projectRoleValues.remove(projectMember.unityRoleValue);
-
-		if(projectRoleValues.isEmpty()){
-			String groupPath = prepareGroupPath(communityId, projectId);
-			String path = prepareGroupRequestPath(userId, groupPath);
-			unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
-			return;
-		}
-
-		String groupPath = prepareGroupPath(communityId, projectId);
-		Attribute attribute = new Attribute(
-			projectMember.unityRoleAttribute,
-			ENUMERATION,
-			groupPath,
-			new ArrayList<>(projectRoleValues)
-		);
-		unityClient.put(uriComponents, attribute);
-	}
-
-	private Set<String> getProjectRoleValues(String communityId, String projectId, String userId) {
-		return getAttributes(communityId, projectId, userId).stream()
-			.filter(attribute -> attribute.getName().equals(PROJECT_USER.unityRoleAttribute))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.collect(toSet());
 	}
 
 	private String prepareRoleRequestPath(String userId) {

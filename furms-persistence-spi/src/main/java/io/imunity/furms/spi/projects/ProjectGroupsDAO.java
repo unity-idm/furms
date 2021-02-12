@@ -6,7 +6,9 @@
 package io.imunity.furms.spi.projects;
 
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProjectGroupsDAO {
@@ -17,4 +19,14 @@ public interface ProjectGroupsDAO {
 	void update(ProjectGroup projectGroup);
 
 	void delete(String communityId, String projectId);
+
+	List<User> getAllAdmins(String communityId, String projectId);
+	boolean isAdmin(String communityId, String projectId, String userId);
+	void addAdmin(String communityId, String projectId, String userId);
+	void removeAdmin(String communityId, String projectId, String userId);
+
+	List<User> getAllUsers(String communityId, String projectId);
+	boolean isUser(String communityId, String projectId, String userId);
+	void addUser(String communityId, String projectId, String userId);
+	void removeUser(String communityId, String projectId, String userId);
 }

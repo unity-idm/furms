@@ -28,7 +28,17 @@ public interface ProjectService {
 
 	void delete(String projectId, String communityId);
 
-	List<User> findUsers(String communityId, String projectId);
+	List<User> findAllAdmins(String communityId, String projectId);
+
+	boolean isAdmin(String communityId, String projectId, String userId);
+
+	void addAdmin(String communityId, String projectId, String userId);
+
+	void inviteAdmin(String communityId, String projectId, String email);
+
+	void removeAdmin(String communityId, String projectId, String userId);
+
+	List<User> findAllUsers(String communityId, String projectId);
 
 	boolean isUser(String communityId, String projectId, String userId);
 
