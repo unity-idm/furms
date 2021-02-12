@@ -8,6 +8,7 @@ package io.imunity.furms.ui.project;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -28,6 +29,7 @@ import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.Optional.ofNullable;
 
+@CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 	private static final int MAX_DESCRIPTION_LENGTH = 510;
@@ -77,6 +79,7 @@ public class ProjectFormComponent extends Composite<Div> {
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
 		furmsUserComboBox.comboBox.setEnabled(disable);
+		furmsUserComboBox.comboBox.setClassName("furms-leader-combo-box");
 		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 
 		formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));

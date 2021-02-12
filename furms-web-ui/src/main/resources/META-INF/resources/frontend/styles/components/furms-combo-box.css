@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.furms-leader-combo-box {
+	width: var(--vaadin-text-field-default-width, 24em);
+	font-size: var(--lumo-font-size-m);
+}
+
+.furms-invite-combo-box {
+	width: var(--vaadin-text-field-default-width, 16em);
+	font-size: var(--lumo-font-size-m);
+}

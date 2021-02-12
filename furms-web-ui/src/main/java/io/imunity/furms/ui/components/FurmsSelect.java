@@ -5,24 +5,26 @@
 
 package io.imunity.furms.ui.components;
 
-import java.util.List;
-import java.util.Map;
-
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
-
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
+import java.util.List;
+import java.util.Map;
+
+@CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
 	private final FurmsSelectService furmsSelectService;
 	public FurmsSelect(RoleTranslator roleTranslator) {
 		furmsSelectService = new FurmsSelectService(roleTranslator);
 		List<FurmsSelectText> items = furmsSelectService.loadItems();
 
+		setClassName("furms-select");
 		setItems(items);
 		setTextRenderer(Text::getText);
 		//addSeparators(data); TODO FIX separators are disabled now
