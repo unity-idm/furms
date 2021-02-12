@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>io.imunity.furms</groupId>
@@ -137,11 +139,37 @@
 						<filtering>true</filtering>
 						<includes>
 							<include>**/application*.yml</include>
+							<include>**/application*.properties</include>
+						</includes>
+					</resource>
+					<resource>
+						<directory>${basedir}/src/main/resources</directory>
+						<filtering>false</filtering>
+						<includes>
+							<include>**/*.jks</include>
 						</includes>
 					</resource>
 				</resources>
 
 				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>reserve-port</id>
+								<goals>
+									<goal>reserve-network-port</goal>
+								</goals>
+								<phase>process-resources</phase>
+								<configuration>
+									<portNames>
+										<portName>http.port</portName>
+									</portNames>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
@@ -158,10 +186,10 @@
 								</goals>
 								<configuration>
 									<arguments>
-										<argument>--server.port=3443</argument>
+										<argument>--server.port=${http.port}</argument>
 									</arguments>
 								</configuration>
-							</execution> 
+							</execution>
 							<execution>
 								<id>post-integration-test</id>
 								<goals>
@@ -182,7 +210,7 @@
 							</execution>
 						</executions>
 						<configuration>
-							<apiDocsUrl>http://localhost:3443/api-docs</apiDocsUrl>
+							<apiDocsUrl>http://localhost:${http.port}/api-docs</apiDocsUrl>
 							<outputFileName>openapi.json</outputFileName>
 							<outputDir>${project.build.directory}</outputDir>
 						</configuration>
