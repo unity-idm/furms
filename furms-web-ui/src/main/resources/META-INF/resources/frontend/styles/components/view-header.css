@@ -1,4 +1,5 @@
 .view-header {
 	padding-top: var(--lumo-size-s);
 	padding-bottom: var(--lumo-size-s);
+    margin-top: 0.4em;
 }

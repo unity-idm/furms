@@ -8,6 +8,7 @@ package io.imunity.furms.ui.components;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.furms.domain.users.User;
@@ -19,6 +20,7 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 
+@CssImport("./styles/components/furms-combo-box.css")
 public class InviteUserComponent extends HorizontalLayout {
 
 	private final Button inviteButton;
@@ -35,6 +37,7 @@ public class InviteUserComponent extends HorizontalLayout {
 		setSpacing(true);
 		furmsUserComboBox = new FurmsUserComboBox(getAvailableUsers());
 		furmsUserComboBox.setAlignItems(Alignment.END);
+		furmsUserComboBox.comboBox.setClassName("furms-invite-combo-box");
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
 		inviteButton.setMinWidth("auto");
 		add(furmsUserComboBox, inviteButton);

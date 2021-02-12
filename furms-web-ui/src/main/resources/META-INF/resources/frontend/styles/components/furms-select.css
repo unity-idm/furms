@@ -3,7 +3,6 @@
  *  See LICENSE file for licensing information.
  */
 
-.furms-combo-box {
-	width: var(--vaadin-text-field-default-width, 24em);
-	font-size: var(--lumo-font-size-m);
+.furms-select {
+	width: var(--vaadin-text-field-default-width, 15em);
 }
