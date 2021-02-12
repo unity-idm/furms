@@ -102,11 +102,11 @@ public class AdministratorsGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.1"))
 				.setSortable(true)
 				.setComparator(FullNameColumn::compareTo)
-				.setFlexGrow(10);
+				.setFlexGrow(35);
 		grid.addColumn(AdministratorsGridItem::getEmail)
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
 				.setSortable(true)
-				.setFlexGrow(60);
+				.setFlexGrow(35);
 		grid.addColumn(c -> "Active")
 				.setHeader(getTranslation("component.administrators.grid.column.3"))
 				.setSortable(true)
