@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.fenix.sites.admins;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.function.Function.identity;
 
 import java.lang.invoke.MethodHandles;
 
@@ -21,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -91,7 +93,12 @@ public class SitesAdminsView extends FurmsViewComponent {
 			}).build();
 		this.siteId = siteId;
 
-		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(getTranslation("view.sites.administrators.title"), membershipLayout);
+		Site site = handleExceptions(() -> siteService.findById(siteId))
+				.flatMap(identity())
+				.orElseThrow(IllegalStateException::new);
+		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(
+				getTranslation("view.sites.administrators.title", site.getName()), 
+				membershipLayout);
 		getContent().add(viewHeaderLayout, inviteUser, grid);
 	}
 
