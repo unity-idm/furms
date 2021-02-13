@@ -57,19 +57,35 @@ public class UsersGridComponent extends VerticalLayout {
 	private final boolean redirectOnCurrentUserRemoval;
 	private final boolean allowRemovalOfLastUser;
 	
+	private final String confirmRemovalMessageKey;
+	private final String confirmSelfRemovalMessageKey;
+	private final String removalNotAllowedMessageKey;
+	
 	private String searchText = "";
 
 	private UsersGridComponent(Supplier<List<User>> fetchUsersAction,
 			Consumer<String> removeUserAction,
 			String currentUserId,
 			boolean redirectOnCurrentUserRemoval,
-			boolean allowRemovalOfLastUser) {
+			boolean allowRemovalOfLastUser,
+			String confirmRemovalMessageKey,
+			String confirmSelfRemovalMessageKey,
+			String removalNotAllowedMessageKey) {
 		this.fetchUsersAction = fetchUsersAction;
 		this.removeUserAction = removeUserAction;
 		this.grid = new SparseGrid<>(AdministratorsGridItem.class);
 		this.currentUserId = currentUserId;
 		this.redirectOnCurrentUserRemoval = redirectOnCurrentUserRemoval;
 		this.allowRemovalOfLastUser = allowRemovalOfLastUser;
+		this.confirmRemovalMessageKey = confirmRemovalMessageKey == null 
+				? "component.administrators.remove.confirm"
+				: confirmRemovalMessageKey;
+		this.confirmSelfRemovalMessageKey = confirmSelfRemovalMessageKey == null
+				? "component.administrators.remove.yourself.confirm"
+				: confirmSelfRemovalMessageKey;
+		this.removalNotAllowedMessageKey = removalNotAllowedMessageKey == null
+				? "component.administrators.error.validation.remove"
+				: removalNotAllowedMessageKey;
 		addSearchForm();
 		addGrid();
 		setPadding(false);
@@ -148,7 +164,7 @@ public class UsersGridComponent extends VerticalLayout {
 	}
 
 	private void doRemoveYourself(){
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.yourself.confirm"));
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmSelfRemovalMessageKey));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval()) {
 				getResultOrException(() -> removeUserAction.accept(currentUserId))
@@ -157,7 +173,7 @@ public class UsersGridComponent extends VerticalLayout {
 					this::refreshUserRoles
 				);
 			} else {
-				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
 			}
 		});
 		furmsDialog.open();
@@ -173,13 +189,13 @@ public class UsersGridComponent extends VerticalLayout {
 	}
 
 	private void doRemoveItemAction(String id) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.confirm"));
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmRemovalMessageKey));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval()) {
 				handleExceptions(() -> removeUserAction.accept(id));
 				reloadGrid();
 			} else {
-				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
 			}
 		});
 		furmsDialog.open();
@@ -244,6 +260,9 @@ public class UsersGridComponent extends VerticalLayout {
 		private String currentUserId;
 		private boolean redirectOnCurrentUserRemoval = false;
 		private boolean allowRemovalOfLastUser = false;
+		private String confirmRemovalMessageKey;
+		private String confirmSelfRemovalMessageKey;
+		private String removalNotAllowedMessageKey;
 
 		private Builder() {
 		}
@@ -272,13 +291,29 @@ public class UsersGridComponent extends VerticalLayout {
 			this.allowRemovalOfLastUser = true;
 			return this;
 		}
+		
+		public Builder withConfirmRemovalMessageKey(String key) {
+			this.confirmRemovalMessageKey = key;
+			return this;
+		}
+		
+		public Builder withConfirmSelfRemovalMessageKey(String key) {
+			this.confirmSelfRemovalMessageKey = key;
+			return this;
+		}
 
+		public Builder withremovalNotAllowedMessageKey(String key) {
+			this.removalNotAllowedMessageKey = key;
+			return this;
+		}
+		
 		public UsersGridComponent build() {
 			Preconditions.checkNotNull(fetchUsersAction);
 			Preconditions.checkNotNull(removeUserAction);
 			Preconditions.checkNotNull(currentUserId);
 			return new UsersGridComponent(fetchUsersAction, removeUserAction, currentUserId,
-					redirectOnCurrentUserRemoval, allowRemovalOfLastUser);
+					redirectOnCurrentUserRemoval, allowRemovalOfLastUser, confirmRemovalMessageKey,
+					confirmSelfRemovalMessageKey, removalNotAllowedMessageKey);
 		}
 	}
 }

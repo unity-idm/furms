@@ -56,6 +56,8 @@ public class UsersView extends FurmsLandingViewComponent {
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.allowRemovalOfLastUser()
+			.withConfirmRemovalMessageKey("view.project-admin.users.remove.confirm")
+			.withConfirmSelfRemovalMessageKey("view.project-admin.users.remove.yourself.confirm")
 			.withFetchUsersAction(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()))
 			.withRemoveUserAction(userId -> {
 				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
