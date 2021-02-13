@@ -34,6 +34,7 @@ import java.util.Set;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
+import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUESTED;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
@@ -52,9 +53,9 @@ public class ProjectsView extends FurmsViewComponent {
 		this.projectService = projectService;
 		this.mapper = new ProjectGridModelMapper(currentUserId, projectService);
 		this.grid = createProjectGrid();
-		loadGridContent();
 
 		CheckboxGroup<UserStatus> checkboxGroup = createCheckboxLayout();
+		loadGridContent();
 		getContent().add(createHeaderLayout(checkboxGroup), createSearchFilterLayout(grid), new HorizontalLayout(grid));
 	}
 
@@ -63,6 +64,9 @@ public class ProjectsView extends FurmsViewComponent {
 		checkboxGroup.setLabel(getTranslation("view.user-settings.projects.filter.title"));
 		checkboxGroup.setItems(UserStatus.values());
 		checkboxGroup.setItemLabelGenerator(x -> getTranslation(x.filterText));
+		checkboxGroup.select(ACTIVE, REQUESTED);
+		currentFilters.add(ACTIVE);
+		currentFilters.add(REQUESTED);
 		checkboxGroup.addSelectionListener(event -> {
 			currentFilters.clear();
 			currentFilters.addAll(event.getAllSelectedItems());
@@ -130,7 +134,7 @@ public class ProjectsView extends FurmsViewComponent {
 					createContextMenu(project.id, project.name, project.communityId)
 				);
 			case NOT_ACTIVE:
-				return new GridActionsButtonLayout(new MenuButton(PLUS_CIRCLE));
+				return new GridActionsButtonLayout();
 			case REQUESTED:
 				return new GridActionsButtonLayout(new MenuButton(TRASH));
 			default:
@@ -177,7 +181,7 @@ public class ProjectsView extends FurmsViewComponent {
 			.stream()
 			.map(mapper::map)
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
-			.filter(project -> currentFilters.isEmpty() || currentFilters.contains(project.status))
+			.filter(project -> currentFilters.contains(project.status))
 			.filter(project -> searchText.isEmpty() || project.matches(searchText))
 			.collect(toList());
 	}
