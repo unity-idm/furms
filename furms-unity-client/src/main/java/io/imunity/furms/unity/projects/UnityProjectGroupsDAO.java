@@ -184,9 +184,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		Set<String> roleValues = userService.getRoleValues(userId, projectPath, role);
 		if (roleValues.contains(role.unityRoleValue)) {
-			userService.removeUserRole(userId, projectPath, role);
 			if(roleValues.size() == 1)
 				userService.removeUserFromGroup(userId, projectPath);
+			else
+				userService.removeUserRole(userId, projectPath, role);
 		}
 	}
 

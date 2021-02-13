@@ -173,7 +173,7 @@ class UnityProjectGroupsDAOTest {
 
 		//then
 		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(PROJECT_ADMIN));
-		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
 		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
 	}
 
@@ -245,7 +245,7 @@ class UnityProjectGroupsDAOTest {
 
 		//then
 		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(PROJECT_USER));
-		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
+		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
 		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
 	}
 

@@ -163,9 +163,10 @@ class UnitySiteWebClient implements SiteWebClient {
 		String group = getSitePath(siteId);
 		Set<String> roleValues = userService.getRoleValues(userId, group, SITE_ADMIN);
 		if (roleValues.contains(SITE_ADMIN.unityRoleValue)) {
-			userService.removeUserRole(userId, group, SITE_ADMIN);
 			if (roleValues.size() == 1)
 				userService.removeUserFromGroup(userId, group);
+			else
+				userService.removeUserRole(userId, group, SITE_ADMIN);
 		}
 	}
 
