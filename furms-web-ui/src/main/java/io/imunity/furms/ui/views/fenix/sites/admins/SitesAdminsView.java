@@ -53,6 +53,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		getContent().removeAll();
 		init(parameter);
 	}
 
