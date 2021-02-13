@@ -5,27 +5,37 @@
 
 package io.imunity.furms.unity.projects;
 
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.Role.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 @ExtendWith(SpringExtension.class)
 class UnityProjectGroupsDAOTest {
@@ -155,13 +165,16 @@ class UnityProjectGroupsDAOTest {
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		String userId = "userId";
-
+		
 		//when
+		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+			.thenReturn(Set.of("ADMIN"));
 		unityProjectGroupsDAO.removeAdmin(communityId, projectId, userId);
 
 		//then
+		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(PROJECT_ADMIN));
+		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
 		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
-		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
 	}
 
 	@Test
@@ -226,11 +239,14 @@ class UnityProjectGroupsDAOTest {
 		String userId = "userId";
 
 		//when
+		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+			.thenReturn(Set.of("USER"));
 		unityProjectGroupsDAO.removeUser(communityId, projectId, userId);
 
 		//then
+		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(PROJECT_USER));
+		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
 		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
-		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));
 	}
 
 	@Test

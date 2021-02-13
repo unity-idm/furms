@@ -5,29 +5,33 @@
 
 package io.imunity.furms.unity.sites;
 
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.META;
+import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
+import static io.imunity.furms.utils.ValidationUtils.check;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.ID;
-import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.*;
-import static io.imunity.furms.utils.ValidationUtils.check;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnitySiteWebClient implements SiteWebClient {
@@ -157,10 +161,12 @@ class UnitySiteWebClient implements SiteWebClient {
 				() -> new IllegalArgumentException("Could not remove Site Administrator in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);
-		if(userService.getRoleValues(userId, group, SITE_ADMIN).size() > 1)
+		Set<String> roleValues = userService.getRoleValues(userId, group, SITE_ADMIN);
+		if (roleValues.contains(SITE_ADMIN.unityRoleValue)) {
 			userService.removeUserRole(userId, group, SITE_ADMIN);
-		else
-			userService.removeUserFromGroup(userId, group);
+			if (roleValues.size() == 1)
+				userService.removeUserFromGroup(userId, group);
+		}
 	}
 
 	private Map<String, Object> uriVariables(Site site) {
