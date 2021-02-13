@@ -27,6 +27,7 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
@@ -93,10 +94,17 @@ class ProjectFormView extends FurmsViewComponent {
 
 		optionalException.getThrowable().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation("project.error.message")),
-			() -> UI.getCurrent().navigate(ProjectsView.class)
+			this::afterSuccessfulSave
 		);
 	}
 
+	private void afterSuccessfulSave() {
+		//should only call it if the edited project is in the view picker (== current user is the member)
+		// but perhaps it more lightweight to call it always.
+		UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+		UI.getCurrent().navigate(ProjectsView.class);
+	}
+	
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		
