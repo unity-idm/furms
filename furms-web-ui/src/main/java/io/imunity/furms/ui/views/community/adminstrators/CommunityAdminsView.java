@@ -5,15 +5,19 @@
 
 package io.imunity.furms.ui.views.community.adminstrators;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
@@ -42,10 +46,8 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
-			getTranslation("view.community-admin.administrators.page.header"),
-			inviteUser
-		);
-		getContent().add(headerLayout, grid);
+				getTranslation("view.community-admin.administrators.page.header"));
+		getContent().add(headerLayout, inviteUser, grid);
 	}
 
 }

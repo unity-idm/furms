@@ -5,7 +5,10 @@
 
 package io.imunity.furms.ui.views.project.administrators;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
@@ -16,8 +19,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "project/admin/administrators", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.administrators.page.title")
@@ -46,9 +47,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
-			getTranslation("view.project-admin.administrators.page.header"),
-			inviteUser
-		);
-		getContent().add(headerLayout, grid);
+			getTranslation("view.project-admin.administrators.page.header"));
+		getContent().add(headerLayout, inviteUser, grid);
 	}
 }

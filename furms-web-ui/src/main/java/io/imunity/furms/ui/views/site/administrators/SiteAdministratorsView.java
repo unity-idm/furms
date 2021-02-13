@@ -5,7 +5,15 @@
 
 package io.imunity.furms.ui.views.site.administrators;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
@@ -15,12 +23,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.administrators.page.title")
@@ -29,7 +31,6 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
-	private final UserService userService;
 
 	private final AdministratorsGridComponent grid;
 	private final String siteId;
@@ -37,7 +38,6 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
-		this.userService = userService;
 		this.siteId = getActualViewUserContext().id;
 		this.currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
@@ -51,15 +51,12 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 					siteService.removeAdmin(siteId, userId);
 					inviteUser.reload();
 				},
-				currentUserId
+				currentUserId,
+				true
 			);
 
-		addHeader(inviteUser);
-		getContent().add(grid);
-	}
-
-	private void addHeader(InviteUserComponent inviteUser) {
-		getContent().add(new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"), inviteUser));
+		ViewHeaderLayout header = new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"));
+		getContent().add(header, inviteUser, grid);
 	}
 
 	private void doInviteAction(InviteUserComponent inviteUser) {
