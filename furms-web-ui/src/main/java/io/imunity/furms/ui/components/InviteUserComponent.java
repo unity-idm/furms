@@ -40,6 +40,9 @@ public class InviteUserComponent extends HorizontalLayout {
 		furmsUserComboBox.comboBox.setClassName("furms-invite-combo-box");
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
 		inviteButton.setMinWidth("auto");
+		inviteButton.setEnabled(furmsUserComboBox.hasValue());
+		furmsUserComboBox.comboBox.addValueChangeListener(event -> 
+			inviteButton.setEnabled(furmsUserComboBox.hasValue()));
 		add(furmsUserComboBox, inviteButton);
 	}
 

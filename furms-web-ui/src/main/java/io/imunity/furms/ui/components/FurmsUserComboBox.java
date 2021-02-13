@@ -41,4 +41,9 @@ public class FurmsUserComboBox extends VerticalLayout {
 		getStyle().set("padding", "unset");
 		add(comboBox, emailLabel);
 	}
+	
+	public boolean hasValue() {
+		return comboBox.getValue() != null;
+	}
+	
 }
