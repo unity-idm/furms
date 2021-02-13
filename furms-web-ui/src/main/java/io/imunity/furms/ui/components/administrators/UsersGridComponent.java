@@ -132,7 +132,7 @@ public class UsersGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.3"))
 				.setSortable(true)
 				.setFlexGrow(5);
-		grid.addComponentColumn(c -> addMenu(c.getId()))
+		grid.addComponentColumn(this::addMenu)
 				.setHeader(getTranslation("component.administrators.grid.column.4"))
 				.setWidth("6em")
 				.setTextAlign(ColumnTextAlign.END);
@@ -146,7 +146,7 @@ public class UsersGridComponent extends VerticalLayout {
 		add(grid);
 	}
 
-	private Component addMenu(String id) {
+	private Component addMenu(AdministratorsGridItem gridItem) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		Button button = new Button(getTranslation("component.administrators.context.menu.remove"),
@@ -154,10 +154,10 @@ public class UsersGridComponent extends VerticalLayout {
 		button.addThemeVariants(LUMO_TERTIARY);
 
 		contextMenu.addItem(button, event -> {
-			if(id.equals(currentUserId))
+			if(gridItem.getId().equals(currentUserId))
 				doRemoveYourself();
 			else
-				doRemoveItemAction(id);
+				doRemoveItemAction(gridItem);
 		});
 		add(contextMenu);
 		return contextMenu.getTarget();
@@ -188,11 +188,12 @@ public class UsersGridComponent extends VerticalLayout {
 		}
 	}
 
-	private void doRemoveItemAction(String id) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmRemovalMessageKey));
+	private void doRemoveItemAction(AdministratorsGridItem removedItem) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmRemovalMessageKey, 
+				FullNameColumn.getFullName(removedItem)));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval()) {
-				handleExceptions(() -> removeUserAction.accept(id));
+				handleExceptions(() -> removeUserAction.accept(removedItem.getId()));
 				reloadGrid();
 			} else {
 				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
