@@ -112,6 +112,8 @@ public class SitesAdminsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();
+			//TODO should only call it if the added user is the current user (self add)
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);

@@ -149,6 +149,9 @@ public class CommunityView extends FurmsViewComponent {
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
+			//TODO should only call it if the added user is the current user (self add)
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+
 		});
 		page1.add(headerLayout, inviteUser, grid);
 	}
