@@ -47,6 +47,12 @@ public class UsersView extends FurmsLandingViewComponent {
 			userService::getAllUsers,
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
 		);
+		
+		membershipLayout = new MembershipChangerComponent(
+				getTranslation("view.project-admin.users.button.join"),
+				getTranslation("view.project-admin.users.button.demit"),
+				() -> projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)
+		);
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.allowRemovalOfLastUser()
@@ -54,13 +60,8 @@ public class UsersView extends FurmsLandingViewComponent {
 			.withRemoveUserAction(userId -> {
 				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
 				inviteUser.reload();
+				membershipLayout.loadAppropriateButton();
 			}).build();
-
-		membershipLayout = new MembershipChangerComponent(
-			getTranslation("view.project-admin.users.button.join"),
-			getTranslation("view.project-admin.users.button.demit"),
-			() -> projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)
-		);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
