@@ -126,6 +126,7 @@ public class ProjectView extends FurmsViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
+			inviteUser.reload();
 			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
@@ -136,6 +137,7 @@ public class ProjectView extends FurmsViewComponent {
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
+			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(

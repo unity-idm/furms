@@ -61,7 +61,6 @@ public class SitesAdminsView extends FurmsViewComponent {
 			userService::getAllUsers,
 			() -> siteService.findAllAdmins(siteId)
 		);
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.sites.button.join"),
@@ -71,6 +70,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);
 			grid.reloadGrid();
+			inviteUser.reload();
 			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
@@ -81,14 +81,17 @@ public class SitesAdminsView extends FurmsViewComponent {
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
+			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
 		});
 
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser, membershipLayout));
 		this.grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.withFetchUsersAction(() -> siteService.findAllAdmins(siteId))
 			.withRemoveUserAction(userId -> {
 				siteService.removeAdmin(siteId, userId);
+				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			}).build();
 		this.siteId = siteId;
@@ -102,10 +105,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 		getContent().add(viewHeaderLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(InviteUserComponent inviteUserComponent) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
 			siteService.inviteAdmin(siteId, inviteUserComponent.getEmail());
 			inviteUserComponent.reload();
+			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
