@@ -20,7 +20,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
@@ -31,7 +31,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private final UserService userService;
 
-	private final AdministratorsGridComponent grid;
+	private final UsersGridComponent grid;
 
 	FenixAdministratorsView(UserService userService, AuthzService authzService) {
 		this.userService = userService;
@@ -42,15 +42,14 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
-		this.grid = new AdministratorsGridComponent(
-			userService::getFenixAdmins,
-			userId -> {
+		this.grid = UsersGridComponent.builder()
+			.withCurrentUserId(authzService.getCurrentUserId())
+			.redirectOnCurrentUserRemoval()
+			.withFetchUsersAction(userService::getFenixAdmins)
+			.withRemoveUserAction(userId -> {
 				userService.removeFenixAdminRole(userId);
 				inviteUser.reload();
-			},
-			authzService.getCurrentUserId(),
-			true
-		);
+			}).build();
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
 		getContent().add(headerLayout, inviteUser, grid);

@@ -21,7 +21,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
@@ -32,7 +32,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 
-	private final AdministratorsGridComponent grid;
+	private final UsersGridComponent grid;
 	private final String siteId;
 	private final String currentUserId;
 
@@ -45,15 +45,14 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			() -> siteService.findAllAdmins(siteId)
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
-		this.grid = new AdministratorsGridComponent(
-				() -> siteService.findAllAdmins(siteId),
-				userId -> {
-					siteService.removeAdmin(siteId, userId);
-					inviteUser.reload();
-				},
-				currentUserId,
-				true
-			);
+		this.grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.redirectOnCurrentUserRemoval()
+			.withFetchUsersAction(() -> siteService.findAllAdmins(siteId))
+			.withRemoveUserAction(userId -> {
+				siteService.removeAdmin(siteId, userId);
+				inviteUser.reload();
+			}).build();
 
 		ViewHeaderLayout header = new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"));
 		getContent().add(header, inviteUser, grid);

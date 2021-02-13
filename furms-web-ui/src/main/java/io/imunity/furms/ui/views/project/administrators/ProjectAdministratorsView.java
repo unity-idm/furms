@@ -17,7 +17,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 @Route(value = "project/admin/administrators", layout = ProjectAdminMenu.class)
@@ -32,15 +32,14 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			userService::getAllUsers,
 			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
 		);
-		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
-			userId -> {
+		UsersGridComponent grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.redirectOnCurrentUserRemoval()
+			.withFetchUsersAction(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()))
+			.withRemoveUserAction(userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				inviteUser.reload();
-			},
-			currentUserId,
-			true
-		);
+			}).build();
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.reloadGrid();

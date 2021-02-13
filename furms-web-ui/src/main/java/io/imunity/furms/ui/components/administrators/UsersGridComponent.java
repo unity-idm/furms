@@ -5,6 +5,24 @@
 
 package io.imunity.furms.ui.components.administrators;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -21,6 +39,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
+
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsSelectReloader;
@@ -28,44 +47,32 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.views.landing.RoleChooserView;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-public class AdministratorsGridComponent extends VerticalLayout {
+public class UsersGridComponent extends VerticalLayout {
 
 	private final Grid<AdministratorsGridItem> grid;
 
 	private final Supplier<List<User>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
-	private boolean redirect;
+	private final boolean redirectOnCurrentUserRemoval;
+	private final boolean allowRemovalOfLastUser;
+	
 	private String searchText = "";
 
-	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction, String currentUserId) {
+	private UsersGridComponent(Supplier<List<User>> fetchUsersAction,
+			Consumer<String> removeUserAction,
+			String currentUserId,
+			boolean redirectOnCurrentUserRemoval,
+			boolean allowRemovalOfLastUser) {
 		this.fetchUsersAction = fetchUsersAction;
 		this.removeUserAction = removeUserAction;
 		this.grid = new SparseGrid<>(AdministratorsGridItem.class);
 		this.currentUserId = currentUserId;
+		this.redirectOnCurrentUserRemoval = redirectOnCurrentUserRemoval;
+		this.allowRemovalOfLastUser = allowRemovalOfLastUser;
 		addSearchForm();
 		addGrid();
 		setPadding(false);
-	}
-
-	public AdministratorsGridComponent(Supplier<List<User>> fetchUsersAction, Consumer<String> removeUserAction,
-	                                   String currentUserId, boolean redirect) {
-		this(fetchUsersAction, removeUserAction, currentUserId);
-		this.redirect = redirect;
 	}
 
 	public void reloadGrid() {
@@ -143,7 +150,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private void doRemoveYourself(){
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.yourself.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			if (loadUsers().size() > 1) {
+			if (allowRemoval()) {
 				getResultOrException(() -> removeUserAction.accept(currentUserId))
 					.getThrowable().ifPresentOrElse(
 						e -> showErrorNotification(getTranslation(e.getMessage())),
@@ -157,7 +164,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	}
 
 	private void refreshUserRoles() {
-		if(redirect)
+		if(redirectOnCurrentUserRemoval)
 			UI.getCurrent().navigate(RoleChooserView.class);
 		else{
 			reloadGrid();
@@ -168,7 +175,7 @@ public class AdministratorsGridComponent extends VerticalLayout {
 	private void doRemoveItemAction(String id) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("component.administrators.remove.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			if (loadUsers().size() > 1) {
+			if (allowRemoval()) {
 				handleExceptions(() -> removeUserAction.accept(id));
 				reloadGrid();
 			} else {
@@ -177,7 +184,11 @@ public class AdministratorsGridComponent extends VerticalLayout {
 		});
 		furmsDialog.open();
 	}
-
+	
+	private boolean allowRemoval() {
+		return allowRemovalOfLastUser || loadUsers().size() > 1;
+	}
+	
 	private void loadGrid(List<AdministratorsGridItem> users) {
 		grid.setItems(users);
 	}
@@ -220,6 +231,54 @@ public class AdministratorsGridComponent extends VerticalLayout {
 			String c1FullName = c1.getFirstName() + " " + c1.getLastName();
 			String c2FullName = c2.getFirstName() + " " + c2.getLastName();
 			return c1FullName.compareTo(c2FullName);
+		}
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private Supplier<List<User>> fetchUsersAction;
+		private Consumer<String> removeUserAction;
+		private String currentUserId;
+		private boolean redirectOnCurrentUserRemoval = false;
+		private boolean allowRemovalOfLastUser = false;
+
+		private Builder() {
+		}
+
+		public Builder withFetchUsersAction(Supplier<List<User>> fetchUsersAction) {
+			this.fetchUsersAction = fetchUsersAction;
+			return this;
+		}
+
+		public Builder withRemoveUserAction(Consumer<String> removeUserAction) {
+			this.removeUserAction = removeUserAction;
+			return this;
+		}
+
+		public Builder withCurrentUserId(String currentUserId) {
+			this.currentUserId = currentUserId;
+			return this;
+		}
+
+		public Builder redirectOnCurrentUserRemoval() {
+			this.redirectOnCurrentUserRemoval = true;
+			return this;
+		}
+
+		public Builder allowRemovalOfLastUser() {
+			this.allowRemovalOfLastUser = true;
+			return this;
+		}
+
+		public UsersGridComponent build() {
+			Preconditions.checkNotNull(fetchUsersAction);
+			Preconditions.checkNotNull(removeUserAction);
+			Preconditions.checkNotNull(currentUserId);
+			return new UsersGridComponent(fetchUsersAction, removeUserAction, currentUserId,
+					redirectOnCurrentUserRemoval, allowRemovalOfLastUser);
 		}
 	}
 }

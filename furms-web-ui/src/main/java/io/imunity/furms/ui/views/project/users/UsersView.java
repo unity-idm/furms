@@ -5,18 +5,23 @@
 
 package io.imunity.furms.ui.views.project.users;
 
+import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.FurmsLandingViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.MembershipChangerComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-
-import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
@@ -37,20 +42,20 @@ public class UsersView extends FurmsLandingViewComponent {
 
 	private void loadPageContent() {
 		project = projectService.findById(getCurrentResourceId()).get();
+		currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
 			userService::getAllUsers,
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
 		);
-		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
-			userId -> {
+		UsersGridComponent grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.allowRemovalOfLastUser()
+			.withFetchUsersAction(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()))
+			.withRemoveUserAction(userId -> {
 				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
 				inviteUser.reload();
-			},
-			currentUserId
-		);
+			}).build();
 
-		currentUserId = authzService.getCurrentUserId();
 		membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.project-admin.users.button.join"),
 			getTranslation("view.project-admin.users.button.demit"),
@@ -70,7 +75,8 @@ public class UsersView extends FurmsLandingViewComponent {
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
 		});
-		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
+		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
+				getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
 		getContent().add(headerLayout, inviteUser, grid);
 	}
 

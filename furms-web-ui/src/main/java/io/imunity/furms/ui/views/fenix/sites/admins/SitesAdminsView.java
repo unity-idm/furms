@@ -5,23 +5,30 @@
 
 package io.imunity.furms.ui.views.fenix.sites.admins;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.FurmsSelectReloader;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.MembershipChangerComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 
 @Route(value = "fenix/admin/sites/details", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.details.title")
@@ -33,7 +40,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final UserService userService;
 	private final String currentUserId;
 
-	private AdministratorsGridComponent grid;
+	private UsersGridComponent grid;
 	private String siteId;
 
 	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
@@ -75,14 +82,13 @@ public class SitesAdminsView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 		});
 
-		this.grid = new AdministratorsGridComponent(
-				() -> siteService.findAllAdmins(siteId),
-				userId -> {
-					siteService.removeAdmin(siteId, userId);
-					inviteUser.reload();
-				},
-				currentUserId
-		);
+		this.grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.withFetchUsersAction(() -> siteService.findAllAdmins(siteId))
+			.withRemoveUserAction(userId -> {
+				siteService.removeAdmin(siteId, userId);
+				inviteUser.reload();
+			}).build();
 		this.siteId = siteId;
 
 		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(getTranslation("view.sites.administrators.title"), membershipLayout);
