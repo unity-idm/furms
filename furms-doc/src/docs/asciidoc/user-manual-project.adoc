@@ -11,14 +11,15 @@ Project management in FURMS consists of two main operations:
 
 What is more, FURMS collects resource usage information from sites on which resources are consumed. This information can be used to track budget consumption and its spread over time.
 
+=== Managing users
+
+Under the Users menu entry, project administrator can view, add and remove project users. Note that project administrator needs not to be (and does not become by default) a regular project user. Administrator can however assign him/her-self project user role with a dedicated action button. 
+
 
 === Project settings
 
-Under project settings menu entry, project administrator can control project details. Some of the settings are under control of the parent community and therefore are presented as read-only values.
+Under the Settings menu entry, project administrator can control project details. Some of the settings are under control of the parent community and therefore are presented as read-only values.
 
-=== Managing users
-
-{versionlimit} This functionality is not available yet.
 
 === Resource access
 
