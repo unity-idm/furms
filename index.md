@@ -1,6 +1,8 @@
 
 <p align="center" style="font-size: xx-large; height: 600px;">
-  <a href="user">FURMS user</a> |
+  <a href="user">FURMS user</a> 
+  <br/>
+  <br/>  
   <a href="devops">System administrator</a> 
   <br/>
   <br/>
