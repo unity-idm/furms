@@ -34,3 +34,4 @@ def printFile(filename, manualFileName):
 
 printFile("devops.md", "sysadmin-manual.html")
 printFile("user.md", "user-manual.html")
+printFile("rest-api.md", "openapi-static.html")
