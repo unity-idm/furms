@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 
 @Route(LANDING_PAGE_URL)
 @PageTitle(key = "view.landing.title")
-class LandingPageView extends FurmsViewComponent implements AfterNavigationObserver {
+public class LandingPageView extends FurmsViewComponent implements AfterNavigationObserver {
 	private final Map<ViewMode, List<FurmsViewUserContext>> data;
 
 	LandingPageView(RoleTranslator roleTranslator) {
