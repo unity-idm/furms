@@ -1,3 +1,4 @@
+= FURMS user manual
 ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../../main/java]
 
@@ -5,7 +6,6 @@ image::logo-fenix.png[scaledwidth=75%]
 :icons: font
 
 
-= FURMS user manual
 
 include::user-manual-intro.adoc[]
 

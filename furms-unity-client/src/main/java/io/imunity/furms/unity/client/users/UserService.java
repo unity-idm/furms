@@ -51,11 +51,14 @@ public class UserService {
 
 	public void addUserRole(String userId, String group, Role role){
 		String uriComponents = prepareRoleRequestPath(userId);
+		Set<String> roleValues = getRoleValues(userId, group, role);
+		roleValues.add(role.unityRoleValue);
+
 		Attribute attribute = new Attribute(
 			role.unityRoleAttribute,
 			ENUMERATION,
 			group,
-			List.of(role.unityRoleValue)
+			new ArrayList<>(roleValues)
 		);
 		unityClient.put(uriComponents, attribute);
 	}

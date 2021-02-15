@@ -5,18 +5,17 @@
 
 package io.imunity.furms.core.authz;
 
-import static io.imunity.furms.core.config.security.FurmsAuthenticatedUser.getCurrent;
-
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.spi.roles.RoleLoader;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.Set;
+
+import static io.imunity.furms.core.config.security.FurmsAuthenticatedUser.getCurrent;
 
 @Service
 public class AuthzServiceImpl implements AuthzService {

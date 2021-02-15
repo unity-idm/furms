@@ -5,24 +5,32 @@
 
 package io.imunity.furms.ui.views.fenix.sites.admins;
 
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.InviteUserComponent;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
-import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.function.Function.identity;
 
 import java.lang.invoke.MethodHandles;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.FurmsSelectReloader;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.MembershipChangerComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/sites/details", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.details.title")
@@ -34,7 +42,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final UserService userService;
 	private final String currentUserId;
 
-	private AdministratorsGridComponent grid;
+	private UsersGridComponent grid;
 	private String siteId;
 
 	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
@@ -45,33 +53,67 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		getContent().removeAll();
 		init(parameter);
 	}
 
 	private void init(String siteId) {
-		this.grid = new AdministratorsGridComponent(
-				() -> siteService.findAllAdmins(siteId),
-				userId -> siteService.removeAdmin(siteId, userId),
-				currentUserId
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> siteService.findAllAdmins(siteId)
 		);
+
+		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
+			getTranslation("view.fenix-admin.sites.button.join"),
+			getTranslation("view.fenix-admin.sites.button.demit"),
+			() -> siteService.isAdmin(siteId, currentUserId)
+		);
+		membershipLayout.addJoinButtonListener(event -> {
+			siteService.addAdmin(siteId, currentUserId);
+			grid.reloadGrid();
+			inviteUser.reload();
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+		});
+		membershipLayout.addDemitButtonListener(event -> {
+			if (siteService.findAllAdmins(siteId).size() > 1) {
+				handleExceptions(() -> siteService.removeAdmin(siteId, currentUserId));
+				grid.reloadGrid();
+				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+			} else {
+				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
+			}
+			inviteUser.reload();
+			membershipLayout.loadAppropriateButton();
+		});
+
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser, membershipLayout));
+		this.grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.withFetchUsersAction(() -> siteService.findAllAdmins(siteId))
+			.withRemoveUserAction(userId -> {
+				siteService.removeAdmin(siteId, userId);
+				membershipLayout.loadAppropriateButton();
+				inviteUser.reload();
+			}).build();
 		this.siteId = siteId;
 
-		addHeader();
-		getContent().add(grid);
+		Site site = handleExceptions(() -> siteService.findById(siteId))
+				.flatMap(identity())
+				.orElseThrow(IllegalStateException::new);
+		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(
+				getTranslation("view.sites.administrators.title", site.getName()), 
+				membershipLayout);
+		getContent().add(viewHeaderLayout, inviteUser, grid);
 	}
 
-	private void addHeader() {
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
-
-		getContent().add(new ViewHeaderLayout(getTranslation("view.sites.administrators.title"), inviteUser));
-	}
-
-	private void doInviteAction(InviteUserComponent inviteUserComponent) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
 			siteService.inviteAdmin(siteId, inviteUserComponent.getEmail());
-			inviteUserComponent.clear();
+			inviteUserComponent.reload();
+			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();
+			//TODO should only call it if the added user is the current user (self add)
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);

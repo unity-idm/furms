@@ -2,3 +2,7 @@
 	padding-top: var(--lumo-size-s);
 	padding-bottom: var(--lumo-size-s);
 }
+
+.view-header h4{
+    margin-top: 0.4em;
+}

@@ -5,31 +5,39 @@
 
 package io.imunity.furms.unity.projects;
 
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.projects.ProjectGroupsDAO;
-import io.imunity.furms.unity.client.UnityClient;
-
-import io.imunity.furms.unity.client.users.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static io.imunity.furms.domain.authz.roles.Role.*;
-import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_GROUP_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
+import static io.imunity.furms.unity.common.UnityConst.WITH_PARENTS;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.META;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 @Component
 class UnityProjectGroupsDAO implements ProjectGroupsDAO {
@@ -160,26 +168,27 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 
 	@Override
 	public void removeAdmin(String communityId, String projectId, String userId) {
-		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not remove Project Admin in Unity. Missing Project ID or User ID or Community "));
-
-		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		if(userService.getRoleValues(userId, projectPath, PROJECT_ADMIN).size() > 1)
-			userService.removeUserRole(userId, projectPath, PROJECT_ADMIN);
-		else
-			userService.removeUserFromGroup(userId, projectPath);
+		removeRole(PROJECT_ADMIN, communityId, projectId, userId);
 	}
 
 	@Override
 	public void removeUser(String communityId, String projectId, String userId) {
+		removeRole(PROJECT_USER, communityId, projectId, userId);
+	}
+	
+	private void removeRole(Role role, String communityId, String projectId, String userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not remove Project Admin in Unity. Missing Project ID or User ID or Community "));
+				() -> new IllegalArgumentException("Could not remove " + role.name() 
+					+ " in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		if(userService.getRoleValues(userId, projectPath, PROJECT_USER).size() > 1)
-			userService.removeUserRole(userId, projectPath, PROJECT_USER);
-		else
-			userService.removeUserFromGroup(userId, projectPath);
+		Set<String> roleValues = userService.getRoleValues(userId, projectPath, role);
+		if (roleValues.contains(role.unityRoleValue)) {
+			if(roleValues.size() == 1)
+				userService.removeUserFromGroup(userId, projectPath);
+			else
+				userService.removeUserRole(userId, projectPath, role);
+		}
 	}
 
 	@Override

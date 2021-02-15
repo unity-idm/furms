@@ -5,6 +5,24 @@
 
 package io.imunity.furms.core.projects;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.projects.Project;
@@ -14,19 +32,6 @@ import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -156,8 +161,11 @@ class ProjectServiceImpl implements ProjectService {
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
 	}
 
+	// FIXME: constrained released do to usage of this API for authenticated only user.
+	//        Do we need a separate method to validate currently authN user against project?
+	//        So similar like below but w/o last parameter that shall be taken from the context.
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
 	public boolean isUser(String communityId, String projectId, String userId) {
 		return projectGroupsDAO.isUser(communityId, projectId, userId);
 	}

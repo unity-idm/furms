@@ -30,8 +30,7 @@ public class RouterGridLink extends RouterLink {
 	public RouterGridLink(MenuButton component,
 	                      String id,
 	                      Class<? extends FurmsViewComponent> route) {
-		super("", route, id);
-		add(component);
+		this(component, id, route, null, null);
 	}
 
 	public RouterGridLink(VaadinIcon iconType,

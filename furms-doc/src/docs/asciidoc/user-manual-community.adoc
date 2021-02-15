@@ -14,10 +14,14 @@ NOTE: Project administrators can also themselves manage administrators of their 
 
 === Managing community administrators
 
-FURMS allows for having multiple users with the community administrator role. Each community administrator can add (and remove) other administrators from the "Community admins" view. 
+FURMS allows for having multiple users with the community administrator role. Each community administrator can add (and remove) other administrators from the "Community Administrators" view. 
 
 {versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.
 
+
+=== Managing community metadata
+
+Community name, description and logo can be modified at any time. It can be performed from the "Settings" view.
 
 === Distributing resources to projects
 

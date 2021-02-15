@@ -1,4 +1,4 @@
-:versionlimit: icon:wrench[] temporary v1 limitation icon:wrench[]
+:versionlimit: icon:wrench[] v1 limitation icon:wrench[]
 
 NOTE: In various places in this document, the following text is used to mark a limitation which is specific to the current release: +
 {versionlimit} +
@@ -25,3 +25,33 @@ Resource allocation process works as follows:
 FURMS has dedicated UI modes for each type of its user. User who has only a single role in the system will simply see the only view matching her or his role. Users with multiple roles can switch the view mode with a dropdown situated in the top right corner of the screen.
 
 In order to authenticate to FURMS user has to contain an account which is available for the Fenix Central Identity Provider.
+
+== Sign in and sign up
+
+NOTE: {versionlimit} the final shape of the sign-up process will be implemented in the phase 4 of the project. The current version provides only a simplified signup mechanism, allowing for complete testing of other, already delivered functions. That said, the onboarding described below is tentative and will be changed in next versions.
+
+Regular user sign in is handled via the Fenix Central IdP. After entering the FURMS public address (as configured during installation) user is redirected to the Central IdP and has to authenticate using his/her home identity provider.
+
+Each user who can authenticate using Fenix Central IdP can access FURMS. Initially only access to User Settings view is granted, without access to any of the projects. Access to a project needs to be granted either by community or project's administrator. User can be also added to Fenix, site, community or project administrators by other administrators.
+
+=== Initial onboarding
+
+Since initially every user authenticated with the Central IdP has no administrative privileges, the initial setup of the system has to be performed in special way. 
+
+During FURMS installation a local user account is created with configured user name and password. The created user is granted Fenix administrator privileges as well as Unity administrative privileges. To sign in as a local user, a special URL parameter needs to be added when entering FURMS Web UI, as follows:
+
+\https://FURMS-PUBLIC-HOST/*?showSignInOptions*
+
+Entering FURMS web interface with the `showSignInOptions` parameter prevents FURMS to trigger automatic authentication with the Central IdP. Instead user can choose to authenticate locally. This authentication method must be used at least once to initially configure the system, and can be used at will later on.
+
+Since the complete invitation mechanism is going to be delivered in future releases, currently inviting of users to become administrators or ordinary project users is limited to those Central IdP users who has signed into FURMS at least once. 
+
+Let's consider an example where _Local Fenix Admin_ wants to invite _Mary_ -- a Central IdP user -- to become community admin:
+
+1. _Local Fenix Admin_ has to sign in using the `showSignInOptions` parameter.
+2. _Mary_ has to sign in into FURMS in a regular way. She won't have access to anything besides her profile at this time. _Mary_ can sign out now.
+3. _Local Fenix Admin_ can now add _Mary_ as a community admin as she signed into FURMS at least once.
+4. After _Mary_ signs into FURMS next time she will have access to her community administrative functions.
+
+
+ 

@@ -35,4 +35,6 @@ public interface SiteService {
 	void addAdmin(String siteId, String userId);
 
 	void removeAdmin(String siteId, String userId);
+
+	boolean isAdmin(String siteId, String userId);
 }

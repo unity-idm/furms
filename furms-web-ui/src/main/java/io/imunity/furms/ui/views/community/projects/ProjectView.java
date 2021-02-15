@@ -5,26 +5,44 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.community.projects.ProjectConst.PARAM_NAME;
+import static java.util.function.Function.identity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.FurmsSelectReloader;
+import io.imunity.furms.ui.components.FurmsTabs;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.MembershipChangerComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import java.util.*;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.community.projects.ProjectConst.*;
-import static java.util.function.Function.identity;
 
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
@@ -88,42 +106,52 @@ public class ProjectView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(Project project) {
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
+		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.community-admin.project.button.join"),
 			getTranslation("view.community-admin.project.button.demit"),
 			() -> projectService.isAdmin(project.getCommunityId(), project.getId(), currentUserId)
 		);
-		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
-			userId -> {
+		UsersGridComponent grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.withFetchUsersAction(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()))
+			.withRemoveUserAction(userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				membershipLayout.loadAppropriateButton();
-			},
-			currentUserId
-		);
+				inviteUser.reload();
+			}).build();
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
+			inviteUser.reload();
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (projectService.findAllAdmins(project.getCommunityId(), project.getId()).size() > 1) {
 				handleExceptions(() -> projectService.removeAdmin(project.getCommunityId(), project.getId(), currentUserId));
 				grid.reloadGrid();
+				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
+			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project.page.header", project.getName()),
 			membershipLayout
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
-			inviteUser.clear();
+			inviteUser.reload();
+			//TODO should only call it if the added user is the current user (self add)
+			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
+
 		});
 		page1.add(headerLayout, inviteUser, grid);
 	}

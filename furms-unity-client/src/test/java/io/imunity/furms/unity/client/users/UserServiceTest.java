@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -51,8 +52,11 @@ public class UserServiceTest {
 		String userId = "userId";
 		String group = "fenix/group";
 		String path = "/entity/" + userId + "/attribute";
+		String getAttributesPath = "/entity/" + userId + "/groups/attributes";
 		Role role = Role.COMMUNITY_ADMIN;
 
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<Attribute>>>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
+			.thenReturn(Map.of(group, emptyList()));
 		userService.addUserRole(userId, group, role);
 
 		Attribute attribute = new Attribute(

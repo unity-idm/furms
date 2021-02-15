@@ -5,31 +5,41 @@
 
 package io.imunity.furms.unity.sites;
 
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 class UnitySiteWebClientTest {
 
@@ -172,11 +182,14 @@ class UnitySiteWebClientTest {
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
 		//when
+		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+			.thenReturn(Set.of("ADMIN"));
 		unitySiteWebClient.removeAdmin(siteId, userId);
 
 		//then
-		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(SITE_ADMIN));
 		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
 	}
 
 	@Test

@@ -5,15 +5,19 @@
 
 package io.imunity.furms.ui.views.community.adminstrators;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.components.administrators.AdministratorsGridComponent;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
@@ -23,23 +27,26 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		String currentUserId = authzService.getCurrentUserId();
 		String communityId = getCurrentResourceId();
 
-		AdministratorsGridComponent grid = new AdministratorsGridComponent(
-			() -> communityService.findAllAdmins(communityId),
-			userId -> communityService.removeAdmin(communityId, userId),
-			currentUserId,
-			true
+		InviteUserComponent inviteUser = new InviteUserComponent(
+			userService::getAllUsers,
+			() -> communityService.findAllAdmins(communityId)
 		);
-		InviteUserComponent inviteUser = new InviteUserComponent(userService.getAllUsers());
+		UsersGridComponent grid = UsersGridComponent.builder()
+			.withCurrentUserId(currentUserId)
+			.redirectOnCurrentUserRemoval()
+			.withFetchUsersAction(() -> communityService.findAllAdmins(communityId))
+			.withRemoveUserAction(userId -> {
+				communityService.removeAdmin(communityId, userId);
+				inviteUser.reload();
+			}).build();
 		inviteUser.addInviteAction(event -> {
 			communityService.inviteAdmin(communityId, inviteUser.getEmail());
 			grid.reloadGrid();
-			inviteUser.clear();
+			inviteUser.reload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
-			getTranslation("view.community-admin.administrators.page.header"),
-			inviteUser
-		);
-		getContent().add(headerLayout, grid);
+				getTranslation("view.community-admin.administrators.page.header"));
+		getContent().add(headerLayout, inviteUser, grid);
 	}
 
 }
