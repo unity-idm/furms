@@ -5,24 +5,6 @@
 
 package io.imunity.furms.core.projects;
 
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.projects.Project;
@@ -32,6 +14,19 @@ import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -74,7 +69,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
-		usersDAO.addProjectAdminRole(project.getCommunityId(), id, project.getLeaderId());
+		projectGroupsDAO.addAdmin(project.getCommunityId(), id, project.getLeaderId());
 		LOG.info("Project with given ID: {} was created: {}", id, project);
 	}
 
@@ -85,7 +80,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateUpdate(project);
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
-		usersDAO.addProjectAdminRole(project.getCommunityId(), project.getId(), project.getLeaderId());
+		projectGroupsDAO.addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
 		LOG.info("Project was updated {}", project);
 	}
 
@@ -141,8 +136,8 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
-	public void inviteAdmin(String communityId, String projectId, String email){
-		Optional<User> user = usersDAO.findByEmail(email);
+	public void inviteAdmin(String communityId, String projectId, String id){
+		Optional<User> user = usersDAO.findById(id);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
@@ -159,6 +154,12 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public List<User> findAllUsers(String communityId, String projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	public List<User> findAllUsers(String communityId){
+		return projectGroupsDAO.getAllUsers(communityId);
 	}
 
 	// FIXME: constrained released do to usage of this API for authenticated only user.
@@ -178,8 +179,8 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void inviteUser(String communityId, String projectId, String email) {
-		Optional<User> user = usersDAO.findByEmail(email);
+	public void inviteUser(String communityId, String projectId, String userId) {
+		Optional<User> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}

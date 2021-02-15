@@ -5,31 +5,22 @@
 
 package io.imunity.furms.core.users;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
-import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.users.*;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.users.CommunityMembership;
-import io.imunity.furms.domain.users.UnknownUserException;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.domain.users.UserAttribute;
-import io.imunity.furms.domain.users.UserAttributes;
-import io.imunity.furms.domain.users.UserRecord;
-import io.imunity.furms.domain.users.UserStatus;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.users.UsersDAO;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 @Service
 class UserServiceImpl implements UserService {
@@ -56,8 +47,8 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void inviteFenixAdmin(String email) {
-		Optional<User> user = usersDAO.findByEmail(email);
+	public void inviteFenixAdmin(String userId) {
+		Optional<User> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}

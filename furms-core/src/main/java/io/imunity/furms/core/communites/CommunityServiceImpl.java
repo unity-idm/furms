@@ -94,8 +94,8 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
-	public void inviteAdmin(String communityId, String email) {
-		Optional<User> user = usersDAO.findByEmail(email);
+	public void inviteAdmin(String communityId, String userId) {
+		Optional<User> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
