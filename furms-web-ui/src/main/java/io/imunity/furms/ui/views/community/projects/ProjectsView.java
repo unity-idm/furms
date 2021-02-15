@@ -159,10 +159,12 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private List<ProjectViewModel> loadProjectsViewsModels() {
+		String communityId = getCurrentResourceId();
+		List<User> users = projectService.findAllUsers(communityId);
 		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(resolver::resolve)
+			.map(p -> resolver.resolve(users, p))
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.collect(toList());
 	}
