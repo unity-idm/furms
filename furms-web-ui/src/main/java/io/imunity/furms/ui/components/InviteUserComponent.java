@@ -37,11 +37,11 @@ public class InviteUserComponent extends HorizontalLayout {
 		setSpacing(true);
 		furmsUserComboBox = new FurmsUserComboBox(getAvailableUsers());
 		furmsUserComboBox.setAlignItems(Alignment.END);
-		furmsUserComboBox.comboBox.setClassName("furms-invite-combo-box");
+		furmsUserComboBox.setClassName("furms-invite-combo-box");
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
 		inviteButton.setMinWidth("auto");
 		inviteButton.setEnabled(furmsUserComboBox.hasValue());
-		furmsUserComboBox.comboBox.addValueChangeListener(event -> 
+		furmsUserComboBox.addValueChangeListener(event ->
 			inviteButton.setEnabled(furmsUserComboBox.hasValue()));
 		add(furmsUserComboBox, inviteButton);
 	}
@@ -51,13 +51,13 @@ public class InviteUserComponent extends HorizontalLayout {
 	}
 
 	public String getEmail() {
-		return furmsUserComboBox.comboBox.getValue().email;
+		return furmsUserComboBox.getValue().email;
 	}
 
 	public void reload() {
-		furmsUserComboBox.comboBox.clear();
+		furmsUserComboBox.clear();
 		List<FurmsViewUserModel> availableUsers = getAvailableUsers();
-		furmsUserComboBox.comboBox.setItems(availableUsers);
+		furmsUserComboBox.setItems(availableUsers);
 	}
 
 	public List<FurmsViewUserModel> getAvailableUsers() {
