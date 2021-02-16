@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
  *  See LICENSE file for licensing information.
  */
 
@@ -43,14 +43,14 @@ public class GlobalExceptionHandlersTest {
 	void shouldReturn_500_onRuntimeException() throws Exception {
 		mockMvc.perform(get("/test/exception/handler/runtime-exception"))
 				.andExpect(status().isInternalServerError())
-				.andExpect(jsonPath("$.error", is("RuntimeException")));
+				.andExpect(jsonPath("$.error", is("Internal Server Error")));
 	}
 
 	@Test
 	void shouldReturn_500_onException() throws Exception {
 		mockMvc.perform(get("/test/exception/handler/exception"))
 				.andExpect(status().isInternalServerError())
-				.andExpect(jsonPath("$.error", is("Exception")));
+				.andExpect(jsonPath("$.error", is("Internal Server Error")));
 	}
 
 }
