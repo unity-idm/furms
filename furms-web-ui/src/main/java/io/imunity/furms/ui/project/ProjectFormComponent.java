@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.project;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -78,20 +77,20 @@ public class ProjectFormComponent extends Composite<Div> {
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
-		furmsUserComboBox.comboBox.setEnabled(disable);
-		furmsUserComboBox.comboBox.setClassName("furms-leader-combo-box");
+		furmsUserComboBox.setEnabled(disable);
+		furmsUserComboBox.setClassName("furms-leader-combo-box");
 		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 
 		formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));
 
-		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, furmsUserComboBox.comboBox);
+		prepareValidator(nameField, descriptionField, acronymField, startTimePicker, endTimePicker, researchField, furmsUserComboBox);
 
 		getContent().add(formLayout);
 	}
 
 	private void prepareValidator(TextField nameField, TextArea descriptionField, TextField acronymField,
 	                              DateTimePicker startTimePicker, DateTimePicker endTimePicker, TextField researchField,
-	                              ComboBox<FurmsViewUserModel> leaderComboBox ) {
+	                              FurmsUserComboBox leaderComboBox ) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
