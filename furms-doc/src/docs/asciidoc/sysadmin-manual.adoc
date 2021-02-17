@@ -56,7 +56,7 @@ Both services can be installed on a single machine, or on two separate ones. As 
 * *CPU*: there are no strict restrictions, however at least 2 cores per service are advised. Production environment with many users may make good use of a more powerful machine.
 
 ==== Java
-FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are going to be run.
+FURMS system requires Java Runtime Environment. The version 11 is the supported Java version. Install JRE on host(s) where services are going to be run.
 
 ==== Ansible
 Install Ansible tooling on the host which will control FURMS system through scripts. Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
