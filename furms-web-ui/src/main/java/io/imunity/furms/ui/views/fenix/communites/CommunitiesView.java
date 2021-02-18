@@ -122,7 +122,6 @@ public class CommunitiesView extends FurmsViewComponent {
 				.getThrowable()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), communityName)));
 			loadGridContent();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		return furmsDialog;
 	}

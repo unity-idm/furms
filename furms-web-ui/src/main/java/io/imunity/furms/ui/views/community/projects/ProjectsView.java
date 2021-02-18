@@ -149,7 +149,6 @@ public class ProjectsView extends FurmsViewComponent {
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			handleExceptions(() -> projectService.delete(projectId, communityId));
 			loadGridContent();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		return furmsDialog;
 	}

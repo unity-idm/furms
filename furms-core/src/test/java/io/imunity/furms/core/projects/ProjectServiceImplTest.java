@@ -6,8 +6,8 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,6 +42,8 @@ class ProjectServiceImplTest {
 	private ProjectGroupsDAO projectGroupsDAO;
 	@Mock
 	private UsersDAO usersDAO;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	private ProjectServiceImpl service;
 	private InOrder orderVerifier;
@@ -49,7 +52,7 @@ class ProjectServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		ProjectServiceValidator validator = new ProjectServiceValidator(projectRepository, communityRepository);
-		service = new ProjectServiceImpl(projectRepository, projectGroupsDAO, usersDAO, validator);
+		service = new ProjectServiceImpl(projectRepository, projectGroupsDAO, usersDAO, validator, publisher);
 		orderVerifier = inOrder(projectRepository, projectGroupsDAO);
 	}
 

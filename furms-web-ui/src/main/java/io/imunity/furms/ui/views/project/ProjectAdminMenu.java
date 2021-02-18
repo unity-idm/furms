@@ -9,8 +9,8 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.components.MenuComponent;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsView;
 import io.imunity.furms.ui.views.project.settings.SettingsView;
 import io.imunity.furms.ui.views.project.users.UsersView;
@@ -20,7 +20,7 @@ import java.util.List;
 public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	ProjectAdminMenu(RoleTranslator roleTranslator) {
+	ProjectAdminMenu(FurmsSelect furmsSelect) {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
@@ -31,7 +31,7 @@ public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationO
 				MenuComponent.builder(ProjectAdministratorsView.class).build(),
 				MenuComponent.builder(SettingsView.class).build()
 			),
-			roleTranslator
+			furmsSelect
 		);
 		addToNavbar(false, furmsLayout.createNavbar());
 		addToDrawer(furmsLayout.createDrawerContent());

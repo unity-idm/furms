@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -44,11 +45,14 @@ class SiteServiceImplTest {
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
 	private UsersDAO usersDAO;
+	@Mock
+	private ApplicationEventPublisher publisher;
+
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository);
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher);
 	}
 
 	@Test

@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -42,6 +43,8 @@ class CommunityServiceImplTest {
 	private ProjectRepository projectRepository;
 	@Mock
 	private UsersDAO usersDAO;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
@@ -50,7 +53,7 @@ class CommunityServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
-		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator);
+		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, publisher);
 		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
 	}
 
