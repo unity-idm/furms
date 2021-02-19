@@ -15,5 +15,6 @@ public interface AuthzService {
 	Map<String, Object> getAttributes();
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
+	Map<ResourceId, Set<Role>> getRoles(String id);
 	String getCurrentUserId();
 }

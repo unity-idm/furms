@@ -3,8 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.api.events;
+package io.imunity.furms.utils;
 
-public enum CRUD {
-	CREATE, READ, UPDATE, DELETE
+public enum EventOperation {
+	CREATE, UPDATE, DELETE
 }

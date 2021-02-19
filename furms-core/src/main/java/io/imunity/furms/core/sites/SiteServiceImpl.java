@@ -5,14 +5,12 @@
 
 package io.imunity.furms.core.sites;
 
-import io.imunity.furms.api.events.CRUD;
-import io.imunity.furms.api.events.FurmsEvent;
-import io.imunity.furms.api.events.UserEvent;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteEvent;
 import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -26,8 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.*;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.utils.EventOperation.*;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -60,18 +60,14 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
 	public Optional<Site> findById(String id) {
 		LOG.debug("Getting Site with id={}", id);
-		Optional<Site> site = siteRepository.findById(id);
-		publisher.publishEvent(new FurmsEvent<>(site, CRUD.READ));
-		return site;
+		return siteRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<Site> findAll() {
 		LOG.debug("Getting all Sites");
-		Set<Site> sites = siteRepository.findAll();
-		publisher.publishEvent(new FurmsEvent<>(sites, CRUD.READ));
-		return sites;
+		return siteRepository.findAll();
 	}
 
 	@Override
@@ -91,7 +87,7 @@ class SiteServiceImpl implements SiteService {
 			LOG.error("Could not create Site: ", e);
 			try {
 				webClient.get(siteId).ifPresent(incompleteSite -> webClient.delete(incompleteSite.getId()));
-				publisher.publishEvent(new FurmsEvent<>(site, CRUD.CREATE));
+				publisher.publishEvent(new SiteEvent(site.getId(), CREATE));
 			} catch (RuntimeException ex) {
 				LOG.error("Failed to rollback, problem during unity group deletion: ", e);
 			}
@@ -113,7 +109,7 @@ class SiteServiceImpl implements SiteService {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
-			publisher.publishEvent(new FurmsEvent<>(updatedSite, CRUD.UPDATE));
+			publisher.publishEvent(new SiteEvent(updatedSite.getId(), UPDATE));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
@@ -131,7 +127,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
-			publisher.publishEvent(new FurmsEvent<>(id, CRUD.DELETE));
+			publisher.publishEvent(new SiteEvent(id, DELETE));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
 			LOG.error("Could not delete Site: ", e);
@@ -166,9 +162,7 @@ class SiteServiceImpl implements SiteService {
 	public List<User> findAllAdmins(String id) {
 		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
-		List<User> admins = webClient.getAllAdmins(id);
-		publisher.publishEvent(new FurmsEvent<>(new UserEvent(Role.SITE_ADMIN, null), CRUD.READ));
-		return admins;
+		return webClient.getAllAdmins(id);
 	}
 
 	@Override
@@ -181,7 +175,7 @@ class SiteServiceImpl implements SiteService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		addAdmin(siteId, user.get().id);
-		publisher.publishEvent(new FurmsEvent<>(new UserEvent(Role.SITE_ADMIN, user.get().id), CRUD.CREATE));
+		publisher.publishEvent(new UserEvent(user.get().id, CREATE));
 	}
 
 	@Override
@@ -197,7 +191,7 @@ class SiteServiceImpl implements SiteService {
 			LOG.error("Could not add Site Administrator: ", e);
 			try {
 				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeAdmin(siteId, userId));
-				publisher.publishEvent(new FurmsEvent<>(new UserEvent(Role.SITE_ADMIN, userId), CRUD.CREATE));
+				publisher.publishEvent(new UserEvent(userId, CREATE));
 			} catch (RuntimeException ex) {
 				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", ex);
 			}
@@ -213,7 +207,7 @@ class SiteServiceImpl implements SiteService {
 
 		try {
 			webClient.removeAdmin(siteId, userId);
-			publisher.publishEvent(new FurmsEvent<>(new UserEvent(Role.SITE_ADMIN, userId), CRUD.DELETE));
+			publisher.publishEvent(new UserEvent(userId, DELETE));
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not remove Site Administrator: ", e);
@@ -224,9 +218,7 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public boolean isAdmin(String siteId, String userId) {
-		boolean isAdmin = webClient.isAdmin(siteId, userId);
-		publisher.publishEvent(new FurmsEvent<>(new UserEvent(Role.SITE_ADMIN, userId), CRUD.READ));
-		return isAdmin;
+		return webClient.isAdmin(siteId, userId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

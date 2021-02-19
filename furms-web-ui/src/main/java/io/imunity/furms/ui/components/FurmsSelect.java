@@ -5,36 +5,31 @@
 
 package io.imunity.furms.ui.components;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.events.CRUD;
-import io.imunity.furms.api.events.FurmsEvent;
-import io.imunity.furms.api.events.UserEvent;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import io.imunity.furms.ui.utils.VaadinBroadcaster;
 
 import java.util.List;
 import java.util.Map;
 
-@Component
-@VaadinSessionScope
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
 	private final FurmsSelectService furmsSelectService;
 	private final AuthzService authzService;
+	private Registration broadcasterRegistration;
 
-	FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService) {
+	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService) {
 		this.authzService = authzService;
 		furmsSelectService = new FurmsSelectService(roleTranslator);
 		List<FurmsSelectText> items = furmsSelectService.loadItems();
@@ -48,31 +43,6 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
 
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
-	}
-
-	@EventListener
-	public void handleUserEvents(FurmsEvent<UserEvent> event) {
-		if(event.crud == CRUD.CREATE || event.crud == CRUD.DELETE)
-			if(authzService.getCurrentUserId().equals(event.entity.id))
-				reloadComponent();
-	}
-
-	@EventListener
-	public void handleProjectEvents(FurmsEvent<Project> event) {
-		if(event.crud == CRUD.CREATE || event.crud == CRUD.DELETE || event.crud == CRUD.UPDATE)
-			reloadComponent();
-	}
-
-	@EventListener
-	public void handleCommunityEvents(FurmsEvent<Community> event) {
-		if(event.crud == CRUD.CREATE || event.crud == CRUD.DELETE || event.crud == CRUD.UPDATE)
-			reloadComponent();
-	}
-
-	@EventListener
-	public void handleSiteEvents(FurmsEvent<Site> event) {
-		if(event.crud == CRUD.CREATE || event.crud == CRUD.DELETE || event.crud == CRUD.UPDATE)
-			reloadComponent();
 	}
 
 	void reloadComponent(){
@@ -104,5 +74,21 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 				component = new FurmsSelectText(entry.getValue().get(entry.getValue().size() - 1));
 			}
 		}
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		UI ui = attachEvent.getUI();
+		broadcasterRegistration = VaadinBroadcaster.register(
+			() -> ui.access(this::reloadComponent)
+		);
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		super.onDetach(detachEvent);
+		broadcasterRegistration.remove();
+		broadcasterRegistration = null;
 	}
 }

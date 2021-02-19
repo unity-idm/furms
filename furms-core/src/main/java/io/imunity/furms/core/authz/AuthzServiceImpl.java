@@ -36,6 +36,11 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
+	public Map<ResourceId, Set<Role>> getRoles(String id) {
+		return roleLoader.loadUserRoles(id);
+	}
+
+	@Override
 	public void reloadRoles() {
 		FurmsAuthenticatedUser authentication = getCurrent();
 		String id = authentication.getStringAttribute("sub");

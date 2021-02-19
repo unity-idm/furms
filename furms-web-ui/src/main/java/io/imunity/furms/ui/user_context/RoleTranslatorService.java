@@ -50,11 +50,20 @@ class RoleTranslatorService implements RoleTranslator {
 
 	@Override
 	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(){
+		return a(authzService.getCurrentUserId());
+	}
+
+	@Override
+	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(String id){
+		return a(id);
+	}
+
+	public Map<ViewMode, List<FurmsViewUserContext>> a(String id){
 		authzService.reloadRoles();
-		if(authzService.getRoles().isEmpty()){
+		if(authzService.getRoles(id).isEmpty()){
 			return Map.of(USER, List.of(new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER)));
 		}
-		return authzService.getRoles().entrySet().stream()
+		return authzService.getRoles(id).entrySet().stream()
 			.flatMap(this::getFurmsUserContextStream)
 			.distinct()
 			.sorted(comparingInt(user -> user.viewMode.order))

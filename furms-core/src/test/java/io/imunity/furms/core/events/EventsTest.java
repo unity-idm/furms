@@ -22,33 +22,26 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class EventsTest {
+class EventsTest {
+	@MockBean
+	private CommunityGroupsDAO communityGroupsDAO;
+	@MockBean
+	private UsersDAO usersDAO;
+	@MockBean
+	private ProjectRepository projectRepository;
 
 	@MockBean
-	CommunityRepository communityRepository;
-
+	private CommunityRepository communityRepository;
 	@MockBean
-	CommunityGroupsDAO communityGroupsDAO;
-
-	@MockBean
-	UsersDAO usersDAO;
-
-	@MockBean
-	ProjectRepository projectRepository;
-
-	@MockBean
-	ServiceMock serviceMock;
+	private ServiceMock serviceMock;
 
 	@Autowired
-	ListenerMock listenerMock;
-
-	@Autowired
-	CommunityService communityService;
+	private CommunityService communityService;
 
 	@Test
 	void shouldRunUserChangeEvent() {
 		communityService.addAdmin("id", "id");
-		verify(serviceMock, times(1)).doEventUserAction();
+		verify(serviceMock, timeout(100).times(1)).doEventUserAction();
 	}
 
 	@Test
@@ -57,7 +50,7 @@ public class EventsTest {
 
 		communityService.delete("id");
 
-		verify(serviceMock, times(1)).doEventCommunityRemove();
+		verify(serviceMock, timeout(100).times(1)).doEventCommunityRemove();
 	}
 
 	@Test
@@ -71,7 +64,7 @@ public class EventsTest {
 
 		communityService.create(request);
 
-		verify(serviceMock, times(1)).doEventCommunityCreate();
+		verify(serviceMock, timeout(100).times(1)).doEventCommunityCreate();
 	}
 
 	@Test
@@ -85,6 +78,6 @@ public class EventsTest {
 
 		communityService.update(request);
 
-		verify(serviceMock, times(1)).doEventCommunityUpdate();
+		verify(serviceMock, timeout(100).times(1)).doEventCommunityUpdate();
 	}
 }
