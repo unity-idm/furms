@@ -10,5 +10,4 @@ import java.util.Map;
 
 public interface RoleTranslator {
 	Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts();
-	Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(String id);
 }
