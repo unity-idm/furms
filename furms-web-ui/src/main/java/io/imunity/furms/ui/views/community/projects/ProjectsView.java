@@ -18,6 +18,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
