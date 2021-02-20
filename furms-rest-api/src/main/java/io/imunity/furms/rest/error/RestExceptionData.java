@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.utils;
+package io.imunity.furms.rest.error;
 
 import java.util.Objects;
 
-public class GlobalExceptionData {
+class RestExceptionData {
 
 	private final String message;
 	private final String error;
 	private final String path;
 
-	public GlobalExceptionData(String message, String error, String path) {
-		this.message = message == null ? error : message;
+	RestExceptionData(String message, String error, String path) {
+		this.message = message;
 		this.error = error;
 		this.path = path;
 	}
@@ -35,7 +35,7 @@ public class GlobalExceptionData {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		GlobalExceptionData that = (GlobalExceptionData) o;
+		RestExceptionData that = (RestExceptionData) o;
 		return Objects.equals(message, that.message) &&
 				Objects.equals(error, that.error) &&
 				Objects.equals(path, that.path);
@@ -48,42 +48,46 @@ public class GlobalExceptionData {
 
 	@Override
 	public String toString() {
-		return "GlobalExceptionData{" +
+		return "RestExceptionData{" +
 				"message='" + message + '\'' +
 				", error='" + error + '\'' +
 				", path='" + path + '\'' +
 				'}';
 	}
 
-	public static GlobalExceptionDataBuilder builder() {
-		return new GlobalExceptionDataBuilder();
+	static RestExceptionDataBuilder builder() {
+		return new RestExceptionDataBuilder();
 	}
 
-	public static final class GlobalExceptionDataBuilder {
+	static final class RestExceptionDataBuilder {
 		private String message;
 		private String error;
 		private String path;
 
-		private GlobalExceptionDataBuilder() {
+		private RestExceptionDataBuilder() {
 		}
 
-		public GlobalExceptionDataBuilder message(String message) {
+		public static RestExceptionDataBuilder aRestExceptionData() {
+			return new RestExceptionDataBuilder();
+		}
+
+		public RestExceptionDataBuilder message(String message) {
 			this.message = message;
 			return this;
 		}
 
-		public GlobalExceptionDataBuilder error(String error) {
+		public RestExceptionDataBuilder error(String error) {
 			this.error = error;
 			return this;
 		}
 
-		public GlobalExceptionDataBuilder path(String path) {
+		public RestExceptionDataBuilder path(String path) {
 			this.path = path;
 			return this;
 		}
 
-		public GlobalExceptionData build() {
-			return new GlobalExceptionData(message, error, path);
+		public RestExceptionData build() {
+			return new RestExceptionData(message, error, path);
 		}
 	}
 }

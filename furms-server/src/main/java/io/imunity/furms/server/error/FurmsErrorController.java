@@ -3,9 +3,8 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.config.error;
+package io.imunity.furms.server.error;
 
-import io.imunity.furms.utils.GlobalExceptionData;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +22,9 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public class FurmsErrorController implements ErrorController {
 
 	@RequestMapping
-	public ResponseEntity<GlobalExceptionData> error(HttpServletRequest request) {
+	public ResponseEntity<FurmsErrorData> error(HttpServletRequest request) {
 		HttpStatus status = getStatus(request);
-		return new ResponseEntity<>(GlobalExceptionData.builder()
+		return new ResponseEntity<>(FurmsErrorData.builder()
 				.error(status.getReasonPhrase())
 				.path(request.getAttribute(FORWARD_REQUEST_URI).toString())
 				.build(), status);

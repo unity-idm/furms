@@ -2,9 +2,8 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.furms.rest;
+package io.imunity.furms.rest.error;
 
-import io.imunity.furms.utils.GlobalExceptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,15 +21,15 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestControllerAdvice
-class GlobalExceptionHandlers {
+class RestExceptionHandlers {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler({UnknownUserException.class})
-	GlobalExceptionData handleUnknownUserException(UnknownUserException ex) {
+	RestExceptionData handleUnknownUserException(UnknownUserException ex) {
 		LOG.error("UnknownUserException during REST operation: ", ex);
-		return GlobalExceptionData.builder()
+		return RestExceptionData.builder()
 				.message(format("User %s not found", ex.userId))
 				.error(ex.getClass().getSimpleName())
 				.build();
@@ -38,8 +37,8 @@ class GlobalExceptionHandlers {
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler({NoHandlerFoundException.class})
-	GlobalExceptionData handleNoHandlerFoundException(NoHandlerFoundException ex) {
-		return GlobalExceptionData.builder()
+	RestExceptionData handleNoHandlerFoundException(NoHandlerFoundException ex) {
+		return RestExceptionData.builder()
 				.error(NOT_FOUND.getReasonPhrase())
 				.path(ex.getRequestURL())
 				.build();
@@ -47,9 +46,9 @@ class GlobalExceptionHandlers {
 
 	@ResponseStatus(INTERNAL_SERVER_ERROR)
 	@ExceptionHandler({Exception.class})
-	GlobalExceptionData handlerDefault(Throwable ex) {
+	RestExceptionData handlerDefault(Throwable ex) {
 		LOG.error("Unexpected exception during REST operation: ", ex);
-		return GlobalExceptionData.builder()
+		return RestExceptionData.builder()
 				.error(INTERNAL_SERVER_ERROR.getReasonPhrase())
 				.build();
 	}

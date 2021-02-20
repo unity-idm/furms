@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rest.exception;
+package io.imunity.furms.rest.error;
 
 import io.imunity.furms.domain.users.UnknownUserException;
 import org.springframework.web.bind.annotation.GetMapping;

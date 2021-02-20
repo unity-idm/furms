@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rest.exception;
+package io.imunity.furms.rest.error;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.SecurityProperties;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {ExceptionHandlersStubController.class},
 		excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
 		includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = SecurityProperties.class)})
-public class GlobalExceptionHandlersTest {
+public class RestExceptionHandlersTest {
 
 	@Autowired
 	private MockMvc mockMvc;
