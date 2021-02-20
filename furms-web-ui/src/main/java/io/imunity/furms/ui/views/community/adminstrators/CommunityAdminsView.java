@@ -5,10 +5,7 @@
 
 package io.imunity.furms.ui.views.community.adminstrators;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
@@ -18,6 +15,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
@@ -40,7 +39,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getEmail());
+			communityService.inviteAdmin(communityId, inviteUser.getUserId());
 			grid.reloadGrid();
 			inviteUser.reload();
 		});

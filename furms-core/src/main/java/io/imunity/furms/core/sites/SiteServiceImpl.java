@@ -155,10 +155,10 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteAdmin(String siteId, String email) {
-		check(!isEmpty(siteId) && !isEmpty(email),
+	public void inviteAdmin(String siteId, String userId) {
+		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
-		Optional<User> user = usersDAO.findByEmail(email);
+		Optional<User> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
