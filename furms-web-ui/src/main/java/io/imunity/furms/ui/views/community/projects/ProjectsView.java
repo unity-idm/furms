@@ -18,8 +18,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.*;
-import io.imunity.furms.ui.project.ProjectModelLeaderResolver;
 import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
@@ -160,13 +160,11 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private List<ProjectViewModel> loadProjectsViewsModels() {
 		String communityId = getCurrentResourceId();
-		ProjectModelLeaderResolver projectModelLeaderResolver = new ProjectModelLeaderResolver(
-			projectService.findAllUsers(communityId)
-		);
+		List<User> users = projectService.findAllUsers(communityId);
 		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(projectModelLeaderResolver::resolve)
+			.map(p -> resolver.resolve(users, p))
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.collect(toList());
 	}
