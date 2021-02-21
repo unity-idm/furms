@@ -14,10 +14,10 @@ import com.vaadin.flow.spring.annotation.EnableVaadin;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 
-
 @Configuration
 @EnableVaadin("io.imunity.furms")
 class VaadinConfiguration {
+
 	@Bean
 	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context) {
 		return new ServletRegistrationBean<>(new SpringServlet(context, false), FRONT + "/*");
