@@ -15,11 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -33,27 +30,16 @@ class UserServiceImplTest {
 	@Test
 	void shouldAllowToInviteUser() {
 		//given
-		String email = "email";
-		when(usersDAO.findByEmail(eq(email))).thenReturn(Optional.of(User.builder()
+		String id = "id";
+		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(User.builder()
 				.id("userId")
-				.email(email)
+				.email(id)
 				.build()));
 
 		//when
-		service.inviteFenixAdmin(email);
+		service.inviteFenixAdmin(id);
 
 		//then
 		verify(usersDAO, times(1)).addFenixAdminRole(eq("userId"));
 	}
-
-	@Test
-	void shouldNotAllowToInviteUserDueToLackOfUserWithThisEmail() {
-		//given
-		String email = "email";
-		when(usersDAO.findByEmail(eq(email))).thenReturn(Optional.empty());
-
-		//when
-		assertThrows(IllegalArgumentException.class, () -> service.inviteFenixAdmin(email));
-	}
-
 }

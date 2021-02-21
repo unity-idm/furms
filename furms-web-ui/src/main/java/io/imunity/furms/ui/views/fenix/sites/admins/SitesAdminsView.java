@@ -108,7 +108,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	private void doInviteAction(InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
-			siteService.inviteAdmin(siteId, inviteUserComponent.getEmail());
+			siteService.inviteAdmin(siteId, inviteUserComponent.getUserId());
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();

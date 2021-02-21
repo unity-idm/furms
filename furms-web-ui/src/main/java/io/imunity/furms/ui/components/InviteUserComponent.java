@@ -50,8 +50,8 @@ public class InviteUserComponent extends HorizontalLayout {
 		inviteButton.addClickListener(inviteAction);
 	}
 
-	public String getEmail() {
-		return furmsUserComboBox.getValue().email;
+	public String getUserId() {
+		return furmsUserComboBox.getValue().id;
 	}
 
 	public void reload() {

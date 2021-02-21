@@ -107,6 +107,11 @@ public class UserService {
 			.anyMatch(attribute -> attribute.equals(role.unityRoleValue));
 	}
 
+	public Optional<User> getUser(String userId){
+		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
+		return UnityUserMapper.map(userId, attributesFromGroup);
+	}
+
 	private List<Attribute> getAttributesFromGroup(String userId, String group) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
@@ -116,6 +121,15 @@ public class UserService {
 		Map<String, List<Attribute>> groupedAttributes =
 			unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS));
 		return groupedAttributes.getOrDefault(group, Collections.emptyList());
+	}
+
+	private List<Attribute> getAttributesFromRootGroup(String userId) {
+		String path = UriComponentsBuilder.newInstance()
+			.pathSegment(ENTITY_ATTRIBUTES)
+			.uriVariables(Map.of(ID, userId))
+			.build()
+			.toUriString();
+		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));
 	}
 
 	public List<User> getAllUsersByRole(String group, Role role) {

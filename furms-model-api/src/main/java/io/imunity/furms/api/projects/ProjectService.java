@@ -34,11 +34,13 @@ public interface ProjectService {
 
 	void addAdmin(String communityId, String projectId, String userId);
 
-	void inviteAdmin(String communityId, String projectId, String email);
+	void inviteAdmin(String communityId, String projectId, String userId);
 
 	void removeAdmin(String communityId, String projectId, String userId);
 
 	List<User> findAllUsers(String communityId, String projectId);
+
+	List<User> findAllUsers(String communityId);
 
 	boolean isUser(String communityId, String projectId, String userId);
 

@@ -11,6 +11,8 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.User;
 
+import java.util.List;
+
 @Component
 public class ProjectModelResolver {
 
@@ -33,7 +35,15 @@ public class ProjectModelResolver {
 				.orElse(null);
 		return ProjectViewModelMapper.map(project, leader);
 	}
-	
+
+	public ProjectViewModel resolve(List<User> users, Project project){
+		User leader = users.stream()
+			.filter(user -> user.id.equals(project.getLeaderId()))
+			.findAny()
+			.orElse(null);
+		return ProjectViewModelMapper.map(project, leader);
+	}
+
 	public static class UnknownProjectException extends IllegalArgumentException {
 		
 	}

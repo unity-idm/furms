@@ -145,7 +145,7 @@ public class ProjectView extends FurmsViewComponent {
 			membershipLayout
 		);
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
+			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId());
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();

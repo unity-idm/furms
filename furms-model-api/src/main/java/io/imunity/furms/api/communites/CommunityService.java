@@ -25,7 +25,7 @@ public interface CommunityService {
 
 	List<User> findAllAdmins(String communityId);
 
-	void inviteAdmin(String communityId, String email);
+	void inviteAdmin(String communityId, String userId);
 
 	void addAdmin(String communityId, String userId);
 
