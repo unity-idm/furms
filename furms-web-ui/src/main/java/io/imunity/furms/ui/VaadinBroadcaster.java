@@ -45,25 +45,25 @@ public class VaadinBroadcaster {
 
 	@Async
 	@EventListener
-	void handleUserEvents(UserEvent event) {
+	void onUserEvents(UserEvent event) {
 		broadcast();
 	}
 
 	@Async
 	@EventListener
-	void handleProjectEvents(ProjectEvent event) {
+	void onProjectEvents(ProjectEvent event) {
 		broadcast();
 	}
 
 	@Async
 	@EventListener
-	void handleCommunityEvents(CommunityEvent event) {
+	void onCommunityEvents(CommunityEvent event) {
 		broadcast();
 	}
 
 	@Async
 	@EventListener
-	void handleSiteEvents(SiteEvent event) {
+	void onSiteEvents(SiteEvent event) {
 		broadcast();
 	}
 }

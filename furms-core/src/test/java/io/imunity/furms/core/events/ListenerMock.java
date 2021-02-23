@@ -26,17 +26,17 @@ public class ListenerMock {
 	}
 
 	@EventListener
-	public void handleCommunityEvents(CreateCommunityEvent event) {
+	public void onCommunityEvents(CreateCommunityEvent event) {
 			serviceMock.handleEventCommunityCreate();
 	}
 
 	@EventListener
-	public void handleCommunityEvents(UpdateCommunityEvent event) {
+	public void onCommunityEvents(UpdateCommunityEvent event) {
 		serviceMock.handleEventCommunityUpdate();
 	}
 
 	@EventListener
-	public void handleCommunityEvents(RemoveCommunityEvent event) {
+	public void onCommunityEvents(RemoveCommunityEvent event) {
 		serviceMock.handleEventCommunityRemove();
 	}
 }
