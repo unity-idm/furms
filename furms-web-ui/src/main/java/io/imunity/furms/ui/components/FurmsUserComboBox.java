@@ -5,8 +5,8 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
-public class FurmsUserComboBox extends VerticalLayout implements HasValue<FurmsUserComboBox, FurmsViewUserModel>, HasValue.ValueChangeEvent<FurmsViewUserModel> {
+public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 	private final ComboBox<FurmsViewUserModel>  comboBox = new ComboBox<>();
 
 	public FurmsUserComboBox(List<FurmsViewUserModel> userModels) {
@@ -38,14 +38,17 @@ public class FurmsUserComboBox extends VerticalLayout implements HasValue<FurmsU
 				},
 				() -> emailLabel.getStyle().set("visibility", "hidden"))
 		);
-		setSpacing(false);
-		setMargin(false);
-		getStyle().set("padding", "unset");
-		add(comboBox, emailLabel);
+		VerticalLayout layout = new VerticalLayout(comboBox, emailLabel);
+		layout.setSpacing(false);
+		layout.setMargin(false);
+		layout.setPadding(false);
+		add(layout);
+		getElement().getStyle().set("line-height", "unset");
 	}
-	
-	public boolean hasValue() {
-		return comboBox.getValue() != null;
+
+	@Override
+	public FurmsViewUserModel getValue() {
+		return comboBox.getValue();
 	}
 
 	@Override
@@ -54,31 +57,14 @@ public class FurmsUserComboBox extends VerticalLayout implements HasValue<FurmsU
 	}
 
 	@Override
-	public HasValue<?, FurmsViewUserModel> getHasValue() {
-		return comboBox;
-	}
-
-	@Override
-	public boolean isFromClient() {
-		return false;
-	}
-
-	@Override
-	public FurmsViewUserModel getOldValue() {
-		return comboBox.getEmptyValue();
-	}
-
-	public FurmsViewUserModel getValue(){
-		return comboBox.getValue();
-	}
-
-	@Override
-	public Registration addValueChangeListener(ValueChangeListener<? super FurmsUserComboBox> valueChangeListener) {
-		return comboBox.addValueChangeListener(e -> valueChangeListener.valueChanged(this));
-	}
-
-	public void clear(){
-		comboBox.clear();
+	public Registration addValueChangeListener(ValueChangeListener<? super ComponentValueChangeEvent<CustomField<FurmsViewUserModel>, FurmsViewUserModel>> listener) {
+		return comboBox.addValueChangeListener(e ->
+			listener.valueChanged(new ComponentValueChangeEvent<>(
+				this,
+				this,
+				comboBox.getEmptyValue(),
+				false))
+		);
 	}
 
 	@Override
@@ -101,6 +87,16 @@ public class FurmsUserComboBox extends VerticalLayout implements HasValue<FurmsU
 		return comboBox.isRequiredIndicatorVisible();
 	}
 
+	@Override
+	protected FurmsViewUserModel generateModelValue() {
+		return getValue();
+	}
+
+	@Override
+	protected void setPresentationValue(FurmsViewUserModel furmsViewUserModel) {
+		setValue(furmsViewUserModel);
+	}
+
 	public void setItems(List<FurmsViewUserModel> users){
 		comboBox.setItems(users);
 	}
@@ -111,5 +107,13 @@ public class FurmsUserComboBox extends VerticalLayout implements HasValue<FurmsU
 
 	public void setClassName(String className){
 		comboBox.setClassName(className);
+	}
+
+	public boolean hasValue() {
+		return comboBox.getValue() != null;
+	}
+
+	public void clear(){
+		comboBox.clear();
 	}
 }
