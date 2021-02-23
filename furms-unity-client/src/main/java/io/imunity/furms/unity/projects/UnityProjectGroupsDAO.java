@@ -5,19 +5,18 @@
 
 package io.imunity.furms.unity.projects;
 
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
-import static io.imunity.furms.unity.common.UnityConst.PROJECT_GROUP_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
-import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
-import static io.imunity.furms.unity.common.UnityConst.WITH_PARENTS;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.META;
-import static io.imunity.furms.utils.ValidationUtils.check;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.User;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -25,19 +24,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.projects.ProjectGroupsDAO;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.META;
+import static io.imunity.furms.utils.ValidationUtils.check;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnityProjectGroupsDAO implements ProjectGroupsDAO {
@@ -130,6 +124,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		return Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId);
 	}
 
+	private Map<String, Object> getUriVariables(String communityId) {
+		return Map.of(ID, communityId);
+	}
+
 	@Override
 	public List<User> getAllAdmins(String communityId, String projectId) {
 		check(!isEmpty(communityId),
@@ -144,6 +142,14 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		return userService.getAllUsersByRole(communityPath, PROJECT_USER);
+	}
+
+	@Override
+	public List<User> getAllUsers(String communityId) {
+		check(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
+		String communityPath = getProjectPath(getUriVariables(communityId), COMMUNITY_GROUP_PATTERN);
+		return userService.getAllUsersFromGroup(communityPath, attr -> true);
 	}
 
 	@Override

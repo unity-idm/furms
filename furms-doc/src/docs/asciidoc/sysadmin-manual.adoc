@@ -56,7 +56,7 @@ Both services can be installed on a single machine, or on two separate ones. As 
 * *CPU*: there are no strict restrictions, however at least 2 cores per service are advised. Production environment with many users may make good use of a more powerful machine.
 
 ==== Java
-FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are going to be run.
+FURMS system requires Java Runtime Environment. The version 11 is the supported Java version. Install JRE on host(s) where services are going to be run.
 
 ==== Ansible
 Install Ansible tooling on the host which will control FURMS system through scripts. Follow the https://docs.ansible.com/ansible/latest/installation_guide/[Ansible installation guide].
@@ -224,7 +224,9 @@ The following table provides description of all configuration options.
 
 
 |unity.cIdP
-2+| Configuration that contains the Central IdP OAuth client's credentials used on Unity-IdM side for authentication via Central IdP.
+2+a| Configuration that contains the Central IdP OAuth client's credentials used on Unity-IdM side for authentication via Central IdP. 
+
+NOTE: The redirect URL configured at Central IdP OAuth client side should be set to https://`{unity.advertisedHost}`/unitygw/oauth2ResponseConsumer
 
 |unity.cIdP.clientId
 |string
@@ -232,7 +234,7 @@ The following table provides description of all configuration options.
 
 |unity.cIdP.clientSecret
 |string
-|Client secret, obtained during Unity’s registration at the Central IdP
+|Client secret, obtained during Unity’s registration at the Central IdP.
 
 |unity.cIdP.discoveryEndpoint
 |string
@@ -288,7 +290,7 @@ The following table provides description of all configuration options.
 
 
 |preSharedKeys.cIdP
-2+|Defines the information to setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.
+2+|The cIdP key is defined by FURMS administrator. The information entered here setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.
 
 |preSharedKeys.cIdP.username
 |string

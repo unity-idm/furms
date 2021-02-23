@@ -41,7 +41,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getEmail());
+			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId());
 			grid.reloadGrid();
 			inviteUser.reload();
 		});

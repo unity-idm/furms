@@ -16,9 +16,7 @@ import java.util.Optional;
 public interface UsersDAO {
 	List<User> getAdminUsers();
 	List<User> getAllUsers();
-	Optional<User> findByEmail(String email);
 	void addFenixAdminRole(String userId);
-	void addProjectAdminRole(String communityId, String projectId, String userId);
 	void removeFenixAdminRole(String userId);
 	void setUserStatus(String fenixUserId, UserStatus status);
 	UserStatus getUserStatus(String fenixUserId);

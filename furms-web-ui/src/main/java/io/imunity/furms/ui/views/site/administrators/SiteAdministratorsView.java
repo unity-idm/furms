@@ -60,7 +60,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	private void doInviteAction(InviteUserComponent inviteUser) {
 		try {
-			siteService.inviteAdmin(siteId, inviteUser.getEmail());
+			siteService.inviteAdmin(siteId, inviteUser.getUserId());
 			inviteUser.reload();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {

@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface UserService {
 	List<User> getAllUsers();
 	List<User> getFenixAdmins();
-	void inviteFenixAdmin(String email);
+	void inviteFenixAdmin(String userId);
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
 	void setUserStatus(String fenixUserId, UserStatus status);

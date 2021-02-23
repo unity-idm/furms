@@ -51,11 +51,12 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void inviteFenixAdmin(String email) {
-		Optional<User> user = usersDAO.findByEmail(email);
+	public void inviteFenixAdmin(String userId) {
+		Optional<User> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
+		addFenixAdminRole(user.get().id);
 	}
 
 	@Override

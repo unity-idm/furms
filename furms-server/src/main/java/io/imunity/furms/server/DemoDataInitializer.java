@@ -5,14 +5,6 @@
 
 package io.imunity.furms.server;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
@@ -25,6 +17,12 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 @Profile("demo-data-provisioning")
@@ -66,8 +64,11 @@ class DemoDataInitializer {
 
 	private void initCommunitiesAndProjects() throws IOException {
 		
-		String testAdminId = usersDAO.findByEmail("admin@domain.com")
-				.map(user -> user.id).orElse(null);
+		String testAdminId = usersDAO.getAllUsers().stream()
+			.filter(user -> user.email.equals("admin@domain.com"))
+			.map(user -> user.id)
+			.findAny()
+			.orElse(null);
 		if(communityRepository.findAll().isEmpty()) {
 			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();
 			Community community = Community.builder()
@@ -117,8 +118,8 @@ class DemoDataInitializer {
 			String project2Id = projectRepository.create(project2);
 			projectGroupsDAO.create(new ProjectGroup(project2Id, project2.getName(), communityId));
 
-			usersDAO.addProjectAdminRole(communityId, projectId, testAdminId);
-			usersDAO.addProjectAdminRole(communityId, project2Id, testAdminId);
+			projectGroupsDAO.addAdmin(communityId, projectId, testAdminId);
+			projectGroupsDAO.addAdmin(communityId, project2Id, testAdminId);
 
 			Project project3 = Project.builder()
 				.name("Neuroinforamtics2")
@@ -148,9 +149,9 @@ class DemoDataInitializer {
 			projectGroupsDAO.create(new ProjectGroup(project3Id, project3.getName(), community2Id));
 			String project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
-			
-			usersDAO.addProjectAdminRole(community2Id, project3Id, testAdminId);
-			usersDAO.addProjectAdminRole(community2Id, project4Id, testAdminId);
+
+			projectGroupsDAO.addAdmin(community2Id, project3Id, testAdminId);
+			projectGroupsDAO.addAdmin(community2Id, project4Id, testAdminId);
 		}
 	}
 

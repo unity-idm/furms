@@ -26,6 +26,7 @@ public interface ProjectGroupsDAO {
 	void removeAdmin(String communityId, String projectId, String userId);
 
 	List<User> getAllUsers(String communityId, String projectId);
+	List<User> getAllUsers(String communityId);
 	boolean isUser(String communityId, String projectId, String userId);
 	void addUser(String communityId, String projectId, String userId);
 	void removeUser(String communityId, String projectId, String userId);

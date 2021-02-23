@@ -37,29 +37,17 @@ class UserServiceImplTest {
 	@Test
 	void shouldAllowToInviteUser() {
 		//given
-		String email = "email";
-		when(usersDAO.findByEmail(eq(email))).thenReturn(Optional.of(User.builder()
+		String id = "id";
+		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(User.builder()
 				.id("userId")
-				.email(email)
+				.email(id)
 				.build()));
 
 		//when
-		service.inviteFenixAdmin(email);
+		service.inviteFenixAdmin(id);
 
 		//then
 		verify(usersDAO, times(1)).addFenixAdminRole(eq("userId"));
 		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId((String) null, APP_LEVEL)));
 	}
-
-	@Test
-	void shouldNotAllowToInviteUserDueToLackOfUserWithThisEmail() {
-		//given
-		String email = "email";
-		when(usersDAO.findByEmail(eq(email))).thenReturn(Optional.empty());
-
-		//when
-		assertThrows(IllegalArgumentException.class, () -> service.inviteFenixAdmin(email));
-		verify(publisher, times(0)).publishEvent(new InviteUserEvent("userId", new ResourceId((String) null, APP_LEVEL)));
-	}
-
 }
