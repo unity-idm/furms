@@ -56,14 +56,16 @@ class UserServiceImpl implements UserService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
-		addFenixAdminRole(user.get().id);
+		usersDAO.addFenixAdminRole(userId);
+		LOG.info("Adding FENIX admin role to {}", userId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void addFenixAdminRole(String userId) {
-		LOG.info("Adding FENIX admin role to {}", userId);
 		usersDAO.addFenixAdminRole(userId);
+		LOG.info("Adding FENIX admin role to {}", userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 

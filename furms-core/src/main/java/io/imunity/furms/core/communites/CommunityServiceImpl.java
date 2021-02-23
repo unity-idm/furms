@@ -107,7 +107,9 @@ class CommunityServiceImpl implements CommunityService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
-		addAdmin(communityId, user.get().id);
+		communityGroupsDAO.addAdmin(communityId, userId);
+		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override

@@ -18,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.UUID;
+
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -40,7 +42,7 @@ class CommunityEventsITTest {
 
 	@Test
 	void shouldRunUserChangeEvent() {
-		communityService.addAdmin("id", "id");
+		communityService.addAdmin(UUID.randomUUID().toString(), "id");
 		verify(serviceMock, timeout(100).times(1)).handleEventUserAction();
 	}
 

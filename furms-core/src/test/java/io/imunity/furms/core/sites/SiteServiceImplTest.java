@@ -12,6 +12,7 @@ import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -278,7 +279,7 @@ class SiteServiceImplTest {
 	@Test
 	void shouldAddAdminToSite() {
 		//given
-		String siteId = "siteId";
+		String siteId = UUID.randomUUID().toString();
 		String userId = "userId";
 
 		//when
@@ -286,6 +287,7 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).addAdmin(siteId, userId);
+		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId(siteId, SITE)));
 	}
 
 	@Test

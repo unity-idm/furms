@@ -153,6 +153,7 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
 		projectGroupsDAO.addAdmin(communityId, projectId, user.get().id);
+		publisher.publishEvent(new InviteUserEvent(user.get().id, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -198,6 +199,7 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		projectGroupsDAO.addUser(communityId, projectId, user.get().id);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override

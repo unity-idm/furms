@@ -8,7 +8,7 @@ package io.imunity.furms.core.events;
 import io.imunity.furms.domain.communities.CreateCommunityEvent;
 import io.imunity.furms.domain.communities.RemoveCommunityEvent;
 import io.imunity.furms.domain.communities.UpdateCommunityEvent;
-import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.UserEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class ListenerMock {
 	}
 
 	@EventListener
-	public void handleUserEvents(InviteUserEvent event) {
+	public void onUserEvents(UserEvent event) {
 		serviceMock.handleEventUserAction();
 	}
 

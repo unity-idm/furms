@@ -177,7 +177,7 @@ class SiteServiceImpl implements SiteService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
-		addAdmin(siteId, user.get().id);
+		webClient.addAdmin(siteId, userId);
 		publisher.publishEvent(new InviteUserEvent(user.get().id, new ResourceId(siteId, SITE)));
 	}
 
@@ -189,6 +189,7 @@ class SiteServiceImpl implements SiteService {
 
 		try {
 			webClient.addAdmin(siteId, userId);
+			publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not add Site Administrator: ", e);

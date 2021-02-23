@@ -19,7 +19,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -37,17 +36,17 @@ class UserServiceImplTest {
 	@Test
 	void shouldAllowToInviteUser() {
 		//given
-		String id = "id";
+		String id = "userId";
 		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(User.builder()
-				.id("userId")
-				.email(id)
+				.id(id)
+				.email("email")
 				.build()));
 
 		//when
 		service.inviteFenixAdmin(id);
 
 		//then
-		verify(usersDAO, times(1)).addFenixAdminRole(eq("userId"));
-		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId((String) null, APP_LEVEL)));
+		verify(usersDAO, times(1)).addFenixAdminRole(eq(id));
+		verify(publisher, times(1)).publishEvent(new InviteUserEvent(id, new ResourceId((String) null, APP_LEVEL)));
 	}
 }
