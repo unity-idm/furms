@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.users;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
@@ -16,11 +18,10 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -47,6 +48,7 @@ class UserServiceImplTest {
 
 		//then
 		verify(usersDAO, times(1)).addFenixAdminRole(eq("userId"));
+		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId((String) null, APP_LEVEL)));
 	}
 
 	@Test
@@ -57,6 +59,7 @@ class UserServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.inviteFenixAdmin(email));
+		verify(publisher, times(0)).publishEvent(new InviteUserEvent("userId", new ResourceId((String) null, APP_LEVEL)));
 	}
 
 }

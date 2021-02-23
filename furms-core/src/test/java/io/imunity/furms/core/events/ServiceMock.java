@@ -6,8 +6,8 @@
 package io.imunity.furms.core.events;
 
 public class ServiceMock {
-	public void doEventUserAction(){ }
-	public void doEventCommunityRemove(){}
-	public void doEventCommunityUpdate(){}
-	public void doEventCommunityCreate(){}
+	public void handleEventUserAction(){ }
+	public void handleEventCommunityRemove(){}
+	public void handleEventCommunityUpdate(){}
+	public void handleEventCommunityCreate(){}
 }

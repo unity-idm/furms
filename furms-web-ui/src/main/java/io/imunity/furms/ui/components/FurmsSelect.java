@@ -14,11 +14,10 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
-import io.imunity.furms.ui.utils.VaadinBroadcaster;
+import io.imunity.furms.ui.VaadinBroadcaster;
 
 import java.util.List;
 import java.util.Map;
@@ -26,12 +25,12 @@ import java.util.Map;
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
 	private final FurmsSelectService furmsSelectService;
-	private final AuthzService authzService;
+	private final VaadinBroadcaster vaadinBroadcaster;
 	private Registration broadcasterRegistration;
 
-	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService) {
-		this.authzService = authzService;
+	public FurmsSelect(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
 		furmsSelectService = new FurmsSelectService(roleTranslator);
+		this.vaadinBroadcaster = vaadinBroadcaster;
 		List<FurmsSelectText> items = furmsSelectService.loadItems();
 
 		setClassName("furms-select");
@@ -80,7 +79,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
-		broadcasterRegistration = VaadinBroadcaster.register(
+		broadcasterRegistration = vaadinBroadcaster.register(
 			() -> ui.access(this::reloadComponent)
 		);
 	}

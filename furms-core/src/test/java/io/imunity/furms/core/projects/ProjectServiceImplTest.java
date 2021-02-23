@@ -6,9 +6,7 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
-import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.*;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -29,8 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class ProjectServiceImplTest {
@@ -53,7 +50,7 @@ class ProjectServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		ProjectServiceValidator validator = new ProjectServiceValidator(projectRepository, communityRepository);
 		service = new ProjectServiceImpl(projectRepository, projectGroupsDAO, usersDAO, validator, publisher);
-		orderVerifier = inOrder(projectRepository, projectGroupsDAO);
+		orderVerifier = inOrder(projectRepository, projectGroupsDAO, publisher);
 	}
 
 	@Test
@@ -116,18 +113,22 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).create(eq(request));
 		orderVerifier.verify(projectGroupsDAO).create(eq(groupRequest));
+		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectEvent("id")));
 	}
 
 	@Test
 	void shouldNotAllowToCreateProjectDueToNonUniqueuserFacingName() {
 		//given
 		Project request = Project.builder()
+			.id("id")
 			.name("userFacingName")
 			.build();
 		when(projectRepository.isUniqueName(request.getName())).thenReturn(false);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
+		orderVerifier.verify(projectRepository, times(0)).create(eq(request));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateProjectEvent("id")));
 	}
 
 	@Test
@@ -157,6 +158,7 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).update(eq(request));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
+		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent("id")));
 	}
 
 	@Test
@@ -201,6 +203,7 @@ class ProjectServiceImplTest {
 			.build();
 		orderVerifier.verify(projectRepository).update(eq(updatedProject));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
+		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent("id")));
 	}
 
 	@Test
@@ -215,6 +218,7 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).delete(eq(id));
 		orderVerifier.verify(projectGroupsDAO).delete(eq(id), eq(id2));
+		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectEvent("id")));
 	}
 
 	@Test
@@ -226,6 +230,8 @@ class ProjectServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, id2));
+		orderVerifier.verify(projectRepository, times(0)).delete(eq(id));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateProjectEvent("id")));
 	}
 
 }

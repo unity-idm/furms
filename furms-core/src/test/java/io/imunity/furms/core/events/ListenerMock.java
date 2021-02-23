@@ -5,13 +5,12 @@
 
 package io.imunity.furms.core.events;
 
-import io.imunity.furms.domain.communities.CommunityEvent;
-import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.domain.communities.CreateCommunityEvent;
+import io.imunity.furms.domain.communities.RemoveCommunityEvent;
+import io.imunity.furms.domain.communities.UpdateCommunityEvent;
+import io.imunity.furms.domain.users.InviteUserEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import static io.imunity.furms.utils.EventOperation.*;
 
 @Component
 public class ListenerMock {
@@ -21,20 +20,23 @@ public class ListenerMock {
 		this.serviceMock = serviceMock;
 	}
 
-	@Async
 	@EventListener
-	public void handleUserEvents(UserEvent event) {
-		serviceMock.doEventUserAction();
+	public void handleUserEvents(InviteUserEvent event) {
+		serviceMock.handleEventUserAction();
 	}
 
-	@Async
 	@EventListener
-	public void handleCommunityEvents(CommunityEvent event) {
-		if(event.operation.equals(CREATE))
-			serviceMock.doEventCommunityCreate();
-		if(event.operation.equals(UPDATE))
-			serviceMock.doEventCommunityUpdate();
-		if(event.operation.equals(DELETE))
-			serviceMock.doEventCommunityRemove();
+	public void handleCommunityEvents(CreateCommunityEvent event) {
+			serviceMock.handleEventCommunityCreate();
+	}
+
+	@EventListener
+	public void handleCommunityEvents(UpdateCommunityEvent event) {
+		serviceMock.handleEventCommunityUpdate();
+	}
+
+	@EventListener
+	public void handleCommunityEvents(RemoveCommunityEvent event) {
+		serviceMock.handleEventCommunityRemove();
 	}
 }

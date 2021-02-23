@@ -7,6 +7,7 @@ package io.imunity.furms.core.users;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.users.*;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -22,7 +23,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.utils.EventOperation.*;
 
 @Service
 class UserServiceImpl implements UserService {
@@ -56,8 +56,6 @@ class UserServiceImpl implements UserService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
-		addFenixAdminRole(user.get().id);
-		publisher.publishEvent(new UserEvent(user.get().id, CREATE));
 	}
 
 	@Override
@@ -65,7 +63,7 @@ class UserServiceImpl implements UserService {
 	public void addFenixAdminRole(String userId) {
 		LOG.info("Adding FENIX admin role to {}", userId);
 		usersDAO.addFenixAdminRole(userId);
-		publisher.publishEvent(new UserEvent(userId, CREATE));
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 
 	@Override
@@ -73,7 +71,7 @@ class UserServiceImpl implements UserService {
 	public void removeFenixAdminRole(String userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
-		publisher.publishEvent(new UserEvent(userId, DELETE));
+		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 
 	@Override
@@ -84,7 +82,7 @@ class UserServiceImpl implements UserService {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		try {
 			usersDAO.setUserStatus(fenixUserId, status);
-			publisher.publishEvent(new UserEvent(fenixUserId, UPDATE));
+			publisher.publishEvent(new UpdateUserEvent(fenixUserId, new ResourceId((String) null, APP_LEVEL)));
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);

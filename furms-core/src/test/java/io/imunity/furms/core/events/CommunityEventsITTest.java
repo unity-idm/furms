@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-class EventsTest {
+class CommunityEventsITTest {
 	@MockBean
 	private CommunityGroupsDAO communityGroupsDAO;
 	@MockBean
@@ -41,7 +41,7 @@ class EventsTest {
 	@Test
 	void shouldRunUserChangeEvent() {
 		communityService.addAdmin("id", "id");
-		verify(serviceMock, timeout(100).times(1)).doEventUserAction();
+		verify(serviceMock, timeout(100).times(1)).handleEventUserAction();
 	}
 
 	@Test
@@ -50,7 +50,7 @@ class EventsTest {
 
 		communityService.delete("id");
 
-		verify(serviceMock, timeout(100).times(1)).doEventCommunityRemove();
+		verify(serviceMock, timeout(100).times(1)).handleEventCommunityRemove();
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class EventsTest {
 
 		communityService.create(request);
 
-		verify(serviceMock, timeout(100).times(1)).doEventCommunityCreate();
+		verify(serviceMock, timeout(100).times(1)).handleEventCommunityCreate();
 	}
 
 	@Test
@@ -78,6 +78,6 @@ class EventsTest {
 
 		communityService.update(request);
 
-		verify(serviceMock, timeout(100).times(1)).doEventCommunityUpdate();
+		verify(serviceMock, timeout(100).times(1)).handleEventCommunityUpdate();
 	}
 }

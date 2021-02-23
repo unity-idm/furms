@@ -7,11 +7,11 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityEvent;
-import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.communities.*;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.User;
-import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -29,7 +29,6 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.utils.EventOperation.*;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
@@ -70,7 +69,7 @@ class CommunityServiceImpl implements CommunityService {
 		String id = communityRepository.create(community);
 		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
 		LOG.info("Community with given ID: {} was created: {}", id, community);
-		publisher.publishEvent(new CommunityEvent(community.getId(), CREATE));
+		publisher.publishEvent(new CreateCommunityEvent(community.getId()));
 	}
 
 	@Override
@@ -81,7 +80,7 @@ class CommunityServiceImpl implements CommunityService {
 		communityRepository.update(community);
 		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
 		LOG.info("Community was updated: {}", community);
-		publisher.publishEvent(new CommunityEvent(community.getId(), UPDATE));
+		publisher.publishEvent(new UpdateCommunityEvent(community.getId()));
 	}
 
 	@Override
@@ -92,7 +91,7 @@ class CommunityServiceImpl implements CommunityService {
 		communityRepository.delete(id);
 		communityGroupsDAO.delete(id);
 		LOG.info("Community with given ID: {} was deleted", id);
-		publisher.publishEvent(new CommunityEvent(id, DELETE));
+		publisher.publishEvent(new RemoveCommunityEvent(id));
 	}
 
 	@Override
@@ -109,7 +108,6 @@ class CommunityServiceImpl implements CommunityService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
 		addAdmin(communityId, user.get().id);
-		publisher.publishEvent(new UserEvent(user.get().id, CREATE));
 	}
 
 	@Override
@@ -117,7 +115,7 @@ class CommunityServiceImpl implements CommunityService {
 	public void addAdmin(String communityId, String userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new UserEvent(userId, CREATE));
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override
@@ -125,7 +123,7 @@ class CommunityServiceImpl implements CommunityService {
 	public void removeAdmin(String communityId, String userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new UserEvent(userId, DELETE));
+		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override

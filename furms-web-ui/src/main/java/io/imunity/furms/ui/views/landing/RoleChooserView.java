@@ -6,7 +6,7 @@
 package io.imunity.furms.ui.views.landing;
 
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -17,8 +17,8 @@ import static io.imunity.furms.domain.constant.RoutesConst.ROLE_CHOOSER_URL;
 @Route(ROLE_CHOOSER_URL)
 @PageTitle(key = "view.landing.title")
 public class RoleChooserView extends FurmsViewComponent {
-	RoleChooserView(RoleTranslator roleTranslator, AuthzService authzService) {
-		RoleChooserLayout roleChooserLayout = new RoleChooserLayout(new FurmsSelect(roleTranslator, authzService));
+	RoleChooserView(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+		RoleChooserLayout roleChooserLayout = new RoleChooserLayout(new FurmsSelect(roleTranslator, vaadinBroadcaster));
 		getContent().add(roleChooserLayout);
 	}
 }

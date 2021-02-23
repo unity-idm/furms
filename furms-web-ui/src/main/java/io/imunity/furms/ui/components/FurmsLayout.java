@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 
 import java.util.List;
@@ -27,14 +27,14 @@ public class FurmsLayout {
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
 	private final RoleTranslator roleTranslator;
-	private final AuthzService authzService;
+	private final VaadinBroadcaster vaadinBroadcaster;
 
-	public FurmsLayout(List<MenuComponent> menuContent, RoleTranslator roleTranslator, AuthzService authzService){
+	public FurmsLayout(List<MenuComponent> menuContent, RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
 		this.roleTranslator = roleTranslator;
-		this.authzService = authzService;
+		this.vaadinBroadcaster = vaadinBroadcaster;
 	}
 
 	public Component createDrawerContent() {
@@ -73,7 +73,7 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		rightNavbarSite.add(new Text(getTranslation("navbar.text")), new FurmsSelect(roleTranslator, authzService), logout);
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), new FurmsSelect(roleTranslator, vaadinBroadcaster), logout);
 		return rightNavbarSite;
 	}
 
