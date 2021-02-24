@@ -31,5 +31,5 @@ public interface CommunityService {
 
 	void removeAdmin(String communityId, String userId);
 
-	boolean isAdmin(String communityId, String userId);
+	boolean isAdmin(String communityId);
 }
