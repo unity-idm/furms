@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,8 +37,16 @@ public class RestExceptionHandlersTest {
 	void shouldReturn_404_onUnknownUserException() throws Exception {
 		mockMvc.perform(get("/test/exception/handler/unknown-user-exception"))
 				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.error", is("UnknownUserException")));
+				.andExpect(jsonPath("$.error", is("Not Found")));
 	}
+
+	@Test
+	void shouldHandleDefaultSpringExceptionMethodNotAllowed() throws Exception {
+		mockMvc.perform(post("/test/exception/handler/runtime-exception"))
+				.andExpect(status().isMethodNotAllowed())
+				.andExpect(jsonPath("$.error", is("Method Not Allowed")));
+	}
+
 
 	@Test
 	void shouldReturn_500_onRuntimeException() throws Exception {
