@@ -5,8 +5,10 @@
 
 package io.imunity.furms.core.sites;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -36,15 +38,18 @@ class SiteServiceImpl implements SiteService {
 	private final SiteServiceValidator validator;
 	private final SiteWebClient webClient;
 	private final UsersDAO usersDAO;
+	private final AuthzService authzService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
 	                SiteWebClient webClient,
-	                UsersDAO usersDAO) {
+	                UsersDAO usersDAO,
+	                AuthzService authzService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
 		this.usersDAO = usersDAO;
+		this.authzService = authzService;
 	}
 
 	@Override
@@ -202,8 +207,8 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public boolean isAdmin(String siteId, String userId) {
-		return webClient.isAdmin(siteId, userId);
+	public boolean isAdmin(String siteId) {
+		return authzService.isResourceMember(siteId, Role.SITE_ADMIN);
 	}
 
 	private Site merge(Site oldSite, Site site) {

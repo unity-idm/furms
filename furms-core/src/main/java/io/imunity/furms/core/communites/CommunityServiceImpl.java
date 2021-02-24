@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.communities.Community;
@@ -23,8 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
@@ -34,13 +37,15 @@ class CommunityServiceImpl implements CommunityService {
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final UsersDAO usersDAO;
 	private final CommunityServiceValidator validator;
+	private final AuthzService authzService;
 
 	CommunityServiceImpl(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
-	                            UsersDAO usersDAO, CommunityServiceValidator validator) {
+	                            UsersDAO usersDAO, CommunityServiceValidator validator, AuthzService authzService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
+		this.authzService = authzService;
 	}
 
 	@Override
@@ -118,7 +123,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
-	public boolean isAdmin(String communityId, String userId) {
-		return communityGroupsDAO.isAdmin(communityId, userId);
+	public boolean isAdmin(String communityId) {
+		return authzService.isResourceMember(communityId, COMMUNITY_ADMIN);
 	}
 }

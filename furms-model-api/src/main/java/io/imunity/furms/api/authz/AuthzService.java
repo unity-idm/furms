@@ -16,4 +16,5 @@ public interface AuthzService {
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
 	String getCurrentUserId();
+	boolean isResourceMember(String resourceId, Role role);
 }

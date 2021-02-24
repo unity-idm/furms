@@ -5,44 +5,27 @@
 
 package io.imunity.furms.ui.views.fenix.communites;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ADMINISTRATORS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ALLOCATIONS_PARAM;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.PARAM_NAME;
-import static java.util.function.Function.identity;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-
+import com.vaadin.flow.router.*;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
-import io.imunity.furms.ui.components.FurmsSelectReloader;
-import io.imunity.furms.ui.components.FurmsTabs;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.InviteUserComponent;
-import io.imunity.furms.ui.components.MembershipChangerComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+
+import java.util.*;
+
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
+import static java.util.function.Function.identity;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.community.page.title")
@@ -113,7 +96,7 @@ public class CommunityView extends FurmsViewComponent {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
 			getTranslation("view.fenix-admin.community.button.demit"),
-			() -> communityService.isAdmin(communityId, currentUserId)
+			() -> communityService.isAdmin(communityId)
 		);
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)

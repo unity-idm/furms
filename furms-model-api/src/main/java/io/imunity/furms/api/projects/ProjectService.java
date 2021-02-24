@@ -30,7 +30,7 @@ public interface ProjectService {
 
 	List<User> findAllAdmins(String communityId, String projectId);
 
-	boolean isAdmin(String communityId, String projectId, String userId);
+	boolean isAdmin(String projectId);
 
 	void addAdmin(String communityId, String projectId, String userId);
 
@@ -42,7 +42,7 @@ public interface ProjectService {
 
 	List<User> findAllUsers(String communityId);
 
-	boolean isUser(String communityId, String projectId, String userId);
+	boolean isUser(String projectId);
 
 	void addUser(String communityId, String projectId, String userId);
 
