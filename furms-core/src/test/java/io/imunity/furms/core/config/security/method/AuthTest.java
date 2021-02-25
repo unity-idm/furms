@@ -5,20 +5,12 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
+import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,11 +28,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.projects.ProjectRepository;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
@@ -63,9 +61,10 @@ public class AuthTest {
 
 	@BeforeAll
 	public void configSecurityContext(){
-		FurmsAuthenticatedUser furmsUser = mock(FurmsAuthenticatedUser.class); 
-		when(furmsUser.getRoles()).thenReturn(roles);
-		when(authentication.getPrincipal()).thenReturn(furmsUser);
+		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSAuthenticationProvider provider = mock(FURMSAuthenticationProvider.class);
+		when(authentication.getPrincipal()).thenReturn(provider);
+		when(provider.getFURMSUser()).thenReturn(furmsUser);
 		when(authentication.isAuthenticated()).thenReturn(true);
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);

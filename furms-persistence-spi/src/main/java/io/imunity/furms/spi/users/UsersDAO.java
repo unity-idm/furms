@@ -5,7 +5,7 @@
 
 package io.imunity.furms.spi.users;
 
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
 
@@ -14,12 +14,12 @@ import java.util.Optional;
 
 
 public interface UsersDAO {
-	List<User> getAdminUsers();
-	List<User> getAllUsers();
+	List<FURMSUser> getAdminUsers();
+	List<FURMSUser> getAllUsers();
 	void addFenixAdminRole(String userId);
 	void removeFenixAdminRole(String userId);
 	void setUserStatus(String fenixUserId, UserStatus status);
 	UserStatus getUserStatus(String fenixUserId);
-	Optional<User> findById(String userId);
+	Optional<FURMSUser> findById(String userId);
 	UserAttributes getUserAttributes(String fenixUserId);
 }

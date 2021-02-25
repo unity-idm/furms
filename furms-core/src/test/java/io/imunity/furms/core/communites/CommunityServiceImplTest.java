@@ -9,7 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -23,9 +23,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
@@ -172,10 +170,10 @@ class CommunityServiceImplTest {
 	void shouldReturnAllCommunityAdmins() {
 		//given
 		String communityId = "id";
-		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(new User("id", "firstName", "lastName", "email")));
+		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(new FURMSUser("id", "firstName", "lastName", "email", Map.of())));
 
 		//when
-		List<User> allAdmins = service.findAllAdmins(communityId);
+		List<FURMSUser> allAdmins = service.findAllAdmins(communityId);
 
 		//then
 		assertThat(allAdmins).hasSize(1);

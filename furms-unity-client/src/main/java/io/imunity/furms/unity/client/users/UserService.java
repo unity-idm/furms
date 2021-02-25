@@ -6,7 +6,7 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -107,7 +107,7 @@ public class UserService {
 			.anyMatch(attribute -> attribute.equals(role.unityRoleValue));
 	}
 
-	public Optional<User> getUser(String userId){
+	public Optional<FURMSUser> getUser(String userId){
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		return UnityUserMapper.map(userId, attributesFromGroup);
 	}
@@ -132,14 +132,14 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));
 	}
 
-	public List<User> getAllUsersByRole(String group, Role role) {
+	public List<FURMSUser> getAllUsersByRole(String group, Role role) {
 		Predicate<AttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&
 				attribute.getValues().contains(role.unityRoleValue);
 		return getAllUsersFromGroup(group, filter);
 	}
 
-	public List<User> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
+	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS)

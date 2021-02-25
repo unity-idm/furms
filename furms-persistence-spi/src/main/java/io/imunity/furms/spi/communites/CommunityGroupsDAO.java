@@ -6,7 +6,7 @@
 package io.imunity.furms.spi.communites;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public interface CommunityGroupsDAO {
 
 	void delete(String id);
 
-	List<User> getAllAdmins(String id);
+	List<FURMSUser> getAllAdmins(String id);
 
 	void addAdmin(String communityId, String userId);
 

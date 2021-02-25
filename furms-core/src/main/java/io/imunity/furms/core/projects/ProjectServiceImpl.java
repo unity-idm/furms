@@ -11,7 +11,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -28,7 +28,8 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.Role.*;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -122,7 +123,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<User> findAllAdmins(String communityId, String projectId){
+	public List<FURMSUser> findAllAdmins(String communityId, String projectId){
 		return projectGroupsDAO.getAllAdmins(communityId, projectId);
 	}
 
@@ -141,7 +142,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
 	public void inviteAdmin(String communityId, String projectId, String id){
-		Optional<User> user = usersDAO.findById(id);
+		Optional<FURMSUser> user = usersDAO.findById(id);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
@@ -156,13 +157,13 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<User> findAllUsers(String communityId, String projectId){
+	public List<FURMSUser> findAllUsers(String communityId, String projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
-	public List<User> findAllUsers(String communityId){
+	public List<FURMSUser> findAllUsers(String communityId){
 		return projectGroupsDAO.getAllUsers(communityId);
 	}
 
@@ -181,7 +182,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void inviteUser(String communityId, String projectId, String userId) {
-		Optional<User> user = usersDAO.findById(userId);
+		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}

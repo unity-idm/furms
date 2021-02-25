@@ -6,7 +6,7 @@
 package io.imunity.furms.spi.sites;
 
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public interface SiteWebClient {
 
 	void delete(String id);
 
-	List<User> getAllAdmins(String id);
+	List<FURMSUser> getAllAdmins(String id);
 
 	boolean isAdmin(String siteId, String userId);
 

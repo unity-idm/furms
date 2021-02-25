@@ -6,7 +6,7 @@
 package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
@@ -106,7 +106,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public List<User> getAllAdmins(String communityId) {
+	public List<FURMSUser> getAllAdmins(String communityId) {
 		check(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);

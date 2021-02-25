@@ -6,17 +6,18 @@
 package io.imunity.furms.core.authz;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
+import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.roles.RoleLoader;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.core.config.security.FurmsAuthenticatedUser.getCurrent;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -28,31 +29,35 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
-	public Map<String, Object> getAttributes() {
-		return getCurrent().getAttributes();
+	public FURMSUser getUser() {
+		return getCurrent();
 	}
 
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
-		return getCurrent().getRoles();
+		return getCurrent().roles;
 	}
 
 	@Override
 	public boolean isResourceMember(String resourceId, Role role) {
-		return getCurrent().getRoles().entrySet().stream()
+		return getCurrent().roles.entrySet().stream()
 			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
 			.anyMatch(entry -> entry.getValue().contains(role));
 	}
 
 	@Override
 	public void reloadRoles() {
-		FurmsAuthenticatedUser authentication = getCurrent();
-		String id = authentication.getStringAttribute("sub");
+		FURMSUser authentication = getCurrent();
+		String id = authentication.id;
 		authentication.updateRoles(roleLoader.loadUserRoles(id));
 	}
 
 	@Override
 	public String getCurrentUserId(){
-		return getCurrent().getStringAttribute("sub");
+		return getCurrent().id;
+	}
+
+	private static FURMSUser getCurrent() {
+		return ((FURMSAuthenticationProvider) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getFURMSUser();
 	}
 }

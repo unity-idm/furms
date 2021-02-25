@@ -6,7 +6,7 @@
 package io.imunity.furms.ui.components.administrators;
 
 import com.vaadin.flow.component.icon.Icon;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public class AdministratorsGridItem {
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
-	public AdministratorsGridItem(User user){
+	public AdministratorsGridItem(FURMSUser user){
 		this.id = user.id;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;

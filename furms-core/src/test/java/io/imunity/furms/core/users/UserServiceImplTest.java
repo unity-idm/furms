@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.users;
 
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +31,7 @@ class UserServiceImplTest {
 	void shouldAllowToInviteUser() {
 		//given
 		String id = "id";
-		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(User.builder()
+		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(FURMSUser.builder()
 				.id("userId")
 				.email(id)
 				.build()));

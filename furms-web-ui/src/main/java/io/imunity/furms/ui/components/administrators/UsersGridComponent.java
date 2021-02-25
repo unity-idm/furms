@@ -5,23 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
@@ -39,19 +22,32 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
-
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.views.landing.RoleChooserView;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
 public class UsersGridComponent extends VerticalLayout {
 
 	private final Grid<AdministratorsGridItem> grid;
 
-	private final Supplier<List<User>> fetchUsersAction;
+	private final Supplier<List<FURMSUser>> fetchUsersAction;
 	private final Consumer<String> removeUserAction;
 	private final String currentUserId;
 	private final boolean redirectOnCurrentUserRemoval;
@@ -63,7 +59,7 @@ public class UsersGridComponent extends VerticalLayout {
 	
 	private String searchText = "";
 
-	private UsersGridComponent(Supplier<List<User>> fetchUsersAction,
+	private UsersGridComponent(Supplier<List<FURMSUser>> fetchUsersAction,
 			Consumer<String> removeUserAction,
 			String currentUserId,
 			boolean redirectOnCurrentUserRemoval,
@@ -256,7 +252,7 @@ public class UsersGridComponent extends VerticalLayout {
 	}
 
 	public static final class Builder {
-		private Supplier<List<User>> fetchUsersAction;
+		private Supplier<List<FURMSUser>> fetchUsersAction;
 		private Consumer<String> removeUserAction;
 		private String currentUserId;
 		private boolean redirectOnCurrentUserRemoval = false;
@@ -268,7 +264,7 @@ public class UsersGridComponent extends VerticalLayout {
 		private Builder() {
 		}
 
-		public Builder withFetchUsersAction(Supplier<List<User>> fetchUsersAction) {
+		public Builder withFetchUsersAction(Supplier<List<FURMSUser>> fetchUsersAction) {
 			this.fetchUsersAction = fetchUsersAction;
 			return this;
 		}

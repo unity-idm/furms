@@ -5,11 +5,11 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
+import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
-
+import io.imunity.furms.domain.users.FURMSUser;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
@@ -37,9 +37,9 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
-		FurmsAuthenticatedUser principal = (FurmsAuthenticatedUser) authentication.getPrincipal();
+		FURMSUser principal = ((FURMSAuthenticationProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
-		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.getRoles(), resourceId);
+		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.roles, resourceId);
 		capabilities.add(AUTHENTICATED);
 		return capabilities.contains(capability);
 	}

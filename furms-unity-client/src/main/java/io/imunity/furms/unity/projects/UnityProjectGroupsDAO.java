@@ -7,7 +7,7 @@ package io.imunity.furms.unity.projects;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
@@ -129,7 +129,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<User> getAllAdmins(String communityId, String projectId) {
+	public List<FURMSUser> getAllAdmins(String communityId, String projectId) {
 		check(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Admin from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
@@ -137,7 +137,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<User> getAllUsers(String communityId, String projectId) {
+	public List<FURMSUser> getAllUsers(String communityId, String projectId) {
 		check(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
@@ -145,7 +145,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<User> getAllUsers(String communityId) {
+	public List<FURMSUser> getAllUsers(String communityId) {
 		check(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getProjectPath(getUriVariables(communityId), COMMUNITY_GROUP_PATTERN);

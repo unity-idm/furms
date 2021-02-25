@@ -7,7 +7,7 @@ package io.imunity.furms.unity.users;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
@@ -49,12 +49,12 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public List<User> getAdminUsers() {
+	public List<FURMSUser> getAdminUsers() {
 		return userService.getAllUsersByRole(FENIX_PATTERN, FENIX_ADMIN);
 	}
 
 	@Override
-	public List<User> getAllUsers() {
+	public List<FURMSUser> getAllUsers() {
 		return userService.getAllUsersFromGroup(FENIX_GROUP, attr -> true);
 	}
 
@@ -102,7 +102,7 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public Optional<User> findById(String userId) {
+	public Optional<FURMSUser> findById(String userId) {
 		return userService.getUser(userId);
 	}
 

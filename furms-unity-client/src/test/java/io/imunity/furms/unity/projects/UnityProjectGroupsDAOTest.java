@@ -5,37 +5,26 @@
 
 package io.imunity.furms.unity.projects;
 
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.*;
+
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class UnityProjectGroupsDAOTest {
@@ -130,12 +119,12 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_ADMIN))
 			.thenReturn(List.of(
-				new User("1", "firstName", "lastName", "email"),
-				new User("3", "firstName", "lastName", "email"))
+				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
+				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
 			);
 
 		//when
-		List<User> admins = unityProjectGroupsDAO.getAllAdmins(communityId, projectId);
+		List<FURMSUser> admins = unityProjectGroupsDAO.getAllAdmins(communityId, projectId);
 
 		//then
 		assertThat(admins).hasSize(2);
@@ -202,12 +191,12 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_USER))
 			.thenReturn(List.of(
-				new User("1", "firstName", "lastName", "email"),
-				new User("3", "firstName", "lastName", "email"))
+				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
+				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
 			);
 
 		//when
-		List<User> admins = unityProjectGroupsDAO.getAllUsers(communityId, projectId);
+		List<FURMSUser> admins = unityProjectGroupsDAO.getAllUsers(communityId, projectId);
 
 		//then
 		assertThat(admins).hasSize(2);

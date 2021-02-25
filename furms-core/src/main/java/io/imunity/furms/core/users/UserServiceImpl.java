@@ -36,19 +36,19 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
-	public List<User> getAllUsers(){
+	public List<FURMSUser> getAllUsers(){
 		return usersDAO.getAllUsers();
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
-	public List<User> getFenixAdmins(){
+	public List<FURMSUser> getFenixAdmins(){
 		return usersDAO.getAdminUsers();
 	}
 
 	@Override
 	public void inviteFenixAdmin(String userId) {
-		Optional<User> user = usersDAO.findById(userId);
+		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
@@ -97,7 +97,7 @@ class UserServiceImpl implements UserService {
 	
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
-	public Optional<User> findById(String userId) {
+	public Optional<FURMSUser> findById(String userId) {
 		return usersDAO.findById(userId);
 	}
 
