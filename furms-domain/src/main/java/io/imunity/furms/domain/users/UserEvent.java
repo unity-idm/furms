@@ -5,5 +5,7 @@
 
 package io.imunity.furms.domain.users;
 
-public interface UserEvent {
+import io.imunity.furms.domain.FurmsEvent;
+
+public interface UserEvent extends FurmsEvent {
 }

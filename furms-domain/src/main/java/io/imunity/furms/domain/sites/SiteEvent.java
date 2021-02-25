@@ -5,5 +5,7 @@
 
 package io.imunity.furms.domain.sites;
 
-public interface SiteEvent {
+import io.imunity.furms.domain.FurmsEvent;
+
+public interface SiteEvent extends FurmsEvent {
 }

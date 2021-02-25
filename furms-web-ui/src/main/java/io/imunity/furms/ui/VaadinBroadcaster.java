@@ -6,10 +6,7 @@
 package io.imunity.furms.ui;
 
 import com.vaadin.flow.shared.Registration;
-import io.imunity.furms.domain.communities.CommunityEvent;
-import io.imunity.furms.domain.projects.ProjectEvent;
-import io.imunity.furms.domain.sites.SiteEvent;
-import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.domain.FurmsEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -17,55 +14,52 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Component
 public class VaadinBroadcaster {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final List<Runnable> listeners = Collections.synchronizedList(new LinkedList<>());
+	private final List<Consumer<FurmsEvent>> listeners = new ArrayList<>();
 
-	public Registration register(Runnable listener) {
-		listeners.add(listener);
-		return () -> listeners.remove(listener);
+	public Registration register(Consumer<FurmsEvent> listener) {
+		addListener(listener);
+		return () -> removeListener(listener);
 	}
 
-	private void broadcast() {
-		synchronized (listeners) {
-			for (Runnable listener : listeners) {
-				try {
-					listener.run();
-					LOG.info("Run Runnable");
-				} catch (Exception e) {
-					LOG.error("Runnable failed", e);
-				}
+	private synchronized void addListener(Consumer<FurmsEvent> listener){
+		listeners.add(listener);
+	}
+
+	private synchronized void removeListener(Consumer<FurmsEvent> listener){
+		listeners.remove(listener);
+	}
+
+	private void broadcast(FurmsEvent event) {
+		List<Consumer<FurmsEvent>> listenersToBeNotified = getListenersToBeNotified();
+		notifyListeners(listenersToBeNotified, event);
+	}
+
+	private synchronized List<Consumer<FurmsEvent>> getListenersToBeNotified(){
+		return List.copyOf(listeners);
+	}
+
+	private void notifyListeners(List<Consumer<FurmsEvent>> listeners, FurmsEvent event){
+		for (Consumer<FurmsEvent> listener : listeners) {
+			try {
+				listener.accept(event);
+				LOG.info("Run Runnable");
+			} catch (Exception e) {
+				LOG.error("Runnable failed", e);
 			}
 		}
 	}
 
 	@Async
 	@EventListener
-	void onUserEvents(UserEvent event) {
-		broadcast();
-	}
-
-	@Async
-	@EventListener
-	void onProjectEvents(ProjectEvent event) {
-		broadcast();
-	}
-
-	@Async
-	@EventListener
-	void onCommunityEvents(CommunityEvent event) {
-		broadcast();
-	}
-
-	@Async
-	@EventListener
-	void onSiteEvents(SiteEvent event) {
-		broadcast();
+	void onFurmsEvents(FurmsEvent event) {
+		broadcast(event);
 	}
 }

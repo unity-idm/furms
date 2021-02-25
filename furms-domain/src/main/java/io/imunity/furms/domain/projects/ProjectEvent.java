@@ -5,5 +5,7 @@
 
 package io.imunity.furms.domain.projects;
 
-public interface ProjectEvent {
+import io.imunity.furms.domain.FurmsEvent;
+
+public interface ProjectEvent extends FurmsEvent {
 }

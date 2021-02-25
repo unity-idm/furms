@@ -5,5 +5,7 @@
 
 package io.imunity.furms.domain.communities;
 
-public interface CommunityEvent {
+import io.imunity.furms.domain.FurmsEvent;
+
+public interface CommunityEvent extends FurmsEvent {
 }

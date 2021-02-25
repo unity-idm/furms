@@ -80,7 +80,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
-			() -> ui.access(this::reloadComponent)
+			event -> ui.access(this::reloadComponent)
 		);
 	}
 
