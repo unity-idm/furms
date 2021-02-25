@@ -7,11 +7,10 @@ package io.imunity.furms.ui.views.community;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import io.imunity.furms.ui.VaadinBroadcaster;
+import io.imunity.furms.ui.FurmsSelectFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.views.community.adminstrators.CommunityAdminsView;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 import io.imunity.furms.ui.views.community.projects.ProjectsView;
@@ -22,7 +21,7 @@ import java.util.List;
 public class CommunityAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	CommunityAdminMenu(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+	CommunityAdminMenu(FurmsSelectFactory furmsSelectFactory) {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
@@ -32,7 +31,7 @@ public class CommunityAdminMenu extends FurmsAppLayout implements AfterNavigatio
 				MenuComponent.builder(CommunityAdminsView.class).build(),
 				MenuComponent.builder(SettingsView.class).build()
 			),
-			roleTranslator, vaadinBroadcaster
+			furmsSelectFactory
 		);
 		addToNavbar(false, furmsLayout.createNavbar());
 		addToDrawer(furmsLayout.createDrawerContent());

@@ -43,7 +43,7 @@ class CommunityEventsITTest {
 	@Test
 	void shouldRunUserChangeEvent() {
 		communityService.addAdmin(UUID.randomUUID().toString(), "id");
-		verify(serviceMock, timeout(100).times(1)).handleEventUserAction();
+		verify(serviceMock, times(1)).handleEventUserAction();
 	}
 
 	@Test
@@ -52,7 +52,7 @@ class CommunityEventsITTest {
 
 		communityService.delete("id");
 
-		verify(serviceMock, timeout(100).times(1)).handleEventCommunityRemove();
+		verify(serviceMock, times(1)).handleEventCommunityRemove();
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class CommunityEventsITTest {
 
 		communityService.create(request);
 
-		verify(serviceMock, timeout(100).times(1)).handleEventCommunityCreate();
+		verify(serviceMock, times(1)).handleEventCommunityCreate();
 	}
 
 	@Test
@@ -80,6 +80,6 @@ class CommunityEventsITTest {
 
 		communityService.update(request);
 
-		verify(serviceMock, timeout(100).times(1)).handleEventCommunityUpdate();
+		verify(serviceMock, times(1)).handleEventCommunityUpdate();
 	}
 }

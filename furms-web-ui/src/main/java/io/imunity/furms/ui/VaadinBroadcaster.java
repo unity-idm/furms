@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,21 +25,22 @@ import java.util.List;
 public class VaadinBroadcaster {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+	private final List<Runnable> listeners = Collections.synchronizedList(new LinkedList<>());
 
-	private final List<Runnable> listeners = new LinkedList<>();
-
-	public synchronized Registration register(Runnable listener) {
+	public Registration register(Runnable listener) {
 		listeners.add(listener);
-		return new SynchronizedRegistration(() -> listeners.remove(listener));
+		return () -> listeners.remove(listener);
 	}
 
-	private synchronized void broadcast() {
-		for (Runnable listener : listeners) {
-			try {
-				listener.run();
-				LOG.info("Run Runnable");
-			}catch (Exception e){
-				LOG.error("Runnable failed", e);
+	private void broadcast() {
+		synchronized (listeners) {
+			for (Runnable listener : listeners) {
+				try {
+					listener.run();
+					LOG.info("Run Runnable");
+				} catch (Exception e) {
+					LOG.error("Runnable failed", e);
+				}
 			}
 		}
 	}

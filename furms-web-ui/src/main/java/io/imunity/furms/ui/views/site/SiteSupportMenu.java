@@ -5,24 +5,23 @@
 
 package io.imunity.furms.ui.views.site;
 
-import io.imunity.furms.ui.VaadinBroadcaster;
+import io.imunity.furms.ui.FurmsSelectFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 
 import java.util.List;
 
 public class SiteSupportMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
-	SiteSupportMenu(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+	SiteSupportMenu(FurmsSelectFactory furmsSelectFactory) {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = new FurmsLayout(
 			List.of(
 				MenuComponent.builder(SignedPoliciesView.class).build()
 			),
-			roleTranslator, vaadinBroadcaster
+			furmsSelectFactory
 		);
 		addToNavbar(false, furmsLayout.createNavbar());
 		addToDrawer(furmsLayout.createDrawerContent());

@@ -7,7 +7,7 @@ package io.imunity.furms.domain.projects;
 
 import java.util.Objects;
 
-public class UpdateProjectEvent {
+public class UpdateProjectEvent implements ProjectEvent{
 	public final String id;
 
 	public UpdateProjectEvent(String id) {

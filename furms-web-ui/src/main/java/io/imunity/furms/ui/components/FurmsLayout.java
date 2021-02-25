@@ -14,8 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.FurmsSelectFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +25,13 @@ public class FurmsLayout {
 	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
-	private final RoleTranslator roleTranslator;
-	private final VaadinBroadcaster vaadinBroadcaster;
+	private final FurmsSelectFactory furmsSelectFactory;
 
-	public FurmsLayout(List<MenuComponent> menuContent, RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster){
+	public FurmsLayout(List<MenuComponent> menuContent, FurmsSelectFactory furmsSelectFactory){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
-		this.roleTranslator = roleTranslator;
-		this.vaadinBroadcaster = vaadinBroadcaster;
+		this.furmsSelectFactory = furmsSelectFactory;
 	}
 
 	public Component createDrawerContent() {
@@ -73,7 +70,7 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		rightNavbarSite.add(new Text(getTranslation("navbar.text")), new FurmsSelect(roleTranslator, vaadinBroadcaster), logout);
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelectFactory.create(), logout);
 		return rightNavbarSite;
 	}
 

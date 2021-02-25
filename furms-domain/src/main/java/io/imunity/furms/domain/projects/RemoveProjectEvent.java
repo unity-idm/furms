@@ -7,7 +7,7 @@ package io.imunity.furms.domain.projects;
 
 import java.util.Objects;
 
-public class RemoveProjectEvent {
+public class RemoveProjectEvent implements ProjectEvent{
 	public final String id;
 
 	public RemoveProjectEvent(String id) {
