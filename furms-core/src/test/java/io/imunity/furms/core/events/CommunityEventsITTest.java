@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.events;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -36,6 +37,8 @@ class CommunityEventsITTest {
 	private CommunityRepository communityRepository;
 	@MockBean
 	private ServiceMock serviceMock;
+	@MockBean
+	private AuthzService authzService;
 
 	@Autowired
 	private CommunityService communityService;

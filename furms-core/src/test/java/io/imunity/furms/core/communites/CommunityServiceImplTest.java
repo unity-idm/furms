@@ -60,7 +60,7 @@ class CommunityServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
 		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, authzService, publisher);
-		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
+		orderVerifier = inOrder(communityRepository, communityGroupsDAO, publisher);
 	}
 
 	@Test
