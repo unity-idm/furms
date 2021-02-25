@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.projects;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -29,6 +30,7 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.*;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -38,16 +40,18 @@ class ProjectServiceImpl implements ProjectService {
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final UsersDAO usersDAO;
 	private final ProjectServiceValidator validator;
+	private final AuthzService authzService;
 	private final ApplicationEventPublisher publisher;
 
 
 	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
-	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher) {
+	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher, AuthzService authzService) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
+		this.authzService = authzService;
 	}
 
 	@Override
@@ -134,8 +138,8 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public boolean isAdmin(String communityId, String projectId, String userId){
-		return projectGroupsDAO.isAdmin(communityId, projectId, userId);
+	public boolean isAdmin(String projectId){
+		return authzService.isResourceMember(projectId, PROJECT_ADMIN);
 	}
 
 	@Override
@@ -175,13 +179,10 @@ class ProjectServiceImpl implements ProjectService {
 		return projectGroupsDAO.getAllUsers(communityId);
 	}
 
-	// FIXME: constrained released do to usage of this API for authenticated only user.
-	//        Do we need a separate method to validate currently authN user against project?
-	//        So similar like below but w/o last parameter that shall be taken from the context.
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
-	public boolean isUser(String communityId, String projectId, String userId) {
-		return projectGroupsDAO.isUser(communityId, projectId, userId);
+	public boolean isUser(String projectId) {
+		return authzService.isResourceMember(projectId, PROJECT_USER);
 	}
 
 	@Override

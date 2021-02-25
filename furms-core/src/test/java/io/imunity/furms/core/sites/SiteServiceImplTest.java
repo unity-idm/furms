@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.sites;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -52,11 +53,12 @@ class SiteServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 
+	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository);
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService);
 	}
 
 	@Test

@@ -95,7 +95,7 @@ public class CommunityView extends FurmsViewComponent {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
 			getTranslation("view.fenix-admin.community.button.demit"),
-			() -> communityService.isAdmin(communityId, currentUserId)
+			() -> communityService.isAdmin(communityId)
 		);
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)

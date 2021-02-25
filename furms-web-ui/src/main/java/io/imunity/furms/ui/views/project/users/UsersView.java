@@ -5,23 +5,18 @@
 
 package io.imunity.furms.ui.views.project.users;
 
-import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.ui.components.FurmsLandingViewComponent;
-import io.imunity.furms.ui.components.InviteUserComponent;
-import io.imunity.furms.ui.components.MembershipChangerComponent;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+
+import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
@@ -51,7 +46,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		membershipLayout = new MembershipChangerComponent(
 				getTranslation("view.project-admin.users.button.join"),
 				getTranslation("view.project-admin.users.button.demit"),
-				() -> projectService.isUser(project.getCommunityId(), project.getId(), currentUserId)
+				() -> projectService.isUser(project.getId())
 		);
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)

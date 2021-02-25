@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.*;
@@ -48,6 +49,8 @@ class CommunityServiceImplTest {
 	private UsersDAO usersDAO;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private AuthzService authzService;
 
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
@@ -56,8 +59,8 @@ class CommunityServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
-		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, publisher);
-		orderVerifier = inOrder(communityRepository, communityGroupsDAO, publisher);
+		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, authzService, publisher);
+		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
 	}
 
 	@Test

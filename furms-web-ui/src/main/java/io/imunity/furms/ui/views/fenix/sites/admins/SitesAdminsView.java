@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.fenix.sites.admins;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
@@ -58,7 +59,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.sites.button.join"),
 			getTranslation("view.fenix-admin.sites.button.demit"),
-			() -> siteService.isAdmin(siteId, currentUserId)
+			() -> siteService.isAdmin(siteId)
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);

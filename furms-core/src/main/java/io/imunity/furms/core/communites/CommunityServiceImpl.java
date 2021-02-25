@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -29,6 +30,7 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
@@ -39,14 +41,17 @@ class CommunityServiceImpl implements CommunityService {
 	private final UsersDAO usersDAO;
 	private final CommunityServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
+	private final AuthzService authzService;
 
 	CommunityServiceImpl(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
-	                            UsersDAO usersDAO, CommunityServiceValidator validator, ApplicationEventPublisher publisher) {
+	                            UsersDAO usersDAO, CommunityServiceValidator validator, AuthzService authzService,
+	                     ApplicationEventPublisher publisher) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
+		this.authzService = authzService;
 	}
 
 	@Override
@@ -130,7 +135,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
-	public boolean isAdmin(String communityId, String userId) {
-		return communityGroupsDAO.isAdmin(communityId, userId);
+	public boolean isAdmin(String communityId) {
+		return authzService.isResourceMember(communityId, COMMUNITY_ADMIN);
 	}
 }

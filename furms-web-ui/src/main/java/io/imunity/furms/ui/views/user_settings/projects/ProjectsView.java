@@ -23,6 +23,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
@@ -42,15 +43,17 @@ import static java.util.stream.Collectors.toList;
 @PageTitle(key = "view.user-settings.projects.page.title")
 public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
+	private final UserService userService;
 	private final ProjectGridModelMapper mapper;
 	private final Grid<ProjectGridModel> grid;
 	private final String currentUserId;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
 	private String searchText = "";
 
-	ProjectsView(ProjectService projectService, AuthzService authzService) {
+	ProjectsView(ProjectService projectService, AuthzService authzService, UserService userService) {
 		this.currentUserId = authzService.getCurrentUserId();
 		this.projectService = projectService;
+		this.userService = userService;
 		this.mapper = new ProjectGridModelMapper(currentUserId, projectService);
 		this.grid = createProjectGrid();
 

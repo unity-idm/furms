@@ -36,7 +36,6 @@ public class InviteUserComponent extends HorizontalLayout {
 		setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		setSpacing(true);
 		furmsUserComboBox = new FurmsUserComboBox(getAvailableUsers());
-		furmsUserComboBox.setAlignItems(Alignment.END);
 		furmsUserComboBox.setClassName("furms-invite-combo-box");
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
 		inviteButton.setMinWidth("auto");

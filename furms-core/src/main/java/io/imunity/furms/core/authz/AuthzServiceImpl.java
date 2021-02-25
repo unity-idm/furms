@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.core.config.security.FurmsAuthenticatedUser.getCurrent;
+import static java.util.Optional.ofNullable;
 
 @Service
 public class AuthzServiceImpl implements AuthzService {
@@ -33,6 +35,13 @@ public class AuthzServiceImpl implements AuthzService {
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
 		return getCurrent().getRoles();
+	}
+
+	@Override
+	public boolean isResourceMember(String resourceId, Role role) {
+		return getCurrent().getRoles().entrySet().stream()
+			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
+			.anyMatch(entry -> entry.getValue().contains(role));
 	}
 
 	@Override

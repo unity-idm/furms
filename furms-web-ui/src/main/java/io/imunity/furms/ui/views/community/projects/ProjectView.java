@@ -95,7 +95,7 @@ public class ProjectView extends FurmsViewComponent {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.community-admin.project.button.join"),
 			getTranslation("view.community-admin.project.button.demit"),
-			() -> projectService.isAdmin(project.getCommunityId(), project.getId(), currentUserId)
+			() -> projectService.isAdmin(project.getId())
 		);
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
