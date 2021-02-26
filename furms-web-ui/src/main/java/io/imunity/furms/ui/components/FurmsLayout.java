@@ -6,7 +6,6 @@ package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -15,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.FurmsSelectFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,16 +22,16 @@ import java.util.Optional;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class FurmsLayout {
-	private final RoleTranslator roleTranslator;
 	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
+	private final FurmsSelectFactory furmsSelectFactory;
 
-	public FurmsLayout(List<MenuComponent> menuContent, RoleTranslator roleTranslator){
-		this.roleTranslator = roleTranslator;
+	public FurmsLayout(List<MenuComponent> menuContent, FurmsSelectFactory furmsSelectFactory){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
+		this.furmsSelectFactory = furmsSelectFactory;
 	}
 
 	public Component createDrawerContent() {
@@ -71,10 +70,7 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator);
-		UI.getCurrent().getSession().setAttribute(FurmsSelectReloader.class, furmsSelect::reloadComponent);
-
-		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelect, logout);
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelectFactory.create(), logout);
 		return rightNavbarSite;
 	}
 

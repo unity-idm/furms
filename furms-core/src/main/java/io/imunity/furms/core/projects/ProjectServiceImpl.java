@@ -8,15 +8,17 @@ package io.imunity.furms.core.projects;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.projects.*;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +42,16 @@ class ProjectServiceImpl implements ProjectService {
 	private final UsersDAO usersDAO;
 	private final ProjectServiceValidator validator;
 	private final AuthzService authzService;
+	private final ApplicationEventPublisher publisher;
 
-	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO, ProjectServiceValidator validator, AuthzService authzService) {
+
+	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
+	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher, AuthzService authzService) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
+		this.publisher = publisher;
 		this.authzService = authzService;
 	}
 
@@ -75,6 +81,7 @@ class ProjectServiceImpl implements ProjectService {
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
 		projectGroupsDAO.addAdmin(project.getCommunityId(), id, project.getLeaderId());
+		publisher.publishEvent(new CreateProjectEvent(project.getId()));
 		LOG.info("Project with given ID: {} was created: {}", id, project);
 	}
 
@@ -86,6 +93,7 @@ class ProjectServiceImpl implements ProjectService {
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
 		projectGroupsDAO.addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
+		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", project);
 	}
 
@@ -108,6 +116,7 @@ class ProjectServiceImpl implements ProjectService {
 			.build();
 		projectRepository.update(updatedProject);
 		projectGroupsDAO.update(new ProjectGroup(updatedProject.getId(), updatedProject.getName(), updatedProject.getCommunityId()));
+		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", attributes);
 	}
 
@@ -118,6 +127,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateDelete(projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
+		publisher.publishEvent(new RemoveProjectEvent(projectId));
 		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 
@@ -137,6 +147,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addAdmin(String communityId, String projectId, String userId){
 		projectGroupsDAO.addAdmin(communityId, projectId, userId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -147,12 +158,14 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
 		projectGroupsDAO.addAdmin(communityId, projectId, user.get().id);
+		publisher.publishEvent(new InviteUserEvent(user.get().id, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeAdmin(String communityId, String projectId, String userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
+		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -177,6 +190,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addUser(String communityId, String projectId, String userId){
 		projectGroupsDAO.addUser(communityId, projectId, userId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -187,11 +201,13 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		projectGroupsDAO.addUser(communityId, projectId, user.get().id);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
 	public void removeUser(String communityId, String projectId, String userId){
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
+		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 }

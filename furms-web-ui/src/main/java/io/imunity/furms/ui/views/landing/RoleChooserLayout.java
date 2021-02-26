@@ -12,16 +12,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.components.LogoutIconFactory;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 
 class RoleChooserLayout extends VerticalLayout {
-	RoleChooserLayout(RoleTranslator roleTranslator) {
+	RoleChooserLayout(FurmsSelect furmsSelect) {
 		Icon logout = LogoutIconFactory.create();
 		HorizontalLayout logoutLayout = new HorizontalLayout(logout);
 		logoutLayout.setWidthFull();
 		logoutLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 
-		FurmsSelect furmsSelect = new FurmsSelect(roleTranslator);
 		VerticalLayout layout =
 			new VerticalLayout(new H4(getTranslation("view.landing.select")), furmsSelect);
 		layout.setSizeFull();

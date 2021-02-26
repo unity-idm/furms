@@ -41,10 +41,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 		return value -> value != null && !value.isBlank();
 	}
 
-	protected void reloadRolePicker() {
-		UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
-	}
-
 	protected void addPreventionForMultiEnterClick() {
 		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
 	}

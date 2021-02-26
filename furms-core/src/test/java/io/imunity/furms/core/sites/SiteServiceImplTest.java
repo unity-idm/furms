@@ -7,7 +7,10 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.sites.CreateSiteEvent;
+import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -26,15 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SiteServiceImplTest {
@@ -46,12 +48,15 @@ class SiteServiceImplTest {
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
 	private UsersDAO usersDAO;
+	@Mock
+	private ApplicationEventPublisher publisher;
+
 	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository);
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, authzService);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService);
 	}
 
 	@Test
@@ -91,6 +96,7 @@ class SiteServiceImplTest {
 	void shouldAllowToCreateSite() {
 		//given
 		final Site request = Site.builder()
+				.id("id")
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
@@ -103,18 +109,23 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).create(request);
 		verify(webClient, times(1)).create(request);
+		verify(publisher, times(1)).publishEvent(new CreateSiteEvent("id"));
 	}
 
 	@Test
 	void shouldNotAllowToCreateSiteDueToNonUniqueName() {
 		//given
 		final Site request = Site.builder()
+				.id("id")
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
+		verify(repository, times(0)).create(request);
+		verify(webClient, times(0)).create(request);
+		verify(publisher, times(0)).publishEvent(new CreateSiteEvent("id"));
 	}
 
 	@Test
@@ -135,6 +146,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(request);
 		verify(webClient, times(1)).update(request);
+		verify(publisher, times(1)).publishEvent(new UpdateSiteEvent("id"));
 	}
 
 	@Test
@@ -168,6 +180,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(expectedSite);
 		verify(webClient, times(1)).update(expectedSite);
+		verify(publisher, times(1)).publishEvent(new UpdateSiteEvent("id"));
 	}
 
 	@Test
@@ -181,6 +194,7 @@ class SiteServiceImplTest {
 
 		verify(repository, times(1)).delete(id);
 		verify(webClient, times(1)).delete(id);
+		verify(publisher, times(1)).publishEvent(new RemoveSiteEvent("id"));
 	}
 
 	@Test
@@ -191,6 +205,9 @@ class SiteServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+		verify(repository, times(0)).delete(id);
+		verify(webClient, times(0)).delete(id);
+		verify(publisher, times(0)).publishEvent(new RemoveSiteEvent("id"));
 	}
 
 	@Test
@@ -262,7 +279,7 @@ class SiteServiceImplTest {
 	@Test
 	void shouldAddAdminToSite() {
 		//given
-		String siteId = "siteId";
+		String siteId = UUID.randomUUID().toString();
 		String userId = "userId";
 
 		//when
@@ -270,6 +287,7 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).addAdmin(siteId, userId);
+		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId(siteId, SITE)));
 	}
 
 	@Test
@@ -286,7 +304,7 @@ class SiteServiceImplTest {
 	@Test
 	void shouldTryRollbackAndThrowExceptionWhenWebClientFailedForAddAdmin() {
 		//given
-		String siteId = "siteId";
+		String siteId = UUID.randomUUID().toString();
 		String userId = "userId";
 		doThrow(UnityFailureException.class).when(webClient).addAdmin(siteId, userId);
 		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
@@ -295,12 +313,13 @@ class SiteServiceImplTest {
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
 		verify(webClient, times(1)).removeAdmin(siteId, userId);
+		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
 	}
 
 	@Test
 	void shouldRemoveAdminFromSite() {
 		//given
-		String siteId = "siteId";
+		String siteId = UUID.randomUUID().toString();
 		String userId = "userId";
 
 		//when
@@ -308,6 +327,7 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).removeAdmin(siteId, userId);
+		verify(publisher, times(1)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
 	}
 
 	@Test
@@ -324,12 +344,13 @@ class SiteServiceImplTest {
 	@Test
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
-		String siteId = "siteId";
+		String siteId = UUID.randomUUID().toString();
 		String userId = "userId";
 		doThrow(UnityFailureException.class).when(webClient).removeAdmin(siteId, userId);
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeAdmin(siteId, userId));
+		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
 	}
 
 	@Test

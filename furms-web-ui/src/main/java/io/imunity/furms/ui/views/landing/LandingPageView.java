@@ -9,6 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.ui.FurmsSelectFactory;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
@@ -27,9 +28,9 @@ import static java.util.stream.Collectors.toList;
 public class LandingPageView extends FurmsViewComponent implements AfterNavigationObserver {
 	private final Map<ViewMode, List<FurmsViewUserContext>> data;
 
-	LandingPageView(RoleTranslator roleTranslator) {
+	LandingPageView(RoleTranslator roleTranslator, FurmsSelectFactory furmsSelectFactory) {
 		data = roleTranslator.translateRolesToUserViewContexts();
-		RoleChooserLayout roleChooserLayout = new RoleChooserLayout(roleTranslator);
+		RoleChooserLayout roleChooserLayout = new RoleChooserLayout(furmsSelectFactory.create());
 		getContent().add(roleChooserLayout);
 	}
 

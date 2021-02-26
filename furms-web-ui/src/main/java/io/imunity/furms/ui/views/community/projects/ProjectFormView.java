@@ -5,13 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-
-import java.util.List;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -21,13 +14,11 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
-import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.project.ProjectFormComponent;
@@ -40,6 +31,13 @@ import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.utils.ResourceGetter;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+
+import java.util.List;
+import java.util.Optional;
+
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.form.page.title")
@@ -94,15 +92,8 @@ class ProjectFormView extends FurmsViewComponent {
 
 		optionalException.getThrowable().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation("project.error.message")),
-			this::afterSuccessfulSave
+			() -> UI.getCurrent().navigate(ProjectsView.class)
 		);
-	}
-
-	private void afterSuccessfulSave() {
-		//should only call it if the edited project is in the view picker (== current user is the member)
-		// but perhaps it more lightweight to call it always.
-		UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
-		UI.getCurrent().navigate(ProjectsView.class);
 	}
 	
 	@Override
