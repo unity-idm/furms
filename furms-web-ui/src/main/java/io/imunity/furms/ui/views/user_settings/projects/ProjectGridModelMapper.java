@@ -12,11 +12,9 @@ import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.NOT_ACTIVE;
 
 class ProjectGridModelMapper {
-	private final String  id;
 	private final ProjectService projectService;
 
-	public ProjectGridModelMapper(String id, ProjectService projectService) {
-		this.id = id;
+	public ProjectGridModelMapper(ProjectService projectService) {
 		this.projectService = projectService;
 	}
 
