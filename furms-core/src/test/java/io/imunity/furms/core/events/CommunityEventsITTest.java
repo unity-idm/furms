@@ -8,6 +8,7 @@ package io.imunity.furms.core.events;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -45,7 +46,7 @@ class CommunityEventsITTest {
 
 	@Test
 	void shouldRunUserChangeEvent() {
-		communityService.addAdmin(UUID.randomUUID().toString(), "id");
+		communityService.addAdmin(UUID.randomUUID().toString(), new PersistentId("id"));
 		verify(serviceMock, times(1)).handleEventUserAction();
 	}
 

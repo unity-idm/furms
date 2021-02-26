@@ -10,6 +10,7 @@ import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -64,7 +65,7 @@ class DemoDataInitializer {
 
 	private void initCommunitiesAndProjects() throws IOException {
 		
-		String testAdminId = usersDAO.getAllUsers().stream()
+		PersistentId testAdminId = usersDAO.getAllUsers().stream()
 			.filter(user -> user.email.equals("admin@domain.com"))
 			.map(user -> user.id)
 			.findAny()

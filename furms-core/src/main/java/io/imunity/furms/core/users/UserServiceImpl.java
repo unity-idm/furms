@@ -51,7 +51,7 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void inviteFenixAdmin(String userId) {
+	public void inviteFenixAdmin(PersistentId userId) {
 		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
@@ -63,7 +63,7 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
-	public void addFenixAdminRole(String userId) {
+	public void addFenixAdminRole(PersistentId userId) {
 		usersDAO.addFenixAdminRole(userId);
 		LOG.info("Adding FENIX admin role to {}", userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId((String) null, APP_LEVEL)));
@@ -71,7 +71,7 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
-	public void removeFenixAdminRole(String userId){
+	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId((String) null, APP_LEVEL)));
@@ -79,13 +79,12 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
-	public void setUserStatus(String fenixUserId, UserStatus status) {
+	public void setUserStatus(FenixUserId fenixUserId, UserStatus status) {
 		checkNotNull(status);
 		checkNotNull(fenixUserId);
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		try {
 			usersDAO.setUserStatus(fenixUserId, status);
-			publisher.publishEvent(new UpdateUserEvent(fenixUserId, new ResourceId((String) null, APP_LEVEL)));
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
@@ -94,7 +93,7 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
-	public UserStatus getUserStatus(String fenixUserId) {
+	public UserStatus getUserStatus(FenixUserId fenixUserId) {
 		checkNotNull(fenixUserId);
 		try {
 			return usersDAO.getUserStatus(fenixUserId);
@@ -106,13 +105,13 @@ class UserServiceImpl implements UserService {
 	
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
-	public Optional<FURMSUser> findById(String userId) {
+	public Optional<FURMSUser> findById(PersistentId userId) {
 		return usersDAO.findById(userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
-	public UserRecord getUserRecord(String fenixUserId) {
+	public UserRecord getUserRecord(FenixUserId fenixUserId) {
 		checkNotNull(fenixUserId);
 		try {
 			UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);

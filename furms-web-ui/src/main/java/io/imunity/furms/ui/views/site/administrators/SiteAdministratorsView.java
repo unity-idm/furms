@@ -5,24 +5,23 @@
 
 package io.imunity.furms.ui.views.site.administrators;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-
-import java.lang.invoke.MethodHandles;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.administrators.page.title")
@@ -34,7 +33,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	private final UsersGridComponent grid;
 	private final String siteId;
-	private final String currentUserId;
+	private final PersistentId currentUserId;
 
 	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;

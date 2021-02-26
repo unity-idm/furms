@@ -8,6 +8,7 @@ package io.imunity.furms.db.projects;
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.PersistentId;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ class ProjectEntity extends UUIDIdentifiable {
 			.researchField(researchField)
 			.startTime(startTime)
 			.endTime(endTime)
-			.leaderId(leaderId)
+			.leaderId(new PersistentId(leaderId))
 			.build();
 	}
 

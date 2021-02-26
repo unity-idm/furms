@@ -6,13 +6,14 @@
 package io.imunity.furms.ui.user_context;
 
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.Objects;
 
 public class FurmsViewUserModel {
 	public static final FurmsViewUserModel EMPTY = new FurmsViewUserModel(null, "", "", "");
 
-	public final String id;
+	public final PersistentId id;
 	public final String firstname;
 	public final String lastname;
 	public final String email;
@@ -21,7 +22,7 @@ public class FurmsViewUserModel {
 		this(user.id, user.firstName, user.lastName, user.email);
 	}
 	
-	public FurmsViewUserModel(String id, String firstname, String lastname, String email) {
+	public FurmsViewUserModel(PersistentId id, String firstname, String lastname, String email) {
 		this.id = id;
 		this.firstname = firstname;
 		this.lastname = lastname;

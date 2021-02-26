@@ -8,6 +8,7 @@ package io.imunity.furms.api.projects;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +33,11 @@ public interface ProjectService {
 
 	boolean isAdmin(String projectId);
 
-	void addAdmin(String communityId, String projectId, String userId);
+	void addAdmin(String communityId, String projectId, PersistentId userId);
 
-	void inviteAdmin(String communityId, String projectId, String userId);
+	void inviteAdmin(String communityId, String projectId, PersistentId userId);
 
-	void removeAdmin(String communityId, String projectId, String userId);
+	void removeAdmin(String communityId, String projectId, PersistentId userId);
 
 	List<FURMSUser> findAllUsers(String communityId, String projectId);
 
@@ -44,9 +45,9 @@ public interface ProjectService {
 
 	boolean isUser(String projectId);
 
-	void addUser(String communityId, String projectId, String userId);
+	void addUser(String communityId, String projectId, PersistentId userId);
 
-	void inviteUser(String communityId, String projectId, String email);
+	void inviteUser(String communityId, String projectId, PersistentId userId);
 
-	void removeUser(String communityId, String projectId, String userId);
+	void removeUser(String communityId, String projectId, PersistentId userId);
 }

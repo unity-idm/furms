@@ -11,6 +11,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -193,7 +194,7 @@ class CommunityServiceImplTest {
 	void shouldAddAdminToCommunity() {
 		//given
 		String communityId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		service.addAdmin(communityId, userId);
@@ -208,7 +209,7 @@ class CommunityServiceImplTest {
 	void shouldRemoveAdminFromCommunity() {
 		//given
 		String communityId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		service.removeAdmin(communityId, userId);
@@ -222,12 +223,12 @@ class CommunityServiceImplTest {
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
 		String communityId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		doThrow(UnityFailureException.class).when(communityGroupsDAO).removeAdmin(communityId, userId);
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeAdmin(communityId, userId));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent("id", new ResourceId(communityId, COMMUNITY))));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent(new PersistentId("id"), new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test

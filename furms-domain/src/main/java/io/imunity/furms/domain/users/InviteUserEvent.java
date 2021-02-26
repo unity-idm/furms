@@ -10,10 +10,10 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import java.util.Objects;
 
 public class InviteUserEvent implements UserEvent{
-	public final String id;
+	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public InviteUserEvent(String id, ResourceId resourceId) {
+	public InviteUserEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}

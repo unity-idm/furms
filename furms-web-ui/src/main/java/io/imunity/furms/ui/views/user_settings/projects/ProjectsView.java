@@ -5,21 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
-import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUESTED;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -36,19 +21,23 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.RouterGridLink;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
+import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUESTED;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "users/settings/projects", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
@@ -56,7 +45,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final ProjectGridModelMapper mapper;
 	private final Grid<ProjectGridModel> grid;
-	private final String currentUserId;
+	private final PersistentId currentUserId;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
 	private String searchText = "";
 

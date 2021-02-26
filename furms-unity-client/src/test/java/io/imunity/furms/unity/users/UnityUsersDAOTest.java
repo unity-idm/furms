@@ -6,6 +6,7 @@ package io.imunity.furms.unity.users;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.unity.client.UnityClient;
@@ -36,7 +37,7 @@ public class UnityUsersDAOTest {
 			.thenReturn(Set.of("/"));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
 		
-		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
+		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
 		assertThat(userAttributes.rootAttributes).containsExactlyInAnyOrder(
 				new UserAttribute("attr1", "val1"));
@@ -59,7 +60,7 @@ public class UnityUsersDAOTest {
 					"/fenix/communities/" + id, "/fenix/communities/" + id + "/users"));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
 		
-		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
+		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
 		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.COMMUNITY),
 				Set.of(new UserAttribute("attr1", "val1")));	
@@ -86,7 +87,7 @@ public class UnityUsersDAOTest {
 					"/fenix/communities/" + idC + "/projects/" + id + "/users"));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
 		
-		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
+		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
 		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.PROJECT),
 				Set.of(new UserAttribute("attr1", "val1")));	
@@ -109,7 +110,7 @@ public class UnityUsersDAOTest {
 					"/fenix/communities/" + id));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
 		
-		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
+		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
 		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.COMMUNITY),
 				Collections.emptySet());	
@@ -129,7 +130,7 @@ public class UnityUsersDAOTest {
 			.thenReturn(Set.of("/"));
 		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
 		
-		UserAttributes userAttributes = unityUsersDAO.getUserAttributes("user1");
+		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
 		assertThat(userAttributes.rootAttributes).containsExactlyInAnyOrder(
 				new UserAttribute("attr1", "test@example.com"));

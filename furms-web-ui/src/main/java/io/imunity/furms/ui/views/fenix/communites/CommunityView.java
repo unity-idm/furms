@@ -14,6 +14,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
@@ -36,7 +37,7 @@ public class CommunityView extends FurmsViewComponent {
 	private Tabs tabs;
 	private Map<String, Tab> paramToTab;
 	private List<RouterLink> links;
-	private final String currentUserId;
+	private final PersistentId currentUserId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 

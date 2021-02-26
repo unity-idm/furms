@@ -7,6 +7,7 @@ package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
@@ -123,14 +124,14 @@ class UnityCommunityGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
 	}
 
 	@Test
 	void shouldAddAdminToCommunity() {
 		//given
 		String communityId = "communityId";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/communities/"+ communityId +"/users";
 		//when
 		unityCommunityWebClient.addAdmin(communityId, userId);
@@ -144,7 +145,7 @@ class UnityCommunityGroupsDAOTest {
 	void shouldRemoveAdminRole() {
 		//given
 		String communityId = "communityId";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/communities/"+ communityId +"/users";
 
 		//when

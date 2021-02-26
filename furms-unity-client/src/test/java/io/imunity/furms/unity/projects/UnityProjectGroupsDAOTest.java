@@ -7,6 +7,7 @@ package io.imunity.furms.unity.projects;
 
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
@@ -129,7 +130,7 @@ class UnityProjectGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
 	}
 
 	@Test
@@ -138,7 +139,7 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		//when
 		unityProjectGroupsDAO.addAdmin(communityId, projectId, userId);
 
@@ -153,10 +154,10 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		
 		//when
-		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+		when(userService.getRoleValues(Mockito.any(), Mockito.anyString(), Mockito.any()))
 			.thenReturn(Set.of("ADMIN"));
 		unityProjectGroupsDAO.removeAdmin(communityId, projectId, userId);
 
@@ -172,7 +173,7 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(PROJECT_ADMIN))).thenReturn(Set.of(PROJECT_ADMIN.unityRoleValue, PROJECT_USER.unityRoleValue));
@@ -201,7 +202,7 @@ class UnityProjectGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
 	}
 
 	@Test
@@ -210,7 +211,7 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		//when
 		unityProjectGroupsDAO.addUser(communityId, projectId, userId);
 
@@ -225,10 +226,10 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
-		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+		when(userService.getRoleValues(Mockito.any(), Mockito.anyString(), Mockito.any()))
 			.thenReturn(Set.of("USER"));
 		unityProjectGroupsDAO.removeUser(communityId, projectId, userId);
 
@@ -244,7 +245,7 @@ class UnityProjectGroupsDAOTest {
 		String communityId = UUID.randomUUID().toString();
 		String projectId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(PROJECT_USER))).thenReturn(Set.of(PROJECT_ADMIN.unityRoleValue, PROJECT_USER.unityRoleValue));

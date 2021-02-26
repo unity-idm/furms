@@ -7,13 +7,14 @@ package io.imunity.furms.ui.components.administrators;
 
 import com.vaadin.flow.component.icon.Icon;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.Objects;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
 public class AdministratorsGridItem {
-	private final String id;
+	private final PersistentId id;
 	private final String firstName;
 	private final String lastName;
 	private final String email;
@@ -26,7 +27,7 @@ public class AdministratorsGridItem {
 		this.email = user.email;
 	}
 
-	public String getId() {
+	public PersistentId getId() {
 		return id;
 	}
 
