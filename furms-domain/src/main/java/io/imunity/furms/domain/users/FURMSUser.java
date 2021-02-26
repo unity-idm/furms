@@ -13,34 +13,37 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Collections.*;
+
 public class FURMSUser {
 	public final String id;
 	public final String firstName;
 	public final String lastName;
 	public final String email;
-	public Map<ResourceId, Set<Role>> roles;
+	public final Map<ResourceId, Set<Role>> roles;
 
 	public FURMSUser(String id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
-		this.roles = roles;
+		this.roles = copyRoles(roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser) {
-		this(furmsUser.id, furmsUser.firstName, furmsUser.lastName, furmsUser.email, null);
-		this.roles = copyRoles(furmsUser.roles);
+		this(furmsUser.id, furmsUser.firstName, furmsUser.lastName, furmsUser.email, furmsUser.roles);
 	}
 
-	private Map<ResourceId, Set<Role>> copyRoles(Map<ResourceId, Set<Role>> roles) {
+	public FURMSUser(FURMSUser furmsUser, Map<ResourceId, Set<Role>> roles) {
+		this(furmsUser.id, furmsUser.firstName, furmsUser.lastName, furmsUser.email, roles);
+	}
+
+	private static Map<ResourceId, Set<Role>> copyRoles(Map<ResourceId, Set<Role>> roles) {
+		if(roles == null)
+			return emptyMap();
 		Map<ResourceId, Set<Role>> newRoles = new HashMap<>(roles.size());
-		roles.forEach((key, value) -> newRoles.put(key, Set.copyOf(value)));
-		return Map.copyOf(newRoles);
-	}
-
-	public void updateRoles(Map<ResourceId, Set<Role>> roles) {
-		this.roles = roles;
+		roles.forEach((key, value) -> newRoles.put(key, unmodifiableSet(Set.copyOf(value))));
+		return unmodifiableMap(newRoles);
 	}
 
 	public static FURMSUserBuilder builder() {

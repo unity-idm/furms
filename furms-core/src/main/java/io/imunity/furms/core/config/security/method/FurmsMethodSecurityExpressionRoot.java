@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
+import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
@@ -37,7 +37,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
-		FURMSUser principal = ((FURMSAuthenticationProvider) authentication.getPrincipal()).getFURMSUser();
+		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.roles, resourceId);
 		capabilities.add(AUTHENTICATED);

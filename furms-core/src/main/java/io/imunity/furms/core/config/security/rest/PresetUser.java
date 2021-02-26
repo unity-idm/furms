@@ -4,7 +4,7 @@
  */
 package io.imunity.furms.core.config.security.rest;
 
-import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
+import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -15,20 +15,17 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-class PresetUser extends User implements FURMSAuthenticationProvider {
-
-	private final FURMSUser furmsUser;
+class PresetUser extends User implements FURMSUserProvider {
+	private FURMSUser furmsUser;
 
 	PresetUser(String username, String password,
 			Collection<? extends GrantedAuthority> authorities, 
 			Map<ResourceId, Set<Role>> roles) {
-		super(username, password, authorities);
-		this.furmsUser = new FURMSUser(
-			getUsername(),
-			"Central Idp",
-			"User",
-			null,
-			roles
+		this(
+			username,
+			password,
+			authorities,
+			new FURMSUser(username, "Central Idp", "User", null, roles)
 		);
 	}
 
@@ -46,5 +43,10 @@ class PresetUser extends User implements FURMSAuthenticationProvider {
 	@Override
 	public FURMSUser getFURMSUser() {
 		return furmsUser;
+	}
+
+	@Override
+	public void updateFURMSUser(FURMSUser furmsUser) {
+		this.furmsUser = furmsUser;
 	}
 }

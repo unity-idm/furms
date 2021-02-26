@@ -6,7 +6,7 @@
 package io.imunity.furms.core.authz;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.authz.FURMSAuthenticationProvider;
+import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -29,7 +29,7 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
-	public FURMSUser getUser() {
+	public FURMSUser getCurrentAuthNUser() {
 		return getCurrent();
 	}
 
@@ -49,7 +49,7 @@ public class AuthzServiceImpl implements AuthzService {
 	public void reloadRoles() {
 		FURMSUser authentication = getCurrent();
 		String id = authentication.id;
-		authentication.updateRoles(roleLoader.loadUserRoles(id));
+		updateCurrent(new FURMSUser(authentication, roleLoader.loadUserRoles(id)));
 	}
 
 	@Override
@@ -58,6 +58,10 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	private static FURMSUser getCurrent() {
-		return ((FURMSAuthenticationProvider) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getFURMSUser();
+		return ((FURMSUserProvider) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getFURMSUser();
+	}
+
+	private static void updateCurrent(FURMSUser furmsUser) {
+		((FURMSUserProvider) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).updateFURMSUser(furmsUser);
 	}
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface AuthzService {
-	FURMSUser getUser();
+	FURMSUser getCurrentAuthNUser();
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
 	String getCurrentUserId();
