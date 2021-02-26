@@ -16,7 +16,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
