@@ -194,7 +194,6 @@ public class SitesView extends FurmsViewComponent {
 					siteEditor.cancel();
 					refreshGrid(siteEditor);
 					showSuccessNotification(getTranslation("view.sites.form.save.success"));
-					reloadRolePicker();
 				} catch (DuplicatedNameValidationError e) {
 					name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 					name.setInvalid(true);
@@ -221,7 +220,6 @@ public class SitesView extends FurmsViewComponent {
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "delete"));
 			} finally {
 				siteGrid.setItems(fetchSites());
-				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			}
 		});
 		cancelDialog.open();

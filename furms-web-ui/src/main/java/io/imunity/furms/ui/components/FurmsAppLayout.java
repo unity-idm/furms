@@ -7,6 +7,7 @@ package io.imunity.furms.ui.components;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -16,6 +17,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @CssImport("./styles/custom-lumo-theme.css")
 @Theme(value = Lumo.class)
 @PreserveOnRefresh
+@Push
 public class FurmsAppLayout extends AppLayout {
 
 }

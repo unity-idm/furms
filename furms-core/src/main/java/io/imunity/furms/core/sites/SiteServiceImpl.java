@@ -8,14 +8,21 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.sites.CreateSiteEvent;
+import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.*;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -38,18 +46,21 @@ class SiteServiceImpl implements SiteService {
 	private final SiteServiceValidator validator;
 	private final SiteWebClient webClient;
 	private final UsersDAO usersDAO;
+	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
 	                SiteWebClient webClient,
 	                UsersDAO usersDAO,
+	                ApplicationEventPublisher publisher,
 	                AuthzService authzService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
 		this.usersDAO = usersDAO;
 		this.authzService = authzService;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -78,6 +89,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
+			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not create Site: ", e);
@@ -104,6 +116,7 @@ class SiteServiceImpl implements SiteService {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
+			publisher.publishEvent(new UpdateSiteEvent(updatedSite.getId()));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
@@ -121,6 +134,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
+			publisher.publishEvent(new RemoveSiteEvent(id));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
 			LOG.error("Could not delete Site: ", e);
@@ -167,7 +181,8 @@ class SiteServiceImpl implements SiteService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
-		addAdmin(siteId, user.get().id);
+		webClient.addAdmin(siteId, userId);
+		publisher.publishEvent(new InviteUserEvent(user.get().id, new ResourceId(siteId, SITE)));
 	}
 
 	@Override
@@ -178,6 +193,7 @@ class SiteServiceImpl implements SiteService {
 
 		try {
 			webClient.addAdmin(siteId, userId);
+			publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not add Site Administrator: ", e);
@@ -198,6 +214,7 @@ class SiteServiceImpl implements SiteService {
 
 		try {
 			webClient.removeAdmin(siteId, userId);
+			publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not remove Site Administrator: ", e);

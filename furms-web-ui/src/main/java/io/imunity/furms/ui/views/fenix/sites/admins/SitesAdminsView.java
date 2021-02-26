@@ -65,13 +65,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 			siteService.addAdmin(siteId, currentUserId);
 			grid.reloadGrid();
 			inviteUser.reload();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (siteService.findAllAdmins(siteId).size() > 1) {
 				handleExceptions(() -> siteService.removeAdmin(siteId, currentUserId));
 				grid.reloadGrid();
-				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
@@ -105,8 +103,6 @@ public class SitesAdminsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();
-			//TODO should only call it if the added user is the current user (self add)
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);

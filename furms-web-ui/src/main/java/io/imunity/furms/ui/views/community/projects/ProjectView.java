@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.views.community.projects;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -110,13 +109,11 @@ public class ProjectView extends FurmsViewComponent {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
 			inviteUser.reload();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (projectService.findAllAdmins(project.getCommunityId(), project.getId()).size() > 1) {
 				handleExceptions(() -> projectService.removeAdmin(project.getCommunityId(), project.getId(), currentUserId));
 				grid.reloadGrid();
-				UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
@@ -132,9 +129,6 @@ public class ProjectView extends FurmsViewComponent {
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
-			//TODO should only call it if the added user is the current user (self add)
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
-
 		});
 		page1.add(headerLayout, inviteUser, grid);
 	}

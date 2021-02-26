@@ -7,8 +7,10 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.communities.*;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -20,12 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
@@ -44,6 +48,8 @@ class CommunityServiceImplTest {
 	@Mock
 	private UsersDAO usersDAO;
 	@Mock
+	private ApplicationEventPublisher publisher;
+	@Mock
 	private AuthzService authzService;
 
 	private CommunityServiceImpl service;
@@ -53,8 +59,8 @@ class CommunityServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
-		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, authzService);
-		orderVerifier = inOrder(communityRepository, communityGroupsDAO);
+		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, authzService, publisher);
+		orderVerifier = inOrder(communityRepository, communityGroupsDAO, publisher);
 	}
 
 	@Test
@@ -110,6 +116,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).create(eq(request));
 		orderVerifier.verify(communityGroupsDAO).create(eq(groupRequest));
+		orderVerifier.verify(publisher).publishEvent(eq(new CreateCommunityEvent("id")));
 	}
 
 	@Test
@@ -122,6 +129,7 @@ class CommunityServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateCommunityEvent("id")));
 	}
 
 	@Test
@@ -143,6 +151,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).update(eq(request));
 		orderVerifier.verify(communityGroupsDAO).update(eq(groupRequest));
+		orderVerifier.verify(publisher).publishEvent(eq(new UpdateCommunityEvent("id")));
 	}
 
 	@Test
@@ -156,6 +165,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).delete(eq(id));
 		orderVerifier.verify(communityGroupsDAO).delete(eq(id));
+		orderVerifier.verify(publisher).publishEvent(eq(new RemoveCommunityEvent("id")));
 	}
 
 	@Test
@@ -166,6 +176,7 @@ class CommunityServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new RemoveCommunityEvent("id")));
 	}
 
 	@Test
@@ -184,7 +195,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldAddAdminToCommunity() {
 		//given
-		String communityId = "communityId";
+		String communityId = UUID.randomUUID().toString();
 		String userId = "userId";
 
 		//when
@@ -192,12 +203,14 @@ class CommunityServiceImplTest {
 
 		//then
 		verify(communityGroupsDAO, times(1)).addAdmin(communityId, userId);
+		verify(communityGroupsDAO, times(1)).addAdmin(communityId, userId);
+		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test
 	void shouldRemoveAdminFromCommunity() {
 		//given
-		String communityId = "communityId";
+		String communityId = UUID.randomUUID().toString();
 		String userId = "userId";
 
 		//when
@@ -205,17 +218,19 @@ class CommunityServiceImplTest {
 
 		//then
 		verify(communityGroupsDAO, times(1)).removeAdmin(communityId, userId);
+		orderVerifier.verify(publisher).publishEvent(eq(new RemoveUserRoleEvent(userId, new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
-		String communityId = "communityId";
+		String communityId = UUID.randomUUID().toString();
 		String userId = "userId";
 		doThrow(UnityFailureException.class).when(communityGroupsDAO).removeAdmin(communityId, userId);
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeAdmin(communityId, userId));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent("id", new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test

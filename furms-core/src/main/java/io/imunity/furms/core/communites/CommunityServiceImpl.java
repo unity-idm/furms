@@ -8,14 +8,17 @@ package io.imunity.furms.core.communites;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.communities.*;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,14 +40,17 @@ class CommunityServiceImpl implements CommunityService {
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final UsersDAO usersDAO;
 	private final CommunityServiceValidator validator;
+	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
 
 	CommunityServiceImpl(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
-	                            UsersDAO usersDAO, CommunityServiceValidator validator, AuthzService authzService) {
+	                            UsersDAO usersDAO, CommunityServiceValidator validator, AuthzService authzService,
+	                     ApplicationEventPublisher publisher) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
+		this.publisher = publisher;
 		this.authzService = authzService;
 	}
 
@@ -68,6 +74,7 @@ class CommunityServiceImpl implements CommunityService {
 		String id = communityRepository.create(community);
 		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
 		LOG.info("Community with given ID: {} was created: {}", id, community);
+		publisher.publishEvent(new CreateCommunityEvent(community.getId()));
 	}
 
 	@Override
@@ -78,7 +85,7 @@ class CommunityServiceImpl implements CommunityService {
 		communityRepository.update(community);
 		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
 		LOG.info("Community was updated: {}", community);
-
+		publisher.publishEvent(new UpdateCommunityEvent(community.getId()));
 	}
 
 	@Override
@@ -89,6 +96,7 @@ class CommunityServiceImpl implements CommunityService {
 		communityRepository.delete(id);
 		communityGroupsDAO.delete(id);
 		LOG.info("Community with given ID: {} was deleted", id);
+		publisher.publishEvent(new RemoveCommunityEvent(id));
 	}
 
 	@Override
@@ -104,7 +112,9 @@ class CommunityServiceImpl implements CommunityService {
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
-		addAdmin(communityId, user.get().id);
+		communityGroupsDAO.addAdmin(communityId, userId);
+		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override
@@ -112,6 +122,7 @@ class CommunityServiceImpl implements CommunityService {
 	public void addAdmin(String communityId, String userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
+		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override
@@ -119,6 +130,7 @@ class CommunityServiceImpl implements CommunityService {
 	public void removeAdmin(String communityId, String userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
+		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override

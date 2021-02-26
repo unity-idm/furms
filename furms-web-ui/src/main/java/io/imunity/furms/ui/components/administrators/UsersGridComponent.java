@@ -5,23 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
@@ -39,13 +22,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
-
 import io.imunity.furms.domain.users.User;
 import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsSelectReloader;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.views.landing.RoleChooserView;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 public class UsersGridComponent extends VerticalLayout {
 
@@ -182,10 +177,8 @@ public class UsersGridComponent extends VerticalLayout {
 	private void refreshUserRoles() {
 		if(redirectOnCurrentUserRemoval)
 			UI.getCurrent().navigate(RoleChooserView.class);
-		else{
+		else
 			reloadGrid();
-			UI.getCurrent().getSession().getAttribute(FurmsSelectReloader.class).reload();
-		}
 	}
 
 	private void doRemoveItemAction(AdministratorsGridItem removedItem) {

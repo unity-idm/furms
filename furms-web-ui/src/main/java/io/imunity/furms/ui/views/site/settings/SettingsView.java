@@ -5,21 +5,6 @@
 
 package io.imunity.furms.ui.views.site.settings;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
-
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -30,18 +15,27 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.FormButtons;
-import io.imunity.furms.ui.components.FurmsFormLayout;
-import io.imunity.furms.ui.components.FurmsImageUpload;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "site/admin/settings", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.settings.page.title")
@@ -175,7 +169,6 @@ public class SettingsView extends FurmsViewComponent {
 						.logo(settings.getLogo())
 						.build());
 				refreshBinder(binder);
-				reloadRolePicker();
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
 				formButtons.setVisible(false);
 			} catch (DuplicatedNameValidationError e) {
