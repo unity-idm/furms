@@ -5,33 +5,30 @@
 
 package io.imunity.furms.unity.sites;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.ID;
-import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.META;
-import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
-import static io.imunity.furms.utils.ValidationUtils.check;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.User;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.sites.SiteWebClient;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.*;
+import static io.imunity.furms.utils.ValidationUtils.check;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnitySiteWebClient implements SiteWebClient {
@@ -132,7 +129,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 
 	@Override
-	public List<User> getAllAdmins(String siteId) {
+	public List<FURMSUser> getAllAdmins(String siteId) {
 		check(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);

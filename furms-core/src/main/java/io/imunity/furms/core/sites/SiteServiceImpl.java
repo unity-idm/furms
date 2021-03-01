@@ -16,7 +16,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -166,7 +166,7 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<User> findAllAdmins(String id) {
+	public List<FURMSUser> findAllAdmins(String id) {
 		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
 		return webClient.getAllAdmins(id);
@@ -177,7 +177,7 @@ class SiteServiceImpl implements SiteService {
 	public void inviteAdmin(String siteId, String userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
-		Optional<User> user = usersDAO.findById(userId);
+		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}

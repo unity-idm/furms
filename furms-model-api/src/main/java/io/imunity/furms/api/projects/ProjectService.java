@@ -7,7 +7,7 @@ package io.imunity.furms.api.projects;
 
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public interface ProjectService {
 
 	void delete(String projectId, String communityId);
 
-	List<User> findAllAdmins(String communityId, String projectId);
+	List<FURMSUser> findAllAdmins(String communityId, String projectId);
 
 	boolean isAdmin(String projectId);
 
@@ -38,9 +38,9 @@ public interface ProjectService {
 
 	void removeAdmin(String communityId, String projectId, String userId);
 
-	List<User> findAllUsers(String communityId, String projectId);
+	List<FURMSUser> findAllUsers(String communityId, String projectId);
 
-	List<User> findAllUsers(String communityId);
+	List<FURMSUser> findAllUsers(String communityId);
 
 	boolean isUser(String projectId);
 

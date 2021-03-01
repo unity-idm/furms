@@ -5,9 +5,9 @@
 
 package io.imunity.furms.ui.user_context;
 
-import java.util.Objects;
+import io.imunity.furms.domain.users.FURMSUser;
 
-import io.imunity.furms.domain.users.User;
+import java.util.Objects;
 
 public class FurmsViewUserModel {
 	public static final FurmsViewUserModel EMPTY = new FurmsViewUserModel(null, "", "", "");
@@ -17,7 +17,7 @@ public class FurmsViewUserModel {
 	public final String lastname;
 	public final String email;
 
-	public FurmsViewUserModel(User user) {
+	public FurmsViewUserModel(FURMSUser user) {
 		this(user.id, user.firstName, user.lastName, user.email);
 	}
 	

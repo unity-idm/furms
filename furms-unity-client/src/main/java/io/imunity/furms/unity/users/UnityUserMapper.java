@@ -5,7 +5,7 @@
 
 package io.imunity.furms.unity.users;
 
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +22,8 @@ import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static Optional<User> map(GroupMember groupMember){
-		User user = buildUser(groupMember);
+	public static Optional<FURMSUser> map(GroupMember groupMember){
+		FURMSUser user = buildUser(groupMember);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
@@ -31,8 +31,8 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
-	public static Optional<User> map(String userId, List<Attribute> attributes){
-		User user = buildUser(userId, attributes);
+	public static Optional<FURMSUser> map(String userId, List<Attribute> attributes){
+		FURMSUser user = buildUser(userId, attributes);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
@@ -40,8 +40,8 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
-	private static User buildUser(GroupMember groupMember) {
-		return User.builder()
+	private static FURMSUser buildUser(GroupMember groupMember) {
+		return FURMSUser.builder()
 			.id(getId(groupMember))
 			.firstName(getFirstAttributeValue(groupMember, "firstname"))
 			.lastName(getFirstAttributeValue(groupMember, "surname"))
@@ -49,8 +49,8 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static User buildUser(String userId, List<Attribute> attributes) {
-		return User.builder()
+	private static FURMSUser buildUser(String userId, List<Attribute> attributes) {
+		return FURMSUser.builder()
 			.id(userId)
 			.firstName(getFirstAttributeValue(attributes, "firstname"))
 			.lastName(getFirstAttributeValue(attributes, "surname"))

@@ -7,12 +7,13 @@ package io.imunity.furms.api.authz;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.Map;
 import java.util.Set;
 
 public interface AuthzService {
-	Map<String, Object> getAttributes();
+	FURMSUser getCurrentAuthNUser();
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
 	String getCurrentUserId();

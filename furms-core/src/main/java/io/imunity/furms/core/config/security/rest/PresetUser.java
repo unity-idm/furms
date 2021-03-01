@@ -4,53 +4,49 @@
  */
 package io.imunity.furms.core.config.security.rest;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import io.imunity.furms.api.authz.FURMSUserProvider;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.FURMSUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-import io.imunity.furms.core.config.security.FurmsAuthenticatedUser;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
-class PresetUser extends User implements FurmsAuthenticatedUser {
-
-	private Map<ResourceId, Set<Role>> roles = new HashMap<>();
+class PresetUser extends User implements FURMSUserProvider {
+	private FURMSUser furmsUser;
 
 	PresetUser(String username, String password,
 			Collection<? extends GrantedAuthority> authorities, 
 			Map<ResourceId, Set<Role>> roles) {
+		this(
+			username,
+			password,
+			authorities,
+			new FURMSUser(username, "Central Idp", "User", null, roles)
+		);
+	}
+
+	PresetUser(String username, String password,
+	           Collection<? extends GrantedAuthority> authorities,
+	           FURMSUser furmsUser) {
 		super(username, password, authorities);
-		updateRoles(roles);
+		this.furmsUser = furmsUser;
 	}
 
 	PresetUser(PresetUser user) {
-		this(user.getUsername(), user.getPassword(), user.getAuthorities(), user.roles);
+		this(user.getUsername(), user.getPassword(), user.getAuthorities(), new FURMSUser(user.furmsUser));
 	}
 
 	@Override
-	public Map<ResourceId, Set<Role>> getRoles() {
-		return roles;
+	public FURMSUser getFURMSUser() {
+		return furmsUser;
 	}
 
 	@Override
-	public void updateRoles(Map<ResourceId, Set<Role>> newRoles) {
-		this.roles = new HashMap<>(newRoles.size());
-		newRoles.entrySet().forEach(entry -> this.roles.put(entry.getKey(), Set.copyOf(entry.getValue())));
-		this.roles = Map.copyOf(this.roles);
-	}
-
-	@Override
-	public String getStringAttribute(String attributeName) {
-		return null; //TODO
-	}
-
-	@Override
-	public Map<String, Object> getAttributes() {
-		return Collections.emptyMap(); //TODO
+	public void updateFURMSUser(FURMSUser furmsUser) {
+		this.furmsUser = furmsUser;
 	}
 }

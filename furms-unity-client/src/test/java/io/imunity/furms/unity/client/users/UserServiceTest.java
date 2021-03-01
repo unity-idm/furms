@@ -6,7 +6,7 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,7 +76,7 @@ public class UserServiceTest {
 		when(unityClient.get(path, new ParameterizedTypeReference<List<GroupMember>>() {}))
 			.thenReturn(List.of(new GroupMember("1", mock(Entity.class), List.of())));
 
-		List<User> allUsersFromGroup = userService.getAllUsersFromGroup(group, attr -> true);
+		List<FURMSUser> allUsersFromGroup = userService.getAllUsersFromGroup(group, attr -> true);
 
 		assertThat(allUsersFromGroup).isEmpty();
 

@@ -6,7 +6,7 @@
 package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -112,12 +113,12 @@ class UnityCommunityGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId +"/users";
 		when(userService.getAllUsersByRole(groupPath, COMMUNITY_ADMIN))
 			.thenReturn(List.of(
-				new User("1", "firstName", "lastName", "email"),
-				new User("3", "firstName", "lastName", "email"))
+				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
+				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
 			);
 
 		//when
-		List<User> admins = unityCommunityWebClient.getAllAdmins(communityId);
+		List<FURMSUser> admins = unityCommunityWebClient.getAllAdmins(communityId);
 
 		//then
 		assertThat(admins).hasSize(2);

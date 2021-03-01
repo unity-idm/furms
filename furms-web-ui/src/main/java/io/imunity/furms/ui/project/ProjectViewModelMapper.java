@@ -6,11 +6,11 @@
 package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.users.User;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 public class ProjectViewModelMapper {
-	static ProjectViewModel map(Project project, User projectLeader) {
+	static ProjectViewModel map(Project project, FURMSUser projectLeader) {
 		return ProjectViewModel.builder()
 			.id(project.getId())
 			.communityId(project.getCommunityId())
