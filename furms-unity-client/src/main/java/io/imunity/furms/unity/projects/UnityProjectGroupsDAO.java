@@ -8,6 +8,7 @@ package io.imunity.furms.unity.projects;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
@@ -153,7 +154,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void addAdmin(String communityId, String projectId, String userId) {
+	public void addAdmin(String communityId, String projectId, PersistentId userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
@@ -163,7 +164,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void addUser(String communityId, String projectId, String userId) {
+	public void addUser(String communityId, String projectId, PersistentId userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
@@ -173,16 +174,16 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void removeAdmin(String communityId, String projectId, String userId) {
+	public void removeAdmin(String communityId, String projectId, PersistentId userId) {
 		removeRole(PROJECT_ADMIN, communityId, projectId, userId);
 	}
 
 	@Override
-	public void removeUser(String communityId, String projectId, String userId) {
+	public void removeUser(String communityId, String projectId, PersistentId userId) {
 		removeRole(PROJECT_USER, communityId, projectId, userId);
 	}
 	
-	private void removeRole(Role role, String communityId, String projectId, String userId) {
+	private void removeRole(Role role, String communityId, String projectId, PersistentId userId) {
 		check(!isEmpty(communityId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove " + role.name() 
 					+ " in Unity. Missing Project ID or User ID or Community "));
@@ -195,18 +196,6 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 			else
 				userService.removeUserRole(userId, projectPath, role);
 		}
-	}
-
-	@Override
-	public boolean isAdmin(String communityId, String projectId, String userId) {
-		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		return userService.hasRole(userId, projectPath, PROJECT_ADMIN);
-	}
-
-	@Override
-	public boolean isUser(String communityId, String projectId, String userId) {
-		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		return userService.hasRole(userId, projectPath, PROJECT_USER);
 	}
 
 	private String getProjectPath(Map<String, Object> uriVariables, String pattern) {

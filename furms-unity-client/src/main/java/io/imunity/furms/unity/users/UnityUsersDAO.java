@@ -7,10 +7,7 @@ package io.imunity.furms.unity.users;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.UserAttribute;
-import io.imunity.furms.domain.users.UserAttributes;
-import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.domain.users.*;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.UnityClient;
@@ -59,22 +56,22 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public void addFenixAdminRole(String userId) {
+	public void addFenixAdminRole(PersistentId userId) {
 		userService.addUserToGroup(userId, FENIX_PATTERN);
 		userService.addUserRole(userId, FENIX_PATTERN, FENIX_ADMIN);
 	}
 
 	@Override
-	public void removeFenixAdminRole(String userId) {
+	public void removeFenixAdminRole(PersistentId userId) {
 		userService.removeUserFromGroup(userId, FENIX_PATTERN);
 	}
 	
 	@Override
-	public void setUserStatus(String fenixUserId, UserStatus status) {
+	public void setUserStatus(FenixUserId fenixUserId, UserStatus status) {
 		EntityState unityStatus = status == UserStatus.ENABLED ? EntityState.valid : EntityState.disabled;
 		String uri = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
-			.path(fenixUserId)
+			.path(fenixUserId.id)
 			.path("/status/")
 			.path(unityStatus.name())
 			.toUriString();
@@ -86,10 +83,10 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public UserStatus getUserStatus(String fenixUserId) {
+	public UserStatus getUserStatus(FenixUserId fenixUserId) {
 		String uri = UriComponentsBuilder.newInstance()
 				.path(ENTITY_BASE)
-				.path(fenixUserId)
+				.path(fenixUserId.id)
 				.toUriString();
 		try {
 			ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
@@ -102,12 +99,12 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public Optional<FURMSUser> findById(String userId) {
+	public Optional<FURMSUser> findById(PersistentId userId) {
 		return userService.getUser(userId);
 	}
 
 	@Override
-	public UserAttributes getUserAttributes(String fenixUserId) {
+	public UserAttributes getUserAttributes(FenixUserId fenixUserId) {
 		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(fenixUserId);
 		Set<String> userGroups = fetchUserGroups(fenixUserId);
 		Map<ResourceId, Set<Attribute>> resourceToAttributesMap = getResourceToAttributesMap(userAttributes);
@@ -149,10 +146,10 @@ class UnityUsersDAO implements UsersDAO {
 					.collect(Collectors.toList()));
 	}
 	
-	private Map<String, List<Attribute>> fetchUserAttributes(String fenixUserId) {
+	private Map<String, List<Attribute>> fetchUserAttributes(FenixUserId fenixUserId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
-			.uriVariables(Map.of(ID, fenixUserId))
+			.uriVariables(Map.of(ID, fenixUserId.id))
 			.build()
 			.toUriString();
 
@@ -165,10 +162,10 @@ class UnityUsersDAO implements UsersDAO {
 		}
 	}
 	
-	private Set<String> fetchUserGroups(String fenixUserId) {
+	private Set<String> fetchUserGroups(FenixUserId fenixUserId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(UnityPaths.ENTITY_GROUPS)
-			.uriVariables(Map.of(ID, fenixUserId))
+			.uriVariables(Map.of(ID, fenixUserId.id))
 			.build()
 			.toUriString();
 

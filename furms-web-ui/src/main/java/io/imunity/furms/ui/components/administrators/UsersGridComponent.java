@@ -23,6 +23,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
@@ -47,8 +48,8 @@ public class UsersGridComponent extends VerticalLayout {
 	private final Grid<AdministratorsGridItem> grid;
 
 	private final Supplier<List<FURMSUser>> fetchUsersAction;
-	private final Consumer<String> removeUserAction;
-	private final String currentUserId;
+	private final Consumer<PersistentId> removeUserAction;
+	private final PersistentId currentUserId;
 	private final boolean redirectOnCurrentUserRemoval;
 	private final boolean allowRemovalOfLastUser;
 	
@@ -59,8 +60,8 @@ public class UsersGridComponent extends VerticalLayout {
 	private String searchText = "";
 
 	private UsersGridComponent(Supplier<List<FURMSUser>> fetchUsersAction,
-			Consumer<String> removeUserAction,
-			String currentUserId,
+			Consumer<PersistentId> removeUserAction,
+			PersistentId currentUserId,
 			boolean redirectOnCurrentUserRemoval,
 			boolean allowRemovalOfLastUser,
 			String confirmRemovalMessageKey,
@@ -250,8 +251,8 @@ public class UsersGridComponent extends VerticalLayout {
 
 	public static final class Builder {
 		private Supplier<List<FURMSUser>> fetchUsersAction;
-		private Consumer<String> removeUserAction;
-		private String currentUserId;
+		private Consumer<PersistentId> removeUserAction;
+		private PersistentId currentUserId;
 		private boolean redirectOnCurrentUserRemoval = false;
 		private boolean allowRemovalOfLastUser = false;
 		private String confirmRemovalMessageKey;
@@ -266,12 +267,12 @@ public class UsersGridComponent extends VerticalLayout {
 			return this;
 		}
 
-		public Builder withRemoveUserAction(Consumer<String> removeUserAction) {
+		public Builder withRemoveUserAction(Consumer<PersistentId> removeUserAction) {
 			this.removeUserAction = removeUserAction;
 			return this;
 		}
 
-		public Builder withCurrentUserId(String currentUserId) {
+		public Builder withCurrentUserId(PersistentId currentUserId) {
 			this.currentUserId = currentUserId;
 			return this;
 		}

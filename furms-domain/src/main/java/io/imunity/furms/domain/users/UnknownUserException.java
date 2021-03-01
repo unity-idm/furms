@@ -5,9 +5,9 @@
 package io.imunity.furms.domain.users;
 
 public class UnknownUserException extends RuntimeException {
-	public final String userId;
+	public final FenixUserId userId;
 
-	public UnknownUserException(String userId) {
+	public UnknownUserException(FenixUserId userId) {
 		this.userId = userId;
 	}
 }

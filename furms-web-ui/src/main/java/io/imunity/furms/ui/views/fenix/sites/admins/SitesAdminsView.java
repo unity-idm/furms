@@ -11,6 +11,7 @@ import static java.util.function.Function.identity;
 
 import java.lang.invoke.MethodHandles;
 
+import io.imunity.furms.domain.users.PersistentId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 	private final UserService userService;
-	private final String currentUserId;
+	private final PersistentId currentUserId;
 
 	private UsersGridComponent grid;
 	private String siteId;

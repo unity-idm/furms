@@ -12,6 +12,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 
@@ -49,7 +50,7 @@ public class InviteUserComponent extends HorizontalLayout {
 		inviteButton.addClickListener(inviteAction);
 	}
 
-	public String getUserId() {
+	public PersistentId getUserId() {
 		return furmsUserComboBox.getValue().id;
 	}
 

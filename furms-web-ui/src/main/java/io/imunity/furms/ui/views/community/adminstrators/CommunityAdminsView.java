@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -23,7 +24,7 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 public class CommunityAdminsView extends FurmsViewComponent {
 
 	public CommunityAdminsView(CommunityService communityService, AuthzService authzService, UserService userService) {
-		String currentUserId = authzService.getCurrentUserId();
+		PersistentId currentUserId = authzService.getCurrentUserId();
 		String communityId = getCurrentResourceId();
 
 		InviteUserComponent inviteUser = new InviteUserComponent(

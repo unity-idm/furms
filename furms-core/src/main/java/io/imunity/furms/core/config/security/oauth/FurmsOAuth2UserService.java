@@ -8,6 +8,7 @@ package io.imunity.furms.core.config.security.oauth;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.roles.RoleLoader;
 import io.imunity.furms.spi.roles.RoleLoadingException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -36,7 +37,7 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 			.getUserNameAttributeName();
 		String sub = oAuth2User.getAttribute("sub");
 		try {
-			Map<ResourceId, Set<Role>> roles = roleLoader.loadUserRoles(sub);
+			Map<ResourceId, Set<Role>> roles = roleLoader.loadUserRoles(new PersistentId(sub));
 			return new FurmsOAuthAuthenticatedUser(oAuth2User, key, roles);
 		}catch (RoleLoadingException e){
 			throw new OAuth2AuthenticationException(new OAuth2Error(e.code), e);

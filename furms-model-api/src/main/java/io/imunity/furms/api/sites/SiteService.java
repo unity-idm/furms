@@ -7,6 +7,7 @@ package io.imunity.furms.api.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +29,13 @@ public interface SiteService {
 
 	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
 
-	List<FURMSUser> findAllAdmins(String id);
+	List<FURMSUser> findAllAdmins(String siteId);
 
-	void inviteAdmin(String siteId, String userId);
+	void inviteAdmin(String siteId, PersistentId userId);
 
-	void addAdmin(String siteId, String userId);
+	void addAdmin(String siteId, PersistentId userId);
 
-	void removeAdmin(String siteId, String userId);
+	void removeAdmin(String siteId, PersistentId userId);
 
 	boolean isAdmin(String siteId);
 }

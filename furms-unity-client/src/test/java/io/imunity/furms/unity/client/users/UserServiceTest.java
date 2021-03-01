@@ -7,6 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,9 +39,9 @@ public class UserServiceTest {
 
 	@Test
 	void shouldAddUserToGroup() {
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String group = "fenix/group";
-		String path = "/group/fenix%2Fgroup/entity/" + userId;
+		String path = "/group/fenix%2Fgroup/entity/" + userId.id;
 
 		userService.addUserToGroup(userId, group);
 
@@ -49,10 +50,10 @@ public class UserServiceTest {
 
 	@Test
 	void shouldAddUserARole() {
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String group = "fenix/group";
-		String path = "/entity/" + userId + "/attribute";
-		String getAttributesPath = "/entity/" + userId + "/groups/attributes";
+		String path = "/entity/" + userId.id + "/attribute";
+		String getAttributesPath = "/entity/" + userId.id + "/groups/attributes";
 		Role role = Role.COMMUNITY_ADMIN;
 
 		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<Attribute>>>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
@@ -84,10 +85,10 @@ public class UserServiceTest {
 
 	@Test
 	void shouldRemoveUserRole() {
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String group = "fenix/group";
-		String getAttributesPath = "/entity/" + userId + "/groups/attributes";
-		String putAttributePath = "/entity/" + userId + "/attribute";
+		String getAttributesPath = "/entity/" + userId.id + "/groups/attributes";
+		String putAttributePath = "/entity/" + userId.id + "/attribute";
 		Role role = Role.PROJECT_ADMIN;
 		Role role2 = Role.PROJECT_USER;
 		Attribute attribute = new Attribute(role.unityRoleAttribute, "", group, List.of(role.unityRoleValue, role2.unityRoleValue));
@@ -109,9 +110,9 @@ public class UserServiceTest {
 
 	@Test
 	void shouldRemoveUserFromGroup() {
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String group = "fenix/group";
-		String path = "/group/fenix%2Fgroup/entity/" + userId;
+		String path = "/group/fenix%2Fgroup/entity/" + userId.id;
 
 		userService.removeUserFromGroup(userId, group);
 

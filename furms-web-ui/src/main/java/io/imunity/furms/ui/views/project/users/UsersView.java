@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
@@ -25,7 +26,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private final AuthzService authzService;
 	private final UserService userService;
 	private Project project;
-	private String currentUserId;
+	private PersistentId currentUserId;
 	private MembershipChangerComponent membershipLayout;
 
 	UsersView(ProjectService projectService, AuthzService authzService, UserService userService) {

@@ -10,10 +10,10 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import java.util.Objects;
 
 public class RemoveUserRoleEvent implements UserEvent{
-	public final String id;
+	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public RemoveUserRoleEvent(String id, ResourceId resourceId) {
+	public RemoveUserRoleEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}

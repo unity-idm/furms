@@ -15,6 +15,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -174,7 +175,7 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteAdmin(String siteId, String userId) {
+	public void inviteAdmin(String siteId, PersistentId userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
 		Optional<FURMSUser> user = usersDAO.findById(userId);
@@ -187,7 +188,7 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void addAdmin(String siteId, String userId) {
+	public void addAdmin(String siteId, PersistentId userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
 
@@ -208,7 +209,7 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void removeAdmin(String siteId, String userId) {
+	public void removeAdmin(String siteId, PersistentId userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site Administrator. Missing Site ID or User ID"));
 

@@ -7,6 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -32,13 +33,13 @@ public class UserService {
 		this.unityClient = unityClient;
 	}
 
-	public void addUserToGroup(String userId, String group){
+	public void addUserToGroup(PersistentId userId, String group){
 		String path = prepareGroupRequestPath(userId, group);
 		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
-	private String prepareGroupRequestPath(String userId, String group) {
-		Map<String, String> uriVariables = Map.of(GROUP_PATH, group, ID, userId);
+	private String prepareGroupRequestPath(PersistentId userId, String group) {
+		Map<String, String> uriVariables = Map.of(GROUP_PATH, group, ID, userId.id);
 		return UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
 			.pathSegment("{" + GROUP_PATH + "}")
@@ -49,7 +50,7 @@ public class UserService {
 			.toUriString();
 	}
 
-	public void addUserRole(String userId, String group, Role role){
+	public void addUserRole(PersistentId userId, String group, Role role){
 		String uriComponents = prepareRoleRequestPath(userId);
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.add(role.unityRoleValue);
@@ -63,21 +64,21 @@ public class UserService {
 		unityClient.put(uriComponents, attribute);
 	}
 
-	private String prepareRoleRequestPath(String userId) {
+	private String prepareRoleRequestPath(PersistentId userId) {
 		return UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.pathSegment("{" + ID + "}")
 			.path(ATTRIBUTE_PATTERN)
-			.buildAndExpand(Map.of(ID, userId))
+			.buildAndExpand(Map.of(ID, userId.id))
 			.toUriString();
 	}
 
-	public void removeUserFromGroup(String userId, String group){
+	public void removeUserFromGroup(PersistentId userId, String group){
 		String path = prepareGroupRequestPath(userId, group);
 		unityClient.delete(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 
-	public void removeUserRole(String userId, String group, Role role){
+	public void removeUserRole(PersistentId userId, String group, Role role){
 		String uriComponents = prepareRoleRequestPath(userId);
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.remove(role.unityRoleValue);
@@ -91,7 +92,7 @@ public class UserService {
 		unityClient.put(uriComponents, attribute);
 	}
 
-	public Set<String> getRoleValues(String userId, String group, Role role) {
+	public Set<String> getRoleValues(PersistentId userId, String group, Role role) {
 		return getAttributesFromGroup(userId, group)
 			.stream()
 			.filter(attribute -> attribute.getName().equals(role.unityRoleAttribute))
@@ -99,23 +100,15 @@ public class UserService {
 			.collect(toSet());
 	}
 
-	public boolean hasRole(String userId, String group, Role role) {
-		return getAttributesFromGroup(userId, group)
-			.stream()
-			.filter(attribute -> attribute.getName().equals(role.unityRoleAttribute))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.anyMatch(attribute -> attribute.equals(role.unityRoleValue));
-	}
-
-	public Optional<FURMSUser> getUser(String userId){
+	public Optional<FURMSUser> getUser(PersistentId userId){
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		return UnityUserMapper.map(userId, attributesFromGroup);
 	}
 
-	private List<Attribute> getAttributesFromGroup(String userId, String group) {
+	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
-			.uriVariables(Map.of(ID, userId))
+			.uriVariables(Map.of(ID, userId.id))
 			.build()
 			.toUriString();
 		Map<String, List<Attribute>> groupedAttributes =
@@ -123,10 +116,10 @@ public class UserService {
 		return groupedAttributes.getOrDefault(group, Collections.emptyList());
 	}
 
-	private List<Attribute> getAttributesFromRootGroup(String userId) {
+	private List<Attribute> getAttributesFromRootGroup(PersistentId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(ENTITY_ATTRIBUTES)
-			.uriVariables(Map.of(ID, userId))
+			.uriVariables(Map.of(ID, userId.id))
 			.build()
 			.toUriString();
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));

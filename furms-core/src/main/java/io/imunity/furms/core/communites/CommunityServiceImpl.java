@@ -12,6 +12,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -107,7 +108,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
-	public void inviteAdmin(String communityId, String userId) {
+	public void inviteAdmin(String communityId, PersistentId userId) {
 		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
@@ -119,7 +120,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
-	public void addAdmin(String communityId, String userId) {
+	public void addAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
@@ -127,7 +128,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
-	public void removeAdmin(String communityId, String userId) {
+	public void removeAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));

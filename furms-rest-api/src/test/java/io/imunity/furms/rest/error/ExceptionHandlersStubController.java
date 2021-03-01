@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rest.error;
 
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UnknownUserException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,7 @@ class ExceptionHandlersStubController {
 
 	@GetMapping("/unknown-user-exception")
 	void unknownUserExceptionEndpoint() {
-		throw new UnknownUserException("testUserId");
+		throw new UnknownUserException(new FenixUserId("testUserId"));
 	}
 
 	@GetMapping("/runtime-exception")

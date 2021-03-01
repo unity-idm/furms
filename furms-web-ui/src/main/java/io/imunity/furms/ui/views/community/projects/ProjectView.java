@@ -14,6 +14,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
@@ -31,7 +32,7 @@ import static java.util.function.Function.identity;
 public class ProjectView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final UserService userService;
-	private final String currentUserId;
+	private final PersistentId currentUserId;
 
 	private Tab defaultTab;
 	private Tabs tabs;

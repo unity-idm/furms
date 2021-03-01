@@ -10,6 +10,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.constant.CommonAttribute;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -22,7 +23,7 @@ class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUser
 	public FurmsOAuthAuthenticatedUser(OAuth2User defaultOAuth2User, String key, Map<ResourceId, Set<Role>> roles) {
 		super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), key);
 		this.furmsUser = new FURMSUser(
-			getAttribute("sub"),
+			new PersistentId(getAttribute("sub")),
 			getAttribute(CommonAttribute.FIRSTNAME.name),
 			getAttribute(CommonAttribute.SURNAME.name),
 			getAttribute(CommonAttribute.EMAIL.name),

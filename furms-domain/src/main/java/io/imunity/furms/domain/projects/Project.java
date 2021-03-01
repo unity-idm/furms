@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.projects;
 
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -21,10 +22,10 @@ public class Project {
 	private final String researchField;
 	private final LocalDateTime startTime;
 	private final LocalDateTime endTime;
-	private final String leaderId;
+	private final PersistentId leaderId;
 
 	public Project(String id, String communityId, String name, String description, FurmsImage logo, String acronym,
-	               String researchField, LocalDateTime startTime, LocalDateTime endTime, String projectLeaderId) {
+	               String researchField, LocalDateTime startTime, LocalDateTime endTime, PersistentId projectLeaderId) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -73,7 +74,7 @@ public class Project {
 		return endTime;
 	}
 
-	public String getLeaderId() {
+	public PersistentId getLeaderId() {
 		return leaderId;
 	}
 
@@ -128,7 +129,7 @@ public class Project {
 		private String researchField;
 		private LocalDateTime start;
 		private LocalDateTime end;
-		private String leaderId;
+		private PersistentId leaderId;
 
 		private ProjectEntityBuilder() {
 		}
@@ -183,7 +184,7 @@ public class Project {
 			return this;
 		}
 
-		public ProjectEntityBuilder leaderId(String projectLeaderId) {
+		public ProjectEntityBuilder leaderId(PersistentId projectLeaderId) {
 			this.leaderId = projectLeaderId;
 			return this;
 		}

@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.Optional.*;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
@@ -30,7 +31,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public Optional<Project> findById(String id) {
 		if (isEmpty(id)) {
-			return Optional.empty();
+			return empty();
 		}
 		return repository.findById(fromString(id))
 				.map(ProjectEntity::toProject);
@@ -61,7 +62,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 			.researchField(project.getResearchField())
 			.startTime(project.getStartTime())
 			.endTime(project.getEndTime())
-			.leaderId(project.getLeaderId())
+			.leaderId(ofNullable(project.getLeaderId()).map(leader -> leader.id).orElse(null))
 			.build());
 		return saved.getId().toString();
 	}
@@ -79,7 +80,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 					.researchField(project.getResearchField())
 					.startTime(project.getStartTime())
 					.endTime(project.getEndTime())
-					.leaderId(project.getLeaderId())
+					.leaderId(ofNullable(project.getLeaderId()).map(leader -> leader.id).orElse(null))
 					.build())
 				.map(repository::save)
 				.map(ProjectEntity::getId)

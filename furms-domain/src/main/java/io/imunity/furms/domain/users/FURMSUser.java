@@ -16,18 +16,22 @@ import java.util.Set;
 import static java.util.Collections.*;
 
 public class FURMSUser {
-	public final String id;
+	public final PersistentId id;
 	public final String firstName;
 	public final String lastName;
 	public final String email;
 	public final Map<ResourceId, Set<Role>> roles;
 
-	public FURMSUser(String id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
+	public FURMSUser(PersistentId id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.roles = copyRoles(roles);
+	}
+
+	public FURMSUser(String id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
+		this(new PersistentId(id), firstName, lastName, email, roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser) {
@@ -79,7 +83,7 @@ public class FURMSUser {
 	}
 
 	public static final class FURMSUserBuilder {
-		public String id;
+		public PersistentId id;
 		public String firstName;
 		public String lastName;
 		public String email;
@@ -88,7 +92,7 @@ public class FURMSUser {
 		private FURMSUserBuilder() {
 		}
 
-		public FURMSUserBuilder id(String id) {
+		public FURMSUserBuilder id(PersistentId id) {
 			this.id = id;
 			return this;
 		}

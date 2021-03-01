@@ -11,6 +11,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.projects.*;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -145,14 +146,14 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
-	public void addAdmin(String communityId, String projectId, String userId){
+	public void addAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addAdmin(communityId, projectId, userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
-	public void inviteAdmin(String communityId, String projectId, String id){
+	public void inviteAdmin(String communityId, String projectId, PersistentId id){
 		Optional<FURMSUser> user = usersDAO.findById(id);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
@@ -163,7 +164,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
-	public void removeAdmin(String communityId, String projectId, String userId){
+	public void removeAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
@@ -188,14 +189,14 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void addUser(String communityId, String projectId, String userId){
+	public void addUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addUser(communityId, projectId, userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void inviteUser(String communityId, String projectId, String userId) {
+	public void inviteUser(String communityId, String projectId, PersistentId userId) {
 		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
@@ -206,7 +207,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
-	public void removeUser(String communityId, String projectId, String userId){
+	public void removeUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}

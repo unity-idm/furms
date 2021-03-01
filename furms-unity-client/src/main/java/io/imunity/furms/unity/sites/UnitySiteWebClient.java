@@ -7,6 +7,7 @@ package io.imunity.furms.unity.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.unity.client.UnityClient;
@@ -137,13 +138,7 @@ class UnitySiteWebClient implements SiteWebClient {
 	}
 
 	@Override
-	public boolean isAdmin(String siteId, String userId) {
-		String sitePath = getSitePath(siteId);
-		return userService.hasRole(userId, sitePath, SITE_ADMIN);
-	}
-
-	@Override
-	public void addAdmin(String siteId, String userId) {
+	public void addAdmin(String siteId, PersistentId userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator in Unity. Missing Site ID or User ID"));
 
@@ -153,7 +148,7 @@ class UnitySiteWebClient implements SiteWebClient {
 	}
 
 	@Override
-	public void removeAdmin(String siteId, String userId) {
+	public void removeAdmin(String siteId, PersistentId userId) {
 		check(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site Administrator in Unity. Missing Site ID or User ID"));
 

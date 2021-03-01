@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.users;
 
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
-	public static Optional<FURMSUser> map(String userId, List<Attribute> attributes){
+	public static Optional<FURMSUser> map(PersistentId userId, List<Attribute> attributes){
 		FURMSUser user = buildUser(userId, attributes);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
@@ -42,14 +43,14 @@ public class UnityUserMapper {
 
 	private static FURMSUser buildUser(GroupMember groupMember) {
 		return FURMSUser.builder()
-			.id(getId(groupMember))
+			.id(new PersistentId(getId(groupMember)))
 			.firstName(getFirstAttributeValue(groupMember, "firstname"))
 			.lastName(getFirstAttributeValue(groupMember, "surname"))
 			.email(getFirstAttributeValue(groupMember, "email"))
 			.build();
 	}
 
-	private static FURMSUser buildUser(String userId, List<Attribute> attributes) {
+	private static FURMSUser buildUser(PersistentId userId, List<Attribute> attributes) {
 		return FURMSUser.builder()
 			.id(userId)
 			.firstName(getFirstAttributeValue(attributes, "firstname"))

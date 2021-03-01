@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.roles.RoleLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,12 +49,12 @@ public class AuthzServiceImpl implements AuthzService {
 	@Override
 	public void reloadRoles() {
 		FURMSUser authentication = getCurrent();
-		String id = authentication.id;
+		PersistentId id = authentication.id;
 		updateCurrent(new FURMSUser(authentication, roleLoader.loadUserRoles(id)));
 	}
 
 	@Override
-	public String getCurrentUserId(){
+	public PersistentId getCurrentUserId(){
 		return getCurrent().id;
 	}
 

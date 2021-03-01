@@ -8,10 +8,11 @@ package io.imunity.furms.spi.roles;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.Map;
 import java.util.Set;
 
 public interface RoleLoader {
-	Map<ResourceId, Set<Role>> loadUserRoles(String id) throws RoleLoadingException;
+	Map<ResourceId, Set<Role>> loadUserRoles(PersistentId id) throws RoleLoadingException;
 }

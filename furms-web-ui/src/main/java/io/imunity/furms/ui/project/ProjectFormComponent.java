@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
@@ -163,7 +164,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		uploadComponent.setValue(projectViewModel.getLogo());
 	}
 
-	private String getUserId(ProjectViewModel projectViewModel) {
+	private PersistentId getUserId(ProjectViewModel projectViewModel) {
 		return ofNullable(projectViewModel.projectLeader)
 			.map(user -> user.id)
 			.orElse(null);

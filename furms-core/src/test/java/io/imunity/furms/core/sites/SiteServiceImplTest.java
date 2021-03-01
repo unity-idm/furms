@@ -15,6 +15,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -279,14 +280,14 @@ class SiteServiceImplTest {
 	void shouldAddAdminToSite() {
 		//given
 		String siteId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		service.addAdmin(siteId, userId);
 
 		//then
 		verify(webClient, times(1)).addAdmin(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new InviteUserEvent("userId", new ResourceId(siteId, SITE)));
+		verify(publisher, times(1)).publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test
@@ -295,16 +296,16 @@ class SiteServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, null));
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", null));
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("testId", null));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, ""));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, "testId"));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", ""));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, new PersistentId("testId")));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", new PersistentId("")));
 	}
 
 	@Test
 	void shouldTryRollbackAndThrowExceptionWhenWebClientFailedForAddAdmin() {
 		//given
 		String siteId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		doThrow(UnityFailureException.class).when(webClient).addAdmin(siteId, userId);
 		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
 
@@ -312,21 +313,21 @@ class SiteServiceImplTest {
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
 		verify(webClient, times(1)).removeAdmin(siteId, userId);
-		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
+		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test
 	void shouldRemoveAdminFromSite() {
 		//given
 		String siteId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 
 		//when
 		service.removeAdmin(siteId, userId);
 
 		//then
 		verify(webClient, times(1)).removeAdmin(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
+		verify(publisher, times(1)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test
@@ -335,21 +336,21 @@ class SiteServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, null));
 		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", null));
 		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("testId", null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, ""));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, "testId"));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", ""));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, new PersistentId("testId")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", new PersistentId("")));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
 		String siteId = UUID.randomUUID().toString();
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		doThrow(UnityFailureException.class).when(webClient).removeAdmin(siteId, userId);
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeAdmin(siteId, userId));
-		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent("userId", new ResourceId(siteId, SITE)));
+		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test

@@ -7,6 +7,7 @@ package io.imunity.furms.api.communites;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +26,11 @@ public interface CommunityService {
 
 	List<FURMSUser> findAllAdmins(String communityId);
 
-	void inviteAdmin(String communityId, String userId);
+	void inviteAdmin(String communityId, PersistentId userId);
 
-	void addAdmin(String communityId, String userId);
+	void addAdmin(String communityId, PersistentId userId);
 
-	void removeAdmin(String communityId, String userId);
+	void removeAdmin(String communityId, PersistentId userId);
 
 	boolean isAdmin(String communityId);
 }

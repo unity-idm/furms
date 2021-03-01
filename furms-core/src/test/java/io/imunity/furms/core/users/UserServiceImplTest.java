@@ -8,6 +8,7 @@ package io.imunity.furms.core.users;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ class UserServiceImplTest {
 	@Test
 	void shouldAllowToInviteUser() {
 		//given
-		String id = "userId";
+		PersistentId id = new PersistentId("userId");
 		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(FURMSUser.builder()
 				.id(id)
 				.email("email")

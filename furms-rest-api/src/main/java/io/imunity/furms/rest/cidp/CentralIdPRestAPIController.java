@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.rest.cidp;
 
+import io.imunity.furms.domain.users.FenixUserId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,7 +49,7 @@ public class CentralIdPRestAPIController {
 			@ApiResponse(responseCode = "404", description = "User not found", content = { @Content }) })
 	@GetMapping("/user/{fenixUserId}")
 	public UserRecordJson getUserRecord(@PathVariable("fenixUserId") String fenixUserId) {
-		return new UserRecordJson(userService.getUserRecord(fenixUserId));
+		return new UserRecordJson(userService.getUserRecord(new FenixUserId(fenixUserId)));
 	}
 
 	
@@ -60,7 +61,7 @@ public class CentralIdPRestAPIController {
 	public void setUserStatus(@PathVariable("fenixUserId") String fenixUserId,
 			@RequestBody UserStatusHolder userStatus) {
 		
-		userService.setUserStatus(fenixUserId, userStatus.status);
+		userService.setUserStatus(new FenixUserId(fenixUserId), userStatus.status);
 	}
 
 	
@@ -73,7 +74,7 @@ public class CentralIdPRestAPIController {
 
 		try
 		{
-			return new UserStatusHolder(userService.getUserStatus(fenixUserId));
+			return new UserStatusHolder(userService.getUserStatus(new FenixUserId(fenixUserId)));
 		} catch (UnknownUserException e) {
 			throw new ResponseStatusException(
 				           HttpStatus.NOT_FOUND, "User " + fenixUserId + " not found", e);

@@ -7,6 +7,7 @@ package io.imunity.furms.unity.sites;
 
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
@@ -145,14 +146,14 @@ class UnitySiteWebClientTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-				.allMatch(user -> user.id.equals("1") || user.id.equals("3"))).isTrue();
+				.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
 	}
 
 	@Test
 	void shouldAddAdminToSite() {
 		//given
 		String siteId = "siteId";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 		//when
 		unitySiteWebClient.addAdmin(siteId, userId);
@@ -166,11 +167,11 @@ class UnitySiteWebClientTest {
 	void shouldRemoveAdminFromGroup() {
 		//given
 		String siteId = "siteId";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
 		//when
-		when(userService.getRoleValues(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+		when(userService.getRoleValues(Mockito.any(), Mockito.anyString(), Mockito.any()))
 			.thenReturn(Set.of("ADMIN"));
 		unitySiteWebClient.removeAdmin(siteId, userId);
 
@@ -184,7 +185,7 @@ class UnitySiteWebClientTest {
 	void shouldRemoveAdminRole() {
 		//given
 		String siteId = "siteId";
-		String userId = "userId";
+		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
 		//when
