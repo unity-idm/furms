@@ -22,13 +22,13 @@ class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUser
 
 	public FurmsOAuthAuthenticatedUser(OAuth2User defaultOAuth2User, String key, Map<ResourceId, Set<Role>> roles) {
 		super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), key);
-		this.furmsUser = new FURMSUser(
-			new PersistentId(getAttribute("sub")),
-			getAttribute(CommonAttribute.FIRSTNAME.name),
-			getAttribute(CommonAttribute.SURNAME.name),
-			getAttribute(CommonAttribute.EMAIL.name),
-			roles
-		);
+		this.furmsUser = FURMSUser.builder()
+				.id(new PersistentId(getAttribute("sub")))
+				.firstName(getAttribute(CommonAttribute.FIRSTNAME.name))
+				.lastName(getAttribute(CommonAttribute.SURNAME.name))
+				.email(getAttribute(CommonAttribute.EMAIL.name))
+				.roles(roles)
+				.build();
 	}
 
 	@Override

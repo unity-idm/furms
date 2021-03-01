@@ -15,6 +15,9 @@ import java.util.Set;
 
 import static java.util.Collections.*;
 
+//FIXME FU-104 currently it is not clear which of the fields are nullable and which are not. 
+//for the nullable: replace with optional?
+// for non-nullable: check arg in constructor
 public class FURMSUser {
 	public final PersistentId id;
 	public final String firstName;
@@ -22,7 +25,7 @@ public class FURMSUser {
 	public final String email;
 	public final Map<ResourceId, Set<Role>> roles;
 
-	public FURMSUser(PersistentId id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
+	private FURMSUser(PersistentId id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -30,6 +33,7 @@ public class FURMSUser {
 		this.roles = copyRoles(roles);
 	}
 
+	//FIXME: FU-104 make private, replace uses with use of builder (and accept only PersistentId as id argument not string)
 	public FURMSUser(String id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
 		this(new PersistentId(id), firstName, lastName, email, roles);
 	}

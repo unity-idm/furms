@@ -29,7 +29,7 @@ public class FenixUserId {
 
 	@Override
 	public String toString() {
-		return "PersistentId{" +
+		return "FenixId{" +
 			"id='" + id + '\'' +
 			'}';
 	}
