@@ -14,10 +14,15 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
+import io.imunity.furms.domain.communities.CommunityEvent;
+import io.imunity.furms.domain.projects.ProjectEvent;
+import io.imunity.furms.domain.sites.SiteEvent;
+import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.ui.VaadinBroadcaster;
+import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
-import io.imunity.furms.ui.VaadinBroadcaster;
 
 import java.util.List;
 import java.util.Map;
@@ -80,7 +85,13 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
-			event -> ui.access(this::reloadComponent)
+			VaadinListener.builder()
+				.runnable(() -> ui.access(this::reloadComponent))
+				.predicate(event -> event instanceof UserEvent)
+				.orPredicate(event -> event instanceof SiteEvent)
+				.orPredicate(event -> event instanceof CommunityEvent)
+				.orPredicate(event -> event instanceof ProjectEvent)
+				.build()
 		);
 	}
 
