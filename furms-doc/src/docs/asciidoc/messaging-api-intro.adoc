@@ -1,0 +1,38 @@
+= Messaging asynchronous FURMS API
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+image::logo-fenix.png[scaledwidth=75%]
+
+== Communication protocol
+FURMS is using an asynchronous communication model to exchange information with sites. What is more, processing of asynchronously delivered requests can in some cases take an extensive amount of time, for instance requiring human intervention or waiting for a daily scheduled task to be executed. Therefore the site communication protocol is designed so that the following states can be distinguished:
+
+* request sent to a site
+* request delivered and accepted (or rejected) for processing by a site agent
+* request performed
+
+The above feature is realized as follows. After sending a request to the site agent FURMS stores the state of the request and waits for a requestAck message linked to the request. It is expected that the requestAck is sent as soon as the request is received and parsed, and that it can be sent before the request actual execution/application. Therefore, after receiving requestAck message FURMS can assume that request is in state B. FURMS defines messages which should be pushed by site agents to notify about site state changes. They are utilized to inform FURMS that the request was applied. Those messages are linked with requests and carry the request execution result.
+
+Invariants for all interactions:
+
+. Each request sent to a site will have an unique identifier ``messageCorrelationId``.
+. If a site agent can perform a request without an extensive delay, sending a response without requestAck is allowed.
+. Each requestAck will contain status with one of two values: ``OK`` or ``FAILED``.
+. Errors, i.e. messages with error status of ``FAILED``, will be reported using a mandatory ``error.code`` field and an optional message.
+. ``requestAck`` message always contains messageCorrelationId of the linked request. Note that ``requestAck`` message can as well signal error if a request was not accepted for processing.
+. Response messages always contain ``messageCorrelationId`` of the linked request.
+. Each message will contain a version identifier, set to ``1``. In future this field may be used to detect agents using a legacy version of the protocol.
+
+== Message format
+
+Each message sent from FURMS to site or from site to FURMS which is not a response to other message will conform to the following general JSON format:
+
+----
+{ 
+	"header": [object with message metadata]
+	"MESSAGE_NAME": [object with main message payload]
+}
+----
+
+Details of the structure of each message are flashed out in generated protocol documentation. Header with metadata is provided separately to the main message body payload.
+
