@@ -58,7 +58,8 @@ class RestExceptionHandlers {
 			return ResponseEntity
 					.status(defaultResponse.getStatusCode())
 					.body(data.error(defaultResponse.getStatusCode().getReasonPhrase()).build());
-		} catch (Exception ignore) {
+		} catch (Exception internalException) {
+			LOG.error("Internal exception during handle REST exceptions: ", internalException);
 			return ResponseEntity
 					.status(INTERNAL_SERVER_ERROR)
 					.body(data.error(INTERNAL_SERVER_ERROR.getReasonPhrase()).build());
