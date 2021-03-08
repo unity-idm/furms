@@ -120,9 +120,19 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_ADMIN))
 			.thenReturn(List.of(
-				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
-				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
-			);
+				FURMSUser.builder()
+					.id(new PersistentId("1"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build(),
+				FURMSUser.builder()
+					.id(new PersistentId("3"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()
+			));
 
 		//when
 		List<FURMSUser> admins = unityProjectGroupsDAO.getAllAdmins(communityId, projectId);
@@ -130,7 +140,7 @@ class UnityProjectGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.get().id.equals("1") || user.id.get().id.equals("3"))).isTrue();
 	}
 
 	@Test
@@ -192,9 +202,19 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_USER))
 			.thenReturn(List.of(
-				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
-				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
-			);
+				FURMSUser.builder()
+					.id(new PersistentId("1"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build(),
+				FURMSUser.builder()
+					.id(new PersistentId("3"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()
+			));
 
 		//when
 		List<FURMSUser> admins = unityProjectGroupsDAO.getAllUsers(communityId, projectId);
@@ -202,7 +222,7 @@ class UnityProjectGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.get().id.equals("1") || user.id.get().id.equals("3"))).isTrue();
 	}
 
 	@Test

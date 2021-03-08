@@ -36,7 +36,7 @@ public class ProjectViewModelMapper {
 			.researchField(project.researchField)
 			.startTime(project.startTime)
 			.endTime(project.endTime)
-			.leaderId(project.projectLeader.id)
+			.leaderId(project.projectLeader.id.orElse(null))
 			.build();
 	}
 }

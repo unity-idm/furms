@@ -15,16 +15,14 @@ import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-
 public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 	private final ComboBox<FurmsViewUserModel>  comboBox = new ComboBox<>();
 
 	public FurmsUserComboBox(List<FurmsViewUserModel> userModels) {
 		comboBox.setItemLabelGenerator(user -> {
-			String fullName = ofNullable(user.firstname)
+			String fullName = user.firstname
 				.map(value -> value + " ").orElse("")
-				+ ofNullable(user.lastname).orElse("");
+				+ user.lastname.orElse("");
 			return fullName.isBlank() ? user.email : fullName;
 		});
 		comboBox.setItems(userModels);

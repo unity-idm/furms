@@ -183,7 +183,7 @@ class SiteServiceImpl implements SiteService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		webClient.addAdmin(siteId, userId);
-		publisher.publishEvent(new InviteUserEvent(user.get().id, new ResourceId(siteId, SITE)));
+		publisher.publishEvent(new InviteUserEvent(user.get().id.orElse(null), new ResourceId(siteId, SITE)));
 	}
 
 	@Override

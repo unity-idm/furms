@@ -10,13 +10,14 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
 public class AdministratorsGridItem {
-	private final PersistentId id;
-	private final String firstName;
-	private final String lastName;
+	private final Optional<PersistentId> id;
+	private final Optional<String> firstName;
+	private final Optional<String> lastName;
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
@@ -27,15 +28,15 @@ public class AdministratorsGridItem {
 		this.email = user.email;
 	}
 
-	public PersistentId getId() {
+	public Optional<PersistentId> getId() {
 		return id;
 	}
 
-	public String getFirstName() {
+	public Optional<String> getFirstName() {
 		return firstName;
 	}
 
-	public String getLastName() {
+	public Optional<String> getLastName() {
 		return lastName;
 	}
 

@@ -51,7 +51,7 @@ public class InviteUserComponent extends HorizontalLayout {
 	}
 
 	public PersistentId getUserId() {
-		return furmsUserComboBox.getValue().id;
+		return furmsUserComboBox.getValue().id.orElse(null);
 	}
 
 	public void reload() {

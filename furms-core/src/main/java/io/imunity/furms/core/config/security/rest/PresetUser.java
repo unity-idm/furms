@@ -4,18 +4,16 @@
  */
 package io.imunity.furms.core.config.security.rest;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-
 import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 class PresetUser extends User implements FURMSUserProvider {
 	private FURMSUser furmsUser;
@@ -28,8 +26,8 @@ class PresetUser extends User implements FURMSUserProvider {
 			password,
 			authorities,
 			FURMSUser.builder()
-				.id(new PersistentId(username)) //FIXME FU-104 KB: I'm afraid this can cause problems. Let's discuss if unclear why.
 				.firstName("Central Idp")
+				.email("centralIdp@email.com")
 				.roles(roles)
 				.build()
 		);

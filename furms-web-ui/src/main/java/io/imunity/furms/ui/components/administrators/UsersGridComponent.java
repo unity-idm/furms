@@ -32,6 +32,7 @@ import io.imunity.furms.ui.views.landing.RoleChooserView;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -40,7 +41,6 @@ import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 public class UsersGridComponent extends VerticalLayout {
@@ -187,7 +187,7 @@ public class UsersGridComponent extends VerticalLayout {
 				FullNameColumn.getFullName(removedItem)));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval()) {
-				handleExceptions(() -> removeUserAction.accept(removedItem.getId()));
+				handleExceptions(() -> removeUserAction.accept(removedItem.getId().orElse(null)));
 				reloadGrid();
 			} else {
 				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
@@ -217,11 +217,11 @@ public class UsersGridComponent extends VerticalLayout {
 	private boolean rowContains(AdministratorsGridItem row, String value) {
 		return searchText.isEmpty() || columnContains(row.getFirstName(), value)
 				|| columnContains(row.getLastName(), value)
-				|| columnContains(row.getEmail(), value);
+				|| columnContains(Optional.ofNullable(row.getEmail()), value);
 	}
 
-	private boolean columnContains(String column, String value) {
-		return ofNullable(column)
+	private boolean columnContains(Optional<String> column, String value) {
+		return column
 				.map(String::toLowerCase)
 				.map(c -> c.contains(value))
 				.orElse(false);
@@ -233,9 +233,9 @@ public class UsersGridComponent extends VerticalLayout {
 		}
 
 		private static String getFullName(AdministratorsGridItem c) {
-			return ofNullable(c.getFirstName())
+			return c.getFirstName()
 				.map(value -> value + " ").orElse("")
-				+ ofNullable(c.getLastName()).orElse("");
+				+ c.getLastName().orElse("");
 		}
 
 		private static int compareTo(AdministratorsGridItem c1, AdministratorsGridItem c2) {

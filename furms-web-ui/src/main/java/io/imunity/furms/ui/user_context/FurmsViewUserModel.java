@@ -9,20 +9,21 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class FurmsViewUserModel {
-	public static final FurmsViewUserModel EMPTY = new FurmsViewUserModel(null, "", "", "");
+	public static final FurmsViewUserModel EMPTY = new FurmsViewUserModel(null, Optional.empty(), Optional.empty(), "");
 
-	public final PersistentId id;
-	public final String firstname;
-	public final String lastname;
+	public final Optional<PersistentId> id;
+	public final Optional<String> firstname;
+	public final Optional<String> lastname;
 	public final String email;
 
 	public FurmsViewUserModel(FURMSUser user) {
 		this(user.id, user.firstName, user.lastName, user.email);
 	}
 	
-	public FurmsViewUserModel(PersistentId id, String firstname, String lastname, String email) {
+	public FurmsViewUserModel(Optional<PersistentId> id, Optional<String> firstname, Optional<String> lastname, String email) {
 		this.id = id;
 		this.firstname = firstname;
 		this.lastname = lastname;

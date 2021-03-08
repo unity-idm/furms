@@ -10,6 +10,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId((String) null, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -80,7 +87,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -94,7 +107,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -110,7 +129,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -123,7 +148,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, PROJECT), Set.of(Role.FENIX_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -136,7 +167,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, COMMUNITY), Set.of(Role.SITE_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
@@ -150,7 +187,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(uuid, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 		Project project = Project.builder().id(uuid2.toString()).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
@@ -166,7 +209,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId(communityUUID, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 		Project project = Project.builder().id(projectUUID.toString()).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
@@ -181,7 +230,13 @@ class AuthTest {
 		Map<ResourceId, Set<Role>> roles = Map.of(
 			new ResourceId((String) null, APP_LEVEL), Set.of(Role.COMMUNITY_ADMIN)
 		);
-		FURMSUser furmsUser = new FURMSUser("id", "Ala", "Kot", "a@a.pl", roles);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
