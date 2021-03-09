@@ -166,7 +166,7 @@ public class ProjectFormComponent extends Composite<Div> {
 
 	private PersistentId getUserId(ProjectViewModel projectViewModel) {
 		return ofNullable(projectViewModel.projectLeader)
-			.map(user -> user.id)
+			.flatMap(user -> user.id)
 			.orElse(null);
 	}
 

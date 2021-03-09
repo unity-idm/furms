@@ -54,13 +54,13 @@ public class AuthzServiceImpl implements AuthzService {
 	@Override
 	public void reloadRoles() {
 		FURMSUser authentication = getCurrent();
-		PersistentId id = authentication.id;
+		PersistentId id = authentication.id.orElse(null);
 		updateCurrent(new FURMSUser(authentication, roleLoader.loadUserRoles(id)));
 	}
 
 	@Override
 	public PersistentId getCurrentUserId(){
-		return getCurrent().id;
+		return getCurrent().id.orElse(null);
 	}
 
 	private static FURMSUser getCurrent() {

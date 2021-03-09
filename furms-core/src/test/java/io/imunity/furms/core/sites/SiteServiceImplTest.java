@@ -260,7 +260,13 @@ class SiteServiceImplTest {
 	void shouldReturnAllSiteAdmins() {
 		//given
 		String siteId = "id";
-		when(webClient.getAllAdmins(siteId)).thenReturn(List.of(new FURMSUser("id", "firstName", "lastName", "email", Map.of())));
+		when(webClient.getAllAdmins(siteId)).thenReturn(List.of(FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("firstName")
+			.lastName("lastName")
+			.email("email")
+			.build())
+	);
 
 		//when
 		List<FURMSUser> allAdmins = service.findAllAdmins(siteId);
