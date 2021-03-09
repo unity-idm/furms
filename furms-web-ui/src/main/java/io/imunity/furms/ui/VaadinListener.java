@@ -8,14 +8,15 @@ package io.imunity.furms.ui;
 import io.imunity.furms.domain.FurmsEvent;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class VaadinListener {
-	private final Runnable runnable;
+	private final Consumer<FurmsEvent> consumer;
 	private final Predicate<FurmsEvent> predicate;
 
-	public VaadinListener(Runnable runnable, Predicate<FurmsEvent> predicate) {
-		this.runnable = runnable;
+	public VaadinListener(Consumer<FurmsEvent> consumer, Predicate<FurmsEvent> predicate) {
+		this.consumer = consumer;
 		this.predicate = predicate;
 	}
 
@@ -23,8 +24,8 @@ public class VaadinListener {
 		return predicate.test(event);
 	}
 
-	public void run(){
-		runnable.run();
+	public void run(FurmsEvent event){
+		consumer.accept(event);
 	}
 
 	@Override
@@ -32,19 +33,19 @@ public class VaadinListener {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		VaadinListener that = (VaadinListener) o;
-		return Objects.equals(runnable, that.runnable) &&
+		return Objects.equals(consumer, that.consumer) &&
 			Objects.equals(predicate, that.predicate);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(runnable, predicate);
+		return Objects.hash(consumer, predicate);
 	}
 
 	@Override
 	public String toString() {
 		return "VaadinListener{" +
-			"runnable=" + runnable +
+			"runnable=" + consumer +
 			", predicate=" + predicate +
 			'}';
 	}
@@ -54,14 +55,14 @@ public class VaadinListener {
 	}
 
 	public static final class VaadinListenerBuilder {
-		private Runnable runnable;
+		private Consumer<FurmsEvent> consumer;
 		private Predicate<FurmsEvent> predicate = event -> true;
 
 		private VaadinListenerBuilder() {
 		}
 
-		public VaadinListenerBuilder runnable(Runnable runnable) {
-			this.runnable = runnable;
+		public VaadinListenerBuilder consumer(Consumer<FurmsEvent> runnable) {
+			this.consumer = runnable;
 			return this;
 		}
 
@@ -81,7 +82,7 @@ public class VaadinListener {
 		}
 
 		public VaadinListener build() {
-			return new VaadinListener(runnable, predicate);
+			return new VaadinListener(consumer, predicate);
 		}
 	}
 }

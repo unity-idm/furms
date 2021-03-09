@@ -40,6 +40,11 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
+	public Map<ResourceId, Set<Role>> getRoles(PersistentId id) {
+		return roleLoader.loadUserRoles(id);
+	}
+
+	@Override
 	public boolean isResourceMember(String resourceId, Role role) {
 		return getCurrent().roles.entrySet().stream()
 			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
