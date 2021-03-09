@@ -7,6 +7,7 @@ package io.imunity.furms.db.services;
 
 import io.imunity.furms.domain.services.Service;
 import io.imunity.furms.spi.services.ServiceRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
 
+@Repository
 public class ServiceDatabaseRepository implements ServiceRepository {
 	private final ServiceEntityRepository repository;
 
@@ -51,7 +53,6 @@ public class ServiceDatabaseRepository implements ServiceRepository {
 	public String create(Service service) {
 		ServiceEntity savedService = repository.save(
 			ServiceEntity.builder()
-				.id(UUID.fromString(service.id))
 				.siteId(UUID.fromString(service.siteId))
 				.name(service.name)
 				.description(service.description)
@@ -64,6 +65,7 @@ public class ServiceDatabaseRepository implements ServiceRepository {
 	public String update(Service service) {
 		return repository.findById(UUID.fromString(service.id))
 			.map(oldService -> ServiceEntity.builder()
+				.id(oldService.getId())
 				.siteId(UUID.fromString(service.siteId))
 				.name(service.name)
 				.description(service.description)

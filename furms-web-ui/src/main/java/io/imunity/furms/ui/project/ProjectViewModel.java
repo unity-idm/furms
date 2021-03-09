@@ -181,10 +181,6 @@ public class ProjectViewModel {
 		private ProjectViewModelBuilder() {
 		}
 
-		public static ProjectViewModelBuilder aProjectViewModel() {
-			return new ProjectViewModelBuilder();
-		}
-
 		public ProjectViewModelBuilder id(String id) {
 			this.id = id;
 			return this;
