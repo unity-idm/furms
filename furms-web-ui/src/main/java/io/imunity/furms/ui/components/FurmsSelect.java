@@ -87,7 +87,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
 			VaadinListener.builder()
-				.runnable(() -> ui.access(this::reloadComponent))
+				.consumer(event -> ui.access(this::reloadComponent))
 				.predicate(event -> event instanceof UserEvent)
 				.orPredicate(event -> event instanceof SiteEvent)
 				.orPredicate(event -> event instanceof CommunityEvent)
