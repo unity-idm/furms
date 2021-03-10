@@ -185,9 +185,9 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   reason:
                      type: string
                      enum:
@@ -213,7 +213,7 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
 
 
 
@@ -231,9 +231,9 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   publicKey:
                      type: string
 
@@ -257,9 +257,9 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
 
 
    site/site_id/sshkey/remove/req:
@@ -276,9 +276,9 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   publicKey:
                      type: string
 
@@ -302,9 +302,9 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
 
 
 
@@ -347,7 +347,7 @@ channels:
                                  - REJECTED
                                  - UNKNOWN
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
    site/site_id/project/user_add/ack:
       publish:
@@ -370,11 +370,11 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
 
    site/site_id/project/user_remove/req:
@@ -391,11 +391,11 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
    site/site_id/project/user_remove/ack:
       publish:
@@ -418,11 +418,11 @@ channels:
                additionalProperties: false
                properties:
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
 
 
@@ -444,13 +444,12 @@ channels:
                additionalProperties: false
                properties:
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
                   allocationIdentifier:
-                     type: string
-                     description: Identifies particular project allocation. Single resource credit can have many allocations.  
+                     $ref: "#/components/schemas/allocationIdentifier"  
                   resourceCreditIdentifier:
                      type: string
-                     description: can be used to correlate the request with resource credit as configured in FURMS by site admin 
+                     description: Can be used to correlate the request with resource credit as configured in FURMS by site admin. 
                   resourceType:
                      type: string
                   amount:
@@ -484,9 +483,9 @@ channels:
                additionalProperties: false
                properties:
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
                   allocationIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/allocationIdentifier"
                   allocationChunkIdentifier:
                      type: string
                      description: Identifies chunk assigned by site under the requested allocationIdentifier. Single FURMS allocation can be realized with multiple chunks.  
@@ -517,10 +516,9 @@ channels:
                additionalProperties: false
                properties:
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
                   allocationIdentifier:
-                     type: string
-                     description: Identifies particular project allocation to be removed.  
+                     $ref: "#/components/schemas/allocationIdentifier"  
                   resourceCreditIdentifier:
                      type: string
                   resourceType:
@@ -550,13 +548,13 @@ channels:
                additionalProperties: false
                properties:
                   allocationIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/allocationIdentifier"
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
    site/site_id/allocation/user_add/ack:
       publish:
@@ -579,11 +577,11 @@ channels:
                additionalProperties: false
                properties:
                   allocationIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/allocationIdentifier"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
 
 
@@ -601,13 +599,13 @@ channels:
                additionalProperties: false
                properties:
                   allocationIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/allocationIdentifier"
                   fenixUserId:
-                     type: string
+                     $ref: "#/components/schemas/fenixUserId"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
                   projectIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/projectIdentifier"
 
    site/site_id/allocation/user_remove/ack:
       publish:
@@ -630,9 +628,9 @@ channels:
                additionalProperties: false
                properties:
                   allocationIdentifier:
-                     type: string
+                     $ref: "#/components/schemas/allocationIdentifier"
                   uid:
-                     type: string
+                     $ref: "#/components/schemas/uid"
 
 
 
@@ -685,6 +683,19 @@ components:
             
                     
    schemas:
+      uid:
+         type: string
+         description: Local site-assigned account id aka Unix user id.
+      allocationIdentifier:
+         type: string
+         description: FURMS assigned, unique identifier of a particular project allocation. Single resource credit can have many allocations. 
+      fenixUserId:
+         type: string
+         description: Fenix-wide identifier of a person, managed by Fenix Central IdP
+      projectIdentifier:
+         type: string
+         description: FURMS assigned, unique identifier of a project.
+      
       responseMeta:
          type: object
          additionalProperties: false
@@ -714,7 +725,7 @@ components:
          additionalProperties: false
          properties:
             fenixUserId:
-               type: string
+               $ref: "#/components/schemas/fenixUserId"
             title:
                type: string
             firstName:

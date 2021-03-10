@@ -36,3 +36,10 @@ Each message sent from FURMS to site or from site to FURMS which is not a respon
 
 Details of the structure of each message are flashed out in generated protocol documentation. Header with metadata is provided separately to the main message body payload.
 
+== How to read the AsyncAPI generated documentation
+
+All message exchanges which are creating the FURMS <- -> site agent protocol are covered by a generated protocol documentation. The protocol documentation is prepared using a standard AsyncAPI specification and corresponding tooling. More details on AsyncAPI can be found https://www.asyncapi.com/[here].
+
+The generated documentation is organized as a series of *SUB* and *PUB* elements. SUB stands for Subscribe and PUB for Publish. Each of the publish and subscribe items defines identifier of a channel, which is implemented with a message queue on a message broker. 
+
+Note, that the operations are defined from the site agent perspective. I.e. SUB entries cover messages to which site agent should expect to receive. On the other hand the PUB entries describe messages which site agent can or should sent to FURMS (via message broker).
