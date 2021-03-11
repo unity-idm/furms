@@ -7,7 +7,7 @@ package io.imunity.furms.core.resource_types;
 
 import io.imunity.furms.domain.resource_types.*;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class ResourceTypeServiceImplTest {
 	@Mock
 	private SiteRepository siteRepository;
 	@Mock
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository infraServiceRepository;
 	@Mock
 	private ApplicationEventPublisher publisher;
 
@@ -40,13 +40,13 @@ class ResourceTypeServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		ResourceTypeServiceValidator validator = new ResourceTypeServiceValidator(resourceTypeRepository, serviceRepository, siteRepository);
+		ResourceTypeServiceValidator validator = new ResourceTypeServiceValidator(resourceTypeRepository, infraServiceRepository, siteRepository);
 		service = new ResourceTypeServiceImpl(resourceTypeRepository, validator, publisher);
 		orderVerifier = inOrder(resourceTypeRepository, publisher);
 	}
 
 	@Test
-	void shouldReturnServiceIfExistsInRepository() {
+	void shouldReturnResourceType() {
 		//given
 		String id = "id";
 		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(ResourceType.builder()
@@ -57,11 +57,26 @@ class ResourceTypeServiceImplTest {
 
 		//when
 		Optional<ResourceType> byId = service.findById(id);
-		Optional<ResourceType> otherId = service.findById("otherId");
 
 		//then
 		assertThat(byId).isPresent();
 		assertThat(byId.get().id).isEqualTo(id);
+	}
+
+	@Test
+	void shouldNotReturnResourceType() {
+		//given
+		String id = "id";
+		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(ResourceType.builder()
+			.id(id)
+			.name("name")
+			.build())
+		);
+
+		//when
+		Optional<ResourceType> otherId = service.findById("otherId");
+
+		//then
 		assertThat(otherId).isEmpty();
 	}
 
@@ -92,7 +107,7 @@ class ResourceTypeServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
-		when(serviceRepository.exists(request.serviceId)).thenReturn(true);
+		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
 		when(resourceTypeRepository.create(request)).thenReturn("id");
 
@@ -131,7 +146,7 @@ class ResourceTypeServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
-		when(serviceRepository.exists(request.serviceId)).thenReturn(true);
+		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.id)).thenReturn(true);
 		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
 		when(resourceTypeRepository.findById(request.id)).thenReturn(Optional.of(request));

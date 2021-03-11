@@ -10,6 +10,6 @@ CREATE TABLE resource_type (
     name VARCHAR(255) UNIQUE NOT NULL,
     type VARCHAR(255) NOT NULL,
     unit VARCHAR(255) NOT NULL,
-    FOREIGN KEY (site_id) REFERENCES site(id),
-    FOREIGN KEY (service_id) REFERENCES service(id)
+    FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES service(id) ON DELETE CASCADE
 );

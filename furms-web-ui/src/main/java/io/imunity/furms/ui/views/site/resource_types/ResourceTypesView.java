@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
-import io.imunity.furms.api.services.ServiceService;
+import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -36,7 +36,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 	private final Grid<ResourceTypeViewModel> grid;
 	private final ServiceComboBoxModelResolver resolver;
 
-	public ResourceTypesView(ResourceTypeService resourceTypeService, ServiceService serviceService) {
+	public ResourceTypesView(ResourceTypeService resourceTypeService, InfraServiceService serviceService) {
 		this.resourceTypeService = resourceTypeService;
 		this.grid = createCommunityGrid();
 		this.resolver = new ServiceComboBoxModelResolver(serviceService.findAll(getCurrentResourceId()));

@@ -15,7 +15,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
-import io.imunity.furms.api.services.ServiceService;
+import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
@@ -43,7 +43,7 @@ class ResourceTypeFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ResourceTypeFormView(ResourceTypeService resourceTypeService, ServiceService serviceService) {
+	ResourceTypeFormView(ResourceTypeService resourceTypeService, InfraServiceService serviceService) {
 		this.resourceTypeService = resourceTypeService;
 		ServiceComboBoxModelResolver resolver = new ServiceComboBoxModelResolver(serviceService.findAll(getCurrentResourceId()));
 		this.resourceTypeFormComponent = new ResourceTypeFormComponent(binder, resolver);
