@@ -8,5 +8,5 @@ CREATE TABLE service (
     site_id UUID NOT NULL,
     name VARCHAR(255) UNIQUE NOT NULL,
     description VARCHAR(510),
-    FOREIGN KEY (site_id) REFERENCES site(id)
+    FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
 );

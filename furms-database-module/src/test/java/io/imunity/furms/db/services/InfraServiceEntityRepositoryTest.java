@@ -22,12 +22,12 @@ import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ServiceEntityRepositoryTest extends DBIntegrationTest {
+class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
 	@Autowired
-	private ServiceEntityRepository serviceRepository;
+	private InfraServiceEntityRepository serviceRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
@@ -46,20 +46,20 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldCreateService() {
+	void shouldCreateInfraService() {
 		//given
-		ServiceEntity entityToSave = ServiceEntity.builder()
+		InfraServiceEntity entityToSave = InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
 			.build();
 
 		//when
-		ServiceEntity saved = serviceRepository.save(entityToSave);
+		InfraServiceEntity saved = serviceRepository.save(entityToSave);
 
 		//then
 		assertThat(serviceRepository.findAll()).hasSize(1);
-		Optional<ServiceEntity> byId = serviceRepository.findById(saved.getId());
+		Optional<InfraServiceEntity> byId = serviceRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().siteId).isEqualTo(siteId);
 		assertThat(byId.get().name).isEqualTo("name");
@@ -67,15 +67,15 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldUpdateService() {
+	void shouldUpdateInfraService() {
 		//given
-		ServiceEntity old = ServiceEntity.builder()
+		InfraServiceEntity old = InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
 			.build();
 		serviceRepository.save(old);
-		ServiceEntity toUpdate = ServiceEntity.builder()
+		InfraServiceEntity toUpdate = InfraServiceEntity.builder()
 			.name("new_name")
 			.siteId(siteId2)
 			.description("new_description")
@@ -85,7 +85,7 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 		serviceRepository.save(toUpdate);
 
 		//then
-		Optional<ServiceEntity> byId = serviceRepository.findById(toUpdate.getId());
+		Optional<InfraServiceEntity> byId = serviceRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().siteId).isEqualTo(siteId2);
 		assertThat(byId.get().name).isEqualTo("new_name");
@@ -93,9 +93,9 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindCreatedServices() {
+	void shouldFindCreatedInfraServices() {
 		//given
-		ServiceEntity toFind = ServiceEntity.builder()
+		InfraServiceEntity toFind = InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
@@ -103,22 +103,22 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 		serviceRepository.save(toFind);
 
 		//when
-		Optional<ServiceEntity> byId = serviceRepository.findById(toFind.getId());
+		Optional<InfraServiceEntity> byId = serviceRepository.findById(toFind.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindAllAvailableServices() {
+	void shouldFindAllAvailableInfraServices() {
 		//given
-		serviceRepository.save(ServiceEntity.builder()
+		serviceRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
 			.build()
 		);
-		serviceRepository.save(ServiceEntity.builder()
+		serviceRepository.save(InfraServiceEntity.builder()
 			.name("new_name")
 			.siteId(siteId2)
 			.description("new_description")
@@ -126,16 +126,16 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Iterable<ServiceEntity> all = serviceRepository.findAll();
+		Iterable<InfraServiceEntity> all = serviceRepository.findAll();
 
 		//then
 		assertThat(all).hasSize(2);
 	}
 
 	@Test
-	void savedServiceExistsByServiceId() {
+	void savedServiceExistsByInfraServiceId() {
 		//given
-		ServiceEntity service = serviceRepository.save(ServiceEntity.builder()
+		InfraServiceEntity service = serviceRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("description")
@@ -147,9 +147,9 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void savedServiceExistsByName() {
+	void savedInfraServiceExistsByName() {
 		//given
-		ServiceEntity service = serviceRepository.save(ServiceEntity.builder()
+		InfraServiceEntity service = serviceRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
@@ -157,17 +157,31 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 
 		//when
 		boolean exists = serviceRepository.existsByName(service.name);
-		boolean nonExists = serviceRepository.existsByName("wrong_name");
 
 		//then
 		assertThat(exists).isTrue();
+	}
+
+	@Test
+	void savedInfraServiceDoesNotExistByName() {
+		//given
+		InfraServiceEntity service = serviceRepository.save(InfraServiceEntity.builder()
+			.name("name")
+			.siteId(siteId)
+			.description("description")
+			.build());
+
+		//when
+		boolean nonExists = serviceRepository.existsByName("wrong_name");
+
+		//then
 		assertThat(nonExists).isFalse();
 	}
 
 	@Test
-	void shouldDeleteService() {
+	void shouldDeleteInfraService() {
 		//given
-		ServiceEntity entityToRemove = serviceRepository.save(ServiceEntity.builder()
+		InfraServiceEntity entityToRemove = serviceRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
@@ -181,14 +195,14 @@ class ServiceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldDeleteAllServices() {
+	void shouldInfraDeleteAllServices() {
 		//given
-		serviceRepository.save(ServiceEntity.builder()
+		serviceRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
 			.build());
-		serviceRepository.save(ServiceEntity.builder()
+		serviceRepository.save(InfraServiceEntity.builder()
 			.name("new_name")
 			.siteId(siteId2)
 			.description("new_description")
