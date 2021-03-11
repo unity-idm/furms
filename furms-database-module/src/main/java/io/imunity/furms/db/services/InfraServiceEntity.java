@@ -6,27 +6,27 @@
 package io.imunity.furms.db.services;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @Table("service")
-public class ServiceEntity extends UUIDIdentifiable {
+class InfraServiceEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final String name;
 	public final String description;
 
-	public ServiceEntity(UUID id, UUID siteId, String name, String description) {
+	InfraServiceEntity(UUID id, UUID siteId, String name, String description) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.description = description;
 	}
 
-	public Service toService(){
-		return Service.builder()
+	InfraService toService(){
+		return InfraService.builder()
 			.id(id.toString())
 			.name(name)
 			.description(description)
@@ -38,7 +38,7 @@ public class ServiceEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ServiceEntity that = (ServiceEntity) o;
+		InfraServiceEntity that = (InfraServiceEntity) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
@@ -93,8 +93,8 @@ public class ServiceEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ServiceEntity build() {
-			return new ServiceEntity(id, siteId, name, description);
+		public InfraServiceEntity build() {
+			return new InfraServiceEntity(id, siteId, name, description);
 		}
 	}
 }

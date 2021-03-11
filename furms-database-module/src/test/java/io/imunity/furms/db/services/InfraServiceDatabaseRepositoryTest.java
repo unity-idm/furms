@@ -7,7 +7,7 @@ package io.imunity.furms.db.services;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,16 +23,16 @@ import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
+class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
 
 	@Autowired
-	private ServiceDatabaseRepository repository;
+	private InfraServiceDatabaseRepository repository;
 
 	@Autowired
-	private ServiceEntityRepository entityRepository;
+	private InfraServiceEntityRepository entityRepository;
 
 	private UUID siteId;
 
@@ -49,9 +49,9 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindCreatedService() {
+	void shouldFindCreatedInfraService() {
 		//given
-		ServiceEntity entity = entityRepository.save(ServiceEntity.builder()
+		InfraServiceEntity entity = entityRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.description("new_description")
 			.siteId(siteId)
@@ -59,11 +59,11 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Optional<Service> byId = repository.findById(entity.getId().toString());
+		Optional<InfraService> byId = repository.findById(entity.getId().toString());
 
 		//then
 		assertThat(byId).isPresent();
-		Service project = byId.get();
+		InfraService project = byId.get();
 		assertThat(project.id).isEqualTo(entity.getId().toString());
 		assertThat(project.name).isEqualTo(entity.name);
 		assertThat(project.description).isEqualTo(entity.description);
@@ -73,7 +73,7 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldNotFindByIdIfDoesntExist() {
 		//given
 		UUID wrongId = generateId();
-		entityRepository.save(ServiceEntity.builder()
+		entityRepository.save(InfraServiceEntity.builder()
 				.siteId(siteId)
 				.name("name")
 				.description("new_description")
@@ -81,22 +81,22 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Optional<Service> byId = repository.findById(wrongId.toString());
+		Optional<InfraService> byId = repository.findById(wrongId.toString());
 
 		//then
 		assertThat(byId).isEmpty();
 	}
 
 	@Test
-	void shouldFindAllServices() {
+	void shouldFindAllInfraServices() {
 		//given
-		entityRepository.save(ServiceEntity.builder()
+		entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
 			.build()
 		);
-		entityRepository.save(ServiceEntity.builder()
+		entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name2")
 			.description("new_description")
@@ -104,16 +104,16 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Set<Service> all = repository.findAll(siteId.toString());
+		Set<InfraService> all = repository.findAll(siteId.toString());
 
 		//then
 		assertThat(all).hasSize(2);
 	}
 
 	@Test
-	void shouldCreateService() {
+	void shouldCreateInfraService() {
 		//given
-		Service request = Service.builder()
+		InfraService request = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("name")
 			.description("new_description")
@@ -123,22 +123,22 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		String newServiceId = repository.create(request);
 
 		//then
-		Optional<Service> byId = repository.findById(newServiceId);
+		Optional<InfraService> byId = repository.findById(newServiceId);
 		assertThat(byId).isPresent();
 		assertThat(byId.get().id).isNotNull();
 		assertThat(byId.get().name).isEqualTo("name");
 	}
 
 	@Test
-	void shouldUpdateService() {
+	void shouldUpdateInfraService() {
 		//given
-		ServiceEntity old = entityRepository.save(ServiceEntity.builder()
+		InfraServiceEntity old = entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("description")
 			.build()
 		);
-		Service requestToUpdate = Service.builder()
+		InfraService requestToUpdate = InfraService.builder()
 			.id(old.getId().toString())
 			.siteId(siteId.toString())
 			.name("new_name")
@@ -149,16 +149,16 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		repository.update(requestToUpdate);
 
 		//then
-		Optional<Service> byId = repository.findById(old.getId().toString());
+		Optional<InfraService> byId = repository.findById(old.getId().toString());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().name).isEqualTo("new_name");
 		assertThat(byId.get().description).isEqualTo("new_description");
 	}
 
 	@Test
-	void savedServiceExists() {
+	void savedInfraServiceExists() {
 		//given
-		ServiceEntity entity = entityRepository.save(ServiceEntity.builder()
+		InfraServiceEntity entity = entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
@@ -183,7 +183,7 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnTrueForUniqueName() {
 		//given
-		entityRepository.save(ServiceEntity.builder()
+		entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
@@ -198,7 +198,7 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnFalseForNonUniqueName() {
 		//given
-		ServiceEntity existedService = entityRepository.save(ServiceEntity.builder()
+		InfraServiceEntity existedService = entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
@@ -208,6 +208,21 @@ class ServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(repository.isUniqueName(existedService.name)).isFalse();
 	}
 
+	@Test
+	void shouldRemoveInfraServiceWhenAssociatedSiteHasRemoved() {
+		//given
+		InfraServiceEntity entity = entityRepository.save(InfraServiceEntity.builder()
+			.name("name")
+			.description("new_description")
+			.siteId(siteId)
+			.build()
+		);
 
+		//when
+		siteRepository.delete(siteId.toString());
+
+		//then
+		assertThat(repository.findById(entity.getId().toString())).isEmpty();
+	}
 
 }

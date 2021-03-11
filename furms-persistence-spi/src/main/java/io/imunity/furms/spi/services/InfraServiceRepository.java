@@ -6,21 +6,21 @@
 package io.imunity.furms.spi.services;
 
 
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 
 import java.util.Optional;
 import java.util.Set;
 
-public interface ServiceRepository {
-	Optional<Service> findById(String id);
+public interface InfraServiceRepository {
+	Optional<InfraService> findById(String id);
 
-	Set<Service> findAll(String siteId);
+	Set<InfraService> findAll(String siteId);
 
-	Set<Service> findAll();
+	Set<InfraService> findAll();
 
-	String create(Service service);
+	String create(InfraService infraService);
 
-	String update(Service service);
+	String update(InfraService infraService);
 
 	boolean exists(String id);
 

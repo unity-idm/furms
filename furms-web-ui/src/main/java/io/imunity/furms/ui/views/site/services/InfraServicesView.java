@@ -14,7 +14,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.services.ServiceService;
+import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -29,13 +29,13 @@ import static java.util.stream.Collectors.toList;
 
 @Route(value = "site/admin/services", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.services.page.title")
-public class ServicesView extends FurmsViewComponent {
+public class InfraServicesView extends FurmsViewComponent {
 
-	private final ServiceService serviceService;
+	private final InfraServiceService infraServiceService;
 	private final Grid<ServiceViewModel> grid;
 
-	public ServicesView(ServiceService serviceService) {
-		this.serviceService = serviceService;
+	public InfraServicesView(InfraServiceService infraServiceService) {
+		this.infraServiceService = infraServiceService;
 		this.grid = createCommunityGrid();
 
 		Button addButton = createAddButton();
@@ -50,14 +50,14 @@ public class ServicesView extends FurmsViewComponent {
 
 	private Button createAddButton() {
 		Button addButton = new Button(getTranslation("view.site-admin.service.button.add"), PLUS_CIRCLE.create());
-		addButton.addClickListener(x -> UI.getCurrent().navigate(ServiceFormView.class));
+		addButton.addClickListener(x -> UI.getCurrent().navigate(InfraServiceFormView.class));
 		return addButton;
 	}
 
 	private Grid<ServiceViewModel> createCommunityGrid() {
 		Grid<ServiceViewModel> grid = new SparseGrid<>(ServiceViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, ServiceFormView.class, c.id))
+		grid.addComponentColumn(c -> new RouterLink(c.name, InfraServiceFormView.class, c.id))
 			.setHeader(getTranslation("view.site-admin.service.grid.column.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -82,7 +82,7 @@ public class ServicesView extends FurmsViewComponent {
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.service.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ServiceFormView.class, serviceId)
+			event -> UI.getCurrent().navigate(InfraServiceFormView.class, serviceId)
 		);
 
 		Dialog confirmDialog = createConfirmDialog(serviceId, serviceName);
@@ -99,7 +99,7 @@ public class ServicesView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String serviceId, String serviceName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.service.dialog.text", serviceName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> serviceService.delete(serviceId));
+			handleExceptions(() -> infraServiceService.delete(serviceId));
 			loadGridContent();
 		});
 		return furmsDialog;
@@ -110,10 +110,10 @@ public class ServicesView extends FurmsViewComponent {
 	}
 
 	private List<ServiceViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> serviceService.findAll(getCurrentResourceId()))
+		return handleExceptions(() -> infraServiceService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(ServiceViewModelMapper::map)
+			.map(InfraServiceViewModelMapper::map)
 			.sorted(comparing(serviceViewModel -> serviceViewModel.name.toLowerCase()))
 			.collect(toList());
 	}
