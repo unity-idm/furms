@@ -10,7 +10,7 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.Type;
 import io.imunity.furms.domain.resource_types.Unit;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ResourceTypeServiceImplValidatorTest {
 	@Mock
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository serviceRepository;
 	@Mock
 	private SiteRepository siteRepository;
 	@Mock

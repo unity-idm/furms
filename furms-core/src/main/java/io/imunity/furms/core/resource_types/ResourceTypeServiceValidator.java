@@ -10,7 +10,7 @@ import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
@@ -24,16 +24,16 @@ import static org.springframework.util.Assert.notNull;
 @Component
 class ResourceTypeServiceValidator {
 	private final ResourceTypeRepository resourceTypeRepository;
-	private final ServiceRepository serviceRepository;
+	private final InfraServiceRepository infraServiceRepository;
 	private final SiteRepository siteRepository;
 
 	public ResourceTypeServiceValidator(
 		ResourceTypeRepository resourceTypeRepository,
-		ServiceRepository serviceRepository,
+		InfraServiceRepository infraServiceRepository,
 		SiteRepository siteRepository
 	) {
 		this.resourceTypeRepository = resourceTypeRepository;
-		this.serviceRepository = serviceRepository;
+		this.infraServiceRepository = infraServiceRepository;
 		this.siteRepository = siteRepository;
 	}
 
@@ -88,7 +88,7 @@ class ResourceTypeServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Resource Type ID has to be declared.");
-		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID is not exists."));
+		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
 	private void validateSiteId(String id) {
@@ -98,7 +98,7 @@ class ResourceTypeServiceValidator {
 
 	private void validateServiceId(String id) {
 		notNull(id, "Service ID has to be declared.");
-		check(serviceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
+		check(infraServiceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
 	}
 
 	private void validateUpdateSiteId(ResourceType resourceType) {

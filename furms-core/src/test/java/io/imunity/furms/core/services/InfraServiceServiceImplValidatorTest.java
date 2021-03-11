@@ -5,8 +5,8 @@
 
 package io.imunity.furms.core.services;
 
-import io.imunity.furms.domain.services.Service;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,105 +22,105 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceServiceImplValidatorTest {
+class InfraServiceServiceImplValidatorTest {
 	@Mock
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository infraServiceRepository;
 	@Mock
 	private SiteRepository siteRepository;
 
 	@InjectMocks
-	private ServiceServiceValidator validator;
+	private InfraServiceServiceValidator validator;
 
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
-		Service service = Service.builder()
+		InfraService infraService = InfraService.builder()
 			.siteId("id")
 			.name("name")
 			.build();
 
-		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(serviceRepository.isUniqueName(any())).thenReturn(true);
+		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
+		when(infraServiceRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateCreate(service));
+		assertDoesNotThrow(() -> validator.validateCreate(infraService));
 	}
 
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
-		Service service = Service.builder()
+		InfraService infraService = InfraService.builder()
 			.siteId("id")
 			.name("name")
 			.description("description")
 			.build();
 
-		when(serviceRepository.isUniqueName(any())).thenReturn(false);
-		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		Service secondService = Service.builder().name("a").build();
-		when(serviceRepository.findById(any())).thenReturn(Optional.of(secondService));
+		when(infraServiceRepository.isUniqueName(any())).thenReturn(false);
+		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
+		InfraService secondInfraService = InfraService.builder().name("a").build();
+		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(secondInfraService));
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(infraService));
 	}
 
 	@Test
 	void shouldNotPassCreateForNonExistingSiteId() {
 		//given
-		Service service = Service.builder()
+		InfraService infraService = InfraService.builder()
 			.siteId("id")
 			.name("name")
 			.description("description")
 			.build();
 
-		when(siteRepository.exists(service.siteId)).thenReturn(false);
+		when(siteRepository.exists(infraService.siteId)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(infraService));
 	}
 
 	@Test
 	void shouldNotPassCreateForNullSiteId() {
 		//given
-		Service service = Service.builder()
+		InfraService infraService = InfraService.builder()
 			.name("name")
 			.description("description")
 			.build();
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(infraService));
 	}
 
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final Service service = Service.builder()
+		final InfraService infraService = InfraService.builder()
 			.id("id")
 			.siteId("id")
 			.name("name")
 			.description("description")
 			.build();
 
-		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(serviceRepository.exists(service.id)).thenReturn(true);
-		when(serviceRepository.isUniqueName(any())).thenReturn(true);
-		when(serviceRepository.findById(any())).thenReturn(Optional.of(service));
+		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
+		when(infraServiceRepository.exists(infraService.id)).thenReturn(true);
+		when(infraServiceRepository.isUniqueName(any())).thenReturn(true);
+		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(infraService));
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate(service));
+		assertDoesNotThrow(() -> validator.validateUpdate(infraService));
 	}
 
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
-		Service community = Service.builder()
+		InfraService community = InfraService.builder()
 			.id("id")
 			.siteId("id")
 			.name("name")
 			.description("description")
 			.build();
 
-		when(serviceRepository.exists(community.id)).thenReturn(false);
+		when(infraServiceRepository.exists(community.id)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
@@ -129,21 +129,21 @@ class ServiceServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
-		Service community = Service.builder()
+		InfraService community = InfraService.builder()
 			.id("id")
 			.siteId("id")
 			.name("name")
 			.description("description")
 			.build();
-		Service secondService = Service.builder()
+		InfraService secondInfraService = InfraService.builder()
 			.siteId("id")
 			.name("a")
 			.build();
 
-		when(serviceRepository.exists(community.id)).thenReturn(true);
-		when(serviceRepository.isUniqueName(any())).thenReturn(false);
+		when(infraServiceRepository.exists(community.id)).thenReturn(true);
+		when(infraServiceRepository.isUniqueName(any())).thenReturn(false);
 		when(siteRepository.exists(any())).thenReturn(true);
-		when(serviceRepository.findById(any())).thenReturn(Optional.of(secondService));
+		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(secondInfraService));
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
 	}
@@ -153,7 +153,7 @@ class ServiceServiceImplValidatorTest {
 		//given
 		final String id = "id";
 
-		when(serviceRepository.exists(id)).thenReturn(true);
+		when(infraServiceRepository.exists(id)).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -164,7 +164,7 @@ class ServiceServiceImplValidatorTest {
 		//given
 		final String id = "id";
 
-		when(serviceRepository.exists(id)).thenReturn(false);
+		when(infraServiceRepository.exists(id)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));

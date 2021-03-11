@@ -10,9 +10,9 @@ import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.Type;
 import io.imunity.furms.domain.resource_types.Unit;
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 	private SiteRepository siteRepository;
 
 	@Autowired
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository infraServiceRepository;
 
 	@Autowired
 	private ResourceTypeDatabaseRepository repository;
@@ -58,20 +58,20 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		siteId = UUID.fromString(siteRepository.create(site));
 		String siteId2 = siteRepository.create(site2);
 
-		Service service = Service.builder()
+		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("name")
 			.build();
-		Service service1 = Service.builder()
+		InfraService service1 = InfraService.builder()
 			.siteId(siteId2)
 			.name("name1")
 			.build();
-		serviceId = UUID.fromString(serviceRepository.create(service));
-		serviceRepository.create(service1);
+		serviceId = UUID.fromString(infraServiceRepository.create(service));
+		infraServiceRepository.create(service1);
 	}
 
 	@Test
-	void shouldFindCreatedService() {
+	void shouldFindCreatedInfraService() {
 		//given
 		ResourceTypeEntity entity = entityRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
@@ -254,6 +254,41 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(repository.isUniqueName(existedResourceType.name)).isFalse();
 	}
 
+	@Test
+	void shouldRemoveResourceTypeWhenSiteHasRemoved() {
+		//given
+		ResourceTypeEntity entity = entityRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("name")
+			.type(Type.FLOATING_POINT)
+			.unit(Unit.SiUnit.A)
+			.build()
+		);
 
+		//when
+		siteRepository.delete(siteId.toString());
 
+		//then
+		assertThat(repository.findById(entity.getId().toString())).isEmpty();
+	}
+
+	@Test
+	void shouldRemoveResourceTypeWhenInfraServiceHasRemoved() {
+		//given
+		ResourceTypeEntity entity = entityRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("name")
+			.type(Type.FLOATING_POINT)
+			.unit(Unit.SiUnit.A)
+			.build()
+		);
+
+		//when
+		infraServiceRepository.delete(siteId.toString());
+
+		//then
+		assertThat(repository.findById(entity.getId().toString())).isEmpty();
+	}
 }

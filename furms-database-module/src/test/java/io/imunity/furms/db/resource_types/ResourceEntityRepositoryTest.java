@@ -9,9 +9,9 @@ package io.imunity.furms.db.resource_types;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_types.Type;
 import io.imunity.furms.domain.resource_types.Unit;
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private SiteRepository siteRepository;
 	@Autowired
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository infraServiceRepository;
 	@Autowired
 	private ResourceTypeEntityRepository resourceTypeRepository;
 
@@ -52,16 +52,16 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		siteId = UUID.fromString(siteRepository.create(site));
 		siteId2 = UUID.fromString(siteRepository.create(site1));
 
-		Service service = Service.builder()
+		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("name")
 			.build();
-		Service service1 = Service.builder()
+		InfraService service1 = InfraService.builder()
 			.siteId(siteId2.toString())
 			.name("name1")
 			.build();
-		serviceId = UUID.fromString(serviceRepository.create(service));
-		serviceId2 = UUID.fromString(serviceRepository.create(service1));
+		serviceId = UUID.fromString(infraServiceRepository.create(service));
+		serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
 	}
 
 	@Test
@@ -184,7 +184,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void savedServiceExistsByName() {
+	void savedResourceTypeExistsByName() {
 		//given
 		ResourceTypeEntity service = resourceTypeRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
@@ -196,10 +196,26 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 
 		//when
 		boolean exists = resourceTypeRepository.existsByName(service.name);
-		boolean nonExists = resourceTypeRepository.existsByName("wrong_name");
 
 		//then
 		assertThat(exists).isTrue();
+	}
+
+	@Test
+	void savedResourceTypeDoesNotExistByName() {
+		//given
+		resourceTypeRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("name")
+			.type(Type.DATA)
+			.unit(Unit.DataUnit.GB)
+			.build());
+
+		//when
+		boolean nonExists = resourceTypeRepository.existsByName("wrong_name");
+
+		//then
 		assertThat(nonExists).isFalse();
 	}
 

@@ -7,13 +7,13 @@ package io.imunity.furms.domain.services;
 
 import java.util.Objects;
 
-public class Service {
+public class InfraService {
 	public final String id;
 	public final String name;
 	public final String description;
 	public final String siteId;
 
-	public Service(String id, String name, String description, String siteId) {
+	public InfraService(String id, String name, String description, String siteId) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -24,11 +24,11 @@ public class Service {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Service service = (Service) o;
-		return Objects.equals(id, service.id) &&
-			Objects.equals(name, service.name) &&
-			Objects.equals(description, service.description) &&
-			Objects.equals(siteId, service.siteId);
+		InfraService infraService = (InfraService) o;
+		return Objects.equals(id, infraService.id) &&
+			Objects.equals(name, infraService.name) &&
+			Objects.equals(description, infraService.description) &&
+			Objects.equals(siteId, infraService.siteId);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class Service {
 
 	@Override
 	public String toString() {
-		return "Service{" +
+		return "InfraService{" +
 			"id='" + id + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
@@ -79,8 +79,8 @@ public class Service {
 			return this;
 		}
 
-		public Service build() {
-			return new Service(id, name, description, siteId);
+		public InfraService build() {
+			return new InfraService(id, name, description, siteId);
 		}
 	}
 }

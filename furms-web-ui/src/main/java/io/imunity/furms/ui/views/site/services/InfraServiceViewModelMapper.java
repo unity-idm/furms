@@ -5,20 +5,20 @@
 
 package io.imunity.furms.ui.views.site.services;
 
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 
-class ServiceViewModelMapper {
-	static ServiceViewModel map(Service service) {
+class InfraServiceViewModelMapper {
+	static ServiceViewModel map(InfraService infraService) {
 		return ServiceViewModel.builder()
-			.id(service.id)
-			.siteId(service.siteId)
-			.name(service.name)
-			.description(service.description)
+			.id(infraService.id)
+			.siteId(infraService.siteId)
+			.name(infraService.name)
+			.description(infraService.description)
 			.build();
 	}
 
-	public static Service map(ServiceViewModel serviceViewModel){
-		return Service.builder()
+	public static InfraService map(ServiceViewModel serviceViewModel){
+		return InfraService.builder()
 			.id(serviceViewModel.id)
 			.siteId(serviceViewModel.siteId)
 			.name(serviceViewModel.name)

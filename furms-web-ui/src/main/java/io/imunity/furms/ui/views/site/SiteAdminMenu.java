@@ -13,7 +13,7 @@ import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
 import io.imunity.furms.ui.views.site.resource_credits.ResourceCreditsView;
 import io.imunity.furms.ui.views.site.resource_types.ResourceTypesView;
-import io.imunity.furms.ui.views.site.services.ServicesView;
+import io.imunity.furms.ui.views.site.services.InfraServicesView;
 import io.imunity.furms.ui.views.site.settings.SettingsView;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class SiteAdminMenu extends FurmsAppLayout {
 		furmsLayout = new FurmsLayout(
 			List.of(
 				MenuComponent.builder(PolicyDocumentsView.class).build(),
-				MenuComponent.builder(ServicesView.class).build(),
+				MenuComponent.builder(InfraServicesView.class).build(),
 				MenuComponent.builder(ResourceTypesView.class).build(),
 				MenuComponent.builder(ResourceCreditsView.class).build(),
 				MenuComponent.builder(PendingRequestsView.class).build(),
