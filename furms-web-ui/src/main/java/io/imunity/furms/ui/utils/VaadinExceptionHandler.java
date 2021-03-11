@@ -7,6 +7,7 @@ package io.imunity.furms.ui.utils;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
+import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,13 @@ public class VaadinExceptionHandler {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("community.removing.error.message"));
 			return Optional.empty();
-		}catch (Exception e){
+		}
+		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("resource-type.removing.error.message"));
+			return Optional.empty();
+		}
+		catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 			return Optional.empty();
@@ -55,7 +62,12 @@ public class VaadinExceptionHandler {
 		}catch (RemovingCommunityException e){
 			LOG.error(e.getMessage(), e);
 			return OptionalException.of(new FrontException("community.removing.error.message", e));
-		}catch (Exception e){
+		}
+		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
+			LOG.error(e.getMessage(), e);
+			return OptionalException.of(new FrontException("resource-type.removing.error.message", e));
+		}
+		catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			return OptionalException.of(new FrontException("base.error.message", e));
 		}

@@ -24,6 +24,8 @@ public interface ResourceCreditRepository {
 
 	boolean exists(String id);
 
+	boolean existsByResourceTypeId(String id);
+
 	boolean isUniqueName(String name);
 
 	void delete(String id);

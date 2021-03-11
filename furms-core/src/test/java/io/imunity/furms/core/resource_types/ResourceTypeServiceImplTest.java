@@ -6,6 +6,7 @@
 package io.imunity.furms.core.resource_types;
 
 import io.imunity.furms.domain.resource_types.*;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -32,6 +33,8 @@ class ResourceTypeServiceImplTest {
 	@Mock
 	private InfraServiceRepository infraServiceRepository;
 	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private ResourceTypeServiceImpl service;
@@ -40,7 +43,7 @@ class ResourceTypeServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		ResourceTypeServiceValidator validator = new ResourceTypeServiceValidator(resourceTypeRepository, infraServiceRepository, siteRepository);
+		ResourceTypeServiceValidator validator = new ResourceTypeServiceValidator(resourceTypeRepository, resourceCreditRepository, infraServiceRepository, siteRepository);
 		service = new ResourceTypeServiceImpl(resourceTypeRepository, validator, publisher);
 		orderVerifier = inOrder(resourceTypeRepository, publisher);
 	}

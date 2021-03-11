@@ -92,7 +92,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		);
 	}
 
-	private Component createContextMenu(String resourceTypeId, String serviceName) {
+	private Component createContextMenu(String resourceTypeId, String resourceCreditName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
@@ -100,7 +100,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			event -> UI.getCurrent().navigate(ResourceCreditFormView.class, resourceTypeId)
 		);
 
-		Dialog confirmDialog = createConfirmDialog(resourceTypeId, serviceName);
+		Dialog confirmDialog = createConfirmDialog(resourceTypeId, resourceCreditName);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-credits.menu.delete"), TRASH),
@@ -111,8 +111,8 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String resourceTypeId, String serviceName) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-credits.dialog.text", serviceName));
+	private Dialog createConfirmDialog(String resourceTypeId, String resourceCreditName) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-credits.dialog.text", resourceCreditName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			handleExceptions(() -> resourceCreditService.delete(resourceTypeId));
 			loadGridContent();

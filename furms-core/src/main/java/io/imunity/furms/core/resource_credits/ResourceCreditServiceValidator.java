@@ -93,8 +93,8 @@ class ResourceCreditServiceValidator {
 	}
 
 	private void validateResourceTypeId(String id) {
-		notNull(id, "Service ID has to be declared.");
-		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
+		notNull(id, "ResourceType ID has to be declared.");
+		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
 	private void validateUpdateSiteId(ResourceCredit resourceCredit) {

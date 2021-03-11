@@ -286,7 +286,7 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		infraServiceRepository.delete(siteId.toString());
+		infraServiceRepository.delete(serviceId.toString());
 
 		//then
 		assertThat(repository.findById(entity.getId().toString())).isEmpty();

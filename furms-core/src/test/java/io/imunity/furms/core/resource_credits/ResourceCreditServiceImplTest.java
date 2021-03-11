@@ -51,7 +51,7 @@ class ResourceCreditServiceImplTest {
 	}
 
 	@Test
-	void shouldReturnServiceIfExistsInRepository() {
+	void shouldReturnResourceCredit() {
 		//given
 		String id = "id";
 		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(ResourceCredit.builder()
@@ -62,11 +62,26 @@ class ResourceCreditServiceImplTest {
 
 		//when
 		Optional<ResourceCredit> byId = service.findById(id);
-		Optional<ResourceCredit> otherId = service.findById("otherId");
 
 		//then
 		assertThat(byId).isPresent();
 		assertThat(byId.get().id).isEqualTo(id);
+	}
+
+	@Test
+	void shouldNotReturnResourceCredit() {
+		//given
+		String id = "id";
+		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(ResourceCredit.builder()
+			.id(id)
+			.name("name")
+			.build())
+		);
+
+		//when
+		Optional<ResourceCredit> otherId = service.findById("otherId");
+
+		//then
 		assertThat(otherId).isEmpty();
 	}
 

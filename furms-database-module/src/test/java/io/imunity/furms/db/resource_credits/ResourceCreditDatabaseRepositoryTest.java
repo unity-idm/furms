@@ -11,10 +11,10 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.Type;
 import io.imunity.furms.domain.resource_types.Unit;
-import io.imunity.furms.domain.services.Service;
+import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.ServiceRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	private SiteRepository siteRepository;
 
 	@Autowired
-	private ServiceRepository serviceRepository;
+	private InfraServiceRepository infraServiceRepository;
 
 	@Autowired
 	private ResourceTypeRepository resourceTypeRepository;
@@ -75,17 +75,17 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		siteId = UUID.fromString(siteRepository.create(site));
 		siteId2 = UUID.fromString(siteRepository.create(site1));
 
-		Service service = Service.builder()
+		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("name")
 			.build();
-		Service service1 = Service.builder()
+		InfraService service1 = InfraService.builder()
 			.siteId(siteId2.toString())
 			.name("name1")
 			.build();
 
-		UUID serviceId = UUID.fromString(serviceRepository.create(service));
-		UUID serviceId2 = UUID.fromString(serviceRepository.create(service1));
+		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
 
 
 		ResourceType resourceType = ResourceType.builder()
@@ -343,6 +343,63 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(repository.isUniqueName(existedResourceCredit.name)).isFalse();
 	}
 
+	@Test
+	void shouldReturnTrueForExistingResourceTypeId() {
+		//given
+		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("new_name")
+			.split(true)
+			.access(false)
+			.amount(new BigDecimal(434))
+			.createTime(createTime2)
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build());
 
+		//when + then
+		assertThat(repository.existsByResourceTypeId(existedResourceCredit.resourceTypeId.toString())).isTrue();
+	}
 
+	@Test
+	void shouldReturnFalseForNonExistingResourceTypeId() {
+		//given
+		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("new_name")
+			.split(true)
+			.access(false)
+			.amount(new BigDecimal(434))
+			.createTime(createTime2)
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build());
+
+		//when + then
+		assertThat(repository.existsByResourceTypeId(resourceTypeId2.toString())).isFalse();
+	}
+
+	@Test
+	void shouldRemoveResourceCreditWhenSiteHasRemoved() {
+		//given
+		ResourceCreditEntity entity = entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("name")
+			.split(true)
+			.access(true)
+			.amount(new BigDecimal(100))
+			.createTime(createTime)
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
+
+		//when
+		siteRepository.delete(siteId.toString());
+		//then
+		assertThat(repository.findById(entity.getId().toString())).isEmpty();
+	}
 }
