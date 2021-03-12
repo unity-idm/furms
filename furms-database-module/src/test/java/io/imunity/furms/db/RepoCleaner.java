@@ -4,12 +4,11 @@
  */
 package io.imunity.furms.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RepoCleaner {
