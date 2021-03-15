@@ -31,10 +31,10 @@ public class CentralIdPRestAPIControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-	
+
 	@MockBean
 	private UserService userService;
-	
+
 	@Test
 	public void shouldSetStatus() throws Exception {
 		this.mockMvc.perform(post("/rest-api/v1/cidp/user/F_ID/status")

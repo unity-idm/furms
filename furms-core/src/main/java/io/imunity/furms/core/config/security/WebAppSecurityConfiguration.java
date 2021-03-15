@@ -16,6 +16,7 @@ import java.lang.invoke.MethodHandles;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
+import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
 import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,20 +47,27 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
 	private final FurmsOauthTokenExtender furmsOauthTokenExtender;
+	private final FurmsOauthLogoutFilter furmsOauthLogoutFilter;
 
-	WebAppSecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                            TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader, FurmsOauthTokenExtender furmsOauthTokenExtender) {
+	WebAppSecurityConfiguration(RestTemplate unityRestTemplate,
+	                            ClientRegistrationRepository clientRegistrationRepo,
+	                            TokenRevokerHandler tokenRevokerHandler,
+	                            RoleLoader roleLoader,
+	                            FurmsOauthTokenExtender furmsOauthTokenExtender,
+	                            FurmsOauthLogoutFilter furmsOauthLogoutFilter) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
 		this.furmsOauthTokenExtender = furmsOauthTokenExtender;
+		this.furmsOauthLogoutFilter = furmsOauthLogoutFilter;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.addFilterAfter(furmsOauthTokenExtender, ConcurrentSessionFilter.class)
+			.addFilterAfter(furmsOauthLogoutFilter, ConcurrentSessionFilter.class)
+			.addFilterAfter(furmsOauthTokenExtender, FurmsOauthLogoutFilter.class)
 
 			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()

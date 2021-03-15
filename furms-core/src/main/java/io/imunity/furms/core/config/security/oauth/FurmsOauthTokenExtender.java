@@ -62,7 +62,6 @@ public class FurmsOauthTokenExtender extends OncePerRequestFilter {
 						oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
 					} catch (Exception e) {
 						LOG.error("Could not refresh Oauth token: ", e);
-						return;
 					}
 				}
 			}

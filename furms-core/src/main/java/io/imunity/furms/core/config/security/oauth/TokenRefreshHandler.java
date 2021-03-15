@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import static org.springframework.security.oauth2.core.OAuth2AccessToken.TokenType.BEARER;
 
 @Component
-class TokenRefreshHandler {
+public class TokenRefreshHandler {
 
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	private final AccessTokenRepository tokenRepository;

@@ -33,7 +33,7 @@ public class APIAuthNTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-	
+
 	@MockBean
 	private UserService userService;
 	
