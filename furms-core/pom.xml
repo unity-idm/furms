@@ -57,6 +57,12 @@
 			<artifactId>furms-persistence-spi</artifactId>
 		</dependency>
 
+		<!-- Tools -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

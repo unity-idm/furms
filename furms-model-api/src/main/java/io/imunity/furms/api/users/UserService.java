@@ -10,7 +10,6 @@ import io.imunity.furms.domain.users.*;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface UserService {
 	List<FURMSUser> getAllUsers();
 	List<FURMSUser> getFenixAdmins();

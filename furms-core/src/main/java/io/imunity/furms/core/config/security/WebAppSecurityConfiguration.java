@@ -16,6 +16,7 @@ import java.lang.invoke.MethodHandles;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
+import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
@@ -43,18 +45,22 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
+	private final FurmsOauthTokenExtender furmsOauthTokenExtender;
 
 	WebAppSecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                      TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader) {
+	                            TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader, FurmsOauthTokenExtender furmsOauthTokenExtender) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
+		this.furmsOauthTokenExtender = furmsOauthTokenExtender;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+			.addFilterAfter(furmsOauthTokenExtender, ConcurrentSessionFilter.class)
+
 			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
 
@@ -62,10 +68,8 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().requestMatchers().requestMatchers(new NonErrorDispatcherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 
-
 			// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
 			.and().csrf().disable()
-
 
 			// Configure logout
 			.logout().logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
