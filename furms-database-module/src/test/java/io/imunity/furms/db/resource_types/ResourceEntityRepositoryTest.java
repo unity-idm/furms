@@ -7,8 +7,8 @@ package io.imunity.furms.db.resource_types;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -71,8 +71,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
 			.build();
 
 		//when
@@ -85,8 +85,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().siteId).isEqualTo(siteId);
 		assertThat(byId.get().serviceId).isEqualTo(serviceId);
 		assertThat(byId.get().name).isEqualTo("name");
-		assertThat(byId.get().type).isEqualTo(Type.FLOATING_POINT);
-		assertThat(byId.get().unit).isEqualTo(Unit.SiUnit.A);
+		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
+		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.SiUnit.giga);
 	}
 
 	@Test
@@ -96,16 +96,16 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
 			.build();
 		resourceTypeRepository.save(old);
 		ResourceTypeEntity toUpdate = ResourceTypeEntity.builder()
 			.siteId(siteId)
 			.serviceId(serviceId2)
 			.name("name2")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		//when
@@ -117,8 +117,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().siteId).isEqualTo(siteId);
 		assertThat(byId.get().serviceId).isEqualTo(serviceId2);
 		assertThat(byId.get().name).isEqualTo("name2");
-		assertThat(byId.get().type).isEqualTo(Type.DATA);
-		assertThat(byId.get().unit).isEqualTo(Unit.DataUnit.GB);
+		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.DATA);
+		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.DataUnit.GB);
 	}
 
 	@Test
@@ -128,8 +128,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
 			.build();
 		resourceTypeRepository.save(toFind);
 
@@ -147,16 +147,16 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
 			.build()
 		);
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name1")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build()
 		);
 
@@ -174,8 +174,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build());
 
 		//when + then
@@ -190,8 +190,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build());
 
 		//when
@@ -208,8 +208,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build());
 
 		//when
@@ -226,8 +226,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build());
 
 		//when
@@ -244,15 +244,15 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build());
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name1")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
 			.build());
 
 		//when

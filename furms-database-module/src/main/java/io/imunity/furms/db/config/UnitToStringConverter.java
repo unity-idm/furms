@@ -5,15 +5,15 @@
 
 package io.imunity.furms.db.config;
 
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
 
 @WritingConverter
-class UnitToStringConverter implements Converter<Unit, String> {
+class UnitToStringConverter implements Converter<ResourceMeasureUnit, String> {
 
 	@Override
-	public String convert(Unit unit) {
+	public String convert(ResourceMeasureUnit unit) {
 		return unit.toString();
 	}
 }

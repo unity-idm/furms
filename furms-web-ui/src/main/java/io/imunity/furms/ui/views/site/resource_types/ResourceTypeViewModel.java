@@ -5,8 +5,8 @@
 
 package io.imunity.furms.ui.views.site.resource_types;
 
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.util.Objects;
 
@@ -15,10 +15,10 @@ class ResourceTypeViewModel {
 	public final String siteId;
 	public String serviceId;
 	public String name;
-	public Type type;
-	public Unit unit;
+	public ResourceMeasureType type;
+	public ResourceMeasureUnit unit;
 
-	private ResourceTypeViewModel(String id, String siteId, String serviceId, String name, Type type, Unit unit) {
+	private ResourceTypeViewModel(String id, String siteId, String serviceId, String name, ResourceMeasureType type, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
@@ -41,19 +41,19 @@ class ResourceTypeViewModel {
 		this.name = name;
 	}
 
-	public Type getType() {
+	public ResourceMeasureType getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(ResourceMeasureType type) {
 		this.type = type;
 	}
 
-	public Unit getUnit() {
+	public ResourceMeasureUnit getUnit() {
 		return unit;
 	}
 
-	public void setUnit(Unit unit) {
+	public void setUnit(ResourceMeasureUnit unit) {
 		this.unit = unit;
 	}
 
@@ -99,8 +99,8 @@ class ResourceTypeViewModel {
 		public String siteId;
 		public String serviceId;
 		public String name;
-		public Type type;
-		public Unit unit;
+		public ResourceMeasureType type;
+		public ResourceMeasureUnit unit;
 
 		private ResourceTypeViewModelBuilder() {
 		}
@@ -125,12 +125,12 @@ class ResourceTypeViewModel {
 			return this;
 		}
 
-		public ResourceTypeViewModelBuilder type(Type type) {
+		public ResourceTypeViewModelBuilder type(ResourceMeasureType type) {
 			this.type = type;
 			return this;
 		}
 
-		public ResourceTypeViewModelBuilder unit(Unit unit) {
+		public ResourceTypeViewModelBuilder unit(ResourceMeasureUnit unit) {
 			this.unit = unit;
 			return this;
 		}
