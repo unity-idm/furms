@@ -32,6 +32,8 @@
 
 		<unity.version>3.4.0</unity.version>
 
+		<qpid-broker.version>8.0.4</qpid-broker.version>
+
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.language>java</sonar.language>
 		<sonar.java.source>11</sonar.java.source>
@@ -63,6 +65,8 @@
 		<module>furms-web-ui</module>
 		<module>furms-database-module</module>
 		<module>furms-unity-client</module>
+		<module>furms-broker</module>
+		<module>furms-site-api</module>
 	</modules>
 
 	<developers>
@@ -133,6 +137,28 @@
 				<version>${spring.boot.version}</version>
 				<scope>test</scope>
 			</dependency>
+
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-core</artifactId>
+				<version>${qpid-broker.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-amqp-0-8-protocol</artifactId>
+				<version>${qpid-broker.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-memory-store</artifactId>
+				<version>${qpid-broker.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.qpid</groupId>
+				<artifactId>qpid-broker-plugins-management-http</artifactId>
+				<version>${qpid-broker.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>

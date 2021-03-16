@@ -9,15 +9,17 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.site_messages.PingStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
-import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.site.api.SiteMessager;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -30,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
@@ -49,19 +52,22 @@ class SiteServiceImpl implements SiteService {
 	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
+	private final SiteMessager siteMessager;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
 	                SiteWebClient webClient,
 	                UsersDAO usersDAO,
 	                ApplicationEventPublisher publisher,
-	                AuthzService authzService) {
+	                AuthzService authzService,
+	                SiteMessager siteMessager) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
 		this.usersDAO = usersDAO;
 		this.authzService = authzService;
 		this.publisher = publisher;
+		this.siteMessager = siteMessager;
 	}
 
 	@Override
@@ -227,6 +233,12 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public boolean isAdmin(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
+	public CompletableFuture<PingStatus> pingAgent() {
+		return siteMessager.ping();
 	}
 
 	private Site merge(Site oldSite, Site site) {

@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.sites;
 
+import io.imunity.furms.domain.site_messages.PingStatus;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -12,6 +13,7 @@ import io.imunity.furms.domain.users.PersistentId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public interface SiteService {
 
@@ -38,4 +40,6 @@ public interface SiteService {
 	void removeAdmin(String siteId, PersistentId userId);
 
 	boolean isAdmin(String siteId);
+
+	CompletableFuture<PingStatus> pingAgent();
 }
