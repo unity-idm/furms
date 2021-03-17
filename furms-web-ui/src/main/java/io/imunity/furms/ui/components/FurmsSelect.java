@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.communities.CommunityEvent;
 import io.imunity.furms.domain.projects.ProjectEvent;
 import io.imunity.furms.domain.sites.SiteEvent;
@@ -33,8 +34,8 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private Registration broadcasterRegistration;
 
-	public FurmsSelect(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
-		furmsSelectService = new FurmsSelectService(roleTranslator);
+	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService, VaadinBroadcaster vaadinBroadcaster) {
+		furmsSelectService = new FurmsSelectService(roleTranslator, authzService.getCurrentUserId());
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		List<FurmsSelectText> items = furmsSelectService.loadItems();
 
@@ -86,7 +87,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
 			VaadinListener.builder()
-				.runnable(() -> ui.access(this::reloadComponent))
+				.consumer(event -> ui.access(this::reloadComponent))
 				.predicate(event -> event instanceof UserEvent)
 				.orPredicate(event -> event instanceof SiteEvent)
 				.orPredicate(event -> event instanceof CommunityEvent)

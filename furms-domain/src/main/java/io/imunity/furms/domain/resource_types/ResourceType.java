@@ -12,10 +12,10 @@ public class ResourceType {
 	public final String name;
 	public final String siteId;
 	public final String serviceId;
-	public final Type type;
-	public final Unit unit;
+	public final ResourceMeasureType type;
+	public final ResourceMeasureUnit unit;
 
-	public ResourceType(String id, String name, String siteId, String serviceId, Type type, Unit unit) {
+	public ResourceType(String id, String name, String siteId, String serviceId, ResourceMeasureType type, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
@@ -63,8 +63,8 @@ public class ResourceType {
 		public String name;
 		public String siteId;
 		public String serviceId;
-		public Type type;
-		public Unit unit;
+		public ResourceMeasureType type;
+		public ResourceMeasureUnit unit;
 
 		private ResourceTypeBuilder() {
 		}
@@ -89,12 +89,12 @@ public class ResourceType {
 			return this;
 		}
 
-		public ResourceTypeBuilder type(Type type) {
+		public ResourceTypeBuilder type(ResourceMeasureType type) {
 			this.type = type;
 			return this;
 		}
 
-		public ResourceTypeBuilder unit(Unit unit) {
+		public ResourceTypeBuilder unit(ResourceMeasureUnit unit) {
 			this.unit = unit;
 			return this;
 		}

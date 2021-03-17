@@ -50,7 +50,7 @@ public class VaadinBroadcaster {
 			if(listener.isApplicable(event)) {
 				try {
 					LOG.debug("Will notify listener {} with event {}", listener, event);
-					listener.run();
+					listener.run(event);
 				} catch (Exception e) {
 					LOG.debug("Listener listener {} with event {} failed", listener, event, e);
 				}

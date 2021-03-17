@@ -105,8 +105,8 @@ class ResourceTypeServiceImplTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
@@ -144,8 +144,8 @@ class ResourceTypeServiceImplTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);

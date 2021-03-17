@@ -136,8 +136,19 @@ class UnitySiteWebClientTest {
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 		when(userService.getAllUsersByRole(groupPath, SITE_ADMIN))
 			.thenReturn(List.of(
-				new FURMSUser("1", "firstName", "lastName", "email", Collections.emptyMap()),
-				new FURMSUser("3", "firstName", "lastName", "email", Collections.emptyMap()))
+				FURMSUser.builder()
+					.id(new PersistentId("1"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build(),
+				FURMSUser.builder()
+					.id(new PersistentId("3"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()
+				)
 			);
 
 		//when
@@ -146,7 +157,7 @@ class UnitySiteWebClientTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-				.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
+				.allMatch(user -> user.id.get().id.equals("1") || user.id.get().id.equals("3"))).isTrue();
 	}
 
 	@Test

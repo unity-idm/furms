@@ -11,6 +11,7 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.PersistentId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -51,10 +52,19 @@ class RoleTranslatorService implements RoleTranslator {
 	@Override
 	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(){
 		authzService.reloadRoles();
-		if(authzService.getRoles().isEmpty()){
+		return translateRolesToUserViewContexts(authzService.getRoles());
+	}
+
+	@Override
+	public Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(PersistentId id){
+		return translateRolesToUserViewContexts(authzService.getRoles(id));
+	}
+
+	private Map<ViewMode, List<FurmsViewUserContext>> translateRolesToUserViewContexts(Map<ResourceId, Set<Role>> roles){
+		if(roles.isEmpty()){
 			return Map.of(USER, List.of(new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER)));
 		}
-		return authzService.getRoles().entrySet().stream()
+		return roles.entrySet().stream()
 			.flatMap(this::getFurmsUserContextStream)
 			.distinct()
 			.sorted(comparingInt(user -> user.viewMode.order))

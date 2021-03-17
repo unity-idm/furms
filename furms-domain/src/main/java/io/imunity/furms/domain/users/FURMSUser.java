@@ -8,42 +8,34 @@ package io.imunity.furms.domain.users;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Collections.*;
+import static java.util.Optional.*;
 
-//FIXME FU-104 currently it is not clear which of the fields are nullable and which are not. 
-//for the nullable: replace with optional?
-// for non-nullable: check arg in constructor
 public class FURMSUser {
-	public final PersistentId id;
-	public final String firstName;
-	public final String lastName;
+	public final Optional<PersistentId> id;
+	public final Optional<String> firstName;
+	public final Optional<String> lastName;
 	public final String email;
 	public final Map<ResourceId, Set<Role>> roles;
 
 	private FURMSUser(PersistentId id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
-		this.id = id;
-		this.firstName = firstName;
-		this.lastName = lastName;
+		if(email == null)
+			throw new IllegalArgumentException("Email must be not null");
+		this.id = ofNullable(id);
+		this.firstName = ofNullable(firstName);
+		this.lastName = ofNullable(lastName);
 		this.email = email;
 		this.roles = copyRoles(roles);
 	}
 
-	//FIXME: FU-104 make private, replace uses with use of builder (and accept only PersistentId as id argument not string)
-	public FURMSUser(String id, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
-		this(new PersistentId(id), firstName, lastName, email, roles);
-	}
-
 	public FURMSUser(FURMSUser furmsUser) {
-		this(furmsUser.id, furmsUser.firstName, furmsUser.lastName, furmsUser.email, furmsUser.roles);
+		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, furmsUser.roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser, Map<ResourceId, Set<Role>> roles) {
-		this(furmsUser.id, furmsUser.firstName, furmsUser.lastName, furmsUser.email, roles);
+		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, roles);
 	}
 
 	private static Map<ResourceId, Set<Role>> copyRoles(Map<ResourceId, Set<Role>> roles) {

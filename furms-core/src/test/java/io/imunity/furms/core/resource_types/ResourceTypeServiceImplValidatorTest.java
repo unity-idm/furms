@@ -11,6 +11,8 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.Type;
 import io.imunity.furms.domain.resource_types.Unit;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -48,8 +50,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -68,7 +70,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.unit(Unit.SiUnit.m)
+			.unit(ResourceMeasureUnit.SiUnit.mega)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -86,7 +88,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.unit(Unit.SiUnit.m)
+			.unit(ResourceMeasureUnit.SiUnit.mega)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -104,8 +106,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.SiUnit.m)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.SiUnit.mega)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -123,8 +125,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -196,8 +198,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -218,8 +220,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		when(resourceTypeRepository.exists(community.id)).thenReturn(false);
@@ -236,8 +238,8 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.GB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.GB)
 			.build();
 
 		ResourceType resourceType2 = ResourceType.builder()

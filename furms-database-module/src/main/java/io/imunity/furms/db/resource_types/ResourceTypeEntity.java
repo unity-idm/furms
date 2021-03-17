@@ -7,8 +7,8 @@ package io.imunity.furms.db.resource_types;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
@@ -20,10 +20,10 @@ class ResourceTypeEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID serviceId;
 	public final String name;
-	public final Type type;
-	public final Unit unit;
+	public final ResourceMeasureType type;
+	public final ResourceMeasureUnit unit;
 
-	private ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, Type type, Unit unit) {
+	private ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, ResourceMeasureType type, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
@@ -79,8 +79,8 @@ class ResourceTypeEntity extends UUIDIdentifiable {
 	public static final class ResourceTypeEntityBuilder {
 		public UUID siteId;
 		public UUID serviceId;
-		public Type type;
-		public Unit unit;
+		public ResourceMeasureType type;
+		public ResourceMeasureUnit unit;
 		protected UUID id;
 		private String name;
 
@@ -102,12 +102,12 @@ class ResourceTypeEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ResourceTypeEntityBuilder type(Type type) {
+		public ResourceTypeEntityBuilder type(ResourceMeasureType type) {
 			this.type = type;
 			return this;
 		}
 
-		public ResourceTypeEntityBuilder unit(Unit unit) {
+		public ResourceTypeEntityBuilder unit(ResourceMeasureUnit unit) {
 			this.unit = unit;
 			return this;
 		}

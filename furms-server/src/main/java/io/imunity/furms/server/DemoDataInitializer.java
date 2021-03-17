@@ -25,6 +25,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import static java.util.function.Function.identity;
+
 @Component
 @Profile("demo-data-provisioning")
 class DemoDataInitializer {
@@ -69,6 +71,7 @@ class DemoDataInitializer {
 			.filter(user -> user.email.equals("admin@domain.com"))
 			.map(user -> user.id)
 			.findAny()
+			.flatMap(identity())
 			.orElse(null);
 		if(communityRepository.findAll().isEmpty()) {
 			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();

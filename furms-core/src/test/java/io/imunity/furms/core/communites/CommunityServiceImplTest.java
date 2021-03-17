@@ -181,7 +181,14 @@ class CommunityServiceImplTest {
 	void shouldReturnAllCommunityAdmins() {
 		//given
 		String communityId = "id";
-		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(new FURMSUser("id", "firstName", "lastName", "email", Map.of())));
+		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(
+			FURMSUser.builder()
+				.id(new PersistentId("id"))
+				.firstName("firstName")
+				.lastName("lastName")
+				.email("email")
+				.build())
+		);
 
 		//when
 		List<FURMSUser> allAdmins = service.findAllAdmins(communityId);

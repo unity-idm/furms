@@ -19,7 +19,6 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -114,9 +113,19 @@ class UnityCommunityGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId +"/users";
 		when(userService.getAllUsersByRole(groupPath, COMMUNITY_ADMIN))
 			.thenReturn(List.of(
-				new FURMSUser("1", "firstName", "lastName", "email", Map.of()),
-				new FURMSUser("3", "firstName", "lastName", "email", Map.of()))
-			);
+				FURMSUser.builder()
+					.id(new PersistentId("1"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build(),
+				FURMSUser.builder()
+					.id(new PersistentId("3"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()
+			));
 
 		//when
 		List<FURMSUser> admins = unityCommunityWebClient.getAllAdmins(communityId);
@@ -124,7 +133,7 @@ class UnityCommunityGroupsDAOTest {
 		//then
 		assertThat(admins).hasSize(2);
 		assertThat(admins.stream()
-			.allMatch(user -> user.id.id.equals("1") || user.id.id.equals("3"))).isTrue();
+			.allMatch(user -> user.id.get().id.equals("1") || user.id.get().id.equals("3"))).isTrue();
 	}
 
 	@Test

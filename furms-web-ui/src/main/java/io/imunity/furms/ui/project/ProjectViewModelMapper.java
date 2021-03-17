@@ -41,7 +41,7 @@ public class ProjectViewModelMapper {
 			.researchField(project.researchField)
 			.utcStartTime(convertToUTCTime(project.startTime))
 			.utcEndTime(convertToUTCTime(project.endTime))
-			.leaderId(project.projectLeader.id)
+			.leaderId(project.projectLeader.id.orElse(null))
 			.build();
 	}
 }

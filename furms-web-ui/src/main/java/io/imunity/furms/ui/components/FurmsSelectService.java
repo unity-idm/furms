@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.UI;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 
@@ -18,13 +19,15 @@ import static java.util.stream.Collectors.toList;
 
 public class FurmsSelectService {
 	private final RoleTranslator roleTranslator;
+	private final PersistentId currentId;
 
-	FurmsSelectService(RoleTranslator roleTranslator) {
+	FurmsSelectService(RoleTranslator roleTranslator, PersistentId currentId) {
 		this.roleTranslator = roleTranslator;
+		this.currentId = currentId;
 	}
 
 	List<FurmsSelectText> loadItems() {
-		return roleTranslator.translateRolesToUserViewContexts().values().stream()
+		return roleTranslator.translateRolesToUserViewContexts(currentId).values().stream()
 			.flatMap(Collection::stream)
 			.map(FurmsSelectText::new)
 			.collect(toList());

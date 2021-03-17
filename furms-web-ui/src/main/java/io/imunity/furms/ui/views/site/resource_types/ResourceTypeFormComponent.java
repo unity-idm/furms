@@ -11,8 +11,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
 import java.util.Objects;
@@ -41,13 +41,13 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		servicesComboBox.setItemLabelGenerator(service -> service.name);
 		formLayout.addFormItem(servicesComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.service"));
 
-		ComboBox<Type> typeComboBox = new ComboBox<>();
+		ComboBox<ResourceMeasureType> typeComboBox = new ComboBox<>();
 		typeComboBox.setItemLabelGenerator(Enum::name);
-		typeComboBox.setItems(Type.values());
+		typeComboBox.setItems(ResourceMeasureType.values());
 		formLayout.addFormItem(typeComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.type"));
 
-		ComboBox<Unit> unitComboBox = new ComboBox<>();
-		unitComboBox.setItemLabelGenerator(Unit::name);
+		ComboBox<ResourceMeasureUnit> unitComboBox = new ComboBox<>();
+		unitComboBox.setItemLabelGenerator(ResourceMeasureUnit::name);
 		typeComboBox.addValueChangeListener(event -> {
 			unitComboBox.setItems(event.getValue().units);
 		});
@@ -58,7 +58,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		getContent().add(formLayout);
 	}
 
-	private void prepareValidator(TextField nameField, ComboBox<ServiceComboBoxModel> servicesComboBox, ComboBox<Type> typeComboBox, ComboBox<Unit> unitComboBox) {
+	private void prepareValidator(TextField nameField, ComboBox<ServiceComboBoxModel> servicesComboBox, ComboBox<ResourceMeasureType> typeComboBox, ComboBox<ResourceMeasureUnit> unitComboBox) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),

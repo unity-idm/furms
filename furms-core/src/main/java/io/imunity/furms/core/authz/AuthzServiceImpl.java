@@ -40,6 +40,11 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
+	public Map<ResourceId, Set<Role>> getRoles(PersistentId id) {
+		return roleLoader.loadUserRoles(id);
+	}
+
+	@Override
 	public boolean isResourceMember(String resourceId, Role role) {
 		return getCurrent().roles.entrySet().stream()
 			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
@@ -49,13 +54,13 @@ public class AuthzServiceImpl implements AuthzService {
 	@Override
 	public void reloadRoles() {
 		FURMSUser authentication = getCurrent();
-		PersistentId id = authentication.id;
+		PersistentId id = authentication.id.orElse(null);
 		updateCurrent(new FURMSUser(authentication, roleLoader.loadUserRoles(id)));
 	}
 
 	@Override
 	public PersistentId getCurrentUserId(){
-		return getCurrent().id;
+		return getCurrent().id.orElse(null);
 	}
 
 	private static FURMSUser getCurrent() {

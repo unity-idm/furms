@@ -1,0 +1,12 @@
+rabbitmq:
+  image: rabbitmq:3-management
+  container_name: rabbitmq-contener
+  volumes:
+    - ./definitions.json:/opt/definitions.json:ro
+    - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+  ports:
+    - 5672:5672
+    - 15672:15672
+  environment: 
+    RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+    RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}

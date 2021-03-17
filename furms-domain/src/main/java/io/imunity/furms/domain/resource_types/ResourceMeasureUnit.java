@@ -8,23 +8,23 @@ package io.imunity.furms.domain.resource_types;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-public interface Unit {
+public interface ResourceMeasureUnit {
 
 	String name();
 
-	enum TimeUnit implements Unit{
+	enum TimeUnit implements ResourceMeasureUnit {
 		s, min, h, day
 	}
 
-	enum SiUnit implements Unit{
-		s, m, kg, mol, cd, K, A
+	enum SiUnit implements ResourceMeasureUnit {
+		kilo, mega, giga, tera, peta
 	}
 
-	enum DataUnit implements Unit{
+	enum DataUnit implements ResourceMeasureUnit {
 		kB, MB, GB, TB, PB
 	}
 
-	static Unit valueOf(String s){
+	static ResourceMeasureUnit valueOf(String s){
 		return Stream.of(DataUnit.class, SiUnit.class, TimeUnit.class)
 			.map(Class::getEnumConstants)
 			.flatMap(Arrays::stream)
