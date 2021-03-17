@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.site.resource_credits;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -17,6 +18,8 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
@@ -27,11 +30,14 @@ class ResourceCreditFormComponent extends Composite<Div> {
 
 	private final Binder<ResourceCreditViewModel> binder;
 	private final ResourceTypeComboBoxModelResolver resolver;
+	private ZoneId zoneId;
 
 	public ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
-
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
+		});
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
@@ -102,13 +108,13 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				time -> Objects.nonNull(time) && ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
-			.bind(ResourceCreditViewModel::getStartTime, ResourceCreditViewModel::setStartTime);
+			.bind(credit -> ofNullable(credit.startTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, startTime) -> credit.setStartTime(ZonedDateTime.of(startTime, zoneId)));
 		binder.forField(endTimePicker)
 			.withValidator(
 				time -> Objects.nonNull(time) && ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
-			.bind(ResourceCreditViewModel::getEndTime, ResourceCreditViewModel::setEndTime);
+			.bind(credit -> ofNullable(credit.endTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, endTime) -> credit.setEndTime(ZonedDateTime.of(endTime, zoneId)));
 	}
 
 	public void setFormPools(ResourceCreditViewModel serviceViewModel) {

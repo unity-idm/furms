@@ -19,6 +19,7 @@ import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,11 +36,15 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	private final ResourceCreditService resourceCreditService;
 	private final Grid<ResourceCreditViewModel> grid;
 	private final ResourceTypeComboBoxModelResolver resolver;
+	private ZoneId zoneId;
 
 	public ResourceCreditsView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
 		this.grid = createCommunityGrid();
 		this.resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
+		});
 
 		Button addButton = createAddButton();
 		loadGridContent();
@@ -128,7 +133,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		return handleExceptions(() -> resourceCreditService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(ResourceCreditViewModelMapper::map)
+			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
 			.sorted(comparing(resourceTypeViewModel -> resourceTypeViewModel.name.toLowerCase()))
 			.collect(toList());
 	}

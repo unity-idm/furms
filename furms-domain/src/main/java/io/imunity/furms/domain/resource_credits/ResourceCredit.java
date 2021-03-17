@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import static java.time.Clock.systemUTC;
 import static java.util.Optional.ofNullable;
 
 public class ResourceCredit {
@@ -31,7 +32,7 @@ public class ResourceCredit {
 		this.split = ofNullable(split).orElse(true);
 		this.access = ofNullable(access).orElse(false);
 		this.amount = amount;
-		this.createTime = ofNullable(createTime).orElseGet(LocalDateTime::now);
+		this.createTime = ofNullable(createTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}

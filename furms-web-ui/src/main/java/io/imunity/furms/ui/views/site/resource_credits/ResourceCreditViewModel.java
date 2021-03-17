@@ -6,7 +6,7 @@
 package io.imunity.furms.ui.views.site.resource_credits;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 class ResourceCreditViewModel {
@@ -17,12 +17,12 @@ class ResourceCreditViewModel {
 	public Boolean split = true;
 	public Boolean access = false;
 	public BigDecimal amount;
-	public LocalDateTime createTime;
-	public LocalDateTime startTime;
-	public LocalDateTime endTime;
+	public ZonedDateTime createTime;
+	public ZonedDateTime startTime;
+	public ZonedDateTime endTime;
 
 	public ResourceCreditViewModel(String id, String siteId, String resourceTypeId, String name, Boolean split,
-	                               Boolean access, BigDecimal amount, LocalDateTime createTime, LocalDateTime startTime, LocalDateTime endTime) {
+	                               Boolean access, BigDecimal amount, ZonedDateTime createTime, ZonedDateTime startTime, ZonedDateTime endTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.resourceTypeId = resourceTypeId;
@@ -81,27 +81,27 @@ class ResourceCreditViewModel {
 		this.amount = amount;
 	}
 
-	public LocalDateTime getStartTime() {
+	public ZonedDateTime getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(LocalDateTime startTime) {
+	public void setStartTime(ZonedDateTime startTime) {
 		this.startTime = startTime;
 	}
 
-	public LocalDateTime getEndTime() {
+	public ZonedDateTime getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(LocalDateTime endTime) {
+	public void setEndTime(ZonedDateTime endTime) {
 		this.endTime = endTime;
 	}
 
-	public LocalDateTime getCreateTime() {
+	public ZonedDateTime getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(LocalDateTime createTime) {
+	public void setCreateTime(ZonedDateTime createTime) {
 		this.createTime = createTime;
 	}
 
@@ -145,9 +145,9 @@ class ResourceCreditViewModel {
 		public Boolean split;
 		public Boolean access;
 		public BigDecimal amount;
-		public LocalDateTime createTime;
-		public LocalDateTime startTime;
-		public LocalDateTime endTime;
+		public ZonedDateTime createTime;
+		public ZonedDateTime startTime;
+		public ZonedDateTime endTime;
 
 		private ResourceCreditViewModelBuilder() {
 		}
@@ -187,17 +187,17 @@ class ResourceCreditViewModel {
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder createTime(LocalDateTime createTime) {
+		public ResourceCreditViewModelBuilder createTime(ZonedDateTime createTime) {
 			this.createTime = createTime;
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder startTime(LocalDateTime startTime) {
+		public ResourceCreditViewModelBuilder startTime(ZonedDateTime startTime) {
 			this.startTime = startTime;
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder endTime(LocalDateTime endTime) {
+		public ResourceCreditViewModelBuilder endTime(ZonedDateTime endTime) {
 			this.endTime = endTime;
 			return this;
 		}

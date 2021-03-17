@@ -26,6 +26,7 @@ import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.utils.ResourceGetter;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -40,6 +41,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 	private final Binder<ResourceCreditViewModel> binder = new BeanValidationBinder<>(ResourceCreditViewModel.class);
 	private final ResourceCreditFormComponent resourceCreditFormComponent;
 	private final ResourceCreditService resourceCreditService;
+	private ZoneId zoneId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
@@ -47,6 +49,10 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		this.resourceCreditService = resourceCreditService;
 		ResourceTypeComboBoxModelResolver resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
 		this.resourceCreditFormComponent = new ResourceCreditFormComponent(binder, resolver);
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
+		});
+
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();
@@ -76,7 +82,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	private void saveResourceCredit() {
 		ResourceCreditViewModel serviceViewModel = binder.getBean();
-		ResourceCredit resourceCredit = ResourceCreditViewModelMapper.map(serviceViewModel);
+		ResourceCredit resourceCredit = ResourceCreditViewModelMapper.map(serviceViewModel, zoneId);
 		OptionalException<Void> optionalException;
 		if(resourceCredit.id == null)
 			optionalException = getResultOrException(() -> resourceCreditService.create(resourceCredit));
@@ -94,7 +100,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		ResourceCreditViewModel serviceViewModel = ofNullable(parameter)
 			.flatMap(id -> handleExceptions(() -> resourceCreditService.findById(id)))
 			.flatMap(Function.identity())
-			.map(ResourceCreditViewModelMapper::map)
+			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
 			.orElseGet(() -> new ResourceCreditViewModel(ResourceGetter.getCurrentResourceId()));
 
 		String trans = parameter == null
