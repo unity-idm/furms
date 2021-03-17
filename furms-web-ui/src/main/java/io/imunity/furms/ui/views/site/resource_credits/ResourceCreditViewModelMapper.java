@@ -23,13 +23,13 @@ class ResourceCreditViewModelMapper {
 			.split(resourceCredit.split)
 			.access(resourceCredit.access)
 			.amount(resourceCredit.amount)
-			.createTime(convertToZoneTime(resourceCredit.createTime, zoneId))
-			.startTime(convertToZoneTime(resourceCredit.startTime, zoneId))
-			.endTime(convertToZoneTime(resourceCredit.endTime, zoneId))
+			.createTime(convertToZoneTime(resourceCredit.utcCreateTime, zoneId))
+			.startTime(convertToZoneTime(resourceCredit.utcStartTime, zoneId))
+			.endTime(convertToZoneTime(resourceCredit.utcEndTime, zoneId))
 			.build();
 	}
 
-	static ResourceCredit map(ResourceCreditViewModel resourceCreditViewModel, ZoneId zoneId){
+	static ResourceCredit map(ResourceCreditViewModel resourceCreditViewModel){
 		return ResourceCredit.builder()
 			.id(resourceCreditViewModel.id)
 			.siteId(resourceCreditViewModel.siteId)
@@ -38,9 +38,9 @@ class ResourceCreditViewModelMapper {
 			.split(resourceCreditViewModel.split)
 			.access(resourceCreditViewModel.access)
 			.amount(resourceCreditViewModel.amount)
-			.createTime(convertToUTCTime(resourceCreditViewModel.createTime))
-			.startTime(convertToUTCTime(resourceCreditViewModel.startTime))
-			.endTime(convertToUTCTime(resourceCreditViewModel.endTime))
+			.utcCreateTime(convertToUTCTime(resourceCreditViewModel.createTime))
+			.utcStartTime(convertToUTCTime(resourceCreditViewModel.startTime))
+			.utcEndTime(convertToUTCTime(resourceCreditViewModel.endTime))
 			.build();
 	}
 }

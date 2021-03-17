@@ -20,11 +20,11 @@ public class ResourceCredit {
 	public final Boolean split;
 	public final Boolean access;
 	public final BigDecimal amount;
-	public final LocalDateTime createTime;
-	public final LocalDateTime startTime;
-	public final LocalDateTime endTime;
+	public final LocalDateTime utcCreateTime;
+	public final LocalDateTime utcStartTime;
+	public final LocalDateTime utcEndTime;
 
-	private ResourceCredit(String id, String name, String siteId, String resourceTypeId, Boolean split, Boolean access, BigDecimal amount, LocalDateTime createTime, LocalDateTime startTime, LocalDateTime endTime) {
+	private ResourceCredit(String id, String name, String siteId, String resourceTypeId, Boolean split, Boolean access, BigDecimal amount, LocalDateTime utcCreateTime, LocalDateTime utcStartTime, LocalDateTime utcEndTime) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
@@ -32,9 +32,9 @@ public class ResourceCredit {
 		this.split = ofNullable(split).orElse(true);
 		this.access = ofNullable(access).orElse(false);
 		this.amount = amount;
-		this.createTime = ofNullable(createTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.utcCreateTime = ofNullable(utcCreateTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
+		this.utcStartTime = utcStartTime;
+		this.utcEndTime = utcEndTime;
 	}
 
 	@Override
@@ -49,14 +49,14 @@ public class ResourceCredit {
 			Objects.equals(split, that.split) &&
 			Objects.equals(access, that.access) &&
 			Objects.equals(amount, that.amount) &&
-			Objects.equals(createTime, that.createTime) &&
-			Objects.equals(startTime, that.startTime) &&
-			Objects.equals(endTime, that.endTime);
+			Objects.equals(utcCreateTime, that.utcCreateTime) &&
+			Objects.equals(utcStartTime, that.utcStartTime) &&
+			Objects.equals(utcEndTime, that.utcEndTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, siteId, resourceTypeId, split, access, amount, createTime, startTime, endTime);
+		return Objects.hash(id, name, siteId, resourceTypeId, split, access, amount, utcCreateTime, utcStartTime, utcEndTime);
 	}
 
 	@Override
@@ -69,9 +69,9 @@ public class ResourceCredit {
 			", split=" + split +
 			", access=" + access +
 			", amount=" + amount +
-			", createTime=" + createTime +
-			", startTime=" + startTime +
-			", endTime=" + endTime +
+			", createTime=" + utcCreateTime +
+			", startTime=" + utcStartTime +
+			", endTime=" + utcEndTime +
 			'}';
 	}
 
@@ -87,9 +87,9 @@ public class ResourceCredit {
 		public Boolean split;
 		public Boolean access;
 		public BigDecimal amount;
-		public LocalDateTime createTime;
-		public LocalDateTime startTime;
-		public LocalDateTime endTime;
+		public LocalDateTime utcCreateTime;
+		public LocalDateTime utcStartTime;
+		public LocalDateTime utcEndTime;
 
 		private ResourceCreditBuilder() {
 		}
@@ -129,23 +129,23 @@ public class ResourceCredit {
 			return this;
 		}
 
-		public ResourceCreditBuilder createTime(LocalDateTime createTime) {
-			this.createTime = createTime;
+		public ResourceCreditBuilder utcCreateTime(LocalDateTime createTime) {
+			this.utcCreateTime = createTime;
 			return this;
 		}
 
-		public ResourceCreditBuilder startTime(LocalDateTime startTime) {
-			this.startTime = startTime;
+		public ResourceCreditBuilder utcStartTime(LocalDateTime startTime) {
+			this.utcStartTime = startTime;
 			return this;
 		}
 
-		public ResourceCreditBuilder endTime(LocalDateTime endTime) {
-			this.endTime = endTime;
+		public ResourceCreditBuilder utcEndTime(LocalDateTime endTime) {
+			this.utcEndTime = endTime;
 			return this;
 		}
 
 		public ResourceCredit build() {
-			return new ResourceCredit(id, name, siteId, resourceTypeId, split, access, amount, createTime, startTime, endTime);
+			return new ResourceCredit(id, name, siteId, resourceTypeId, split, access, amount, utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}
 }

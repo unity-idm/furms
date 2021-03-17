@@ -134,9 +134,9 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().split).isEqualTo(true);
 		assertThat(byId.get().access).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
-		assertThat(byId.get().createTime).isEqualTo(createTime);
-		assertThat(byId.get().startTime).isEqualTo(startTime);
-		assertThat(byId.get().endTime).isEqualTo(endTime);
+		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
+		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
+		assertThat(byId.get().utcEndTime).isEqualTo(endTime);
 	}
 
 	@Test
@@ -208,9 +208,9 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.split(true)
 			.access(true)
 			.amount(new BigDecimal(100))
-			.createTime(createTime)
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcCreateTime(createTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.build();
 
 		//when
@@ -224,9 +224,9 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().split).isEqualTo(true);
 		assertThat(byId.get().access).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
-		assertThat(byId.get().createTime).isEqualTo(createTime);
-		assertThat(byId.get().startTime).isEqualTo(startTime);
-		assertThat(byId.get().endTime).isEqualTo(endTime);
+		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
+		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
+		assertThat(byId.get().utcEndTime).isEqualTo(endTime);
 	}
 
 	@Test
@@ -252,9 +252,9 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.split(true)
 			.access(false)
 			.amount(new BigDecimal(434))
-			.createTime(createTime2)
-			.startTime(newStartTime)
-			.endTime(newEndTime)
+			.utcCreateTime(createTime2)
+			.utcStartTime(newStartTime)
+			.utcEndTime(newEndTime)
 			.build();
 
 		//when
@@ -267,9 +267,9 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().split).isEqualTo(true);
 		assertThat(byId.get().access).isEqualTo(false);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(434));
-		assertThat(byId.get().createTime).isEqualTo(createTime2);
-		assertThat(byId.get().startTime).isEqualTo(newStartTime);
-		assertThat(byId.get().endTime).isEqualTo(newEndTime);
+		assertThat(byId.get().utcCreateTime).isEqualTo(createTime2);
+		assertThat(byId.get().utcStartTime).isEqualTo(newStartTime);
+		assertThat(byId.get().utcEndTime).isEqualTo(newEndTime);
 	}
 
 	@Test

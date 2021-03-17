@@ -43,8 +43,8 @@ class ResourceCreditServiceValidator {
 		validateResourceTypeId(resourceCredit.resourceTypeId);
 		validateName(resourceCredit);
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
-		validateCreateTime(resourceCredit.createTime);
-		validateTime(resourceCredit.startTime, resourceCredit.endTime);
+		validateCreateTime(resourceCredit.utcCreateTime);
+		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
 	}
 
 	void validateUpdate(ResourceCredit resourceCredit) {
@@ -54,8 +54,8 @@ class ResourceCreditServiceValidator {
 		validateResourceTypeId(resourceCredit.resourceTypeId);
 		validateName(resourceCredit);
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
-		validateCreateTime(resourceCredit.createTime);
-		validateTime(resourceCredit.startTime, resourceCredit.endTime);
+		validateCreateTime(resourceCredit.utcCreateTime);
+		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
 	}
 
 	void validateDelete(String id) {

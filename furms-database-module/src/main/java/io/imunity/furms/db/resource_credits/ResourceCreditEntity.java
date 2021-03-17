@@ -49,9 +49,9 @@ class ResourceCreditEntity extends UUIDIdentifiable {
 			.split(split)
 			.access(access)
 			.amount(amount)
-			.createTime(createTime)
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcCreateTime(createTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.build();
 	}
 

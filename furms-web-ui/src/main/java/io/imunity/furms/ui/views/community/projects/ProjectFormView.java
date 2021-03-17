@@ -32,6 +32,7 @@ import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.utils.ResourceGetter;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,12 +47,16 @@ class ProjectFormView extends FurmsViewComponent {
 	private final ProjectFormComponent projectFormComponent;
 	private final ProjectService projectService;
 	private final ProjectModelResolver resolver;
+	private ZoneId zoneId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ProjectFormView(ProjectService projectService, UserService userService, ProjectModelResolver resolver) {
 		this.projectService = projectService;
 		this.resolver = resolver;
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
+		});
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
 		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		Button saveButton = createSaveButton();
@@ -100,7 +105,7 @@ class ProjectFormView extends FurmsViewComponent {
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		
 		ProjectViewModel projectViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> resolver.resolve(id)))
+			.flatMap(id -> handleExceptions(() -> resolver.resolve(id, zoneId)))
 			.orElseGet(() -> new ProjectViewModel(ResourceGetter.getCurrentResourceId()));
 		
 		String trans = parameter == null 

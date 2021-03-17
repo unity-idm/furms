@@ -44,8 +44,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -63,8 +63,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.siteId("id")
 			.resourceTypeId("id")
 			.name("name")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -82,8 +82,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.siteId("id")
 			.resourceTypeId("id")
 			.name("name")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().minusDays(10))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().minusDays(10))
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -102,8 +102,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -176,8 +176,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -199,8 +199,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(resourceCreditRepository.exists(community.id)).thenReturn(false);
@@ -218,8 +218,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		ResourceCredit resourceCredit2 = ResourceCredit.builder()
@@ -228,8 +228,8 @@ class ResourceCreditServiceImplValidatorTest {
 			.resourceTypeId("id")
 			.name("name2")
 			.amount(new BigDecimal(2))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(resourceCreditRepository.exists(any())).thenReturn(true);

@@ -82,7 +82,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	private void saveResourceCredit() {
 		ResourceCreditViewModel serviceViewModel = binder.getBean();
-		ResourceCredit resourceCredit = ResourceCreditViewModelMapper.map(serviceViewModel, zoneId);
+		ResourceCredit resourceCredit = ResourceCreditViewModelMapper.map(serviceViewModel);
 		OptionalException<Void> optionalException;
 		if(resourceCredit.id == null)
 			optionalException = getResultOrException(() -> resourceCreditService.create(resourceCredit));

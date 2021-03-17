@@ -108,13 +108,13 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				time -> Objects.nonNull(time) && ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
-			.bind(credit -> ofNullable(credit.startTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, startTime) -> credit.setStartTime(ZonedDateTime.of(startTime, zoneId)));
+			.bind(credit -> ofNullable(credit.startTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, startTime) -> credit.setStartTime(startTime.atZone(zoneId)));
 		binder.forField(endTimePicker)
 			.withValidator(
 				time -> Objects.nonNull(time) && ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
-			.bind(credit -> ofNullable(credit.endTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, endTime) -> credit.setEndTime(ZonedDateTime.of(endTime, zoneId)));
+			.bind(credit -> ofNullable(credit.endTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, endTime) -> credit.setEndTime(endTime.atZone(zoneId)));
 	}
 
 	public void setFormPools(ResourceCreditViewModel serviceViewModel) {

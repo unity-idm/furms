@@ -108,8 +108,8 @@ class ResourceCreditServiceImplTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
@@ -148,8 +148,8 @@ class ResourceCreditServiceImplTest {
 			.resourceTypeId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
