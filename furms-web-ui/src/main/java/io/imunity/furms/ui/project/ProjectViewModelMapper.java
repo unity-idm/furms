@@ -9,8 +9,13 @@ import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
+import java.time.ZoneId;
+
+import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToZoneTime;
+
 public class ProjectViewModelMapper {
-	static ProjectViewModel map(Project project, FURMSUser projectLeader) {
+	static ProjectViewModel map(Project project, FURMSUser projectLeader, ZoneId zoneId) {
 		return ProjectViewModel.builder()
 			.id(project.getId())
 			.communityId(project.getCommunityId())
@@ -19,8 +24,8 @@ public class ProjectViewModelMapper {
 			.logo(project.getLogo())
 			.acronym(project.getAcronym())
 			.researchField(project.getResearchField())
-			.startTime(project.getStartTime())
-			.endTime(project.getEndTime())
+			.startTime(convertToZoneTime(project.getUtcStartTime(), zoneId))
+			.endTime(convertToZoneTime(project.getUtcEndTime(), zoneId))
 			.projectLeader(projectLeader == null ? FurmsViewUserModel.EMPTY : new FurmsViewUserModel(projectLeader))
 			.build();
 	}
@@ -34,8 +39,8 @@ public class ProjectViewModelMapper {
 			.logo(project.logo)
 			.acronym(project.acronym)
 			.researchField(project.researchField)
-			.startTime(project.startTime)
-			.endTime(project.endTime)
+			.utcStartTime(convertToUTCTime(project.startTime))
+			.utcEndTime(convertToUTCTime(project.endTime))
 			.leaderId(project.projectLeader.id.orElse(null))
 			.build();
 	}

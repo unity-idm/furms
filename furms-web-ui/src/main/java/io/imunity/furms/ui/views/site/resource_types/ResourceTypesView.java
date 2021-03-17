@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -86,7 +88,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 		);
 	}
 
-	private Component createContextMenu(String serviceId, String serviceName) {
+	private Component createContextMenu(String serviceId, String resourceTypeName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
@@ -94,7 +96,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 			event -> UI.getCurrent().navigate(ResourceTypeFormView.class, serviceId)
 		);
 
-		Dialog confirmDialog = createConfirmDialog(serviceId, serviceName);
+		Dialog confirmDialog = createConfirmDialog(serviceId, resourceTypeName);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-types.menu.delete"), TRASH),
@@ -105,10 +107,12 @@ public class ResourceTypesView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String serviceId, String serviceName) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-types.dialog.text", serviceName));
+	private Dialog createConfirmDialog(String serviceId, String resourceTypeName) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-types.dialog.text", resourceTypeName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> resourceTypeService.delete(serviceId));
+			getResultOrException(() -> resourceTypeService.delete(serviceId))
+				.getThrowable()
+				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), resourceTypeName)));
 			loadGridContent();
 		});
 		return furmsDialog;

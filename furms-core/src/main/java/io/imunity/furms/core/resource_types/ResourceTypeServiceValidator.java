@@ -7,8 +7,10 @@ package io.imunity.furms.core.resource_types;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -24,16 +26,19 @@ import static org.springframework.util.Assert.notNull;
 @Component
 class ResourceTypeServiceValidator {
 	private final ResourceTypeRepository resourceTypeRepository;
+	private final ResourceCreditRepository resourceCreditRepository;
 	private final InfraServiceRepository infraServiceRepository;
 	private final SiteRepository siteRepository;
 
 	public ResourceTypeServiceValidator(
 		ResourceTypeRepository resourceTypeRepository,
+		ResourceCreditRepository resourceCreditRepository,
 		InfraServiceRepository infraServiceRepository,
 		SiteRepository siteRepository
 	) {
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.infraServiceRepository = infraServiceRepository;
+		this.resourceCreditRepository = resourceCreditRepository;
 		this.siteRepository = siteRepository;
 	}
 
@@ -56,6 +61,9 @@ class ResourceTypeServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		if (resourceCreditRepository.existsByResourceTypeId(id)) {
+			throw new ResourceTypeHasResourceCreditsRemoveValidationError("ResourceType should not have ResourceCredits.");
+		}
 	}
 
 	private void validateName(ResourceType resourceType) {

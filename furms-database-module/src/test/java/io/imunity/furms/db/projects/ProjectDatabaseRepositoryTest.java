@@ -159,8 +159,8 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
 			.researchField("research filed")
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.build();
 
 		//when
@@ -195,8 +195,8 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")
 			.researchField("new_research filed")
-			.startTime(newStartTime)
-			.endTime(newEndTime)
+			.utcStartTime(newStartTime)
+			.utcEndTime(newEndTime)
 			.build();
 
 		//when
@@ -211,8 +211,8 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().getLogo().getType()).isEqualTo("jpg");
 		assertThat(byId.get().getAcronym()).isEqualTo("new_acronym");
 		assertThat(byId.get().getResearchField()).isEqualTo("new_research filed");
-		assertThat(byId.get().getStartTime()).isEqualTo(newStartTime);
-		assertThat(byId.get().getEndTime()).isEqualTo(newEndTime);
+		assertThat(byId.get().getUtcStartTime()).isEqualTo(newStartTime);
+		assertThat(byId.get().getUtcEndTime()).isEqualTo(newEndTime);
 	}
 
 	@Test

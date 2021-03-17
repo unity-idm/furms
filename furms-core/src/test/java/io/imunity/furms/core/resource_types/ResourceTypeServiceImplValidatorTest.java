@@ -5,8 +5,10 @@
 
 package io.imunity.furms.core.resource_types;
 
+import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -33,6 +35,8 @@ class ResourceTypeServiceImplValidatorTest {
 	private SiteRepository siteRepository;
 	@Mock
 	private ResourceTypeRepository resourceTypeRepository;
+	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
 
 	@InjectMocks
 	private ResourceTypeServiceValidator validator;
@@ -262,6 +266,18 @@ class ResourceTypeServiceImplValidatorTest {
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldNotPassDeleteForExistingResourceCredits() {
+		//given
+		String id = "id";
+
+		when(resourceTypeRepository.exists(id)).thenReturn(true);
+		when(resourceCreditRepository.existsByResourceTypeId(id)).thenReturn(true);
+
+		//when+then
+		assertThrows(ResourceTypeHasResourceCreditsRemoveValidationError.class, () -> validator.validateDelete(id));
 	}
 
 	@Test
