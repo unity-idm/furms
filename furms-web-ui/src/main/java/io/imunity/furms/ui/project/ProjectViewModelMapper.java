@@ -24,8 +24,8 @@ public class ProjectViewModelMapper {
 			.logo(project.getLogo())
 			.acronym(project.getAcronym())
 			.researchField(project.getResearchField())
-			.startTime(convertToZoneTime(project.getStartTime(), zoneId))
-			.endTime(convertToZoneTime(project.getEndTime(), zoneId))
+			.startTime(convertToZoneTime(project.getUtcStartTime(), zoneId))
+			.endTime(convertToZoneTime(project.getUtcEndTime(), zoneId))
 			.projectLeader(projectLeader == null ? FurmsViewUserModel.EMPTY : new FurmsViewUserModel(projectLeader))
 			.build();
 	}
@@ -39,8 +39,8 @@ public class ProjectViewModelMapper {
 			.logo(project.logo)
 			.acronym(project.acronym)
 			.researchField(project.researchField)
-			.startTime(convertToUTCTime(project.startTime))
-			.endTime(convertToUTCTime(project.endTime))
+			.utcStartTime(convertToUTCTime(project.startTime))
+			.utcEndTime(convertToUTCTime(project.endTime))
 			.leaderId(project.projectLeader.id)
 			.build();
 	}

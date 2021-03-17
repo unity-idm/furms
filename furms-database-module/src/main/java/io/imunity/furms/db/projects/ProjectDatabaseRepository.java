@@ -60,8 +60,8 @@ class ProjectDatabaseRepository implements ProjectRepository {
 			.logo(project.getLogo())
 			.acronym(project.getAcronym())
 			.researchField(project.getResearchField())
-			.startTime(project.getStartTime())
-			.endTime(project.getEndTime())
+			.startTime(project.getUtcStartTime())
+			.endTime(project.getUtcEndTime())
 			.leaderId(ofNullable(project.getLeaderId()).map(leader -> leader.id).orElse(null))
 			.build());
 		return saved.getId().toString();
@@ -78,8 +78,8 @@ class ProjectDatabaseRepository implements ProjectRepository {
 					.logo(project.getLogo())
 					.acronym(project.getAcronym())
 					.researchField(project.getResearchField())
-					.startTime(project.getStartTime())
-					.endTime(project.getEndTime())
+					.startTime(project.getUtcStartTime())
+					.endTime(project.getUtcEndTime())
 					.leaderId(ofNullable(project.getLeaderId()).map(leader -> leader.id).orElse(null))
 					.build())
 				.map(repository::save)

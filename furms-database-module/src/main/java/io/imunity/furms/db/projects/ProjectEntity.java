@@ -54,8 +54,8 @@ class ProjectEntity extends UUIDIdentifiable {
 			.logo(logoImage, logoType)
 			.acronym(acronym)
 			.researchField(researchField)
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.leaderId(new PersistentId(leaderId))
 			.build();
 	}

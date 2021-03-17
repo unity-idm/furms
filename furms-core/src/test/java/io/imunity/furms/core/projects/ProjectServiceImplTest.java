@@ -99,8 +99,8 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
 			.id("id")
@@ -143,8 +143,8 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
 			.id("id")
@@ -176,8 +176,8 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.build();
 		FurmsImage empty = FurmsImage.empty();
 		ProjectAdminControlledAttributes request = new ProjectAdminControlledAttributes("id", "description_new", empty);
@@ -201,8 +201,8 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(startTime)
-			.endTime(endTime)
+			.utcStartTime(startTime)
+			.utcEndTime(endTime)
 			.build();
 		orderVerifier.verify(projectRepository).update(eq(updatedProject));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));

@@ -40,8 +40,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
@@ -59,8 +59,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
@@ -80,8 +80,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(false);
@@ -97,8 +97,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		//when+then
@@ -112,8 +112,8 @@ class ProjectServiceImplValidatorTest {
 			.communityId("id")
 			.name("name")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
@@ -132,8 +132,8 @@ class ProjectServiceImplValidatorTest {
 			.communityId("id")
 			.name("name")
 			.acronym("Acronym")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
@@ -152,8 +152,8 @@ class ProjectServiceImplValidatorTest {
 			.communityId("id")
 			.name("name")
 			.researchField("research field")
-			.startTime(LocalDateTime.now().plusWeeks(1))
-			.endTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now().plusWeeks(1))
+			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(projectRepository.isUniqueName(any())).thenReturn(false);
@@ -174,8 +174,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
@@ -196,8 +196,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
 		when(projectRepository.exists(community.getId())).thenReturn(false);
@@ -215,8 +215,8 @@ class ProjectServiceImplValidatorTest {
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
-			.startTime(LocalDateTime.now())
-			.endTime(LocalDateTime.now().plusWeeks(1))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 		Project secondProject = Project.builder()
 			.communityId("id")

@@ -97,8 +97,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("NI")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(20))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(20))
 				.leaderId(testAdminId)
 				.build();
 
@@ -109,8 +109,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("BS")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(10))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(10))
 				.leaderId(testAdminId)
 				.build();
 
@@ -129,8 +129,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("NI")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(30))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(30))
 				.leaderId(testAdminId)
 				.build();
 
@@ -141,8 +141,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("BS")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(13))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(13))
 				.leaderId(testAdminId)
 				.build();
 

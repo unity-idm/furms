@@ -40,7 +40,7 @@ class ProjectServiceValidator {
 		validateLength("acronym", project.getAcronym(), MAX_ACRONYM_LENGTH);
 		notNull(project.getResearchField(), "Research field cannot be null.");
 		validateLength("researchField", project.getResearchField(), MAX_NAME_LENGTH);
-		validateTime(project.getStartTime(), project.getEndTime());
+		validateTime(project.getUtcStartTime(), project.getUtcEndTime());
 	}
 
 	void validateUpdate(Project project) {
@@ -53,7 +53,7 @@ class ProjectServiceValidator {
 		validateLength("acronym", project.getAcronym(), MAX_ACRONYM_LENGTH);
 		notNull(project.getResearchField(), "Research field cannot be null.");
 		validateLength("researchField", project.getResearchField(), MAX_NAME_LENGTH);
-		validateTime(project.getStartTime(), project.getEndTime());
+		validateTime(project.getUtcStartTime(), project.getUtcEndTime());
 	}
 
 	void validateLimitedUpdate(ProjectAdminControlledAttributes project) {

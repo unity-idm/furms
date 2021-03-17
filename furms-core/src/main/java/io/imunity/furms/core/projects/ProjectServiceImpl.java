@@ -110,8 +110,8 @@ class ProjectServiceImpl implements ProjectService {
 			.name(project.getName())
 			.acronym(project.getAcronym())
 			.researchField(project.getResearchField())
-			.startTime(project.getStartTime())
-			.endTime(project.getEndTime())
+			.utcStartTime(project.getUtcStartTime())
+			.utcEndTime(project.getUtcEndTime())
 			.description(attributes.getDescription())
 			.logo(attributes.getLogo())
 			.build();
