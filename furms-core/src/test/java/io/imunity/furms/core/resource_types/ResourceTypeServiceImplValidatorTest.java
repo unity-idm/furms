@@ -8,8 +8,6 @@ package io.imunity.furms.core.resource_types;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;

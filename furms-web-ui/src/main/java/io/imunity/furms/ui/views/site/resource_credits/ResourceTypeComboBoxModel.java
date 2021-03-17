@@ -5,16 +5,16 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.util.Objects;
 
 class ResourceTypeComboBoxModel {
 	public final String id;
 	public final String name;
-	public final Unit unit;
+	public final ResourceMeasureUnit unit;
 
-	public ResourceTypeComboBoxModel(String id, String name, Unit unit) {
+	public ResourceTypeComboBoxModel(String id, String name, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.unit = unit;

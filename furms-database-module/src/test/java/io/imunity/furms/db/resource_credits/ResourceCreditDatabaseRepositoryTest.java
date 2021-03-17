@@ -9,8 +9,8 @@ package io.imunity.furms.db.resource_credits;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.Type;
-import io.imunity.furms.domain.resource_types.Unit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -92,15 +92,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId.toString())
 			.serviceId(serviceId.toString())
 			.name("name")
-			.type(Type.FLOATING_POINT)
-			.unit(Unit.SiUnit.A)
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.tera)
 			.build();
 		ResourceType resourceType2 = ResourceType.builder()
 			.siteId(siteId2.toString())
 			.serviceId(serviceId2.toString())
 			.name("name2")
-			.type(Type.DATA)
-			.unit(Unit.DataUnit.MB)
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.MB)
 			.build();
 
 		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));

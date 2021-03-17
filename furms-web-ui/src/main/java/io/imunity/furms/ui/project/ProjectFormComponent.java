@@ -130,7 +130,7 @@ public class ProjectFormComponent extends Composite<Div> {
 				time -> Objects.nonNull(time) && ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.community-admin.project.form.error.validation.field.end-time")
 			)
-			.bind(project -> ofNullable(project.startTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (project, endTime) -> project.setEndTime(endTime.atZone(zoneId)));
+			.bind(project -> ofNullable(project.endTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (project, endTime) -> project.setEndTime(endTime.atZone(zoneId)));
 		binder.forField(leaderComboBox)
 			.withValidator(
 				Objects::nonNull,
