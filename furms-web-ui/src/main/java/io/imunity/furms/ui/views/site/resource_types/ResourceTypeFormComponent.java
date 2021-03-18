@@ -24,8 +24,9 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 	private final Binder<ResourceTypeViewModel> binder;
 	private final ServiceComboBoxModelResolver resolver;
+	ComboBox<ServiceComboBoxModel> servicesComboBox;
 
-	public ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder, ServiceComboBoxModelResolver resolver) {
+	ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder, ServiceComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
 
@@ -36,13 +37,13 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.resource-types.form.field.name"));
 
-		ComboBox<ServiceComboBoxModel> servicesComboBox = new ComboBox<>();
+		servicesComboBox = new ComboBox<>();
 		servicesComboBox.setItems(resolver.getServices());
 		servicesComboBox.setItemLabelGenerator(service -> service.name);
 		formLayout.addFormItem(servicesComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.service"));
 
 		ComboBox<ResourceMeasureType> typeComboBox = new ComboBox<>();
-		typeComboBox.setItemLabelGenerator(Enum::name);
+		typeComboBox.setItemLabelGenerator(resourceMeasureType -> getTranslation("enum.ResourceMeasureType." + resourceMeasureType.name()));
 		typeComboBox.setItems(ResourceMeasureType.values());
 		formLayout.addFormItem(typeComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.type"));
 
@@ -88,7 +89,9 @@ class ResourceTypeFormComponent extends Composite<Div> {
 			.bind(ResourceTypeViewModel::getUnit, ResourceTypeViewModel::setUnit);
 	}
 
-	public void setFormPools(ResourceTypeViewModel serviceViewModel) {
-		binder.setBean(serviceViewModel);
+	public void setFormPools(ResourceTypeViewModel resourceTypeViewModel) {
+		binder.setBean(resourceTypeViewModel);
+		if(resourceTypeViewModel.serviceId != null)
+			servicesComboBox.setEnabled(false);
 	}
 }

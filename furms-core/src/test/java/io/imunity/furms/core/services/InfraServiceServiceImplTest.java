@@ -9,6 +9,8 @@ import io.imunity.furms.domain.services.CreateServiceEvent;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.RemoveServiceEvent;
 import io.imunity.furms.domain.services.UpdateServiceEvent;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,10 @@ class InfraServiceServiceImplTest {
 	private SiteRepository siteRepository;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private ResourceTypeRepository resourceTypeRepository;
+	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
 
 	private InfraServiceServiceImpl service;
 	private InOrder orderVerifier;
@@ -40,7 +46,7 @@ class InfraServiceServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository);
+		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
 		service = new InfraServiceServiceImpl(infraServiceRepository, validator, publisher);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
 	}

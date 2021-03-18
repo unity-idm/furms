@@ -23,4 +23,13 @@ public class BigDecimalUtils {
 			.map(BigDecimal::toPlainString)
 			.orElse(null);
 	}
+
+	public static boolean isBigDecimal(String value) {
+		try {
+			new BigDecimal(value);
+			return true;
+		}catch (NumberFormatException e){
+			return false;
+		}
+	}
 }

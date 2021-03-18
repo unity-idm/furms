@@ -8,6 +8,7 @@ package io.imunity.furms.spi.resource_credits;
 
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,6 +26,8 @@ public interface ResourceCreditRepository {
 	boolean exists(String id);
 
 	boolean existsByResourceTypeId(String id);
+
+	boolean existsByResourceTypeIdIn(Collection<String> ids);
 
 	boolean isUniqueName(String name);
 

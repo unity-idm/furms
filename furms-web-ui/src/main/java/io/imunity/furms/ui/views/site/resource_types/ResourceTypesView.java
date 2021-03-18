@@ -69,7 +69,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 		grid.addColumn(c -> resolver.getName(c.serviceId))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.2"))
 			.setSortable(true);
-		grid.addColumn(c -> c.type)
+		grid.addColumn(c -> getTranslation("enum.ResourceMeasureType." + c.type.name()))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.3"))
 			.setSortable(true);
 		grid.addColumn(c -> c.unit)

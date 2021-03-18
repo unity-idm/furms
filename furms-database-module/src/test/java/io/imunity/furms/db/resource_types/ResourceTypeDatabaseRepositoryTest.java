@@ -135,7 +135,7 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Set<ResourceType> all = repository.findAll(siteId.toString());
+		Set<ResourceType> all = repository.findAllBySiteId(siteId.toString());
 
 		//then
 		assertThat(all).hasSize(2);

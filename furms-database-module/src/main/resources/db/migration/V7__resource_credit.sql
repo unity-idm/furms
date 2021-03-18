@@ -10,10 +10,10 @@ CREATE TABLE resource_credit (
     name VARCHAR(255) UNIQUE NOT NULL,
     split BOOLEAN NOT NULL,
     access BOOLEAN NOT NULL,
-    amount BIGINT NOT NULL,
+    amount DECIMAL NOT NULL,
     create_time TIMESTAMP NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
-    FOREIGN KEY (resource_type_id) REFERENCES resource_type(id) ON DELETE CASCADE
+    FOREIGN KEY (resource_type_id) REFERENCES resource_type(id) ON DELETE RESTRICT
 );

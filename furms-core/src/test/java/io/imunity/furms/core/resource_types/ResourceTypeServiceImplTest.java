@@ -86,7 +86,7 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldReturnAllResourceTypesIfExistsInRepository() {
 		//given
-		when(resourceTypeRepository.findAll("1")).thenReturn(Set.of(
+		when(resourceTypeRepository.findAllBySiteId("1")).thenReturn(Set.of(
 			ResourceType.builder().id("id1").name("name").build(),
 			ResourceType.builder().id("id2").name("name2").build()));
 

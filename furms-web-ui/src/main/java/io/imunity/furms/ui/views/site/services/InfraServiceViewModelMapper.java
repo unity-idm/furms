@@ -8,8 +8,8 @@ package io.imunity.furms.ui.views.site.services;
 import io.imunity.furms.domain.services.InfraService;
 
 class InfraServiceViewModelMapper {
-	static ServiceViewModel map(InfraService infraService) {
-		return ServiceViewModel.builder()
+	static InfraServiceViewModel map(InfraService infraService) {
+		return InfraServiceViewModel.builder()
 			.id(infraService.id)
 			.siteId(infraService.siteId)
 			.name(infraService.name)
@@ -17,7 +17,7 @@ class InfraServiceViewModelMapper {
 			.build();
 	}
 
-	public static InfraService map(ServiceViewModel serviceViewModel){
+	public static InfraService map(InfraServiceViewModel serviceViewModel){
 		return InfraService.builder()
 			.id(serviceViewModel.id)
 			.siteId(serviceViewModel.siteId)

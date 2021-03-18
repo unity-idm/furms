@@ -7,20 +7,20 @@ package io.imunity.furms.ui.views.site.services;
 
 import java.util.Objects;
 
-class ServiceViewModel {
+class InfraServiceViewModel {
 	public final String id;
 	public final String siteId;
 	public String name;
 	public String description;
 
-	public ServiceViewModel(String id, String siteId, String name, String description) {
+	private InfraServiceViewModel(String id, String siteId, String name, String description) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.description = description;
 	}
 
-	public ServiceViewModel(String siteId) {
+	InfraServiceViewModel(String siteId) {
 		this.id = null;
 		this.siteId = siteId;
 	}
@@ -45,7 +45,7 @@ class ServiceViewModel {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ServiceViewModel that = (ServiceViewModel) o;
+		InfraServiceViewModel that = (InfraServiceViewModel) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
@@ -100,8 +100,8 @@ class ServiceViewModel {
 			return this;
 		}
 
-		public ServiceViewModel build() {
-			return new ServiceViewModel(id, siteId, name, description);
+		public InfraServiceViewModel build() {
+			return new InfraServiceViewModel(id, siteId, name, description);
 		}
 	}
 }
