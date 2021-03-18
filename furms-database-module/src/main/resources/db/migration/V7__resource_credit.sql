@@ -15,5 +15,5 @@ CREATE TABLE resource_credit (
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
-    FOREIGN KEY (resource_type_id) REFERENCES resource_type(id) ON DELETE RESTRICT
+    FOREIGN KEY (resource_type_id) REFERENCES resource_type(id) ON DELETE CASCADE
 );

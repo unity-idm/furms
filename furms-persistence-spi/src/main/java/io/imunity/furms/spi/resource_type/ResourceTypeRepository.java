@@ -16,7 +16,7 @@ public interface ResourceTypeRepository {
 
 	Set<ResourceType> findAllBySiteId(String siteId);
 
-	Set<ResourceType> findAllByInfraServiceId(String siteId);
+	Set<ResourceType> findAllByInfraServiceId(String serviceId);
 
 	Set<ResourceType> findAll();
 

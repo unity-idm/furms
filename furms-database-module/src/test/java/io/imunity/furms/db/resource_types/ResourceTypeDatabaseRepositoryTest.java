@@ -142,6 +142,33 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllResourceTypesByServiceId() {
+		//given
+		entityRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("name")
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.build()
+		);
+		entityRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("name2")
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.tera)
+			.build()
+		);
+
+		//when
+		Set<ResourceType> all = repository.findAllByInfraServiceId(serviceId.toString());
+
+		//then
+		assertThat(all).hasSize(2);
+	}
+
+	@Test
 	void shouldCreateResourceType() {
 		//given
 		ResourceType request = ResourceType.builder()
