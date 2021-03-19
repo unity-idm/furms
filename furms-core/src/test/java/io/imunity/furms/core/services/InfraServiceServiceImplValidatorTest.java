@@ -5,7 +5,11 @@
 
 package io.imunity.furms.core.services;
 
+import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
+import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
@@ -14,7 +18,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +33,10 @@ class InfraServiceServiceImplValidatorTest {
 	private InfraServiceRepository infraServiceRepository;
 	@Mock
 	private SiteRepository siteRepository;
+	@Mock
+	private ResourceTypeRepository resourceTypeRepository;
+	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
 
 	@InjectMocks
 	private InfraServiceServiceValidator validator;
@@ -151,9 +161,16 @@ class InfraServiceServiceImplValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		final String id = "id";
+		String id = "id";
+		ResourceType resourceType = ResourceType.builder()
+			.id("id")
+			.siteId("id")
+			.serviceId("id")
+			.build();
 
 		when(infraServiceRepository.exists(id)).thenReturn(true);
+		when(resourceTypeRepository.findAllByInfraServiceId("id")).thenReturn(Set.of(resourceType));
+		when(resourceCreditRepository.existsByResourceTypeIdIn(List.of("id"))).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -168,6 +185,24 @@ class InfraServiceServiceImplValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldNotPassDeleteForExistingResourceCredit() {
+		//given
+		String id = "id";
+		ResourceType resourceType = ResourceType.builder()
+			.id("id")
+			.siteId("id")
+			.serviceId("id")
+			.build();
+
+		when(infraServiceRepository.exists(id)).thenReturn(true);
+		when(resourceTypeRepository.findAllByInfraServiceId("id")).thenReturn(Set.of(resourceType));
+		when(resourceCreditRepository.existsByResourceTypeIdIn(List.of("id"))).thenReturn(true);
+
+		//when+then
+		assertThrows(InfraServiceHasIndirectlyResourceCreditsRemoveValidationError.class, () -> validator.validateDelete(id));
 	}
 
 }

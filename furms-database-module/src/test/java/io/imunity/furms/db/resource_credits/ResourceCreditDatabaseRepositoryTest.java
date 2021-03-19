@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -363,6 +364,25 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldReturnTrueForExistingInResourceTypeId() {
+		//given
+		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("new_name")
+			.split(true)
+			.access(false)
+			.amount(new BigDecimal(434))
+			.createTime(createTime2)
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build());
+
+		//when + then
+		assertThat(repository.existsByResourceTypeIdIn(List.of(existedResourceCredit.resourceTypeId.toString()))).isTrue();
+	}
+
+	@Test
 	void shouldReturnFalseForNonExistingResourceTypeId() {
 		//given
 		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
@@ -379,6 +399,25 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 
 		//when + then
 		assertThat(repository.existsByResourceTypeId(resourceTypeId2.toString())).isFalse();
+	}
+
+	@Test
+	void shouldReturnFalseForNonExistingInResourceTypeId() {
+		//given
+		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("new_name")
+			.split(true)
+			.access(false)
+			.amount(new BigDecimal(434))
+			.createTime(createTime2)
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build());
+
+		//when + then
+		assertThat(repository.existsByResourceTypeIdIn(List.of(resourceTypeId2.toString()))).isFalse();
 	}
 
 	@Test

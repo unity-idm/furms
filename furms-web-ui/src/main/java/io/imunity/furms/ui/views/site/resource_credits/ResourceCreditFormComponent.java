@@ -15,6 +15,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
@@ -23,6 +24,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.*;
+import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
 import static java.util.Optional.ofNullable;
 
 class ResourceCreditFormComponent extends Composite<Div> {
@@ -32,7 +35,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	private final ResourceTypeComboBoxModelResolver resolver;
 	private ZoneId zoneId;
 
-	public ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
+	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
 		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
@@ -59,7 +62,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		TextField amountField = new TextField();
 		amountField.setValueChangeMode(EAGER);
 		amountField.setMaxLength(MAX_NAME_LENGTH);
-		resourceTypeComboBox.addValueChangeListener(event -> amountField.setSuffixComponent(new Label(event.getValue().unit.name())));
+		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));
 
 		DateTimePicker startTimePicker = new DateTimePicker();
@@ -71,6 +74,12 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox, amountField, startTimePicker, endTimePicker);
 
 		getContent().add(formLayout);
+	}
+
+	private void createUnitLabel(TextField amountField, ResourceMeasureUnit unit) {
+		if(unit.equals(SiUnit.none))
+			return;
+		amountField.setSuffixComponent(new Label(unit.name()));
 	}
 
 	private void prepareValidator(TextField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
@@ -97,7 +106,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			.bind(ResourceCreditViewModel::getAccess, ResourceCreditViewModel::setAccess);
 		binder.forField(amountField)
 			.withValidator(
-				value -> Objects.nonNull(value) && value.trim().chars().allMatch(Character::isDigit),
+				value -> Objects.nonNull(value) && isBigDecimal(value),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.amount")
 			)
 			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.amount),

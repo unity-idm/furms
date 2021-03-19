@@ -48,7 +48,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<ResourceType> findAll(String siteId) {
-		return resourceTypeRepository.findAll(siteId);
+		return resourceTypeRepository.findAllBySiteId(siteId);
 	}
 
 	@Override

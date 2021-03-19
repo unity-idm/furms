@@ -17,7 +17,7 @@ public interface ResourceMeasureUnit {
 	}
 
 	enum SiUnit implements ResourceMeasureUnit {
-		kilo, mega, giga, tera, peta
+		none, kilo, mega, giga, tera, peta
 	}
 
 	enum DataUnit implements ResourceMeasureUnit {

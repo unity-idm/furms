@@ -14,7 +14,9 @@ import java.util.Set;
 public interface ResourceTypeRepository {
 	Optional<ResourceType> findById(String id);
 
-	Set<ResourceType> findAll(String siteId);
+	Set<ResourceType> findAllBySiteId(String siteId);
+
+	Set<ResourceType> findAllByInfraServiceId(String serviceId);
 
 	Set<ResourceType> findAll();
 

@@ -10,7 +10,7 @@ CREATE TABLE resource_credit (
     name VARCHAR(255) UNIQUE NOT NULL,
     split BOOLEAN NOT NULL,
     access BOOLEAN NOT NULL,
-    amount BIGINT NOT NULL,
+    amount DECIMAL NOT NULL,
     create_time TIMESTAMP NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
