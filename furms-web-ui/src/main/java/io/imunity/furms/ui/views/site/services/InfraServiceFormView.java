@@ -35,15 +35,15 @@ import static java.util.Optional.ofNullable;
 @Route(value = "site/admin/service/form", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.service.form.page.title")
 class InfraServiceFormView extends FurmsViewComponent {
-	private final Binder<ServiceViewModel> binder = new BeanValidationBinder<>(ServiceViewModel.class);
-	private final ServiceFormComponent serviceFormComponent;
+	private final Binder<InfraServiceViewModel> binder = new BeanValidationBinder<>(InfraServiceViewModel.class);
+	private final InfraServiceFormComponent serviceFormComponent;
 	private final InfraServiceService infraServiceService;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	InfraServiceFormView(InfraServiceService infraServiceService) {
 		this.infraServiceService = infraServiceService;
-		this.serviceFormComponent = new ServiceFormComponent(binder);
+		this.serviceFormComponent = new InfraServiceFormComponent(binder);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();
@@ -72,7 +72,7 @@ class InfraServiceFormView extends FurmsViewComponent {
 	}
 
 	private void saveService() {
-		ServiceViewModel serviceViewModel = binder.getBean();
+		InfraServiceViewModel serviceViewModel = binder.getBean();
 		InfraService infraService = InfraServiceViewModelMapper.map(serviceViewModel);
 		OptionalException<Void> optionalException;
 		if(infraService.id == null)
@@ -89,11 +89,11 @@ class InfraServiceFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 
-		ServiceViewModel serviceViewModel = ofNullable(parameter)
+		InfraServiceViewModel serviceViewModel = ofNullable(parameter)
 			.flatMap(id -> handleExceptions(() -> infraServiceService.findById(id)))
 			.flatMap(Function.identity())
 			.map(InfraServiceViewModelMapper::map)
-			.orElseGet(() -> new ServiceViewModel(ResourceGetter.getCurrentResourceId()));
+			.orElseGet(() -> new InfraServiceViewModel(ResourceGetter.getCurrentResourceId()));
 
 		String trans = parameter == null
 			? "view.site-admin.service.form.parameter.new"

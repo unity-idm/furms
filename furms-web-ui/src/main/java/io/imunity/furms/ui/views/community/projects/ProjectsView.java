@@ -24,6 +24,7 @@ import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,11 +42,15 @@ public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final Grid<ProjectViewModel> grid;
 	private final ProjectModelResolver resolver;
+	private ZoneId zoneId;
 
 	public ProjectsView(ProjectService projectService, ProjectModelResolver resolver) {
 		this.projectService = projectService;
 		this.resolver = resolver;
 		this.grid = createCommunityGrid();
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
+			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
+		});
 
 		Button addButton = createAddButton();
 		loadGridContent();
@@ -164,7 +169,7 @@ public class ProjectsView extends FurmsViewComponent {
 		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(p -> resolver.resolve(users, p))
+			.map(p -> resolver.resolve(users, p, zoneId))
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.collect(toList());
 	}

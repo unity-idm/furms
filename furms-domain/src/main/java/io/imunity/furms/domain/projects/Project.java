@@ -20,12 +20,12 @@ public class Project {
 	private final FurmsImage logo;
 	private final String acronym;
 	private final String researchField;
-	private final LocalDateTime startTime;
-	private final LocalDateTime endTime;
+	private final LocalDateTime utcStartTime;
+	private final LocalDateTime utcEndTime;
 	private final PersistentId leaderId;
 
 	public Project(String id, String communityId, String name, String description, FurmsImage logo, String acronym,
-	               String researchField, LocalDateTime startTime, LocalDateTime endTime, PersistentId projectLeaderId) {
+	               String researchField, LocalDateTime utcStartTime, LocalDateTime utcEndTime, PersistentId projectLeaderId) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -33,8 +33,8 @@ public class Project {
 		this.logo = logo;
 		this.acronym = acronym;
 		this.researchField = researchField;
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.utcStartTime = utcStartTime;
+		this.utcEndTime = utcEndTime;
 		this.leaderId = projectLeaderId;
 	}
 
@@ -66,12 +66,12 @@ public class Project {
 		return researchField;
 	}
 
-	public LocalDateTime getStartTime() {
-		return startTime;
+	public LocalDateTime getUtcStartTime() {
+		return utcStartTime;
 	}
 
-	public LocalDateTime getEndTime() {
-		return endTime;
+	public LocalDateTime getUtcEndTime() {
+		return utcEndTime;
 	}
 
 	public PersistentId getLeaderId() {
@@ -94,14 +94,14 @@ public class Project {
 			Objects.equals(logo, project.logo) &&
 			Objects.equals(acronym, project.acronym) &&
 			Objects.equals(researchField, project.researchField) &&
-			Objects.equals(startTime, project.startTime) &&
-			Objects.equals(endTime, project.endTime) &&
+			Objects.equals(utcStartTime, project.utcStartTime) &&
+			Objects.equals(utcEndTime, project.utcEndTime) &&
 			Objects.equals(leaderId, project.leaderId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, communityId, name, description, logo, acronym, researchField, startTime, endTime, leaderId);
+		return Objects.hash(id, communityId, name, description, logo, acronym, researchField, utcStartTime, utcEndTime, leaderId);
 	}
 
 	@Override
@@ -113,8 +113,8 @@ public class Project {
 			", description='" + description + '\'' +
 			", acronym='" + acronym + '\'' +
 			", researchField='" + researchField + '\'' +
-			", startTime=" + startTime +
-			", endTime=" + endTime +
+			", startTime=" + utcStartTime +
+			", endTime=" + utcEndTime +
 			", projectLeaderId=" + leaderId +
 			'}';
 	}
@@ -127,8 +127,8 @@ public class Project {
 		private FurmsImage logo;
 		private String acronym;
 		private String researchField;
-		private LocalDateTime start;
-		private LocalDateTime end;
+		private LocalDateTime utcStartTime;
+		private LocalDateTime utcEndTime;
 		private PersistentId leaderId;
 
 		private ProjectEntityBuilder() {
@@ -174,13 +174,13 @@ public class Project {
 			return this;
 		}
 
-		public ProjectEntityBuilder startTime(LocalDateTime start) {
-			this.start = start;
+		public ProjectEntityBuilder utcStartTime(LocalDateTime start) {
+			this.utcStartTime = start;
 			return this;
 		}
 
-		public ProjectEntityBuilder endTime(LocalDateTime end) {
-			this.end = end;
+		public ProjectEntityBuilder utcEndTime(LocalDateTime end) {
+			this.utcEndTime = end;
 			return this;
 		}
 
@@ -190,7 +190,7 @@ public class Project {
 		}
 
 		public Project build() {
-			return new Project(id, communityId, name, description, logo, acronym, researchField, start, end, leaderId);
+			return new Project(id, communityId, name, description, logo, acronym, researchField, utcStartTime, utcEndTime, leaderId);
 		}
 	}
 }

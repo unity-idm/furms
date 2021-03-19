@@ -7,13 +7,18 @@ package io.imunity.furms.core.services;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
@@ -24,10 +29,15 @@ import static org.springframework.util.Assert.notNull;
 class InfraServiceServiceValidator {
 	private final InfraServiceRepository infraServiceRepository;
 	private final SiteRepository siteRepository;
+	private final ResourceTypeRepository resourceTypeRepository;
+	private final ResourceCreditRepository resourceCreditRepository;
 
-	InfraServiceServiceValidator(InfraServiceRepository infraServiceRepository, SiteRepository siteRepository) {
+	InfraServiceServiceValidator(InfraServiceRepository infraServiceRepository, SiteRepository siteRepository,
+	                             ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository) {
 		this.infraServiceRepository = infraServiceRepository;
 		this.siteRepository = siteRepository;
+		this.resourceTypeRepository = resourceTypeRepository;
+		this.resourceCreditRepository = resourceCreditRepository;
 	}
 
 	void validateCreate(InfraService infraService) {
@@ -47,6 +57,12 @@ class InfraServiceServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		List<String> resourceTypeIds = resourceTypeRepository.findAllByInfraServiceId(id).stream()
+			.map(resourceType -> resourceType.id)
+			.collect(Collectors.toList());
+		if (resourceCreditRepository.existsByResourceTypeIdIn(resourceTypeIds)) {
+			throw new InfraServiceHasIndirectlyResourceCreditsRemoveValidationError("InfraService should not have ResourceType, which has ResourceCredits.");
+		}
 	}
 
 	private void validateName(InfraService infraService) {

@@ -8,7 +8,7 @@ package io.imunity.furms.ui.project;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class ProjectViewModel {
@@ -19,12 +19,12 @@ public class ProjectViewModel {
 	public FurmsImage logo;
 	public String acronym;
 	public String researchField;
-	public LocalDateTime startTime;
-	public LocalDateTime endTime;
+	public ZonedDateTime startTime;
+	public ZonedDateTime endTime;
 	public FurmsViewUserModel projectLeader;
 
 	public ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
-	                        String acronym, String researchField, LocalDateTime startTime, LocalDateTime endTime,
+	                        String acronym, String researchField, ZonedDateTime startTime, ZonedDateTime endTime,
 	                        FurmsViewUserModel projectLeader) {
 		this.id = id;
 		this.communityId = communityId;
@@ -105,19 +105,19 @@ public class ProjectViewModel {
 		this.researchField = researchField;
 	}
 
-	public LocalDateTime getStartTime() {
+	public ZonedDateTime getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(LocalDateTime startTime) {
+	public void setStartTime(ZonedDateTime startTime) {
 		this.startTime = startTime;
 	}
 
-	public LocalDateTime getEndTime() {
+	public ZonedDateTime getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(LocalDateTime endTime) {
+	public void setEndTime(ZonedDateTime endTime) {
 		this.endTime = endTime;
 	}
 
@@ -174,8 +174,8 @@ public class ProjectViewModel {
 		public FurmsImage logo;
 		public String acronym;
 		public String researchField;
-		public LocalDateTime startTime;
-		public LocalDateTime endTime;
+		public ZonedDateTime startTime;
+		public ZonedDateTime endTime;
 		public FurmsViewUserModel projectLeader;
 
 		private ProjectViewModelBuilder() {
@@ -216,12 +216,12 @@ public class ProjectViewModel {
 			return this;
 		}
 
-		public ProjectViewModelBuilder startTime(LocalDateTime startTime) {
+		public ProjectViewModelBuilder startTime(ZonedDateTime startTime) {
 			this.startTime = startTime;
 			return this;
 		}
 
-		public ProjectViewModelBuilder endTime(LocalDateTime endTime) {
+		public ProjectViewModelBuilder endTime(ZonedDateTime endTime) {
 			this.endTime = endTime;
 			return this;
 		}

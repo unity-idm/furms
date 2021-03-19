@@ -9,12 +9,20 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -23,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static java.util.function.Function.identity;
@@ -39,23 +48,26 @@ class DemoDataInitializer {
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final UnityServerDetector unityDetector;
+	private final InfraServiceRepository infraServiceRepository;
+	private final ResourceTypeRepository resourceTypeRepository;
+	private final ResourceCreditRepository resourceCreditRepository;
 
-	public DemoDataInitializer(CommunityRepository communityRepository,
-			CommunityGroupsDAO communityGroupsDAO,
-			ProjectRepository projectRepository,
-			ProjectGroupsDAO projectGroupsDAO,
-			SiteRepository siteRepository,
-			SiteWebClient siteWebClient,
-			UsersDAO usersDAO,
-			UnityServerDetector unityDetector) {
+	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
+	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
+	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
+	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
+	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
-		this.projectRepository = projectRepository;
-		this.projectGroupsDAO = projectGroupsDAO;
 		this.siteRepository = siteRepository;
 		this.siteWebClient = siteWebClient;
 		this.usersDAO = usersDAO;
+		this.projectRepository = projectRepository;
+		this.projectGroupsDAO = projectGroupsDAO;
 		this.unityDetector = unityDetector;
+		this.infraServiceRepository = infraServiceRepository;
+		this.resourceTypeRepository = resourceTypeRepository;
+		this.resourceCreditRepository = resourceCreditRepository;
 	}
 
 	@PostConstruct
@@ -100,8 +112,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("NI")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(20))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(20))
 				.leaderId(testAdminId)
 				.build();
 
@@ -112,8 +124,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("BS")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(10))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(10))
 				.leaderId(testAdminId)
 				.build();
 
@@ -132,8 +144,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("NI")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(30))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(30))
 				.leaderId(testAdminId)
 				.build();
 
@@ -144,8 +156,8 @@ class DemoDataInitializer {
 				.logo(imgHBPFile, "png")
 				.acronym("BS")
 				.researchField("AI")
-				.startTime(LocalDateTime.now())
-				.endTime(LocalDateTime.now().plusWeeks(13))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now().plusWeeks(13))
 				.leaderId(testAdminId)
 				.build();
 
@@ -178,6 +190,150 @@ class DemoDataInitializer {
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
 			siteWebClient.create(Site.builder().id(bscId).name(bsc.getName()).build());
+
+			InfraService infraServiceCineca = InfraService.builder()
+				.name("Virtual Machines")
+				.siteId(cinecaId)
+				.description("Service for deploying virtual machines")
+				.build();
+			InfraService infraServiceCineca1 = InfraService.builder()
+				.name("Archive Cineca")
+				.siteId(cinecaId)
+				.description("Archive Cineca")
+				.build();
+			InfraService infraServiceFzj = InfraService.builder()
+				.name("Cluster Fzj")
+				.siteId(fzjId)
+				.description("Cluster Fzj")
+				.build();
+			InfraService infraServiceFzj1 = InfraService.builder()
+				.name("Archive Fzj")
+				.siteId(fzjId)
+				.description("Archive Fzj")
+				.build();
+			InfraService infraServiceBsc = InfraService.builder()
+				.name("Cluster Bsc")
+				.siteId(bscId)
+				.description("Cluster Bsc")
+				.build();
+			InfraService infraServiceBsc1 = InfraService.builder()
+				.name("Archive Bsc")
+				.siteId(bscId)
+				.description("Archive Bsc")
+				.build();
+
+			String serviceCinecaId = infraServiceRepository.create(infraServiceCineca);
+			String serviceCinecaId1 = infraServiceRepository.create(infraServiceCineca1);
+			String serviceFzjId = infraServiceRepository.create(infraServiceFzj);
+			String serviceFzjId1 = infraServiceRepository.create(infraServiceFzj1);
+			String serviceBscId = infraServiceRepository.create(infraServiceBsc);
+			String serviceBscId1 = infraServiceRepository.create(infraServiceBsc1);
+
+			ResourceType resourceTypeCineca = ResourceType.builder()
+				.siteId(cinecaId)
+				.serviceId(serviceCinecaId)
+				.name("Cineca Vector CPU Time")
+				.type(ResourceMeasureType.TIME)
+				.unit(ResourceMeasureUnit.TimeUnit.h)
+				.build();
+			ResourceType resourceTypeCineca1 = ResourceType.builder()
+				.siteId(cinecaId)
+				.serviceId(serviceCinecaId1)
+				.name("Cineca Disk Space")
+				.type(ResourceMeasureType.DATA)
+				.unit(ResourceMeasureUnit.DataUnit.GB)
+				.build();
+			ResourceType resourceTypeFzj = ResourceType.builder()
+				.siteId(fzjId)
+				.serviceId(serviceFzjId)
+				.name("Fzj Vector GPU Time")
+				.type(ResourceMeasureType.TIME)
+				.unit(ResourceMeasureUnit.TimeUnit.min)
+				.build();
+			ResourceType resourceTypeFzj1 = ResourceType.builder()
+				.siteId(fzjId)
+				.serviceId(serviceFzjId1)
+				.name("Fzj Storage")
+				.type(ResourceMeasureType.DATA)
+				.unit(ResourceMeasureUnit.DataUnit.PB)
+				.build();
+			ResourceType resourceTypeBsc = ResourceType.builder()
+				.siteId(bscId)
+				.serviceId(serviceBscId)
+				.name("BSC Vector CPU Time")
+				.type(ResourceMeasureType.TIME)
+				.unit(ResourceMeasureUnit.TimeUnit.day)
+				.build();
+			ResourceType resourceTypeBsc1 = ResourceType.builder()
+				.siteId(bscId)
+				.serviceId(serviceBscId1)
+				.name("BSC Disk")
+				.type(ResourceMeasureType.DATA)
+				.unit(ResourceMeasureUnit.DataUnit.kB)
+				.build();
+
+			String resourceTypeCinecaId = resourceTypeRepository.create(resourceTypeCineca);
+			String resourceTypeCinecaId1 = resourceTypeRepository.create(resourceTypeCineca1);
+			String resourceTypeFzjId = resourceTypeRepository.create(resourceTypeFzj);
+			String resourceTypeFzjId1 = resourceTypeRepository.create(resourceTypeFzj1);
+			String resourceTypeBscId = resourceTypeRepository.create(resourceTypeBsc);
+			String resourceTypeBscId1 = resourceTypeRepository.create(resourceTypeBsc1);
+
+			ResourceCredit resourceCreditCineca = ResourceCredit.builder()
+				.siteId(cinecaId)
+				.resourceTypeId(resourceTypeCinecaId)
+				.name("First Cineca pool")
+				.amount(new BigDecimal(100))
+				.utcStartTime(LocalDateTime.of(2021, 2, 11, 16, 11))
+				.utcEndTime(LocalDateTime.of(2021, 4, 11, 16, 11))
+				.build();
+			ResourceCredit resourceCreditCineca1 = ResourceCredit.builder()
+				.siteId(cinecaId)
+				.resourceTypeId(resourceTypeCinecaId1)
+				.name("Second Cineca pool")
+				.amount(new BigDecimal(546))
+				.utcStartTime(LocalDateTime.of(2021, 3, 9, 1, 22))
+				.utcEndTime(LocalDateTime.of(2021, 5, 3, 6, 32))
+				.build();
+			ResourceCredit resourceCreditFzj = ResourceCredit.builder()
+				.siteId(fzjId)
+				.resourceTypeId(resourceTypeFzjId)
+				.name("First Fzj pool")
+				.amount(new BigDecimal(643))
+				.utcStartTime(LocalDateTime.of(2021, 2, 7, 4, 22))
+				.utcEndTime(LocalDateTime.of(2021, 4, 9, 7, 32))
+				.build();
+			ResourceCredit resourceCreditFzj1 = ResourceCredit.builder()
+				.siteId(fzjId)
+				.resourceTypeId(resourceTypeFzjId1)
+				.name("Second Fzj pool")
+				.amount(new BigDecimal(754))
+				.utcStartTime(LocalDateTime.of(2021, 4, 23, 3, 22))
+				.utcEndTime(LocalDateTime.of(2021, 8, 12, 5, 32))
+				.build();
+			ResourceCredit resourceCreditBsc = ResourceCredit.builder()
+				.siteId(bscId)
+				.resourceTypeId(resourceTypeBscId)
+				.name("First Bsc pool")
+				.amount(new BigDecimal(112))
+				.utcStartTime(LocalDateTime.of(2021, 3, 11, 6, 22))
+				.utcEndTime(LocalDateTime.of(2021, 6, 22, 7, 32))
+				.build();
+			ResourceCredit resourceCreditBsc1 = ResourceCredit.builder()
+				.siteId(bscId)
+				.resourceTypeId(resourceTypeBscId1)
+				.name("Second Bsc pool")
+				.amount(new BigDecimal(9875))
+				.utcStartTime(LocalDateTime.of(2021, 10, 22, 11, 22))
+				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
+				.build();
+
+			String resourceCreditCinecaId = resourceCreditRepository.create(resourceCreditCineca);
+			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca1);
+			String resourceCreditFzjId = resourceCreditRepository.create(resourceCreditFzj);
+			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
+			String resourceCreditBscId = resourceCreditRepository.create(resourceCreditBsc);
+			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
 		}
 	}
 }
