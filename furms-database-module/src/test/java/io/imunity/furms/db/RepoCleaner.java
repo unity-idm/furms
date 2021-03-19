@@ -6,6 +6,7 @@ package io.imunity.furms.db;
 
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,8 +20,11 @@ public class RepoCleaner {
 	private ProjectRepository projectRepository;
 	@Autowired
 	private SiteRepository siteRepository;
+	@Autowired
+	private ResourceCreditRepository resourceCreditRepository;
 	
 	public void cleanAll() {
+		resourceCreditRepository.deleteAll();
 		projectRepository.deleteAll();
 		communityRepository.deleteAll();
 		siteRepository.deleteAll();
