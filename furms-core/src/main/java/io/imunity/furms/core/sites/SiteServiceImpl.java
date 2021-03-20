@@ -10,7 +10,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.site_messages.PingStatus;
+import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
@@ -19,7 +19,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.site.api.SiteMessager;
+import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -52,7 +52,7 @@ class SiteServiceImpl implements SiteService {
 	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
-	private final SiteMessager siteMessager;
+	private final SiteAgentService siteAgentService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -60,14 +60,14 @@ class SiteServiceImpl implements SiteService {
 	                UsersDAO usersDAO,
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
-	                SiteMessager siteMessager) {
+	                SiteAgentService siteAgentService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
 		this.usersDAO = usersDAO;
 		this.authzService = authzService;
 		this.publisher = publisher;
-		this.siteMessager = siteMessager;
+		this.siteAgentService = siteAgentService;
 	}
 
 	@Override
@@ -96,6 +96,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
+			siteAgentService.initQueue(siteId);
 			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
@@ -236,9 +237,9 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public CompletableFuture<PingStatus> pingAgent() {
-		return siteMessager.ping();
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
+	public CompletableFuture<SiteAgentStatus> pingAgent(String siteId) {
+		return siteAgentService.ping(siteId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

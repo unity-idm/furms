@@ -17,7 +17,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.site.api.SiteMessager;
+import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
@@ -52,14 +52,14 @@ class SiteServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private SiteMessager siteMessager;
+	private SiteAgentService siteAgentService;
 
 	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository);
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteMessager);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService);
 	}
 
 	@Test

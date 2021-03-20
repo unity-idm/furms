@@ -16,6 +16,7 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -51,12 +52,14 @@ class DemoDataInitializer {
 	private final InfraServiceRepository infraServiceRepository;
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
+	private final SiteAgentService siteAgentService;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
 	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
 	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
 	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
-	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository) {
+	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
+	                    SiteAgentService siteAgentService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
@@ -68,6 +71,7 @@ class DemoDataInitializer {
 		this.infraServiceRepository = infraServiceRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
+		this.siteAgentService = siteAgentService;
 	}
 
 	@PostConstruct
@@ -186,6 +190,10 @@ class DemoDataInitializer {
 			String cinecaId = siteRepository.create(cineca);
 			String fzjId = siteRepository.create(fzj);
 			String bscId = siteRepository.create(bsc);
+
+			siteAgentService.initQueue(cinecaId);
+			siteAgentService.initQueue(fzjId);
+			siteAgentService.initQueue(bscId);
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());

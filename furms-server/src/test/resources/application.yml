@@ -45,3 +45,7 @@ spring:
       username: sa
       password: sa
       driver-class-name: org.h2.Driver
+   rabbitmq:
+      username: guest
+      password: guest
+      port: 44444

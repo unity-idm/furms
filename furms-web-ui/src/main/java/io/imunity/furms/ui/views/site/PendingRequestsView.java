@@ -14,6 +14,8 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
 @Route(value = "site/admin/pending/requests", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.pending-requests.page.title")
 public class PendingRequestsView extends FurmsViewComponent {
@@ -22,11 +24,12 @@ public class PendingRequestsView extends FurmsViewComponent {
 		Button button = new Button("Ping");
 		Label label = new Label();
 		UI ui = UI.getCurrent();
+		String siteId = getCurrentResourceId();
 		button.addClickListener(event -> {
 			label.setText("");
-			siteService.pingAgent()
+			siteService.pingAgent(siteId)
 				.thenAcceptAsync(status ->
-					ui.access(() -> label.setText(status.name()))
+					ui.access(() -> label.setText(status.status.name().toLowerCase()))
 				);
 		});
 		getContent().add(new HorizontalLayout(button, label));

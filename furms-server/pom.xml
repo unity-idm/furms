@@ -53,6 +53,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<artifactId>furms-rabbitmq-site-client</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<artifactId>furms-unity-client</artifactId>
 			<groupId>io.imunity.furms</groupId>
 			<scope>runtime</scope>
@@ -63,6 +68,10 @@
 		</dependency>
 		<dependency>
 			<artifactId>furms-persistence-spi</artifactId>
+			<groupId>io.imunity.furms</groupId>
+		</dependency>
+		<dependency>
+			<artifactId>furms-site-api</artifactId>
 			<groupId>io.imunity.furms</groupId>
 		</dependency>
 

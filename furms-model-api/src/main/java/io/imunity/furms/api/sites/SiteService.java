@@ -5,7 +5,7 @@
 
 package io.imunity.furms.api.sites;
 
-import io.imunity.furms.domain.site_messages.PingStatus;
+import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -41,5 +41,5 @@ public interface SiteService {
 
 	boolean isAdmin(String siteId);
 
-	CompletableFuture<PingStatus> pingAgent();
+	CompletableFuture<SiteAgentStatus> pingAgent(String siteId);
 }
