@@ -20,7 +20,7 @@ import java.util.Set;
 class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUserProvider {
 	public FURMSUser furmsUser;
 
-	public FurmsOAuthAuthenticatedUser(OAuth2User defaultOAuth2User, String key, Map<ResourceId, Set<Role>> roles) {
+	FurmsOAuthAuthenticatedUser(OAuth2User defaultOAuth2User, String key, Map<ResourceId, Set<Role>> roles) {
 		super(defaultOAuth2User.getAuthorities(), defaultOAuth2User.getAttributes(), key);
 		this.furmsUser = FURMSUser.builder()
 				.id(new PersistentId(getAttribute("sub")))

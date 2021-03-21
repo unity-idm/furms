@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.unity.client;
+package io.imunity.furms.unity.client.oauth;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -12,12 +12,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URI;
 
+import static io.imunity.furms.unity.config.WebClientConfig.OAUTH_UNITY_CLIENT;
+
 @Component
 class UnityOauthClient {
 
 	private final WebClient webClient;
 
-	UnityOauthClient(@Qualifier("oauthTokenEndpointWebClient") WebClient oauthTokenEndpointWebClient) {
+	UnityOauthClient(@Qualifier(OAUTH_UNITY_CLIENT) WebClient oauthTokenEndpointWebClient) {
 		this.webClient = oauthTokenEndpointWebClient;
 	}
 

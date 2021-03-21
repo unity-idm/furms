@@ -17,7 +17,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
 import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
-import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtender;
+import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtenderFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -46,20 +46,20 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
-	private final FurmsOauthTokenExtender furmsOauthTokenExtender;
+	private final FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter;
 	private final FurmsOauthLogoutFilter furmsOauthLogoutFilter;
 
 	WebAppSecurityConfiguration(RestTemplate unityRestTemplate,
 	                            ClientRegistrationRepository clientRegistrationRepo,
 	                            TokenRevokerHandler tokenRevokerHandler,
 	                            RoleLoader roleLoader,
-	                            FurmsOauthTokenExtender furmsOauthTokenExtender,
+	                            FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter,
 	                            FurmsOauthLogoutFilter furmsOauthLogoutFilter) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
-		this.furmsOauthTokenExtender = furmsOauthTokenExtender;
+		this.furmsOauthTokenExtenderFilter = furmsOauthTokenExtenderFilter;
 		this.furmsOauthLogoutFilter = furmsOauthLogoutFilter;
 	}
 
@@ -67,7 +67,7 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.addFilterAfter(furmsOauthLogoutFilter, ConcurrentSessionFilter.class)
-			.addFilterAfter(furmsOauthTokenExtender, FurmsOauthLogoutFilter.class)
+			.addFilterAfter(furmsOauthTokenExtenderFilter, FurmsOauthLogoutFilter.class)
 
 			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
@@ -80,8 +80,9 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().csrf().disable()
 
 			// Configure logout
-			.logout().logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
-			.logoutSuccessHandler(tokenRevokerHandler)
+			.logout()
+				.logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
+				.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
 			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))

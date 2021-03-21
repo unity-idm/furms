@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import static org.springframework.security.oauth2.core.OAuth2AccessToken.TokenType.BEARER;
 
 @Component
-public class TokenRefreshHandler {
+class TokenRefreshHandler {
 
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	private final AccessTokenRepository tokenRepository;
@@ -28,7 +28,6 @@ public class TokenRefreshHandler {
 	}
 
 	OAuth2AccessToken refresh(OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authenticationToken, DefaultOAuth2User principal) throws Exception {
-
 		final TokenRefreshResponse response = tokenRepository.refresh(
 				authorizedClient.getRefreshToken().getTokenValue(),
 				authenticationToken.getAuthorizedClientRegistrationId());

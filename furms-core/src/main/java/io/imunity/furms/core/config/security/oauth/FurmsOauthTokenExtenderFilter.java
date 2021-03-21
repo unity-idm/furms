@@ -6,8 +6,13 @@
 package io.imunity.furms.core.config.security.oauth;
 
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -24,11 +29,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 
 @Component
-public class FurmsOauthTokenExtender extends OncePerRequestFilter {
+@ConditionalOnBean(annotation = EnableWebSecurity.class)
+public class FurmsOauthTokenExtenderFilter extends OncePerRequestFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -39,12 +46,23 @@ public class FurmsOauthTokenExtender extends OncePerRequestFilter {
 	private final TokenRefreshHandler tokenRefreshHandler;
 	private final Cache<String, String> oauthTokenCache;
 
-	FurmsOauthTokenExtender(OAuth2AuthorizedClientService auth2AuthorizedClientService,
-	                        TokenRefreshHandler tokenRefreshHandler,
-	                        Cache<String, String> oauthTokenCache) {
+	public FurmsOauthTokenExtenderFilter(@Value("${furms.unity.oAuth.token.refresh-interval:30}") int refreshRate,
+	                                     OAuth2AuthorizedClientService auth2AuthorizedClientService,
+	                                     TokenRefreshHandler tokenRefreshHandler) {
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 		this.tokenRefreshHandler = tokenRefreshHandler;
-		this.oauthTokenCache = oauthTokenCache;
+		this.oauthTokenCache = initCache(refreshRate);
+	}
+
+	private Cache<String, String> initCache(int refreshRate) {
+		return CacheBuilder.newBuilder()
+				.expireAfterWrite(refreshRate, TimeUnit.SECONDS)
+				.build(new CacheLoader<>() {
+					@Override
+					public String load(String token) {
+						return token;
+					}
+				});
 	}
 
 	@Override
