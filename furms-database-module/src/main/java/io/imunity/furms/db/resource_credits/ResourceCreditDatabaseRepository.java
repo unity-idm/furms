@@ -101,6 +101,14 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
+	public boolean existsBySiteId(String id) {
+		if (isEmpty(id)) {
+			return false;
+		}
+		return repository.existsBySiteId(UUID.fromString(id));
+	}
+
+	@Override
 	public boolean existsByResourceTypeId(String id) {
 		if (isEmpty(id)) {
 			return false;
