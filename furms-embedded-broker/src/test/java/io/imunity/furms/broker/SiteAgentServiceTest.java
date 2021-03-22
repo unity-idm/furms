@@ -24,7 +24,7 @@ class SiteAgentServiceTest {
 
 	@Test
 	void shouldReturnOKStatus() throws ExecutionException, InterruptedException {
-		CompletableFuture<SiteAgentStatus> ping = siteAgentService.ping("mock");
+		CompletableFuture<SiteAgentStatus> ping = siteAgentService.getStatus("mock");
 		assertThat(ping.get().status).isEqualTo(AvailabilityStatus.AVAILABLE);
 	}
 }

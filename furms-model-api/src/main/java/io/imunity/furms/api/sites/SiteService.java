@@ -41,5 +41,5 @@ public interface SiteService {
 
 	boolean isAdmin(String siteId);
 
-	CompletableFuture<SiteAgentStatus> pingAgent(String siteId);
+	CompletableFuture<SiteAgentStatus> getSiteAgentStatus(String siteId);
 }

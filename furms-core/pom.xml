@@ -60,10 +60,6 @@
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-site-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>io.imunity.furms</groupId>
-			<artifactId>furms-rabbitmq-site-client</artifactId>
-		</dependency>
 
 		<!-- Test -->
 		<dependency>

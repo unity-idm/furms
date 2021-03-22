@@ -46,6 +46,8 @@ spring:
       password: sa
       driver-class-name: org.h2.Driver
    rabbitmq:
+      host: localhost
       username: guest
       password: guest
       port: 44444
+      connection-timeout: 10000

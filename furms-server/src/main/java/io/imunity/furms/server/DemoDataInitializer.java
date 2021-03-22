@@ -191,9 +191,9 @@ class DemoDataInitializer {
 			String fzjId = siteRepository.create(fzj);
 			String bscId = siteRepository.create(bsc);
 
-			siteAgentService.initQueue(cinecaId);
-			siteAgentService.initQueue(fzjId);
-			siteAgentService.initQueue(bscId);
+			siteAgentService.initializeSiteConnection(cinecaId);
+			siteAgentService.initializeSiteConnection(fzjId);
+			siteAgentService.initializeSiteConnection(bscId);
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());

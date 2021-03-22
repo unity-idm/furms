@@ -28,13 +28,18 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	}
 
 	@Override
-	public void initQueue(String siteId) {
+	public void initializeSiteConnection(String siteId) {
 		Queue queue = new Queue(siteId);
 		rabbitAdmin.declareQueue(queue);
 	}
 
 	@Override
-	public CompletableFuture<SiteAgentStatus> ping(String siteId) {
+	public void removeSiteConnection(String siteId) {
+		rabbitAdmin.deleteQueue(siteId);
+	}
+
+	@Override
+	public CompletableFuture<SiteAgentStatus> getStatus(String siteId) {
 		CompletableFuture<SiteAgentStatus> future = new CompletableFuture<>();
 		AsyncRabbitTemplate.RabbitConverterFuture<Object> rabbitFuture = rabbitTemplate.convertSendAndReceive(siteId, new AgentPingRequest());
 		rabbitFuture.addCallback(

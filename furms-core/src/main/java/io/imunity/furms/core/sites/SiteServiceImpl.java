@@ -96,7 +96,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
-			siteAgentService.initQueue(siteId);
+			siteAgentService.initializeSiteConnection(siteId);
 			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
@@ -142,6 +142,7 @@ class SiteServiceImpl implements SiteService {
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
+			siteAgentService.removeSiteConnection(id);
 			publisher.publishEvent(new RemoveSiteEvent(id));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
@@ -238,8 +239,8 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public CompletableFuture<SiteAgentStatus> pingAgent(String siteId) {
-		return siteAgentService.ping(siteId);
+	public CompletableFuture<SiteAgentStatus> getSiteAgentStatus(String siteId) {
+		return siteAgentService.getStatus(siteId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

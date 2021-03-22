@@ -21,15 +21,15 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 public class PendingRequestsView extends FurmsViewComponent {
 
 	public PendingRequestsView(SiteService siteService) {
-		Button button = new Button("Ping");
+		Button button = new Button(getTranslation("view.site-admin.pending-requests.page.agent.connection"));
 		Label label = new Label();
 		UI ui = UI.getCurrent();
 		String siteId = getCurrentResourceId();
 		button.addClickListener(event -> {
 			label.setText("");
-			siteService.pingAgent(siteId)
+			siteService.getSiteAgentStatus(siteId)
 				.thenAcceptAsync(status ->
-					ui.access(() -> label.setText(status.status.name().toLowerCase()))
+					ui.access(() -> label.setText(getTranslation("view.site-admin.pending-requests.page.agent." + status.status.name())))
 				);
 		});
 		getContent().add(new HorizontalLayout(button, label));

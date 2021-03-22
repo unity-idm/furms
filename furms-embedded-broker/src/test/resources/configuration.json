@@ -47,7 +47,7 @@
   "virtualhostnodes":[
     {
       "name":"default",
-      "type":"Memory",
+      "type":"JSON",
       "defaultVirtualHostNode":"true",
       "virtualHostInitialConfiguration":"{\"type\": \"Memory\", \"queues\" :[{\"name\": \"amq.rabbitmq.reply-to\"}]}"
     }
