@@ -59,7 +59,7 @@ class SiteServiceImplTest {
 
 	@BeforeEach
 	void setUp() {
-		validator = new SiteServiceValidator(repository);
+		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService);
 	}
 
