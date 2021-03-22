@@ -419,26 +419,4 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		//when + then
 		assertThat(repository.existsByResourceTypeIdIn(List.of(resourceTypeId2.toString()))).isFalse();
 	}
-
-	@Test
-	void shouldRemoveResourceCreditWhenSiteHasRemoved() {
-		//given
-		ResourceCreditEntity entity = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
-			.name("name")
-			.split(true)
-			.access(true)
-			.amount(new BigDecimal(100))
-			.createTime(createTime)
-			.startTime(startTime)
-			.endTime(endTime)
-			.build()
-		);
-
-		//when
-		siteRepository.delete(siteId.toString());
-		//then
-		assertThat(repository.findById(entity.getId().toString())).isEmpty();
-	}
 }
