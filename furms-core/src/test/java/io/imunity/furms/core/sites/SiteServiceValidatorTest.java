@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.sites;
 
+import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +24,8 @@ class SiteServiceValidatorTest {
 
 	@Mock
 	private SiteRepository siteRepository;
+	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
 
 	@InjectMocks
 	private SiteServiceValidator validator;
@@ -102,6 +106,7 @@ class SiteServiceValidatorTest {
 		final String id = "id";
 
 		when(siteRepository.exists(id)).thenReturn(true);
+		when(resourceCreditRepository.existsBySiteId(id)).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -116,6 +121,18 @@ class SiteServiceValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldNotPassDeleteForExistingResourceCredit() {
+		//given
+		final String id = "id";
+
+		when(siteRepository.exists(id)).thenReturn(true);
+		when(resourceCreditRepository.existsBySiteId(id)).thenReturn(true);
+
+		//when+then
+		assertThrows(SiteHasResourceCreditsRemoveValidationError.class, () -> validator.validateDelete(id));
 	}
 
 	@Test

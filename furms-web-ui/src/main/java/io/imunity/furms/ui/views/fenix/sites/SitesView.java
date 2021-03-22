@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
@@ -215,6 +216,9 @@ public class SitesView extends FurmsViewComponent {
 			try {
 				siteService.delete(site.getId());
 				showSuccessNotification(getTranslation("view.sites.main.grid.item.menu.delete.success", site.getName()));
+			} catch (SiteHasResourceCreditsRemoveValidationError e) {
+				LOG.error("Could not create Site. ", e);
+				showErrorNotification(getTranslation("site.removing.error.message", site.getName()));
 			} catch (RuntimeException e) {
 				LOG.error("Could not create Site. ", e);
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "delete"));
