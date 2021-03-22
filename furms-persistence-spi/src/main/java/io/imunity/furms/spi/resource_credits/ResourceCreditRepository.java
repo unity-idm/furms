@@ -25,6 +25,8 @@ public interface ResourceCreditRepository {
 
 	boolean exists(String id);
 
+	boolean existsBySiteId(String id);
+
 	boolean existsByResourceTypeId(String id);
 
 	boolean existsByResourceTypeIdIn(Collection<String> ids);

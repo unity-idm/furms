@@ -18,6 +18,7 @@ import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -50,12 +51,14 @@ class SiteServiceImplTest {
 	private UsersDAO usersDAO;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private ResourceCreditRepository resourceCreditRepository;
 
 	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
-		validator = new SiteServiceValidator(repository);
+		validator = new SiteServiceValidator(repository, resourceCreditRepository);
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService);
 	}
 

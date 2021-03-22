@@ -7,7 +7,9 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
@@ -18,9 +20,11 @@ import static org.springframework.util.Assert.notNull;
 class SiteServiceValidator {
 
 	private final SiteRepository siteRepository;
+	private final ResourceCreditRepository resourceCreditRepository;
 
-	SiteServiceValidator(SiteRepository siteRepository) {
+	SiteServiceValidator(SiteRepository siteRepository, ResourceCreditRepository resourceCreditRepository) {
 		this.siteRepository = siteRepository;
+		this.resourceCreditRepository = resourceCreditRepository;
 	}
 
 	void validateCreate(Site site) {
@@ -36,6 +40,9 @@ class SiteServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		if (resourceCreditRepository.existsBySiteId(id)) {
+			throw new SiteHasResourceCreditsRemoveValidationError("Site should not have ResourceCredits.");
+		}
 	}
 
 	void validateName(String name) {
