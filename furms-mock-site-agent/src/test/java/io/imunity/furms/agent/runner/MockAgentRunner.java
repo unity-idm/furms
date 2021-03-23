@@ -63,7 +63,7 @@ public class MockAgentRunner {
 
 	private boolean isUUID(String s){
 		try{
-			UUID uuid = UUID.fromString(s);
+			UUID.fromString(s);
 			return true;
 		} catch (IllegalArgumentException exception){
 			return false;

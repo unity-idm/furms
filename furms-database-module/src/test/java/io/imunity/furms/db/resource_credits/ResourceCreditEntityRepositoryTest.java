@@ -277,7 +277,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void savedResourceCreditDoesNotExistByName() {
 		//given
-		ResourceCreditEntity service = resourceCreditRepository.save(ResourceCreditEntity.builder()
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
 			.siteId(siteId)
 			.resourceTypeId(resourceTypeId)
 			.name("name")

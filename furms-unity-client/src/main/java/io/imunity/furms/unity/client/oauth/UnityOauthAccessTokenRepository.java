@@ -58,6 +58,7 @@ public class UnityOauthAccessTokenRepository implements AccessTokenRepository {
 			formData.add("grant_type", "refresh_token");
 			formData.add("refresh_token", refreshToken);
 
+			@SuppressWarnings("unchecked")
 			LinkedHashMap<String, Object> response = unityOauthClient.postForObject(uri, LinkedHashMap.class, formData, MediaType.APPLICATION_FORM_URLENCODED);
 
 			return new TokenRefreshResponse(response);

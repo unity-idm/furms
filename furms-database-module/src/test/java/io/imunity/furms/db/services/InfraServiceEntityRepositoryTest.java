@@ -165,7 +165,7 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void savedInfraServiceDoesNotExistByName() {
 		//given
-		InfraServiceEntity service = serviceRepository.save(InfraServiceEntity.builder()
+		serviceRepository.save(InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")

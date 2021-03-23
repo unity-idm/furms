@@ -49,9 +49,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceCreditEntityRepository entityRepository;
 
-	@Autowired
-	private ResourceCreditEntityRepository resourceCreditEntityRepository;
-
 	private UUID siteId;
 	private UUID siteId2;
 
@@ -385,7 +382,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnFalseForNonExistingResourceTypeId() {
 		//given
-		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+		entityRepository.save(ResourceCreditEntity.builder()
 			.siteId(siteId)
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
@@ -404,7 +401,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnFalseForNonExistingInResourceTypeId() {
 		//given
-		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
+		entityRepository.save(ResourceCreditEntity.builder()
 			.siteId(siteId)
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")

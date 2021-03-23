@@ -41,9 +41,6 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceTypeEntityRepository entityRepository;
 
-	@Autowired
-	private ResourceTypeEntityRepository resourceTypeEntityRepository;
-
 	private UUID siteId;
 	private UUID serviceId;
 
