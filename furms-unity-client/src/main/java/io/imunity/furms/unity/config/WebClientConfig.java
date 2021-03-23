@@ -12,6 +12,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.Base64;
 
+import io.imunity.furms.unity.client.oauth.UnityOauthCredentials;
+import io.imunity.furms.unity.client.oauth.UnityOauthProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,13 +26,25 @@ import reactor.netty.http.client.HttpClient;
 public class WebClientConfig {
 	
 	public static final String BASE_UNITY_CLIENT = "baseUnityClient";
-	
+	public static final String OAUTH_UNITY_CLIENT = "oauthTokenEndpointWebClient";
+
 	@Bean
 	@Primary
 	public WebClient adminWebClient(UnityProperties unityProperties, SslContextManager sslContextManager) {
 		String authorizationKey = createAuthorizationKey(unityProperties.getAdminUser(),
 				unityProperties.getAdminPassword());
 		return createBuilder(unityProperties.getAdminUrl(), sslContextManager)
+				.defaultHeader(AUTHORIZATION, authorizationKey)
+				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.build();
+	}
+
+	@Bean(name=OAUTH_UNITY_CLIENT)
+	public WebClient oauthTokenEndpointWebClient(SslContextManager sslContextManager,
+	                                             UnityOauthProperties unityOauthProperties,
+	                                             UnityOauthCredentials unityOauthCredentials) {
+		String authorizationKey = createAuthorizationKey(unityOauthCredentials.getClientId(), unityOauthCredentials.getClientSecret());
+		return createBuilder(unityOauthProperties.getTokenUri(), sslContextManager)
 				.defaultHeader(AUTHORIZATION, authorizationKey)
 				.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.build();

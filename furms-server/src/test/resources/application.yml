@@ -30,6 +30,8 @@ furms:
       oAuth:
          clientId: oauth-client
          clientSecret: oauth-pass1
+         token:
+            refresh-interval: 60
    front:
       language: en
    url: https://localhost:${server.port}

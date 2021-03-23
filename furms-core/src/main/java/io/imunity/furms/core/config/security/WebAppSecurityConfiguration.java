@@ -16,6 +16,8 @@ import java.lang.invoke.MethodHandles;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
+import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
+import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtenderFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
@@ -43,18 +46,29 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
+	private final FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter;
+	private final FurmsOauthLogoutFilter furmsOauthLogoutFilter;
 
-	WebAppSecurityConfiguration(RestTemplate unityRestTemplate, ClientRegistrationRepository clientRegistrationRepo,
-	                      TokenRevokerHandler tokenRevokerHandler, RoleLoader roleLoader) {
+	WebAppSecurityConfiguration(RestTemplate unityRestTemplate,
+	                            ClientRegistrationRepository clientRegistrationRepo,
+	                            TokenRevokerHandler tokenRevokerHandler,
+	                            RoleLoader roleLoader,
+	                            FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter,
+	                            FurmsOauthLogoutFilter furmsOauthLogoutFilter) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
+		this.furmsOauthTokenExtenderFilter = furmsOauthTokenExtenderFilter;
+		this.furmsOauthLogoutFilter = furmsOauthLogoutFilter;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+			.addFilterAfter(furmsOauthLogoutFilter, ConcurrentSessionFilter.class)
+			.addFilterAfter(furmsOauthTokenExtenderFilter, FurmsOauthLogoutFilter.class)
+
 			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
 
@@ -62,14 +76,13 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and().requestMatchers().requestMatchers(new NonErrorDispatcherTypeRequestMatcher())
 			.and().authorizeRequests().anyRequest().authenticated()
 
-
 			// Not using Spring CSRF, Vaadin has built-in Cross-Site Request Forgery already
 			.and().csrf().disable()
 
-
 			// Configure logout
-			.logout().logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
-			.logoutSuccessHandler(tokenRevokerHandler)
+			.logout()
+				.logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
+				.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
 			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))

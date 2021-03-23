@@ -4,6 +4,9 @@ furms:
     admin-user: test
     admin-password: test
     url: https://localhost:2443
+    oAuth:
+      clientId: clientId
+      clientSecret: clientSecret
     ssl:
       trust-store: classpath:demoTruststore.jks
       trust-store-password: unicore
@@ -21,6 +24,7 @@ spring:
         provider:
           unity:
             revoke: ${furms.unity.url}/oauth2/revoke
+            token-uri: ${furms.unity.url}/oauth2/token
 
 logging:
    level:

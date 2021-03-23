@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.config.security;
 
-import io.imunity.furms.spi.tokens.AccessTokenRevoker;
+import io.imunity.furms.spi.tokens.AccessTokenRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -23,11 +23,11 @@ import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_URL;
 
 @Component
 class TokenRevokerHandler implements LogoutSuccessHandler {
-	private final AccessTokenRevoker accessTokenRevoker;
+	private final AccessTokenRepository accessTokenRepository;
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 
-	TokenRevokerHandler(AccessTokenRevoker accessTokenRevoker, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
-		this.accessTokenRevoker = accessTokenRevoker;
+	TokenRevokerHandler(AccessTokenRepository accessTokenRepository, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
+		this.accessTokenRepository = accessTokenRepository;
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 	}
 
@@ -40,7 +40,7 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 		String accessToken = oAuth2AuthorizedClient.getAccessToken().getTokenValue();
 		String clientId = oAuth2AuthorizedClient.getClientRegistration().getClientId();
 
-		accessTokenRevoker.revoke(accessToken, clientId);
+		accessTokenRepository.revoke(accessToken, clientId);
 		httpServletResponse.sendRedirect(LOGOUT_URL);
 	}
 }

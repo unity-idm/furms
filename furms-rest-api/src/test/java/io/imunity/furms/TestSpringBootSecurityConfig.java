@@ -8,4 +8,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {"io.imunity.furms"})
 public class TestSpringBootSecurityConfig {
+
 }
