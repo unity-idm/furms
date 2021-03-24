@@ -97,6 +97,7 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.create(createdSite);
 			siteAgentService.initializeSiteConnection(siteId);
+			LOG.info("Initialized connection channel to site agent: {}", siteId);
 			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
