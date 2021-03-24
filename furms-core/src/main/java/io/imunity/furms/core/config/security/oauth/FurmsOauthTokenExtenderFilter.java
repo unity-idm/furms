@@ -76,8 +76,13 @@ public class FurmsOauthTokenExtenderFilter extends OncePerRequestFilter {
 
 				if (oAuth2AuthorizedClient.getAccessToken() != null && oauthTokenCache.getIfPresent(oAuth2AuthorizedClient.getAccessToken().getTokenValue()) == null) {
 					try {
-						final OAuth2AccessToken newToken = tokenRefreshHandler.refresh(oAuth2AuthorizedClient, oAuth2AuthenticationToken, principal);
-						oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
+						if (oAuth2AuthorizedClient.getRefreshToken() != null && oAuth2AuthorizedClient.getRefreshToken().getTokenValue() != null) {
+							final OAuth2AccessToken newToken = tokenRefreshHandler.refresh(oAuth2AuthorizedClient, oAuth2AuthenticationToken, principal);
+							oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
+						} else {
+							LOG.info("Couldn't refresh token ({}) due to lack of required Refresh Token in security context",
+									oAuth2AuthorizedClient.getAccessToken().getTokenValue());
+						}
 					} catch (Exception e) {
 						LOG.error("Could not refresh Oauth token: ", e);
 					}
