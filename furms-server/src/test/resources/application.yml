@@ -15,6 +15,7 @@ logging:
       org.springframework.security.web: INFO
       org.apache.http: DEBUG
       httpclient.wire: DEBUG
+      org.springframework.amqp.rabbit: DEBUG
       org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
 
 

@@ -12,11 +12,3 @@ class BrokerConfiguration:
         self.password = password
         self.host = host
         self.port = port
-
-class MessageListeners:
-    """Listeners used to trigger messages arival from FURMS."""
-    def __init__(self):
-        self.pingListener = None
-
-    def pingCallback(self, callbackFunction):
-        self.pingListener = callbackFunction

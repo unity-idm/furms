@@ -5,5 +5,6 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+@FurmsMessage(type = "AgentPingRequest")
 public class AgentPingRequest {
 }

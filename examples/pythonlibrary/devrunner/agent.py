@@ -13,13 +13,13 @@ if len(sys.argv) != 2:
 set_stream_logger('furms.msgslistener', logging.DEBUG)
 
 brokerConfig = model.BrokerConfiguration(
-    host='localhost', port='44444', 
+    host='127.0.0.1', port='44444', 
     username='guest', password='guest', 
     queuename=sys.argv[1])
 
 
 try:
-    msgslistener.start_consuming(config=brokerConfig, listeners=None)
+    msgslistener.start_consuming(config=brokerConfig)
 except KeyboardInterrupt:
     print('Interrupted')
     try:
