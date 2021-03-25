@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- *  See LICENSE file for licensing information.
+ * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.resource_credits;
+package io.imunity.furms.core.resource_credit_allocation;
 
-import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocationsRemoveValidationError;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credit_allocation.ResourceCreditAllocation;
+import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credit_allocation.ResourceCreditAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -27,34 +26,38 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ResourceCreditServiceImplValidatorTest {
+class ResourceCreditAllocationServiceImplValidatorTest {
 	@Mock
 	private ResourceTypeRepository resourceTypeRepository;
 	@Mock
 	private SiteRepository siteRepository;
+	@Mock
+	private CommunityRepository communityRepository;
 	@Mock
 	private ResourceCreditRepository resourceCreditRepository;
 	@Mock
 	private ResourceCreditAllocationRepository resourceCreditAllocationRepository;
 
 	@InjectMocks
-	private ResourceCreditServiceValidator validator;
+	private ResourceCreditAllocationServiceValidator validator;
 
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
+		when(communityRepository.exists(service.communityId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.exists(service.resourceCreditId)).thenReturn(true);
+		when(resourceCreditAllocationRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(service));
@@ -63,36 +66,19 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullAmount() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
+		when(communityRepository.exists(service.communityId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
-
-		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
-	}
-
-	@Test
-	void shouldNotPassCreateForWrongDates() {
-		//given
-		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
-			.name("name")
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now().minusDays(10))
-			.build();
-
-		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.exists(service.resourceCreditId)).thenReturn(true);
+		when(resourceCreditAllocationRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -101,18 +87,20 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
+		when(communityRepository.exists(service.communityId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceCreditRepository.exists(service.resourceCreditId)).thenReturn(true);
+		when(resourceCreditAllocationRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -121,7 +109,7 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingSiteId() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
 			.name("name")
 			.build();
@@ -135,14 +123,16 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingResourceTypeId() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
 			.name("name")
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(resourceTypeRepository.exists(service.siteId)).thenReturn(false);
+		when(communityRepository.exists(service.communityId)).thenReturn(true);
+		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -151,7 +141,7 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullSiteId() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.name("name")
 			.build();
 
@@ -162,7 +152,7 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullResourceTypeId() {
 		//given
-		ResourceCredit service = ResourceCredit.builder()
+		ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.siteId("id")
 			.name("name")
 			.build();
@@ -174,21 +164,23 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final ResourceCredit service = ResourceCredit.builder()
+		final ResourceCreditAllocation service = ResourceCreditAllocation.builder()
 			.id("id")
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
+		when(communityRepository.exists(service.communityId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.exists(service.id)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
-		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(service));
+		when(resourceCreditRepository.exists(service.resourceCreditId)).thenReturn(true);
+		when(resourceCreditAllocationRepository.exists(service.id)).thenReturn(true);
+		when(resourceCreditAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditAllocationRepository.findById(any())).thenReturn(Optional.of(service));
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(service));
@@ -197,17 +189,17 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
-		ResourceCredit community = ResourceCredit.builder()
+		ResourceCreditAllocation community = ResourceCreditAllocation.builder()
 			.id("id")
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(resourceCreditRepository.exists(community.id)).thenReturn(false);
+		when(resourceCreditAllocationRepository.exists(community.id)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
@@ -216,31 +208,33 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
-		ResourceCredit resourceCredit = ResourceCredit.builder()
+		ResourceCreditAllocation resourceCredit = ResourceCreditAllocation.builder()
 			.id("id")
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		ResourceCredit resourceCredit2 = ResourceCredit.builder()
+		ResourceCreditAllocation resourceCredit2 = ResourceCreditAllocation.builder()
 			.id("id")
 			.siteId("id")
+			.communityId("id")
 			.resourceTypeId("id")
+			.resourceCreditId("id")
 			.name("name2")
 			.amount(new BigDecimal(2))
-			.utcStartTime(LocalDateTime.now())
-			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(resourceCreditRepository.exists(any())).thenReturn(true);
+		when(resourceCreditAllocationRepository.exists(any())).thenReturn(true);
+		when(resourceCreditAllocationRepository.findById(any())).thenReturn(Optional.of(resourceCredit2));
 		when(siteRepository.exists(any())).thenReturn(true);
-		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(resourceCredit2));
+		when(communityRepository.exists(any())).thenReturn(true);
 		when(resourceTypeRepository.exists(any())).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceCreditRepository.exists(any())).thenReturn(true);
+		when(resourceCreditAllocationRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(resourceCredit));
@@ -251,22 +245,10 @@ class ResourceCreditServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(resourceCreditRepository.exists(id)).thenReturn(true);
+		when(resourceCreditAllocationRepository.exists(id)).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
-	}
-
-	@Test
-	void shouldNotPassDeleteForExistingResourceCredits() {
-		//given
-		String id = "id";
-
-		when(resourceCreditRepository.exists(id)).thenReturn(true);
-		when(resourceCreditAllocationRepository.existsByResourceCreditId(id)).thenReturn(true);
-
-		//when+then
-		assertThrows(ResourceTypeCreditHasAllocationsRemoveValidationError.class, () -> validator.validateDelete(id));
 	}
 
 	@Test
@@ -274,7 +256,7 @@ class ResourceCreditServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(resourceCreditRepository.exists(id)).thenReturn(false);
+		when(resourceCreditAllocationRepository.exists(id)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));

@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 public interface ResourceCreditEntityRepository extends CrudRepository<ResourceCreditEntity, UUID> {
 	Stream<ResourceCreditEntity> findAllBySiteId(UUID siteId);
+	Stream<ResourceCreditEntity> findAllByResourceTypeId(UUID resourceTypeId);
 	boolean existsByName(String name);
 	boolean existsBySiteId(UUID siteId);
 	boolean existsByResourceTypeId(UUID resourceTypeId);

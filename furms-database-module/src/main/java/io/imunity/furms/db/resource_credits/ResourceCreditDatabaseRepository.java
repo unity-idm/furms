@@ -46,6 +46,13 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
+	public Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId) {
+		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId))
+			.map(ResourceCreditEntity::toResourceCredit)
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<ResourceCredit> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 			.map(ResourceCreditEntity::toResourceCredit)

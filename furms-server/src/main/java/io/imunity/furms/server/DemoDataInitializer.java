@@ -9,6 +9,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.resource_credit_allocation.ResourceCreditAllocation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -21,6 +22,7 @@ import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_credit_allocation.ResourceCreditAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -52,14 +54,18 @@ class DemoDataInitializer {
 	private final InfraServiceRepository infraServiceRepository;
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
+	private final ResourceCreditAllocationRepository resourceCreditAllocationRepository;
 	private final SiteAgentService siteAgentService;
+
+	private String communityId;
+	private String community2Id;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
 	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
 	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
 	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
 	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
-	                    SiteAgentService siteAgentService) {
+	                    ResourceCreditAllocationRepository resourceCreditAllocationRepository, SiteAgentService siteAgentService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
@@ -71,6 +77,7 @@ class DemoDataInitializer {
 		this.infraServiceRepository = infraServiceRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
+		this.resourceCreditAllocationRepository = resourceCreditAllocationRepository;
 		this.siteAgentService = siteAgentService;
 	}
 
@@ -104,9 +111,9 @@ class DemoDataInitializer {
 				.logo(imgPRACEFile, "png")
 				.build();
 
-			String communityId = communityRepository.create(community);
+			communityId = communityRepository.create(community);
 			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
-			String community2Id = communityRepository.create(community2);
+			community2Id = communityRepository.create(community2);
 			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 
 			Project project = Project.builder()
@@ -336,12 +343,32 @@ class DemoDataInitializer {
 				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
 				.build();
 
-			resourceCreditRepository.create(resourceCreditCineca);
-			resourceCreditRepository.create(resourceCreditCineca1);
-			resourceCreditRepository.create(resourceCreditFzj);
-			resourceCreditRepository.create(resourceCreditFzj1);
-			resourceCreditRepository.create(resourceCreditBsc);
-			resourceCreditRepository.create(resourceCreditBsc1);
+			String resourceCreditCinecaId = resourceCreditRepository.create(resourceCreditCineca);
+			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca1);
+			String resourceCreditFzjId = resourceCreditRepository.create(resourceCreditFzj);
+			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
+			String resourceCreditBscId = resourceCreditRepository.create(resourceCreditBsc);
+			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
+
+			ResourceCreditAllocation resourceCreditAllocation = ResourceCreditAllocation.builder()
+				.siteId(bscId)
+				.communityId(communityId)
+				.resourceTypeId(resourceTypeBscId1)
+				.resourceCreditId(resourceCreditBscId1)
+				.name("First Allocation")
+				.amount(new BigDecimal(1000))
+				.build();
+			ResourceCreditAllocation resourceCreditAllocation1 = ResourceCreditAllocation.builder()
+				.siteId(fzjId)
+				.communityId(community2Id)
+				.resourceTypeId(resourceTypeFzjId1)
+				.resourceCreditId(resourceCreditFzjId1)
+				.name("Second Allocation")
+				.amount(new BigDecimal(500))
+				.build();
+
+			resourceCreditAllocationRepository.create(resourceCreditAllocation);
+			resourceCreditAllocationRepository.create(resourceCreditAllocation1);
 		}
 	}
 }

@@ -9,6 +9,7 @@ import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.spi.resource_credit_allocation.ResourceCreditAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -37,6 +38,8 @@ class ResourceCreditServiceImplTest {
 	@Mock
 	private ResourceTypeRepository resourceTypeRepository;
 	@Mock
+	private ResourceCreditAllocationRepository resourceCreditAllocationRepository;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private ResourceCreditServiceImpl service;
@@ -45,7 +48,7 @@ class ResourceCreditServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(resourceCreditRepository, resourceTypeRepository, siteRepository);
+		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(resourceCreditAllocationRepository, resourceCreditRepository, resourceTypeRepository, siteRepository);
 		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}

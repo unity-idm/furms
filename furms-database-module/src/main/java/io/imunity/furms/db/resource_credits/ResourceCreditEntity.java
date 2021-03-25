@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("resource_credit")
-class ResourceCreditEntity extends UUIDIdentifiable {
+public class ResourceCreditEntity extends UUIDIdentifiable {
 
 	public final UUID siteId;
 	public final UUID resourceTypeId;

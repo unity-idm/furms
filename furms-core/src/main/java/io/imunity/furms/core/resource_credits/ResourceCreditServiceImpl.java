@@ -53,6 +53,12 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
+	public Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId) {
+		return resourceCreditRepository.findAllByResourceTypeId(resourceTypeId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<ResourceCredit> findAll() {
 		return resourceCreditRepository.findAll();
 	}
