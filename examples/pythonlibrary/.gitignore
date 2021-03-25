@@ -4,3 +4,4 @@ dist
 furms.egg-info
 html
 **/**.pyc
+/.pytest_cache/
