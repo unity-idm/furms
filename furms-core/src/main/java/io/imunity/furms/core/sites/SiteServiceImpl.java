@@ -10,6 +10,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
@@ -240,7 +241,7 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public CompletableFuture<SiteAgentStatus> getSiteAgentStatus(String siteId) {
+	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
 		return siteAgentService.getStatus(siteId);
 	}
 

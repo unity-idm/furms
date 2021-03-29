@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.sites;
 
+import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -13,7 +14,6 @@ import io.imunity.furms.domain.users.PersistentId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public interface SiteService {
 
@@ -41,5 +41,5 @@ public interface SiteService {
 
 	boolean isAdmin(String siteId);
 
-	CompletableFuture<SiteAgentStatus> getSiteAgentStatus(String siteId);
+	PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId);
 }

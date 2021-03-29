@@ -5,16 +5,38 @@
 
 package io.imunity.furms.broker;
 
-import io.imunity.furms.rabbitmq.site.client.AgentPingRequest;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SiteAgentMock {
-	@RabbitHandler
-	@RabbitListener(queues = "mock")
-	public String receive(AgentPingRequest pingRequest) {
-		return "OK";
+
+	private final RabbitTemplate rabbitTemplate;
+
+	public SiteAgentMock(RabbitTemplate rabbitTemplate){
+		this.rabbitTemplate = rabbitTemplate;
 	}
+
+	@RabbitListener(queues = "mock")
+	public void receive(Message message) {
+		String correlationId = message.getMessageProperties().getCorrelationId();
+
+		MessageProperties messageProperties = new MessageProperties();
+		messageProperties.setHeader("version", 1);
+		messageProperties.setHeader("status", "IN_PROGRESS");
+		messageProperties.setCorrelationId(correlationId);
+		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
+		rabbitTemplate.send("reply-queue", replyAckMessage);
+
+		MessageProperties messageProperties2 = new MessageProperties();
+		messageProperties2.setHeader("version", 1);
+		messageProperties2.setHeader("status", "OK");
+		messageProperties2.setCorrelationId(correlationId);
+		Message replyMessage = new Message(new byte[]{}, messageProperties2);
+		rabbitTemplate.send("reply-queue", replyMessage);
+	}
+
 }
