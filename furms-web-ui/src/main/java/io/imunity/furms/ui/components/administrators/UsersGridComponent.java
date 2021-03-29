@@ -24,6 +24,7 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
@@ -38,6 +39,7 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -124,7 +126,7 @@ public class UsersGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
 				.setSortable(true)
 				.setFlexGrow(35);
-		grid.addColumn(c -> "Active")
+		grid.addColumn(this::addStatusLabel)
 				.setHeader(getTranslation("component.administrators.grid.column.3"))
 				.setSortable(true)
 				.setFlexGrow(5);
@@ -140,6 +142,12 @@ public class UsersGridComponent extends VerticalLayout {
 		reloadGrid();
 
 		add(grid);
+	}
+
+	private String addStatusLabel(final AdministratorsGridItem administratorsGridItem) {
+		return administratorsGridItem.getStatus() != null && administratorsGridItem.getStatus().equals(ENABLED)
+				? getTranslation("component.administrators.user.status.active")
+				: getTranslation("component.administrators.user.status.inactive");
 	}
 
 	private Component addMenu(AdministratorsGridItem gridItem) {
