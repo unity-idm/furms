@@ -14,7 +14,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>furms-broker</artifactId>
+	<artifactId>furms-embedded-broker</artifactId>
 	<name>FURMS broker module</name>
 	<description>FURMS broker module</description>
 
