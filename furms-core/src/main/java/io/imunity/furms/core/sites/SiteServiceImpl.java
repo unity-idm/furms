@@ -251,6 +251,7 @@ class SiteServiceImpl implements SiteService {
 				.name(site.getName())
 				.logo(ofNullable(site.getLogo()).orElse(oldSite.getLogo()))
 				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
-				.build();
+				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
+				.build();	
 	}
 }

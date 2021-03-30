@@ -15,12 +15,14 @@ public class Site {
 	private final String name;
 	private final String connectionInfo;
 	private final FurmsImage logo;
+	private final Boolean sshKeyFromOptionMandatory;
 
-	private Site(String id, String name, String connectionInfo, FurmsImage logo) {
+	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
+		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 	}
 
 	public String getId() {
@@ -38,6 +40,11 @@ public class Site {
 	public FurmsImage getLogo() {
 		return logo;
 	}
+	
+	public Boolean isSshKeyFromOptionMandatory()
+	{
+		return sshKeyFromOptionMandatory;
+	}
 
 	public static SiteBuilder builder() {
 		return new SiteBuilder();
@@ -51,12 +58,13 @@ public class Site {
 		return Objects.equals(id, site.id) &&
 				Objects.equals(name, site.name) &&
 				Objects.equals(connectionInfo, site.connectionInfo) &&
-				Objects.equals(logo, site.logo);
+				Objects.equals(logo, site.logo) &&
+				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, connectionInfo, logo);
+		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory);
 	}
 
 	@Override
@@ -66,6 +74,7 @@ public class Site {
 				", name='" + name + '\'' +
 				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + logo +
+				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				'}';
 	}
 
@@ -75,7 +84,8 @@ public class Site {
 		private String name;
 		private String connectionInfo;
 		private FurmsImage logo;
-
+		private Boolean sshKeyFromOptionMandatory;
+		
 		public SiteBuilder id(String id) {
 			this.id = id;
 			return this;
@@ -95,9 +105,14 @@ public class Site {
 			this.logo = logo;
 			return this;
 		}
+		
+		public SiteBuilder sshKeyFromOptionMandatory(Boolean sshKeyFromOptionMandatory) {
+			this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+			return this;
+		}
 
 		public Site build() {
-			return new Site(id, name, connectionInfo, logo);
+			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory);
 		}
 
 	}

@@ -130,6 +130,8 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 	}
+	
+	
 
 	@Test
 	void shouldExistsById() {
