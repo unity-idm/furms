@@ -10,8 +10,10 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.function.Function.identity;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +42,9 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final SiteService siteService;
 	private final UserService userService;
 	private final PersistentId currentUserId;
+	private String breadCrumbParameter;
 
 	private UsersGridComponent grid;
-	private String siteId;
 
 	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
@@ -53,7 +55,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		getContent().removeAll();
+		breadCrumbParameter = parameter;
 		init(parameter);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getParameter() {
+		return siteService.findById(breadCrumbParameter)
+				.map(site -> new BreadCrumbParameter(site.getId(), site.getName()));
 	}
 
 	private void init(String siteId) {
@@ -83,7 +92,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 		});
 
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser, membershipLayout));
+		inviteUser.addInviteAction(event -> doInviteAction(siteId, inviteUser, membershipLayout));
 		this.grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.withFetchUsersAction(() -> siteService.findAllAdmins(siteId))
@@ -92,7 +101,6 @@ public class SitesAdminsView extends FurmsViewComponent {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			}).build();
-		this.siteId = siteId;
 
 		Site site = handleExceptions(() -> siteService.findById(siteId))
 				.flatMap(identity())
@@ -103,7 +111,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 		getContent().add(viewHeaderLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
+	private void doInviteAction(String siteId, InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
 			siteService.inviteAdmin(siteId, inviteUserComponent.getUserId());
 			inviteUserComponent.reload();
