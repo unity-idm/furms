@@ -9,7 +9,7 @@ import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocatio
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.spi.resource_credit_allocation.ResourceCreditAllocationRepository;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -25,18 +25,18 @@ import static org.springframework.util.Assert.notNull;
 
 @Component
 class ResourceCreditServiceValidator {
-	private final ResourceCreditAllocationRepository resourceCreditAllocationRepository;
+	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final SiteRepository siteRepository;
 
 	public ResourceCreditServiceValidator(
-		ResourceCreditAllocationRepository resourceCreditAllocationRepository,
+		CommunityAllocationRepository communityAllocationRepository,
 		ResourceCreditRepository resourceCreditRepository,
 		ResourceTypeRepository resourceTypeRepository,
 		SiteRepository siteRepository
 	) {
-		this.resourceCreditAllocationRepository = resourceCreditAllocationRepository;
+		this.communityAllocationRepository = communityAllocationRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.siteRepository = siteRepository;
@@ -65,8 +65,8 @@ class ResourceCreditServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
-		if(resourceCreditAllocationRepository.existsByResourceCreditId(id)){
-			throw new ResourceTypeCreditHasAllocationsRemoveValidationError("ResourceTypeCredit should not have ResourceCreditAllocations.");
+		if(communityAllocationRepository.existsByResourceCreditId(id)){
+			throw new ResourceTypeCreditHasAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
 		}
 	}
 

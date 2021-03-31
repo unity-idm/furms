@@ -12,14 +12,14 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.api.resource_credit_allocation.ResourceCreditAllocationService;
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
-import io.imunity.furms.ui.views.fenix.communites.allocations.ResourceCreditAllocationComponent;
+import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.*;
@@ -40,14 +40,14 @@ public class CommunityView extends FurmsViewComponent {
 	private Map<String, Tab> paramToTab;
 	private List<RouterLink> links;
 	private final PersistentId currentUserId;
-	private final ResourceCreditAllocationService allocationService;
+	private final CommunityAllocationService allocationService;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	private Div page1;
 	private Div page2;
 
-	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService, ResourceCreditAllocationService allocationService) {
+	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService, CommunityAllocationService allocationService) {
 		this.communityService = communityService;
 		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
@@ -58,7 +58,7 @@ public class CommunityView extends FurmsViewComponent {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new ResourceCreditAllocationComponent(allocationService, communityId).getContent();
+		page2 = new CommunityAllocationComponent(allocationService, communityId).getContent();
 
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
