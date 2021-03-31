@@ -12,12 +12,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 
 @Route(value = "site/admin/pending/requests", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.pending-requests.page.title")
@@ -31,18 +30,19 @@ public class PendingRequestsView extends FurmsViewComponent {
 		UI ui = UI.getCurrent();
 		String siteId = getCurrentResourceId();
 		button.addClickListener(event -> {
-			PendingJob<SiteAgentStatus> siteAgentStatus = siteService.getSiteAgentStatus(siteId);
-			resultLabel.setText("");
-			messageStatusLabel.setText("START");
-			correlationIdLabel.setText(siteAgentStatus.correlationId);
-			siteAgentStatus.ackFuture.thenAcceptAsync(ack ->
-				ui.access(() -> messageStatusLabel.setText(ack.name()))
-			);
-			siteAgentStatus.jobFuture.thenAcceptAsync(status -> ui.access(() -> {
-				resultLabel.setText(getTranslation("view.site-admin.pending-requests.page.agent." + status.status.name()));
-				messageStatusLabel.setText("DONE");
-			})
-			);
+			handleExceptions(() -> siteService.getSiteAgentStatus(siteId))
+				.ifPresent(siteAgentStatus -> {
+					resultLabel.setText("");
+					messageStatusLabel.setText("START");
+					correlationIdLabel.setText(siteAgentStatus.correlationId);
+					siteAgentStatus.ackFuture.thenAcceptAsync(ack ->
+						ui.access(() -> messageStatusLabel.setText(ack.name()))
+					);
+					siteAgentStatus.jobFuture.thenAcceptAsync(status -> ui.access(() -> {
+						resultLabel.setText(getTranslation("view.site-admin.pending-requests.page.agent." + status.status.name()));
+						messageStatusLabel.setText("DONE");
+					}));
+				});
 		});
 		getContent().add(
 			new VerticalLayout(

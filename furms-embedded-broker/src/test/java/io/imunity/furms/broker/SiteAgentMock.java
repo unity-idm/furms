@@ -27,6 +27,7 @@ public class SiteAgentMock {
 		MessageProperties messageProperties = new MessageProperties();
 		messageProperties.setHeader("version", 1);
 		messageProperties.setHeader("status", "IN_PROGRESS");
+		messageProperties.setHeader("furmsMessageType", "AgentPingResponse");
 		messageProperties.setCorrelationId(correlationId);
 		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
 		rabbitTemplate.send("reply-queue", replyAckMessage);
@@ -34,6 +35,7 @@ public class SiteAgentMock {
 		MessageProperties messageProperties2 = new MessageProperties();
 		messageProperties2.setHeader("version", 1);
 		messageProperties2.setHeader("status", "OK");
+		messageProperties2.setHeader("furmsMessageType", "AgentPingResponse");
 		messageProperties2.setCorrelationId(correlationId);
 		Message replyMessage = new Message(new byte[]{}, messageProperties2);
 		rabbitTemplate.send("reply-queue", replyMessage);

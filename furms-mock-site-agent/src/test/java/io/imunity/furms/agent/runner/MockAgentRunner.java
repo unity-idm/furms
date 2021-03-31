@@ -44,6 +44,7 @@ public class MockAgentRunner {
 		messageProperties.setHeader("version", 1);
 		messageProperties.setHeader("status", "IN_PROGRESS");
 		messageProperties.setCorrelationId(correlationId);
+		messageProperties.setHeader("furmsMessageType", "AgentPingResponse");
 		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
 		rabbitTemplate.send("reply-queue", replyAckMessage);
 
@@ -53,6 +54,7 @@ public class MockAgentRunner {
 		messageProperties2.setHeader("version", 1);
 		messageProperties2.setHeader("status", "OK");
 		messageProperties2.setCorrelationId(correlationId);
+		messageProperties2.setHeader("furmsMessageType", "AgentPingResponse");
 		Message replyMessage = new Message(new byte[]{}, messageProperties2);
 		rabbitTemplate.send("reply-queue", replyMessage);
 	}

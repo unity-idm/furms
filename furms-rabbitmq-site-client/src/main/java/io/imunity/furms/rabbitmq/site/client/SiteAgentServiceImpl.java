@@ -7,8 +7,10 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.AckStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.site.api.SiteAgentService;
+import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.Queue;
@@ -39,12 +41,20 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	@Override
 	public void initializeSiteConnection(String siteId) {
 		Queue queue = new Queue(siteId);
-		rabbitAdmin.declareQueue(queue);
+		try {
+			rabbitAdmin.declareQueue(queue);
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
 	}
 
 	@Override
 	public void removeSiteConnection(String siteId) {
-		rabbitAdmin.deleteQueue(siteId);
+		try {
+			rabbitAdmin.deleteQueue(siteId);
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
 	}
 
 	@RabbitListener(queues = "reply-queue")
@@ -73,9 +83,14 @@ class SiteAgentServiceImpl implements SiteAgentService {
 		MessageProperties messageProperties = new MessageProperties();
 		messageProperties.setCorrelationId(correlationId);
 		messageProperties.setHeader("version", 1);
+		messageProperties.setHeader("furmsMessageType", "AgentPingRequest");
 
-		Message message1 = new Message(new byte[]{}, messageProperties);
-		rabbitTemplate.send(siteId, message1);
+		Message message = new Message(new byte[]{}, messageProperties);
+		try {
+			rabbitTemplate.send(siteId, message);
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
 
 		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, ackFuture, correlationId);
 		map.put(correlationId, pendingJob);

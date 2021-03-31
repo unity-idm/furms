@@ -9,6 +9,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,11 @@ public class VaadinExceptionHandler {
 		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("resource-type.removing.error.message"));
+			return Optional.empty();
+		}
+		catch (SiteAgentException e){
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("site-agent.error.message"));
 			return Optional.empty();
 		}
 		catch (Exception e){
