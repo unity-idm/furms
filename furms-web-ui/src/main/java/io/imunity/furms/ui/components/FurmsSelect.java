@@ -72,11 +72,10 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 				.max(Comparator.comparingInt(key -> key));
 		itemsGroupedByOrder.keySet().stream()
 				.sorted()
+				.filter(order -> !maxOrder.get().equals(order))
 				.forEach(order -> {
-					if (!maxOrder.get().equals(order)) {
-						final List<FurmsSelectText> block = itemsGroupedByOrder.get(order);
-						addComponents(block.get(block.size()-1), new Hr());
-					}
+					final List<FurmsSelectText> block = itemsGroupedByOrder.get(order);
+					addComponents(block.get(block.size()-1), new Hr());
 				});
 	}
 
