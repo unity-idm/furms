@@ -5,11 +5,14 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.domain.site_agent.AckStatus;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.site.api.SiteAgentService;
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -19,16 +22,17 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
+import io.imunity.furms.domain.site_agent.AckStatus;
+import io.imunity.furms.domain.site_agent.PendingJob;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.site_agent.SiteAgentStatus;
+import io.imunity.furms.site.api.SiteAgentService;
 
 @Component
 class SiteAgentServiceImpl implements SiteAgentService {
+	
+	private static final String REPLY_QUEUE = "reply-queue";
+	
 	private final RabbitTemplate rabbitTemplate;
 	private final RabbitAdmin rabbitAdmin;
 	private final Map<String, PendingJob<SiteAgentStatus>> map = new HashMap<>();
@@ -57,7 +61,7 @@ class SiteAgentServiceImpl implements SiteAgentService {
 		}
 	}
 
-	@RabbitListener(queues = "reply-queue")
+	@RabbitListener(queues = REPLY_QUEUE)
 	public void receive(Message message) {
 		String correlationId = message.getMessageProperties().getCorrelationId();
 		String agentStatus = message.getMessageProperties().getHeader("status").toString();
@@ -82,6 +86,7 @@ class SiteAgentServiceImpl implements SiteAgentService {
 		String correlationId = UUID.randomUUID().toString();
 		MessageProperties messageProperties = new MessageProperties();
 		messageProperties.setCorrelationId(correlationId);
+		messageProperties.setReplyTo(REPLY_QUEUE);
 		messageProperties.setHeader("version", 1);
 		messageProperties.setHeader("furmsMessageType", "AgentPingRequest");
 
