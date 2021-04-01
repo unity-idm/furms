@@ -10,9 +10,10 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -28,7 +29,9 @@ public class FurmsSelectService {
 
 	List<FurmsSelectText> loadItems() {
 		return roleTranslator.translateRolesToUserViewContexts(currentId).values().stream()
-			.flatMap(Collection::stream)
+			.map(values -> values.stream()
+					.sorted(Comparator.comparing(role -> role.name)))
+			.flatMap(Stream::distinct)
 			.map(FurmsSelectText::new)
 			.collect(toList());
 	}
