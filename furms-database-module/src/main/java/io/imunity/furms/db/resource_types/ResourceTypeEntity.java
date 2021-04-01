@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("resource_type")
-class ResourceTypeEntity extends UUIDIdentifiable {
+public class ResourceTypeEntity extends UUIDIdentifiable {
 
 	public final UUID siteId;
 	public final UUID serviceId;
@@ -23,7 +23,7 @@ class ResourceTypeEntity extends UUIDIdentifiable {
 	public final ResourceMeasureType type;
 	public final ResourceMeasureUnit unit;
 
-	private ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, ResourceMeasureType type, ResourceMeasureUnit unit) {
+	public ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, ResourceMeasureType type, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;

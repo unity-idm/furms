@@ -17,6 +17,8 @@ public interface ResourceCreditRepository {
 
 	Set<ResourceCredit> findAll(String siteId);
 
+	Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId);
+
 	Set<ResourceCredit> findAll();
 
 	String create(ResourceCredit resourceType);

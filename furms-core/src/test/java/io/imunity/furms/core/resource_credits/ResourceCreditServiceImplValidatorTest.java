@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.resource_credits;
 
+import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocationsRemoveValidationError;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -32,6 +34,8 @@ class ResourceCreditServiceImplValidatorTest {
 	private SiteRepository siteRepository;
 	@Mock
 	private ResourceCreditRepository resourceCreditRepository;
+	@Mock
+	private CommunityAllocationRepository communityAllocationRepository;
 
 	@InjectMocks
 	private ResourceCreditServiceValidator validator;
@@ -251,6 +255,18 @@ class ResourceCreditServiceImplValidatorTest {
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
+	}
+
+	@Test
+	void shouldNotPassDeleteForExistingResourceCredits() {
+		//given
+		String id = "id";
+
+		when(resourceCreditRepository.exists(id)).thenReturn(true);
+		when(communityAllocationRepository.existsByResourceCreditId(id)).thenReturn(true);
+
+		//when+then
+		assertThrows(ResourceTypeCreditHasAllocationsRemoveValidationError.class, () -> validator.validateDelete(id));
 	}
 
 	@Test

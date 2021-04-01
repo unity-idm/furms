@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.ui.components;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.QueryParameters;
@@ -15,11 +16,11 @@ import java.util.Map;
 @CssImport("./styles/components/router-grid-link.css")
 public class RouterGridLink extends RouterLink {
 
-	public RouterGridLink(MenuButton component,
-			String id,
-			Class<? extends FurmsViewComponent> route,
-			String paramName,
-			String paramValue) {
+	public RouterGridLink(Component component,
+	                      String id,
+	                      Class<? extends FurmsViewComponent> route,
+	                      String paramName,
+	                      String paramValue) {
 		super("", route, id);
 		addClassName("router-grid-link");
 		if (!StringUtils.isEmpty(paramName))
@@ -45,5 +46,19 @@ public class RouterGridLink extends RouterLink {
 			String paramName,
 			String paramValue) {
 		this(new MenuButton(iconType), id, route, paramName, paramValue);
+	}
+
+	public RouterGridLink(String label,
+	                      String id,
+	                      Class<? extends FurmsViewComponent> route,
+	                      String paramName,
+	                      String paramValue) {
+		this(getLabel(label), id, route, paramName, paramValue);
+	}
+
+	private static RouterLink getLabel(String s) {
+		RouterLink routerLink = new RouterLink();
+		routerLink.setText(s);
+		return routerLink;
 	}
 }
