@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.settings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -67,6 +68,7 @@ public class SettingsView extends FurmsViewComponent {
 
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
+		formLayout.addFormItem(sshKeyFromMandatory(binder), getTranslation("view.site-admin.settings.form.sshKeyFromOptionMandatory"));
 		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.add(buttonsRow(binder));
 
@@ -126,6 +128,12 @@ public class SettingsView extends FurmsViewComponent {
 
 		return textArea;
 	}
+	
+	private Checkbox sshKeyFromMandatory(Binder<SiteSettingsDto> binder) {
+		Checkbox sshKeyFromMandatoryCheckbox = new Checkbox();
+		binder.forField(sshKeyFromMandatoryCheckbox).bind(SiteSettingsDto::isSshKeyFromOptionMandatory, SiteSettingsDto::setSshKeyFromOptionMandatory);
+		return sshKeyFromMandatoryCheckbox;
+	}
 
 	private Component buttonsRow(Binder<SiteSettingsDto> binder) {
 		
@@ -167,6 +175,7 @@ public class SettingsView extends FurmsViewComponent {
 						.name(settings.getName())
 						.connectionInfo(settings.getConnectionInfo())
 						.logo(settings.getLogo())
+						.sshKeyFromOptionMandatory(settings.isSshKeyFromOptionMandatory())
 						.build());
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
@@ -198,7 +207,8 @@ public class SettingsView extends FurmsViewComponent {
 	private boolean isChanged(SiteSettingsDto bean) {
 		return !Objects.equals(bufferedSettings.getName(), bean.getName())
 				|| !Objects.equals(bufferedSettings.getLogo(), bean.getLogo())
-				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo());
+				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo())
+				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory());
 	}
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {

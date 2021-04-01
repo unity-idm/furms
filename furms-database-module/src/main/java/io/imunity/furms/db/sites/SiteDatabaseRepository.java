@@ -51,6 +51,7 @@ class SiteDatabaseRepository implements SiteRepository {
 				.name(site.getName())
 				.connectionInfo(site.getConnectionInfo())
 				.logo(site.getLogo())
+				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
 				.build());
 		return saved.getId().toString();
 	}
@@ -66,6 +67,7 @@ class SiteDatabaseRepository implements SiteRepository {
 						.name(site.getName())
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
+						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
