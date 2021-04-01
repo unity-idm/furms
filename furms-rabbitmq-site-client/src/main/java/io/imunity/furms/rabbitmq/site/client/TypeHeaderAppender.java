@@ -9,13 +9,16 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 
-class TypeHederAppender implements MessagePostProcessor {
+class TypeHeaderAppender implements MessagePostProcessor {
 
 	private static final String FURMS_MESSAGE_TYPE = "furmsMessageType";
+	private static final String VERSION = "version";
 	private final Object body;
+	private final String correlationId;
 
-	TypeHederAppender(Object body) {
+	TypeHeaderAppender(Object body, String correlationId) {
 		this.body = body;
+		this.correlationId = correlationId;
 	}
 
 	@Override
@@ -24,6 +27,8 @@ class TypeHederAppender implements MessagePostProcessor {
 		if (furmsMessage != null) {
 			message.getMessageProperties().getHeaders().put(FURMS_MESSAGE_TYPE, furmsMessage.type());
 		}
+		message.getMessageProperties().getHeaders().put(VERSION, 1);
+		message.getMessageProperties().setCorrelationId(correlationId);
 		return message;
 	}
 }

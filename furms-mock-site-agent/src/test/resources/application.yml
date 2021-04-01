@@ -1,3 +1,4 @@
+logging.level.org.springframework.amqp: DEBUG
 spring:
    rabbitmq:
       username: guest
