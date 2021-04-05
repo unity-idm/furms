@@ -5,6 +5,8 @@
 
 package io.imunity.furms.agent.runner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,8 +24,12 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.ofNullable;
 
+import java.lang.invoke.MethodHandles;
+
 @SpringBootApplication
 public class MockAgentRunner {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(MockAgentRunner.class)
 			.web(WebApplicationType.NONE)
@@ -61,12 +67,15 @@ public class MockAgentRunner {
 
 	public static String[] getQueuesNames() {
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<QueueName[]> forEntity = restTemplate.getForEntity("http://localhost:55570/api/latest/queue", QueueName[].class, Map.of());
-		return ofNullable(forEntity.getBody()).stream()
+		ResponseEntity<QueueName[]> forEntity = 
+				restTemplate.getForEntity("http://localhost:55570/api/latest/queue", QueueName[].class, Map.of());
+		String[] queues = ofNullable(forEntity.getBody()).stream()
 			.flatMap(Arrays::stream)
 			.filter(x -> isUUID(x.name))
 			.map(x -> x.name)
 			.toArray(String[]::new);
+		LOG.info("Queue names: {}", Arrays.toString(queues));
+		return queues;
 	}
 
 	private static boolean isUUID(String s){
