@@ -18,6 +18,9 @@
 	<name>FURMS embedded broker module</name>
 	<description>FURMS qpid broker module</description>
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
 
 	<dependencies>
 		<dependency>
