@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
@@ -40,10 +41,14 @@ public class FurmsOauthLogoutFilter extends OncePerRequestFilter {
 
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	private final AccessTokenRepository accessTokenRepository;
+	private final TokenRefreshHandler tokenRefreshHandler;
 
-	public FurmsOauthLogoutFilter(OAuth2AuthorizedClientService auth2AuthorizedClientService, AccessTokenRepository accessTokenRepository) {
+	public FurmsOauthLogoutFilter(OAuth2AuthorizedClientService auth2AuthorizedClientService,
+								  AccessTokenRepository accessTokenRepository,
+								  TokenRefreshHandler tokenRefreshHandler) {
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 		this.accessTokenRepository = accessTokenRepository;
+		this.tokenRefreshHandler = tokenRefreshHandler;
 	}
 
 	@Override
@@ -58,10 +63,9 @@ public class FurmsOauthLogoutFilter extends OncePerRequestFilter {
 				if (authorizedClient.getAccessToken() == null
 						|| authorizedClient.getAccessToken().getExpiresAt() == null
 						|| authorizedClient.getAccessToken().getExpiresAt().isBefore(Instant.now())) {
-					if (authorizedClient.getAccessToken() != null && authorizedClient.getAccessToken().getTokenValue() != null) {
-						accessTokenRepository.revoke(authorizedClient.getAccessToken().getTokenValue(), authenticationToken.getAuthorizedClientRegistrationId());
-					}
-					new SecurityContextLogoutHandler().logout(request, response, authenticationToken);
+
+					closeSsoSession(authorizedClient, authenticationToken, principal);
+					closeLocalSession(request, response, authenticationToken);
 
 					response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
 					response.getWriter().print(VAADIN_REFRESH_COMMAND + LOGOUT_URL);
@@ -71,6 +75,29 @@ public class FurmsOauthLogoutFilter extends OncePerRequestFilter {
 			}
 		}
 		filterChain.doFilter(request, response);
+	}
+
+	private void closeSsoSession(OAuth2AuthorizedClient authorizedClient,
+								 OAuth2AuthenticationToken authenticationToken,
+								 DefaultOAuth2User principal) {
+		if (authorizedClient.getAccessToken() != null && authorizedClient.getAccessToken().getTokenValue() != null
+				&& authorizedClient.getRefreshToken() != null && authorizedClient.getRefreshToken().getTokenValue() != null) {
+			try {
+				final OAuth2AccessToken refresh = tokenRefreshHandler.refresh(authorizedClient, authenticationToken, principal);
+
+				final OAuth2AuthenticationToken refreshedToken = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+//				final DefaultOAuth2User refreshedPrincipal = (DefaultOAuth2User) refreshedToken.getPrincipal();
+//				final OAuth2AuthorizedClient refreshedClient = auth2AuthorizedClientService.loadAuthorizedClient(refreshedToken.getAuthorizedClientRegistrationId(), refreshedPrincipal.getName());
+
+				accessTokenRepository.revoke(refresh.getTokenValue(), refreshedToken.getAuthorizedClientRegistrationId());
+			} catch (Exception e) {
+				logger.error("Could not close SSO session", e);
+			}
+		}
+	}
+
+	private void closeLocalSession(final HttpServletRequest request, final HttpServletResponse response, final OAuth2AuthenticationToken authenticationToken) {
+		new SecurityContextLogoutHandler().logout(request, response, authenticationToken);
 	}
 
 	private boolean isFrontEndRequest(HttpServletRequest request) {
