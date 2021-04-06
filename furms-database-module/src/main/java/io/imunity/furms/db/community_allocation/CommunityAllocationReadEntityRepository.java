@@ -9,6 +9,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -35,4 +36,11 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 		"join resource_type rt on rc.resource_type_id = rt.id " +
 		"where a.community_id = :id")
 	Set<CommunityAllocationReadEntity> findAllByCommunityId(@Param("id") UUID id);
+
+
+	@Query("select rc.amount - isnull(sum(ca.amount),0) " +
+		"from resource_credit rc " +
+		"left join community_allocation ca on ca.resource_credit_id = rc.id " +
+		"where rc.id = :id")
+	BigDecimal calculateAvailableAmount(@Param("id") UUID resourceCreditId);
 }

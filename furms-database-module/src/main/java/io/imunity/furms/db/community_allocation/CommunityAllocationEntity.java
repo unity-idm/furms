@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("community_allocation")
-class CommunityAllocationEntity extends UUIDIdentifiable {
+public class CommunityAllocationEntity extends UUIDIdentifiable {
 
 	public final UUID communityId;
 	public final UUID resourceCreditId;
@@ -30,7 +30,7 @@ class CommunityAllocationEntity extends UUIDIdentifiable {
 		this.amount = amount;
 	}
 
-	CommunityAllocation toCommunityAllocation() {
+	public CommunityAllocation toCommunityAllocation() {
 		return CommunityAllocation.builder()
 			.id(id.toString())
 			.communityId(communityId.toString())

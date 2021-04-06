@@ -6,12 +6,15 @@
 package io.imunity.furms.db.project_allocation;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
@@ -21,9 +24,11 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Repository
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
 	private final ProjectAllocationEntityRepository repository;
+	private final ProjectAllocationReadEntityRepository readRepository;
 
-	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository) {
+	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository, ProjectAllocationReadEntityRepository readRepository) {
 		this.repository = repository;
+		this.readRepository = readRepository;
 	}
 
 	@Override
@@ -35,21 +40,21 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 			.map(ProjectAllocationEntity::toProjectAllocation);
 	}
 
-//	@Override
-//	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String id) {
-//		if (isEmpty(id)) {
-//			return empty();
-//		}
-//		return readRepository.findById(UUID.fromString(id))
-//			.map(ProjectAllocationReadEntity::toProjectAllocation);
-//	}
-//
-//	@Override
-//	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId) {
-//		return readRepository.findAllByProjectId(UUID.fromString(communityId)).stream()
-//			.map(ProjectAllocationReadEntity::toProjectAllocation)
-//			.collect(Collectors.toSet());
-//	}
+	@Override
+	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String id) {
+		if (isEmpty(id)) {
+			return empty();
+		}
+		return readRepository.findById(UUID.fromString(id))
+			.map(ProjectAllocationReadEntity::toProjectAllocationResolved);
+	}
+
+	@Override
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
+		return readRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(ProjectAllocationReadEntity::toProjectAllocationResolved)
+			.collect(Collectors.toSet());
+	}
 
 	@Override
 	public Set<ProjectAllocation> findAll() {
@@ -89,6 +94,11 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
+	public BigDecimal getAvailableAmount(String communityAllocationId) {
+		return readRepository.calculateAvailableAmount(UUID.fromString(communityAllocationId));
+	}
+
+	@Override
 	public boolean exists(String id) {
 		if (isEmpty(id)) {
 			return false;
@@ -97,11 +107,11 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public boolean existsByResourceCreditId(String id) {
+	public boolean existsByCommunityAllocationId(String id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsByResourceCreditId(UUID.fromString(id));
+		return repository.existsByCommunityAllocationId(UUID.fromString(id));
 	}
 
 	@Override

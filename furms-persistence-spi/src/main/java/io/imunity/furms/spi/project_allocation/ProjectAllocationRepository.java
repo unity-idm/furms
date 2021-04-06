@@ -6,16 +6,18 @@
 package io.imunity.furms.spi.project_allocation;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectAllocationRepository {
 	Optional<ProjectAllocation> findById(String id);
 
-//	Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id);
-//
-//	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId);
+	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String id);
+
+	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId);
 
 	Set<ProjectAllocation> findAll();
 
@@ -23,9 +25,11 @@ public interface ProjectAllocationRepository {
 
 	String update(ProjectAllocation projectAllocation);
 
+	BigDecimal getAvailableAmount(String communityAllocationId);
+
 	boolean exists(String id);
 
-	boolean existsByResourceCreditId(String id);
+	boolean existsByCommunityAllocationId(String id);
 
 	boolean isUniqueName(String name);
 

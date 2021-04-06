@@ -71,7 +71,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private Grid<ProjectViewModel> createCommunityGrid() {
 		Grid<ProjectViewModel> grid = new SparseGrid<>(ProjectViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectView.class, c.id))
+		grid.addComponentColumn(c -> new RouterGridLink(c.getName(), c.getId(), ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());

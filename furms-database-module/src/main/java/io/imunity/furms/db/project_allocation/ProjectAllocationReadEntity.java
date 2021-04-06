@@ -3,13 +3,14 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.db.community_allocation;
+package io.imunity.furms.db.project_allocation;
 
+import io.imunity.furms.db.community_allocation.CommunityAllocationEntity;
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.db.resource_credits.ResourceCreditEntity;
 import io.imunity.furms.db.resource_types.ResourceTypeEntity;
 import io.imunity.furms.db.sites.SiteEntity;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -17,8 +18,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("community_allocation")
-public class CommunityAllocationReadEntity extends UUIDIdentifiable {
+@Table("project_allocation")
+public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 
 	@Column("site_id")
 	public final SiteEntity site;
@@ -26,29 +27,34 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	public final ResourceTypeEntity resourceType;
 	@Column("resource_credit_id")
 	public final ResourceCreditEntity resourceCredit;
-	public final UUID communityId;
+	@Column("community_allocation_id")
+	public final CommunityAllocationEntity communityAllocation;
+	public final UUID projectId;
 	public final String name;
 	public final BigDecimal amount;
 
-	CommunityAllocationReadEntity(UUID id, String name,
-	                              UUID communityId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
-	                              ResourceCreditEntity resourceCredit) {
+
+	ProjectAllocationReadEntity(UUID id, String name,
+	                            UUID projectId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
+	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation) {
 		this.id = id;
 		this.name = name;
-		this.communityId = communityId;
+		this.projectId = projectId;
 		this.amount = amount;
 		this.site = site;
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
+		this.communityAllocation = communityAllocation;
 	}
 
-	CommunityAllocationResolved toCommunityAllocation() {
-		return CommunityAllocationResolved.builder()
+	ProjectAllocationResolved toProjectAllocationResolved() {
+		return ProjectAllocationResolved.builder()
 			.id(id.toString())
 			.site(site.toSite())
 			.resourceType(resourceType.toResourceType())
 			.resourceCredit(resourceCredit.toResourceCredit())
-			.communityId(communityId.toString())
+			.communityAllocation(communityAllocation.toCommunityAllocation())
+			.projectId(projectId.toString())
 			.name(name)
 			.amount(amount)
 			.build();
@@ -60,6 +66,8 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			"site=" + site +
 			", resourceType=" + resourceType +
 			", resourceCredit=" + resourceCredit +
+			", communityAllocation=" + communityAllocation +
+			", projectId='" + projectId + '\'' +
 			", name='" + name + '\'' +
 			", amount=" + amount +
 			", id=" + id +
@@ -70,19 +78,20 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		CommunityAllocationReadEntity that = (CommunityAllocationReadEntity) o;
+		ProjectAllocationReadEntity that = (ProjectAllocationReadEntity) o;
 		return Objects.equals(site, that.site)
 			&& Objects.equals(id, that.id)
 			&& Objects.equals(resourceType, that.resourceType)
 			&& Objects.equals(resourceCredit, that.resourceCredit)
-			&& Objects.equals(communityId, that.communityId)
+			&& Objects.equals(communityAllocation, that.communityAllocation)
+			&& Objects.equals(projectId, that.projectId)
 			&& Objects.equals(name, that.name)
 			&& Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount);
 	}
 
 

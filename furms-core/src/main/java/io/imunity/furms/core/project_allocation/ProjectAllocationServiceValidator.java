@@ -44,10 +44,10 @@ class ProjectAllocationServiceValidator {
 
 	void validateUpdate(ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
+		validateName(projectAllocation);
 		validateId(projectAllocation.id);
 		validateUpdateProjectId(projectAllocation);
 		validateUpdateCommunityAllocationId(projectAllocation);
-		validateName(projectAllocation);
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
 	}
 
@@ -87,7 +87,7 @@ class ProjectAllocationServiceValidator {
 
 	private void validateCommunityAllocationId(String id) {
 		notNull(id, "CommunityAllocation ID has to be declared.");
-		check(projectAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist."));
+		check(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist."));
 	}
 
 	private void validateUpdateProjectId(ProjectAllocation projectAllocation) {
@@ -100,8 +100,8 @@ class ProjectAllocationServiceValidator {
 
 	private void validateUpdateCommunityAllocationId(ProjectAllocation projectAllocation) {
 		validateCommunityAllocationId(projectAllocation.communityAllocationId);
-		projectAllocationRepository.findById(projectAllocation.id)
-			.map(s -> s.communityAllocationId)
+		communityAllocationRepository.findById(projectAllocation.communityAllocationId)
+			.map(s -> s.id)
 			.filter(id -> id.equals(projectAllocation.communityAllocationId))
 			.orElseThrow(() -> new IllegalArgumentException("Community Allocation ID change is forbidden"));
 	}

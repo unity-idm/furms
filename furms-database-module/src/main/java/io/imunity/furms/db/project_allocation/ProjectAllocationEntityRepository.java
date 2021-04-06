@@ -11,5 +11,5 @@ import java.util.UUID;
 
 public interface ProjectAllocationEntityRepository extends CrudRepository<ProjectAllocationEntity, UUID> {
 	boolean existsByName(String name);
-	boolean existsByResourceCreditId(UUID resourceCreditId);
+	boolean existsByCommunityAllocationId(UUID communityAllocationId);
 }
