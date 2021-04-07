@@ -1,6 +1,11 @@
-logging.level.org.springframework.amqp: DEBUG
+logging.level.org.springframework.amqp: TRACE
 spring:
    rabbitmq:
       username: guest
       password: guest
       port: 44444
+      ssl:
+          enabled: true
+          trustStore: classpath:truststore.jks
+          trustStorePassword: changeit
+          algorithm: TLSv1.2

@@ -54,3 +54,10 @@ spring:
       password: guest
       port: 44444
       connection-timeout: 10000
+      ssl:
+          enabled: true
+          trustStore: ${furms.unity.ssl.trust-store}
+          trustStorePassword: ${furms.unity.ssl.trust-store-password}
+          algorithm: TLSv1.2
+
+
