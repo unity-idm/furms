@@ -104,14 +104,14 @@ class SiteServiceImplTest {
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
-		when(repository.create(request)).thenReturn(request.getId());
+		when(repository.create(request, "id")).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
 
 		//then
-		verify(repository, times(1)).create(request);
+		verify(repository, times(1)).create(request, "id");
 		verify(webClient, times(1)).create(request);
 		verify(publisher, times(1)).publishEvent(new CreateSiteEvent("id"));
 	}
@@ -127,7 +127,7 @@ class SiteServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
-		verify(repository, times(0)).create(request);
+		verify(repository, times(0)).create(request, "id");
 		verify(webClient, times(0)).create(request);
 		verify(publisher, times(0)).publishEvent(new CreateSiteEvent("id"));
 	}

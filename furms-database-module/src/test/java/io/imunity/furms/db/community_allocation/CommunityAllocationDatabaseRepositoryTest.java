@@ -85,8 +85,8 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.connectionInfo("alala")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteId2 = UUID.fromString(siteRepository.create(site1));
+		siteId = UUID.fromString(siteRepository.create(site, "id"));
+		siteId2 = UUID.fromString(siteRepository.create(site1, "id2"));
 
 		Community community = Community.builder()
 			.name("name")

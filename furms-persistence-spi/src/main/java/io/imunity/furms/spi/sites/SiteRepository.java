@@ -14,13 +14,17 @@ public interface SiteRepository {
 
 	Optional<Site> findById(String id);
 
+	Optional<String> findShortId(String id);
+
 	Set<Site> findAll();
 
-	String create(Site site);
+	String create(Site site, String shortId);
 
 	String update(Site site);
 
 	boolean exists(String id);
+
+	boolean existsByShortId(String shortId);
 
 	boolean isNamePresent(String name);
 

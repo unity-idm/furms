@@ -1,4 +1,6 @@
 logging.level.org.springframework.amqp: TRACE
+queue:
+  name: mock
 spring:
    rabbitmq:
       username: guest

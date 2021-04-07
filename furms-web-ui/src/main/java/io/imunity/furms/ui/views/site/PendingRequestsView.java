@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -25,31 +26,26 @@ public class PendingRequestsView extends FurmsViewComponent {
 	public PendingRequestsView(SiteService siteService) {
 		Button button = new Button(getTranslation("view.site-admin.pending-requests.page.agent.connection"));
 		Label resultLabel = new Label();
-		Label messageStatusLabel = new Label();
-		Label correlationIdLabel = new Label();
 		UI ui = UI.getCurrent();
 		String siteId = getCurrentResourceId();
+
+		ProgressBar progressBar = new ProgressBar();
+
 		button.addClickListener(event -> {
 			handleExceptions(() -> siteService.getSiteAgentStatus(siteId))
 				.ifPresent(siteAgentStatus -> {
 					resultLabel.setText("");
-					messageStatusLabel.setText("START");
-					correlationIdLabel.setText(siteAgentStatus.correlationId);
-					siteAgentStatus.ackFuture.thenAcceptAsync(ack ->
-						ui.access(() -> messageStatusLabel.setText(ack.name()))
-					);
+					progressBar.setIndeterminate(true);
 					siteAgentStatus.jobFuture.thenAcceptAsync(status -> ui.access(() -> {
 						resultLabel.setText(getTranslation("view.site-admin.pending-requests.page.agent." + status.status.name()));
-						messageStatusLabel.setText("DONE");
+						progressBar.setValue(progressBar.getMax());
 					}));
 				});
 		});
 		getContent().add(
 			new VerticalLayout(
-				button,
-				new HorizontalLayout(new Label("Agent Status:"), resultLabel),
-				new HorizontalLayout(new Label("Task Status:"), messageStatusLabel),
-				new HorizontalLayout(new Label("CorrelationId:"), correlationIdLabel)
+				new HorizontalLayout(button, progressBar),
+				new HorizontalLayout(new Label("Agent Status:"), resultLabel)
 			)
 		);
 	}

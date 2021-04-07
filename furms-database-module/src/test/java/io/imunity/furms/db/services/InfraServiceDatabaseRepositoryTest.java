@@ -44,8 +44,8 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site2 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteRepository.create(site2);
+		siteId = UUID.fromString(siteRepository.create(site, "id"));
+		siteRepository.create(site2, "id2");
 	}
 
 	@Test

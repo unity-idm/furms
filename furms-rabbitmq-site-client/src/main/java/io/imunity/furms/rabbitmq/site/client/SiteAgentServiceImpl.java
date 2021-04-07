@@ -5,14 +5,11 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
+import io.imunity.furms.domain.site_agent.AckStatus;
+import io.imunity.furms.domain.site_agent.PendingJob;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.site_agent.SiteAgentStatus;
+import io.imunity.furms.site.api.SiteAgentService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -22,11 +19,13 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.domain.site_agent.AckStatus;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.site.api.SiteAgentService;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
 
 @Component
 class SiteAgentServiceImpl implements SiteAgentService {
@@ -43,8 +42,8 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	}
 
 	@Override
-	public void initializeSiteConnection(String siteId) {
-		Queue queue = new Queue(siteId);
+	public void initializeSiteConnection(String shortId) {
+		Queue queue = new Queue(shortId);
 		try {
 			rabbitAdmin.declareQueue(queue);
 		}catch (AmqpConnectException e){
@@ -53,9 +52,9 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	}
 
 	@Override
-	public void removeSiteConnection(String siteId) {
+	public void removeSiteConnection(String shortId) {
 		try {
-			rabbitAdmin.deleteQueue(siteId);
+			rabbitAdmin.deleteQueue(shortId);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
