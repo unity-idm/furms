@@ -30,22 +30,30 @@ public class PendingRequestsView extends FurmsViewComponent {
 		String siteId = getCurrentResourceId();
 
 		ProgressBar progressBar = new ProgressBar();
+		progressBar.setIndeterminate(true);
+		progressBar.setVisible(false);
+		progressBar.setWidth("10em");
 
 		button.addClickListener(event -> {
 			handleExceptions(() -> siteService.getSiteAgentStatus(siteId))
 				.ifPresent(siteAgentStatus -> {
 					resultLabel.setText("");
-					progressBar.setIndeterminate(true);
+					progressBar.setVisible(true);
 					siteAgentStatus.jobFuture.thenAcceptAsync(status -> ui.access(() -> {
 						resultLabel.setText(getTranslation("view.site-admin.pending-requests.page.agent." + status.status.name()));
-						progressBar.setValue(progressBar.getMax());
+						progressBar.setVisible(false);
 					}));
 				});
 		});
+
 		getContent().add(
 			new VerticalLayout(
-				new HorizontalLayout(button, progressBar),
-				new HorizontalLayout(new Label("Agent Status:"), resultLabel)
+				button,
+				new HorizontalLayout(
+					new Label(getTranslation("view.site-admin.pending-requests.page.agent.status")),
+					progressBar,
+					resultLabel
+				)
 			)
 		);
 	}
