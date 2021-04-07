@@ -50,12 +50,14 @@ export BROKER_HOST=<broker-host>
 export BROKER_PORT=<broker-port>
 export BROKER_USERNAME=<broker-username>
 export BROKER_PASSWORD=<broker-password>
+export CA_FILE=<path to CA file in PEM format>
 ```
 If aforementioned variables are not present a default values takes place:
 * host - 127.0.0.1
 * port - 4444
 * password - guest
 * user - guest
+* cafile - ./ca_certificate.pem
 ```
 cd devrunner
 ./runner.sh <name-of-queue-to-listen-to>
