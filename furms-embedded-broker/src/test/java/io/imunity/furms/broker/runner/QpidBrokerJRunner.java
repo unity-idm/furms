@@ -6,9 +6,11 @@ package io.imunity.furms.broker.runner;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.qpid.server.SystemLauncher;
+import org.apache.qpid.server.model.SystemConfig;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,8 @@ public class QpidBrokerJRunner {
 		attributes.put("startupLoggedToSystemOut", true);
 		attributes.put("context", ImmutableMap.of(
 				"qpid.amqp_port", port,
-				"qpid.keystore", KEYSTORE_PATH));
+				"qpid.keystore", KEYSTORE_PATH,
+				SystemConfig.QPID_WORK_DIR, Path.of("target", "qpid-workdir").toString()));
 
 		SystemLauncher systemLauncher = new SystemLauncher();
 		systemLauncher.startup(attributes);
