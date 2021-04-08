@@ -6,6 +6,21 @@
 package io.imunity.furms.db.community_allocation;
 
 
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -20,20 +35,6 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
@@ -64,13 +65,6 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	private UUID resourceCreditId;
 	private UUID resourceCreditId2;
-
-	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
-	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
-	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
-	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
-	private LocalDateTime createTime = LocalDateTime.of(2020, 1, 30, 5, 8, 8);
-	private LocalDateTime createTime2 = LocalDateTime.of(2021, 8, 23, 8, 18, 18);
 
 	@BeforeEach
 	void init() throws IOException {
@@ -177,7 +171,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
-		CommunityAllocationEntity save = entityRepository.save(
+		entityRepository.save(
 			CommunityAllocationEntity.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId)
@@ -331,7 +325,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void savedCommunityAllocationDoesNotExistByName() {
 		//given
-		CommunityAllocationEntity service = entityRepository.save(CommunityAllocationEntity.builder()
+		entityRepository.save(CommunityAllocationEntity.builder()
 			.communityId(communityId)
 			.resourceCreditId(resourceCreditId)
 			.name("anem")

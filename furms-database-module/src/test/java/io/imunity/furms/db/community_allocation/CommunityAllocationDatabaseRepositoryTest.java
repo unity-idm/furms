@@ -55,9 +55,6 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private ResourceCreditRepository resourceCreditRepository;
 
 	@Autowired
-	private CommunityAllocationReadEntityRepository entityReadRepository;
-
-	@Autowired
 	private CommunityAllocationEntityRepository entityRepository;
 
 	@Autowired
@@ -181,7 +178,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
-		CommunityAllocationEntity save = entityRepository.save(
+		entityRepository.save(
 			CommunityAllocationEntity.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId)

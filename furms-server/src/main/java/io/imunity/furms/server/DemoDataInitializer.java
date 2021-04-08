@@ -343,11 +343,11 @@ class DemoDataInitializer {
 				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
 				.build();
 
-			String resourceCreditCinecaId = resourceCreditRepository.create(resourceCreditCineca);
-			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca1);
-			String resourceCreditFzjId = resourceCreditRepository.create(resourceCreditFzj);
+			resourceCreditRepository.create(resourceCreditCineca);
+			resourceCreditRepository.create(resourceCreditCineca1);
+			resourceCreditRepository.create(resourceCreditFzj);
 			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
-			String resourceCreditBscId = resourceCreditRepository.create(resourceCreditBsc);
+			resourceCreditRepository.create(resourceCreditBsc);
 			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
 
 			CommunityAllocation communityAllocation = CommunityAllocation.builder()
