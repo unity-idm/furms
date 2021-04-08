@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -21,12 +22,12 @@ import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
 @CssImport("./styles/components/furms-select.css")
@@ -58,27 +59,6 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			.ifPresent(this::setValue);
 	}
 
-	private void addItems(final List<FurmsSelectText> items) {
-		setClassName("furms-select");
-		setItems(items);
-		setTextRenderer(Text::getText);
-		addSeparators(items);
-	}
-
-	private void addSeparators(List<FurmsSelectText> items) {
-		final Map<Integer, List<FurmsSelectText>> itemsGroupedByOrder = items.stream()
-				.collect(groupingBy(x -> x.furmsViewUserContext.viewMode.order));
-		final Optional<Integer> maxOrder = itemsGroupedByOrder.keySet().stream()
-				.max(Comparator.comparingInt(key -> key));
-		itemsGroupedByOrder.keySet().stream()
-				.sorted()
-				.filter(order -> !maxOrder.get().equals(order))
-				.forEach(order -> {
-					final List<FurmsSelectText> block = itemsGroupedByOrder.get(order);
-					addComponents(block.get(block.size()-1), new Hr());
-				});
-	}
-
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
@@ -99,5 +79,43 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		super.onDetach(detachEvent);
 		broadcasterRegistration.remove();
 		broadcasterRegistration = null;
+	}
+
+	private void addItems(final List<FurmsSelectText> items) {
+		setClassName("furms-select");
+		setItems(items);
+		setTextRenderer(Text::getText);
+		addSeparators(items);
+	}
+
+	private void addSeparators(List<FurmsSelectText> items) {
+		final Map<Integer, List<FurmsSelectText>> itemsGroupedByOrder = items.stream()
+				.collect(groupingBy(x -> x.furmsViewUserContext.viewMode.order));
+		itemsGroupedByOrder.keySet().stream()
+				.sorted()
+				.forEach(order -> addSeparator(itemsGroupedByOrder, order));
+	}
+
+	private void addSeparator(Map<Integer, List<FurmsSelectText>> items, Integer order) {
+		final List<FurmsSelectText> block = items.get(order);
+		final ViewMode blockViewMode = getBlockViewMode(block);
+		if (shouldHasSeparator(blockViewMode.order)) {
+			final Component separator = blockViewMode.hasHeader()
+					? new LabeledHr(getTranslation(format("component.furms.select.role.%s", blockViewMode.name())))
+					: new Hr();
+
+			prependComponents(block.get(0), separator);
+		}
+	}
+
+	private boolean shouldHasSeparator(int order) {
+		return order != 1;
+	}
+
+	private ViewMode getBlockViewMode(List<FurmsSelectText> block) {
+		return block.stream().findFirst()
+					.map(select -> select.furmsViewUserContext.viewMode)
+					.orElse(ViewMode.FENIX);
+
 	}
 }

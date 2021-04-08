@@ -18,4 +18,8 @@ public enum ViewMode {
 		this.route = route;
 		this.order = order;
 	}
+
+	public boolean hasHeader() {
+		return this != FENIX && this != USER;
+	}
 }
