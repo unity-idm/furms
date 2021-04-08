@@ -17,6 +17,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -94,8 +95,8 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteId2 = UUID.fromString(siteRepository.create(site1));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -207,7 +208,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAvailableAmountWhenProjectAllocationsDoesntExist() {
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(communityAllocationId);
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(communityAllocationId).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(10));
 	}
 
@@ -230,7 +231,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(UUID.randomUUID());
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(communityAllocationId).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(5));
 	}
 

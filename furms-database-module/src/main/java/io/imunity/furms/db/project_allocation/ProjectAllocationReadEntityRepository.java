@@ -9,7 +9,6 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,9 +40,9 @@ public interface ProjectAllocationReadEntityRepository extends CrudRepository<Pr
 		"where a.project_id = :id")
 	Set<ProjectAllocationReadEntity> findAllByProjectId(@Param("id") UUID id);
 
-	@Query("select ca.amount - isnull(sum(pa.amount),0) " +
+	@Query("select ca.amount as community_allocation_amount, sum(pa.amount) as project_allocations_amount " +
 		"from community_allocation ca " +
 		"left join project_allocation pa on pa.community_allocation_id = ca.id " +
 		"where ca.id = :id")
-	BigDecimal calculateAvailableAmount(@Param("id") UUID communityAllocationId);
+	ProjectAllocationSum calculateAvailableAmount(@Param("id") UUID communityAllocationId);
 }

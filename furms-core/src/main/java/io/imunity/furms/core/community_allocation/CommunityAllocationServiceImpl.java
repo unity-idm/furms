@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
@@ -61,7 +62,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public BigDecimal getAvailableAmount(String resourceCreditId) {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);
 	}

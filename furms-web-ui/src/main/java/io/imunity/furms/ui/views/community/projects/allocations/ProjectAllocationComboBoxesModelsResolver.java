@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 import static java.util.stream.Collectors.*;
 
 class ProjectAllocationComboBoxesModelsResolver {
@@ -25,7 +26,7 @@ class ProjectAllocationComboBoxesModelsResolver {
 		this.resourceTypeComboBoxModels = communityAllocations.stream()
 			.map(allocation -> new ResourceTypeComboBoxModel(allocation.resourceType.id, allocation.resourceType.name))
 			.collect(toSet());
-		this.resourceTypeComboBoxModels.add(new ResourceTypeComboBoxModel("ANY", "ANY"));
+		this.resourceTypeComboBoxModels.add(new ResourceTypeComboBoxModel("ANY", getTranslation("any")));
 
 		this.resourceTypeIdToCommunityAllocation = communityAllocations.stream()
 			.collect(groupingBy(

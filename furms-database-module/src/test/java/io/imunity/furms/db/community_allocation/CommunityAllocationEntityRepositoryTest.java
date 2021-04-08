@@ -146,7 +146,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAvailableAmountWhenCommunityAllocationsDoesntExist() {
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId);
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(100));
 	}
 
@@ -169,7 +169,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId);
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(60));
 	}
 

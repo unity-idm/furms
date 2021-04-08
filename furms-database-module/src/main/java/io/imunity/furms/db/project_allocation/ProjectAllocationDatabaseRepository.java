@@ -95,7 +95,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 
 	@Override
 	public BigDecimal getAvailableAmount(String communityAllocationId) {
-		return readRepository.calculateAvailableAmount(UUID.fromString(communityAllocationId));
+		return readRepository.calculateAvailableAmount(UUID.fromString(communityAllocationId)).getAmount();
 	}
 
 	@Override

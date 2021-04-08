@@ -59,7 +59,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 
 	@Override
 	public BigDecimal getAvailableAmount(String resourceCreditId) {
-		return readRepository.calculateAvailableAmount(UUID.fromString(resourceCreditId));
+		return readRepository.calculateAvailableAmount(UUID.fromString(resourceCreditId)).getAmount();
 	}
 
 	@Override
