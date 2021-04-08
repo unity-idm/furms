@@ -44,8 +44,8 @@ class ProjectAllocationServiceValidator {
 
 	void validateUpdate(ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
-		validateName(projectAllocation);
 		validateId(projectAllocation.id);
+		validateName(projectAllocation);
 		validateUpdateProjectId(projectAllocation);
 		validateUpdateCommunityAllocationId(projectAllocation);
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
