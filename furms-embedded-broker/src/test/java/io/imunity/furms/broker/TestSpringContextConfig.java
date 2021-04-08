@@ -6,6 +6,7 @@
 package io.imunity.furms.broker;
 
 import io.imunity.furms.broker.runner.QpidBrokerJRunner;
+import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,8 +18,8 @@ public class TestSpringContextConfig {
 
 	@Bean
 	@Profile("embedded-broker")
-	public Queue createQueue(ConnectionFactory factory) throws Exception {
+	public Declarables createQueue(ConnectionFactory factory) throws Exception {
 		QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
-		return new Queue("mock");
+		return new Declarables(new Queue("mock"), new Queue("reply-queue"));
 	}
 }

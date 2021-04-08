@@ -21,13 +21,18 @@ public class SiteEntity extends UUIDIdentifiable {
 	private final String connectionInfo;
 	private final byte[] logo;
 	private final String logoType;
+	private final Boolean sshKeyFromOptionMandatory;
+	private final String shortId;
 
-	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType) {
+
+	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType,  Boolean sshKeyFromOptionMandatory, String shortId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
 		this.logoType = logoType;
+		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.shortId = shortId;
 	}
 
 	public Site toSite() {
@@ -36,11 +41,16 @@ public class SiteEntity extends UUIDIdentifiable {
 				.name(name)
 				.connectionInfo(connectionInfo)
 				.logo(new FurmsImage(logo, logoType))
+				.sshKeyFromOptionMandatory(sshKeyFromOptionMandatory)
 				.build();
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public String getShortId() {
+		return shortId;
 	}
 
 	public static SiteEntity.SiteEntityBuilder builder() {
@@ -56,12 +66,14 @@ public class SiteEntity extends UUIDIdentifiable {
 				Objects.equals(name, entity.name) &&
 				Objects.equals(connectionInfo, entity.connectionInfo) &&
 				Arrays.equals(logo, entity.logo) &&
-				Objects.equals(logoType, entity.logoType);
+				Objects.equals(logoType, entity.logoType)&&
+				Objects.equals(sshKeyFromOptionMandatory, entity.sshKeyFromOptionMandatory) &&
+				Objects.equals(shortId, entity.shortId);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, name, connectionInfo, logoType);
+		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, shortId);
 		result = 31 * result + Arrays.hashCode(logo);
 		return result;
 	}
@@ -74,6 +86,8 @@ public class SiteEntity extends UUIDIdentifiable {
 				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + Arrays.toString(logo) +
 				", logoType='" + logoType + '\'' +
+				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", shortId=" + shortId +
 				'}';
 	}
 
@@ -84,7 +98,9 @@ public class SiteEntity extends UUIDIdentifiable {
 		private String connectionInfo;
 		private byte[] logo;
 		private String logoType;
-
+		private Boolean sshKeyFromOptionMandatory;
+		private String shortId;
+		
 		public SiteEntity.SiteEntityBuilder id(UUID id) {
 			this.id = id;
 			return this;
@@ -92,6 +108,11 @@ public class SiteEntity extends UUIDIdentifiable {
 
 		public SiteEntity.SiteEntityBuilder name(String name) {
 			this.name = name;
+			return this;
+		}
+
+		public SiteEntity.SiteEntityBuilder shortId(String siteId) {
+			this.shortId = siteId;
 			return this;
 		}
 
@@ -107,9 +128,15 @@ public class SiteEntity extends UUIDIdentifiable {
 			}
 			return this;
 		}
+		
+		public SiteEntity.SiteEntityBuilder sshKeyFromOptionMandatory(Boolean sshKeyFromMandatory) {
+			this.sshKeyFromOptionMandatory = sshKeyFromMandatory;
+			return this;
+		}
+
 
 		public SiteEntity build() {
-			return new SiteEntity(id, name, connectionInfo, logo, logoType);
+			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, shortId);
 		}
 	}
 }

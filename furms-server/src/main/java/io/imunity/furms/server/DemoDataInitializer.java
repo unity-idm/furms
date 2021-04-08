@@ -194,13 +194,13 @@ class DemoDataInitializer {
 					.name("BSC")
 					.build();
 
-			String cinecaId = siteRepository.create(cineca);
-			String fzjId = siteRepository.create(fzj);
-			String bscId = siteRepository.create(bsc);
+			String cinecaId = siteRepository.create(cineca, "mock");
+			String fzjId = siteRepository.create(fzj, "mock1");
+			String bscId = siteRepository.create(bsc, "mock2");
 
-			siteAgentService.initializeSiteConnection(cinecaId);
-			siteAgentService.initializeSiteConnection(fzjId);
-			siteAgentService.initializeSiteConnection(bscId);
+			siteAgentService.initializeSiteConnection("mock");
+			siteAgentService.initializeSiteConnection("mock1");
+			siteAgentService.initializeSiteConnection("mock2");
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
@@ -343,11 +343,11 @@ class DemoDataInitializer {
 				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
 				.build();
 
-			String resourceCreditCinecaId = resourceCreditRepository.create(resourceCreditCineca);
-			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca1);
-			String resourceCreditFzjId = resourceCreditRepository.create(resourceCreditFzj);
+			resourceCreditRepository.create(resourceCreditCineca);
+			resourceCreditRepository.create(resourceCreditCineca1);
+			resourceCreditRepository.create(resourceCreditFzj);
 			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
-			String resourceCreditBscId = resourceCreditRepository.create(resourceCreditBsc);
+			resourceCreditRepository.create(resourceCreditBsc);
 			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
 
 			CommunityAllocation communityAllocation = CommunityAllocation.builder()

@@ -8,8 +8,10 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
@@ -32,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
@@ -90,13 +91,14 @@ class SiteServiceImpl implements SiteService {
 	public void create(Site site) {
 		validator.validateCreate(site);
 
-		String siteId = siteRepository.create(site);
+		String shortId = ExternalIdGenerator.generate(siteRepository::existsByShortId);
+		String siteId = siteRepository.create(site, shortId);
 		Site createdSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
-			siteAgentService.initializeSiteConnection(siteId);
+			siteAgentService.initializeSiteConnection(shortId);
 			LOG.info("Initialized connection channel to site agent: {}", siteId);
 			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
@@ -138,12 +140,13 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
 	public void delete(String id) {
 		validator.validateDelete(id);
+		String shortId = siteRepository.findShortId(id).orElse(null);
 
 		siteRepository.delete(id);
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
-			siteAgentService.removeSiteConnection(id);
+			siteAgentService.removeSiteConnection(shortId);
 			publisher.publishEvent(new RemoveSiteEvent(id));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
@@ -240,8 +243,9 @@ class SiteServiceImpl implements SiteService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public CompletableFuture<SiteAgentStatus> getSiteAgentStatus(String siteId) {
-		return siteAgentService.getStatus(siteId);
+	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
+		String shortId = siteRepository.findShortId(siteId).orElse(null);
+		return siteAgentService.getStatus(shortId);
 	}
 
 	private Site merge(Site oldSite, Site site) {
@@ -251,6 +255,7 @@ class SiteServiceImpl implements SiteService {
 				.name(site.getName())
 				.logo(ofNullable(site.getLogo()).orElse(oldSite.getLogo()))
 				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
-				.build();
+				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
+				.build();	
 	}
 }

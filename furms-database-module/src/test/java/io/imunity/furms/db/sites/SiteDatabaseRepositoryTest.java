@@ -89,7 +89,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String newSiteId = repository.create(request);
+		String newSiteId = repository.create(request, "id");
 
 		//then
 		Optional<Site> byId = repository.findById(newSiteId);
@@ -107,8 +107,8 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		Site nullRequest = null;
 
 		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName, "id2"));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest, "id3"));
 	}
 
 	@Test
@@ -130,6 +130,8 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 	}
+	
+	
 
 	@Test
 	void shouldExistsById() {

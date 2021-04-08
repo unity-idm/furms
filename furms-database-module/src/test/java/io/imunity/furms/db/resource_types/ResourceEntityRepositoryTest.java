@@ -49,8 +49,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteId2 = UUID.fromString(siteRepository.create(site1));
+		siteId = UUID.fromString(siteRepository.create(site, "id"));
+		siteId2 = UUID.fromString(siteRepository.create(site1, "id2"));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())

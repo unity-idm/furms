@@ -5,12 +5,11 @@
 
 package io.imunity.furms.site.api;
 
+import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 
-import java.util.concurrent.CompletableFuture;
-
 public interface SiteAgentService {
-	void initializeSiteConnection(String siteId);
-	void removeSiteConnection(String siteId);
-	CompletableFuture<SiteAgentStatus> getStatus(String siteId);
+	void initializeSiteConnection(String siteShortId);
+	void removeSiteConnection(String siteShortId);
+	PendingJob<SiteAgentStatus> getStatus(String siteShortId);
 }
