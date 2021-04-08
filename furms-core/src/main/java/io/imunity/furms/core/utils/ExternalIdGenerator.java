@@ -8,8 +8,7 @@ package io.imunity.furms.core.utils;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class ExternalIdGenerator
-{
+public class ExternalIdGenerator {
 	/**
 	 * Strings are generated based on alphabet w/o vowels and w/o few other
 	 * chars. The array is an alphabet without the following: <br>

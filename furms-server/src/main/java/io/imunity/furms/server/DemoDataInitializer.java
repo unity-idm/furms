@@ -16,6 +16,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -194,13 +195,17 @@ class DemoDataInitializer {
 					.name("BSC")
 					.build();
 
-			String cinecaId = siteRepository.create(cineca, "mock");
-			String fzjId = siteRepository.create(fzj, "mock1");
-			String bscId = siteRepository.create(bsc, "mock2");
+			SiteExternalId ciencaExternalId = new SiteExternalId("cin-x");
+			SiteExternalId fzjExternalId = new SiteExternalId("fzj-x");
+			SiteExternalId bscExternalId = new SiteExternalId("bsc-x");
 
-			siteAgentService.initializeSiteConnection("mock");
-			siteAgentService.initializeSiteConnection("mock1");
-			siteAgentService.initializeSiteConnection("mock2");
+			String cinecaId = siteRepository.create(cineca, ciencaExternalId);
+			String fzjId = siteRepository.create(fzj, fzjExternalId);
+			String bscId = siteRepository.create(bsc, bscExternalId);
+
+			siteAgentService.initializeSiteConnection(ciencaExternalId);
+			siteAgentService.initializeSiteConnection(fzjExternalId);
+			siteAgentService.initializeSiteConnection(bscExternalId);
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());

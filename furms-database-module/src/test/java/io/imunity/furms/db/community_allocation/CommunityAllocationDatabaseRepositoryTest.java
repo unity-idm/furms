@@ -17,6 +17,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -82,8 +83,8 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.connectionInfo("alala")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, "id"));
-		siteId2 = UUID.fromString(siteRepository.create(site1, "id2"));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")

@@ -9,6 +9,7 @@ package io.imunity.furms.db.services;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,8 +45,8 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site2 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, "id"));
-		siteRepository.create(site2, "id2");
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteRepository.create(site2, new SiteExternalId("id2"));
 	}
 
 	@Test

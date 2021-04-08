@@ -16,10 +16,10 @@ interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 
 	boolean existsByName(String name);
 
-	boolean existsByShortId(String shortId);
+	boolean existsByExternalId(String shortId);
 
 	boolean existsByNameAndIdIsNot(String name, UUID id);
 
-	@Query("select short_id from site s where s.id = :id")
-	Optional<String> findShortId(@Param("id") UUID id);
+	@Query("select external_id from site s where s.id = :id")
+	Optional<String> findExternalId(@Param("id") UUID id);
 }
