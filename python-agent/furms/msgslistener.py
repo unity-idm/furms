@@ -19,17 +19,18 @@ def start_consuming(config: BrokerConfiguration, listeners:RequestListeners):
 
 def connection_params(config: BrokerConfiguration):
     plain_credentials = pika.credentials.PlainCredentials(config.username, config.password)
-    context = None
+    ssl_options = None
     if config.is_ssl_enabled():
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         context.verify_mode = ssl.CERT_REQUIRED
         context.load_verify_locations(config.cafile)
+        ssl_options = pika.SSLOptions(context)
 
     return pika.ConnectionParameters(
         host=config.host, 
         port=config.port, 
         credentials=plain_credentials, 
-        ssl_options=pika.SSLOptions(context))        
+        ssl_options=ssl_options)        
 
 def msgs_listener(channel, method, properties, body, args):
     (listeners) = args
@@ -38,12 +39,9 @@ def msgs_listener(channel, method, properties, body, args):
     furmsMessageType = properties.headers['furmsMessageType']
     logger.info("received furmsMessageType=%r" % furmsMessageType)
 
-    channel.basic_ack(delivery_tag=method.delivery_tag, multiple=True)
-
     if furmsMessageType == ProtocolRequestTypes.PING:
         pingListener = listeners.get(ProtocolRequestTypes.PING) 
         handleAgentPingRequest(channel, method, properties, pingListener)
-
 
 def handleAgentPingRequest(channel, method, properties, pingListener):
     headers = MessageHeaders().type(ProtocolRequestTypes.PING)
