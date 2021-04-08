@@ -4,19 +4,26 @@
  */
 package io.imunity.furms.broker.runner;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.qpid.server.SystemLauncher;
+
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.qpid.server.SystemLauncher;
-
-import com.google.common.collect.ImmutableMap;
-
 public class QpidBrokerJRunner {
 
-	 private static final String KEYSTORE_PATH = QpidBrokerJRunner.class
-			 .getResource("/qpid.p12").getPath();
-	 
+	 private static final String KEYSTORE_PATH = getKeystorePath();
+
+	private static String getKeystorePath() {
+		try {
+			return QpidBrokerJRunner.class.getResource("/qpid.p12").toURI().toString();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 		run(44444, "configuration.json");
 	}

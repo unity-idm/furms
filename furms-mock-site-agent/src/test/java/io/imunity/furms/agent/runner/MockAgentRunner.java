@@ -14,17 +14,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.Optional.ofNullable;
 
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class MockAgentRunner {
@@ -42,7 +34,7 @@ public class MockAgentRunner {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-	@RabbitListener(queues = "#{T(io.imunity.furms.agent.runner.MockAgentRunner).getQueuesNames()}")
+	@RabbitListener(queues = "${queue.name}")
 	public void receive(Message message) throws InterruptedException {
 		String correlationId = message.getMessageProperties().getCorrelationId();
 
@@ -65,25 +57,25 @@ public class MockAgentRunner {
 		rabbitTemplate.send("reply-queue", replyMessage);
 	}
 
-	public static String[] getQueuesNames() {
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<QueueName[]> forEntity = 
-				restTemplate.getForEntity("http://localhost:55570/api/latest/queue", QueueName[].class, Map.of());
-		String[] queues = ofNullable(forEntity.getBody()).stream()
-			.flatMap(Arrays::stream)
-			.filter(x -> isUUID(x.name))
-			.map(x -> x.name)
-			.toArray(String[]::new);
-		LOG.info("Queue names: {}", Arrays.toString(queues));
-		return queues;
-	}
-
-	private static boolean isUUID(String s){
-		try{
-			UUID.fromString(s);
-			return true;
-		} catch (IllegalArgumentException exception){
-			return false;
-		}
-	}
+//	public static String[] getQueuesNames() {
+//		RestTemplate restTemplate = new RestTemplate();
+//		ResponseEntity<QueueName[]> forEntity =
+//				restTemplate.getForEntity("http://localhost:55570/api/latest/queue", QueueName[].class, Map.of());
+//		String[] queues = ofNullable(forEntity.getBody()).stream()
+//			.flatMap(Arrays::stream)
+//			.filter(x -> isUUID(x.name))
+//			.map(x -> x.name)
+//			.toArray(String[]::new);
+//		LOG.info("Queue names: {}", Arrays.toString(queues));
+//		return queues;
+//	}
+//
+//	private static boolean isUUID(String s){
+//		try{
+//			UUID.fromString(s);
+//			return true;
+//		} catch (IllegalArgumentException exception){
+//			return false;
+//		}
+//	}
 }

@@ -38,6 +38,14 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
+	public Optional<String> findShortId(String id) {
+		if (isEmpty(id)) {
+			return Optional.empty();
+		}
+		return repository.findShortId(fromString(id));
+	}
+
+	@Override
 	public Set<Site> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 				.map(SiteEntity::toSite)
@@ -45,13 +53,14 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public String create(Site site) {
+	public String create(Site site, String shortId) {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
 				.name(site.getName())
 				.connectionInfo(site.getConnectionInfo())
 				.logo(site.getLogo())
 				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
+				.shortId(shortId)
 				.build());
 		return saved.getId().toString();
 	}
@@ -68,6 +77,7 @@ class SiteDatabaseRepository implements SiteRepository {
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
 						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
+						.shortId(oldEntity.getShortId())
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
@@ -81,6 +91,14 @@ class SiteDatabaseRepository implements SiteRepository {
 			return false;
 		}
 		return repository.existsById(fromString(id));
+	}
+
+	@Override
+	public boolean existsByShortId(String shortId) {
+		if (isEmpty(shortId)) {
+			return false;
+		}
+		return repository.existsByShortId(shortId);
 	}
 
 	@Override
