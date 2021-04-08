@@ -207,6 +207,7 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.addAdmin(siteId, userId);
 			publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
+			authzService.reloadRolesIfCurrentUser(userId);
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not add Site Administrator: ", e);
@@ -228,6 +229,7 @@ class SiteServiceImpl implements SiteService {
 		try {
 			webClient.removeAdmin(siteId, userId);
 			publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
+			authzService.reloadRolesIfCurrentUser(userId);
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not remove Site Administrator: ", e);
