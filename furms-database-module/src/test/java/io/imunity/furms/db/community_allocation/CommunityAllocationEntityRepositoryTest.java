@@ -6,21 +6,6 @@
 package io.imunity.furms.db.community_allocation;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -30,11 +15,26 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
@@ -74,8 +74,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, "id"));
-		siteId2 = UUID.fromString(siteRepository.create(site1, "id2"));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -144,6 +144,34 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build()));
 	}
 
+	@Test
+	void shouldReturnAvailableAmountWhenCommunityAllocationsDoesntExist() {
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		assertThat(sum).isEqualTo(new BigDecimal(100));
+	}
+
+	@Test
+	void shouldReturnAvailableAmount() {
+		entityRepository.save(
+			CommunityAllocationEntity.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.name("anem")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+		entityRepository.save(
+			CommunityAllocationEntity.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.name("anem2")
+				.amount(new BigDecimal(30))
+				.build()
+		);
+
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		assertThat(sum).isEqualTo(new BigDecimal(60));
+	}
 
 	@Test
 	void shouldReturnAllocationWithRelatedObjects() {

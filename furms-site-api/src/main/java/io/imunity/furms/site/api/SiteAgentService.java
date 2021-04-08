@@ -7,9 +7,10 @@ package io.imunity.furms.site.api;
 
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
+import io.imunity.furms.domain.sites.SiteExternalId;
 
 public interface SiteAgentService {
-	void initializeSiteConnection(String siteShortId);
-	void removeSiteConnection(String siteShortId);
-	PendingJob<SiteAgentStatus> getStatus(String siteShortId);
+	void initializeSiteConnection(SiteExternalId externalId);
+	void removeSiteConnection(SiteExternalId siteShortId);
+	PendingJob<SiteAgentStatus> getStatus(SiteExternalId externalId);
 }

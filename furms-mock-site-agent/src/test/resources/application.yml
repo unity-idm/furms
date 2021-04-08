@@ -1,6 +1,6 @@
-logging.level.org.springframework.amqp: TRACE
+logging.level.org.springframework.amqp: DEBUG
 queue:
-  name: mock
+  name: cin-x
 spring:
    rabbitmq:
       username: guest

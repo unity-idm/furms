@@ -36,7 +36,7 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
-@Route(value = "site/admin/resource/credit/allocation/form", layout = FenixAdminMenu.class)
+@Route(value = "fenix/admin/communities/resource/credit/allocation/form", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.resource-credits-allocation.form.page.title")
 class CommunityAllocationFormView extends FurmsViewComponent {
 	private final Binder<CommunityAllocationViewModel> binder = new BeanValidationBinder<>(CommunityAllocationViewModel.class);
@@ -52,7 +52,8 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		CommunityAllocationComboBoxesModelsResolver resolver = new CommunityAllocationComboBoxesModelsResolver(
 			siteService.findAll(),
 			resourceTypeService::findAll,
-			resourceCreditService::findAllByResourceTypeId
+			resourceCreditService::findAllByResourceTypeId,
+			communityAllocationService::getAvailableAmount
 		);
 		this.communityAllocationFormComponent = new CommunityAllocationFormComponent(binder, resolver);
 

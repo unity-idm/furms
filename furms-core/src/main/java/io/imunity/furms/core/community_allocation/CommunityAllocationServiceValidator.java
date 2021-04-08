@@ -5,11 +5,13 @@
 
 package io.imunity.furms.core.community_allocation;
 
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationHasProjectAllocationsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import org.springframework.stereotype.Component;
 
@@ -23,13 +25,16 @@ import static org.springframework.util.Assert.notNull;
 @Component
 class CommunityAllocationServiceValidator {
 	private final CommunityAllocationRepository communityAllocationRepository;
+	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final CommunityRepository communityRepository;
 
 	CommunityAllocationServiceValidator(CommunityAllocationRepository communityAllocationRepository,
+	                                    ProjectAllocationRepository projectAllocationRepository,
 	                                    ResourceCreditRepository resourceCreditRepository,
 	                                    CommunityRepository communityRepository) {
 		this.communityAllocationRepository = communityAllocationRepository;
+		this.projectAllocationRepository = projectAllocationRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.communityRepository = communityRepository;
 	}
@@ -53,6 +58,9 @@ class CommunityAllocationServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		if(projectAllocationRepository.existsByCommunityAllocationId(id)){
+			throw new CommunityAllocationHasProjectAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
+		}
 	}
 
 	private void validateName(CommunityAllocation communityAllocation) {

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
@@ -19,6 +20,7 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
 
 import java.util.*;
 
@@ -33,6 +35,7 @@ public class ProjectView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final UserService userService;
 	private final PersistentId currentUserId;
+	private final ProjectAllocationService projectAllocationService;
 
 	private Tab defaultTab;
 	private Tabs tabs;
@@ -44,17 +47,18 @@ public class ProjectView extends FurmsViewComponent {
 	private Div page1;
 	private Div page2;
 
-	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService) {
+	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectAllocationService projectAllocationService) {
 		this.projectService = projectService;
 		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
+		this.projectAllocationService = projectAllocationService;
 	}
 
-	private void loadTabs() {
+	private void loadTabs(String projectId) {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new Div();
+		page2 = new ProjectAllocationComponent(projectAllocationService, projectId).getContent();
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), ProjectView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
@@ -68,7 +72,6 @@ public class ProjectView extends FurmsViewComponent {
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);
 		links.add(allocRouterLink);
 
-		page2.setText("Page#2");
 		page2.setVisible(false);
 
 		Map<Tab, Component> tabsToPages = new HashMap<>();
@@ -143,9 +146,9 @@ public class ProjectView extends FurmsViewComponent {
 		String param = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
-			.getOrDefault(PARAM_NAME, List.of(ADMINISTRATORS_PARAM))
+			.getOrDefault(PARAM_NAME, List.of(ALLOCATIONS_PARAM))
 			.iterator().next();
-		loadTabs();
+		loadTabs(projectId);
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), projectId));

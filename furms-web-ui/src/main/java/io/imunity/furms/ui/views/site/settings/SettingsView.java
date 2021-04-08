@@ -51,11 +51,14 @@ public class SettingsView extends FurmsViewComponent {
 
 	private final TextField name;
 
+	private final TextField externalId;
+
 	private SiteSettingsDto bufferedSettings;
 
 	SettingsView(SiteService siteService) {
 		this.siteService = siteService;
 		this.name = new TextField();
+		this.externalId = new TextField();
 
 		addForm();
 	}
@@ -66,6 +69,7 @@ public class SettingsView extends FurmsViewComponent {
 		Binder<SiteSettingsDto> binder = new Binder<>(SiteSettingsDto.class);
 		binder.setBean(loadSite());
 
+		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.id"));
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
 		formLayout.addFormItem(sshKeyFromMandatory(binder), getTranslation("view.site-admin.settings.form.sshKeyFromOptionMandatory"));
@@ -73,6 +77,12 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.add(buttonsRow(binder));
 
 		getContent().add(formLayout);
+	}
+
+	private TextField externalIdRow(Binder<SiteSettingsDto> binder) {
+		externalId.setValue(binder.getBean().getExternalId().id);
+		externalId.setEnabled(false);
+		return externalId;
 	}
 
 	private TextField nameRow(Binder<SiteSettingsDto> binder) {

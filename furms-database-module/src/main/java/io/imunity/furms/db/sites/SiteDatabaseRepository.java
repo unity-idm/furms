@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Repository;
@@ -38,11 +39,13 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Optional<String> findShortId(String id) {
+	public SiteExternalId findByIdExternalId(String id) {
 		if (isEmpty(id)) {
-			return Optional.empty();
+			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findShortId(fromString(id));
+		return repository.findExternalId(fromString(id))
+			.map(SiteExternalId::new)
+			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
 	}
 
 	@Override
@@ -53,14 +56,14 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public String create(Site site, String shortId) {
+	public String create(Site site, SiteExternalId siteExternalId) {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
 				.name(site.getName())
 				.connectionInfo(site.getConnectionInfo())
 				.logo(site.getLogo())
 				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
-				.shortId(shortId)
+				.externalId(siteExternalId.id)
 				.build());
 		return saved.getId().toString();
 	}
@@ -77,7 +80,7 @@ class SiteDatabaseRepository implements SiteRepository {
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
 						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
-						.shortId(oldEntity.getShortId())
+						.externalId(oldEntity.getExternalId())
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
@@ -94,11 +97,11 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public boolean existsByShortId(String shortId) {
-		if (isEmpty(shortId)) {
-			return false;
+	public boolean existsByExternalId(SiteExternalId siteExternalId) {
+		if (isEmpty(siteExternalId.id)) {
+			throw new IllegalArgumentException("External id should not be null");
 		}
-		return repository.existsByShortId(shortId);
+		return repository.existsByExternalId(siteExternalId.id);
 	}
 
 	@Override

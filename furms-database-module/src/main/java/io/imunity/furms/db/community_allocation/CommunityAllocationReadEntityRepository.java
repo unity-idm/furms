@@ -35,4 +35,11 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 		"join resource_type rt on rc.resource_type_id = rt.id " +
 		"where a.community_id = :id")
 	Set<CommunityAllocationReadEntity> findAllByCommunityId(@Param("id") UUID id);
+
+
+	@Query("select rc.amount as resource_credit_amount, sum(ca.amount) as community_allocations_amount " +
+		"from resource_credit rc " +
+		"left join community_allocation ca on ca.resource_credit_id = rc.id " +
+		"where rc.id = :id")
+	CommunityAllocationSum calculateAvailableAmount(@Param("id") UUID resourceCreditId);
 }

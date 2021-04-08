@@ -6,6 +6,7 @@ package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
@@ -56,9 +57,9 @@ public class RouterGridLink extends RouterLink {
 		this(getLabel(label), id, route, paramName, paramValue);
 	}
 
-	private static RouterLink getLabel(String s) {
-		RouterLink routerLink = new RouterLink();
-		routerLink.setText(s);
-		return routerLink;
+	private static Label getLabel(String s) {
+		Label label = new Label(s);
+		label.setClassName("router-label");
+		return label;
 	}
 }

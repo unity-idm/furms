@@ -26,7 +26,7 @@ class BreadCrumb {
 	}
 
 	public boolean isParamChanged(BreadCrumb newParameter){
-		return breadCrumbParameter != null && breadCrumbParameter.id.equals(newParameter.breadCrumbParameter.id);
+		return breadCrumbParameter != null && breadCrumbParameter.id != null && breadCrumbParameter.id.equals(newParameter.breadCrumbParameter.id);
 	}
 
 	@Override

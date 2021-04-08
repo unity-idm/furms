@@ -13,10 +13,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.domain.sites.CreateSiteEvent;
-import io.imunity.furms.domain.sites.RemoveSiteEvent;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.sites.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -91,14 +88,16 @@ class SiteServiceImpl implements SiteService {
 	public void create(Site site) {
 		validator.validateCreate(site);
 
-		String shortId = ExternalIdGenerator.generate(siteRepository::existsByShortId);
-		String siteId = siteRepository.create(site, shortId);
+		SiteExternalId externalId = new SiteExternalId(ExternalIdGenerator.generate(siteExternalId ->
+			!siteRepository.existsByExternalId(new SiteExternalId(siteExternalId)))
+		);
+		String siteId = siteRepository.create(site, externalId);
 		Site createdSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		LOG.info("Created Site in repository: {}", createdSite);
 		try {
 			webClient.create(createdSite);
-			siteAgentService.initializeSiteConnection(shortId);
+			siteAgentService.initializeSiteConnection(externalId);
 			LOG.info("Initialized connection channel to site agent: {}", siteId);
 			publisher.publishEvent(new CreateSiteEvent(site.getId()));
 			LOG.info("Created Site in Unity: {}", createdSite);
@@ -140,13 +139,13 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
 	public void delete(String id) {
 		validator.validateDelete(id);
-		String shortId = siteRepository.findShortId(id).orElse(null);
+		SiteExternalId externalId = siteRepository.findByIdExternalId(id);
 
 		siteRepository.delete(id);
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
-			siteAgentService.removeSiteConnection(shortId);
+			siteAgentService.removeSiteConnection(externalId);
 			publisher.publishEvent(new RemoveSiteEvent(id));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
@@ -244,8 +243,8 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
-		String shortId = siteRepository.findShortId(siteId).orElse(null);
-		return siteAgentService.getStatus(shortId);
+		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
+		return siteAgentService.getStatus(externalId);
 	}
 
 	private Site merge(Site oldSite, Site site) {
