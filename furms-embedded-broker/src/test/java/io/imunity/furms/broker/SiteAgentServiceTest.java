@@ -10,6 +10,7 @@ import io.imunity.furms.domain.site_agent.AckStatus;
 import io.imunity.furms.domain.site_agent.AvailabilityStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.SiteAgentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ class SiteAgentServiceTest {
 
 	@Test
 	void shouldReturnOKStatus() throws ExecutionException, InterruptedException {
-		PendingJob<SiteAgentStatus> ping = siteAgentService.getStatus("mock");
+		PendingJob<SiteAgentStatus> ping = siteAgentService.getStatus(new SiteExternalId("mock"));
 		assertThat(ping.ackFuture.get()).isEqualTo(AckStatus.ACK);
 		assertThat(ping.jobFuture.get().status).isEqualTo(AvailabilityStatus.AVAILABLE);
 	}

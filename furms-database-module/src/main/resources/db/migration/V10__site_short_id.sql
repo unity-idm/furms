@@ -3,4 +3,4 @@
  *  See LICENSE file for licensing information.
  */
 
-ALTER TABLE site ADD COLUMN short_id VARCHAR(5) UNIQUE NOT NULL;
+ALTER TABLE site ADD COLUMN external_id VARCHAR(5) UNIQUE NOT NULL;

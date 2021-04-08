@@ -12,6 +12,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,8 +53,8 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site2 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, "id"));
-		String siteId2 = siteRepository.create(site2, "id2");
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		String siteId2 = siteRepository.create(site2, new SiteExternalId("id2"));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
