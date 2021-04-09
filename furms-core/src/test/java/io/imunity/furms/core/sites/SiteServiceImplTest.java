@@ -51,7 +51,7 @@ class SiteServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private SiteAgentService siteAgentService;
-
+	@Mock
 	private AuthzService authzService;
 
 	@BeforeEach

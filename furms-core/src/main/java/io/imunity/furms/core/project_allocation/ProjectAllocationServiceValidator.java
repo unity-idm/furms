@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -77,17 +77,17 @@ class ProjectAllocationServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Resource CreditAllocation ID has to be declared.");
-		check(projectAllocationRepository.exists(id), () -> new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists."));
+		assertTrue(projectAllocationRepository.exists(id), () -> new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists."));
 	}
 
 	private void validateProjectId(String id) {
 		notNull(id, "Project ID has to be declared.");
-		check(projectRepository.exists(id), () -> new IdNotFoundValidationError("Project with declared ID is not exists."));
+		assertTrue(projectRepository.exists(id), () -> new IdNotFoundValidationError("Project with declared ID is not exists."));
 	}
 
 	private void validateCommunityAllocationId(String id) {
 		notNull(id, "CommunityAllocation ID has to be declared.");
-		check(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist."));
+		assertTrue(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist."));
 	}
 
 	private void validateUpdateProjectId(ProjectAllocation projectAllocation) {
