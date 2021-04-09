@@ -106,6 +106,16 @@ class SiteAgentServiceImpl implements SiteAgentService {
 		return pendingJob;
 	}
 
+	public void installProject(ProjectInstallationRequest request, SiteExternalId externalId){
+		String correlationId = UUID.randomUUID().toString();
+		try {
+			rabbitTemplate.convertAndSend(externalId.id, request, new TypeHeaderAppender(request, correlationId));
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
+	}
+
+
 	private void failJobIfNoResponse(CompletableFuture<SiteAgentStatus> connectionFuture) {
 		new Thread(() -> {
 			try {
