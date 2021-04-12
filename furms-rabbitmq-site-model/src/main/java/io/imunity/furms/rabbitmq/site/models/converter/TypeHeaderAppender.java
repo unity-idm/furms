@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.models.converter;
 
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;

@@ -3,19 +3,16 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.agent.runner;
-
-import io.imunity.furms.rabbitmq.site.client.FurmsMessage;
+package io.imunity.furms.domain.project_installation;
 
 import java.util.Map;
 import java.util.Objects;
 
-@FurmsMessage(type = "ProjectInstallationResult")
-class ProjectInstallationResult {
+public class ProjectInstallationResult {
 	public final String identifier;
 	public final Map<String, String> attributes;
 
-	ProjectInstallationResult(String identifier, Map<String, String> attributes) {
+	public ProjectInstallationResult(String identifier, Map<String, String> attributes) {
 		this.identifier = identifier;
 		this.attributes = attributes;
 	}

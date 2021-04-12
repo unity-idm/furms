@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.broker;
+package io.imunity.furms.agent.runner;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
@@ -24,12 +24,13 @@ import java.util.concurrent.TimeUnit;
 import static io.imunity.furms.rabbitmq.site.models.consts.Headers.CORRELATION_ID;
 
 @Component
-@RabbitListener(queues = "mock")
-public class SiteAgentMock {
+@RabbitListener(queues = "${queue.name}")
+class MockListeners {
+
 
 	private final RabbitTemplate rabbitTemplate;
 
-	public SiteAgentMock(RabbitTemplate rabbitTemplate){
+	public MockListeners(RabbitTemplate rabbitTemplate){
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
@@ -74,5 +75,4 @@ public class SiteAgentMock {
 		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.id, Map.of("gid", i));
 		rabbitTemplate.convertAndSend("reply-queue", result, new TypeHeaderAppender(result, correlationId));
 	}
-
 }

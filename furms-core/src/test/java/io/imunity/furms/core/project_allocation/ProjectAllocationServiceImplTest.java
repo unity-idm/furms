@@ -9,7 +9,10 @@ import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.site.api.ProjectInstallationService;
+import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -32,7 +35,13 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Mock
+	private ProjectInstallationService projectInstallationService;
+	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private UsersDAO usersDAO;
+	@Mock
+	private SiteAgentService siteAgentService;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -40,7 +49,7 @@ class ProjectAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(projectAllocationRepository, validator, publisher);
+		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, validator, usersDAO, siteAgentService, publisher);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
 
@@ -128,7 +137,7 @@ class ProjectAllocationServiceImplTest {
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
 
 		//when
-		service.delete(id);
+		service.delete("projectId", id);
 
 		orderVerifier.verify(projectAllocationRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));

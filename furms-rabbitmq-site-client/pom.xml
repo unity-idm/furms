@@ -26,8 +26,8 @@
 			<artifactId>furms-site-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-rabbitmq-site-model</artifactId>
 		</dependency>
 	</dependencies>
 

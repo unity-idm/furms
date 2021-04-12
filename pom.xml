@@ -69,6 +69,7 @@
 		<module>furms-site-api</module>
 		<module>furms-mock-site-agent</module>
 		<module>furms-rabbitmq-site-client</module>
+		<module>furms-rabbitmq-site-model</module>
 	</modules>
 
 	<developers>
@@ -219,6 +220,11 @@
 			</dependency>
 			<dependency>
 				<artifactId>furms-server</artifactId>
+				<groupId>io.imunity.furms</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>furms-rabbitmq-site-model</artifactId>
 				<groupId>io.imunity.furms</groupId>
 				<version>${project.version}</version>
 			</dependency>

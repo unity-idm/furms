@@ -82,19 +82,19 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel communityAllocationGridModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(communityAllocationGridModel.id, communityAllocationGridModel.name)
+			createContextMenu(communityAllocationGridModel.projectId ,communityAllocationGridModel.id, communityAllocationGridModel.name)
 		);
 	}
 
-	private Component createContextMenu(String CommunityAllocationId, String CommunityAllocation) {
+	private Component createContextMenu(String projectId, String communityAllocationId, String communityAllocation) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, CommunityAllocationId)
+			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, communityAllocationId)
 		);
 
-		Dialog confirmDialog = createConfirmDialog(CommunityAllocationId, CommunityAllocation);
+		Dialog confirmDialog = createConfirmDialog(projectId, communityAllocationId, communityAllocation);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
@@ -105,10 +105,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String CommunityAllocationId, String resourceCreditName) {
+	private Dialog createConfirmDialog(String projectId, String communityAllocationId, String resourceCreditName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", resourceCreditName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> service.delete(CommunityAllocationId));
+			handleExceptions(() -> service.delete(projectId, communityAllocationId));
 			loadGridContent();
 		});
 		return furmsDialog;

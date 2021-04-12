@@ -3,13 +3,19 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.models;
+
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@JsonDeserialize(builder = AgentProjectInstallationRequest.ProjectInstallationRequestBuilder.class)
 @FurmsMessage(type = "ProjectInstallationRequest")
-public class ProjectInstallationRequest {
+public class AgentProjectInstallationRequest {
 	public final String id;
 	public final String name;
 	public final String description;
@@ -21,7 +27,7 @@ public class ProjectInstallationRequest {
 	public final LocalDateTime validityEnd;
 	public final ProjectLeader projectLeader;
 
-	ProjectInstallationRequest(String id, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, ProjectLeader projectLeader) {
+	AgentProjectInstallationRequest(String id, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, ProjectLeader projectLeader) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -38,7 +44,7 @@ public class ProjectInstallationRequest {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectInstallationRequest that = (ProjectInstallationRequest) o;
+		AgentProjectInstallationRequest that = (AgentProjectInstallationRequest) o;
 		return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(communityId, that.communityId) && Objects.equals(communityName, that.communityName) && Objects.equals(acronym, that.acronym) && Objects.equals(researchField, that.researchField) && Objects.equals(validityStart, that.validityStart) && Objects.equals(validityEnd, that.validityEnd) && Objects.equals(projectLeader, that.projectLeader);
 	}
 
@@ -67,6 +73,7 @@ public class ProjectInstallationRequest {
 		return new ProjectInstallationRequestBuilder();
 	}
 
+	@JsonPOJOBuilder(withPrefix = "")
 	public static final class ProjectInstallationRequestBuilder {
 		private String id;
 		private String name;
@@ -132,8 +139,8 @@ public class ProjectInstallationRequest {
 			return this;
 		}
 
-		public ProjectInstallationRequest build() {
-			return new ProjectInstallationRequest(id, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
+		public AgentProjectInstallationRequest build() {
+			return new AgentProjectInstallationRequest(id, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
 		}
 	}
 }

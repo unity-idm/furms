@@ -3,11 +3,15 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.models;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.util.Objects;
 
-class ProjectLeader {
+@JsonDeserialize(builder = ProjectLeader.ProjectLeaderBuilder.class)
+public class ProjectLeader {
 	public final String fenixUserId;
 	public final String firstName;
 	public final String lastName;
@@ -47,6 +51,7 @@ class ProjectLeader {
 		return new ProjectLeaderBuilder();
 	}
 
+	@JsonPOJOBuilder(withPrefix = "")
 	public static final class ProjectLeaderBuilder {
 		public String fenixUserId;
 		public String firstName;
