@@ -72,7 +72,7 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.id"));
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
-		formLayout.addFormItem(sshKeyFromMandatory(binder), getTranslation("view.site-admin.settings.form.sshKeyFromOptionMandatory"));
+		formLayout.addFormItem(sshKeyFromMandatory(binder), "");
 		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.add(buttonsRow(binder));
 
@@ -131,7 +131,7 @@ public class SettingsView extends FurmsViewComponent {
 	private Component connectionInfoRow(Binder<SiteSettingsDto> binder) {
 		TextArea textArea = new TextArea();
 		textArea.setValueChangeMode(EAGER);
-		textArea.setClassName("description-text-area");
+		textArea.setClassName("large-description-text-area");
 		textArea.setPlaceholder(getTranslation("view.site-admin.settings.form.info.placeholder"));
 		binder.forField(textArea)
 				.bind(SiteSettingsDto::getConnectionInfo, SiteSettingsDto::setConnectionInfo);
@@ -140,7 +140,7 @@ public class SettingsView extends FurmsViewComponent {
 	}
 	
 	private Checkbox sshKeyFromMandatory(Binder<SiteSettingsDto> binder) {
-		Checkbox sshKeyFromMandatoryCheckbox = new Checkbox();
+		Checkbox sshKeyFromMandatoryCheckbox = new Checkbox(getTranslation("view.site-admin.settings.form.sshKeyFromOptionMandatory"));
 		binder.forField(sshKeyFromMandatoryCheckbox).bind(SiteSettingsDto::isSshKeyFromOptionMandatory, SiteSettingsDto::setSshKeyFromOptionMandatory);
 		return sshKeyFromMandatoryCheckbox;
 	}

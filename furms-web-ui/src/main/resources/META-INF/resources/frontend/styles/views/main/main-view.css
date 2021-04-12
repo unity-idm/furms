@@ -42,6 +42,11 @@
 	width: var(--vaadin-text-field-default-width, 24em);
 }
 
+.large-description-text-area {
+	width: var(--vaadin-text-field-default-width, 24em);
+	height: var(--vaadin-text-field-default-height, 15em);
+}
+
 .select-span-separator {
 	margin: auto;
 	display: table;
