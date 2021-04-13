@@ -7,7 +7,7 @@ package io.imunity.furms.core.ssh_keys;
 
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
 
 import java.util.Optional;
@@ -93,7 +93,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private SSHKey merge(SSHKey oldKey, SSHKey key) {
-		check(oldKey.id.equals(key.id),
+		assertTrue(oldKey.id.equals(key.id),
 				() -> new IllegalArgumentException("There are different SSH key during merge"));
 		return SSHKey.builder().id(oldKey.id).name(key.name).value(ofNullable(key.value).orElse(oldKey.value))
 				.ownerId(ofNullable(key.ownerId).orElse(oldKey.ownerId)).createTime(oldKey.createTime)

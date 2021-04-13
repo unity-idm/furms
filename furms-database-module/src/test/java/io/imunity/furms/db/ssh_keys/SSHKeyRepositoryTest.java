@@ -24,6 +24,7 @@ import io.imunity.furms.db.ssh_keys.SSHKeyEntity;
 import io.imunity.furms.db.ssh_keys.SSHKeyEntityRepository;
 import io.imunity.furms.db.ssh_keys.SSHKeySiteReference;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.sites.SiteRepository;
 
 @SpringBootTest
@@ -40,8 +41,10 @@ public class SSHKeyRepositoryTest {
 	void setUp() {
 		sshKeyEntityRepository.deleteAll();
 		siteRep.deleteAll();
-		site1Id = UUID.fromString(siteRep.create(Site.builder().name("s1").build()));
-		site2Id = UUID.fromString(siteRep.create(Site.builder().name("s2").build()));
+		site1Id = UUID.fromString(siteRep.create(Site.builder().name("s1").connectionInfo("alala").build(),
+				new SiteExternalId("s1")));
+		site2Id = UUID.fromString(siteRep.create(Site.builder().name("s2").connectionInfo("alala").build(),
+				new SiteExternalId("s2")));
 	}
 
 	@Test

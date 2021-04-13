@@ -5,7 +5,7 @@
 
 package io.imunity.furms.db.ssh_keys;
 
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.empty;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
@@ -109,7 +109,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 
 	@Override
 	public void delete(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete SSH key input: ID is empty"));
+		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete SSH key input: ID is empty"));
 
 		repository.deleteById(fromString(id));
 	}
@@ -120,21 +120,21 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	private void validateKeyName(final SSHKey sshKey) {
-		check(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		check(!isEmpty(sshKey.name),
+		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
+		assertTrue(!isEmpty(sshKey.name),
 				() -> new IllegalArgumentException("Incorrect SSH key name: name is empty"));
 	}
 
 	private void validateKeyId(final SSHKey sshKey) {
-		check(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		check(!isEmpty(sshKey.id), () -> new IllegalArgumentException("Incorrect SSH key ID: ID is empty."));
-		check(repository.existsById(fromString(sshKey.id)),
+		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
+		assertTrue(!isEmpty(sshKey.id), () -> new IllegalArgumentException("Incorrect SSH key ID: ID is empty."));
+		assertTrue(repository.existsById(fromString(sshKey.id)),
 				() -> new IllegalArgumentException("Incorrect SSH key ID: ID not exists in DB."));
 	}
 
 	private void validateKeyValue(final SSHKey sshKey) {
-		check(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		check(!isEmpty(sshKey.value),
+		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
+		assertTrue(!isEmpty(sshKey.value),
 				() -> new IllegalArgumentException("Incorrect SSH key value: value is empty"));
 	}
 
@@ -143,7 +143,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 			return;
 		}
 		for (String site : sshKey.sites) {
-			check(siteRepository.exists(site),
+			assertTrue(siteRepository.exists(site),
 					() -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 		}
 	}

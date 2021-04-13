@@ -27,6 +27,7 @@ import io.imunity.furms.db.ssh_keys.SSHKeyDatabaseRepository;
 import io.imunity.furms.db.ssh_keys.SSHKeyEntity;
 import io.imunity.furms.db.ssh_keys.SSHKeyEntityRepository;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.ssh_key.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -50,8 +51,10 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 	void setUp() {
 		entityRepository.deleteAll();
 		siteRepository.deleteAll();
-		site1Id = UUID.fromString(siteRepository.create(Site.builder().name("s1").build()));
-		site2Id = UUID.fromString(siteRepository.create(Site.builder().name("s2").build()));
+		site1Id = UUID.fromString(siteRepository.create(
+				Site.builder().name("s1").connectionInfo("alala").build(), new SiteExternalId("id1")));
+		site2Id = UUID.fromString(siteRepository.create(
+				Site.builder().name("s2").connectionInfo("alala").build(), new SiteExternalId("id2")));
 	}
 
 	@Test
@@ -107,8 +110,8 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreateSSHKey() {
 		// given
-		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1")).createTime(LocalDateTime.now())
-				.updateTime(LocalDateTime.now())
+		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1"))
+				.createTime(LocalDateTime.now()).updateTime(LocalDateTime.now())
 				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build();
 
 		// when
@@ -227,9 +230,9 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFailWhenCreateSSHKeyWithNotExistingSites() {
 		// given
-		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1")).createTime(LocalDateTime.now())
-				.updateTime(LocalDateTime.now()).sites(Sets.newSet(UUID.randomUUID().toString()))
-				.build();
+		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1"))
+				.createTime(LocalDateTime.now()).updateTime(LocalDateTime.now())
+				.sites(Sets.newSet(UUID.randomUUID().toString())).build();
 
 		assertThrows(IllegalArgumentException.class, () -> repository.create(request));
 	}

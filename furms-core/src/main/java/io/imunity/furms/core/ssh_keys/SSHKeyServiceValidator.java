@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
 
@@ -62,19 +62,19 @@ public class SSHKeyServiceValidator {
 
 	void validateOwner(PersistentId ownerId) {
 		notNull(ownerId, "SSH key owner id has to be declared.");
-		check(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
+		assertTrue(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
 	}
 
 	private void validateId(String id) {
 		notNull(id, "SSH key ID has to be declared.");
-		check(sshKeysRepository.exists(id),
+		assertTrue(sshKeysRepository.exists(id),
 				() -> new IdNotFoundValidationError("SSH key with declared ID is not exists."));
 	}
 
 	void validateName(String name) {
 		notNull(name, "SSHKey name has to be declared.");
-		check(!sshKeysRepository.isNamePresent(name),
+		assertTrue(!sshKeysRepository.isNamePresent(name),
 				() -> new DuplicatedNameValidationError("SSHKey name has to be unique."));
 	}
 
@@ -87,7 +87,7 @@ public class SSHKeyServiceValidator {
 	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
 		notNull(recordToIgnore, "SSH key id has to be declared.");
 		notNull(name, "Invalid SSH key name: SSH key name is empty.");
-		check(!sshKeysRepository.isNamePresentIgnoringRecord(name, recordToIgnore),
+		assertTrue(!sshKeysRepository.isNamePresentIgnoringRecord(name, recordToIgnore),
 				() -> new DuplicatedNameValidationError(
 						"Invalid SSH key name: SSH key name has to be unique."));
 	}
@@ -97,7 +97,7 @@ public class SSHKeyServiceValidator {
 			return;
 		}
 		for (String site : key.sites) {
-			check(siteRepository.exists(site),
+			assertTrue(siteRepository.exists(site),
 					() -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 		}
 
@@ -106,7 +106,7 @@ public class SSHKeyServiceValidator {
 			Set<Site> sites = siteRepository.findAll().stream().filter(s -> key.sites.contains(s.getId())
 					&& (s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory()))
 					.collect(Collectors.toSet());
-			check(sites.isEmpty(),
+			assertTrue(sites.isEmpty(),
 					() -> new IllegalArgumentException("Incorrect Sites: "
 							+ sites.stream().map(s -> s.getId())
 									.collect(Collectors.joining(", "))
