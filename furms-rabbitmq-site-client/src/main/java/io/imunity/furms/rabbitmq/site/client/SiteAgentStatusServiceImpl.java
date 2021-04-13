@@ -16,10 +16,8 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingResult;
 import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.springframework.amqp.AmqpConnectException;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,12 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
 import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentStatusServiceImpl.REPLY_QUEUE;
 
-@Component
-@RabbitListener(queues = REPLY_QUEUE)
+@Service
 class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
-	static final String REPLY_QUEUE = "reply-queue";
 
 	private final RabbitTemplate rabbitTemplate;
 	private final Map<String, PendingJob<SiteAgentStatus>> map = new HashMap<>();
@@ -43,15 +38,13 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-	@RabbitHandler
-	public void receive(AgentPingAck ack) {
+	void receive(AgentPingAck ack) {
 		PendingJob<SiteAgentStatus> pendingJob = map.get(ack.correlationId);
 		if(pendingJob != null)
 			pendingJob.ackFuture.complete(AckStatus.ACK);
 	}
 
-	@RabbitHandler
-	public void receive(AgentPingResult result) {
+	void receive(AgentPingResult result) {
 		PendingJob<SiteAgentStatus> pendingJob = map.get(result.correlationId);
 		if(result.status.equals("OK") && pendingJob != null){
 			pendingJob.jobFuture.complete(new SiteAgentStatus(AVAILABLE));

@@ -7,11 +7,22 @@ package io.imunity.furms.db.project_installation;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +34,67 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
+	private SiteRepository siteRepository;
+	@Autowired
+	private CommunityRepository communityRepository;
+	@Autowired
+	private ProjectRepository projectRepository;
+
+	@Autowired
 	private ProjectInstallationJobEntityRepository entityRepository;
+
+	private UUID siteId;
+	private UUID siteId2;
+
+	private UUID projectId;
+	private UUID projectId2;
+
+	@BeforeEach
+	void init() throws IOException {
+		Site site = Site.builder()
+			.name("name")
+			.build();
+		Site site1 = Site.builder()
+			.name("name2")
+			.build();
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+
+		Community community = Community.builder()
+			.name("name")
+			.logo(FurmsImage.empty())
+			.build();
+		Community community2 = Community.builder()
+			.name("name1")
+			.logo(FurmsImage.empty())
+			.build();
+		UUID communityId = UUID.fromString(communityRepository.create(community));
+		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+
+		Project project = Project.builder()
+			.communityId(communityId.toString())
+			.name("name")
+			.description("new_description")
+			.logo(FurmsImage.empty())
+			.acronym("acronym")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+		Project project2 = Project.builder()
+			.communityId(communityId2.toString())
+			.name("name2")
+			.logo(FurmsImage.empty())
+			.description("new_description")
+			.acronym("acronym")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+
+		projectId = UUID.fromString(projectRepository.create(project));
+		projectId2 = UUID.fromString(projectRepository.create(project2));
+	}
 
 	@AfterEach
 	void clean(){
@@ -36,8 +107,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 
@@ -59,15 +130,16 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 
-
 		//when
 		ProjectInstallationJobEntity save = entityRepository.save(entityToSave);
+
 		ProjectInstallationJobEntity entityToUpdate = ProjectInstallationJobEntity.builder()
+			.id(save.getId())
 			.correlationId(save.correlationId)
 			.siteId(save.siteId)
 			.projectId(save.projectId)
@@ -88,17 +160,17 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
+		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 
-		entityRepository.save(toFind);
+		entityRepository.save(toSave);
 
 		//when
-		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(toFind.getId());
+		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(toSave.getId());
 
 		//then
 		assertThat(byId).isPresent();
@@ -110,8 +182,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 
@@ -131,15 +203,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
-			.siteId(UUID.randomUUID())
-			.projectId(UUID.randomUUID())
+			.siteId(siteId2)
+			.projectId(projectId2)
 			.status(ACK)
 			.build();
 
@@ -159,8 +231,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId2)
+				.projectId(projectId2)
 				.status(SEND)
 				.build();
 
@@ -178,15 +250,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(UUID.randomUUID())
-				.projectId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(SEND)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
-			.siteId(UUID.randomUUID())
-			.projectId(UUID.randomUUID())
+			.siteId(siteId2)
+			.projectId(projectId2)
 			.status(ACK)
 			.build();
 

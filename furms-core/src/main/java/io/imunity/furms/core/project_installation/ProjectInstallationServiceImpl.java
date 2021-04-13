@@ -43,17 +43,18 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService, Proj
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "ProjectInstallationJob.projectId")
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectInstallationJob.projectId")
 	public void create(ProjectInstallationJob projectInstallationJob) {
 		projectInstallationRepository.create(projectInstallationJob);
 		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
 	}
 
 	@Override
+	//FIXME To auth this method special user for queue message resolving is needed
 	public void updateStatus(CorrelationId correlationId, ProjectInstallationStatus status) {
 		ProjectInstallationJob job = projectInstallationRepository.findByCorrelationId(correlationId);
 		projectInstallationRepository.update(job.id, status);
-		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, job.status);
+		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, status);
 	}
 
 	@Override

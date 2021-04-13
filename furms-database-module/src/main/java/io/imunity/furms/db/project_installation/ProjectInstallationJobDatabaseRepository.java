@@ -43,6 +43,7 @@ class ProjectInstallationJobDatabaseRepository implements ProjectInstallationRep
 		ProjectInstallationEntity allocation = repository.findByProjectAllocationId(UUID.fromString(projectAllocationId));
 		return ProjectInstallation.builder()
 			.id(allocation.id)
+			.siteId(allocation.siteId)
 			.siteExternalId(allocation.siteExternalId)
 			.name(allocation.name)
 			.description(allocation.description)

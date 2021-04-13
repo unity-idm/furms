@@ -11,9 +11,11 @@ import io.imunity.furms.domain.site_agent.AvailabilityStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.concurrent.ExecutionException;
 
@@ -23,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SiteAgentStatusServiceTest {
 	@Autowired
 	private SiteAgentStatusService siteAgentStatusService;
+	@MockBean
+	private ProjectInstallationMessageResolver projectInstallationService;
 
 	@Test
 	void shouldReturnOKStatus() throws ExecutionException, InterruptedException {
