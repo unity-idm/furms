@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.db.ssh_key;
+package io.imunity.furms.db.ssh_keys;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -18,9 +18,10 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 
 @Table("sshkey")
-public class SSHKeyEntity extends UUIDIdentifiable {
+class SSHKeyEntity extends UUIDIdentifiable {
 	private final String name;
 	private final String value;
 	private final LocalDateTime createTime;
@@ -84,7 +85,7 @@ public class SSHKeyEntity extends UUIDIdentifiable {
 
 	SSHKey toSSHKey() {
 		return new SSHKey.SSHKeyBuilder().id(id.toString()).name(name).value(value).createTime(createTime)
-				.updateTime(updateTime).ownerId(ownerId)
+				.updateTime(updateTime).ownerId(new PersistentId(ownerId))
 				.sites(sites.stream().map(s -> s.getSiteId().toString()).collect(Collectors.toSet()))
 				.build();
 	}

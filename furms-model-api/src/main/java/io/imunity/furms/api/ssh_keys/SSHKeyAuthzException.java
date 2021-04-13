@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.api.validation.exceptions;
+package io.imunity.furms.api.ssh_keys;
 
 public class SSHKeyAuthzException extends RuntimeException {
 

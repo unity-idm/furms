@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.db.ssh_key;
+package io.imunity.furms.db.ssh_keys;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -11,14 +11,14 @@ import java.util.UUID;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("sshkey_site")
-public class SSHKeySiteReference {
+ class SSHKeySiteReference {
 	private final UUID siteId;
 
-	public SSHKeySiteReference(UUID siteId) {
+	SSHKeySiteReference(UUID siteId) {
 		this.siteId = siteId;
 	}
 
-	public UUID getSiteId() {
+	UUID getSiteId() {
 		return siteId;
 	}
 

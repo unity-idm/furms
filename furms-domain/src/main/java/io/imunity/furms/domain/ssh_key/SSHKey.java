@@ -6,7 +6,6 @@
 package io.imunity.furms.domain.ssh_key;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -15,16 +14,18 @@ import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.digest.BuiltinDigests;
 
+import io.imunity.furms.domain.users.PersistentId;
+
 public class SSHKey {
 	public final String id;
 	public final String name;
 	public final String value;
 	public final LocalDateTime createTime;
 	public final LocalDateTime updateTime;
-	public final String ownerId;
+	public final PersistentId ownerId;
 	public final Set<String> sites;
 
-	private SSHKey(String id, String name, String value, String ownerId, LocalDateTime createTime,
+	private SSHKey(String id, String name, String value, PersistentId ownerId, LocalDateTime createTime,
 			LocalDateTime updateTime, Set<String> sites) {
 		this.id = id;
 		this.name = name;
@@ -32,7 +33,7 @@ public class SSHKey {
 		this.ownerId = ownerId;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
-		this.sites = sites != null ? Collections.unmodifiableSet(sites) : null;
+		this.sites = sites != null ? Set.copyOf(sites) : null;
 	}
 
 	@Override
@@ -106,7 +107,7 @@ public class SSHKey {
 		private String value;
 		private LocalDateTime createTime;
 		private LocalDateTime updateTime;
-		private String ownerId;
+		private PersistentId ownerId;
 		private Set<String> sites;
 
 		public SSHKey.SSHKeyBuilder id(String id) {
@@ -134,7 +135,7 @@ public class SSHKey {
 			return this;
 		}
 
-		public SSHKey.SSHKeyBuilder ownerId(String ownerId) {
+		public SSHKey.SSHKeyBuilder ownerId(PersistentId ownerId) {
 			this.ownerId = ownerId;
 			return this;
 		}

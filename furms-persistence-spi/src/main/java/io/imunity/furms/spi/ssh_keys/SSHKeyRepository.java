@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 
 public interface SSHKeyRepository {
 
@@ -16,7 +17,7 @@ public interface SSHKeyRepository {
 	
 	Set<SSHKey> findAll();
 	
-	Set<SSHKey> findAllByOwnerId(String ownerId);
+	Set<SSHKey> findAllByOwnerId(PersistentId ownerId);
 
 	String create(SSHKey sshKey);
 

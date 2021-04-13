@@ -232,8 +232,8 @@
     		 	<version>2.6.0</version>
 			</dependency>
 			<dependency>
-  				 <groupId>org.vaadin.gatanaso</groupId>
-  				 <artifactId>multiselect-combo-box-flow</artifactId>
+  				<groupId>org.vaadin.gatanaso</groupId>
+  				<artifactId>multiselect-combo-box-flow</artifactId>
   			 	<version>2.5.0</version>
 			</dependency>
 		</dependencies>

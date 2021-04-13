@@ -37,7 +37,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
-public class SSHKeyFormView extends FurmsViewComponent {
+class SSHKeyFormView extends FurmsViewComponent {
 
 	private final Binder<SSHKeyViewModel> binder = new BeanValidationBinder<>(SSHKeyViewModel.class);
 	private final SSHKeyFormComponent sshKeyComponent;
@@ -46,7 +46,7 @@ public class SSHKeyFormView extends FurmsViewComponent {
 	private BreadCrumbParameter breadCrumbParameter;
 	private ZoneId zoneId;
 
-	public SSHKeyFormView(SSHKeyService sshKeysService, SiteService siteService, AuthzService authzService) {
+	SSHKeyFormView(SSHKeyService sshKeysService, SiteService siteService, AuthzService authzService) {
 
 		this.sshKeyService = sshKeysService;
 		this.authzService = authzService;
@@ -90,7 +90,7 @@ public class SSHKeyFormView extends FurmsViewComponent {
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
 				.flatMap(Function.identity())
 				.map(k -> SSHKeyViewModelMapper.map(k, zoneId).iterator().next())
-				.orElseGet(() -> new SSHKeyViewModel(authzService.getCurrentUserId().id));
+				.orElseGet(() -> new SSHKeyViewModel(authzService.getCurrentUserId()));
 
 		String trans = parameter == null ? "view.user-settings.ssh-keys.form.parameter.new"
 				: "view.user-settings.ssh-keys.form.parameter.update";

@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.google.common.collect.Sets;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.validation.exceptions.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_key.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
@@ -57,7 +57,7 @@ class SSHKeyServiceValidatorTest {
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9"
 						+ "DM7Tpbbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5Kzc"
 						+ "L8sJTKO5ALmb9xUkdFjZk9bL demo@demo.pl\n" + "")
-				.ownerId("id").build();
+				.ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(false);
@@ -69,7 +69,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		// given
-		final SSHKey key = SSHKey.builder().name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(true);
 
@@ -93,7 +93,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.exists(key.id)).thenReturn(false);
 
@@ -104,7 +104,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(true);
@@ -117,7 +117,7 @@ class SSHKeyServiceValidatorTest {
 	void shouldPassDeleteForExistingId() {
 		// given
 		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -142,7 +142,7 @@ class SSHKeyServiceValidatorTest {
 	void shouldPassDeleteForOwner() {
 		// given
 		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -156,7 +156,7 @@ class SSHKeyServiceValidatorTest {
 	void shouldNotPassDeleteForNotOwner() {
 		// given
 		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id2"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -169,7 +169,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassForUniqueCombinationIdAndName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
 
@@ -180,7 +180,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassForNonUniqueCombinationIdAndName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(true);
 
@@ -205,7 +205,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNotOwner() {
 		// given
-		final SSHKey key = SSHKey.builder().name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id2"));
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(false);
@@ -231,7 +231,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNotOwner() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId("id").build();
+		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id2"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
@@ -276,7 +276,7 @@ class SSHKeyServiceValidatorTest {
 						+ "78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbbgd1Q2k"
 						+ "m5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL demo@demo.pl\n"
 						+ "")
-				.ownerId("id").sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(siteRepository.exists("s1")).thenReturn(true);
@@ -310,7 +310,7 @@ class SSHKeyServiceValidatorTest {
 						+ "hJD/78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbb"
 						+ "gd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL "
 						+ "demo@demo.pl\n" + "")
-				.ownerId("id").sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
@@ -328,6 +328,6 @@ class SSHKeyServiceValidatorTest {
 						+ "dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7"
 						+ "Tpbbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJT"
 						+ "KO5ALmb9xUkdFjZk9bL demo@demo.pl\n" + "")
-				.ownerId("id").sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
 	}
 }

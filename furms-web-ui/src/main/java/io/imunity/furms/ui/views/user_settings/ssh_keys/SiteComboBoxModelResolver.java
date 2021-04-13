@@ -14,25 +14,25 @@ import java.util.Set;
 
 import io.imunity.furms.domain.sites.Site;
 
-public class SiteComboBoxModelResolver {
+class SiteComboBoxModelResolver {
 	private final Map<String, SiteComboBoxModel> map;
 
-	public SiteComboBoxModelResolver(Set<Site> sites) {
+	SiteComboBoxModelResolver(Set<Site> sites) {
 		map = sites.stream().map(site -> SiteComboBoxModel.builder().id(site.getId()).name(site.getName())
 				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory() == null ? false
 						: site.isSshKeyFromOptionMandatory())
 				.build()).collect(toMap(siteModel -> siteModel.id, siteModel -> siteModel));
 	}
 
-	public List<SiteComboBoxModel> getSitess() {
+	List<SiteComboBoxModel> getSitess() {
 		return new ArrayList<>(map.values());
 	}
 
-	public String getName(String id) {
+	String getName(String id) {
 		return map.get(id).name;
 	}
 
-	public SiteComboBoxModel getSite(String id) {
+	SiteComboBoxModel getSite(String id) {
 		return map.get(id);
 	}
 }

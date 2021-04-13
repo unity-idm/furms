@@ -22,6 +22,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
 @Service
@@ -54,7 +55,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
 	public Set<SSHKey> findOwned() {
-		String ownerId = authzService.getCurrentUserId().id;
+		PersistentId ownerId = authzService.getCurrentUserId();
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
 		return sshKeysRepository.findAllByOwnerId(ownerId);
 	}

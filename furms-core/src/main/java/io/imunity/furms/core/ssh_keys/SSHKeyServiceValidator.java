@@ -15,11 +15,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
-import io.imunity.furms.api.validation.exceptions.SSHKeyAuthzException;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
@@ -59,9 +60,9 @@ public class SSHKeyServiceValidator {
 		validateOwner(sshKeysRepository.findById(id).get().ownerId);
 	}
 
-	void validateOwner(String ownerId) {
+	void validateOwner(PersistentId ownerId) {
 		notNull(ownerId, "SSH key owner id has to be declared.");
-		check(authzService.getCurrentUserId().id.equals(ownerId), () -> new SSHKeyAuthzException(
+		check(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
 	}
 

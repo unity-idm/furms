@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.google.common.collect.Sets;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.validation.exceptions.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.ssh_key.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
@@ -60,8 +60,8 @@ public class SSHKeyServiceImplTest {
 		// given
 		final String id = "id";
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId"));
-		when(repository.findById(id)).thenReturn(
-				Optional.of(SSHKey.builder().id(id).name("name").ownerId("ownerId").build()));
+		when(repository.findById(id)).thenReturn(Optional
+				.of(SSHKey.builder().id(id).name("name").ownerId(new PersistentId("ownerId")).build()));
 
 		// when
 		final Optional<SSHKey> byId = service.findById(id);
@@ -77,9 +77,9 @@ public class SSHKeyServiceImplTest {
 	void shouldReturnAllSSHKeyssIfExistsInRepository() {
 		// given
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId"));
-		when(repository.findAllByOwnerId("ownerId"))
-				.thenReturn(Set.of(SSHKey.builder().id("id1").name("name").ownerId("ownerId").build(),
-						SSHKey.builder().id("id2").name("name").ownerId("ownerId").build()));
+		when(repository.findAllByOwnerId(new PersistentId("ownerId"))).thenReturn(Set.of(
+				SSHKey.builder().id("id1").name("name").ownerId(new PersistentId("ownerId")).build(),
+				SSHKey.builder().id("id2").name("name").ownerId(new PersistentId("ownerId")).build()));
 
 		// when
 		final Set<SSHKey> allKeys = service.findOwned();
@@ -91,7 +91,8 @@ public class SSHKeyServiceImplTest {
 	@Test
 	void shouldNotAllowToCreateSSHKeyDueToNonUniqueName() {
 		// given
-		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId("ownerId").build();
+		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("ownerId"))
+				.build();
 
 		when(repository.isNamePresent(request.name)).thenReturn(true);
 
@@ -112,7 +113,7 @@ public class SSHKeyServiceImplTest {
 		when(repository.update(request)).thenReturn(request.id);
 		when(repository.findById(request.id)).thenReturn(Optional.of(request));
 		when(siteRepository.exists("s1")).thenReturn(true);
-		
+
 		// when
 		service.update(request);
 
@@ -123,8 +124,8 @@ public class SSHKeyServiceImplTest {
 	@Test
 	void shouldNotAllowToUpdateSSHKeyByNotOwner() {
 		// given
-		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId("ownerId").sites(Set.of("s1"))
-				.build();
+		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("ownerId"))
+				.sites(Set.of("s1")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId2"));
 		when(repository.exists(request.id)).thenReturn(true);
@@ -137,8 +138,8 @@ public class SSHKeyServiceImplTest {
 	@Test
 	void shouldNotAllowToCreateSSHKeyByNotOwner() {
 		// given
-		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId("ownerId").sites(Set.of("s1"))
-				.build();
+		final SSHKey request = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("ownerId"))
+				.sites(Set.of("s1")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId2"));
 		when(repository.isNamePresent("name")).thenReturn(false);
@@ -151,11 +152,10 @@ public class SSHKeyServiceImplTest {
 	void shouldUpdateOnlySentFields() {
 		// given
 		final SSHKey oldKey = getKey("name", Set.of("s1"));
-				
-		final SSHKey request = getKey("brandNewName", null);
-					
-		final SSHKey expectedKey = getKey(request.name, oldKey.sites); 
 
+		final SSHKey request = getKey("brandNewName", null);
+
+		final SSHKey expectedKey = getKey(request.name, oldKey.sites);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(repository.exists(request.id)).thenReturn(true);
@@ -176,8 +176,8 @@ public class SSHKeyServiceImplTest {
 		// given
 		final String id = "id";
 		when(repository.exists(id)).thenReturn(true);
-		when(repository.findById(id)).thenReturn(Optional.of(
-				SSHKey.builder().id("id").name("name").ownerId("ownerId").sites(Set.of("s1")).build()));
+		when(repository.findById(id)).thenReturn(Optional.of(SSHKey.builder().id("id").name("name")
+				.ownerId(new PersistentId("ownerId")).sites(Set.of("s1")).build()));
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId"));
 
 		// when
@@ -201,14 +201,14 @@ public class SSHKeyServiceImplTest {
 
 	@Test
 	void shouldReturnFalseForUniqueName() {
-		//given
+		// given
 		final String name = "name";
 		when(repository.isNamePresent(name)).thenReturn(false);
 
-		//when
+		// when
 		assertThat(service.isNamePresent(name)).isFalse();
 	}
-	
+
 	@Test
 	void shouldReturnTrueForNomUniqueName() {
 		// given
@@ -238,12 +238,11 @@ public class SSHKeyServiceImplTest {
 		// when
 		assertThat(service.isNamePresentIgnoringRecord(key.name, key.id)).isFalse();
 	}
-	
+
 	@Test
 	void allPublicMethodsShouldBeSecured() {
 		Method[] declaredMethods = SSHKeyServiceImpl.class.getDeclaredMethods();
-		Stream.of(declaredMethods)
-				.filter(method -> Modifier.isPublic(method.getModifiers()))
+		Stream.of(declaredMethods).filter(method -> Modifier.isPublic(method.getModifiers()))
 				.forEach(method -> {
 					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
 				});
@@ -256,7 +255,7 @@ public class SSHKeyServiceImplTest {
 						+ "yO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9"
 						+ "U57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbbgd1Q2km5eySfit/5E3EJBYY4"
 						+ "PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL demo@demo.pl")
-				.ownerId("id").sites(sites).build();
+				.ownerId(new PersistentId("id")).sites(sites).build();
 	}
 
 }

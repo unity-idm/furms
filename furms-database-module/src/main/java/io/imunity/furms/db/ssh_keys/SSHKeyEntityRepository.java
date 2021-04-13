@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.db.ssh_key;
+package io.imunity.furms.db.ssh_keys;
 
 import java.util.UUID;
 import java.util.stream.Stream;

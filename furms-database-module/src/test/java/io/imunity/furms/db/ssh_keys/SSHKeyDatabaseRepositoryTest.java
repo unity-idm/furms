@@ -23,11 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.db.ssh_key.SSHKeyDatabaseRepository;
-import io.imunity.furms.db.ssh_key.SSHKeyEntity;
-import io.imunity.furms.db.ssh_key.SSHKeyEntityRepository;
+import io.imunity.furms.db.ssh_keys.SSHKeyDatabaseRepository;
+import io.imunity.furms.db.ssh_keys.SSHKeyEntity;
+import io.imunity.furms.db.ssh_keys.SSHKeyEntityRepository;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 
 @SpringBootTest
@@ -67,7 +68,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		SSHKey key = byId.get();
 		assertThat(entity.getId().toString()).isEqualTo(key.id.toString());
-		assertThat(entity.getOwnerId()).isEqualTo(key.ownerId);
+		assertThat(entity.getOwnerId()).isEqualTo(key.ownerId.id);
 		assertThat(entity.getName()).isEqualTo(key.name);
 		assertThat(entity.getValue()).isEqualTo(key.value);
 		assertThat(entity.getSites().stream().map(s -> s.getSiteId().toString()).collect(Collectors.toSet()))
@@ -106,7 +107,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreateSSHKey() {
 		// given
-		SSHKey request = SSHKey.builder().name("name").value("v").ownerId("o1").createTime(LocalDateTime.now())
+		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1")).createTime(LocalDateTime.now())
 				.updateTime(LocalDateTime.now())
 				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build();
 
@@ -127,7 +128,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 		SSHKeyEntity old = entityRepository.save(SSHKeyEntity.builder().name("name").value("v").ownerId("o1")
 				.createTime(LocalDateTime.now()).build());
 		SSHKey requestToUpdate = SSHKey.builder().id(old.getId().toString()).name("name2").value("v2")
-				.ownerId("o1").createTime(LocalDateTime.now())
+				.ownerId(new PersistentId("o1")).createTime(LocalDateTime.now())
 				.sites(Sets.newSet(site1Id.toString(), site2Id.toString()))
 				.updateTime(LocalDateTime.now()).build();
 
@@ -140,7 +141,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().name).isEqualTo("name2");
 		assertThat(byId.get().value).isEqualTo("v2");
 		assertThat(byId.get().sites).isEqualTo(requestToUpdate.sites);
-		assertThat(byId.get().ownerId).isEqualTo(old.getOwnerId());
+		assertThat(byId.get().ownerId.id).isEqualTo(old.getOwnerId());
 	}
 
 	@Test
@@ -226,7 +227,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFailWhenCreateSSHKeyWithNotExistingSites() {
 		// given
-		SSHKey request = SSHKey.builder().name("name").value("v").ownerId("o1").createTime(LocalDateTime.now())
+		SSHKey request = SSHKey.builder().name("name").value("v").ownerId(new PersistentId("o1")).createTime(LocalDateTime.now())
 				.updateTime(LocalDateTime.now()).sites(Sets.newSet(UUID.randomUUID().toString()))
 				.build();
 

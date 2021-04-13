@@ -12,10 +12,12 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-public class SSHKeyViewModel {
+import io.imunity.furms.domain.users.PersistentId;
+
+class SSHKeyViewModel {
 
 	public final String id;
-	public final String ownerId;
+	public final PersistentId ownerId;
 	public final String rowSiteId;
 	public final ZonedDateTime createTime;
 
@@ -24,7 +26,7 @@ public class SSHKeyViewModel {
 	private String value;
 	private ZonedDateTime updateTime;
 
-	public SSHKeyViewModel(String ownerId) {
+	SSHKeyViewModel(PersistentId ownerId) {
 		this.id = null;
 		this.rowSiteId = null;
 		this.ownerId = ownerId;
@@ -32,7 +34,7 @@ public class SSHKeyViewModel {
 		this.sites = Collections.emptySet();
 	}
 
-	SSHKeyViewModel(String id, String ownerId, String name, String siteId, Set<String> sites, String value,
+	SSHKeyViewModel(String id, PersistentId ownerId, String name, String siteId, Set<String> sites, String value,
 			ZonedDateTime createTime, ZonedDateTime updateTime) {
 
 		this.id = id;
@@ -103,7 +105,7 @@ public class SSHKeyViewModel {
 
 	public static final class Builder {
 		private String id;
-		private String ownerId;
+		private PersistentId ownerId;
 		private String rowSiteId;
 		private ZonedDateTime createTime;
 		private Set<String> sites = Collections.emptySet();
@@ -119,7 +121,7 @@ public class SSHKeyViewModel {
 			return this;
 		}
 
-		public Builder ownerId(String ownerId) {
+		public Builder ownerId(PersistentId ownerId) {
 			this.ownerId = ownerId;
 			return this;
 		}

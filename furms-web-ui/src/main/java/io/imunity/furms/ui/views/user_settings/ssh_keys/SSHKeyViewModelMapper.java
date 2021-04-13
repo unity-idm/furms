@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 import io.imunity.furms.domain.ssh_key.SSHKey;
 
-public class SSHKeyViewModelMapper {
+class SSHKeyViewModelMapper {
 
-	public static List<SSHKeyViewModel> map(SSHKey key, ZoneId zoneId) {
+	static List<SSHKeyViewModel> map(SSHKey key, ZoneId zoneId) {
 
 		if (key.sites.isEmpty())
 			return List.of(SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
@@ -34,7 +34,7 @@ public class SSHKeyViewModelMapper {
 
 	}
 
-	public static SSHKey map(SSHKeyViewModel sshKeyViewModel) {
+	static SSHKey map(SSHKeyViewModel sshKeyViewModel) {
 		return SSHKey.builder().id(sshKeyViewModel.id).createTime(convertToUTCTime(sshKeyViewModel.createTime))
 				.name(sshKeyViewModel.getName())
 				.updateTime(convertToUTCTime(sshKeyViewModel.getUpdateTime()))

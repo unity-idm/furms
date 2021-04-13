@@ -56,7 +56,7 @@ public class SSHKeysView extends FurmsViewComponent {
 	private final SiteComboBoxModelResolver resolver;
 	private ZoneId zoneId;
 
-	public SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService) {
+	SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService) {
 		this.sshKeysService = sshKeysService;
 		this.grid = createSSHKeysGrid();
 		this.resolver = new SiteComboBoxModelResolver(siteService.findAll());

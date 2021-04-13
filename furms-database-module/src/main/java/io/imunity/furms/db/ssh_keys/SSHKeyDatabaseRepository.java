@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.db.ssh_key;
+package io.imunity.furms.db.ssh_keys;
 
 import static io.imunity.furms.utils.ValidationUtils.check;
 import static java.util.Optional.empty;
@@ -21,11 +21,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
 @Repository
-public class SSHKeyDatabaseRepository implements SSHKeyRepository {
+class SSHKeyDatabaseRepository implements SSHKeyRepository {
 
 	private final SSHKeyEntityRepository repository;
 	private final SiteRepository siteRepository;
@@ -41,7 +42,7 @@ public class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		validateKeyValue(sshKey);
 		validateSites(sshKey);
 		return repository
-				.save(new SSHKeyEntity(sshKey.name, sshKey.value, sshKey.ownerId, sshKey.createTime,
+				.save(new SSHKeyEntity(sshKey.name, sshKey.value, sshKey.ownerId.id, sshKey.createTime,
 						sshKey.updateTime,
 						(sshKey.sites != null
 								? sshKey.sites.stream()
@@ -66,11 +67,11 @@ public class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public Set<SSHKey> findAllByOwnerId(String ownerId) {
+	public Set<SSHKey> findAllByOwnerId(PersistentId ownerId) {
 		if (isEmpty(ownerId)) {
 			return Collections.emptySet();
 		}
-		return repository.findAllByOwnerId(ownerId).map(SSHKeyEntity::toSSHKey).collect(Collectors.toSet());
+		return repository.findAllByOwnerId(ownerId.id).map(SSHKeyEntity::toSSHKey).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		return repository.findById(fromString(sshKey.id))
 				.map(oldEntity -> SSHKeyEntity.builder().id(oldEntity.getId()).name(sshKey.name)
 						.value(sshKey.value).createTime(sshKey.createTime)
-						.updateTime(sshKey.updateTime).ownerId(sshKey.ownerId)
+						.updateTime(sshKey.updateTime).ownerId(sshKey.ownerId.id)
 						.sites(sshKey.sites).build())
 				.map(repository::save).map(SSHKeyEntity::getId).map(UUID::toString).get();
 	}
