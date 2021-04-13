@@ -8,4 +8,5 @@ package io.imunity.furms.domain.users;
 import io.imunity.furms.domain.FurmsEvent;
 
 public interface UserEvent extends FurmsEvent {
+	PersistentId getId();
 }

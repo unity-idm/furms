@@ -16,7 +16,6 @@ import java.util.Set;
 public interface AuthzService {
 	FURMSUser getCurrentAuthNUser();
 	void reloadRoles();
-	void reloadRolesIfCurrentUser(PersistentId id);
 	Map<ResourceId, Set<Role>> getRoles();
 	Map<ResourceId, Set<Role>> getRoles(PersistentId id);
 	PersistentId getCurrentUserId();

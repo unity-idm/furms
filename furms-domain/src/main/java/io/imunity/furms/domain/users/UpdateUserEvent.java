@@ -10,12 +10,17 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import java.util.Objects;
 
 public class UpdateUserEvent implements UserEvent{
-	public final String id;
+	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public UpdateUserEvent(String id, ResourceId resourceId) {
+	public UpdateUserEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
+	}
+
+	@Override
+	public PersistentId getId() {
+		return id;
 	}
 
 	@Override
