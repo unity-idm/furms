@@ -10,6 +10,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -54,6 +55,11 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 			.map(CommunityAllocationReadEntity::toCommunityAllocation)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public BigDecimal getAvailableAmount(String resourceCreditId) {
+		return readRepository.calculateAvailableAmount(UUID.fromString(resourceCreditId)).getAmount();
 	}
 
 	@Override

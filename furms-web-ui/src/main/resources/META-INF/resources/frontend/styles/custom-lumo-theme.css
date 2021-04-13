@@ -28,6 +28,8 @@ html {
   
   /* custom furms variables */
   --furms-font-weight: 500;
+
+  --vaadin-text-field-default-width: 16em;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {

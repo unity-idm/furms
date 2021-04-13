@@ -30,7 +30,6 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	public final String name;
 	public final BigDecimal amount;
 
-
 	CommunityAllocationReadEntity(UUID id, String name,
 	                              UUID communityId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
 	                              ResourceCreditEntity resourceCredit) {

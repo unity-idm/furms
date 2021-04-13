@@ -15,6 +15,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -65,13 +66,6 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	private UUID resourceCreditId;
 	private UUID resourceCreditId2;
 
-	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
-	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
-	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
-	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
-	private LocalDateTime createTime = LocalDateTime.of(2020, 1, 30, 5, 8, 8);
-	private LocalDateTime createTime2 = LocalDateTime.of(2021, 8, 23, 8, 18, 18);
-
 	@BeforeEach
 	void init() throws IOException {
 		Site site = Site.builder()
@@ -80,8 +74,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteId2 = UUID.fromString(siteRepository.create(site1));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -150,6 +144,34 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build()));
 	}
 
+	@Test
+	void shouldReturnAvailableAmountWhenCommunityAllocationsDoesntExist() {
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		assertThat(sum).isEqualTo(new BigDecimal(100));
+	}
+
+	@Test
+	void shouldReturnAvailableAmount() {
+		entityRepository.save(
+			CommunityAllocationEntity.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.name("anem")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+		entityRepository.save(
+			CommunityAllocationEntity.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.name("anem2")
+				.amount(new BigDecimal(30))
+				.build()
+		);
+
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		assertThat(sum).isEqualTo(new BigDecimal(60));
+	}
 
 	@Test
 	void shouldReturnAllocationWithRelatedObjects() {
@@ -177,7 +199,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
-		CommunityAllocationEntity save = entityRepository.save(
+		entityRepository.save(
 			CommunityAllocationEntity.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId)
@@ -331,7 +353,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void savedCommunityAllocationDoesNotExistByName() {
 		//given
-		CommunityAllocationEntity service = entityRepository.save(CommunityAllocationEntity.builder()
+		entityRepository.save(CommunityAllocationEntity.builder()
 			.communityId(communityId)
 			.resourceCreditId(resourceCreditId)
 			.name("anem")

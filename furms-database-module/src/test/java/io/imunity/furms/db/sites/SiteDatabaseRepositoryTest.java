@@ -7,6 +7,7 @@ package io.imunity.furms.db.sites;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entity = entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when
@@ -55,6 +57,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		UUID wrongId = generateId();
 		entityRepository.save(SiteEntity.builder()
 				.name("random_site")
+				.externalId("id")
 				.build());
 
 		//when
@@ -69,9 +72,11 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		entityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 		entityRepository.save(SiteEntity.builder()
 				.name("name2")
+				.externalId("id2")
 				.build());
 
 		//when
@@ -89,7 +94,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String newSiteId = repository.create(request);
+		String newSiteId = repository.create(request, new SiteExternalId("id"));
 
 		//then
 		Optional<Site> byId = repository.findById(newSiteId);
@@ -107,20 +112,22 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		Site nullRequest = null;
 
 		//when + then
-		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName));
-		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(requestWithEmptyName, new SiteExternalId("id2")));
+		assertThrows(IllegalArgumentException.class, () -> repository.create(nullRequest, new SiteExternalId("id3")));
 	}
 
 	@Test
 	void shouldUpdateSite() {
 		//given
 		SiteEntity old = entityRepository.save(SiteEntity.builder()
-				.name("name")
-				.build());
+			.name("name")
+			.externalId("id")
+			.build());
 		Site requestToUpdate = Site.builder()
-				.id(old.getId().toString())
-				.name("new_name")
-				.build();
+			.id(old.getId().toString())
+			.externalId(new SiteExternalId("id"))
+			.name("new_name")
+			.build();
 
 		//when
 		repository.update(requestToUpdate);
@@ -138,6 +145,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entity = entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when + then
@@ -160,6 +168,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 		String uniqueName = "unique_name";
 
@@ -172,6 +181,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when + then
@@ -183,9 +193,11 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 		SiteEntity existedSite2 = entityRepository.save(SiteEntity.builder()
 				.name("name2")
+				.externalId("id2")
 				.build());
 
 		//when + then
@@ -197,6 +209,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity existedSite = entityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when + then

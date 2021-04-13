@@ -9,10 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.sites.CreateSiteEvent;
-import io.imunity.furms.domain.sites.RemoveSiteEvent;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.sites.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -54,7 +51,7 @@ class SiteServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private SiteAgentService siteAgentService;
-
+	@Mock
 	private AuthzService authzService;
 
 	@BeforeEach
@@ -104,14 +101,14 @@ class SiteServiceImplTest {
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
-		when(repository.create(request)).thenReturn(request.getId());
+		when(repository.create(eq(request), any())).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
 
 		//then
-		verify(repository, times(1)).create(request);
+		verify(repository, times(1)).create(eq(request), any());
 		verify(webClient, times(1)).create(request);
 		verify(publisher, times(1)).publishEvent(new CreateSiteEvent("id"));
 	}
@@ -127,7 +124,7 @@ class SiteServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
-		verify(repository, times(0)).create(request);
+		verify(repository, times(0)).create(request, new SiteExternalId("id"));
 		verify(webClient, times(0)).create(request);
 		verify(publisher, times(0)).publishEvent(new CreateSiteEvent("id"));
 	}

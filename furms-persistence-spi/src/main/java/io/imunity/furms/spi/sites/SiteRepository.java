@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.sites;
 
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.Site;
 
 import java.util.Optional;
@@ -14,13 +15,17 @@ public interface SiteRepository {
 
 	Optional<Site> findById(String id);
 
+	SiteExternalId findByIdExternalId(String id);
+
 	Set<Site> findAll();
 
-	String create(Site site);
+	String create(Site site, SiteExternalId externalId);
 
 	String update(Site site);
 
 	boolean exists(String id);
+
+	boolean existsByExternalId(SiteExternalId siteExternalId);
 
 	boolean isNamePresent(String name);
 

@@ -16,6 +16,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -194,13 +195,17 @@ class DemoDataInitializer {
 					.name("BSC")
 					.build();
 
-			String cinecaId = siteRepository.create(cineca);
-			String fzjId = siteRepository.create(fzj);
-			String bscId = siteRepository.create(bsc);
+			SiteExternalId ciencaExternalId = new SiteExternalId("cin-x");
+			SiteExternalId fzjExternalId = new SiteExternalId("fzj-x");
+			SiteExternalId bscExternalId = new SiteExternalId("bsc-x");
 
-			siteAgentService.initializeSiteConnection(cinecaId);
-			siteAgentService.initializeSiteConnection(fzjId);
-			siteAgentService.initializeSiteConnection(bscId);
+			String cinecaId = siteRepository.create(cineca, ciencaExternalId);
+			String fzjId = siteRepository.create(fzj, fzjExternalId);
+			String bscId = siteRepository.create(bsc, bscExternalId);
+
+			siteAgentService.initializeSiteConnection(ciencaExternalId);
+			siteAgentService.initializeSiteConnection(fzjExternalId);
+			siteAgentService.initializeSiteConnection(bscExternalId);
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
@@ -343,11 +348,11 @@ class DemoDataInitializer {
 				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
 				.build();
 
-			String resourceCreditCinecaId = resourceCreditRepository.create(resourceCreditCineca);
-			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca1);
-			String resourceCreditFzjId = resourceCreditRepository.create(resourceCreditFzj);
+			resourceCreditRepository.create(resourceCreditCineca);
+			resourceCreditRepository.create(resourceCreditCineca1);
+			resourceCreditRepository.create(resourceCreditFzj);
 			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
-			String resourceCreditBscId = resourceCreditRepository.create(resourceCreditBsc);
+			resourceCreditRepository.create(resourceCreditBsc);
 			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
 
 			CommunityAllocation communityAllocation = CommunityAllocation.builder()

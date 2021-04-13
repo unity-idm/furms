@@ -16,13 +16,15 @@ public class Site {
 	private final String connectionInfo;
 	private final FurmsImage logo;
 	private final Boolean sshKeyFromOptionMandatory;
+	private final SiteExternalId externalId;
 
-	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory) {
+	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory, SiteExternalId externalId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.externalId = externalId;
 	}
 
 	public String getId() {
@@ -46,6 +48,10 @@ public class Site {
 		return sshKeyFromOptionMandatory;
 	}
 
+	public SiteExternalId getExternalId() {
+		return externalId;
+	}
+
 	public static SiteBuilder builder() {
 		return new SiteBuilder();
 	}
@@ -59,12 +65,13 @@ public class Site {
 				Objects.equals(name, site.name) &&
 				Objects.equals(connectionInfo, site.connectionInfo) &&
 				Objects.equals(logo, site.logo) &&
-				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory);
+				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory) &&
+				Objects.equals(externalId, site.externalId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory);
+		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId);
 	}
 
 	@Override
@@ -75,6 +82,7 @@ public class Site {
 				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + logo +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", externalId=" + externalId +
 				'}';
 	}
 
@@ -85,7 +93,8 @@ public class Site {
 		private String connectionInfo;
 		private FurmsImage logo;
 		private Boolean sshKeyFromOptionMandatory;
-		
+		private SiteExternalId externalId;
+
 		public SiteBuilder id(String id) {
 			this.id = id;
 			return this;
@@ -111,8 +120,13 @@ public class Site {
 			return this;
 		}
 
+		public SiteBuilder externalId(SiteExternalId externalId) {
+			this.externalId = externalId;
+			return this;
+		}
+
 		public Site build() {
-			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory);
+			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId);
 		}
 
 	}

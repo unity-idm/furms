@@ -17,6 +17,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -55,9 +56,6 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private ResourceCreditRepository resourceCreditRepository;
 
 	@Autowired
-	private CommunityAllocationReadEntityRepository entityReadRepository;
-
-	@Autowired
 	private CommunityAllocationEntityRepository entityRepository;
 
 	@Autowired
@@ -85,8 +83,8 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.connectionInfo("alala")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site));
-		siteId2 = UUID.fromString(siteRepository.create(site1));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -181,7 +179,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
-		CommunityAllocationEntity save = entityRepository.save(
+		entityRepository.save(
 			CommunityAllocationEntity.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId)

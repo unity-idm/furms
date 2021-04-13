@@ -27,7 +27,7 @@ import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.*;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -46,7 +46,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public Optional<Site> get(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site from Unity. Missing Site ID"));
+		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site from Unity. Missing Site ID"));
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
@@ -67,7 +67,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public void create(Site site) {
-		check(site != null && !isEmpty(site.getId()),
+		assertTrue(site != null && !isEmpty(site.getId()),
 				() -> new IllegalArgumentException("Could not create Site in Unity. Missing Site or Site ID"));
 		Map<String, Object> uriVariables = uriVariables(site);
 		String groupPath = UriComponentsBuilder.newInstance()
@@ -94,7 +94,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public void update(Site site) {
-		check(site != null && !isEmpty(site.getId()), () -> new IllegalArgumentException("Could not update Site in Unity. Missing Site or Site ID"));
+		assertTrue(site != null && !isEmpty(site.getId()), () -> new IllegalArgumentException("Could not update Site in Unity. Missing Site or Site ID"));
 		Map<String, Object> uriVariables = uriVariables(site);
 		String metaSitePath = UriComponentsBuilder.newInstance()
 				.path(GROUP_BASE)
@@ -113,7 +113,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public void delete(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Could not delete Site from Unity. Missing Site ID"));
+		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Could not delete Site from Unity. Missing Site ID"));
 		Map<String, Object> uriVariables = uriVariables(id);
 		Map<String, String> queryParams = Map.of(RECURSIVE_PARAM, TRUE.toString());
 		String deleteSitePath = UriComponentsBuilder.newInstance()
@@ -131,7 +131,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public List<FURMSUser> getAllAdmins(String siteId) {
-		check(!isEmpty(siteId),
+		assertTrue(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);
 		return userService.getAllUsersByRole(sitePath, SITE_ADMIN);
@@ -139,7 +139,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public void addAdmin(String siteId, PersistentId userId) {
-		check(!isEmpty(siteId) && !isEmpty(userId),
+		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);
@@ -149,7 +149,7 @@ class UnitySiteWebClient implements SiteWebClient {
 
 	@Override
 	public void removeAdmin(String siteId, PersistentId userId) {
-		check(!isEmpty(siteId) && !isEmpty(userId),
+		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site Administrator in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);

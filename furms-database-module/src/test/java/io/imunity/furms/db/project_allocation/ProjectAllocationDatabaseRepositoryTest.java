@@ -1,0 +1,462 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
+ */
+
+package io.imunity.furms.db.project_allocation;
+
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest
+class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
+
+	@Autowired
+	private SiteRepository siteRepository;
+
+	@Autowired
+	private CommunityRepository communityRepository;
+
+	@Autowired
+	private ProjectRepository projectRepository;
+
+	@Autowired
+	private InfraServiceRepository infraServiceRepository;
+
+	@Autowired
+	private ResourceTypeRepository resourceTypeRepository;
+
+	@Autowired
+	private ResourceCreditRepository resourceCreditRepository;
+
+	@Autowired
+	private CommunityAllocationRepository communityAllocationRepository;
+
+	@Autowired
+	private ProjectAllocationReadEntityRepository entityReadRepository;
+
+	@Autowired
+	private ProjectAllocationEntityRepository entityRepository;
+
+	@Autowired
+	private ProjectAllocationDatabaseRepository entityDatabaseRepository;
+
+	private UUID siteId;
+	private UUID siteId2;
+
+	private UUID communityId;
+	private UUID communityId2;
+
+	private UUID projectId;
+	private UUID projectId2;
+
+	private UUID resourceTypeId;
+	private UUID resourceTypeId2;
+
+	private UUID resourceCreditId;
+	private UUID resourceCreditId2;
+
+	private UUID communityAllocationId;
+	private UUID communityAllocationId2;
+
+	@BeforeEach
+	void init() {
+		Site site = Site.builder()
+			.name("name")
+			.connectionInfo("alala")
+			.build();
+		Site site1 = Site.builder()
+			.name("name2")
+			.connectionInfo("alala")
+			.build();
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+
+		Community community = Community.builder()
+			.name("name")
+			.logo(FurmsImage.empty())
+			.build();
+		Community community2 = Community.builder()
+			.name("name1")
+			.logo(FurmsImage.empty())
+			.build();
+		communityId = UUID.fromString(communityRepository.create(community));
+		communityId2 = UUID.fromString(communityRepository.create(community2));
+
+		Project project = Project.builder()
+			.communityId(communityId.toString())
+			.name("name")
+			.description("new_description")
+			.logo(FurmsImage.empty())
+			.acronym("acronym")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+		Project project2 = Project.builder()
+			.communityId(communityId.toString())
+			.name("name2")
+			.logo(FurmsImage.empty())
+			.description("new_description")
+			.acronym("acronym")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+
+		projectId = UUID.fromString(projectRepository.create(project));
+		projectId2 = UUID.fromString(projectRepository.create(project2));
+
+		InfraService service = InfraService.builder()
+			.siteId(siteId.toString())
+			.name("name")
+			.build();
+		InfraService service1 = InfraService.builder()
+			.siteId(siteId2.toString())
+			.name("name1")
+			.build();
+
+		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
+
+
+		ResourceType resourceType = ResourceType.builder()
+			.siteId(siteId.toString())
+			.serviceId(serviceId.toString())
+			.name("name")
+			.type(ResourceMeasureType.FLOATING_POINT)
+			.unit(ResourceMeasureUnit.SiUnit.tera)
+			.build();
+		ResourceType resourceType2 = ResourceType.builder()
+			.siteId(siteId2.toString())
+			.serviceId(serviceId2.toString())
+			.name("name2")
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.MB)
+			.build();
+
+		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+
+		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId.toString())
+			.resourceTypeId(resourceTypeId.toString())
+			.name("name")
+			.split(true)
+			.access(true)
+			.amount(new BigDecimal(100))
+			.utcCreateTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now().plusDays(1))
+			.utcEndTime(LocalDateTime.now().plusDays(3))
+			.build()));
+
+		resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId2.toString())
+			.resourceTypeId(resourceTypeId2.toString())
+			.name("name2")
+			.split(true)
+			.access(true)
+			.amount(new BigDecimal(100))
+			.utcCreateTime(LocalDateTime.now())
+			.utcStartTime(LocalDateTime.now().plusDays(1))
+			.utcEndTime(LocalDateTime.now().plusDays(3))
+			.build()));
+
+		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+			CommunityAllocation.builder()
+				.communityId(communityId.toString())
+				.resourceCreditId(resourceCreditId.toString())
+				.name("anem")
+				.amount(new BigDecimal(10))
+				.build()
+		));
+		communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+			CommunityAllocation.builder()
+				.communityId(communityId.toString())
+				.resourceCreditId(resourceCreditId.toString())
+				.name("anem2")
+				.amount(new BigDecimal(30))
+				.build()
+		));
+	}
+
+	@Test
+	void shouldReturnAllocationWithRelatedObjects() {
+		ProjectAllocationEntity save = entityRepository.save(
+			ProjectAllocationEntity.builder()
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
+				.name("anem")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+
+		Optional<ProjectAllocationResolved> entity = entityDatabaseRepository.findByIdWithRelatedObjects(save.getId().toString());
+		assertThat(entity).isPresent();
+		assertThat(entity.get().name).isEqualTo("anem");
+		assertThat(entity.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.get().site.getName()).isEqualTo("name");
+		assertThat(entity.get().resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
+		assertThat(entity.get().resourceType.unit).isEqualTo(ResourceMeasureUnit.SiUnit.tera);
+		assertThat(entity.get().resourceCredit.name).isEqualTo("name");
+		assertThat(entity.get().resourceCredit.split).isEqualTo(true);
+		assertThat(entity.get().resourceCredit.access).isEqualTo(true);
+		assertThat(entity.get().resourceCredit.amount).isEqualTo(new BigDecimal(100));
+	}
+
+	@Test
+	void shouldReturnAllocationsWithRelatedObjects() {
+		ProjectAllocationEntity save = entityRepository.save(
+			ProjectAllocationEntity.builder()
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
+				.name("anem")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+
+		Set<ProjectAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjects(projectId.toString());
+		assertThat(entities.size()).isEqualTo(1);
+		ProjectAllocationResolved entity = entities.iterator().next();
+		assertThat(entity.name).isEqualTo("anem");
+		assertThat(entity.amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.site.getName()).isEqualTo("name");
+		assertThat(entity.resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
+		assertThat(entity.resourceType.unit).isEqualTo(ResourceMeasureUnit.SiUnit.tera);
+		assertThat(entity.resourceCredit.name).isEqualTo("name");
+		assertThat(entity.resourceCredit.split).isEqualTo(true);
+		assertThat(entity.resourceCredit.access).isEqualTo(true);
+		assertThat(entity.resourceCredit.amount).isEqualTo(new BigDecimal(100));
+	}
+
+	@Test
+	void shouldFindCreatedService() {
+		//given
+		ProjectAllocationEntity entity = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+
+		//when
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(entity.getId().toString());
+
+		//then
+		assertThat(byId).isPresent();
+		ProjectAllocation allocation = byId.get();
+		assertThat(allocation.id).isEqualTo(entity.getId().toString());
+		assertThat(allocation.projectId).isEqualTo(entity.projectId.toString());
+		assertThat(allocation.communityAllocationId).isEqualTo(entity.communityAllocationId.toString());
+		assertThat(allocation.name).isEqualTo(entity.name);
+		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
+	}
+
+	@Test
+	void shouldNotFindByIdIfDoesntExist() {
+		//given
+		UUID wrongId = generateId();
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+
+		//when
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(wrongId.toString());
+
+		//then
+		assertThat(byId).isEmpty();
+	}
+
+	@Test
+	void shouldFindAllProjectAllocations() {
+		//given
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId2)
+			.communityAllocationId(communityAllocationId2)
+			.name("name2")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+
+		//when
+		Set<ProjectAllocation> all = entityDatabaseRepository.findAll();
+
+		//then
+		assertThat(all).hasSize(2);
+	}
+
+	@Test
+	void shouldCreateProjectAllocation() {
+		//given
+		ProjectAllocation request = ProjectAllocation.builder()
+			.projectId(projectId.toString())
+			.communityAllocationId(communityAllocationId.toString())
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build();
+
+		//when
+		String newProjectAllocationId = entityDatabaseRepository.create(request);
+
+		//then
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(newProjectAllocationId);
+		assertThat(byId).isPresent();
+		assertThat(byId.get().id).isEqualTo(newProjectAllocationId);
+		assertThat(byId.get().projectId).isEqualTo(projectId.toString());
+		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId.toString());
+		assertThat(byId.get().name).isEqualTo("name");
+		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
+	}
+
+	@Test
+	void shouldUpdateProjectAllocation() {
+		//given
+		ProjectAllocationEntity old = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		ProjectAllocation requestToUpdate = ProjectAllocation.builder()
+			.id(old.getId().toString())
+			.projectId(projectId.toString())
+			.communityAllocationId(communityAllocationId.toString())
+			.name("new_name")
+			.amount(new BigDecimal(101))
+			.build();
+
+		//when
+		entityDatabaseRepository.update(requestToUpdate);
+
+		//then
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(old.getId().toString());
+		assertThat(byId).isPresent();
+		assertThat(byId.get().name).isEqualTo("new_name");
+		assertThat(byId.get().projectId).isEqualTo(projectId.toString());
+		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId.toString());
+		assertThat(byId.get().amount).isEqualTo(new BigDecimal(101));
+	}
+
+	@Test
+	void savedProjectAllocationExists() {
+		//given
+		ProjectAllocationEntity entity = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+
+		//when + then
+		assertThat(entityDatabaseRepository.exists(entity.getId().toString())).isTrue();
+	}
+
+	@Test
+	void shouldNotExistsDueToEmptyOrWrongId() {
+		//given
+		String nonExistedId = generateId().toString();
+
+		//when + then
+		assertThat(entityDatabaseRepository.exists(nonExistedId)).isFalse();
+		assertThat(entityDatabaseRepository.exists(null)).isFalse();
+		assertThat(entityDatabaseRepository.exists("")).isFalse();
+	}
+
+	@Test
+	void shouldReturnTrueForUniqueName() {
+		//given
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		String uniqueName = "unique_name";
+
+		//when + then
+		assertThat(entityDatabaseRepository.isUniqueName(uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonUniqueName() {
+		//given
+		ProjectAllocationEntity existedProjectAllocation = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build());
+
+		//when + then
+		assertThat(entityDatabaseRepository.isUniqueName(existedProjectAllocation.name)).isFalse();
+	}
+
+	@Test
+	void shouldReturnTrueForExistingCommunityAllocationId() {
+		//given
+		ProjectAllocationEntity existedResourceCredit = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build());
+
+		//when + then
+		assertThat(entityRepository.existsByCommunityAllocationId(existedResourceCredit.communityAllocationId)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonExistingCommunityAllocationId() {
+		//when + then
+		assertThat(entityRepository.existsByCommunityAllocationId(UUID.randomUUID())).isFalse();
+	}
+
+}

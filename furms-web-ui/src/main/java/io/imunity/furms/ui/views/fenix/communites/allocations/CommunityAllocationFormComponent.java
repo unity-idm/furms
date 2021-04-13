@@ -32,6 +32,8 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
 	private Label availableAmountLabel;
+	private BigDecimal availableAmount;
+	private BigDecimal lastAmount = new BigDecimal("0");
 
 	CommunityAllocationFormComponent(Binder<CommunityAllocationViewModel> binder, CommunityAllocationComboBoxesModelsResolver resolver) {
 		this.binder = binder;
@@ -70,8 +72,11 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 
 		availableAmountLabel = new Label();
 		resourceCreditComboBox.addValueChangeListener(event ->
-			Optional.ofNullable(event.getValue()).map(x -> x.amount).ifPresentOrElse(
-				x -> availableAmountLabel.setText(getTranslation("view.fenix-admin.resource-credits-allocation.form.label.available") + x),
+			Optional.ofNullable(event.getValue()).ifPresentOrElse(
+				x -> {
+					availableAmount = resolver.getAvailableAmount(x.id);
+					availableAmountLabel.setText(getTranslation("view.fenix-admin.resource-credits-allocation.form.label.available") + availableAmount);
+				},
 				() -> availableAmountLabel.setText("")
 			)
 		);
@@ -127,8 +132,12 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			);
 		binder.forField(amountField)
 			.withValidator(
-				obj -> Objects.nonNull(obj) && isAmountCorrect(resourceCreditComboBox, obj),
+				Objects::nonNull,
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.error.validation.field.amount")
+			)
+			.withValidator(
+				obj -> isAmountCorrect(resourceCreditComboBox, obj),
+				getTranslation("view.fenix-admin.resource-credits-allocation.form.error.validation.field.amount.range")
 			)
 			.bind(
 				CommunityAllocationViewModel::getAmount,
@@ -142,7 +151,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			return false;
 		if(!value.get().split)
 			return value.get().amount.compareTo(current) == 0;
-		return value.get().amount.compareTo(current) >= 0;
+		return availableAmount.compareTo(current.subtract(lastAmount)) >= 0;
 	}
 
 	public void setFormPools(CommunityAllocationViewModel model) {
@@ -157,6 +166,9 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		if(model.resourceCredit != null) {
 			resourceCreditComboBox.setEnabled(false);
 			resourceCreditComboBox.setItems(model.resourceCredit);
+		}
+		if(model.amount != null) {
+			lastAmount = model.amount;
 		}
 		binder.setBean(model);
 	}

@@ -19,6 +19,7 @@ brokerConfig = model.BrokerConfiguration(
     port=os.getenv('BROKER_PORT', '44444'), 
     username=os.getenv('BROKER_USERNAME', 'guest'), 
     password=os.getenv('BROKER_PASSWORD', 'guest'), 
+    cafile=os.getenv('CA_FILE', 'ca_certificate.pem'),
     queuename=sys.argv[1])
 
 listeners = model.RequestListeners()

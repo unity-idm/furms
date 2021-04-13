@@ -40,10 +40,13 @@ public class CommunityAllocationComponent extends Composite<Div> {
 
 		loadGridContent();
 
+		Button button = new Button(getTranslation("view.fenix-admin.resource-credits-allocation.page.button"));
+		button.setClassName("reload-disable");
+
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.fenix-admin.resource-credits-allocation.page.header"),
 			new RouterGridLink(
-				new Button(getTranslation("view.fenix-admin.resource-credits-allocation.page.button")),
+				button,
 				null,
 				CommunityAllocationFormView.class,
 				"communityId",

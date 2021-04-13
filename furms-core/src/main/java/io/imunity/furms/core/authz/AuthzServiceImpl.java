@@ -52,6 +52,12 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
+	public void reloadRolesIfCurrentUser(PersistentId id) {
+		if(id.equals(getCurrentUserId()))
+			reloadRoles();
+	}
+
+	@Override
 	public void reloadRoles() {
 		FURMSUser authentication = getCurrent();
 		PersistentId id = authentication.id.orElse(null);

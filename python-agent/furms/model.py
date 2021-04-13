@@ -6,12 +6,20 @@
 
 class BrokerConfiguration:
     """Holds the information required to connect with broker."""
-    def __init__(self, queuename, username, password, host, port):
+    def __init__(self, queuename, username, password, host, port, cafile=None):
         self.queuename = queuename
         self.username = username
         self.password = password
         self.host = host
         self.port = port
+        """
+        The cafile string, if present, is the path to a file of 
+        concatenated CA certificates in PEM format.
+        """
+        self.cafile = cafile
+
+    def is_ssl_enabled(self):
+        return self.cafile != None
 
 class ProtocolRequestTypes:
     """Defines all FURMS protocol request types"""

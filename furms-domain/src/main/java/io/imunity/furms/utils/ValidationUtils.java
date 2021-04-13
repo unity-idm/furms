@@ -9,9 +9,13 @@ import java.util.function.Supplier;
 
 public class ValidationUtils {
 
-	public static void check(boolean condition, Supplier<? extends RuntimeException> supplier) {
-		if (!condition) {
-			throw supplier.get();
-		}
+	public static void assertTrue(boolean condition, Supplier<? extends RuntimeException> errorSupplier) {
+		if (!condition)
+			throw errorSupplier.get();
+	}
+
+	public static void assertFalse(boolean condition, Supplier<? extends RuntimeException> errorSupplier) {
+		if (condition)
+			throw errorSupplier.get();
 	}
 }

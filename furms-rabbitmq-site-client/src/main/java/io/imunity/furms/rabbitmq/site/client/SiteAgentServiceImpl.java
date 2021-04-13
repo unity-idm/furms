@@ -5,14 +5,12 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
+import io.imunity.furms.domain.site_agent.AckStatus;
+import io.imunity.furms.domain.site_agent.PendingJob;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.site_agent.SiteAgentStatus;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.site.api.SiteAgentService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -22,11 +20,14 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.domain.site_agent.AckStatus;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.site.api.SiteAgentService;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
 
 @Component
 class SiteAgentServiceImpl implements SiteAgentService {
@@ -43,8 +44,8 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	}
 
 	@Override
-	public void initializeSiteConnection(String siteId) {
-		Queue queue = new Queue(siteId);
+	public void initializeSiteConnection(SiteExternalId externalId) {
+		Queue queue = new Queue(externalId.id);
 		try {
 			rabbitAdmin.declareQueue(queue);
 		}catch (AmqpConnectException e){
@@ -53,9 +54,9 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	}
 
 	@Override
-	public void removeSiteConnection(String siteId) {
+	public void removeSiteConnection(SiteExternalId externalId) {
 		try {
-			rabbitAdmin.deleteQueue(siteId);
+			rabbitAdmin.deleteQueue(externalId.id);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -65,21 +66,23 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	public void receive(Message message) {
 		String correlationId = message.getMessageProperties().getCorrelationId();
 		String agentStatus = message.getMessageProperties().getHeader("status").toString();
-		if(agentStatus.equals("IN_PROGRESS")){
-			map.get(correlationId).ackFuture.complete(AckStatus.ACK);
+		PendingJob<SiteAgentStatus> pendingJob = map.get(correlationId);
+		if(agentStatus.equals("IN_PROGRESS") && pendingJob != null){
+			pendingJob.ackFuture.complete(AckStatus.ACK);
+			return;
 		}
-		if(agentStatus.equals("OK")){
-			map.get(correlationId).jobFuture.complete(new SiteAgentStatus(AVAILABLE));
-			map.remove(correlationId);
+		if(agentStatus.equals("OK") && pendingJob != null){
+			pendingJob.jobFuture.complete(new SiteAgentStatus(AVAILABLE));
 		}
-		if(agentStatus.equals("FAILED")){
-			map.get(correlationId).jobFuture.complete(new SiteAgentStatus(UNAVAILABLE));
-			map.remove(correlationId);
+		if(agentStatus.equals("FAILED") && pendingJob != null){
+			pendingJob.jobFuture.complete(new SiteAgentStatus(UNAVAILABLE));
 		}
+		map.remove(correlationId);
+
 	}
 
 	@Override
-	public PendingJob<SiteAgentStatus> getStatus(String siteId) {
+	public PendingJob<SiteAgentStatus> getStatus(SiteExternalId externalId) {
 		CompletableFuture<SiteAgentStatus> connectionFuture = new CompletableFuture<>();
 		CompletableFuture<AckStatus> ackFuture = new CompletableFuture<>();
 
@@ -92,13 +95,26 @@ class SiteAgentServiceImpl implements SiteAgentService {
 
 		Message message = new Message(new byte[]{}, messageProperties);
 		try {
-			rabbitTemplate.send(siteId, message);
+			rabbitTemplate.send(externalId.id, message);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
+		failJobIfNoResponse(connectionFuture);
 
 		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, ackFuture, correlationId);
 		map.put(correlationId, pendingJob);
 		return pendingJob;
+	}
+
+	private void failJobIfNoResponse(CompletableFuture<SiteAgentStatus> connectionFuture) {
+		new Thread(() -> {
+			try {
+				TimeUnit.SECONDS.sleep(10);
+				if(!connectionFuture.isDone())
+					connectionFuture.complete(new SiteAgentStatus(UNAVAILABLE));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}).start();
 	}
 }

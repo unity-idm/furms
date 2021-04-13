@@ -5,3 +5,8 @@
 a.router-grid-link:hover {
 	text-decoration: none;
 }
+
+.router-label:hover{
+	text-decoration: underline;
+	cursor: pointer;
+}
