@@ -7,6 +7,7 @@ package io.imunity.furms.spi.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -21,7 +22,7 @@ public interface ProjectInstallationRepository {
 
 	String create(ProjectInstallationJob projectInstallationJob);
 
-	String update(ProjectInstallationJob projectInstallationJob);
+	String update(String id, ProjectInstallationStatus status);
 
 	void delete(String id);
 

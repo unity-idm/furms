@@ -34,7 +34,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreateProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity entityToSave = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 
 		//when
 		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
@@ -52,12 +57,22 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity entityToSave = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 
 
 		//when
 		ProjectInstallationJobEntity save = entityRepository.save(entityToSave);
-		ProjectInstallationJobEntity entityToUpdate = new ProjectInstallationJobEntity(save.getId(), ACK, correlationId);
+		ProjectInstallationJobEntity entityToUpdate = ProjectInstallationJobEntity.builder()
+			.correlationId(save.correlationId)
+			.siteId(save.siteId)
+			.projectId(save.projectId)
+			.status(ACK)
+			.build();
 
 		entityRepository.save(entityToUpdate);
 
@@ -73,7 +88,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toFind = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 
 		entityRepository.save(toFind);
 
@@ -88,7 +108,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedProjectInstallationJobByCorrelationId() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toFind = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 
 		entityRepository.save(toFind);
 		ProjectInstallationJobEntity findById = entityRepository.findByCorrelationId(correlationId);
@@ -104,9 +129,19 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave1 = new ProjectInstallationJobEntity(null, ACK, correlationId1);
+		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId1)
+			.siteId(UUID.randomUUID())
+			.projectId(UUID.randomUUID())
+			.status(ACK)
+			.build();
 
 		entityRepository.save(toSave);
 		entityRepository.save(toSave1);
@@ -122,7 +157,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 
 		//when
 		entityRepository.save(toSave);
@@ -136,9 +176,19 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllProjectInstallationJobs() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = new ProjectInstallationJobEntity(null, SEND, correlationId);
+		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID())
+				.projectId(UUID.randomUUID())
+				.status(SEND)
+				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave1 = new ProjectInstallationJobEntity(null, ACK, correlationId1);
+		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId1)
+			.siteId(UUID.randomUUID())
+			.projectId(UUID.randomUUID())
+			.status(ACK)
+			.build();
 
 		//when
 		entityRepository.save(toSave);

@@ -5,9 +5,13 @@
 
 package io.imunity.furms.core.project_installation;
 
+import io.imunity.furms.api.project_installation.ProjectInstallationService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.site.api.ProjectInstallationService;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.spi.project_installation.ProjectInstallationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
@@ -16,8 +20,12 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+
 @Service
-class ProjectInstallationServiceImpl implements ProjectInstallationService {
+class ProjectInstallationServiceImpl implements ProjectInstallationService, ProjectInstallationMessageResolver {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectInstallationRepository projectInstallationRepository;
@@ -29,26 +37,28 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT)
 	public ProjectInstallation findProjectInstallation(String projectAllocationId) {
 		return projectInstallationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "ProjectInstallationJob.projectId")
 	public void create(ProjectInstallationJob projectInstallationJob) {
 		projectInstallationRepository.create(projectInstallationJob);
 		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
 	}
 
 	@Override
-	public void update(ProjectInstallationJob updateJob) {
-		ProjectInstallationJob job = projectInstallationRepository.findByCorrelationId(updateJob.correlationId);
-		ProjectInstallationJob projectInstallationJob = new ProjectInstallationJob(job.id, job.correlationId, updateJob.status);
-		projectInstallationRepository.update(projectInstallationJob);
-		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
+	public void updateStatus(CorrelationId correlationId, ProjectInstallationStatus status) {
+		ProjectInstallationJob job = projectInstallationRepository.findByCorrelationId(correlationId);
+		projectInstallationRepository.update(job.id, status);
+		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, job.status);
 	}
 
 	@Override
-	public void delete(String id) {
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
+	public void delete(String projectId, String id) {
 		projectInstallationRepository.delete(id);
 		LOG.info("ProjectInstallation with given ID {} was deleted", id);
 	}

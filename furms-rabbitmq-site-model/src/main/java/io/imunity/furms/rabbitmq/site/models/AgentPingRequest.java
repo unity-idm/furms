@@ -9,7 +9,7 @@ import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
 
 @FurmsMessage(type = "AgentPingRequest")
 public class AgentPingRequest extends EmptyBodyResponse {
-	private AgentPingRequest(String correlationId, String status) {
+	public AgentPingRequest(String correlationId, String status) {
 		super(correlationId, status);
 	}
 }

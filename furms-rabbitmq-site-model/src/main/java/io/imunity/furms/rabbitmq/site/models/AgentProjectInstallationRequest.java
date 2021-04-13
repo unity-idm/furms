@@ -45,7 +45,16 @@ public class AgentProjectInstallationRequest {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AgentProjectInstallationRequest that = (AgentProjectInstallationRequest) o;
-		return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(communityId, that.communityId) && Objects.equals(communityName, that.communityName) && Objects.equals(acronym, that.acronym) && Objects.equals(researchField, that.researchField) && Objects.equals(validityStart, that.validityStart) && Objects.equals(validityEnd, that.validityEnd) && Objects.equals(projectLeader, that.projectLeader);
+		return Objects.equals(id, that.id) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(description, that.description) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(communityName, that.communityName) &&
+			Objects.equals(acronym, that.acronym) &&
+			Objects.equals(researchField, that.researchField) &&
+			Objects.equals(validityStart, that.validityStart) &&
+			Objects.equals(validityEnd, that.validityEnd) &&
+			Objects.equals(projectLeader, that.projectLeader);
 	}
 
 	@Override

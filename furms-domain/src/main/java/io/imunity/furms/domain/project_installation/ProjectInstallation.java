@@ -12,6 +12,7 @@ import java.util.Objects;
 
 public class ProjectInstallation {
 	public final String id;
+	public final String siteId;
 	public final String siteExternalId;
 	public final String name;
 	public final String description;
@@ -23,8 +24,9 @@ public class ProjectInstallation {
 	public final LocalDateTime validityEnd;
 	public final FURMSUser leader;
 
-	ProjectInstallation(String id, String siteExternalId, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, FURMSUser leader) {
+	ProjectInstallation(String id, String siteId, String siteExternalId, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, FURMSUser leader) {
 		this.id = id;
+		this.siteId = siteId;
 		this.siteExternalId = siteExternalId;
 		this.name = name;
 		this.description = description;
@@ -43,6 +45,7 @@ public class ProjectInstallation {
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectInstallation that = (ProjectInstallation) o;
 		return Objects.equals(id, that.id) &&
+			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(siteExternalId, that.siteExternalId) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
@@ -57,13 +60,14 @@ public class ProjectInstallation {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
+		return Objects.hash(id, siteId, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectInstallation{" +
 			"id='" + id + '\'' +
+			", siteId='" + siteId + '\'' +
 			", siteExternalId='" + siteExternalId + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
@@ -83,6 +87,7 @@ public class ProjectInstallation {
 
 	public static final class ProjectInstallationBuilder {
 		public String id;
+		public String siteId;
 		public String siteExternalId;
 		public String name;
 		public String description;
@@ -99,6 +104,11 @@ public class ProjectInstallation {
 
 		public ProjectInstallationBuilder id(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public ProjectInstallationBuilder siteId(String siteId) {
+			this.siteId = siteId;
 			return this;
 		}
 
@@ -153,7 +163,7 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallation build() {
-			return new ProjectInstallation(id, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
+			return new ProjectInstallation(id, siteId, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
 		}
 	}
 }

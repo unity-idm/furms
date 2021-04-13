@@ -14,7 +14,8 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.site.api.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -29,7 +30,10 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
@@ -46,18 +50,21 @@ class SiteServiceImplTest {
 	private SiteWebClient webClient;
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
+	@Mock
 	private UsersDAO usersDAO;
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private SiteAgentService siteAgentService;
-
+	@Mock
+	private SiteAgentStatusService siteAgentStatusService;
+	@Mock
 	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService, siteAgentStatusService);
 	}
 
 	@Test

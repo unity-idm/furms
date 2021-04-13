@@ -5,14 +5,13 @@
 
 package io.imunity.furms.core.project_allocation;
 
+import io.imunity.furms.api.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
-import io.imunity.furms.site.api.ProjectInstallationService;
-import io.imunity.furms.site.api.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -39,9 +38,7 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private UsersDAO usersDAO;
-	@Mock
-	private SiteAgentService siteAgentService;
+	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -49,7 +46,7 @@ class ProjectAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, validator, usersDAO, siteAgentService, publisher);
+		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, validator, siteAgentProjectInstallationService, publisher);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
 

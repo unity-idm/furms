@@ -40,7 +40,10 @@ class ProjectInstallationServiceImplTest {
 	void shouldCreateProjectInstallation() {
 		//given
 		CorrelationId id = new CorrelationId("id");
-		ProjectInstallationJob projectInstallationJob = new ProjectInstallationJob(id, SEND);
+		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
+				.correlationId(id)
+				.status(SEND)
+				.build();
 
 		//when
 		service.create(projectInstallationJob);
@@ -53,19 +56,23 @@ class ProjectInstallationServiceImplTest {
 	void shouldUpdateProjectInstallation() {
 		//given
 		CorrelationId id = new CorrelationId("id");
-		ProjectInstallationJob projectInstallationJob = new ProjectInstallationJob(id, SEND);
+		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
+				.id("id")
+				.correlationId(id)
+				.status(SEND)
+				.build();
 
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(projectInstallationJob);
+		service.updateStatus(id, SEND);
 
 		//then
-		orderVerifier.verify(repository).update(eq(projectInstallationJob));
+		orderVerifier.verify(repository).update("id", SEND);
 	}
 
 	@Test
 	void shouldDeleteProjectInstallation() {
-		service.delete("id");
+		service.delete("id", "id");
 
 		orderVerifier.verify(repository).delete(eq("id"));
 	}

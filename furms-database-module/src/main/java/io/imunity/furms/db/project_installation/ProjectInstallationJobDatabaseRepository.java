@@ -7,6 +7,7 @@ package io.imunity.furms.db.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -28,7 +29,13 @@ class ProjectInstallationJobDatabaseRepository implements ProjectInstallationRep
 	@Override
 	public ProjectInstallationJob findByCorrelationId(CorrelationId correlationId) {
 		ProjectInstallationJobEntity job = repository.findByCorrelationId(UUID.fromString(correlationId.id));
-		return new ProjectInstallationJob(job.getId().toString(), new CorrelationId(job.correlationId.toString()), job.status);
+		return ProjectInstallationJob.builder()
+			.id(job.getId().toString())
+			.correlationId(new CorrelationId(job.correlationId.toString()))
+			.siteId(job.siteId.toString())
+			.projectId(job.projectId.toString())
+			.status(job.status)
+			.build();
 	}
 
 	@Override
@@ -51,17 +58,28 @@ class ProjectInstallationJobDatabaseRepository implements ProjectInstallationRep
 
 	@Override
 	public String create(ProjectInstallationJob projectInstallationJob) {
-		ProjectInstallationJobEntity projectInstallationJobEntity = new ProjectInstallationJobEntity(null, projectInstallationJob.status, UUID.fromString(projectInstallationJob.correlationId.id));
+		ProjectInstallationJobEntity projectInstallationJobEntity = ProjectInstallationJobEntity.builder()
+			.correlationId(UUID.fromString(projectInstallationJob.correlationId.id))
+			.siteId(UUID.fromString(projectInstallationJob.siteId))
+			.projectId(UUID.fromString(projectInstallationJob.projectId))
+			.status(projectInstallationJob.status)
+			.build();
 		ProjectInstallationJobEntity job = repository.save(projectInstallationJobEntity);
 		return job.getId().toString();
 	}
 
 	@Override
-	public String update(ProjectInstallationJob projectInstallationJob) {
-		repository.findById(UUID.fromString(projectInstallationJob.id))
-			.map(x -> new ProjectInstallationJobEntity(x.getId(), projectInstallationJob.status, x.correlationId))
+	public String update(String id, ProjectInstallationStatus status) {
+		repository.findById(UUID.fromString(id))
+			.map(job -> ProjectInstallationJobEntity.builder()
+				.id(job.getId())
+				.correlationId(job.correlationId)
+				.siteId(job.siteId)
+				.projectId(job.projectId)
+				.status(status)
+				.build())
 			.ifPresent(repository::save);
-		return projectInstallationJob.id;
+		return id;
 	}
 
 	@Override

@@ -15,7 +15,7 @@ public interface ProjectInstallationJobEntityRepository extends CrudRepository<P
 	ProjectInstallationJobEntity findByCorrelationId(UUID correlationId);
 
 	@Query(
-		"select p.id as id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +
+		"select p.id as id, s.id as site_id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +
 			"c.name as community_name, p.acronym as acronym, p.research_field as research_field, p.start_time as validity_start, p.end_time as validity_end, p.leader_id as leader_id " +
 			"from project_allocation pa " +
 			"join community_allocation ca on pa.community_allocation_id = ca.id " +

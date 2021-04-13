@@ -16,19 +16,25 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.data.util.AnnotatedTypeScanner;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 
 public class FurmsMessageConverter implements MessageConverter {
 
 	private final Jackson2JsonMessageConverter converter = getJackson2JsonMessageConverter();
 
-	private final Set<Class<?>> types = new AnnotatedTypeScanner(false, FurmsMessage.class)
-		.findTypes("io.imunity.furms.rabbitmq.site.models");
+	private final Map<String, Class<?>> types = new AnnotatedTypeScanner(false, FurmsMessage.class)
+		.findTypes("io.imunity.furms.rabbitmq.site.models")
+		.stream().collect(toMap(x -> x.getAnnotation(FurmsMessage.class).type(), identity()));
 
 	@Override
 	public Message toMessage(Object o, MessageProperties messageProperties) throws MessageConversionException {
+		if(EmptyBodyResponse.class.isAssignableFrom(o.getClass()))
+			return new Message(new byte[]{}, messageProperties);
 		return converter.toMessage(o, messageProperties);
 	}
 
@@ -37,17 +43,10 @@ public class FurmsMessageConverter implements MessageConverter {
 		String furmsMessageType = message.getMessageProperties().getHeader("furmsMessageType").toString();
 		String correlationId = message.getMessageProperties().getCorrelationId();
 		String status =  message.getMessageProperties().getHeader("status");
-		return types.stream()
-			.filter(aClass -> isAnnotationEquals(furmsMessageType, aClass))
+		return Optional.ofNullable(types.get(furmsMessageType))
 			.filter(EmptyBodyResponse.class::isAssignableFrom)
-			.findAny()
 			.flatMap(aClass -> initialize(aClass, correlationId, status))
 			.orElseGet(() -> converter.fromMessage(message));
-	}
-
-	private boolean isAnnotationEquals(String furmsMessageType, Class<?> aClass) {
-		FurmsMessage annotation = aClass.getAnnotation(FurmsMessage.class);
-		return annotation.type().equals(furmsMessageType);
 	}
 
 	private Optional<Object> initialize(Class<?> aClass, String correlationId, String status) {

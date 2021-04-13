@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site.api;
+package io.imunity.furms.api.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
@@ -13,7 +13,5 @@ public interface ProjectInstallationService {
 
 	void create(ProjectInstallationJob projectInstallationJob);
 
-	void update(ProjectInstallationJob projectInstallationJob);
-
-	void delete(String id);
+	void delete(String projectId, String id);
 }

@@ -33,7 +33,12 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreateProjectAllocation() {
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-		ProjectInstallationJob request = new ProjectInstallationJob(correlationId, SEND);
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID().toString())
+				.projectId(UUID.randomUUID().toString())
+				.status(SEND)
+				.build();
 
 		//when
 		String id = entityDatabaseRepository.create(request);
@@ -50,11 +55,17 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateProjectAllocation() {
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-		ProjectInstallationJob request = new ProjectInstallationJob(correlationId, SEND);
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+				.id("id")
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID().toString())
+				.projectId(UUID.randomUUID().toString())
+				.status(SEND)
+				.build();
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(new ProjectInstallationJob(id, correlationId, DONE));
+		entityDatabaseRepository.update("id", DONE);
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(UUID.fromString(id));
@@ -68,7 +79,12 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldRemoveProjectInstallationJob(){
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-		ProjectInstallationJob request = new ProjectInstallationJob(correlationId, SEND);
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+				.correlationId(correlationId)
+				.siteId(UUID.randomUUID().toString())
+				.projectId(UUID.randomUUID().toString())
+				.status(SEND)
+				.build();
 
 		//when
 		String id = entityDatabaseRepository.create(request);

@@ -56,12 +56,6 @@ class ProjectServiceImpl implements ProjectService {
 		this.authzService = authzService;
 	}
 
-	public void gett(String id){
-		Project project = projectRepository.findById(id).orElse(null);
-		Optional<FURMSUser> byId = usersDAO.findById(project.getLeaderId());
-
-	}
-
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
 	public Optional<Project> findById(String id) {
