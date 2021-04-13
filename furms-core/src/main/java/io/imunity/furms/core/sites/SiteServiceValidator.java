@@ -13,7 +13,7 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -47,18 +47,18 @@ class SiteServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "Site name has to be declared.");
-		check(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
+		assertTrue(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
 	}
 
 	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
 		notNull(recordToIgnore, "Site id has to be declared.");
 		notNull(name, "Invalid Site name: Site name is empty.");
-		check(!siteRepository.isNamePresentIgnoringRecord(name, recordToIgnore), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
+		assertTrue(!siteRepository.isNamePresentIgnoringRecord(name, recordToIgnore), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
 	}
 
 	private void validateId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
+		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
 }

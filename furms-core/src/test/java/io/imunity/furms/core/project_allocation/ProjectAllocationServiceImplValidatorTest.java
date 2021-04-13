@@ -39,88 +39,88 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
-		ProjectAllocation service = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId("id")
 			.communityAllocationId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectRepository.exists(service.projectId)).thenReturn(true);
-		when(communityAllocationRepository.exists(service.communityAllocationId)).thenReturn(true);
+		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
+		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateCreate(service));
+		assertDoesNotThrow(() -> validator.validateCreate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateForNullAmount() {
 		//given
-		ProjectAllocation service = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId("id")
 			.communityAllocationId("id")
 			.name("name")
 			.build();
 
-		when(projectRepository.exists(service.projectId)).thenReturn(true);
-		when(communityAllocationRepository.exists(service.communityAllocationId)).thenReturn(true);
+		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
+		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
-		ProjectAllocation service = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId("id")
 			.communityAllocationId("id")
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectRepository.exists(service.projectId)).thenReturn(true);
-		when(communityAllocationRepository.exists(service.communityAllocationId)).thenReturn(true);
+		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
+		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateForNonExistingResourceCreditId() {
 		//given
-		ProjectAllocation service = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId("id")
 			.communityAllocationId("id")
 			.name("name")
 			.build();
 
-		when(projectRepository.exists(service.projectId)).thenReturn(true);
-		when(communityAllocationRepository.exists(service.communityAllocationId)).thenReturn(false);
+		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
+		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateForNullResourceCreditId() {
 		//given
-		ProjectAllocation service = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.name("name")
 			.projectId("id")
 			.build();
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
 	}
 
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final ProjectAllocation service = ProjectAllocation.builder()
+		final ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.id("id")
 			.projectId("id")
 			.communityAllocationId("id")
@@ -128,21 +128,21 @@ class ProjectAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectRepository.exists(service.projectId)).thenReturn(true);
-		when(communityAllocationRepository.exists(service.communityAllocationId)).thenReturn(true);
-		when(projectAllocationRepository.exists(service.id)).thenReturn(true);
+		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
+		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
+		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
-		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(service));
+		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation));
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate(service));
+		assertDoesNotThrow(() -> validator.validateUpdate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
-		ProjectAllocation community = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.id("id")
 			.projectId("id")
 			.communityAllocationId("id")
@@ -150,16 +150,16 @@ class ProjectAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectAllocationRepository.exists(community.id)).thenReturn(false);
+		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
-		ProjectAllocation resourceCredit = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.id("id")
 			.projectId("id")
 			.communityAllocationId("id")
@@ -167,7 +167,7 @@ class ProjectAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		ProjectAllocation resourceCredit2 = ProjectAllocation.builder()
+		ProjectAllocation projectAllocation1 = ProjectAllocation.builder()
 			.id("id")
 			.projectId("id")
 			.communityAllocationId("id")
@@ -175,11 +175,12 @@ class ProjectAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(2))
 			.build();
 
-		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(resourceCredit2));
+		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
+		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation1));
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(resourceCredit));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(projectAllocation));
 	}
 
 	@Test

@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -92,17 +92,17 @@ class ResourceCreditServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Resource Credit ID has to be declared.");
-		check(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID is not exists."));
+		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID is not exists."));
 	}
 
 	private void validateSiteId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
+		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
 	private void validateResourceTypeId(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
-		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
+		assertTrue(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
 	private void validateUpdateSiteId(ResourceCredit resourceCredit) {

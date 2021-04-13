@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
@@ -116,7 +116,7 @@ class SiteDatabaseRepository implements SiteRepository {
 
 	@Override
 	public void delete(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
+		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
 
 		repository.deleteById(fromString(id));
 	}
@@ -127,13 +127,13 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 	
 	private void validateSiteName(final Site site) {
-		check(site != null, () -> new IllegalArgumentException("Site object is missing."));
-		check(!isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: name is empty"));
+		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
+		assertTrue(!isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: name is empty"));
 	}
 
 	private void validateSiteId(final Site site) {
-		check(site != null, () -> new IllegalArgumentException("Site object is missing."));
-		check(!isEmpty(site.getId()), () -> new IllegalArgumentException("Incorrect Site ID: ID is empty."));
-		check(repository.existsById(fromString(site.getId())), () -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
+		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
+		assertTrue(!isEmpty(site.getId()), () -> new IllegalArgumentException("Incorrect Site ID: ID is empty."));
+		assertTrue(repository.existsById(fromString(site.getId())), () -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 	}
 }

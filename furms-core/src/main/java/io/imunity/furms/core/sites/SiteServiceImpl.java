@@ -5,6 +5,24 @@
 
 package io.imunity.furms.core.sites;
 
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -13,7 +31,11 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.domain.sites.*;
+import io.imunity.furms.domain.sites.CreateSiteEvent;
+import io.imunity.furms.domain.sites.RemoveSiteEvent;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -23,22 +45,6 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.utils.ValidationUtils.check;
-import static java.util.Optional.ofNullable;
-import static org.springframework.util.StringUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService {
@@ -183,7 +189,7 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
 	public List<FURMSUser> findAllAdmins(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
+		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
 		return webClient.getAllAdmins(id);
 	}
@@ -191,8 +197,7 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
-		check(!isEmpty(siteId) && !isEmpty(userId),
-				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
+		assertNotEmpty(siteId, userId);
 		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
@@ -204,8 +209,7 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addAdmin(String siteId, PersistentId userId) {
-		check(!isEmpty(siteId) && !isEmpty(userId),
-				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID or User ID"));
+		assertNotEmpty(siteId, userId);
 
 		try {
 			webClient.addAdmin(siteId, userId);
@@ -226,8 +230,7 @@ class SiteServiceImpl implements SiteService {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void removeAdmin(String siteId, PersistentId userId) {
-		check(!isEmpty(siteId) && !isEmpty(userId),
-				() -> new IllegalArgumentException("Could not remove Site Administrator. Missing Site ID or User ID"));
+		assertNotEmpty(siteId, userId);
 
 		try {
 			webClient.removeAdmin(siteId, userId);
@@ -254,7 +257,7 @@ class SiteServiceImpl implements SiteService {
 	}
 
 	private Site merge(Site oldSite, Site site) {
-		check(oldSite.getId().equals(site.getId()),() -> new IllegalArgumentException("There are different Sites during merge"));
+		assertTrue(oldSite.getId().equals(site.getId()),() -> new IllegalArgumentException("There are different Sites during merge"));
 		return Site.builder()
 				.id(oldSite.getId())
 				.name(site.getName())
@@ -262,5 +265,13 @@ class SiteServiceImpl implements SiteService {
 				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
 				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
 				.build();	
+	}
+	
+	private void assertNotEmpty(String siteId, PersistentId userId) {
+		assertFalse(isEmpty(siteId),
+				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID"));
+		assertFalse(isEmpty(userId),
+				() -> new IllegalArgumentException("Could not add Site Administrator. Missing User ID"));
+
 	}
 }

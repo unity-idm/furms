@@ -23,7 +23,7 @@ import java.util.Optional;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.*;
 import static io.imunity.furms.unity.common.UnityPaths.*;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -108,7 +108,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 
 	@Override
 	public List<FURMSUser> getAllAdmins(String communityId) {
-		check(!isEmpty(communityId),
+		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
 		return userService.getAllUsersByRole(communityPath, COMMUNITY_ADMIN);
@@ -116,7 +116,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 
 	@Override
 	public void addAdmin(String communityId, PersistentId userId) {
-		check(!isEmpty(communityId) && !isEmpty(userId),
+		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
 
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
@@ -126,7 +126,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 
 	@Override
 	public void removeAdmin(String communityId, PersistentId userId) {
-		check(!isEmpty(communityId) && !isEmpty(userId),
+		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
 
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
