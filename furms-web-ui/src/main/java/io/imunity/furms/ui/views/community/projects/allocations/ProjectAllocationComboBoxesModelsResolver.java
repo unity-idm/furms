@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
@@ -20,13 +20,15 @@ import static java.util.stream.Collectors.*;
 class ProjectAllocationComboBoxesModelsResolver {
 	private final Set<ResourceTypeComboBoxModel> resourceTypeComboBoxModels;
 	private final Map<String, Set<AllocationCommunityComboBoxModel>> resourceTypeIdToCommunityAllocation;
-	private final Function<String, BigDecimal> functionAvailableAmount;
+	private final BiFunction<String, String, BigDecimal> functionAvailableAmount;
+	private final ResourceTypeComboBoxModel defaultResourceType;
 
-	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations, Function<String, BigDecimal> functionAvailableAmount) {
+	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations, BiFunction<String, String, BigDecimal> functionAvailableAmount) {
 		this.resourceTypeComboBoxModels = communityAllocations.stream()
 			.map(allocation -> new ResourceTypeComboBoxModel(allocation.resourceType.id, allocation.resourceType.name))
 			.collect(toSet());
-		this.resourceTypeComboBoxModels.add(new ResourceTypeComboBoxModel("ANY", getTranslation("any")));
+		this.defaultResourceType = new ResourceTypeComboBoxModel("ANY", getTranslation("any"));
+		this.resourceTypeComboBoxModels.add(defaultResourceType);
 
 		this.resourceTypeIdToCommunityAllocation = communityAllocations.stream()
 			.collect(groupingBy(
@@ -46,6 +48,10 @@ class ProjectAllocationComboBoxesModelsResolver {
 		return resourceTypeComboBoxModels;
 	}
 
+	ResourceTypeComboBoxModel getDefaultResourceType(){
+		return defaultResourceType;
+	}
+
 	Set<AllocationCommunityComboBoxModel> getCommunityAllocations(String communityAllocationId){
 		if(communityAllocationId.equals("ANY"))
 			return resourceTypeIdToCommunityAllocation.values().stream()
@@ -54,7 +60,7 @@ class ProjectAllocationComboBoxesModelsResolver {
 		return resourceTypeIdToCommunityAllocation.getOrDefault(communityAllocationId, Set.of());
 	}
 
-	BigDecimal getAvailableAmount(String communityAllocationId){
-		return functionAvailableAmount.apply(communityAllocationId);
+	BigDecimal getAvailableAmount(String projectId, String communityAllocationId){
+		return functionAvailableAmount.apply(projectId, communityAllocationId);
 	}
 }
