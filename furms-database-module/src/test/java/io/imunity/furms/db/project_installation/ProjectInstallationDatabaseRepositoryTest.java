@@ -6,6 +6,21 @@
 package io.imunity.furms.db.project_installation;
 
 
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.DONE;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -17,20 +32,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.DONE;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -61,10 +62,6 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Community community = Community.builder()
 			.name("name")
-			.logo(FurmsImage.empty())
-			.build();
-		Community community2 = Community.builder()
-			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
 		UUID communityId = UUID.fromString(communityRepository.create(community));
