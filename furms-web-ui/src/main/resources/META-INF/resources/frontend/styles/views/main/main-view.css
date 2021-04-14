@@ -57,3 +57,6 @@
 	display: table;
 }
 
+.reload-disable:active {
+	pointer-events: none;
+}
