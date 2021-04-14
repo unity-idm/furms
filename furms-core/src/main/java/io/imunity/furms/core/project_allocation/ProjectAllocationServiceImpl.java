@@ -64,8 +64,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT)
-	public BigDecimal getAvailableAmount(String communityAllocationId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public BigDecimal getAvailableAmount(String projectId, String communityAllocationId) {
 		return projectAllocationRepository.getAvailableAmount(communityAllocationId);
 	}
 
