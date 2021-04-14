@@ -11,7 +11,9 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.spi.roles.RoleLoader;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +53,9 @@ public class AuthzServiceImpl implements AuthzService {
 			.anyMatch(entry -> entry.getValue().contains(role));
 	}
 
-	@Override
-	public void reloadRolesIfCurrentUser(PersistentId id) {
-		if(id.equals(getCurrentUserId()))
+	@EventListener
+	void onUserEvents(UserEvent event) {
+		if(event.getId().equals(getCurrentUserId()))
 			reloadRoles();
 	}
 
