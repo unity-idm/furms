@@ -57,6 +57,10 @@
 	display: table;
 }
 
+.reload-disable {
+	z-index: -1;
+}
+
 .reload-disable:active {
 	pointer-events: none;
 }
