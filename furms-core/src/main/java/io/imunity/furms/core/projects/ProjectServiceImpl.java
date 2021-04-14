@@ -81,7 +81,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
-		projectGroupsDAO.addAdmin(project.getCommunityId(), id, project.getLeaderId());
+		addAdmin(project.getCommunityId(), id, project.getLeaderId());
 		publisher.publishEvent(new CreateProjectEvent(project.getId()));
 		LOG.info("Project with given ID: {} was created: {}", id, project);
 	}
@@ -93,7 +93,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateUpdate(project);
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
-		projectGroupsDAO.addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
+		addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", project);
 	}
