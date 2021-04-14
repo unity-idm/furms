@@ -5,13 +5,6 @@
 
 package io.imunity.furms.unity.config;
 
-import static java.lang.String.format;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.Base64;
-
 import io.imunity.furms.unity.client.oauth.UnityOauthCredentials;
 import io.imunity.furms.unity.client.oauth.UnityOauthProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,14 +12,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
-
 import reactor.netty.http.client.HttpClient;
+
+import java.util.Base64;
+
+import static java.lang.String.format;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Configuration
 public class WebClientConfig {
 	
 	public static final String BASE_UNITY_CLIENT = "baseUnityClient";
 	public static final String OAUTH_UNITY_CLIENT = "oauthTokenEndpointWebClient";
+	public static final int TEN_MB = 10 * 1024 * 1024;
 
 	@Bean
 	@Primary
@@ -61,7 +61,11 @@ public class WebClientConfig {
 				.secure(sslSpec -> sslSpec.sslContext(sslContextManager.getSslContextForWebClient()));
 		return WebClient.builder()
 				.clientConnector(new ReactorClientHttpConnector(httpClient))
-				.baseUrl(baseUrl);
+				.baseUrl(baseUrl)
+			.codecs(config -> config
+				.defaultCodecs()
+				.maxInMemorySize(TEN_MB)
+			);
 	}
 
 	private String createAuthorizationKey(String username, String password) {

@@ -49,7 +49,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	}
 
 	void reloadComponent(){
-		String currentSelectedContextId = getValue().furmsViewUserContext.id;
+		String currentSelectedContextId = furmsSelectService.loadSelectedItem().get().id;
 		List<FurmsSelectText> items = furmsSelectService.reloadItems();
 		addItems(items);
 		items.stream()
