@@ -40,7 +40,8 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.site.api.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -57,6 +58,7 @@ class SiteServiceImpl implements SiteService {
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
+	private final SiteAgentStatusService siteAgentStatusService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -64,7 +66,8 @@ class SiteServiceImpl implements SiteService {
 	                UsersDAO usersDAO,
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
-	                SiteAgentService siteAgentService) {
+	                SiteAgentService siteAgentService,
+	                SiteAgentStatusService siteAgentStatusService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -72,6 +75,7 @@ class SiteServiceImpl implements SiteService {
 		this.authzService = authzService;
 		this.publisher = publisher;
 		this.siteAgentService = siteAgentService;
+		this.siteAgentStatusService = siteAgentStatusService;
 	}
 
 	@Override
@@ -249,7 +253,7 @@ class SiteServiceImpl implements SiteService {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
 		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
-		return siteAgentService.getStatus(externalId);
+		return siteAgentStatusService.getStatus(externalId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

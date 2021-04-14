@@ -10,14 +10,16 @@ import java.util.Objects;
 
 class ProjectAllocationGridModel {
 	public String id;
+	public String projectId;
 	public String siteName;
 	public String resourceTypeName;
 	public String resourceTypeUnit;
 	public String name;
 	public BigDecimal amount;
 
-	ProjectAllocationGridModel(String id, String siteName, String resourceTypeName, String resourceTypeUnit, String name, BigDecimal amount) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, String resourceTypeUnit, String name, BigDecimal amount) {
 		this.id = id;
+		this.projectId = projectId;
 		this.siteName = siteName;
 		this.resourceTypeName = resourceTypeName;
 		this.resourceTypeUnit = resourceTypeUnit;
@@ -54,6 +56,7 @@ class ProjectAllocationGridModel {
 	public String toString() {
 		return "CommunityAllocationGridModel{" +
 			"id='" + id + '\'' +
+			", projectId='" + projectId + '\'' +
 			", siteName='" + siteName + '\'' +
 			", resourceTypeName='" + resourceTypeName + '\'' +
 			", resourceTypeUnit='" + resourceTypeUnit + '\'' +
@@ -68,6 +71,7 @@ class ProjectAllocationGridModel {
 
 	public static final class ProjectAllocationGridModelBuilder {
 		public String id;
+		public String projectId;
 		public String siteName;
 		public String resourceTypeName;
 		public String resourceTypeUnit;
@@ -79,6 +83,11 @@ class ProjectAllocationGridModel {
 
 		public ProjectAllocationGridModelBuilder id(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public ProjectAllocationGridModelBuilder projectId(String projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 
@@ -108,7 +117,7 @@ class ProjectAllocationGridModel {
 		}
 
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, siteName, resourceTypeName, resourceTypeUnit, name, amount);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount);
 		}
 	}
 }

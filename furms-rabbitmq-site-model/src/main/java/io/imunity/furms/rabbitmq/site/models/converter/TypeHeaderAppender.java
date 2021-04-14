@@ -2,21 +2,21 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.models.converter;
 
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 
-class TypeHeaderAppender implements MessagePostProcessor {
+public class TypeHeaderAppender implements MessagePostProcessor {
 
 	private static final String FURMS_MESSAGE_TYPE = "furmsMessageType";
 	private static final String VERSION = "version";
 	private final Object body;
 	private final String correlationId;
 
-	TypeHeaderAppender(Object body, String correlationId) {
+	public TypeHeaderAppender(Object body, String correlationId) {
 		this.body = body;
 		this.correlationId = correlationId;
 	}

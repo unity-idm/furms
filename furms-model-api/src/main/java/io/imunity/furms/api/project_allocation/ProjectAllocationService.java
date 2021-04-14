@@ -27,5 +27,5 @@ public interface ProjectAllocationService {
 
 	void update(ProjectAllocation resourceType);
 
-	void delete(String id);
+	void delete(String projectId, String id);
 }

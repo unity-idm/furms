@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity.furms</groupId>
-			<artifactId>furms-rabbitmq-site-client</artifactId>
+			<artifactId>furms-rabbitmq-site-model</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
