@@ -12,12 +12,14 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.util.*;
@@ -38,23 +40,26 @@ public class CommunityView extends FurmsViewComponent {
 	private Map<String, Tab> paramToTab;
 	private List<RouterLink> links;
 	private final PersistentId currentUserId;
+	private final CommunityAllocationService allocationService;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	private Div page1;
 	private Div page2;
 
-	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService) {
+	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService, CommunityAllocationService allocationService) {
 		this.communityService = communityService;
 		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
+		this.allocationService = allocationService;
 	}
 
-	private void loadTabs() {
+	private void loadTabs(String communityId) {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new Div();
+		page2 = new CommunityAllocationComponent(allocationService, communityId).getContent();
+
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);
@@ -68,9 +73,7 @@ public class CommunityView extends FurmsViewComponent {
 		paramToTab.put(ALLOCATIONS_PARAM, allocationsTab);
 		links.add(allocRouterLink);
 
-		page2.setText("Page#2");
 		page2.setVisible(false);
-
 		Map<Tab, Component> tabsToPages = new HashMap<>();
 		tabsToPages.put(administratorsTab, page1);
 		tabsToPages.put(allocationsTab, page2);
@@ -143,9 +146,9 @@ public class CommunityView extends FurmsViewComponent {
 		String param = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
-			.getOrDefault(PARAM_NAME, List.of(ADMINISTRATORS_PARAM))
+			.getOrDefault(PARAM_NAME, List.of(ALLOCATIONS_PARAM))
 			.iterator().next();
-		loadTabs();
+		loadTabs(communityId);
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), communityId));

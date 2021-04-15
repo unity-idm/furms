@@ -5,49 +5,37 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
-
-import java.util.concurrent.CompletableFuture;
-
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.site.api.site_agent.SiteAgentService;
+import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
-import io.imunity.furms.site.api.SiteAgentService;
-
-@Component
+@Service
 class SiteAgentServiceImpl implements SiteAgentService {
-	private final AsyncRabbitTemplate rabbitTemplate;
+
 	private final RabbitAdmin rabbitAdmin;
 
-	SiteAgentServiceImpl(AsyncRabbitTemplate rabbitTemplate, RabbitAdmin rabbitAdmin) {
-		this.rabbitTemplate = rabbitTemplate;
+	SiteAgentServiceImpl(RabbitAdmin rabbitAdmin) {
 		this.rabbitAdmin = rabbitAdmin;
 	}
 
 	@Override
-	public void initializeSiteConnection(String siteId) {
-		Queue queue = new Queue(siteId);
-		rabbitAdmin.declareQueue(queue);
+	public void initializeSiteConnection(SiteExternalId externalId) {
+		try {
+			rabbitAdmin.declareQueue(new org.springframework.amqp.core.Queue(externalId.id));
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
 	}
 
 	@Override
-	public void removeSiteConnection(String siteId) {
-		rabbitAdmin.deleteQueue(siteId);
-	}
-
-	@Override
-	public CompletableFuture<SiteAgentStatus> getStatus(String siteId) {
-		CompletableFuture<SiteAgentStatus> future = new CompletableFuture<>();
-		AgentPingRequest request = new AgentPingRequest();
-		AsyncRabbitTemplate.RabbitConverterFuture<Object> rabbitFuture = rabbitTemplate
-				.convertSendAndReceive(siteId, request, new TypeHederAppender(request));
-		rabbitFuture.addCallback(
-			message -> future.complete(new SiteAgentStatus(AVAILABLE)),
-			message -> future.complete(new SiteAgentStatus(UNAVAILABLE)));
-		return future;
+	public void removeSiteConnection(SiteExternalId externalId) {
+		try {
+			rabbitAdmin.deleteQueue(externalId.id);
+		}catch (AmqpConnectException e){
+			throw new SiteAgentException("Queue is unavailable", e);
+		}
 	}
 }

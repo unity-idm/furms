@@ -11,7 +11,6 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.api.authz.AuthzService;
@@ -21,12 +20,14 @@ import io.imunity.furms.domain.sites.SiteEvent;
 import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
-import io.imunity.furms.ui.user_context.ViewMode;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
@@ -35,14 +36,11 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	private Registration broadcasterRegistration;
 
 	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService, VaadinBroadcaster vaadinBroadcaster) {
-		furmsSelectService = new FurmsSelectService(roleTranslator, authzService.getCurrentUserId());
+		this.furmsSelectService = new FurmsSelectService(roleTranslator, authzService.getCurrentUserId());
 		this.vaadinBroadcaster = vaadinBroadcaster;
-		List<FurmsSelectText> items = furmsSelectService.loadItems();
+		final List<FurmsSelectText> items = furmsSelectService.loadItems();
 
-		setClassName("furms-select");
-		setItems(items);
-		setTextRenderer(Text::getText);
-		//addSeparators(data); TODO FIX separators are disabled now
+		addItems(items);
 
 		furmsSelectService.loadSelectedItem()
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
@@ -51,34 +49,34 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	}
 
 	void reloadComponent(){
-		String currentSelectedContextId = getValue().furmsViewUserContext.id;
+		String currentSelectedContextId = furmsSelectService.loadSelectedItem().get().id;
 		List<FurmsSelectText> items = furmsSelectService.reloadItems();
-		setItems(items);
+		addItems(items);
 		items.stream()
 			.filter(selectText -> selectText.furmsViewUserContext.id.equals(currentSelectedContextId))
 			.findFirst()
-			.ifPresent(userContext -> setValue(userContext));
+			.ifPresent(this::setValue);
 	}
 
+	private void addItems(final List<FurmsSelectText> items) {
+		setClassName("furms-select");
+		setItems(items);
+		setTextRenderer(Text::getText);
+		addSeparators(items);
+	}
 
-	@SuppressWarnings("unused")
-	private void addSeparators(Map<ViewMode, List<FurmsViewUserContext>> data) {
-		FurmsSelectText component = null;
-		for (Map.Entry<ViewMode, List<FurmsViewUserContext>> entry : data.entrySet()) {
-			if(entry.getKey() == ViewMode.USER){
-				continue;
-			}
-			if(component != null){
-				Span text = new Span(entry.getKey().name());
-				text.addClassName("select-span-separator");
-				addComponents(component, new Hr());
-				addComponents(component, text);
-				addComponents(component, new Hr());
-			}
-			if(entry.getValue().size() > 0){
-				component = new FurmsSelectText(entry.getValue().get(entry.getValue().size() - 1));
-			}
-		}
+	private void addSeparators(List<FurmsSelectText> items) {
+		final Map<Integer, List<FurmsSelectText>> itemsGroupedByOrder = items.stream()
+				.collect(groupingBy(x -> x.furmsViewUserContext.viewMode.order));
+		final Optional<Integer> maxOrder = itemsGroupedByOrder.keySet().stream()
+				.max(Comparator.comparingInt(key -> key));
+		itemsGroupedByOrder.keySet().stream()
+				.sorted()
+				.filter(order -> !maxOrder.get().equals(order))
+				.forEach(order -> {
+					final List<FurmsSelectText> block = itemsGroupedByOrder.get(order);
+					addComponents(block.get(block.size()-1), new Hr());
+				});
 	}
 
 	@Override

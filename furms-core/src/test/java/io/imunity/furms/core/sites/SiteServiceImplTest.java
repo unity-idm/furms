@@ -9,15 +9,13 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.sites.CreateSiteEvent;
-import io.imunity.furms.domain.sites.RemoveSiteEvent;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.sites.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.site.api.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -32,7 +30,10 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
@@ -49,18 +50,21 @@ class SiteServiceImplTest {
 	private SiteWebClient webClient;
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
+	@Mock
 	private UsersDAO usersDAO;
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private SiteAgentService siteAgentService;
-
+	@Mock
+	private SiteAgentStatusService siteAgentStatusService;
+	@Mock
 	private AuthzService authzService;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService, siteAgentStatusService);
 	}
 
 	@Test
@@ -104,14 +108,14 @@ class SiteServiceImplTest {
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
-		when(repository.create(request)).thenReturn(request.getId());
+		when(repository.create(eq(request), any())).thenReturn(request.getId());
 		when(repository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
 
 		//then
-		verify(repository, times(1)).create(request);
+		verify(repository, times(1)).create(eq(request), any());
 		verify(webClient, times(1)).create(request);
 		verify(publisher, times(1)).publishEvent(new CreateSiteEvent("id"));
 	}
@@ -127,7 +131,7 @@ class SiteServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
-		verify(repository, times(0)).create(request);
+		verify(repository, times(0)).create(request, new SiteExternalId("id"));
 		verify(webClient, times(0)).create(request);
 		verify(publisher, times(0)).publishEvent(new CreateSiteEvent("id"));
 	}

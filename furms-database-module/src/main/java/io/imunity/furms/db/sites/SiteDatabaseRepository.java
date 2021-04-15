@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Repository;
@@ -13,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
@@ -38,6 +39,16 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
+	public SiteExternalId findByIdExternalId(String id) {
+		if (isEmpty(id)) {
+			throw new IllegalArgumentException("Id should not be null");
+		}
+		return repository.findExternalId(fromString(id))
+			.map(SiteExternalId::new)
+			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
+	}
+
+	@Override
 	public Set<Site> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 				.map(SiteEntity::toSite)
@@ -45,12 +56,14 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public String create(Site site) {
+	public String create(Site site, SiteExternalId siteExternalId) {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
 				.name(site.getName())
 				.connectionInfo(site.getConnectionInfo())
 				.logo(site.getLogo())
+				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
+				.externalId(siteExternalId.id)
 				.build());
 		return saved.getId().toString();
 	}
@@ -66,6 +79,8 @@ class SiteDatabaseRepository implements SiteRepository {
 						.name(site.getName())
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
+						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
+						.externalId(oldEntity.getExternalId())
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
@@ -82,6 +97,14 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
+	public boolean existsByExternalId(SiteExternalId siteExternalId) {
+		if (isEmpty(siteExternalId.id)) {
+			throw new IllegalArgumentException("External id should not be null");
+		}
+		return repository.existsByExternalId(siteExternalId.id);
+	}
+
+	@Override
 	public boolean isNamePresent(String name) {
 		return repository.existsByName(name);
 	}
@@ -93,7 +116,7 @@ class SiteDatabaseRepository implements SiteRepository {
 
 	@Override
 	public void delete(String id) {
-		check(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
+		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
 
 		repository.deleteById(fromString(id));
 	}
@@ -104,13 +127,13 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 	
 	private void validateSiteName(final Site site) {
-		check(site != null, () -> new IllegalArgumentException("Site object is missing."));
-		check(!isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: name is empty"));
+		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
+		assertTrue(!isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: name is empty"));
 	}
 
 	private void validateSiteId(final Site site) {
-		check(site != null, () -> new IllegalArgumentException("Site object is missing."));
-		check(!isEmpty(site.getId()), () -> new IllegalArgumentException("Incorrect Site ID: ID is empty."));
-		check(repository.existsById(fromString(site.getId())), () -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
+		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
+		assertTrue(!isEmpty(site.getId()), () -> new IllegalArgumentException("Incorrect Site ID: ID is empty."));
+		assertTrue(repository.existsById(fromString(site.getId())), () -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 	}
 }

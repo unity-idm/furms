@@ -14,10 +14,13 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>furms-broker</artifactId>
-	<name>FURMS broker module</name>
-	<description>FURMS broker module</description>
+	<artifactId>furms-embedded-broker</artifactId>
+	<name>FURMS embedded broker module</name>
+	<description>FURMS qpid broker module</description>
 
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
 
 	<dependencies>
 		<dependency>

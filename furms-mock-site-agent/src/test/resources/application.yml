@@ -1,5 +1,13 @@
+logging.level.org.springframework.amqp: DEBUG
+queue:
+  name: cin-x
 spring:
    rabbitmq:
       username: guest
       password: guest
       port: 44444
+      ssl:
+          enabled: true
+          trustStore: classpath:truststore.jks
+          trustStorePassword: changeit
+          algorithm: TLSv1.2

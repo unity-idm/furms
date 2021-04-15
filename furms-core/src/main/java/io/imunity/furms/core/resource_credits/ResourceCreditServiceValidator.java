@@ -5,9 +5,11 @@
 
 package io.imunity.furms.core.resource_credits;
 
+import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocationsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -18,20 +20,23 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
 class ResourceCreditServiceValidator {
+	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final SiteRepository siteRepository;
 
 	public ResourceCreditServiceValidator(
+		CommunityAllocationRepository communityAllocationRepository,
 		ResourceCreditRepository resourceCreditRepository,
 		ResourceTypeRepository resourceTypeRepository,
 		SiteRepository siteRepository
 	) {
+		this.communityAllocationRepository = communityAllocationRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.siteRepository = siteRepository;
@@ -60,6 +65,9 @@ class ResourceCreditServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
+		if(communityAllocationRepository.existsByResourceCreditId(id)){
+			throw new ResourceTypeCreditHasAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
+		}
 	}
 
 	private void validateName(ResourceCredit resourceCredit) {
@@ -84,17 +92,17 @@ class ResourceCreditServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Resource Credit ID has to be declared.");
-		check(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID is not exists."));
+		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID is not exists."));
 	}
 
 	private void validateSiteId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
+		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
 	private void validateResourceTypeId(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
-		check(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
+		assertTrue(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
 	private void validateUpdateSiteId(ResourceCredit resourceCredit) {

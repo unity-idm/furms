@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -87,12 +87,12 @@ class InfraServiceServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "InfraService ID has to be declared.");
-		check(infraServiceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
+		assertTrue(infraServiceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
 	}
 
 	private void validateSiteId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		check(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID does not exist."));
+		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID does not exist."));
 	}
 
 	private void validateUpdateSiteId(InfraService infraService) {

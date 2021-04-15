@@ -80,7 +80,7 @@ public class FurmsOauthTokenExtenderFilter extends OncePerRequestFilter {
 							final OAuth2AccessToken newToken = tokenRefreshHandler.refresh(oAuth2AuthorizedClient, oAuth2AuthenticationToken, principal);
 							oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
 						} else {
-							LOG.info("Couldn't refresh token ({}) due to lack of required Refresh Token in security context",
+							LOG.warn("Couldn't refresh token ({}) due to lack of required Refresh Token in security context",
 									oAuth2AuthorizedClient.getAccessToken().getTokenValue());
 						}
 					} catch (Exception e) {

@@ -33,6 +33,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entityToSave = SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build();
 
 		//when
@@ -48,10 +49,12 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity old = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 		SiteEntity toUpdate = SiteEntity.builder()
 				.id(old.getId())
 				.name("new_name")
+				.externalId("id2")
 				.build();
 
 		//when
@@ -68,6 +71,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity toFind = siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 
 		//when
@@ -82,6 +86,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity toFind = siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 
 		//when
@@ -96,9 +101,11 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 		siteEntityRepository.save(SiteEntity.builder()
 				.name("name2")
+				.externalId("id2")
 				.build());
 
 		//when
@@ -113,6 +120,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity site = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when + then
@@ -125,6 +133,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity site = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when
@@ -141,6 +150,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entityToRemove = siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 
 		//when
@@ -155,6 +165,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entityToRemove = siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 
 		//when
@@ -169,9 +180,11 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		siteEntityRepository.save(SiteEntity.builder()
 				.name("name1")
+				.externalId("id")
 				.build());
 		siteEntityRepository.save(SiteEntity.builder()
 				.name("name2")
+				.externalId("id2")
 				.build());
 
 		//when
@@ -186,9 +199,11 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 		SiteEntity entity2 = siteEntityRepository.save(SiteEntity.builder()
 				.name("name2")
+				.externalId("id2")
 				.build());
 
 		//when + then
@@ -200,6 +215,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		SiteEntity entity = siteEntityRepository.save(SiteEntity.builder()
 				.name("name")
+				.externalId("id")
 				.build());
 
 		//when + then

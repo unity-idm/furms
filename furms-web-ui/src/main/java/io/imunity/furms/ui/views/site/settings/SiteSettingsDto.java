@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.site.settings;
 
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 
 import java.util.Objects;
 
@@ -16,19 +17,25 @@ public class SiteSettingsDto implements Cloneable {
 	private String name;
 	private FurmsImage logo;
 	private String connectionInfo;
+	private Boolean sshKeyFromOptionMandatory;
+	private SiteExternalId externalId;
 
 	public SiteSettingsDto(Site site) {
 		this.id = site.getId();
 		this.name = site.getName();
 		this.logo = site.getLogo();
 		this.connectionInfo = site.getConnectionInfo();
+		this.sshKeyFromOptionMandatory = site.isSshKeyFromOptionMandatory();
+		this.externalId = site.getExternalId();
 	}
 
-	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo) {
+	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo, Boolean sshKeyFromOptionMandatory, SiteExternalId externalId) {
 		this.id = id;
 		this.name = name;
 		this.logo = logo;
 		this.connectionInfo = connectionInfo;
+		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.externalId = externalId;
 	}
 
 	public String getId() {
@@ -63,9 +70,26 @@ public class SiteSettingsDto implements Cloneable {
 		this.connectionInfo = connectionInfo;
 	}
 
+	public SiteExternalId getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(SiteExternalId externalId) {
+		this.externalId = externalId;
+	}
+
 	@Override
 	public SiteSettingsDto clone() {
-		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo);
+		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo,
+				this.sshKeyFromOptionMandatory, new SiteExternalId(externalId.id));
+	}
+	
+	public Boolean isSshKeyFromOptionMandatory() {
+		return sshKeyFromOptionMandatory;
+	}
+
+	public void setSshKeyFromOptionMandatory(Boolean sshKeyFromOptionMandatory) {
+		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 	}
 
 	@Override
@@ -88,6 +112,8 @@ public class SiteSettingsDto implements Cloneable {
 				", name='" + name + '\'' +
 				", logo=" + logo +
 				", connectionInfo='" + connectionInfo + '\'' +
+				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", externalId=" + externalId +
 				'}';
 	}
 }

@@ -64,6 +64,31 @@ Install Ansible tooling on the host which will control FURMS system through scri
 ==== Database
 Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-IdM. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.
 
+=== Broker
+Install any recent RabbitMQ broker with support for AMPQ 0.9.1. The broker setup requires:
+
+* configuration of the TLS in order to enable encryption on the protocol level,
+* definition of the https://www.rabbitmq.com/vhosts.html[RabbitMQ virtual host] utilized for the FURMS purposes,
+* definition of the client user name and password with a connection rights to FURMS virtual host, and privileges to provision queues within this virtual host. 
+
+The virtual host name, privileged client user name and a password, as well as public CA certificate which was used to sign credential for the broker are used later on in the Ansible group variable file to setup broker connection during installation.
+
+
+NOTE: The broker service is considered as the infrastructure resource, however for demonstration purposes and ease of configuration, below is an example of `rabbitmq.conf` file with TLS support turned on.
+```
+listeners.ssl.default = 5671
+
+ssl_options.cacertfile = /etc/rabbitmq/certs/ca_certificate.pem
+ssl_options.certfile = /etc/rabbitmq/certs/server_certificate.pem
+ssl_options.keyfile = /etc/rabbitmq/certs/server_key.pem
+ssl_options.password = <put-keyfile-password>
+ssl_options.fail_if_no_peer_cert = false
+ssl_options.verify = verify_none
+ssl_options.versions.1 = tlsv1.2
+```
+Please refer to the https://www.rabbitmq.com/ssl.html[RabbitMQ TLS Support] guide for more informations.
+
+
 === Installation best practices ===
 There are two recommended configurations of FURMS system that can be used to install the services:
 
@@ -154,6 +179,7 @@ The following table provides description of all configuration options.
 
 * the public CA certificate which is at the top of the certificates chain used to sign Unity-IdM credential.
 * the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.
+* the public CA certificate which is at the top of the certificates chain used to sign Broker credential.
 
 |trustStore.file
 |filesystem path on Ansible management host
@@ -289,16 +315,40 @@ NOTE: The redirect URL configured at Central IdP OAuth client side should be set
 |FURMS service database password
 
 
-|preSharedKeys.cIdP
+|furmsServer.preSharedKeys.cIdP
 2+|The cIdP key is defined by FURMS administrator. The information entered here setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.
 
-|preSharedKeys.cIdP.username
+|furmsServer.preSharedKeys.cIdP.username
 |string
 |Username for Central IdP REST API credential
 
-|preSharedKeys.cIdP.password
+|furmsServer.preSharedKeys.cIdP.password
 |string
 |Password for Central IdP REST API credential
+
+
+|furmsServer.broker
+2+|Configuration options to setup connection with the RabbitMQ. 
+
+|furmsServer.broker.host
+|string
+|The hostname or IP address that points to the RabbitMQ instance.
+
+|furmsServer.broker.port
+|integer [0-65535]
+|RabbitMQ port to which to connect.
+
+|furmsServer.broker.username
+|string
+|RabbitMQ user to use when connecting.
+
+|furmsServer.broker.password
+|string
+|RabbitMQ password for this user
+
+|furmsServer.broker.virtualHost
+|string
+|RabbitMQ virtual host name to which to connect.
 
 |===
 

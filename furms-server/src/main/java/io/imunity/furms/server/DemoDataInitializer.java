@@ -9,18 +9,21 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.site.api.SiteAgentService;
+import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -52,14 +55,18 @@ class DemoDataInitializer {
 	private final InfraServiceRepository infraServiceRepository;
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final ResourceCreditRepository resourceCreditRepository;
+	private final CommunityAllocationRepository communityAllocationRepository;
 	private final SiteAgentService siteAgentService;
+
+	private String communityId;
+	private String community2Id;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
 	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
 	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
 	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
 	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
-	                    SiteAgentService siteAgentService) {
+	                    CommunityAllocationRepository communityAllocationRepository, SiteAgentService siteAgentService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
@@ -71,6 +78,7 @@ class DemoDataInitializer {
 		this.infraServiceRepository = infraServiceRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
+		this.communityAllocationRepository = communityAllocationRepository;
 		this.siteAgentService = siteAgentService;
 	}
 
@@ -104,9 +112,9 @@ class DemoDataInitializer {
 				.logo(imgPRACEFile, "png")
 				.build();
 
-			String communityId = communityRepository.create(community);
+			communityId = communityRepository.create(community);
 			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
-			String community2Id = communityRepository.create(community2);
+			community2Id = communityRepository.create(community2);
 			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 
 			Project project = Project.builder()
@@ -187,13 +195,17 @@ class DemoDataInitializer {
 					.name("BSC")
 					.build();
 
-			String cinecaId = siteRepository.create(cineca);
-			String fzjId = siteRepository.create(fzj);
-			String bscId = siteRepository.create(bsc);
+			SiteExternalId ciencaExternalId = new SiteExternalId("cin-x");
+			SiteExternalId fzjExternalId = new SiteExternalId("fzj-x");
+			SiteExternalId bscExternalId = new SiteExternalId("bsc-x");
 
-			siteAgentService.initializeSiteConnection(cinecaId);
-			siteAgentService.initializeSiteConnection(fzjId);
-			siteAgentService.initializeSiteConnection(bscId);
+			String cinecaId = siteRepository.create(cineca, ciencaExternalId);
+			String fzjId = siteRepository.create(fzj, fzjExternalId);
+			String bscId = siteRepository.create(bsc, bscExternalId);
+
+			siteAgentService.initializeSiteConnection(ciencaExternalId);
+			siteAgentService.initializeSiteConnection(fzjExternalId);
+			siteAgentService.initializeSiteConnection(bscExternalId);
 
 			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
 			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
@@ -339,9 +351,25 @@ class DemoDataInitializer {
 			resourceCreditRepository.create(resourceCreditCineca);
 			resourceCreditRepository.create(resourceCreditCineca1);
 			resourceCreditRepository.create(resourceCreditFzj);
-			resourceCreditRepository.create(resourceCreditFzj1);
+			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
 			resourceCreditRepository.create(resourceCreditBsc);
-			resourceCreditRepository.create(resourceCreditBsc1);
+			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
+
+			CommunityAllocation communityAllocation = CommunityAllocation.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditBscId1)
+				.name("First Allocation")
+				.amount(new BigDecimal(1000))
+				.build();
+			CommunityAllocation communityAllocation1 = CommunityAllocation.builder()
+				.communityId(community2Id)
+				.resourceCreditId(resourceCreditFzjId1)
+				.name("Second Allocation")
+				.amount(new BigDecimal(500))
+				.build();
+
+			communityAllocationRepository.create(communityAllocation);
+			communityAllocationRepository.create(communityAllocation1);
 		}
 	}
 }

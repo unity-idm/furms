@@ -6,8 +6,11 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.*;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -23,7 +26,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -93,37 +98,42 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldAllowToCreateProject() {
 		//given
+		String id = UUID.randomUUID().toString();
 		Project request = Project.builder()
-			.id("id")
+			.id(id)
 			.communityId("id")
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
+			.leaderId(new PersistentId(UUID.randomUUID().toString()))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
-			.id("id")
+			.id(id)
 			.communityId("id")
 			.name("userFacingName")
 			.build();
-		when(communityRepository.exists(request.getId())).thenReturn(true);
+		when(communityRepository.exists("id")).thenReturn(true);
 		when(projectRepository.isUniqueName(request.getName())).thenReturn(true);
-		when(projectRepository.create(request)).thenReturn("id");
+		when(projectRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);
 
 		orderVerifier.verify(projectRepository).create(eq(request));
 		orderVerifier.verify(projectGroupsDAO).create(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectEvent("id")));
+
+		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
+		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectEvent(id)));
 	}
 
 	@Test
 	void shouldNotAllowToCreateProjectDueToNonUniqueuserFacingName() {
 		//given
+		String id = UUID.randomUUID().toString();
 		Project request = Project.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		when(projectRepository.isUniqueName(request.getName())).thenReturn(false);
@@ -132,26 +142,30 @@ class ProjectServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(projectRepository, times(0)).create(eq(request));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateProjectEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
+
 	}
 
 	@Test
 	void shouldAllowToUpdateProject() {
 		//given
+		String id = UUID.randomUUID().toString();
 		Project request = Project.builder()
-			.id("id")
+			.id(id)
 			.communityId("id")
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
+			.leaderId(new PersistentId(UUID.randomUUID().toString()))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.communityId("id")
 			.build();
-		when(communityRepository.exists(request.getId())).thenReturn(true);
+		when(communityRepository.exists(request.getCommunityId())).thenReturn(true);
 		when(projectRepository.exists(request.getId())).thenReturn(true);
 		when(projectRepository.isUniqueName(request.getName())).thenReturn(true);
 		when(projectRepository.findById(request.getId())).thenReturn(Optional.of(request));
@@ -161,7 +175,8 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).update(eq(request));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
+		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent(id)));
 	}
 
 	@Test
