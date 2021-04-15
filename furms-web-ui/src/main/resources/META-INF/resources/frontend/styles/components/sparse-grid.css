@@ -5,3 +5,7 @@
 :host(.sparse-grid) [part="row"] {
 	min-height: 3em;
 }
+
+:host(.sparse-grid) [part="row"] [part~="cell"]:not([part~="details-cell"]) {
+	min-height: 3em !important;
+}

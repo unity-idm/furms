@@ -89,7 +89,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 		SSHKeyViewModel serviceViewModel = ofNullable(parameter)
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
 				.flatMap(Function.identity())
-				.map(k -> SSHKeyViewModelMapper.map(k, zoneId).iterator().next())
+				.map(k -> SSHKeyViewModelMapper.map(k, zoneId))
 				.orElseGet(() -> new SSHKeyViewModel(authzService.getCurrentUserId()));
 
 		String trans = parameter == null ? "view.user-settings.ssh-keys.form.parameter.new"

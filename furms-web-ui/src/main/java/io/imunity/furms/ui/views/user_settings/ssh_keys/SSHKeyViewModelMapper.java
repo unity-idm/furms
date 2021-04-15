@@ -10,27 +10,19 @@ import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.time.ZoneId;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import io.imunity.furms.domain.ssh_key.SSHKey;
 
 class SSHKeyViewModelMapper {
 
-	static List<SSHKeyViewModel> map(SSHKey key, ZoneId zoneId) {
+	static SSHKeyViewModel map(SSHKey key, ZoneId zoneId) {
 
-		if (key.sites.isEmpty())
-			return List.of(SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
-					.rowSiteId(null).sites(Collections.emptySet()).value(key.value)
-					.createTime(convertToZoneTime(key.createTime, zoneId))
-					.updateTime(convertToZoneTime(key.updateTime, zoneId)).build());
-
-		return key.sites.stream()
-				.map(s -> SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
-						.rowSiteId(s).sites(key.sites).value(key.value)
-						.createTime(convertToZoneTime(key.createTime, zoneId))
-						.updateTime(convertToZoneTime(key.updateTime, zoneId)).build())
-				.collect(Collectors.toList());
+		return SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
+				.sites(key.sites.isEmpty() ? Collections.emptySet() : key.sites)
+				.value(key.value)
+				.createTime(convertToZoneTime(key.createTime, zoneId))
+				.updateTime(convertToZoneTime(key.updateTime, zoneId))
+				.build();
 
 	}
 

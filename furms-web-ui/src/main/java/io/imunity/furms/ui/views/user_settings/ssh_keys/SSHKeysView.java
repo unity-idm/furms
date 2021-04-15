@@ -6,6 +6,8 @@
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
@@ -27,7 +29,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -84,12 +91,10 @@ public class SSHKeysView extends FurmsViewComponent {
 	private Grid<SSHKeyViewModel> createSSHKeysGrid() {
 		Grid<SSHKeyViewModel> grid = new SparseGrid<>(SSHKeyViewModel.class);
 
-		grid.addComponentColumn(k -> new RouterLink(k.getName(), SSHKeyFormView.class, k.id))
+		grid.addComponentColumn(k -> gridNameComponent(grid, k))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.1"))
 				.setSortable(true).setComparator(x -> x.getName().toLowerCase()).setResizable(true).setFlexGrow(1);
-		grid.addColumn(k -> k.rowSiteId != null ? resolver.getName(k.rowSiteId) : "")
-				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.2"))
-				.setSortable(true).setFlexGrow(1).setResizable(true);
+		
 		grid.addColumn(k -> SSHKey.getKeyFingerprint(k.getValue()))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.3"))
 				.setSortable(true).setResizable(true).setFlexGrow(10);
@@ -102,7 +107,25 @@ public class SSHKeysView extends FurmsViewComponent {
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.actions"))
 				.setKey("actions").setTextAlign(END);
 
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(this::additionalInfoComponent));
+		grid.setSelectionMode(SelectionMode.NONE);
 		return grid;
+	}
+	
+	private Component gridNameComponent(Grid<SSHKeyViewModel> grid, SSHKeyViewModel item) {
+		Icon icon = grid.isDetailsVisible(item) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+		return new Div(icon, new RouterLink(item.getName(), SSHKeyFormView.class, item.id));
+	}
+	
+	private Component additionalInfoComponent(SSHKeyViewModel sshKey) {
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.add(new NoWrapLabel(getTranslation("view.user-settings.ssh-keys.grid.details.installed-on")));
+		sshKey.getSites().stream()
+			.map(resolver::getName)
+			.sorted()
+			.map(NoWrapLabel::new)
+			.forEach(layout::add);
+		return layout;
 	}
 
 	private Component createLastColumnContent(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
@@ -148,9 +171,17 @@ public class SSHKeysView extends FurmsViewComponent {
 	}
 
 	private List<SSHKeyViewModel> loadSSHKeysViewsModels() {
-		return handleExceptions(() -> sshKeysService.findOwned()).orElseGet(Collections::emptySet).stream()
-				.map(key -> SSHKeyViewModelMapper.map(key, zoneId)).flatMap(List::stream)
+		return handleExceptions(() -> sshKeysService.findOwned())
+				.orElseGet(Collections::emptySet).stream()
+				.map(key -> SSHKeyViewModelMapper.map(key, zoneId))
 				.sorted(comparing(sshKeyModel -> sshKeyModel.getName().toLowerCase()))
 				.collect(toList());
+	}
+	
+	static class NoWrapLabel extends Label {
+		NoWrapLabel(String text) {
+			super(text);
+			getStyle().set("white-space", "nowrap");
+		}
 	}
 }

@@ -14,11 +14,10 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.domain.users.PersistentId;
 
-class SSHKeyViewModel {
+public class SSHKeyViewModel {
 
 	public final String id;
 	public final PersistentId ownerId;
-	public final String rowSiteId;
 	public final ZonedDateTime createTime;
 
 	private Set<String> sites;
@@ -28,19 +27,17 @@ class SSHKeyViewModel {
 
 	SSHKeyViewModel(PersistentId ownerId) {
 		this.id = null;
-		this.rowSiteId = null;
 		this.ownerId = ownerId;
 		this.createTime = ZonedDateTime.now();
 		this.sites = Collections.emptySet();
 	}
 
-	SSHKeyViewModel(String id, PersistentId ownerId, String name, String siteId, Set<String> sites, String value,
+	SSHKeyViewModel(String id, PersistentId ownerId, String name, Set<String> sites, String value,
 			ZonedDateTime createTime, ZonedDateTime updateTime) {
 
 		this.id = id;
 		this.ownerId = ownerId;
 		this.name = name;
-		this.rowSiteId = siteId;
 		this.sites = sites;
 		this.value = value;
 		this.createTime = createTime;
@@ -81,7 +78,7 @@ class SSHKeyViewModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createTime, id, name, ownerId, rowSiteId, sites, updateTime, value);
+		return Objects.hash(createTime, id, name, ownerId, sites, updateTime, value);
 	}
 
 	@Override
@@ -95,8 +92,8 @@ class SSHKeyViewModel {
 		SSHKeyViewModel other = (SSHKeyViewModel) obj;
 		return Objects.equals(createTime, other.createTime) && Objects.equals(id, other.id)
 				&& Objects.equals(name, other.name) && Objects.equals(ownerId, other.ownerId)
-				&& Objects.equals(rowSiteId, other.rowSiteId) && Objects.equals(sites, other.sites)
-				&& Objects.equals(updateTime, other.updateTime) && Objects.equals(value, other.value);
+				&& Objects.equals(sites, other.sites) && Objects.equals(updateTime, other.updateTime) 
+				&& Objects.equals(value, other.value);
 	}
 
 	public static Builder builder() {
@@ -106,7 +103,6 @@ class SSHKeyViewModel {
 	public static final class Builder {
 		private String id;
 		private PersistentId ownerId;
-		private String rowSiteId;
 		private ZonedDateTime createTime;
 		private Set<String> sites = Collections.emptySet();
 		private String name;
@@ -123,11 +119,6 @@ class SSHKeyViewModel {
 
 		public Builder ownerId(PersistentId ownerId) {
 			this.ownerId = ownerId;
-			return this;
-		}
-
-		public Builder rowSiteId(String rowSiteId) {
-			this.rowSiteId = rowSiteId;
 			return this;
 		}
 
@@ -157,7 +148,7 @@ class SSHKeyViewModel {
 		}
 
 		public SSHKeyViewModel build() {
-			return new SSHKeyViewModel(id, ownerId, name, rowSiteId, sites, value, createTime, updateTime);
+			return new SSHKeyViewModel(id, ownerId, name, sites, value, createTime, updateTime);
 		}
 	}
 
