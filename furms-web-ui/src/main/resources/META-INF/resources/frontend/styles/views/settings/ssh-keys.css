@@ -6,3 +6,8 @@
 multiselect-combo-box {
 	width: calc(var(--vaadin-text-field-default-width, 30em) * 2);
 }
+
+vaadin-text-area {
+	font-family: monospace;
+	word-break: break-all;
+}
