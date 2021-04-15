@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -27,6 +28,8 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.ssh_key.SSHKey;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
+
+@CssImport("./styles/views/settings/ssh-keys.css")
 class SSHKeyFormComponent extends Composite<Div> {
 
 	private static final int MAX_NAME_LENGTH = 20;
