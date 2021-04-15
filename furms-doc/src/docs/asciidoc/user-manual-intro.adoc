@@ -1,4 +1,4 @@
-:versionlimit: icon:wrench[] v1 limitation icon:wrench[]
+:versionlimit: icon:wrench[] v2 limitation icon:wrench[]
 
 NOTE: In various places in this document, the following text is used to mark a limitation which is specific to the current release: +
 {versionlimit} +
