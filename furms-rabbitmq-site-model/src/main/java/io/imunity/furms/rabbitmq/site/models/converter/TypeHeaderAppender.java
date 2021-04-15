@@ -9,6 +9,8 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 
+import io.imunity.furms.rabbitmq.site.models.consts.Queues;
+
 public class TypeHeaderAppender implements MessagePostProcessor {
 
 	private static final String FURMS_MESSAGE_TYPE = "furmsMessageType";
@@ -29,6 +31,7 @@ public class TypeHeaderAppender implements MessagePostProcessor {
 		}
 		message.getMessageProperties().getHeaders().put(VERSION, 1);
 		message.getMessageProperties().setCorrelationId(correlationId);
+		message.getMessageProperties().setReplyTo(Queues.REPLY_QUEUE);
 		return message;
 	}
 }
