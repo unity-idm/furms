@@ -17,7 +17,7 @@ public interface ProjectAllocationService {
 
 	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String id);
 
-	BigDecimal getAvailableAmount(String communityAllocationId);
+	BigDecimal getAvailableAmount(String projectId, String communityAllocationId);
 
 	Set<ProjectAllocation> findAll();
 
@@ -27,5 +27,5 @@ public interface ProjectAllocationService {
 
 	void update(ProjectAllocation resourceType);
 
-	void delete(String id);
+	void delete(String projectId, String id);
 }

@@ -122,7 +122,6 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void addAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
@@ -131,7 +130,6 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));
 	}

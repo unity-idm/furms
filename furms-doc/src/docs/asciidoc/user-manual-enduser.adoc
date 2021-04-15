@@ -5,6 +5,19 @@ Every user that signs into FURMS has access to her/his FURMS profile & settings 
 User settings allows every FURMS user to check:
 
 * personal information which is exposed to FURMS by the Fenix infrastructure,
-* user's projects list.
+* user's projects list,
+* SSH keys management.
 
-{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including management of personal SSH keys and site access details.   
+{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including site access details.
+
+=== SSH keys management
+
+The 'SSH Keys' view allows for managing public SSH keys across all sites to which access is granted via project membership.
+
+FURMS allows to define separate keys per each site, or to share the same key across several sites. Multiple keys can be installed for each site.
+
+Format of SSH key is the same as used in the +authorized_keys+ file of SSH. See http://man.openbsd.org/sshd.8#AUTHORIZED_KEYS_FILE_FORMAT for more details.
+
+Update of a key removes the old value from sites and then installs an updated one.
+
+NOTE: Some sites may require to set the 'from' option in the SSH key. Keys without that option can't be added to sites requiring the 'from' option. 

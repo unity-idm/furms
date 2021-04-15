@@ -1,0 +1,10 @@
+version: '3'
+services:
+  rabbitmq:
+    build: .
+    container_name: rabbitmq-dev
+    ports:
+      - 44444:5671
+
+
+

@@ -34,6 +34,7 @@ class ProjectAllocationModelsMapper {
 	static ProjectAllocationGridModel gridMap(ProjectAllocationResolved projectAllocation) {
 		return ProjectAllocationGridModel.builder()
 			.id(projectAllocation.id)
+			.projectId(projectAllocation.projectId)
 			.siteName(projectAllocation.site.getName())
 			.resourceTypeName(projectAllocation.resourceType.name)
 			.resourceTypeUnit(projectAllocation.resourceType.unit.name())

@@ -8,6 +8,8 @@ Additionally site can define policy documents which are need to be accepted in o
 
 Under site settings menu entry, site administrator can provide details about the site. It is advised to fill up the form, as initially site definition consists of a minimal set of attributes (like name) only.
 
+Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.  
+
 === Policy documents
 
 {versionlimit} This functionality is not available yet.

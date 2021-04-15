@@ -6,6 +6,20 @@
 package io.imunity.furms.db.project_allocation;
 
 
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -27,19 +41,6 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -66,28 +67,21 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 
 	@Autowired
-	private ProjectAllocationReadEntityRepository entityReadRepository;
-
-	@Autowired
 	private ProjectAllocationEntityRepository entityRepository;
 
 	@Autowired
 	private ProjectAllocationDatabaseRepository entityDatabaseRepository;
 
 	private UUID siteId;
-	private UUID siteId2;
 
 	private UUID communityId;
-	private UUID communityId2;
 
 	private UUID projectId;
 	private UUID projectId2;
 
 	private UUID resourceTypeId;
-	private UUID resourceTypeId2;
 
 	private UUID resourceCreditId;
-	private UUID resourceCreditId2;
 
 	private UUID communityAllocationId;
 	private UUID communityAllocationId2;
@@ -98,23 +92,13 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.connectionInfo("alala")
 			.build();
-		Site site1 = Site.builder()
-			.name("name2")
-			.connectionInfo("alala")
-			.build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		Community community2 = Community.builder()
-			.name("name1")
-			.logo(FurmsImage.empty())
-			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
-		communityId2 = UUID.fromString(communityRepository.create(community2));
 
 		Project project = Project.builder()
 			.communityId(communityId.toString())
@@ -144,14 +128,8 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId.toString())
 			.name("name")
 			.build();
-		InfraService service1 = InfraService.builder()
-			.siteId(siteId2.toString())
-			.name("name1")
-			.build();
 
 		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
-		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
-
 
 		ResourceType resourceType = ResourceType.builder()
 			.siteId(siteId.toString())
@@ -160,33 +138,12 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.SiUnit.tera)
 			.build();
-		ResourceType resourceType2 = ResourceType.builder()
-			.siteId(siteId2.toString())
-			.serviceId(serviceId2.toString())
-			.name("name2")
-			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.MB)
-			.build();
-
 		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
 
 		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
-			.split(true)
-			.access(true)
-			.amount(new BigDecimal(100))
-			.utcCreateTime(LocalDateTime.now())
-			.utcStartTime(LocalDateTime.now().plusDays(1))
-			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
-
-		resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId2.toString())
-			.resourceTypeId(resourceTypeId2.toString())
-			.name("name2")
 			.split(true)
 			.access(true)
 			.amount(new BigDecimal(100))
@@ -239,7 +196,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
-		ProjectAllocationEntity save = entityRepository.save(
+		entityRepository.save(
 			ProjectAllocationEntity.builder()
 				.projectId(projectId)
 				.communityAllocationId(communityAllocationId)

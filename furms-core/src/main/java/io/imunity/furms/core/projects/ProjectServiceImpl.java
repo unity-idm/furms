@@ -81,7 +81,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
-		projectGroupsDAO.addAdmin(project.getCommunityId(), id, project.getLeaderId());
+		addAdmin(project.getCommunityId(), id, project.getLeaderId());
 		publisher.publishEvent(new CreateProjectEvent(project.getId()));
 		LOG.info("Project with given ID: {} was created: {}", id, project);
 	}
@@ -93,7 +93,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateUpdate(project);
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
-		projectGroupsDAO.addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
+		addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", project);
 	}
@@ -148,7 +148,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addAdmin(communityId, projectId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
@@ -167,7 +166,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
@@ -193,7 +191,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addUser(communityId, projectId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
@@ -212,7 +209,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
 	public void removeUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
-		authzService.reloadRolesIfCurrentUser(userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 }

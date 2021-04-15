@@ -12,6 +12,7 @@ import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.views.user_settings.projects.ProjectsView;
+import io.imunity.furms.ui.views.user_settings.ssh_keys.SSHKeysView;
 
 import java.util.List;
 

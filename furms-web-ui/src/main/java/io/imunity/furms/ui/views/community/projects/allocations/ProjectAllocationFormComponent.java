@@ -27,6 +27,7 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<ProjectAllocationViewModel> binder;
+	ProjectAllocationComboBoxesModelsResolver resolver;
 
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 	private ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox;
@@ -34,8 +35,11 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	private BigDecimal availableAmount;
 	private BigDecimal lastAmount = new BigDecimal("0");
 
+	private String projectId;
+
 	ProjectAllocationFormComponent(Binder<ProjectAllocationViewModel> binder, ProjectAllocationComboBoxesModelsResolver resolver) {
 		this.binder = binder;
+		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
@@ -65,7 +69,7 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 		communityAllocationComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				allocation -> {
-					availableAmount = resolver.getAvailableAmount(allocation.id);
+					availableAmount = resolver.getAvailableAmount(projectId, allocation.id);
 					availableAmountLabel.setText(getTranslation("view.community-admin.project-allocation.form.label.available") + availableAmount);
 					createUnitLabel(amountField, allocation.unit);
 				},
@@ -138,17 +142,15 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ProjectAllocationViewModel model) {
-		if(model.resourceType != null){
-			resourceTypeComboBox.setEnabled(false);
-			resourceTypeComboBox.setItems(model.resourceType);
-		}
-		if(model.allocationCommunity != null) {
-			communityAllocationComboBox.setEnabled(false);
-			communityAllocationComboBox.setItems(model.allocationCommunity);
-		}
-		if(model.amount != null) {
-			lastAmount = model.amount;
-		}
+		this.projectId = model.projectId;
 		binder.setBean(model);
+		if(model.resourceType != null)
+			resourceTypeComboBox.setEnabled(false);
+		else
+			resourceTypeComboBox.setValue(resolver.getDefaultResourceType());
+		if(model.allocationCommunity != null)
+			communityAllocationComboBox.setEnabled(false);
+		if(model.amount != null)
+			lastAmount = model.amount;
 	}
 }

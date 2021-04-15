@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+CREATE TABLE project_installation_job (
+    id UUID PRIMARY KEY NOT NULL,
+    correlation_Id UUID NOT NULL,
+    site_Id UUID NOT NULL,
+    project_Id UUID NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES project(id),
+    FOREIGN KEY (site_id) REFERENCES site(id)
+);

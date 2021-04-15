@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.check;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
 @Component
@@ -85,17 +85,17 @@ class CommunityAllocationServiceValidator {
 
 	private void validateId(String id) {
 		notNull(id, "Resource CreditAllocation ID has to be declared.");
-		check(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID is not exists."));
+		assertTrue(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID is not exists."));
 	}
 
 	private void validateCommunityId(String id) {
 		notNull(id, "Site ID has to be declared.");
-		check(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
+		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
 	}
 
 	private void validateResourceCreditId(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
-		check(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist."));
+		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist."));
 	}
 
 	private void validateUpdateCommunityId(CommunityAllocation communityAllocation) {

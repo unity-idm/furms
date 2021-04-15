@@ -5,6 +5,6 @@ services:
     container_name: rabbitmq-contener
     ports:
       - 44444:5671
-
-
-
+    hostname: 'rabbit'
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq/mnesia/:Z

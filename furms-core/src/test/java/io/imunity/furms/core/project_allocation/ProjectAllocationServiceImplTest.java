@@ -5,10 +5,12 @@
 
 package io.imunity.furms.core.project_allocation;
 
+import io.imunity.furms.api.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,11 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Mock
+	private ProjectInstallationService projectInstallationService;
+	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -40,7 +46,7 @@ class ProjectAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(projectAllocationRepository, validator, publisher);
+		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, validator, siteAgentProjectInstallationService, publisher);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
 
@@ -128,7 +134,7 @@ class ProjectAllocationServiceImplTest {
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
 
 		//when
-		service.delete(id);
+		service.delete("projectId", id);
 
 		orderVerifier.verify(projectAllocationRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));

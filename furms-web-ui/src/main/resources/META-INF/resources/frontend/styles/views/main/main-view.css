@@ -42,9 +42,18 @@
 	width: var(--vaadin-text-field-default-width, 24em);
 }
 
+.wide-text-area {
+	width: calc(var(--vaadin-text-field-default-width, 30em) * 2);
+	height: var(--vaadin-text-field-default-height, 20em);
+}
+
 .select-span-separator {
 	margin: auto;
 	display: table;
+}
+
+.reload-disable {
+	z-index: -1;
 }
 
 .reload-disable:active {
