@@ -12,7 +12,6 @@ import com.vaadin.flow.component.html.Div;
 public class LabeledHr extends Div {
 
 	public LabeledHr(String text) {
-		super();
 		addClassName("labeled-hr");
 		add(text);
 	}

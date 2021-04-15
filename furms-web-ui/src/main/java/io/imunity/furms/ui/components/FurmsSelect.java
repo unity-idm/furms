@@ -99,7 +99,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	private void addSeparator(Map<Integer, List<FurmsSelectText>> items, Integer order) {
 		final List<FurmsSelectText> block = items.get(order);
 		final ViewMode blockViewMode = getBlockViewMode(block);
-		if (shouldHasSeparator(blockViewMode.order)) {
+		if (shouldHaveSeparator(blockViewMode.order)) {
 			final Component separator = blockViewMode.hasHeader()
 					? new LabeledHr(getTranslation(format("component.furms.select.role.%s", blockViewMode.name())))
 					: new Hr();
@@ -108,7 +108,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		}
 	}
 
-	private boolean shouldHasSeparator(int order) {
+	private boolean shouldHaveSeparator(int order) {
 		return order != 1;
 	}
 
