@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.labeled-hr {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+.labeled-hr::before,
+.labeled-hr::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+.labeled-hr:not(:empty)::before {
+    margin-right: .25em;
+}
+
+.labeled-hr:not(:empty)::after {
+    margin-left: .25em;
+}
