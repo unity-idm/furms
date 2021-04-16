@@ -94,7 +94,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation));
 
 		optionalException.getThrowable().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation("resource-credit-allocation.error.message")),
+			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(CommunityView.class, communityId)
 		);
 	}
@@ -112,8 +112,9 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 			.getParameters()
 			.getOrDefault("communityId", singletonList(serviceViewModel.communityId))
 			.iterator().next();
-		serviceViewModel.setCommunityId(communityId);
-		this.communityId = communityId;
+		Optional.ofNullable(communityId)
+			.ifPresent(id -> this.communityId = id);
+		serviceViewModel.setCommunityId(this.communityId);
 
 		String trans = parameter == null
 			? "view.fenix-admin.resource-credits-allocation.form.parameter.new"

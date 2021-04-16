@@ -23,6 +23,7 @@ import java.util.List;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -31,11 +32,13 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
+	private final String communityId;
 	private final String projectId;
 
 	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
 		this.grid = createCommunityGrid();
 		this.service = service;
+		this.communityId = getCurrentResourceId();
 		this.projectId = projectId;
 
 		loadGridContent();
@@ -80,21 +83,21 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return grid;
 	}
 
-	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel communityAllocationGridModel) {
+	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(communityAllocationGridModel.projectId ,communityAllocationGridModel.id, communityAllocationGridModel.name)
+			createContextMenu(projectAllocationGridModel.id, projectAllocationGridModel.name)
 		);
 	}
 
-	private Component createContextMenu(String projectId, String communityAllocationId, String communityAllocation) {
+	private Component createContextMenu(String projectAllocationId, String projectAllocation) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, communityAllocationId)
+			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, projectAllocationId)
 		);
 
-		Dialog confirmDialog = createConfirmDialog(projectId, communityAllocationId, communityAllocation);
+		Dialog confirmDialog = createConfirmDialog(projectAllocationId, projectAllocation);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
@@ -105,10 +108,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String projectId, String communityAllocationId, String resourceCreditName) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", resourceCreditName));
+	private Dialog createConfirmDialog(String projectAllocationId, String projectAllocationName) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", projectAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> service.delete(projectId, communityAllocationId));
+			handleExceptions(() -> service.delete(communityId, projectAllocationId));
 			loadGridContent();
 		});
 		return furmsDialog;
@@ -119,7 +122,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	}
 
 	private List<ProjectAllocationGridModel> loadServicesViewsModels() {
-		return handleExceptions(() -> service.findAllWithRelatedObjects(projectId))
+		return handleExceptions(() -> service.findAllWithRelatedObjects(communityId, projectId))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(ProjectAllocationModelsMapper::gridMap)

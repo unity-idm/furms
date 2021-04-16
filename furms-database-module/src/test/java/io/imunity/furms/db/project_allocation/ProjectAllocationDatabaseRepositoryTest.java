@@ -6,20 +6,6 @@
 package io.imunity.furms.db.project_allocation;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -41,6 +27,19 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -273,7 +272,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId2)
+			.projectId(projectId)
 			.communityAllocationId(communityAllocationId2)
 			.name("name2")
 			.amount(new BigDecimal(10))
@@ -281,7 +280,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Set<ProjectAllocation> all = entityDatabaseRepository.findAll();
+		Set<ProjectAllocation> all = entityDatabaseRepository.findAll(projectId.toString());
 
 		//then
 		assertThat(all).hasSize(2);

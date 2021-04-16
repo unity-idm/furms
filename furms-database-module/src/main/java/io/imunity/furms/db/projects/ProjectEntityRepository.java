@@ -14,4 +14,5 @@ interface ProjectEntityRepository extends CrudRepository<ProjectEntity, UUID> {
 
 	Stream<ProjectEntity> findAllByCommunityId(UUID communityId);
 	boolean existsByName(String name);
+	boolean existsByCommunityIdAndId(UUID communityId, UUID id);
 }

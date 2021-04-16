@@ -9,9 +9,9 @@ import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 
 public interface ProjectInstallationService {
-	ProjectInstallation findProjectInstallation(String projectAllocationId);
+	ProjectInstallation findProjectInstallation(String communityId, String projectAllocationId);
 
-	void create(ProjectInstallationJob projectInstallationJob);
+	void create(String communityId, ProjectInstallationJob projectInstallationJob);
 
-	void delete(String projectId, String id);
+	void delete(String communityId, String id);
 }
