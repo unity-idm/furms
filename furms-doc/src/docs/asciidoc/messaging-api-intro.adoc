@@ -4,6 +4,8 @@ ifndef::sourcedir[:sourcedir: ../../main/java]
 
 image::logo-fenix.png[scaledwidth=75%]
 
+The following document provides introduction to the link:async-api.html[FURMS Async API] 
+
 == Communication protocol
 FURMS is using an asynchronous communication model to exchange information with sites. What is more, processing of asynchronously delivered requests can in some cases take an extensive amount of time, for instance requiring human intervention or waiting for a daily scheduled task to be executed. Therefore the site communication protocol is designed so that the following states can be distinguished:
 
@@ -37,6 +39,8 @@ Each message sent from FURMS to site or from site to FURMS which is not a respon
 Details of the structure of each message are flashed out in generated protocol documentation. Header with metadata is provided separately to the main message body payload.
 
 == How to read the AsyncAPI generated documentation
+
+The generated documentation is available link:async-api.html[here]. 
 
 All message exchanges which are creating the FURMS <- -> site agent protocol are covered by a generated protocol documentation. The protocol documentation is prepared using a standard AsyncAPI specification and corresponding tooling. More details on AsyncAPI can be found https://www.asyncapi.com/[here].
 
