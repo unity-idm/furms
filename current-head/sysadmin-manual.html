@@ -451,6 +451,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#furms-installation-from-scratch">FURMS installation from scratch</a>
 <ul class="sectlevel2">
 <li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#broker">Broker</a></li>
 <li><a href="#installation-best-practices">Installation best practices</a></li>
 <li><a href="#furms-devops-tools-installation-utility">FURMS devops tools installation utility</a></li>
 <li><a href="#furms-ansible-scripts">FURMS Ansible scripts</a></li>
@@ -597,7 +598,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="java"><a class="anchor" href="#java"></a>Java</h4>
 <div class="paragraph">
-<p>FURMS system requires Java Runtime Environment. The version 11 is a minimal supported one. Install JRE on host(s) where services are going to be run.</p>
+<p>FURMS system requires Java Runtime Environment. The version 11 is the supported Java version. Install JRE on host(s) where services are going to be run.</p>
 </div>
 </div>
 <div class="sect3">
@@ -610,6 +611,100 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="database"><a class="anchor" href="#database"></a>Database</h4>
 <div class="paragraph">
 <p>Install any recent version of PostgreSQL on the host of your choice. The setup of database requires creation of two databases each with a separate role (user) which is able to connect to the database. One database is utilized by FURMS service and the other for Unity-IdM. This information will be used later on in the Ansible group variable file to setup databases configuration during installation.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="broker"><a class="anchor" href="#broker"></a>Broker</h3>
+<div class="paragraph">
+<p>Install any recent RabbitMQ broker with support for AMPQ 0.9.1. The broker setup requires:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>configuration of the TLS in order to enable encryption on the protocol level,</p>
+</li>
+<li>
+<p>definition of the <a href="https://www.rabbitmq.com/vhosts.html">RabbitMQ virtual host</a> utilized for the FURMS purposes,</p>
+</li>
+<li>
+<p>definition of the client user name and password with a connection rights to FURMS virtual host, and privileges to provision queues within this virtual host.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The virtual host name, privileged client user name and a password, as well as public CA certificate which was used to sign credential for the broker are used later on in the Ansible group variable file to setup broker connection during installation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The broker service is considered as the infrastructure resource, however for demonstration purposes and ease of configuration, below is an example of <code>rabbitmq.conf</code> file with TLS support turned on.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>listeners.ssl.default = 5671
+
+ssl_options.cacertfile = /etc/rabbitmq/certs/ca_certificate.pem
+ssl_options.certfile = /etc/rabbitmq/certs/server_certificate.pem
+ssl_options.keyfile = /etc/rabbitmq/certs/server_key.pem
+ssl_options.password = &lt;put-keyfile-password&gt;
+ssl_options.fail_if_no_peer_cert = false
+ssl_options.verify = verify_none
+ssl_options.versions.1 = tlsv1.2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Please refer to the <a href="https://www.rabbitmq.com/ssl.html">RabbitMQ TLS Support</a> guide for more informations.</p>
+</div>
+<div class="sect3">
+<h4 id="connection-setup-for-sites-local-agent"><a class="anchor" href="#connection-setup-for-sites-local-agent"></a>Connection setup for site&#8217;s local agent</h4>
+<div class="paragraph">
+<p>The communication between FURMS and particular site is done through two queues:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>dedicated one used for particular site, created by FURMS during site&#8217;s creation,</p>
+</li>
+<li>
+<p><code>reply-queue</code> which is fixed, created out of the box by RabbitMQ, and used by all sites to publish messages to FURMS.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The dedicated queue name is visible on Site administrator&#8217;s Settings view as 'Site Id'.</p>
+</div>
+<div class="paragraph">
+<p>From Site&#8217;s point of view, broker operation must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>read/write messages from/to particular sites&#8217;s queue,</p>
+</li>
+<li>
+<p>read/write messages from/to <code>reply-queue</code> queue,</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In order to setup a connection from site agent to broker, the aforementioned user name and password is required as well as the public CA certificate which was used to sign credential for the broker. This information needs to be handed over to the local site administrator in order to setup encrypted and authorized connection to FURMS through the broker.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -797,6 +892,9 @@ The devops tooling provides also a file that is filled out with example values. 
 <li>
 <p>the public CA certificate which is at the top of the certificates chain used to sign Central IdP credential.</p>
 </li>
+<li>
+<p>the public CA certificate which is at the top of the certificates chain used to sign Broker credential.</p>
+</li>
 </ul>
 </div></div></td>
 </tr>
@@ -880,7 +978,21 @@ The devops tooling provides also a file that is filled out with example values. 
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.cIdP</p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Configuration that contains the Central IdP OAuth client&#8217;s credentials used on Unity-IdM side for authentication via Central IdP.</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
+<p>Configuration that contains the Central IdP OAuth client&#8217;s credentials used on Unity-IdM side for authentication via Central IdP.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The redirect URL configured at Central IdP OAuth client side should be set to https://<code>{unity.advertisedHost}</code>/unitygw/oauth2ResponseConsumer
+</td>
+</tr>
+</table>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.cIdP.clientId</p></td>
@@ -890,7 +1002,7 @@ The devops tooling provides also a file that is filled out with example values. 
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.cIdP.clientSecret</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Client secret, obtained during Unity’s registration at the Central IdP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client secret, obtained during Unity’s registration at the Central IdP.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.cIdP.discoveryEndpoint</p></td>
@@ -951,18 +1063,47 @@ The devops tooling provides also a file that is filled out with example values. 
 <td class="tableblock halign-left valign-top"><p class="tableblock">FURMS service database password</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">preSharedKeys.cIdP</p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Defines the information to setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.preSharedKeys.cIdP</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">The cIdP key is defined by FURMS administrator. The information entered here setup the base authentication credentials, used to access the FURMS REST API exposed for Central IdP.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">preSharedKeys.cIdP.username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.preSharedKeys.cIdP.username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username for Central IdP REST API credential</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">preSharedKeys.cIdP.password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.preSharedKeys.cIdP.password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password for Central IdP REST API credential</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Configuration options to setup connection with the RabbitMQ.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker.host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The hostname or IP address that points to the RabbitMQ instance.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker.port</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer [0-65535]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RabbitMQ port to which to connect.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker.username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RabbitMQ user to use when connecting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker.password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RabbitMQ password for this user</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.broker.virtualHost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RabbitMQ virtual host name to which to connect.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1112,7 +1253,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 10:59:19 UTC
+Last updated 2021-04-16 08:33:09 UTC
 </div>
 </div>
 <style>

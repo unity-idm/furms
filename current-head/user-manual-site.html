@@ -471,6 +471,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>Under site settings menu entry, site administrator can provide details about the site. It is advised to fill up the form, as initially site definition consists of a minimal set of attributes (like name) only.</p>
 </div>
+<div class="paragraph">
+<p>Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="policy-documents"><a class="anchor" href="#policy-documents"></a>Policy documents</h3>
@@ -516,7 +519,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 10:59:19 UTC
+Last updated 2021-04-16 08:33:09 UTC
 </div>
 </div>
 </body>

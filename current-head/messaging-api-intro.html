@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>FURMS user manual</title>
+<title>Messaging asynchronous FURMS API</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,57 +439,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>FURMS user manual</h1>
+<h1>Messaging asynchronous FURMS API</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#sign-in-and-sign-up">Sign in and sign up</a>
-<ul class="sectlevel2">
-<li><a href="#initial-onboarding">Initial onboarding</a></li>
-</ul>
-</li>
-<li><a href="#fenix-federation-management">Fenix federation management</a>
-<ul class="sectlevel2">
-<li><a href="#managing-sites">Managing sites</a></li>
-<li><a href="#managing-communities">Managing communities</a></li>
-<li><a href="#managing-fenix-administrators">Managing Fenix administrators</a></li>
-<li><a href="#distributing-resources-to-communities">Distributing resources to communities</a></li>
-</ul>
-</li>
-<li><a href="#site-management">Site management</a>
-<ul class="sectlevel2">
-<li><a href="#site-settings">Site settings</a></li>
-<li><a href="#policy-documents">Policy documents</a></li>
-<li><a href="#services">Services</a></li>
-<li><a href="#resource-types">Resource types</a></li>
-<li><a href="#resource-credits">Resource credits</a></li>
-<li><a href="#site-agent-connection-and-requests">Site agent connection and requests</a></li>
-<li><a href="#managing-site-administrators">Managing site administrators</a></li>
-</ul>
-</li>
-<li><a href="#community-management">Community management</a>
-<ul class="sectlevel2">
-<li><a href="#managing-projects">Managing projects</a></li>
-<li><a href="#managing-community-administrators">Managing community administrators</a></li>
-<li><a href="#managing-community-metadata">Managing community metadata</a></li>
-<li><a href="#distributing-resources-to-projects">Distributing resources to projects</a></li>
-</ul>
-</li>
-<li><a href="#project-management">Project management</a>
-<ul class="sectlevel2">
-<li><a href="#managing-users">Managing users</a></li>
-<li><a href="#project-settings">Project settings</a></li>
-<li><a href="#resource-access">Resource access</a></li>
-<li><a href="#resource-allocations">Resource allocations</a></li>
-<li><a href="#defining-alarms">Defining alarms</a></li>
-<li><a href="#managing-project-administrators">Managing project administrators</a></li>
-</ul>
-</li>
-<li><a href="#end-user-support">End User support</a>
-<ul class="sectlevel2">
-<li><a href="#ssh-keys-management">SSH keys management</a></li>
-</ul>
-</li>
+<li><a href="#communication-protocol">Communication protocol</a></li>
+<li><a href="#message-format">Message format</a></li>
+<li><a href="#how-to-read-the-asyncapi-generated-documentation">How to read the AsyncAPI generated documentation</a></li>
 </ul>
 </div>
 </div>
@@ -501,463 +457,90 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <img src="./images/logo-fenix.png" alt="logo fenix">
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-In various places in this document, the following text is used to mark a limitation which is specific to the current release:<br>
-<span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span><br>
-All such marked limitations will be removed in the final release.
-</td>
-</tr>
-</table>
 </div>
-<div class="paragraph">
-<p>Fenix User and Resource Management Service (FURMS for short) is a central system responsible for the authorization of access and resource management across multiple research infrastructures.</p>
 </div>
+<div class="sect1">
+<h2 id="communication-protocol"><a class="anchor" href="#communication-protocol"></a>Communication protocol</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>FURMS is organized around three main concepts: sites, communities and projects:</p>
+<p>FURMS is using an asynchronous communication model to exchange information with sites. What is more, processing of asynchronously delivered requests can in some cases take an extensive amount of time, for instance requiring human intervention or waiting for a daily scheduled task to be executed. Therefore the site communication protocol is designed so that the following states can be distinguished:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><em>Site</em> represents a service provider. Site administrator defines resources offered by the site.</p>
+<p>request sent to a site</p>
 </li>
 <li>
-<p><em>Community</em> is an umbrella over a set of related research projects. Human Brain Project can be considered as an example of FURMS community.</p>
+<p>request delivered and accepted (or rejected) for processing by a site agent</p>
 </li>
 <li>
-<p><em>Project</em>, defined under a community, groups users who are working together. Project, and its members are consuming resources which are contributed by sites.</p>
+<p>request performed</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>FURMS organizes the process of resources distribution offered by sites to communities and subsequently to individual projects. What is more FURMS aggregates and presents resource usage metrics.</p>
+<p>The above feature is realized as follows. After sending a request to the site agent FURMS stores the state of the request and waits for a requestAck message linked to the request. It is expected that the requestAck is sent as soon as the request is received and parsed, and that it can be sent before the request actual execution/application. Therefore, after receiving requestAck message FURMS can assume that request is in state B. FURMS defines messages which should be pushed by site agents to notify about site state changes. They are utilized to inform FURMS that the request was applied. Those messages are linked with requests and carry the request execution result.</p>
 </div>
 <div class="paragraph">
-<p>Resource allocation process works as follows:</p>
+<p>Invariants for all interactions:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Site administrator defines a resource.</p>
+<p>Each request sent to a site will have an unique identifier <code>messageCorrelationId</code>.</p>
 </li>
 <li>
-<p>Site administrator creates one or more <em>resource credits</em> which define an amount of contributed resource usage units.</p>
+<p>If a site agent can perform a request without an extensive delay, sending a response without requestAck is allowed.</p>
 </li>
 <li>
-<p>Fenix administrator can see unallocated resource credits and assign them to communities. In majority of cases a single resource credit can be split across multiple communities.</p>
+<p>Each requestAck will contain status with one of two values: <code>OK</code> or <code>FAILED</code>.</p>
 </li>
 <li>
-<p>Community administrator can in turn distribute community resource credits to projects in the community.</p>
+<p>Errors, i.e. messages with error status of <code>FAILED</code>, will be reported using a mandatory <code>error.code</code> field and an optional message.</p>
 </li>
 <li>
-<p>Project administrator can control which project users have access to individual resources which were granted to the project.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>FURMS has dedicated UI modes for each type of its user. User who has only a single role in the system will simply see the only view matching her or his role. Users with multiple roles can switch the view mode with a dropdown situated in the top right corner of the screen.</p>
-</div>
-<div class="paragraph">
-<p>In order to authenticate to FURMS user has to contain an account which is available for the Fenix Central Identity Provider.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="sign-in-and-sign-up"><a class="anchor" href="#sign-in-and-sign-up"></a>Sign in and sign up</h2>
-<div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> the final shape of the sign-up process will be implemented in the phase 4 of the project. The current version provides only a simplified signup mechanism, allowing for complete testing of other, already delivered functions. That said, the onboarding described below is tentative and will be changed in next versions.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Regular user sign in is handled via the Fenix Central IdP. After entering the FURMS public address (as configured during installation) user is redirected to the Central IdP and has to authenticate using his/her home identity provider.</p>
-</div>
-<div class="paragraph">
-<p>Each user who can authenticate using Fenix Central IdP can access FURMS. Initially only access to User Settings view is granted, without access to any of the projects. Access to a project needs to be granted either by community or project&#8217;s administrator. User can be also added to Fenix, site, community or project administrators by other administrators.</p>
-</div>
-<div class="sect2">
-<h3 id="initial-onboarding"><a class="anchor" href="#initial-onboarding"></a>Initial onboarding</h3>
-<div class="paragraph">
-<p>Since initially every user authenticated with the Central IdP has no administrative privileges, the initial setup of the system has to be performed in special way.</p>
-</div>
-<div class="paragraph">
-<p>During FURMS installation a local user account is created with configured user name and password. The created user is granted Fenix administrator privileges as well as Unity administrative privileges. To sign in as a local user, a special URL parameter needs to be added when entering FURMS Web UI, as follows:</p>
-</div>
-<div class="paragraph">
-<p>https://FURMS-PUBLIC-HOST/<strong>?showSignInOptions</strong></p>
-</div>
-<div class="paragraph">
-<p>Entering FURMS web interface with the <code>showSignInOptions</code> parameter prevents FURMS to trigger automatic authentication with the Central IdP. Instead user can choose to authenticate locally. This authentication method must be used at least once to initially configure the system, and can be used at will later on.</p>
-</div>
-<div class="paragraph">
-<p>Since the complete invitation mechanism is going to be delivered in future releases, currently inviting of users to become administrators or ordinary project users is limited to those Central IdP users who has signed into FURMS at least once.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s consider an example where <em>Local Fenix Admin</em> wants to invite <em>Mary</em>&#8201;&#8212;&#8201;a Central IdP user&#8201;&#8212;&#8201;to become community admin:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><em>Local Fenix Admin</em> has to sign in using the <code>showSignInOptions</code> parameter.</p>
+<p><code>requestAck</code> message always contains messageCorrelationId of the linked request. Note that <code>requestAck</code> message can as well signal error if a request was not accepted for processing.</p>
 </li>
 <li>
-<p><em>Mary</em> has to sign in into FURMS in a regular way. She won&#8217;t have access to anything besides her profile at this time. <em>Mary</em> can sign out now.</p>
+<p>Response messages always contain <code>messageCorrelationId</code> of the linked request.</p>
 </li>
 <li>
-<p><em>Local Fenix Admin</em> can now add <em>Mary</em> as a community admin as she signed into FURMS at least once.</p>
-</li>
-<li>
-<p>After <em>Mary</em> signs into FURMS next time she will have access to her community administrative functions.</p>
+<p>Each message will contain a version identifier, set to <code>1</code>. In future this field may be used to detect agents using a legacy version of the protocol.</p>
 </li>
 </ol>
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
-<h2 id="fenix-federation-management"><a class="anchor" href="#fenix-federation-management"></a>Fenix federation management</h2>
+<h2 id="message-format"><a class="anchor" href="#message-format"></a>Message format</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Fenix administrator is responsible for:</p>
+<p>Each message sent from FURMS to site or from site to FURMS which is not a response to other message will conform to the following general JSON format:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>creating sites,</p>
-</li>
-<li>
-<p>creating communities,</p>
-</li>
-<li>
-<p>distributing site provided resource credits to communities.</p>
-</li>
-</ul>
+<div class="listingblock">
+<div class="content">
+<pre>{
+	"header": [object with message metadata]
+	"MESSAGE_NAME": [object with main message payload]
+}</pre>
 </div>
-<div class="sect2">
-<h3 id="managing-sites"><a class="anchor" href="#managing-sites"></a>Managing sites</h3>
-<div class="paragraph">
-<p>Fenix admin can create sites providing only the basic information: site name. Additional site attributes are supposed to be setup by the site admin.</p>
 </div>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Sites can be removed freely at this point. In the next versions removing a site will be subject to many constraints.</p>
-</div>
-<div class="paragraph">
-<p>After creating a site, Fenix admin should provide at least a single administrator for the site. The appropriate view can be activated from the site&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove site administrators.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Site administrators can also themselves manage administrators of their site, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial site admin must be always performed by the Fenix admin.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding site administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-communities"><a class="anchor" href="#managing-communities"></a>Managing communities</h3>
-<div class="paragraph">
-<p>Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.</p>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Communities can be removed freely at this point. In the next versions removing a community will be subject to many constraints.</p>
-</div>
-<div class="paragraph">
-<p>After creating a community, Fenix admin should provide at least a single administrator for it. The appropriate view can be activated from the community&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove community administrators.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Community administrators can also themselves manage administrators of their community, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial community admin must be always performed by the Fenix admin.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding community administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-fenix-administrators"><a class="anchor" href="#managing-fenix-administrators"></a>Managing Fenix administrators</h3>
-<div class="paragraph">
-<p>FURMS allows for having multiple users with the Fenix administrator role. Each Fenix admin can add (and remove) other administrators from the "Fenix administrators" view.</p>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding Fenix administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="distributing-resources-to-communities"><a class="anchor" href="#distributing-resources-to-communities"></a>Distributing resources to communities</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
+<p>Details of the structure of each message are flashed out in generated protocol documentation. Header with metadata is provided separately to the main message body payload.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="site-management"><a class="anchor" href="#site-management"></a>Site management</h2>
+<h2 id="how-to-read-the-asyncapi-generated-documentation"><a class="anchor" href="#how-to-read-the-asyncapi-generated-documentation"></a>How to read the AsyncAPI generated documentation</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>FURMS site acts a resource provider. Site defines resources (which are always site specific in FURMS), and advertises amounts of those resources available to the Fenix infrastructure.</p>
+<p>All message exchanges which are creating the FURMS &#8592; &#8594; site agent protocol are covered by a generated protocol documentation. The protocol documentation is prepared using a standard AsyncAPI specification and corresponding tooling. More details on AsyncAPI can be found <a href="https://www.asyncapi.com/">here</a>.</p>
 </div>
 <div class="paragraph">
-<p>Additionally site can define policy documents which are need to be accepted in order to access the site or its resources.</p>
-</div>
-<div class="sect2">
-<h3 id="site-settings"><a class="anchor" href="#site-settings"></a>Site settings</h3>
-<div class="paragraph">
-<p>Under site settings menu entry, site administrator can provide details about the site. It is advised to fill up the form, as initially site definition consists of a minimal set of attributes (like name) only.</p>
+<p>The generated documentation is organized as a series of <strong>SUB</strong> and <strong>PUB</strong> elements. SUB stands for Subscribe and PUB for Publish. Each of the publish and subscribe items defines identifier of a channel, which is implemented with a message queue on a message broker.</p>
 </div>
 <div class="paragraph">
-<p>Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="policy-documents"><a class="anchor" href="#policy-documents"></a>Policy documents</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="services"><a class="anchor" href="#services"></a>Services</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-types"><a class="anchor" href="#resource-types"></a>Resource types</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-credits"><a class="anchor" href="#resource-credits"></a>Resource credits</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="site-agent-connection-and-requests"><a class="anchor" href="#site-agent-connection-and-requests"></a>Site agent connection and requests</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-site-administrators"><a class="anchor" href="#managing-site-administrators"></a>Managing site administrators</h3>
-<div class="paragraph">
-<p>FURMS allows for multiple users with the site administrator role. Each site administrator can add (and remove) other administrators from the "Site administrators" view.</p>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding site administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="community-management"><a class="anchor" href="#community-management"></a>Community management</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>FURMS community groups closely related projects and organizes the process of allocating resources to them.</p>
-</div>
-<div class="sect2">
-<h3 id="managing-projects"><a class="anchor" href="#managing-projects"></a>Managing projects</h3>
-<div class="paragraph">
-<p>Community administrator can create projects providing set of initial project settings. Selected project settings can be also changed subsequently by project administrators.</p>
-</div>
-<div class="paragraph">
-<p>When creating a project, community administrator needs to setup project leader, who will also become the initial project administrator. Additional administrators can be also setup after activating the "Administrators" option from the project&#8217;s context menu.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Project administrators can also themselves manage administrators of their project, and so community administrator is not the only person controlling the set of administrators.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding project administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-community-administrators"><a class="anchor" href="#managing-community-administrators"></a>Managing community administrators</h3>
-<div class="paragraph">
-<p>FURMS allows for having multiple users with the community administrator role. Each community administrator can add (and remove) other administrators from the "Community Administrators" view.</p>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding community administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-community-metadata"><a class="anchor" href="#managing-community-metadata"></a>Managing community metadata</h3>
-<div class="paragraph">
-<p>Community name, description and logo can be modified at any time. It can be performed from the "Settings" view.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="distributing-resources-to-projects"><a class="anchor" href="#distributing-resources-to-projects"></a>Distributing resources to projects</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="project-management"><a class="anchor" href="#project-management"></a>Project management</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>FURMS project groups users who work on a common topic and consume resources provided by sites and assigned by communities.</p>
-</div>
-<div class="paragraph">
-<p>Each project must have a <em>project leader</em>, who is a formal representative and a responsible person. Besides this formal role, project has one or more administrators, who can manage the project in FURMS.</p>
-</div>
-<div class="paragraph">
-<p>Project management in FURMS consists of two main operations:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>managing users who work within the project,</p>
-</li>
-<li>
-<p>managing access of project users to resources allocated to the project.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>What is more, FURMS collects resource usage information from sites on which resources are consumed. This information can be used to track budget consumption and its spread over time.</p>
-</div>
-<div class="sect2">
-<h3 id="managing-users"><a class="anchor" href="#managing-users"></a>Managing users</h3>
-<div class="paragraph">
-<p>Under the Users menu entry, project administrator can view, add and remove project users. Note that project administrator needs not to be (and does not become by default) a regular project user. Administrator can however assign him/her-self project user role with a dedicated action button.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="project-settings"><a class="anchor" href="#project-settings"></a>Project settings</h3>
-<div class="paragraph">
-<p>Under the Settings menu entry, project administrator can control project details. Some of the settings are under control of the parent community and therefore are presented as read-only values.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-access"><a class="anchor" href="#resource-access"></a>Resource access</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-allocations"><a class="anchor" href="#resource-allocations"></a>Resource allocations</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="defining-alarms"><a class="anchor" href="#defining-alarms"></a>Defining alarms</h3>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-project-administrators"><a class="anchor" href="#managing-project-administrators"></a>Managing project administrators</h3>
-<div class="paragraph">
-<p>FURMS project can have multiple administrators. Each project administrator can add (and remove) other administrators from the "Site administrators" view.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Project must have a single <em>project leader</em> defined. Typically this is one of the administrators but this is not strictly necessary.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Adding project administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="end-user-support"><a class="anchor" href="#end-user-support"></a>End User support</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Every user that signs into FURMS has access to her/his FURMS profile &amp; settings view. For the users who have no additional roles, this is the only accessible view, others can activate it from the top-right view chooser.</p>
-</div>
-<div class="paragraph">
-<p>User settings allows every FURMS user to check:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>personal information which is exposed to FURMS by the Fenix infrastructure,</p>
-</li>
-<li>
-<p>user&#8217;s projects list,</p>
-</li>
-<li>
-<p>SSH keys management.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> User settings will provide more functionality in subsequent FURMS releases, including site access details.</p>
-</div>
-<div class="sect2">
-<h3 id="ssh-keys-management"><a class="anchor" href="#ssh-keys-management"></a>SSH keys management</h3>
-<div class="paragraph">
-<p>The 'SSH Keys' view allows for managing public SSH keys across all sites to which access is granted via project membership.</p>
-</div>
-<div class="paragraph">
-<p>FURMS allows to define separate keys per each site, or to share the same key across several sites. Multiple keys can be installed for each site.</p>
-</div>
-<div class="paragraph">
-<p>Format of SSH key is the same as used in the authorized_keys file of SSH. See <a href="http://man.openbsd.org/sshd.8#AUTHORIZED_KEYS_FILE_FORMAT" class="bare">http://man.openbsd.org/sshd.8#AUTHORIZED_KEYS_FILE_FORMAT</a> for more details.</p>
-</div>
-<div class="paragraph">
-<p>Update of a key removes the old value from sites and then installs an updated one.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Some sites may require to set the 'from' option in the SSH key. Keys without that option can&#8217;t be added to sites requiring the 'from' option.
-</td>
-</tr>
-</table>
-</div>
+<p>Note, that the operations are defined from the site agent perspective. I.e. SUB entries cover messages to which site agent should expect to receive. On the other hand the PUB entries describe messages which site agent can or should sent to FURMS (via message broker).</p>
 </div>
 </div>
 </div>

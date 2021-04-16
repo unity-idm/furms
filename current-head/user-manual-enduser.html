@@ -442,7 +442,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#end-user-support">End User support</a></li>
+<li><a href="#end-user-support">End User support</a>
+<ul class="sectlevel2">
+<li><a href="#ssh-keys-management">SSH keys management</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -462,19 +466,49 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>personal information which is exposed to FURMS by the Fenix infrastructure,</p>
 </li>
 <li>
-<p>user&#8217;s projects list.</p>
+<p>user&#8217;s projects list,</p>
+</li>
+<li>
+<p>SSH keys management.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including management of personal SSH keys and site access details.</p>
+<p>{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including site access details.</p>
+</div>
+<div class="sect2">
+<h3 id="ssh-keys-management"><a class="anchor" href="#ssh-keys-management"></a>SSH keys management</h3>
+<div class="paragraph">
+<p>The 'SSH Keys' view allows for managing public SSH keys across all sites to which access is granted via project membership.</p>
+</div>
+<div class="paragraph">
+<p>FURMS allows to define separate keys per each site, or to share the same key across several sites. Multiple keys can be installed for each site.</p>
+</div>
+<div class="paragraph">
+<p>Format of SSH key is the same as used in the authorized_keys file of SSH. See <a href="http://man.openbsd.org/sshd.8#AUTHORIZED_KEYS_FILE_FORMAT" class="bare">http://man.openbsd.org/sshd.8#AUTHORIZED_KEYS_FILE_FORMAT</a> for more details.</p>
+</div>
+<div class="paragraph">
+<p>Update of a key removes the old value from sites and then installs an updated one.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Some sites may require to set the 'from' option in the SSH key. Keys without that option can&#8217;t be added to sites requiring the 'from' option.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 10:59:19 UTC
+Last updated 2021-04-16 08:33:09 UTC
 </div>
 </div>
 </body>
