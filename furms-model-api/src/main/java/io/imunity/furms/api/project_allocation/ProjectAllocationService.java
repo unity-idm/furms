@@ -14,7 +14,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectAllocationService {
-	Optional<ProjectAllocation> findById(String communityId, String id);
+	Optional<ProjectAllocation> findByCommunityIdAndId(String communityId, String id);
+
+	Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id);
 
 	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id);
 
@@ -25,6 +27,8 @@ public interface ProjectAllocationService {
 	Set<ProjectAllocation> findAll(String communityId, String projectId);
 
 	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId, String projectId);
+
+	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId);
 
 	void create(String communityId, ProjectAllocation projectAllocation);
 

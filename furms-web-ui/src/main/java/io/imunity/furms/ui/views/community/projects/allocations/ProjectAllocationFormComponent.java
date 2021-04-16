@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 public class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -34,8 +35,6 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	private Label availableAmountLabel;
 	private BigDecimal availableAmount;
 	private BigDecimal lastAmount = new BigDecimal("0");
-
-	private String projectId;
 
 	ProjectAllocationFormComponent(Binder<ProjectAllocationViewModel> binder, ProjectAllocationComboBoxesModelsResolver resolver) {
 		this.binder = binder;
@@ -69,7 +68,7 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 		communityAllocationComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				allocation -> {
-					availableAmount = resolver.getAvailableAmount(projectId, allocation.id);
+					availableAmount = resolver.getAvailableAmount(getCurrentResourceId(), allocation.id);
 					availableAmountLabel.setText(getTranslation("view.community-admin.project-allocation.form.label.available") + availableAmount);
 					createUnitLabel(amountField, allocation.unit);
 				},
@@ -142,7 +141,6 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ProjectAllocationViewModel model) {
-		this.projectId = model.projectId;
 		binder.setBean(model);
 		if(model.resourceType != null)
 			resourceTypeComboBox.setEnabled(false);
