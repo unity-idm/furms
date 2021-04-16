@@ -23,6 +23,8 @@ public interface ProjectRepository {
 
 	boolean exists(String id);
 
+	boolean isProjectRelatedWithCommunity(String communityId, String projectId);
+
 	boolean isUniqueName(String name);
 
 	void delete(String id);

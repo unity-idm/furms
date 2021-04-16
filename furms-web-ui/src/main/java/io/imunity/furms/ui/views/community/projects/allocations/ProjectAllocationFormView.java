@@ -14,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -42,19 +41,20 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	private final ProjectAllocationFormComponent projectAllocationFormComponent;
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectAllocationComboBoxesModelsResolver resolver;
+	private final String communityId;
 
 	private String projectId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectAllocationFormView(CommunityAllocationService communityAllocationService,
-	                          ProjectAllocationService projectAllocationService) {
+	ProjectAllocationFormView(ProjectAllocationService projectAllocationService) {
 		this.projectAllocationService = projectAllocationService;
 		this.resolver = new ProjectAllocationComboBoxesModelsResolver(
-			communityAllocationService.findAllWithRelatedObjects(getCurrentResourceId()),
+			projectAllocationService.findCorrelatedCommunityAllocation(getCurrentResourceId()),
 			projectAllocationService::getAvailableAmount
 		);
 		this.projectAllocationFormComponent = new ProjectAllocationFormComponent(binder, resolver);
+		this.communityId = getCurrentResourceId();
 
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
@@ -88,12 +88,12 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 		ProjectAllocation projectAllocation = ProjectAllocationModelsMapper.map(allocationViewModel);
 		OptionalException<Void> optionalException;
 		if(projectAllocation.id == null)
-			optionalException = getResultOrException(() -> projectAllocationService.create(projectAllocation));
+			optionalException = getResultOrException(() -> projectAllocationService.create(communityId, projectAllocation));
 		else
-			optionalException = getResultOrException(() -> projectAllocationService.update(projectAllocation));
+			optionalException = getResultOrException(() -> projectAllocationService.update(communityId, projectAllocation));
 
 		optionalException.getThrowable().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation("resource-credit-allocation.error.message")),
+			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ProjectView.class, projectId)
 		);
 	}
@@ -101,7 +101,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		ProjectAllocationViewModel serviceViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByIdWithRelatedObjects(id)))
+			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByIdWithRelatedObjects(communityId, id)))
 			.flatMap(Function.identity())
 			.map(ProjectAllocationModelsMapper::map)
 			.orElseGet(ProjectAllocationViewModel::new);
@@ -111,8 +111,9 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			.getParameters()
 			.getOrDefault("projectId", singletonList(serviceViewModel.projectId))
 			.iterator().next();
-		serviceViewModel.setProjectId(projectId);
-		this.projectId = projectId;
+		Optional.ofNullable(projectId)
+			.ifPresent(id -> this.projectId = id);
+		serviceViewModel.setProjectId(this.projectId);
 
 		String trans = parameter == null
 			? "view.community-admin.project-allocation.form.parameter.new"

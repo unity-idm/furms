@@ -15,9 +15,11 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.List;
 import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
@@ -40,7 +42,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.roles, resourceId);
-		capabilities.add(AUTHENTICATED);
+		capabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ));
 		return capabilities.contains(capability);
 	}
 

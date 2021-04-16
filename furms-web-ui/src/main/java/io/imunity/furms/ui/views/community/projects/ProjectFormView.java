@@ -96,7 +96,7 @@ class ProjectFormView extends FurmsViewComponent {
 			optionalException = getResultOrException(() -> projectService.update(project));
 
 		optionalException.getThrowable().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation("project.error.message")),
+			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ProjectsView.class)
 		);
 	}
