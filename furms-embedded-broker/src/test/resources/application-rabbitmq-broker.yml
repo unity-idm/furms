@@ -1,0 +1,8 @@
+spring:
+   rabbitmq:
+      username: guest
+      password: guest
+      host: localhost
+      port: ${rabbitmq.port}
+      virtualHost: /
+

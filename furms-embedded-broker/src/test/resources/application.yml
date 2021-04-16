@@ -3,3 +3,6 @@ spring:
       username: guest
       password: guest
       port: 44444
+
+   profiles:
+      include: ${broker.profile:embedded-broker}
