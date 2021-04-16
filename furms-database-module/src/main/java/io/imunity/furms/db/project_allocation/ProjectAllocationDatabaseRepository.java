@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
@@ -62,8 +61,8 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public Set<ProjectAllocation> findAll() {
-		return stream(repository.findAll().spliterator(), false)
+	public Set<ProjectAllocation> findAll(String projectId) {
+		return repository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectAllocationEntity::toProjectAllocation)
 			.collect(toSet());
 	}

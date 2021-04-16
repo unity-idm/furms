@@ -20,9 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService, ProjectInstallationMessageResolver {
@@ -37,14 +36,14 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService, Proj
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT)
-	public ProjectInstallation findProjectInstallation(String projectAllocationId) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	public ProjectInstallation findProjectInstallation(String communityId, String projectAllocationId) {
 		return projectInstallationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectInstallationJob.projectId")
-	public void create(ProjectInstallationJob projectInstallationJob) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	public void create(String communityId, ProjectInstallationJob projectInstallationJob) {
 		projectInstallationRepository.create(projectInstallationJob);
 		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
 	}
@@ -58,8 +57,8 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService, Proj
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
-	public void delete(String projectId, String id) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	public void delete(String communityId, String id) {
 		projectInstallationRepository.delete(id);
 		LOG.info("ProjectInstallation with given ID {} was deleted", id);
 	}

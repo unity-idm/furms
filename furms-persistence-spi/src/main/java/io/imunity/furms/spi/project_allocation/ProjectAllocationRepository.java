@@ -19,7 +19,7 @@ public interface ProjectAllocationRepository {
 
 	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId);
 
-	Set<ProjectAllocation> findAll();
+	Set<ProjectAllocation> findAll(String projectId);
 
 	String create(ProjectAllocation projectAllocation);
 

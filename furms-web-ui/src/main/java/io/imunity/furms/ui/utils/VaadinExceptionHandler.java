@@ -5,10 +5,7 @@
 
 package io.imunity.furms.ui.utils;
 
-import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
-import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
-import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
-import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +48,11 @@ public class VaadinExceptionHandler {
 			showErrorNotification(getTranslation("site-agent.error.message"));
 			return Optional.empty();
 		}
+		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("community-allocation.removing.error.message"));
+			return Optional.empty();
+		}
 		catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
@@ -82,6 +84,10 @@ public class VaadinExceptionHandler {
 		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
 			LOG.error(e.getMessage(), e);
 			return OptionalException.of(new FrontException("resource-type.removing.error.message", e));
+		}
+		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
+			LOG.error(e.getMessage(), e);
+			return OptionalException.of(new FrontException("community-allocation.removing.error.message", e));
 		}
 		catch (Exception e){
 			LOG.error(e.getMessage(), e);

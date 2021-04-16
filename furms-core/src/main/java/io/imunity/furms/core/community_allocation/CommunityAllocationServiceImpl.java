@@ -38,25 +38,25 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Optional<CommunityAllocation> findById(String id) {
 		return communityAllocationRepository.findById(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id) {
 		return communityAllocationRepository.findByIdWithRelatedObjects(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Set<CommunityAllocation> findAll() {
 		return communityAllocationRepository.findAll();
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
 		return communityAllocationRepository.findAllWithRelatedObjects(communityId);
 	}
@@ -68,7 +68,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityAllocation.communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void create(CommunityAllocation communityAllocation) {
 		validator.validateCreate(communityAllocation);
 		String id = communityAllocationRepository.create(communityAllocation);
@@ -77,7 +77,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityAllocation.communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void update(CommunityAllocation communityAllocation) {
 		validator.validateUpdate(communityAllocation);
 		communityAllocationRepository.update(communityAllocation);
@@ -86,7 +86,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void delete(String id) {
 		validator.validateDelete(id);
 		communityAllocationRepository.delete(id);
