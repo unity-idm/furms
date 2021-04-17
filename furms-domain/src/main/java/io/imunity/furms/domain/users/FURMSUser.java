@@ -67,6 +67,7 @@ public class FURMSUser {
 			Objects.equals(firstName, furmsUser.firstName) &&
 			Objects.equals(lastName, furmsUser.lastName) &&
 			Objects.equals(email, furmsUser.email) &&
+			Objects.equals(status, furmsUser.status) &&
 			Objects.equals(roles, furmsUser.roles);
 	}
 
