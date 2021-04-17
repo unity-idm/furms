@@ -69,7 +69,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
 	public Set<Project> findAll() {
 		return projectRepository.findAll();
 	}

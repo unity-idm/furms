@@ -45,6 +45,11 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
+	public boolean isProjectRelatedWithCommunity(String communityId, String projectId) {
+		return repository.existsByCommunityIdAndId(fromString(communityId), fromString(projectId));
+	}
+
+	@Override
 	public Set<Project> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 			.map(ProjectEntity::toProject)

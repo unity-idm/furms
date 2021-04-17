@@ -46,7 +46,7 @@ class ProjectInstallationServiceImplTest {
 				.build();
 
 		//when
-		service.create(projectInstallationJob);
+		service.create("communityId", projectInstallationJob);
 
 		//then
 		orderVerifier.verify(repository).create(eq(projectInstallationJob));

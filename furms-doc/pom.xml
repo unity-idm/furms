@@ -186,6 +186,8 @@
 									<arguments>
 										<argument>--server.port=${http.port}</argument>
 									</arguments>
+									<wait>1000</wait>
+									<maxAttempts>120</maxAttempts>
 								</configuration>
 							</execution>
 							<execution>

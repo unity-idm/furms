@@ -89,6 +89,21 @@ ssl_options.versions.1 = tlsv1.2
 Please refer to the https://www.rabbitmq.com/ssl.html[RabbitMQ TLS Support] guide for more informations.
 
 
+==== Connection setup for site's local agent
+The communication between FURMS and particular site is done through two queues:
+
+* dedicated one used for particular site, created by FURMS during site's creation,
+* `reply-queue` which is fixed, created out of the box by RabbitMQ, and used by all sites to publish messages to FURMS.
+
+The dedicated queue name is visible on Site administrator's Settings view as 'Site Id'.
+
+From Site's point of view, broker operation must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:
+
+* read/write messages from/to particular sites's queue,
+* read/write messages from/to `reply-queue` queue,
+
+NOTE: In order to setup a connection from site agent to broker, the aforementioned user name and password is required as well as the public CA certificate which was used to sign credential for the broker. This information needs to be handed over to the local site administrator in order to setup encrypted and authorized connection to FURMS through the broker. 
+
 === Installation best practices ===
 There are two recommended configurations of FURMS system that can be used to install the services:
 

@@ -90,7 +90,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 			optionalException = getResultOrException(() -> resourceCreditService.update(resourceCredit));
 
 		optionalException.getThrowable().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation("resource-type.error.message")),
+			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ResourceCreditsView.class)
 		);
 	}
