@@ -60,7 +60,7 @@ class ProjectAllocationComboBoxesModelsResolver {
 		return resourceTypeIdToCommunityAllocation.getOrDefault(communityAllocationId, Set.of());
 	}
 
-	BigDecimal getAvailableAmount(String projectId, String communityAllocationId){
-		return functionAvailableAmount.apply(projectId, communityAllocationId);
+	BigDecimal getAvailableAmount(String communityId, String communityAllocationId){
+		return functionAvailableAmount.apply(communityId, communityAllocationId);
 	}
 }

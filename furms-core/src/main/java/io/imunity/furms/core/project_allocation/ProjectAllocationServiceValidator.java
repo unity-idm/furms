@@ -5,9 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
-import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
-import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
+import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -54,8 +52,27 @@ class ProjectAllocationServiceValidator {
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
 	}
 
-	void validateRead(String communityId, String id) {
-		checkIfProjectBelongsToCommunity(communityId, id);
+	void validateCommunityIdAndProjectId(String communityId, String projectId) {
+		checkIfProjectBelongsToCommunity(communityId, projectId);
+	}
+
+	void validateCommunityIdAndProjectAllocationId(String communityId, String projectAllocationId) {
+		String projectId = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+		checkIfProjectBelongsToCommunity(communityId, projectId);
+	}
+
+	void validateCommunityIdAndCommunityAllocationId(String communityId, String communityAllocationId) {
+		String id = communityAllocationRepository.findById(communityAllocationId).map(allocation -> allocation.communityId).orElse(null);
+		if(!communityId.equals(id)){
+			throw new CommunityIsNotRelatedWithCommunityAllocation("Community "+ communityId +" is not related with community allocation " + communityAllocationId);
+		}
+	}
+
+	void validateProjectIdAndProjectAllocationId(String projectId, String projectAllocationId) {
+		String id = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+		if(!projectId.equals(id)){
+			throw new ProjectIsNotRelatedWithProjectAllocation("Project "+ projectId +" is not related with project allocation " + projectAllocationId);
+		}
 	}
 
 	void validateDelete(String communityId, String projectAllocationId) {
