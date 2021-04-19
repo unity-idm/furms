@@ -16,16 +16,20 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.ui.components.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 public class ProjectAllocationComponent extends Composite<Div> {
@@ -35,11 +39,13 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final String communityId;
 	private final String projectId;
 
-	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
-		this.grid = createCommunityGrid();
-		this.service = service;
+	public ProjectAllocationComponent(ProjectAllocationService service, ProjectAllocationInstallationService projectAllocationInstallationService, String projectId) {
 		this.communityId = getCurrentResourceId();
+		this.service = service;
 		this.projectId = projectId;
+		Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations = projectAllocationInstallationService.findAll(communityId, projectId).stream()
+			.collect(groupingBy(x -> x.projectAllocationId));
+		this.grid = createCommunityGrid(groupedProjectAllocations);
 
 		loadGridContent();
 
@@ -60,7 +66,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		getContent().add(headerLayout, grid);
 	}
 
-	private Grid<ProjectAllocationGridModel> createCommunityGrid() {
+	private Grid<ProjectAllocationGridModel> createCommunityGrid(Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations) {
 		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
 
 		grid.addColumn(ProjectAllocationGridModel::getSiteName)
@@ -74,6 +80,9 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.4"))
 			.setSortable(true);
 		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
+			.setSortable(true);
+		grid.addColumn(c -> groupedProjectAllocations.get(c.id).get(0).status)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)

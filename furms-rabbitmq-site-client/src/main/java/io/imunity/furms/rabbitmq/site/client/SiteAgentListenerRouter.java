@@ -5,18 +5,14 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import java.util.Map;
-
+import io.imunity.furms.rabbitmq.site.models.*;
+import io.imunity.furms.rabbitmq.site.models.consts.Queues;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
-import io.imunity.furms.rabbitmq.site.models.AgentPingResult;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.consts.Queues;
+import java.util.Map;
 
 @Component
 @RabbitListener(queues = Queues.REPLY_QUEUE)
@@ -24,10 +20,14 @@ class SiteAgentListenerRouter {
 
 	private final SiteAgentStatusServiceImpl siteAgentStatusService;
 	private final SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService;
+	private final SiteAgentProjectAllocationServiceImpl siteAgentProjectAllocationService;
 
-	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService, SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService) {
+	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService,
+	                        SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService,
+	                        SiteAgentProjectAllocationServiceImpl siteAgentProjectAllocationService) {
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.siteAgentProjectAllocationService = siteAgentProjectAllocationService;
 	}
 
 	@RabbitHandler
@@ -48,5 +48,15 @@ class SiteAgentListenerRouter {
 	@RabbitHandler
 	public void receive(AgentProjectInstallationResult result, @Headers Map<String,Object> headers) {
 		siteAgentProjectInstallationService.receive(result, headers);
+	}
+
+	@RabbitHandler
+	public void receive(AgentProjectResourceAllocationAck ack) {
+		siteAgentProjectAllocationService.receive(ack);
+	}
+
+	@RabbitHandler
+	public void receive(AgentProjectResourceAllocationResult result, @Headers Map<String,Object> headers) {
+		siteAgentProjectAllocationService.receive(result, headers);
 	}
 }
