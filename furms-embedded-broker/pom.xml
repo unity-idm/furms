@@ -124,7 +124,7 @@
 												</ports>
 												<wait>
 													<log>Server startup complete</log>
-													<time>10000</time>
+													<time>60000</time>
 												</wait>
 												<log>
 													<prefix>[rabbitmq-container]</prefix>
