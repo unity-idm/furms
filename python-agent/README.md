@@ -12,7 +12,7 @@ source furms-agent-venv/bin/activate
 
 ## Setup virtual environment if not already
 ```
-pip3 install -r requirments.txt
+pip3 install -r requirements.txt
 ```
 
 ## Install the `furms` client library
@@ -21,11 +21,6 @@ Let's install it in our venv:
 ## Build your library
 ```
 python3 setup.py bdist_wheel
-```
-
-## Run all tests
-```
-python3 setup.py pytest
 ```
 
 ## Library installation steps
@@ -40,10 +35,8 @@ firefox html/furms/index.html
 ```
 
 
-
-
 # Running demo agent
-The demo agent has been develoyyped on top of the `furms` library and can be found in `demo-agent` directory.
+The demo agent has been developed on top of the `furms` library and can be found in `demo-agent` directory.
 Configure credentials by setting the following environmental variables:
 ```
 export BROKER_HOST=<broker-host>
