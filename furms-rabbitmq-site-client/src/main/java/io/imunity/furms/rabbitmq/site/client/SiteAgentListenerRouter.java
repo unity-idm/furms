@@ -5,48 +5,54 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import java.util.Map;
-
+import io.imunity.furms.rabbitmq.site.models.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
-import io.imunity.furms.rabbitmq.site.models.AgentPingResult;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.consts.Queues;
-
 @Component
-@RabbitListener(queues = Queues.REPLY_QUEUE)
 class SiteAgentListenerRouter {
 
+	public static final String FURMS_LISTENER = "FURMS_LISTENER";
+	public static final String PUB_FURMS = "-pub-furms";
+	public static final String PUB_SITE = "-pub-site";
 	private final SiteAgentStatusServiceImpl siteAgentStatusService;
 	private final SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService;
+	private final ApplicationEventPublisher publisher;
 
-	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService, SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService) {
+	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService,
+	                        SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService,
+	                        ApplicationEventPublisher publisher) {
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.publisher = publisher;
 	}
 
 	@RabbitHandler
-	public void receive(AgentPingAck ack) {
-		siteAgentStatusService.receive(ack);
+	@RabbitListener(id = FURMS_LISTENER)
+	public void receive(Payload<?> payload) {
+		publisher.publishEvent(payload);
 	}
 
 	@RabbitHandler
-	public void receive(AgentPingResult result) {
-		siteAgentStatusService.receive(result);
+	@RabbitListener(id = "kumpaczos")
+	public void receive2(Object o) {
 	}
 
-	@RabbitHandler
-	public void receive(AgentProjectInstallationAck ack) {
-		siteAgentProjectInstallationService.receive(ack);
+	@EventListener
+	public void receiveAgentPingAck(Payload<AgentPingAck> ack) {
+		siteAgentStatusService.receiveAgentPingAck(ack);
 	}
 
-	@RabbitHandler
-	public void receive(AgentProjectInstallationResult result, @Headers Map<String,Object> headers) {
-		siteAgentProjectInstallationService.receive(result, headers);
+	@EventListener
+	public void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
+		siteAgentProjectInstallationService.receiveAgentProjectInstallationAck(ack);
+	}
+
+	@EventListener
+	public void receiveAgentProjectInstallationResult(Payload<AgentProjectInstallationResult> result) {
+		siteAgentProjectInstallationService.receiveAgentProjectInstallationResult(result);
 	}
 }

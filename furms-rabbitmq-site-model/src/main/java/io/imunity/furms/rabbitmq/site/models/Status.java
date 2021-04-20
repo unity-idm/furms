@@ -5,8 +5,6 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
-@JsonTypeName("AgentPingRequest")
-public class AgentPingRequest implements Body {
+public enum Status {
+	OK, FAILED
 }

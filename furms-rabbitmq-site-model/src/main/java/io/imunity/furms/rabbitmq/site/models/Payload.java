@@ -5,44 +5,52 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.ResolvableTypeProvider;
 
-import static io.imunity.furms.rabbitmq.site.models.Payload.PayloadBuilder;
+import java.util.Objects;
 
-@JsonDeserialize(builder = PayloadBuilder.class)
-public class Payload {
+
+public class Payload<T extends Body> implements ResolvableTypeProvider {
 	public final Header header;
-	public final Body body;
-	Payload(Header header, Body body) {
+	public final T body;
+
+	@JsonCreator
+	public Payload(Header header, Body body) {
 		this.header = header;
-		this.body = body;
+		this.body = (T)body;
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
-	public static final class PayloadBuilder {
-		public Header header;
-		public Body body;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Payload payload = (Payload) o;
+		return Objects.equals(header, payload.header) &&
+			Objects.equals(body, payload.body);
+	}
 
-		private PayloadBuilder() {
-		}
+	@Override
+	public int hashCode() {
+		return Objects.hash(header, body);
+	}
 
-		public static PayloadBuilder aPayload() {
-			return new PayloadBuilder();
-		}
+	@Override
+	public String toString() {
+		return "Payload{" +
+			"header=" + header +
+			", body=" + body +
+			'}';
+	}
 
-		public PayloadBuilder header(Header header) {
-			this.header = header;
-			return this;
-		}
-
-		public PayloadBuilder body(Body body) {
-			this.body = body;
-			return this;
-		}
-
-		public Payload build() {
-			return new Payload(header, body);
-		}
+	@Override
+	@JsonIgnore
+	public ResolvableType getResolvableType() {
+		return ResolvableType.forClassWithGenerics(
+			getClass(),
+			ResolvableType.forInstance(this.body)
+		);
 	}
 }

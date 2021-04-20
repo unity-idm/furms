@@ -5,74 +5,56 @@
 
 package io.imunity.furms.broker;
 
-import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
+import io.imunity.furms.rabbitmq.site.models.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static io.imunity.furms.rabbitmq.site.models.consts.Headers.CORRELATION_ID;
-
 @Component
-@RabbitListener(queues = "mock")
 public class SiteAgentMock {
 
 	private final RabbitTemplate rabbitTemplate;
+	private final ApplicationEventPublisher publisher;
 
-	public SiteAgentMock(RabbitTemplate rabbitTemplate){
+
+	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
 		this.rabbitTemplate = rabbitTemplate;
+		this.publisher = publisher;
 	}
 
 	@RabbitHandler
-	public void receive(AgentPingRequest message) throws InterruptedException {
-		String correlationId = message.correlationId;
+	@RabbitListener(queues = "mock-pub-furms")
+	public void receive(Payload<?> payload) {
+		publisher.publishEvent(payload);
+	}
 
-		MessageProperties messageProperties = new MessageProperties();
-		messageProperties.setHeader("version", 1);
-		messageProperties.setHeader("status", "IN_PROGRESS");
-		messageProperties.setCorrelationId(correlationId);
-		messageProperties.setHeader("furmsMessageType", "AgentPingAck");
-		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
-		rabbitTemplate.send("reply-queue", replyAckMessage);
-
+	@EventListener
+	public void receiveAgentPingRequest(Payload<AgentPingRequest> message) throws InterruptedException {
 		TimeUnit.SECONDS.sleep(5);
 
-		MessageProperties messageProperties2 = new MessageProperties();
-		messageProperties2.setHeader("version", 1);
-		messageProperties2.setHeader("status", "OK");
-		messageProperties2.setCorrelationId(correlationId);
-		messageProperties2.setHeader("furmsMessageType", "AgentPingResult");
-		Message replyMessage = new Message(new byte[]{}, messageProperties2);
-		rabbitTemplate.send("reply-queue", replyMessage);
+		String correlationId = message.header.messageCorrelationId;
+		Header header = new Header("1", correlationId, Status.OK, null);
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, new AgentPingAck()));
 	}
 
-
-	@RabbitHandler
-	public void receive(AgentProjectInstallationRequest projectInstallationRequest, @Headers Map<String,Object> headers) throws InterruptedException {
-		String correlationId = headers.get(CORRELATION_ID).toString();
-		MessageProperties messageProperties = new MessageProperties();
-		messageProperties.setHeader("version", 1);
-		messageProperties.setHeader("status", "IN_PROGRESS");
-		messageProperties.setCorrelationId(correlationId);
-		messageProperties.setHeader("furmsMessageType", "ProjectInstallationAck");
-		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
-		rabbitTemplate.send("reply-queue", replyAckMessage);
+	@EventListener
+	public void receiveAgentProjectInstallationRequest(Payload<AgentProjectInstallationRequest> projectInstallationRequest) throws InterruptedException {
+		String correlationId = projectInstallationRequest.header.messageCorrelationId;
+		Header header = new Header("1", correlationId, Status.OK, null);
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, new AgentProjectInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
 		String i = String.valueOf(new Random().nextInt(1000));
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.id, Map.of("gid", i));
-		rabbitTemplate.convertAndSend("reply-queue", result, new TypeHeaderAppender(result, correlationId));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", i));
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result));
 	}
 
 }

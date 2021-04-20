@@ -5,18 +5,17 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.Objects;
 
-@JsonDeserialize(builder = ProjectLeader.ProjectLeaderBuilder.class)
 public class ProjectLeader {
 	public final String fenixUserId;
 	public final String firstName;
 	public final String lastName;
 	public final String email;
 
+	@JsonCreator
 	ProjectLeader(String fenixUserId, String firstName, String lastName, String email) {
 		this.fenixUserId = fenixUserId;
 		this.firstName = firstName;
@@ -51,7 +50,6 @@ public class ProjectLeader {
 		return new ProjectLeaderBuilder();
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
 	public static final class ProjectLeaderBuilder {
 		public String fenixUserId;
 		public String firstName;

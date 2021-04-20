@@ -10,19 +10,21 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.ProjectLeader;
 
+import java.time.ZoneId;
+
 class ProjectInstallationMapper {
 	static AgentProjectInstallationRequest map(ProjectInstallation projectInstallation){
 		FURMSUser user = projectInstallation.leader;
 		return AgentProjectInstallationRequest.builder()
-			.id(projectInstallation.id)
+			.identifier(projectInstallation.id)
 			.name(projectInstallation.name)
 			.description(projectInstallation.description)
 			.communityId(projectInstallation.communityId)
 			.communityName(projectInstallation.communityName)
 			.acronym(projectInstallation.acronym)
 			.researchField(projectInstallation.researchField)
-			.validityStart(projectInstallation.validityStart)
-			.validityEnd(projectInstallation.validityEnd)
+			.validityStart(projectInstallation.validityStart.atZone(ZoneId.systemDefault()))
+			.validityEnd(projectInstallation.validityEnd.atZone(ZoneId.systemDefault()))
 			.projectLeader(ProjectLeader.builder()
 				.fenixUserId(user.id.map(persistentId -> persistentId.id).orElse(null))
 				.email(user.email)

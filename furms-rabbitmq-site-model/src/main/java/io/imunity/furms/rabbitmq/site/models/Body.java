@@ -12,8 +12,12 @@ import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 
 @JsonSubTypes({
-	@Type(value = AgentPingAckTest.class)
-	})
+	@Type(value = AgentPingAck.class),
+	@Type(value = AgentPingRequest.class),
+	@Type(value = AgentProjectInstallationAck.class),
+	@Type(value = AgentProjectInstallationRequest.class),
+	@Type(value = AgentProjectInstallationResult.class)
+})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-public abstract class Body {
+public interface Body {
 }
