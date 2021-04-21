@@ -20,7 +20,7 @@ class ProjectInstallationMapper {
 			.name(projectInstallation.name)
 			.description(projectInstallation.description)
 			.communityId(projectInstallation.communityId)
-			.communityName(projectInstallation.communityName)
+			.community(projectInstallation.communityName)
 			.acronym(projectInstallation.acronym)
 			.researchField(projectInstallation.researchField)
 			.validityStart(projectInstallation.validityStart.atZone(ZoneId.systemDefault()))

@@ -12,13 +12,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@JsonTypeName("AgentProjectInstallationRequest")
+@JsonTypeName("ProjectInstallationRequest")
 public class AgentProjectInstallationRequest implements Body {
 	public final String identifier;
 	public final String name;
 	public final String description;
 	public final String communityId;
-	public final String communityName;
+	public final String community;
 	public final String acronym;
 	public final String researchField;
 	public final ZonedDateTime validityStart;
@@ -27,12 +27,12 @@ public class AgentProjectInstallationRequest implements Body {
 
 	@JsonCreator
 	public AgentProjectInstallationRequest(String identifier, String name, String description, String communityId,
-	                                String communityName, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, ProjectLeader projectLeader) {
+	                                       String community, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, ProjectLeader projectLeader) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
 		this.communityId = communityId;
-		this.communityName = communityName;
+		this.community = community;
 		this.acronym = acronym;
 		this.researchField = researchField;
 		this.validityStart = validityStart;
@@ -49,7 +49,7 @@ public class AgentProjectInstallationRequest implements Body {
 			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(communityId, that.communityId) &&
-			Objects.equals(communityName, that.communityName) &&
+			Objects.equals(community, that.community) &&
 			Objects.equals(acronym, that.acronym) &&
 			Objects.equals(researchField, that.researchField) &&
 			Objects.equals(validityStart, that.validityStart) &&
@@ -59,7 +59,7 @@ public class AgentProjectInstallationRequest implements Body {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(identifier, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
+		return Objects.hash(identifier, name, description, communityId, community, acronym, researchField, validityStart, validityEnd, projectLeader);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class AgentProjectInstallationRequest implements Body {
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
 			", communityId='" + communityId + '\'' +
-			", communityName='" + communityName + '\'' +
+			", communityName='" + community + '\'' +
 			", acronym='" + acronym + '\'' +
 			", researchField='" + researchField + '\'' +
 			", validityStart=" + validityStart +
@@ -87,7 +87,7 @@ public class AgentProjectInstallationRequest implements Body {
 		private String name;
 		private String description;
 		private String communityId;
-		private String communityName;
+		private String community;
 		private String acronym;
 		private String researchField;
 		private ZonedDateTime validityStart;
@@ -117,8 +117,8 @@ public class AgentProjectInstallationRequest implements Body {
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder communityName(String communityName) {
-			this.communityName = communityName;
+		public ProjectInstallationRequestBuilder community(String community) {
+			this.community = community;
 			return this;
 		}
 
@@ -148,7 +148,7 @@ public class AgentProjectInstallationRequest implements Body {
 		}
 
 		public AgentProjectInstallationRequest build() {
-			return new AgentProjectInstallationRequest(identifier, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
+			return new AgentProjectInstallationRequest(identifier, name, description, communityId, community, acronym, researchField, validityStart, validityEnd, projectLeader);
 		}
 	}
 }

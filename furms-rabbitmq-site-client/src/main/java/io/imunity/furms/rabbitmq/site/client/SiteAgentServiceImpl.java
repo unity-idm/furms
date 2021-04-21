@@ -34,7 +34,7 @@ class SiteAgentServiceImpl implements SiteAgentService {
 			rabbitAdmin.declareQueue(new Queue(externalId.id + PUB_FURMS));
 			rabbitAdmin.declareQueue(new Queue(externalId.id + PUB_SITE));
 			AbstractMessageListenerContainer container = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer(FURMS_LISTENER);
-//			container.addQueueNames(externalId.id + PUB_SITE);
+			container.addQueueNames(externalId.id + PUB_SITE);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

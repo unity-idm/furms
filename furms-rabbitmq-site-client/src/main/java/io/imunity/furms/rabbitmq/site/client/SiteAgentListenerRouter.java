@@ -36,11 +36,6 @@ class SiteAgentListenerRouter {
 		publisher.publishEvent(payload);
 	}
 
-	@RabbitHandler
-	@RabbitListener(id = "kumpaczos")
-	public void receive2(Object o) {
-	}
-
 	@EventListener
 	public void receiveAgentPingAck(Payload<AgentPingAck> ack) {
 		siteAgentStatusService.receiveAgentPingAck(ack);

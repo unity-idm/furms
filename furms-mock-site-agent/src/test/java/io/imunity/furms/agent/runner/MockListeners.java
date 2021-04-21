@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 class MockListeners {
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
-	@Value("queue.res-name")
+	@Value("${queue.res-name}")
 	private String responseQueueName;
 	public MockListeners(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
 		this.rabbitTemplate = rabbitTemplate;

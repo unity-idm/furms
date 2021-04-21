@@ -39,8 +39,8 @@ class SiteAgentProjectInstallationServiceTest {
 	void shouldInstallProject() throws ExecutionException, InterruptedException {
 		AbstractMessageListenerContainer container = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer("FURMS_LISTENER");
 		container.addQueueNames("mock-pub-site");
-
-		CorrelationId correlationId = siteAgentProjectInstallationService.installProject(ProjectInstallation.builder()
+		CorrelationId correlationId = new CorrelationId();
+		ProjectInstallation projectInstallation = ProjectInstallation.builder()
 			.id("id")
 			.siteExternalId("mock")
 			.validityStart(LocalDateTime.now())
@@ -49,8 +49,8 @@ class SiteAgentProjectInstallationServiceTest {
 				.id(new PersistentId("id"))
 				.email("email")
 				.build())
-			.build()
-		);
+			.build();
+		siteAgentProjectInstallationService.installProject(correlationId, projectInstallation);
 
 		verify(projectInstallationService, timeout(10000)).updateStatus(correlationId, ACK);
 		verify(projectInstallationService, timeout(10000)).updateStatus(correlationId, DONE);
