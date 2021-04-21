@@ -5,6 +5,22 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
+import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
+
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
+
 import io.imunity.furms.domain.site_agent.AckStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
@@ -15,22 +31,12 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentPingResult;
 import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
-import org.springframework.amqp.AmqpConnectException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
-import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
 
 @Service
 class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	private final RabbitTemplate rabbitTemplate;
 	private final Map<String, PendingJob<SiteAgentStatus>> map = new HashMap<>();
 
@@ -81,7 +87,7 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 				if(!connectionFuture.isDone())
 					connectionFuture.complete(new SiteAgentStatus(UNAVAILABLE));
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.warn("Failed to complete the task", e);
 			}
 		}).start();
 	}

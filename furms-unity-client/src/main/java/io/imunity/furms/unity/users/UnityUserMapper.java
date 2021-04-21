@@ -5,27 +5,28 @@
 
 package io.imunity.furms.unity.users;
 
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.unity.common.AttributeValueMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.Identity;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.unity.common.AttributeValueMapper;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.Identity;
 
 public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Optional<FURMSUser> map(GroupMember groupMember){
 		FURMSUser user = buildUser(groupMember);
-		if(user.id == null || user.email == null) {
+		if(user.id.isEmpty() || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
 		}
@@ -34,7 +35,7 @@ public class UnityUserMapper {
 
 	public static Optional<FURMSUser> map(PersistentId userId, List<Attribute> attributes){
 		FURMSUser user = buildUser(userId, attributes);
-		if(user.id == null || user.email == null) {
+		if(user.id.isEmpty() || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
 		}

@@ -86,7 +86,10 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 						.value(sshKey.value).createTime(sshKey.createTime)
 						.updateTime(sshKey.updateTime).ownerId(sshKey.ownerId.id)
 						.sites(sshKey.sites).build())
-				.map(repository::save).map(SSHKeyEntity::getId).map(UUID::toString).get();
+				.map(repository::save)
+				.map(SSHKeyEntity::getId)
+				.map(UUID::toString)
+				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey));
 	}
 
 	@Override
