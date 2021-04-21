@@ -5,6 +5,16 @@
 
 package io.imunity.furms.ui.project;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.util.Optional.ofNullable;
+
+import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Objects;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -15,22 +25,13 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
-
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
@@ -163,8 +164,9 @@ public class ProjectFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ProjectViewModel projectViewModel) {
+		final PersistentId userId = getUserId(projectViewModel);
 		userModels.stream()
-			.filter(user -> user.id.equals(getUserId(projectViewModel)))
+			.filter(user -> user.id.isPresent() && user.id.get().equals(userId))
 			.findAny()
 			.ifPresent(user -> projectViewModel.projectLeader = user);
 		binder.setBean(projectViewModel);

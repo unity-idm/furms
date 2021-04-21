@@ -66,32 +66,45 @@ public class FurmsOauthTokenExtenderFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		if (requestIsAbleToRefreshSession(request)) {
-			final SecurityContext context = SecurityContextHolder.getContext();
-			if (context != null && context.getAuthentication() != null && context.getAuthentication().isAuthenticated()) {
-				final OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) context.getAuthentication();
-				final DefaultOAuth2User principal = (DefaultOAuth2User)oAuth2AuthenticationToken.getPrincipal();
-				final OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService.loadAuthorizedClient(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId(), principal.getName());
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 
+			throws ServletException, IOException {
+		
+		if (requestIsAbleToRefreshSession(request) && hasAuthenticatedSession()) {
+			SecurityContext context = SecurityContextHolder.getContext();
+			OAuth2AuthenticationToken oAuth2AuthenticationToken = 
+					(OAuth2AuthenticationToken) context.getAuthentication();
+			DefaultOAuth2User principal = (DefaultOAuth2User)oAuth2AuthenticationToken.getPrincipal();
+			OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService
+					.loadAuthorizedClient(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId(), 
+							principal.getName());
 
-				if (oAuth2AuthorizedClient.getAccessToken() != null && oauthTokenCache.getIfPresent(oAuth2AuthorizedClient.getAccessToken().getTokenValue()) == null) {
-					try {
-						if (oAuth2AuthorizedClient.getRefreshToken() != null && oAuth2AuthorizedClient.getRefreshToken().getTokenValue() != null) {
-							final OAuth2AccessToken newToken = tokenRefreshHandler.refresh(oAuth2AuthorizedClient, oAuth2AuthenticationToken, principal);
-							oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
-						} else {
-							LOG.warn("Couldn't refresh token ({}) due to lack of required Refresh Token in security context",
-									oAuth2AuthorizedClient.getAccessToken().getTokenValue());
-						}
-					} catch (Exception e) {
-						LOG.error("Could not refresh Oauth token: ", e);
+			if (oAuth2AuthorizedClient.getAccessToken() != null && 
+					oauthTokenCache.getIfPresent(oAuth2AuthorizedClient.getAccessToken().getTokenValue()) == null) {
+				try {
+					if (oAuth2AuthorizedClient.getRefreshToken() != null 
+							&& oAuth2AuthorizedClient.getRefreshToken().getTokenValue() != null) {
+						LOG.info("Refreshing token in effect of request to {}", request.getRequestURI());
+						OAuth2AccessToken newToken = tokenRefreshHandler.refresh(
+								oAuth2AuthorizedClient, oAuth2AuthenticationToken, principal);
+						oauthTokenCache.put(newToken.getTokenValue(), principal.getName());
+					} else {
+						LOG.warn("Couldn't refresh token ({}) due to lack of required "
+								+ "Refresh Token in security context",
+								oAuth2AuthorizedClient.getAccessToken().getTokenValue());
 					}
+				} catch (Exception e) {
+					LOG.error("Could not refresh Oauth token: ", e);
 				}
 			}
 		}
 		filterChain.doFilter(request, response);
 	}
 
+	private boolean hasAuthenticatedSession() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		return context != null && context.getAuthentication() != null && context.getAuthentication().isAuthenticated();
+	}
+	
 	private boolean requestIsAbleToRefreshSession(HttpServletRequest request) {
 		return request != null
 				&& request.getRequestURI().startsWith(FRONT)

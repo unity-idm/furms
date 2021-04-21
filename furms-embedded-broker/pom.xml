@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2020 Bixbit s.c. All rights reserved.
-  ~ See LICENSE file for licensing information.
-  -->
+<!-- ~ Copyright (c) 2020 Bixbit s.c. All rights reserved. ~ See LICENSE 
+	file for licensing information. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>furms-parent</artifactId>
 		<groupId>io.imunity.furms</groupId>
@@ -102,7 +100,9 @@
 						</configuration>
 					</plugin>
 
- 					<plugin>
+					<plugin>
+						<!-- equivalent of 'docker up rabbitmq:3.8.14 -p <your-port>:5672' 
+							command -->
 						<groupId>io.fabric8</groupId>
 						<artifactId>docker-maven-plugin</artifactId>
 						<version>0.35.0</version>
@@ -124,8 +124,13 @@
 												</ports>
 												<wait>
 													<log>Server startup complete</log>
-													<time>10000</time>
+													<time>60000</time>
 												</wait>
+												<log>
+													<prefix>[rabbitmq-container]</prefix>
+													<enabled>true</enabled>
+													<color>blue</color>
+												</log>
 											</run>
 										</image>
 									</images>
@@ -144,6 +149,6 @@
 			</build>
 		</profile>
 	</profiles>
-	
+
 
 </project>

@@ -64,7 +64,7 @@ class ProjectAllocationServiceImplTest {
 		);
 
 		//when
-		Optional<ProjectAllocation> byId = service.findById("communityId", id);
+		Optional<ProjectAllocation> byId = service.findByProjectIdAndId("communityId", id);
 
 		//then
 		assertThat(byId).isPresent();
@@ -74,7 +74,7 @@ class ProjectAllocationServiceImplTest {
 	@Test
 	void shouldNotReturnNotExisting() {
 		//when
-		Optional<ProjectAllocation> otherId = service.findById("communityId", "otherId");
+		Optional<ProjectAllocation> otherId = service.findByProjectIdAndId("communityId", "otherId");
 
 		//then
 		assertThat(otherId).isEmpty();

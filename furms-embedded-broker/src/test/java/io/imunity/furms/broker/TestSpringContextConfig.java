@@ -5,21 +5,29 @@
 
 package io.imunity.furms.broker;
 
-import io.imunity.furms.broker.runner.QpidBrokerJRunner;
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import io.imunity.furms.broker.runner.QpidBrokerJRunner;
 
 @SpringBootApplication(scanBasePackageClasses = {SiteAgentMock.class}, scanBasePackages = "io.imunity.furms.rabbitmq.site.client")
 public class TestSpringContextConfig {
 
-	@Bean
+	@Configuration
 	@Profile("embedded-broker")
-	public Declarables createQueue(ConnectionFactory factory) throws Exception {
-		QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
+	public static class QpidBorkerStarter {
+		public QpidBorkerStarter(ConnectionFactory factory) throws Exception {
+			QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
+		}
+	}
+	
+	@Bean
+	public Declarables createQueues() {
 		return new Declarables(new Queue("mock"), new Queue("reply-queue"));
 	}
 }

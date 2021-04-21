@@ -7,8 +7,5 @@ setup(
     description='FURMS protocol MOM API',
     author='Bixbit s.c.',
     license='BSD 2-Clause',
-    install_requires=['pika'],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest==4.4.1'],
-    test_suite='tests'
+    install_requires=['pika']
 )

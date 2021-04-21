@@ -6,20 +6,21 @@
 package io.imunity.furms.db.resource_credits;
 
 
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 
 @Repository
 class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
@@ -60,43 +61,43 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public String create(ResourceCredit service) {
+	public String create(ResourceCredit credit) {
 		ResourceCreditEntity savedResourceCredit = repository.save(
 			ResourceCreditEntity.builder()
-				.siteId(UUID.fromString(service.siteId))
-				.resourceTypeId(UUID.fromString(service.resourceTypeId))
-				.name(service.name)
-				.split(service.split)
-				.access(service.access)
-				.amount(service.amount)
-				.createTime(service.utcCreateTime)
-				.startTime(service.utcStartTime)
-				.endTime(service.utcEndTime)
+				.siteId(UUID.fromString(credit.siteId))
+				.resourceTypeId(UUID.fromString(credit.resourceTypeId))
+				.name(credit.name)
+				.split(credit.split)
+				.access(credit.access)
+				.amount(credit.amount)
+				.createTime(credit.utcCreateTime)
+				.startTime(credit.utcStartTime)
+				.endTime(credit.utcEndTime)
 				.build()
 		);
 		return savedResourceCredit.getId().toString();
 	}
 
 	@Override
-	public String update(ResourceCredit service) {
-		return repository.findById(UUID.fromString(service.id))
+	public String update(ResourceCredit credit) {
+		return repository.findById(UUID.fromString(credit.id))
 			.map(oldResourceCredit -> ResourceCreditEntity.builder()
 				.id(oldResourceCredit.getId())
-				.siteId(UUID.fromString(service.siteId))
-				.resourceTypeId(UUID.fromString(service.resourceTypeId))
-				.name(service.name)
-				.split(service.split)
-				.access(service.access)
-				.amount(service.amount)
-				.createTime(service.utcCreateTime)
-				.startTime(service.utcStartTime)
-				.endTime(service.utcEndTime)
+				.siteId(UUID.fromString(credit.siteId))
+				.resourceTypeId(UUID.fromString(credit.resourceTypeId))
+				.name(credit.name)
+				.split(credit.split)
+				.access(credit.access)
+				.amount(credit.amount)
+				.createTime(credit.utcCreateTime)
+				.startTime(credit.utcStartTime)
+				.endTime(credit.utcEndTime)
 				.build()
 			)
 			.map(repository::save)
 			.map(ResourceCreditEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalStateException("Credit not found: " + credit));
 	}
 
 	@Override

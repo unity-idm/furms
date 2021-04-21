@@ -41,38 +41,49 @@ public class FurmsOauthLogoutFilter extends OncePerRequestFilter {
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	private final AccessTokenRepository accessTokenRepository;
 
-	public FurmsOauthLogoutFilter(OAuth2AuthorizedClientService auth2AuthorizedClientService, AccessTokenRepository accessTokenRepository) {
+	public FurmsOauthLogoutFilter(OAuth2AuthorizedClientService auth2AuthorizedClientService, 
+			AccessTokenRepository accessTokenRepository) {
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-		if (isFrontEndRequest(request)) {
-			final SecurityContext context = SecurityContextHolder.getContext();
-			if (context != null && context.getAuthentication() != null && context.getAuthentication().isAuthenticated()) {
-				final OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) context.getAuthentication();
-				final DefaultOAuth2User principal = (DefaultOAuth2User) authenticationToken.getPrincipal();
-				final OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientService.loadAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(), principal.getName());
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
+			FilterChain filterChain) throws IOException, ServletException {
+		
+		if (isFrontEndRequest(request) && hasAuthenticatedSession()) {
+			SecurityContext context = SecurityContextHolder.getContext();
+			OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) context.getAuthentication();
+			DefaultOAuth2User principal = (DefaultOAuth2User) authenticationToken.getPrincipal();
+			OAuth2AuthorizedClient authorizedClient = auth2AuthorizedClientService.loadAuthorizedClient(
+					authenticationToken.getAuthorizedClientRegistrationId(), principal.getName());
 
-				if (authorizedClient.getAccessToken() == null
-						|| authorizedClient.getAccessToken().getExpiresAt() == null
-						|| authorizedClient.getAccessToken().getExpiresAt().isBefore(Instant.now())) {
-					if (authorizedClient.getAccessToken() != null && authorizedClient.getAccessToken().getTokenValue() != null) {
-						accessTokenRepository.revoke(authorizedClient.getAccessToken().getTokenValue(), authenticationToken.getAuthorizedClientRegistrationId());
-					}
-					new SecurityContextLogoutHandler().logout(request, response, authenticationToken);
-
-					response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-					response.getWriter().print(VAADIN_REFRESH_COMMAND + LOGOUT_URL);
-					response.getWriter().flush();
-					return;
+			if (authorizedClient.getAccessToken() == null
+					|| authorizedClient.getAccessToken().getExpiresAt() == null
+					|| authorizedClient.getAccessToken().getExpiresAt().isBefore(Instant.now())) {
+				
+				if (authorizedClient.getAccessToken() != null 
+						&& authorizedClient.getAccessToken().getTokenValue() != null) {
+					
+					accessTokenRepository.revoke(authorizedClient.getAccessToken().getTokenValue(), 
+							authenticationToken.getAuthorizedClientRegistrationId());
 				}
+				new SecurityContextLogoutHandler().logout(request, response, authenticationToken);
+
+				response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+				response.getWriter().print(VAADIN_REFRESH_COMMAND + LOGOUT_URL);
+				response.getWriter().flush();
+				return;
 			}
 		}
 		filterChain.doFilter(request, response);
 	}
-
+	
+	private boolean hasAuthenticatedSession() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		return context != null && context.getAuthentication() != null && context.getAuthentication().isAuthenticated();
+	}
+	
 	private boolean isFrontEndRequest(HttpServletRequest request) {
 		return request != null
 				&& request.getRequestURI().startsWith(FRONT)

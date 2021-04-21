@@ -1,4 +1,5 @@
 venv
+furms-agent-venv
 build
 dist
 furms.egg-info

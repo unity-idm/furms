@@ -5,6 +5,17 @@
 
 package io.imunity.furms.domain.users;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.Optional.ofNullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 
@@ -28,7 +39,7 @@ public class FURMSUser {
 					  String email,
 					  UserStatus status,
 					  Map<ResourceId, Set<Role>> roles) {
-		if(email == null)
+		if (email == null)
 			throw new IllegalArgumentException("Email must be not null");
 		this.id = ofNullable(id);
 		this.firstName = ofNullable(firstName);
@@ -39,11 +50,13 @@ public class FURMSUser {
 	}
 
 	public FURMSUser(FURMSUser furmsUser) {
-		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, furmsUser.status, furmsUser.roles);
+		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+				furmsUser.email, furmsUser.status, furmsUser.roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser, Map<ResourceId, Set<Role>> roles) {
-		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, furmsUser.status, roles);
+		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+				furmsUser.email, furmsUser.status, roles);
 	}
 
 	private static Map<ResourceId, Set<Role>> copyRoles(Map<ResourceId, Set<Role>> roles) {

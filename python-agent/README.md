@@ -1,27 +1,42 @@
-# Development process
+# Preparation of virtual environemnt for demo agent
 
 ## Create virtual environment if not already
 ```
-python3 -m venv venv
+python3 -m venv furms-agent-venv
 ```
 
 ## Activate virtual environment
 ```
-source venv/bin/activate
+source furms-agent-venv/bin/activate
 ```
 
 ## Setup virtual environment if not already
 ```
-pip3 install wheel
-pip3 install setuptools
-pip3 install twine # if we want to publish library on pypi.org
-pip3 install pdoc3
-pip3 install pika
-pip3 install pytest==4.4.1
-pip3 install pytest-runner==4.4
+pip3 install -r requirements.txt
 ```
-## Example of demo agent
-The demo agent has been developed on top of the `furms` library and can be found in `devrunner` directory.
+
+## Install the `furms` client library
+The demo agent has been developed on top of the `furms` client library.
+Let's install it in our venv:
+## Build your library
+```
+python3 setup.py bdist_wheel
+```
+
+## Library installation steps
+```
+pip3 install dist/furms-1.0.0-py3-none-any.whl
+```
+
+## Generate Documentation
+```
+pdoc --html furms
+firefox html/furms/index.html
+```
+
+
+# Running demo agent
+The demo agent has been developed on top of the `furms` library and can be found in `demo-agent` directory.
 Configure credentials by setting the following environmental variables:
 ```
 export BROKER_HOST=<broker-host>
@@ -37,29 +52,7 @@ If aforementioned variables are not present a default values takes place:
 * user - guest
 * cafile - ./ca_certificate.pem
 ```
-cd devrunner
-./runner.sh <name-of-queue-to-listen-to>
+cd demo-agent
+./demo-agent.sh <name-of-queue-to-listen-to>
 ```
 
-# Build and distribute process
-
-## Build your library
-```
-python3 setup.py bdist_wheel
-```
-
-## Run all tests
-```
-python3 setup.py pytest
-```
-
-## Library installation steps
-```
-pip3 install dist/furms-1.0.0-py3-none-any.whl
-```
-
-## Generate Documentation
-```
-pdoc --html furms
-firefox html/furms/index.html
-```

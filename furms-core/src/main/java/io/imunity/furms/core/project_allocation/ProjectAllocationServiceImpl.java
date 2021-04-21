@@ -26,9 +26,9 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
 
 @Service
@@ -58,13 +58,22 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<ProjectAllocation> findById(String communityId, String id) {
+	public Optional<ProjectAllocation> findByCommunityIdAndId(String communityId, String id) {
+		validator.validateCommunityIdAndProjectAllocationId(communityId, id);
+		return projectAllocationRepository.findById(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id) {
+		validator.validateProjectIdAndProjectAllocationId(projectId, id);
 		return projectAllocationRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id) {
+		validator.validateCommunityIdAndProjectAllocationId(communityId, id);
 		return projectAllocationRepository.findByIdWithRelatedObjects(id);
 	}
 
@@ -77,20 +86,27 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public BigDecimal getAvailableAmount(String communityId, String communityAllocationId) {
+		validator.validateCommunityIdAndCommunityAllocationId(communityId, communityAllocationId);
 		return projectAllocationRepository.getAvailableAmount(communityAllocationId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId, String projectId) {
-		validator.validateRead(communityId, projectId);
+		validator.validateCommunityIdAndProjectId(communityId, projectId);
+		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectAllocation> findAll(String communityId, String projectId) {
-		validator.validateRead(communityId, projectId);
+		validator.validateCommunityIdAndProjectId(communityId, projectId);
 		return projectAllocationRepository.findAll(projectId);
 	}
 

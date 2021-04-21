@@ -5,6 +5,12 @@
 
 package io.imunity.furms.ui.components;
 
+import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.List;
+import java.util.Map;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -14,6 +20,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.communities.CommunityEvent;
 import io.imunity.furms.domain.projects.ProjectEvent;
@@ -23,12 +30,6 @@ import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
-
-import java.util.List;
-import java.util.Map;
-
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
 
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
@@ -50,7 +51,9 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	}
 
 	void reloadComponent(){
-		String currentSelectedContextId = furmsSelectService.loadSelectedItem().get().id;
+		String currentSelectedContextId = furmsSelectService.loadSelectedItem()
+				.orElseThrow(() -> new IllegalStateException("No context found for current user"))
+				.id;
 		List<FurmsSelectText> items = furmsSelectService.reloadItems();
 		addItems(items);
 		items.stream()

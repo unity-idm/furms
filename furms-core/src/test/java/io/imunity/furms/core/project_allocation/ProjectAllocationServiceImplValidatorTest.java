@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.project_allocation;
 
+import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -219,6 +221,62 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete("communityId", id));
+	}
+
+	@Test
+	void shouldNotPassWhenCommunityIdAndCommunityAllocationIdAreNotRelated() {
+		//given
+		String id = "id";
+		String communityId = "id";
+
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.empty());
+
+		//when+then
+		assertThrows(CommunityIsNotRelatedWithCommunityAllocation.class, () -> validator.validateCommunityIdAndCommunityAllocationId(communityId, id));
+	}
+
+	@Test
+	void shouldNotPassWhenProjectIdAndProjectAllocationIdAreNotRelated() {
+		//given
+		String id = "id";
+		String projectId = "id";
+
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
+
+		//when+then
+		assertThrows(ProjectIsNotRelatedWithProjectAllocation.class, () -> validator.validateProjectIdAndProjectAllocationId(projectId, id));
+	}
+
+	@Test
+	void shouldPassWhenProjectIdAndProjectAllocationIdAreRelated() {
+		//given
+		String id = "id";
+		String projectId = "id";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+			.projectId(projectId)
+			.build();
+
+		//when
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(projectAllocation));
+
+		//then
+		validator.validateProjectIdAndProjectAllocationId(projectId, id);
+	}
+
+	@Test
+	void shouldPassWhenCommunityIdAndCommunityAllocationIdAreRelated() {
+		//given
+		String id = "id";
+		String communityId = "id";
+		CommunityAllocation communityAllocation = CommunityAllocation.builder()
+			.communityId(communityId)
+			.build();
+
+		//when
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(communityAllocation));
+
+		//then
+		validator.validateCommunityIdAndCommunityAllocationId(communityId, id);
 	}
 
 	@Test
