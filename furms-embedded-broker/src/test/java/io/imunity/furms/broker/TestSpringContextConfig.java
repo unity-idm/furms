@@ -20,6 +20,6 @@ public class TestSpringContextConfig {
 	@Profile("embedded-broker")
 	public Declarables createQueue(ConnectionFactory factory) throws Exception {
 		QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
-		return new Declarables(new Queue("mock"), new Queue("reply-queue"));
+		return new Declarables(new Queue("mock-pub-furms"), new Queue("mock-pub-site"));
 	}
 }

@@ -6,12 +6,17 @@
 package io.imunity.furms.domain.site_agent;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class CorrelationId {
 	public final String id;
 
 	public CorrelationId(String id) {
 		this.id = id;
+	}
+
+	public CorrelationId() {
+		this.id = UUID.randomUUID().toString();
 	}
 
 	@Override

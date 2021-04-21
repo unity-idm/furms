@@ -10,12 +10,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class PendingJob<J> {
 	public final CompletableFuture<J> jobFuture;
-	public final CompletableFuture<AckStatus> ackFuture;
 	public final String correlationId;
 
-	public PendingJob(CompletableFuture<J> jobFuture, CompletableFuture<AckStatus> ackFuture, String correlationId) {
+	public PendingJob(CompletableFuture<J> jobFuture, String correlationId) {
 		this.jobFuture = jobFuture;
-		this.ackFuture = ackFuture;
 		this.correlationId = correlationId;
 	}
 
@@ -25,20 +23,18 @@ public class PendingJob<J> {
 		if (o == null || getClass() != o.getClass()) return false;
 		PendingJob<?> that = (PendingJob<?>) o;
 		return Objects.equals(jobFuture, that.jobFuture) &&
-			Objects.equals(ackFuture, that.ackFuture) &&
 			Objects.equals(correlationId, that.correlationId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jobFuture, ackFuture, correlationId);
+		return Objects.hash(jobFuture, correlationId);
 	}
 
 	@Override
 	public String toString() {
 		return "PendingJob{" +
 			"jobFuture=" + jobFuture +
-			", ackFuture=" + ackFuture +
 			", correlationId='" + correlationId + '\'' +
 			'}';
 	}

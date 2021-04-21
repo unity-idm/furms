@@ -6,19 +6,18 @@
 package io.imunity.furms.rabbitmq.site.models;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.Map;
 import java.util.Objects;
 
-@JsonDeserialize(builder = AgentProjectInstallationResult.AgentProjectInstallationResultBuilder.class)
-@FurmsMessage(type = "ProjectInstallationResult")
-public class AgentProjectInstallationResult {
+@JsonTypeName("ProjectInstallationResult")
+public class AgentProjectInstallationResult implements Body{
 	public final String identifier;
 	public final Map<String, String> attributes;
 
+	@JsonCreator
 	public AgentProjectInstallationResult(String identifier, Map<String, String> attributes) {
 		this.identifier = identifier;
 		this.attributes = attributes;
@@ -43,32 +42,5 @@ public class AgentProjectInstallationResult {
 			"identifier='" + identifier + '\'' +
 			", attributes=" + attributes +
 			'}';
-	}
-
-	@JsonPOJOBuilder(withPrefix = "")
-	public static final class AgentProjectInstallationResultBuilder {
-		public String identifier;
-		public Map<String, String> attributes;
-
-		private AgentProjectInstallationResultBuilder() {
-		}
-
-		public static AgentProjectInstallationResultBuilder anAgentProjectInstallationResult() {
-			return new AgentProjectInstallationResultBuilder();
-		}
-
-		public AgentProjectInstallationResultBuilder identifier(String identifier) {
-			this.identifier = identifier;
-			return this;
-		}
-
-		public AgentProjectInstallationResultBuilder attributes(Map<String, String> attributes) {
-			this.attributes = attributes;
-			return this;
-		}
-
-		public AgentProjectInstallationResult build() {
-			return new AgentProjectInstallationResult(identifier, attributes);
-		}
 	}
 }
