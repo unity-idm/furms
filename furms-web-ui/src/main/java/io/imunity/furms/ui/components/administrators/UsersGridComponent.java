@@ -47,6 +47,8 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.views.landing.RoleChooserView;
 
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+
 public class UsersGridComponent extends VerticalLayout {
 
 	private final Grid<AdministratorsGridItem> grid;
@@ -128,7 +130,7 @@ public class UsersGridComponent extends VerticalLayout {
 				.setHeader(getTranslation("component.administrators.grid.column.2"))
 				.setSortable(true)
 				.setFlexGrow(35);
-		grid.addColumn(c -> "Active")
+		grid.addColumn(this::addStatusLabel)
 				.setHeader(getTranslation("component.administrators.grid.column.3"))
 				.setSortable(true)
 				.setFlexGrow(5);
@@ -144,6 +146,12 @@ public class UsersGridComponent extends VerticalLayout {
 		reloadGrid();
 
 		add(grid);
+	}
+
+	private String addStatusLabel(final AdministratorsGridItem administratorsGridItem) {
+		return administratorsGridItem.getStatus() != null && administratorsGridItem.getStatus().equals(ENABLED)
+				? getTranslation("component.administrators.user.status.active")
+				: getTranslation("component.administrators.user.status.inactive");
 	}
 
 	private Component addMenu(AdministratorsGridItem gridItem) {

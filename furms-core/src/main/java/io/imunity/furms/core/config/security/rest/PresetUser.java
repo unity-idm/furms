@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+
 class PresetUser extends User implements FURMSUserProvider {
 	private FURMSUser furmsUser;
 
@@ -28,6 +30,7 @@ class PresetUser extends User implements FURMSUserProvider {
 			FURMSUser.builder()
 				.firstName("Central Idp")
 				.email("centralIdp@email.com")
+				.status(ENABLED)
 				.roles(roles)
 				.build()
 		);
