@@ -26,17 +26,21 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 	private final AccessTokenRepository accessTokenRepository;
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 
-	TokenRevokerHandler(AccessTokenRepository accessTokenRepository, OAuth2AuthorizedClientService auth2AuthorizedClientService) {
+	TokenRevokerHandler(AccessTokenRepository accessTokenRepository, 
+			OAuth2AuthorizedClientService auth2AuthorizedClientService) {
 		this.accessTokenRepository = accessTokenRepository;
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
 	}
 
 	@Override
-	public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+	public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, 
+			Authentication authentication) throws IOException, ServletException {
+
 		OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
 		DefaultOAuth2User principal = (DefaultOAuth2User)oAuth2AuthenticationToken.getPrincipal();
 		String authorizedClientRegistrationId = oAuth2AuthenticationToken.getAuthorizedClientRegistrationId();
-		OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService.loadAuthorizedClient(authorizedClientRegistrationId, principal.getName());
+		OAuth2AuthorizedClient oAuth2AuthorizedClient = auth2AuthorizedClientService.loadAuthorizedClient(
+				authorizedClientRegistrationId, principal.getName());
 		String accessToken = oAuth2AuthorizedClient.getAccessToken().getTokenValue();
 		String clientId = oAuth2AuthorizedClient.getClientRegistration().getClientId();
 

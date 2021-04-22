@@ -5,6 +5,13 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -13,16 +20,10 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 public class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -134,6 +135,8 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 	private boolean isAmountCorrect(ComboBox<AllocationCommunityComboBoxModel> resourceCreditComboBox, BigDecimal current) {
 		Optional<AllocationCommunityComboBoxModel> value = Optional.ofNullable(resourceCreditComboBox.getValue());
 		if(value.isEmpty())
+			return false;
+		if (BigDecimal.ZERO.equals(current))
 			return false;
 		if(!value.get().split)
 			return availableAmount.compareTo(current) == 0;

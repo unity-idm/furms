@@ -102,10 +102,11 @@ class SSHKeyEntity extends UUIDIdentifiable {
 			return false;
 		SSHKeyEntity entity = (SSHKeyEntity) o;
 		return Objects.equals(id, entity.id) && Objects.equals(name, entity.name)
-				&& Objects.equals(value, entity.value) && Objects.equals(sites, entity.sites)
+				&& Objects.equals(value, entity.value)
 				&& Objects.equals(createTime, entity.createTime)
 				&& Objects.equals(updateTime, entity.updateTime)
-				&& Objects.equals(ownerId, entity.ownerId) && Objects.equals(sites, entity.sites);
+				&& Objects.equals(ownerId, entity.ownerId) 
+				&& Objects.equals(sites, entity.sites);
 	}
 
 	@Override

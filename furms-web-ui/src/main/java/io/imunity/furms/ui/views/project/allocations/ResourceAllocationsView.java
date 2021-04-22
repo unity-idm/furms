@@ -5,17 +5,8 @@
 
 package io.imunity.furms.ui.views.project.allocations;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -23,6 +14,14 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+
+import java.util.Collections;
+import java.util.List;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "project/admin/resource/allocations", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.resource-allocations.page.title")
@@ -59,7 +58,8 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.setSortable(true);
 		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.4"))
-			.setSortable(true);
+			.setSortable(true)
+			.setComparator(comparing(c -> c.amount));
 		return grid;
 	}
 

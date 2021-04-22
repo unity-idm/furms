@@ -15,6 +15,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
+import org.slf4j.Logger;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
@@ -34,6 +35,8 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Service
 class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final RabbitTemplate rabbitTemplate;
 	private final Map<String, PendingJob<SiteAgentStatus>> map = new HashMap<>();
@@ -80,7 +83,7 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 				if(!connectionFuture.isDone())
 					connectionFuture.complete(new SiteAgentStatus(UNAVAILABLE));
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.warn("Failed to complete the task", e);
 			}
 		}).start();
 	}

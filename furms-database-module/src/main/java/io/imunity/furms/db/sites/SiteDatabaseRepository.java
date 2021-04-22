@@ -5,20 +5,21 @@
 
 package io.imunity.furms.db.sites;
 
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.spi.sites.SiteRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.spi.sites.SiteRepository;
 
 @Repository
 class SiteDatabaseRepository implements SiteRepository {
@@ -85,7 +86,7 @@ class SiteDatabaseRepository implements SiteRepository {
 				.map(repository::save)
 				.map(SiteEntity::getId)
 				.map(UUID::toString)
-				.get();
+				.orElseThrow(() -> new IllegalStateException("Site not found: " + site));
 	}
 
 	@Override

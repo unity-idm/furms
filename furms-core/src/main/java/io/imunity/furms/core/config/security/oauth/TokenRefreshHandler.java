@@ -16,9 +16,16 @@ import org.springframework.stereotype.Component;
 
 import static org.springframework.security.oauth2.core.OAuth2AccessToken.TokenType.BEARER;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 class TokenRefreshHandler {
-
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
 	private final AccessTokenRepository tokenRepository;
 
@@ -27,7 +34,9 @@ class TokenRefreshHandler {
 		this.tokenRepository = tokenRepository;
 	}
 
-	OAuth2AccessToken refresh(OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authenticationToken, DefaultOAuth2User principal) throws Exception {
+	OAuth2AccessToken refresh(OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authenticationToken, 
+			DefaultOAuth2User principal) throws Exception {
+		LOG.info("Extending user's oauth token (refresh) for {}", principal);
 		final TokenRefreshResponse response = tokenRepository.refresh(
 				authorizedClient.getRefreshToken().getTokenValue(),
 				authenticationToken.getAuthorizedClientRegistrationId());
@@ -42,10 +51,12 @@ class TokenRefreshHandler {
 				refreshedToken,
 				authorizedClient.getRefreshToken());
 
-		auth2AuthorizedClientService.removeAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(), principal.getName());
+		auth2AuthorizedClientService.removeAuthorizedClient(authenticationToken.getAuthorizedClientRegistrationId(), 
+				principal.getName());
 
 		auth2AuthorizedClientService.saveAuthorizedClient(refreshedAuthorizedClient, authenticationToken);
-
+		
+		LOG.info("Extended oauth token expires at {}", response.getExpiresAt());
 		return refreshedToken;
 	}
 

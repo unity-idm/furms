@@ -6,18 +6,19 @@
 package io.imunity.furms.db.resource_types;
 
 
-import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
@@ -58,35 +59,35 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public String create(ResourceType service) {
+	public String create(ResourceType resourceType) {
 		ResourceTypeEntity savedResourceType = repository.save(
 			ResourceTypeEntity.builder()
-				.siteId(UUID.fromString(service.siteId))
-				.serviceId(UUID.fromString(service.serviceId))
-				.name(service.name)
-				.type(service.type)
-				.unit(service.unit)
+				.siteId(UUID.fromString(resourceType.siteId))
+				.serviceId(UUID.fromString(resourceType.serviceId))
+				.name(resourceType.name)
+				.type(resourceType.type)
+				.unit(resourceType.unit)
 				.build()
 		);
 		return savedResourceType.getId().toString();
 	}
 
 	@Override
-	public String update(ResourceType service) {
-		return repository.findById(UUID.fromString(service.id))
+	public String update(ResourceType resourceType) {
+		return repository.findById(UUID.fromString(resourceType.id))
 			.map(oldResourceType -> ResourceTypeEntity.builder()
 				.id(oldResourceType.getId())
-				.siteId(UUID.fromString(service.siteId))
-				.serviceId(UUID.fromString(service.serviceId))
-				.name(service.name)
-				.type(service.type)
-				.unit(service.unit)
+				.siteId(UUID.fromString(resourceType.siteId))
+				.serviceId(UUID.fromString(resourceType.serviceId))
+				.name(resourceType.name)
+				.type(resourceType.type)
+				.unit(resourceType.unit)
 				.build()
 			)
 			.map(repository::save)
 			.map(ResourceTypeEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalStateException("Resource type not found: " + resourceType));
 	}
 
 	@Override
