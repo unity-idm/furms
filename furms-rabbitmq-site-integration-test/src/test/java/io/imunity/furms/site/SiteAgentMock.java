@@ -3,13 +3,12 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.agent.runner;
+package io.imunity.furms.site;
 
 import io.imunity.furms.rabbitmq.site.models.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -21,18 +20,19 @@ import java.util.concurrent.TimeUnit;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Component
-class MockListeners {
+public class SiteAgentMock {
+
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
-	@Value("${queue.res-name}")
-	private String responseQueueName;
-	public MockListeners(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
+
+
+	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
 		this.rabbitTemplate = rabbitTemplate;
 		this.publisher = publisher;
 	}
 
 	@RabbitHandler
-	@RabbitListener(queues = "${queue.req-name}")
+	@RabbitListener(queues = "mock-furms-pub")
 	public void receive(Payload<?> payload) {
 		publisher.publishEvent(payload);
 	}
@@ -43,19 +43,20 @@ class MockListeners {
 
 		String correlationId = message.header.messageCorrelationId;
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentPingAck()));
+		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentPingAck()));
 	}
 
 	@EventListener
 	public void receiveAgentProjectInstallationRequest(Payload<AgentProjectInstallationRequest> projectInstallationRequest) throws InterruptedException {
 		String correlationId = projectInstallationRequest.header.messageCorrelationId;
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectInstallationAck()));
+		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentProjectInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
 		String i = String.valueOf(new Random().nextInt(1000));
 		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", i));
-		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
+
 }

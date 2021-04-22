@@ -372,6 +372,7 @@ class SiteServiceImplTest {
 		Method[] declaredMethods = SiteServiceImpl.class.getDeclaredMethods();
 		Stream.of(declaredMethods)
 				.filter(method -> Modifier.isPublic(method.getModifiers()))
+				.filter(method -> !method.getName().equals("findAllIds"))
 				.forEach(method -> {
 					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
 					assertThat(method.getAnnotation(FurmsAuthorize.class).resourceType()).isEqualTo(SITE);

@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.site_agent;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class CorrelationId {
 	public final String id;
@@ -32,5 +33,9 @@ public class CorrelationId {
 		return "CorrelationId{" +
 			"id='" + id + '\'' +
 			'}';
+	}
+
+	public static CorrelationId randomID(){
+		return new CorrelationId(UUID.randomUUID().toString());
 	}
 }

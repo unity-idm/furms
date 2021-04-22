@@ -123,7 +123,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
 		if(projectAllocationRepository.isFirstAllocation(projectAllocation.projectId)) {
 			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
-			CorrelationId correlationId = siteAgentProjectInstallationService.installProject(projectInstallation);
+			CorrelationId correlationId = CorrelationId.randomID();
 			projectInstallationService.create(communityId, ProjectInstallationJob.builder()
 				.correlationId(correlationId)
 				.siteId(projectInstallation.siteId)
@@ -131,6 +131,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 				.status(SEND)
 				.build()
 			);
+			siteAgentProjectInstallationService.installProject(correlationId, projectInstallation);
 		}
 	}
 

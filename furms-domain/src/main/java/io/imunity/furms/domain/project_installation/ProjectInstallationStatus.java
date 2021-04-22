@@ -6,5 +6,5 @@
 package io.imunity.furms.domain.project_installation;
 
 public enum ProjectInstallationStatus {
-	SEND, ACK, DONE
+	SEND, ACK, INSTALLED, FAILED
 }

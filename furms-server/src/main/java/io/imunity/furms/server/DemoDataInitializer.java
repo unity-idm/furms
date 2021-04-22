@@ -7,9 +7,9 @@ package io.imunity.furms.server;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -21,19 +21,19 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,7 +42,7 @@ import static java.util.function.Function.identity;
 
 @Component
 @Profile("demo-data-provisioning")
-class DemoDataInitializer {
+class DemoDataInitializer implements CommandLineRunner {
 	private final CommunityRepository communityRepository;
 	private final CommunityGroupsDAO communityGroupsDAO;
 
@@ -82,8 +82,8 @@ class DemoDataInitializer {
 		this.siteAgentService = siteAgentService;
 	}
 
-	@PostConstruct
-	public void init() throws IOException, InterruptedException {
+	@Override
+	public void run(String... args) throws Exception {
 		unityDetector.waitForUnityToStartUp();
 		initCommunitiesAndProjects();
 		initSites();

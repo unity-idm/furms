@@ -3,7 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.broker;
+package io.imunity.furms.site;
+
 
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.Queue;
@@ -25,9 +26,9 @@ public class TestSpringContextConfig {
 			QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
 		}
 	}
-	
+
 	@Bean
 	public Declarables createQueues() {
-		return new Declarables(new Queue("mock"), new Queue("reply-queue"));
+		return new Declarables(new Queue("mock-furms-pub"), new Queue("mock-site-pub"));
 	}
 }
