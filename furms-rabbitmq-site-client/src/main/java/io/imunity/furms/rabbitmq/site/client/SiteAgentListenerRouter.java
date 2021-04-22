@@ -5,49 +5,41 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.rabbitmq.site.models.*;
+import io.imunity.furms.rabbitmq.site.models.Payload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
+
 @Component
+@RabbitListener(id = FURMS_LISTENER)
 class SiteAgentListenerRouter {
 
 	public static final String FURMS_LISTENER = "FURMS_LISTENER";
-	public static final String PUB_FURMS = "-pub-furms";
-	public static final String PUB_SITE = "-pub-site";
-	private final SiteAgentStatusServiceImpl siteAgentStatusService;
-	private final SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService;
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final SiteAgentListenerConnector siteAgentListenerConnector;
 	private final ApplicationEventPublisher publisher;
 
-	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService,
-	                        SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService,
+	SiteAgentListenerRouter(SiteAgentListenerConnector siteAgentListenerConnector,
 	                        ApplicationEventPublisher publisher) {
-		this.siteAgentStatusService = siteAgentStatusService;
-		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.siteAgentListenerConnector = siteAgentListenerConnector;
 		this.publisher = publisher;
 	}
 
 	@RabbitHandler
-	@RabbitListener(id = FURMS_LISTENER)
 	public void receive(Payload<?> payload) {
 		publisher.publishEvent(payload);
 	}
 
-	@EventListener
-	public void receiveAgentPingAck(Payload<AgentPingAck> ack) {
-		siteAgentStatusService.receiveAgentPingAck(ack);
-	}
-
-	@EventListener
-	public void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
-		siteAgentProjectInstallationService.receiveAgentProjectInstallationAck(ack);
-	}
-
-	@EventListener
-	public void receiveAgentProjectInstallationResult(Payload<AgentProjectInstallationResult> result) {
-		siteAgentProjectInstallationService.receiveAgentProjectInstallationResult(result);
+	@RabbitHandler(isDefault = true)
+	public void receive(Object o) {
+		LOG.info("Received object, which cannot be process {}", o);
 	}
 }

@@ -70,6 +70,7 @@
 		<module>furms-mock-site-agent</module>
 		<module>furms-rabbitmq-site-client</module>
 		<module>furms-rabbitmq-site-model</module>
+		<module>furms-rabbitmq-site-integration-test</module>
 	</modules>
 
 	<developers>
@@ -225,6 +226,18 @@
 			<dependency>
 				<artifactId>furms-server</artifactId>
 				<groupId>io.imunity.furms</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>furms-embedded-broker</artifactId>
+				<groupId>io.imunity.furms</groupId>
+				<type>test-jar</type>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>furms-embedded-broker</artifactId>
+				<groupId>io.imunity.furms</groupId>
+				<type>jar</type>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -18,6 +18,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -39,10 +40,11 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Service
-class SiteServiceImpl implements SiteService {
+class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SiteServiceImpl.class);
 
@@ -266,5 +268,12 @@ class SiteServiceImpl implements SiteService {
 		assertFalse(isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing User ID"));
 
+	}
+
+	@Override
+	public Set<SiteExternalId> findAllIds() {
+		return siteRepository.findAll().stream()
+			.map(Site::getExternalId)
+			.collect(toSet());
 	}
 }

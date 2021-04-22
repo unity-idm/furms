@@ -3,7 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.broker;
+package io.imunity.furms.site;
+
 
 import io.imunity.furms.broker.runner.QpidBrokerJRunner;
 import org.springframework.amqp.core.Declarables;
@@ -20,6 +21,6 @@ public class TestSpringContextConfig {
 	@Profile("embedded-broker")
 	public Declarables createQueue(ConnectionFactory factory) throws Exception {
 		QpidBrokerJRunner.run(factory.getPort(), "configuration-test.json");
-		return new Declarables(new Queue("mock-pub-furms"), new Queue("mock-pub-site"));
+		return new Declarables(new Queue("mock-furms-pub"), new Queue("mock-site-pub"));
 	}
 }

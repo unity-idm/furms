@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
@@ -16,19 +17,20 @@ import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static io.imunity.furms.domain.site_agent.AvailabilityStatus.AVAILABLE;
 import static io.imunity.furms.domain.site_agent.AvailabilityStatus.UNAVAILABLE;
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.PUB_FURMS;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.Status.FAILED;
 import static io.imunity.furms.rabbitmq.site.models.Status.OK;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Service
 class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
@@ -40,6 +42,7 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
+	@EventListener
 	void receiveAgentPingAck(Payload<AgentPingAck> result) {
 		PendingJob<SiteAgentStatus> pendingJob = map.get(result.header.messageCorrelationId);
 		if(result.header.status.equals(OK) && pendingJob != null){
@@ -55,18 +58,18 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 	public PendingJob<SiteAgentStatus> getStatus(SiteExternalId externalId) {
 		CompletableFuture<SiteAgentStatus> connectionFuture = new CompletableFuture<>();
 
-		String correlationId = UUID.randomUUID().toString();
+		CorrelationId correlationId = CorrelationId.randomID();
 		AgentPingRequest agentPingRequest = new AgentPingRequest();
 		try {
-			Header header = new Header("1", correlationId, null, null);
-			rabbitTemplate.convertAndSend(externalId.id + PUB_FURMS, new Payload<>(header, agentPingRequest));
+			Header header = new Header(VERSION, correlationId.id, null, null);
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(externalId), new Payload<>(header, agentPingRequest));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
 		failJobIfNoResponse(connectionFuture);
 
 		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId);
-		map.put(correlationId, pendingJob);
+		map.put(correlationId.id, pendingJob);
 		return pendingJob;
 	}
 

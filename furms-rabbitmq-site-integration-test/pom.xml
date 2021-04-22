@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 Bixbit s.c. All rights reserved.
+  ~ See LICENSE file for licensing information.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>furms-parent</artifactId>
+		<groupId>io.imunity.furms</groupId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>furms-rabbitmq-site-integration-test</artifactId>
+
+	<properties>
+		<sonar.skip>true</sonar.skip>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.amqp</groupId>
+			<artifactId>spring-rabbit-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-rabbitmq-site-client</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-site-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-embedded-broker</artifactId>
+			<type>test-jar</type>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity.furms</groupId>
+			<artifactId>furms-embedded-broker</artifactId>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>rabbitmq-broker</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>reserve-port</id>
+								<goals>
+									<goal>reserve-network-port</goal>
+								</goals>
+								<phase>initialize</phase>
+								<configuration>
+									<portNames>
+										<portName>available.port</portName>
+									</portNames>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<systemPropertyVariables>
+								<broker.profile>rabbitmq-broker</broker.profile>
+								<rabbitmq.port>${available.port}</rabbitmq.port>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>0.35.0</version>
+						<executions>
+							<execution>
+								<id>prepare-rabbitmq</id>
+								<phase>initialize</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+								<configuration>
+									<images>
+										<image>
+											<name>rabbitmq:3.8.14</name>
+											<alias>rabbitmq-ci</alias>
+											<run>
+												<ports>
+													<port>${available.port}:5672</port>
+												</ports>
+												<wait>
+													<log>Server startup complete</log>
+													<time>10000</time>
+												</wait>
+											</run>
+										</image>
+									</images>
+								</configuration>
+							</execution>
+							<execution>
+								<id>remove-rabbitmq</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
