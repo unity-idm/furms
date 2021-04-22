@@ -47,9 +47,13 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 		ProjectAllocationInstallationEntity savedProjectAllocation = repository.save(
 			ProjectAllocationInstallationEntity.builder()
 				.correlationId(UUID.fromString(projectAllocation.correlationId))
-				.siteId(UUID.fromString(projectAllocation.siteId))
+				.siteId(Optional.ofNullable(projectAllocation.siteId).map(UUID::fromString).orElse(null))
 				.projectAllocationId(UUID.fromString(projectAllocation.projectAllocationId))
 				.chunkId(projectAllocation.chunkId)
+				.amount(projectAllocation.amount)
+				.validFrom(projectAllocation.validFrom)
+				.validTo(projectAllocation.validTo)
+				.receivedTime(projectAllocation.receivedTime)
 				.status(projectAllocation.status)
 				.build()
 		);
@@ -59,11 +63,15 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public String update(String id, ProjectAllocationInstallationStatus status) {
 		repository.findById(UUID.fromString(id))
-			.map(job -> ProjectAllocationInstallationEntity.builder()
-				.id(job.getId())
-				.correlationId(job.correlationId)
-				.siteId(job.siteId)
-				.projectAllocationId(job.projectAllocationId)
+			.map(installationEntity -> ProjectAllocationInstallationEntity.builder()
+				.id(installationEntity.getId())
+				.correlationId(installationEntity.correlationId)
+				.siteId(installationEntity.siteId)
+				.projectAllocationId(installationEntity.projectAllocationId)
+				.amount(installationEntity.amount)
+				.validFrom(installationEntity.validFrom)
+				.validTo(installationEntity.validTo)
+				.receivedTime(installationEntity.receivedTime)
 				.status(status)
 				.build())
 			.ifPresent(repository::save);
@@ -72,13 +80,17 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 
 	@Override
 	public String update(ProjectAllocationInstallation projectAllocation) {
-		return repository.findById(UUID.fromString(projectAllocation.id))
+		return repository.findByCorrelationId(UUID.fromString(projectAllocation.correlationId))
 			.map(oldProjectAllocation -> ProjectAllocationInstallationEntity.builder()
 				.id(oldProjectAllocation.getId())
-				.correlationId(UUID.fromString(projectAllocation.correlationId))
-				.siteId(UUID.fromString(projectAllocation.siteId))
-				.projectAllocationId(UUID.fromString(projectAllocation.projectAllocationId))
+				.correlationId(oldProjectAllocation.correlationId)
+				.siteId(oldProjectAllocation.siteId)
+				.projectAllocationId(oldProjectAllocation.projectAllocationId)
 				.chunkId(projectAllocation.chunkId)
+				.amount(projectAllocation.amount)
+				.validFrom(projectAllocation.validFrom)
+				.validTo(projectAllocation.validTo)
+				.receivedTime(projectAllocation.receivedTime)
 				.status(projectAllocation.status)
 				.build()
 			)

@@ -20,22 +20,17 @@ class SiteAgentListenerRouter {
 	public static final String PUB_SITE = "-pub-site";
 	private final SiteAgentStatusServiceImpl siteAgentStatusService;
 	private final SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService;
-	private final SiteAgentProjectAllocationServiceImpl siteAgentProjectAllocationService;
+	private final SiteAgentProjectAllocationInstallationServiceImpl siteAgentProjectAllocationService;
 	private final ApplicationEventPublisher publisher;
 
 	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService,
 	                        SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService,
 	                        ApplicationEventPublisher publisher,
-	                        SiteAgentProjectAllocationServiceImpl siteAgentProjectAllocationService) {
+	                        SiteAgentProjectAllocationInstallationServiceImpl siteAgentProjectAllocationService) {
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
 		this.publisher = publisher;
 		this.siteAgentProjectAllocationService = siteAgentProjectAllocationService;
-	}
-
-	@RabbitHandler
-	public void receive(AgentPingAck ack) {
-		siteAgentStatusService.receive(ack);
 	}
 
 	@RabbitHandler
@@ -59,13 +54,13 @@ class SiteAgentListenerRouter {
 		siteAgentProjectInstallationService.receiveAgentProjectInstallationResult(result);
 	}
 
-	@RabbitHandler
-	public void receive(AgentProjectResourceAllocationAck ack) {
-		siteAgentProjectAllocationService.receive(ack);
+	@EventListener
+	public void receiveAgentProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
+		siteAgentProjectAllocationService.receiveProjectResourceAllocationAck(ack);
 	}
 
-	@RabbitHandler
-	public void receive(AgentProjectResourceAllocationResult result, @Headers Map<String,Object> headers) {
-		siteAgentProjectAllocationService.receive(result, headers);
+	@EventListener
+	public void receiveAgentProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
+		siteAgentProjectAllocationService.receiveProjectResourceAllocationResult(result);
 	}
 }

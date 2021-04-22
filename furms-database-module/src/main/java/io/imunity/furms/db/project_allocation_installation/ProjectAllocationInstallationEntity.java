@@ -10,6 +10,8 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,14 +21,24 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectAllocationId;
 	public final String chunkId;
+	public final BigDecimal amount;
+	public final LocalDateTime validFrom;
+	public final LocalDateTime validTo;
+	public final LocalDateTime receivedTime;
 	public final ProjectAllocationInstallationStatus status;
 
-	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, String chunkId, ProjectAllocationInstallationStatus status) {
+	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, String chunkId,
+	                                    BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
+	                                    LocalDateTime receivedTime, ProjectAllocationInstallationStatus status) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
 		this.chunkId = chunkId;
+		this.amount = amount;
+		this.validFrom = validFrom;
+		this.validTo = validTo;
+		this.receivedTime = receivedTime;
 		this.status = status;
 	}
 
@@ -37,6 +49,10 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			.siteId(siteId.toString())
 			.projectAllocationId(projectAllocationId.toString())
 			.chunkId(chunkId)
+			.amount(amount)
+			.validFrom(validFrom)
+			.validTo(validTo)
+			.receivedTime(receivedTime)
 			.status(status)
 			.build();
 	}
@@ -50,73 +66,106 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
-			Objects.equals(chunkId, that.chunkId) && status == that.status;
+			Objects.equals(chunkId, that.chunkId) &&
+			Objects.equals(amount, that.amount) &&
+			Objects.equals(validFrom, that.validFrom) &&
+			Objects.equals(validTo, that.validTo) &&
+			Objects.equals(receivedTime, that.receivedTime) &&
+			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, status);
+		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status);
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectAllocationJobEntity{" +
+		return "ProjectAllocationInstallationEntity{" +
 			"id=" + id +
 			", correlationId=" + correlationId +
 			", siteId=" + siteId +
 			", projectAllocationId=" + projectAllocationId +
 			", chunkId='" + chunkId + '\'' +
+			", amount=" + amount +
+			", validFrom=" + validFrom +
+			", validTo=" + validTo +
+			", receivedTime=" + receivedTime +
 			", status=" + status +
 			'}';
 	}
 
-	public static ProjectAllocationJobEntityBuilder builder() {
-		return new ProjectAllocationJobEntityBuilder();
+	public static ProjectAllocationInstallationEntityBuilder builder() {
+		return new ProjectAllocationInstallationEntityBuilder();
 	}
 
-	public static final class ProjectAllocationJobEntityBuilder {
+	public static final class ProjectAllocationInstallationEntityBuilder {
 		public UUID correlationId;
 		public UUID siteId;
 		public UUID projectAllocationId;
 		public String chunkId;
+		public BigDecimal amount;
+		public LocalDateTime validFrom;
+		public LocalDateTime validTo;
+		public LocalDateTime receivedTime;
 		public ProjectAllocationInstallationStatus status;
 		protected UUID id;
 
-		private ProjectAllocationJobEntityBuilder() {
+		private ProjectAllocationInstallationEntityBuilder() {
 		}
 
-		public ProjectAllocationJobEntityBuilder id(UUID id) {
+		public ProjectAllocationInstallationEntityBuilder id(UUID id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectAllocationJobEntityBuilder correlationId(UUID correlationId) {
+		public ProjectAllocationInstallationEntityBuilder correlationId(UUID correlationId) {
 			this.correlationId = correlationId;
 			return this;
 		}
 
-		public ProjectAllocationJobEntityBuilder siteId(UUID siteId) {
+		public ProjectAllocationInstallationEntityBuilder siteId(UUID siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ProjectAllocationJobEntityBuilder projectAllocationId(UUID projectAllocationId) {
+		public ProjectAllocationInstallationEntityBuilder projectAllocationId(UUID projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public ProjectAllocationJobEntityBuilder chunkId(String chunkId) {
+		public ProjectAllocationInstallationEntityBuilder chunkId(String chunkId) {
 			this.chunkId = chunkId;
 			return this;
 		}
 
-		public ProjectAllocationJobEntityBuilder status(ProjectAllocationInstallationStatus status) {
+		public ProjectAllocationInstallationEntityBuilder amount(BigDecimal amount) {
+			this.amount = amount;
+			return this;
+		}
+
+		public ProjectAllocationInstallationEntityBuilder validFrom(LocalDateTime validFrom) {
+			this.validFrom = validFrom;
+			return this;
+		}
+
+		public ProjectAllocationInstallationEntityBuilder validTo(LocalDateTime validTo) {
+			this.validTo = validTo;
+			return this;
+		}
+
+		public ProjectAllocationInstallationEntityBuilder receivedTime(LocalDateTime receivedTime) {
+			this.receivedTime = receivedTime;
+			return this;
+		}
+
+		public ProjectAllocationInstallationEntityBuilder status(ProjectAllocationInstallationStatus status) {
 			this.status = status;
 			return this;
 		}
 
 		public ProjectAllocationInstallationEntity build() {
-			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, chunkId, status);
+			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status);
 		}
 	}
 }

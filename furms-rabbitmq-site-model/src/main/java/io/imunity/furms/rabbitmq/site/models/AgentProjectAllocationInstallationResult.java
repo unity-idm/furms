@@ -5,27 +5,27 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import static io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationResult.*;
-
-@JsonDeserialize(builder = AgentProjectResourceAllocationResultBuilder.class)
-@FurmsMessage(type = "ProjectResourceAllocationRequest")
-public class AgentProjectResourceAllocationResult {
+@JsonTypeName("ProjectResourceAllocationResult")
+public class AgentProjectAllocationInstallationResult implements Body {
 	public final String projectIdentifier;
 	public final String allocationIdentifier;
 	public final String allocationChunkIdentifier;
 	public final String resourceType;
 	public final double amount;
-	public final LocalDateTime validFrom;
-	public final LocalDateTime validTo;
+	public final ZonedDateTime validFrom;
+	public final ZonedDateTime validTo;
+	@JsonIgnore
+	public final ZonedDateTime receivedTime = ZonedDateTime.now();
 
-	AgentProjectResourceAllocationResult(String projectIdentifier, String allocationIdentifier, String allocationChunkIdentifier, String resourceType, double amount, LocalDateTime validFrom, LocalDateTime validTo) {
+	@JsonCreator
+	AgentProjectAllocationInstallationResult(String projectIdentifier, String allocationIdentifier, String allocationChunkIdentifier, String resourceType, double amount, ZonedDateTime validFrom, ZonedDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.allocationChunkIdentifier = allocationChunkIdentifier;
@@ -39,7 +39,7 @@ public class AgentProjectResourceAllocationResult {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AgentProjectResourceAllocationResult that = (AgentProjectResourceAllocationResult) o;
+		AgentProjectAllocationInstallationResult that = (AgentProjectAllocationInstallationResult) o;
 		return Double.compare(that.amount, amount) == 0 &&
 			Objects.equals(projectIdentifier, that.projectIdentifier) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
@@ -71,15 +71,14 @@ public class AgentProjectResourceAllocationResult {
 		return new AgentProjectResourceAllocationResultBuilder();
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
 	public static final class AgentProjectResourceAllocationResultBuilder {
 		public String projectIdentifier;
 		public String allocationIdentifier;
 		public String allocationChunkIdentifier;
 		public String resourceType;
 		public double amount;
-		public LocalDateTime validFrom;
-		public LocalDateTime validTo;
+		public ZonedDateTime validFrom;
+		public ZonedDateTime validTo;
 
 		private AgentProjectResourceAllocationResultBuilder() {
 		}
@@ -109,18 +108,18 @@ public class AgentProjectResourceAllocationResult {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResultBuilder validFrom(LocalDateTime validFrom) {
+		public AgentProjectResourceAllocationResultBuilder validFrom(ZonedDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResultBuilder validTo(LocalDateTime validTo) {
+		public AgentProjectResourceAllocationResultBuilder validTo(ZonedDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResult build() {
-			return new AgentProjectResourceAllocationResult(projectIdentifier, allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
+		public AgentProjectAllocationInstallationResult build() {
+			return new AgentProjectAllocationInstallationResult(projectIdentifier, allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
 		}
 	}
 }

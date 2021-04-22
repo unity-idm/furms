@@ -5,27 +5,24 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import static io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationRequest.*;
-
-@JsonDeserialize(builder = AgentProjectResourceAllocationRequestBuilder.class)
-@FurmsMessage(type = "ProjectResourceAllocationRequest")
-public class AgentProjectResourceAllocationRequest {
+@JsonTypeName("ProjectResourceAllocationRequest")
+public class AgentProjectAllocationInstallationRequest implements Body {
 	public final String projectIdentifier;
 	public final String allocationIdentifier;
 	public final String resourceCreditIdentifier;
 	public final String resourceType;
 	public final double amount;
-	public final LocalDateTime validFrom;
-	public final LocalDateTime validTo;
+	public final ZonedDateTime validFrom;
+	public final ZonedDateTime validTo;
 
-	AgentProjectResourceAllocationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, double amount, LocalDateTime validFrom, LocalDateTime validTo) {
+	@JsonCreator
+	AgentProjectAllocationInstallationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, double amount, ZonedDateTime validFrom, ZonedDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.resourceCreditIdentifier = resourceCreditIdentifier;
@@ -39,7 +36,7 @@ public class AgentProjectResourceAllocationRequest {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AgentProjectResourceAllocationRequest that = (AgentProjectResourceAllocationRequest) o;
+		AgentProjectAllocationInstallationRequest that = (AgentProjectAllocationInstallationRequest) o;
 		return Double.compare(that.amount, amount) == 0 &&
 			Objects.equals(projectIdentifier, that.projectIdentifier) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
@@ -71,15 +68,14 @@ public class AgentProjectResourceAllocationRequest {
 		return new AgentProjectResourceAllocationRequestBuilder();
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
 	public static final class AgentProjectResourceAllocationRequestBuilder {
 		public String projectIdentifier;
 		public String allocationIdentifier;
 		public String resourceCreditIdentifier;
 		public String resourceType;
 		public double amount;
-		public LocalDateTime validFrom;
-		public LocalDateTime validTo;
+		public ZonedDateTime validFrom;
+		public ZonedDateTime validTo;
 
 		private AgentProjectResourceAllocationRequestBuilder() {
 		}
@@ -109,18 +105,18 @@ public class AgentProjectResourceAllocationRequest {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequestBuilder validFrom(LocalDateTime validFrom) {
+		public AgentProjectResourceAllocationRequestBuilder validFrom(ZonedDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequestBuilder validTo(LocalDateTime validTo) {
+		public AgentProjectResourceAllocationRequestBuilder validTo(ZonedDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequest build() {
-			return new AgentProjectResourceAllocationRequest(projectIdentifier, allocationIdentifier, resourceCreditIdentifier, resourceType, amount, validFrom, validTo);
+		public AgentProjectAllocationInstallationRequest build() {
+			return new AgentProjectAllocationInstallationRequest(projectIdentifier, allocationIdentifier, resourceCreditIdentifier, resourceType, amount, validFrom, validTo);
 		}
 	}
 }

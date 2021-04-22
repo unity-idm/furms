@@ -9,7 +9,9 @@ import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
@@ -34,6 +36,11 @@ class SiteAgentProjectInstallationServiceTest {
 	private RabbitListenerEndpointRegistry endpointRegistry;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationService;
+	@MockBean
+	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
+	@Autowired
+	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
+
 
 	@Test
 	void shouldInstallProject() throws ExecutionException, InterruptedException {

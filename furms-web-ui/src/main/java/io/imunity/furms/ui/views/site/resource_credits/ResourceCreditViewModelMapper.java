@@ -10,8 +10,8 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 
 import java.time.ZoneId;
 
-import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToZoneTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 class ResourceCreditViewModelMapper {
 	static ResourceCreditViewModel map(ResourceCredit resourceCredit, ZoneId zoneId) {

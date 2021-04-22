@@ -57,4 +57,36 @@ public class SiteAgentMock {
 		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result));
 	}
 
+	@EventListener
+	public void receiveAgentProjectAllocationInstallationRequest(Payload<AgentProjectAllocationInstallationRequest> projectInstallationRequest) throws InterruptedException {
+		String correlationId = projectInstallationRequest.header.messageCorrelationId;
+		Header header = new Header("1", correlationId, Status.OK, null);
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, new AgentProjectAllocationInstallationAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectAllocationInstallationResult result = AgentProjectAllocationInstallationResult.builder()
+			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
+			.allocationIdentifier(projectInstallationRequest.body.allocationIdentifier)
+			.allocationChunkIdentifier("1")
+			.resourceType(projectInstallationRequest.body.resourceType)
+			.amount(projectInstallationRequest.body.amount / 2)
+			.validFrom(projectInstallationRequest.body.validFrom)
+			.validTo(projectInstallationRequest.body.validTo)
+			.build();
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectAllocationInstallationResult result1 = AgentProjectAllocationInstallationResult.builder()
+			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
+			.allocationIdentifier(projectInstallationRequest.body.allocationIdentifier)
+			.allocationChunkIdentifier("2")
+			.resourceType(projectInstallationRequest.body.resourceType)
+			.amount(projectInstallationRequest.body.amount / 4)
+			.validFrom(projectInstallationRequest.body.validFrom)
+			.validTo(projectInstallationRequest.body.validTo)
+			.build();
+		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result1));
+	}
 }

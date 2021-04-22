@@ -17,7 +17,7 @@ public interface ProjectAllocationInstallationEntityRepository extends CrudRepos
 	@Query("select pai.* " +
 		"from project_allocation_installation pai " +
 		"join project_allocation pa on pa.id = pai.project_allocation_id " +
-		"where pa.project_id =: id")
+		"where pa.project_id = :id")
 	Set<ProjectAllocationInstallationEntity> findAllByProjectId(@Param("id") UUID projectId);
 
 	Optional<ProjectAllocationInstallationEntity> findByCorrelationId(UUID correlationId);

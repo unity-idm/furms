@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.utils;
+package io.imunity.furms.utils;
 
 import java.time.*;
 

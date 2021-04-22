@@ -11,8 +11,9 @@ import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.time.ZoneId;
 
-import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.ui.utils.UTCTimeUtils.convertToZoneTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+
 
 public class ProjectViewModelMapper {
 	static ProjectViewModel map(Project project, FURMSUser projectLeader, ZoneId zoneId) {

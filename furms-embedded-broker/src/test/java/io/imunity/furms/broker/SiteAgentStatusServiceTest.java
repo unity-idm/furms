@@ -9,7 +9,9 @@ import io.imunity.furms.domain.site_agent.AvailabilityStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
@@ -30,6 +32,10 @@ class SiteAgentStatusServiceTest {
 	private RabbitListenerEndpointRegistry endpointRegistry;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationService;
+	@MockBean
+	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
+	@Autowired
+	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 
 	@Test
 	void shouldReturnOKStatus() throws ExecutionException, InterruptedException {

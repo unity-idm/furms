@@ -6,13 +6,17 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -40,6 +44,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private final SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
+	private final ProjectAllocationInstallationService projectAllocationInstallationService;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
@@ -47,12 +53,16 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             SiteAgentProjectInstallationService siteAgentProjectInstallationService,
+	                             SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService,
+	                             ProjectAllocationInstallationService projectAllocationInstallationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.siteAgentProjectAllocationInstallationService = siteAgentProjectAllocationInstallationService;
+		this.projectAllocationInstallationService = projectAllocationInstallationService;
 		this.publisher = publisher;
 	}
 
@@ -116,6 +126,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		validator.validateCreate(communityId, projectAllocation);
 		String id = projectAllocationRepository.create(projectAllocation);
 		installProject(projectAllocation, communityId, id);
+		allocateProject(communityId, id);
 		publisher.publishEvent(new CreateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
@@ -133,6 +144,19 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 			);
 			siteAgentProjectInstallationService.installProject(correlationId, projectInstallation);
 		}
+	}
+
+	private void allocateProject(String communityId, String projectAllocationId) {
+		CorrelationId correlationId = new CorrelationId();
+		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
+			.correlationId(correlationId.id)
+			.siteId(projectAllocationResolved.site.getId())
+			.projectAllocationId(projectAllocationId)
+			.status(ProjectAllocationInstallationStatus.SEND)
+			.build();
+		projectAllocationInstallationService.create(communityId, projectAllocationInstallation);
+		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 	}
 
 	@Override

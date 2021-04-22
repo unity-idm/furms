@@ -10,7 +10,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
-class ProjectAllocationInstallationServiceImpl implements ProjectAllocationInstallationService, ProjectAllocationMessageResolver {
+class ProjectAllocationInstallationServiceImpl implements ProjectAllocationInstallationService, ProjectAllocationInstallationMessageResolver {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
@@ -58,7 +58,7 @@ class ProjectAllocationInstallationServiceImpl implements ProjectAllocationInsta
 	//FIXME To auth this method special user for queue message resolving is needed
 	public void updateStatus(ProjectAllocationInstallation result) {
 		projectAllocationInstallationRepository.findByCorrelationId(new CorrelationId(result.correlationId)).ifPresentOrElse(job -> {
-			projectAllocationInstallationRepository.update(job.id, result.status);
+			projectAllocationInstallationRepository.update(result);
 			LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, result.status);
 		}, () -> {
 			projectAllocationInstallationRepository.create(result);
