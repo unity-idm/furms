@@ -10,9 +10,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class PendingJob<J> {
 	public final CompletableFuture<J> jobFuture;
-	public final String correlationId;
+	public final CorrelationId correlationId;
 
-	public PendingJob(CompletableFuture<J> jobFuture, String correlationId) {
+	public PendingJob(CompletableFuture<J> jobFuture, CorrelationId correlationId) {
 		this.jobFuture = jobFuture;
 		this.correlationId = correlationId;
 	}

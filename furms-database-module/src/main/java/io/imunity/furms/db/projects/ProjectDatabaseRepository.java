@@ -5,19 +5,21 @@
 
 package io.imunity.furms.db.projects;
 
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.projects.ProjectRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.UUID.fromString;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.util.Optional.*;
-import static java.util.UUID.fromString;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.projects.ProjectRepository;
 
 @Repository
 class ProjectDatabaseRepository implements ProjectRepository {
@@ -90,7 +92,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 				.map(repository::save)
 				.map(ProjectEntity::getId)
 				.map(UUID::toString)
-				.get();
+				.orElseThrow(() -> new IllegalStateException("Project not found: " + project));
 	}
 
 	@Override

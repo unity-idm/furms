@@ -8,6 +8,7 @@ package io.imunity.furms.ui.components.administrators;
 import com.vaadin.flow.component.icon.Icon;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class AdministratorsGridItem {
 	private final Optional<PersistentId> id;
 	private final Optional<String> firstName;
 	private final Optional<String> lastName;
+	private final UserStatus status;
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
@@ -25,6 +27,7 @@ public class AdministratorsGridItem {
 		this.id = user.id;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;
+		this.status = user.status;
 		this.email = user.email;
 	}
 
@@ -38,6 +41,10 @@ public class AdministratorsGridItem {
 
 	public Optional<String> getLastName() {
 		return lastName;
+	}
+
+	public UserStatus getStatus() {
+		return status;
 	}
 
 	public String getEmail() {
@@ -71,6 +78,7 @@ public class AdministratorsGridItem {
 			"id='" + id + '\'' +
 			", firstName='" + firstName + '\'' +
 			", lastName='" + lastName + '\'' +
+			", status='" + status + '\'' +
 			", email='" + email + '\'' +
 			'}';
 	}

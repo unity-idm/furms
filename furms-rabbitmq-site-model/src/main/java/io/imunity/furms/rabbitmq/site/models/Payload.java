@@ -17,6 +17,7 @@ public class Payload<T extends Body> implements ResolvableTypeProvider {
 	public final Header header;
 	public final T body;
 
+	@SuppressWarnings("unchecked")
 	@JsonCreator
 	public Payload(Header header, Body body) {
 		this.header = header;
@@ -27,7 +28,7 @@ public class Payload<T extends Body> implements ResolvableTypeProvider {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Payload payload = (Payload) o;
+		Payload<?> payload = (Payload<?>) o;
 		return Objects.equals(header, payload.header) &&
 			Objects.equals(body, payload.body);
 	}

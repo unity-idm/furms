@@ -6,7 +6,6 @@
 package io.imunity.furms.rabbitmq.site.client.config;
 
 import io.imunity.furms.rabbitmq.site.models.converter.FurmsConverter;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -16,11 +15,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class AMQPConfig {
-	@Bean
-	Queue replyQueue(){
-		return new Queue("reply-queue");
-	}
-
 	@Bean
 	RabbitAdmin rabbitAdmin(RabbitTemplate rabbitTemplate){
 		return new RabbitAdmin(rabbitTemplate);

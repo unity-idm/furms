@@ -6,7 +6,7 @@
 package io.imunity.furms.db.project_installation;
 
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.DONE;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -120,14 +120,14 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, DONE);
+		entityDatabaseRepository.update(id, INSTALLED);
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(UUID.fromString(id));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(DONE);
+		assertThat(byId.get().status).isEqualTo(INSTALLED);
 	}
 
 	@Test

@@ -15,10 +15,6 @@ public class CorrelationId {
 		this.id = id;
 	}
 
-	public CorrelationId() {
-		this.id = UUID.randomUUID().toString();
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -37,5 +33,9 @@ public class CorrelationId {
 		return "CorrelationId{" +
 			"id='" + id + '\'' +
 			'}';
+	}
+
+	public static CorrelationId randomID(){
+		return new CorrelationId(UUID.randomUUID().toString());
 	}
 }

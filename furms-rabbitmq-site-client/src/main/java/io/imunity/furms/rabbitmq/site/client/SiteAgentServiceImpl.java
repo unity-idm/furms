@@ -11,30 +11,28 @@ import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.*;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSitePublishQueueName;
 
 @Service
 class SiteAgentServiceImpl implements SiteAgentService {
 
 	private final RabbitAdmin rabbitAdmin;
-	private final RabbitListenerEndpointRegistry endpointRegistry;
+	private final SiteAgentListenerConnector siteAgentListenerConnector;
 
-	SiteAgentServiceImpl(RabbitAdmin rabbitAdmin, RabbitListenerEndpointRegistry endpointRegistry) {
+	SiteAgentServiceImpl(RabbitAdmin rabbitAdmin, SiteAgentListenerConnector siteAgentListenerConnector) {
 		this.rabbitAdmin = rabbitAdmin;
-		this.endpointRegistry = endpointRegistry;
+		this.siteAgentListenerConnector = siteAgentListenerConnector;
 	}
 
 	@Override
 	public void initializeSiteConnection(SiteExternalId externalId) {
 		try {
-			rabbitAdmin.declareQueue(new Queue(externalId.id + PUB_FURMS));
-			rabbitAdmin.declareQueue(new Queue(externalId.id + PUB_SITE));
-			AbstractMessageListenerContainer container = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer(FURMS_LISTENER);
-			container.addQueueNames(externalId.id + PUB_SITE);
+			rabbitAdmin.declareQueue(new Queue(getFurmsPublishQueueName(externalId)));
+			rabbitAdmin.declareQueue(new Queue(getSitePublishQueueName(externalId)));
+			siteAgentListenerConnector.connectListenerToQueue(getSitePublishQueueName(externalId));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -43,10 +41,9 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	@Override
 	public void removeSiteConnection(SiteExternalId externalId) {
 		try {
-			rabbitAdmin.deleteQueue(externalId.id + PUB_FURMS);
-			rabbitAdmin.deleteQueue(externalId.id + PUB_SITE);
-			AbstractMessageListenerContainer container = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer(FURMS_LISTENER);
-			container.removeQueueNames(externalId.id + PUB_SITE);
+			rabbitAdmin.deleteQueue(getFurmsPublishQueueName(externalId));
+			rabbitAdmin.deleteQueue(getSitePublishQueueName(externalId));
+			siteAgentListenerConnector.disconnectListenerToQueue(getSitePublishQueueName(externalId));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

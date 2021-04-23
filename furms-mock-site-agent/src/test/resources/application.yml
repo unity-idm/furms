@@ -1,7 +1,7 @@
 logging.level.org.springframework.amqp: DEBUG
 queue:
-  req-name: cin-x-pub-furms
-  res-name: cin-x-pub-site
+  req-name: cin-x-furms-pub
+  res-name: cin-x-site-pub
 spring:
    rabbitmq:
       username: guest
