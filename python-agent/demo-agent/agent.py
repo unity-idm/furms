@@ -5,29 +5,30 @@ import logging
 import sys
 import os
 import time
-from furms import model, msgslistener, set_stream_logger
+import furms
+from furms.msgslistener import SiteListener
 
 if len(sys.argv) != 2:
-    print("Provide queue name as command line parameter.")
+    print("Provide Site Id as command line parameter.")
     sys.exit(1)
 
-set_stream_logger('furms.msgslistener', logging.DEBUG)
+furms.set_stream_logger('furms.msgslistener', logging.DEBUG)
 
 host = os.getenv('BROKER_HOST', '127.0.0.1')
-brokerConfig = model.BrokerConfiguration(
+brokerConfig = furms.BrokerConfiguration(
     host=os.getenv('BROKER_HOST', '127.0.0.1'), 
     port=os.getenv('BROKER_PORT', '44444'), 
     username=os.getenv('BROKER_USERNAME', 'guest'), 
     password=os.getenv('BROKER_PASSWORD', 'guest'), 
     cafile=os.getenv('CA_FILE', 'ca_certificate.pem'),
-    queuename=sys.argv[1])
+    siteid=sys.argv[1])
 
-listeners = model.RequestListeners()
+listeners = furms.RequestListeners()
 
 listeners.ping_listener(lambda: time.sleep(2))
 
 try:
-    msgslistener.start_consuming(config=brokerConfig, listeners=listeners)
+    SiteListener(config=brokerConfig, listeners=listeners).start_consuming()
 except KeyboardInterrupt:
     print('Interrupted')
     try:

@@ -5,65 +5,66 @@ import pika
 import functools
 import logging
 import ssl
-from furms.model import BrokerConfiguration, MessageHeaders, RequestListeners, ProtocolRequestTypes
+import furms
 
 logger = logging.getLogger(__name__)
 
-def start_consuming(config: BrokerConfiguration, listeners:RequestListeners):
-    connection = pika.BlockingConnection(connection_params(config))
-    channel = connection.channel()
 
-    on_message_callback = functools.partial(msgs_listener, args=(listeners))
-    channel.basic_consume(queue=config.queuename, on_message_callback=on_message_callback, auto_ack=True)
-    channel.start_consuming()
+class SiteListener:
+    def __init__(self, config: furms.BrokerConfiguration, listeners: furms.RequestListeners) -> None:
+        self.config = config
+        self.listeners = listeners
 
-def connection_params(config: BrokerConfiguration):
-    plain_credentials = pika.credentials.PlainCredentials(config.username, config.password)
-    ssl_options = None
-    if config.is_ssl_enabled():
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        context.verify_mode = ssl.CERT_REQUIRED
-        context.load_verify_locations(config.cafile)
-        ssl_options = pika.SSLOptions(context)
+    def start_consuming(self):
+        connection = pika.BlockingConnection(self._connection_params())
+        channel = connection.channel()
 
-    return pika.ConnectionParameters(
-        host=config.host, 
-        port=config.port, 
-        credentials=plain_credentials, 
-        ssl_options=ssl_options)        
+        channel.basic_consume(self.config.queues.furms_to_site_queue_name(), self.on_message, auto_ack=True)
+        channel.start_consuming()
+    
+    def _connection_params(self):
+        plain_credentials = pika.credentials.PlainCredentials(self.config.username, self.config.password)
+        ssl_options = None
+        if self.config.is_ssl_enabled():
+            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            context.verify_mode = ssl.CERT_REQUIRED
+            context.load_verify_locations(self.config.cafile)
+            ssl_options = pika.SSLOptions(context)
 
-def msgs_listener(channel, method, properties, body, args):
-    (listeners) = args
-    logger.debug("Received ch=%r, method=%r, properties=%r, body=%r" % (channel, method, properties, body))
+        return pika.ConnectionParameters(
+            host=self.config.host, 
+            port=self.config.port, 
+            credentials=plain_credentials, 
+            ssl_options=ssl_options)      
+    
+    def on_message(self, channel, basic_deliver, properties, body):
+        logger.debug("Received \nbody=%r\nbasic_deliver=%r, \nproperties=%r" % (body, basic_deliver, properties))
 
-    furmsMessageType = properties.headers['furmsMessageType']
-    logger.info("received furmsMessageType=%r" % furmsMessageType)
+        payload = furms.Payload.from_body(body)
+        logger.info("Received payload=%r" % str(payload))
 
-    if furmsMessageType == ProtocolRequestTypes.PING:
-        pingListener = listeners.get(ProtocolRequestTypes.PING) 
-        handleAgentPingRequest(channel, method, properties, pingListener)
-
-def handleAgentPingRequest(channel, method, properties, pingListener):
-    headers = MessageHeaders().type(ProtocolRequestTypes.PING)
-    publish(channel, method, properties.reply_to, responseProperties(properties, headers.in_progress_status()))
-    pingListener()
-    publish(channel, method, properties.reply_to, responseProperties(properties, headers.ok_status()))
+        if isinstance(payload.body, furms.AgentPingRequest):
+            self.handleAgentPingRequest(channel, basic_deliver, payload)
 
 
-def publish(channel, method, reply_to, properties:pika.BasicProperties, responseBody=''):
-    channel.basic_publish(method.exchange, 
-        routing_key=reply_to, 
-        properties=properties,
-        body=responseBody)
-    logger.info("response published properties=%r, body=%r" % (properties, responseBody))
+    def handleAgentPingRequest(self, channel, basic_deliver, payload:furms.Payload):
+        pingListener = self.listeners.get(payload.body)
+        pingListener()
 
-def responseProperties(properties, headers:MessageHeaders):
-    return pika.BasicProperties(
-        content_type='application/json', 
-        correlation_id=properties.correlation_id,
-        delivery_mode=2, # make message persistent
-        headers={
-            'status': headers.status, 
-            'furmsMessageType': headers.msgType
-        }
-    )
+        header = furms.Header(payload.header.messageCorrelationId, payload.header.version, status="OK")
+        response = furms.Payload(header, furms.AgentPingAck())
+        self.publish(channel, basic_deliver, response)
+
+    def publish(self, channel, basic_deliver, payload:furms.Payload):
+        response_body = str(payload)
+        reply_to = self.config.queues.site_to_furms_queue_name()
+        channel.basic_publish(basic_deliver.exchange, 
+            routing_key=reply_to, 
+            properties=pika.BasicProperties(
+                content_type='application/json', 
+                delivery_mode=2, # make message persistent
+            ),
+            body=response_body)
+        logger.info("response published to %s body=%r" % (reply_to, response_body))
+
+
