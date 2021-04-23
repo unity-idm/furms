@@ -24,12 +24,9 @@ class SiteAgentListenerRouter {
 	public static final String FURMS_LISTENER = "FURMS_LISTENER";
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final SiteAgentListenerConnector siteAgentListenerConnector;
 	private final ApplicationEventPublisher publisher;
 
-	SiteAgentListenerRouter(SiteAgentListenerConnector siteAgentListenerConnector,
-	                        ApplicationEventPublisher publisher) {
-		this.siteAgentListenerConnector = siteAgentListenerConnector;
+	SiteAgentListenerRouter(ApplicationEventPublisher publisher) {
 		this.publisher = publisher;
 	}
 
