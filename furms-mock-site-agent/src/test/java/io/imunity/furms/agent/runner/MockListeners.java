@@ -17,7 +17,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
