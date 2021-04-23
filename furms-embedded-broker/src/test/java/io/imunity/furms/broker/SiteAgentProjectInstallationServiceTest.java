@@ -22,6 +22,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 
 @SpringBootTest
@@ -30,6 +31,8 @@ class SiteAgentProjectInstallationServiceTest {
 	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationService;
+	@MockBean
+	private SSHKeyOperationMessageResolver sshKeyOperationService;
 
 	@Test
 	void shouldInstallProject() throws ExecutionException, InterruptedException {

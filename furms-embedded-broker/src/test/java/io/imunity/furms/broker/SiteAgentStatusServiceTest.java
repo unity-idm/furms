@@ -20,6 +20,7 @@ import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 
 @SpringBootTest
@@ -28,7 +29,9 @@ class SiteAgentStatusServiceTest {
 	private SiteAgentStatusService siteAgentStatusService;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationService;
-
+	@MockBean
+	private SSHKeyOperationMessageResolver sshKeyOperationService;
+	
 	@Test
 	void shouldReturnOKStatus() throws ExecutionException, InterruptedException {
 		PendingJob<SiteAgentStatus> ping = siteAgentStatusService.getStatus(new SiteExternalId("mock"));

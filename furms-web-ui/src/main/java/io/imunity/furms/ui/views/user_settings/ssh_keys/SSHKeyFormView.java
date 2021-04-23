@@ -39,7 +39,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
 class SSHKeyFormView extends FurmsViewComponent {
 
-	private final Binder<SSHKeyViewModel> binder = new BeanValidationBinder<>(SSHKeyViewModel.class);
+	private final Binder<SSHKeyUpdateModel> binder = new BeanValidationBinder<>(SSHKeyUpdateModel .class);
 	private final SSHKeyFormComponent sshKeyComponent;
 	private final SSHKeyService sshKeyService;
 	private final AuthzService authzService;
@@ -86,11 +86,11 @@ class SSHKeyFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 
-		SSHKeyViewModel serviceViewModel = ofNullable(parameter)
+		SSHKeyUpdateModel serviceViewModel = ofNullable(parameter)
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
 				.flatMap(Function.identity())
-				.map(k -> SSHKeyViewModelMapper.map(k, zoneId))
-				.orElseGet(() -> new SSHKeyViewModel(authzService.getCurrentUserId()));
+				.map(k -> SSHKeyViewModelMapper.mapToUpdate(k, zoneId))
+				.orElseGet(() -> new SSHKeyUpdateModel(authzService.getCurrentUserId()));
 
 		String trans = parameter == null ? "view.user-settings.ssh-keys.form.parameter.new"
 				: "view.user-settings.ssh-keys.form.parameter.update";
@@ -99,15 +99,15 @@ class SSHKeyFormView extends FurmsViewComponent {
 	}
 
 	private void saveSSHKey() {
-		SSHKeyViewModel sshKeyViewModel = binder.getBean();
+		SSHKeyUpdateModel sshKeyUpdateModel = binder.getBean();
 		OptionalException<String> optionalException;
-		if (sshKeyViewModel.id == null) {
+		if (sshKeyUpdateModel.id == null) {
 			optionalException = getResultOrException(
-					() -> sshKeyService.create(SSHKeyViewModelMapper.map(sshKeyViewModel)));
+					() -> sshKeyService.create(SSHKeyViewModelMapper.map(sshKeyUpdateModel)));
 		} else {
-			sshKeyViewModel.setUpdateTime(ZonedDateTime.now());
+			sshKeyUpdateModel.setUpdateTime(ZonedDateTime.now());
 			optionalException = getResultOrException(
-					() -> sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyViewModel)));
+					() -> sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyUpdateModel)));
 		}
 
 		optionalException.getThrowable().ifPresentOrElse(

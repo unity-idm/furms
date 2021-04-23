@@ -16,6 +16,12 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalAck;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalResult;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.consts.Queues;
 
 @Component
@@ -24,10 +30,13 @@ class SiteAgentListenerRouter {
 
 	private final SiteAgentStatusServiceImpl siteAgentStatusService;
 	private final SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService;
+	private final SiteAgentSSHKeyOperationServiceImpl siteAgentSSHKeyOperationService;
 
-	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService, SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService) {
+	SiteAgentListenerRouter(SiteAgentStatusServiceImpl siteAgentStatusService, SiteAgentProjectInstallationServiceImpl siteAgentProjectInstallationService,
+			SiteAgentSSHKeyOperationServiceImpl siteAgentSSHKeyOperationService) {
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.siteAgentSSHKeyOperationService = siteAgentSSHKeyOperationService;
 	}
 
 	@RabbitHandler
@@ -49,4 +58,36 @@ class SiteAgentListenerRouter {
 	public void receive(AgentProjectInstallationResult result, @Headers Map<String,Object> headers) {
 		siteAgentProjectInstallationService.receive(result, headers);
 	}
+	
+	@RabbitHandler
+	public void receive(AgentSSHKeyAdditionAck ack) {
+		siteAgentSSHKeyOperationService.receive(ack);
+	}
+
+	@RabbitHandler
+	public void receive(AgentSSHKeyAdditionResult result, @Headers Map<String,Object> headers) {
+		siteAgentSSHKeyOperationService.receive(result, headers);
+	}
+	
+	@RabbitHandler
+	public void receive(AgentSSHKeyRemovalAck ack) {
+		siteAgentSSHKeyOperationService.receive(ack);
+	}
+
+	@RabbitHandler
+	public void receive(AgentSSHKeyRemovalResult result, @Headers Map<String,Object> headers) {
+		siteAgentSSHKeyOperationService.receive(result, headers);
+	}
+	
+	@RabbitHandler
+	public void receive(AgentSSHKeyUpdatingAck ack) {
+		siteAgentSSHKeyOperationService.receive(ack);
+	}
+
+	@RabbitHandler
+	public void receive(AgentSSHKeyUpdatingResult result, @Headers Map<String,Object> headers) {
+		siteAgentSSHKeyOperationService.receive(result, headers);
+	}
+	
+	
 }

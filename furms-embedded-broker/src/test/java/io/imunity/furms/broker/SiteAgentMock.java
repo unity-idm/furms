@@ -8,6 +8,9 @@ package io.imunity.furms.broker;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
+import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult.AgentSSHKeyAdditionResultBuilder;
 import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -73,6 +76,26 @@ public class SiteAgentMock {
 		String i = String.valueOf(new Random().nextInt(1000));
 		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.id, Map.of("gid", i));
 		rabbitTemplate.convertAndSend("reply-queue", result, new TypeHeaderAppender(result, correlationId));
+	}
+	
+	@RabbitHandler
+	public void receive(AgentSSHKeyAdditionRequest agentSSHKeyInstallationRequest, @Headers Map<String,Object> headers) throws InterruptedException {
+		String correlationId = headers.get(CORRELATION_ID).toString();
+		MessageProperties messageProperties = new MessageProperties();
+		messageProperties.setHeader("version", 1);
+		messageProperties.setHeader("status", "IN_PROGRESS");
+		messageProperties.setCorrelationId(correlationId);
+		messageProperties.setHeader("furmsMessageType", "UserSSHKeyAddAck");
+		Message replyAckMessage = new Message(new byte[]{}, messageProperties);
+		rabbitTemplate.send("reply-queue", replyAckMessage);
+
+		TimeUnit.SECONDS.sleep(5);
+		
+		AgentSSHKeyAdditionResult result = AgentSSHKeyAdditionResultBuilder
+				.anAgentSSHKeyAdditionResultBuilder()
+				.fenixUserId(agentSSHKeyInstallationRequest.fenixUserId)
+				.uid(agentSSHKeyInstallationRequest.uid).build();
+		rabbitTemplate.convertAndSend("reply-queue", result, new TypeHeaderAppender(result, correlationId, "OK"));
 	}
 
 }

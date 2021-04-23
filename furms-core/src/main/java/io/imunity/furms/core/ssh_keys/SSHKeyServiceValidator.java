@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
@@ -19,23 +20,26 @@ import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
 @Component
 public class SSHKeyServiceValidator {
 
 	private final SSHKeyRepository sshKeysRepository;
+	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteRepository siteRepository;
 	private final AuthzService authzService;
 
 	SSHKeyServiceValidator(SSHKeyRepository sshKeysRepository, AuthzService authzService,
-			SiteRepository siteRepository) {
+			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.authzService = authzService;
 		this.siteRepository = siteRepository;
+		this.sshKeyOperationRepository = sshKeyOperationRepository;
 	}
 
 	void validateCreate(SSHKey sshKey) {
@@ -53,11 +57,14 @@ public class SSHKeyServiceValidator {
 		validateOwner(sshKey.ownerId);
 		validateValue(sshKey.value);
 		validateSites(sshKey);
+		validateOpenOperation(sshKey);
 	}
 
 	void validateDelete(String id) {
 		validateId(id);
-		validateOwner(sshKeysRepository.findById(id).get().ownerId);
+		SSHKey key = sshKeysRepository.findById(id).get();
+		validateOwner(key.ownerId);
+		validateOpenOperation(key);
 	}
 
 	void validateOwner(PersistentId ownerId) {
@@ -112,5 +119,12 @@ public class SSHKeyServiceValidator {
 									.collect(Collectors.joining(", "))
 							+ " requires ssh key \"from\""));
 		}
+	}
+
+	void validateOpenOperation(SSHKey key) {
+		assertTrue(sshKeyOperationRepository.findBySSHKey(key.id).stream()
+				.filter(operation -> !DONE.equals(operation.status)).findAny().isEmpty(),
+				() -> new IllegalArgumentException(
+						"Invalid SSH key: there are uncompleted key operations"));
 	}
 }

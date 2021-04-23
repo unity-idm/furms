@@ -5,20 +5,23 @@
 
 package io.imunity.furms.unity.users;
 
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.unity.common.AttributeValueMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.Identity;
+import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.unity.common.AttributeValueMapper;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.Identity;
 
 public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -32,8 +35,8 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
-	public static Optional<FURMSUser> map(PersistentId userId, List<Attribute> attributes){
-		FURMSUser user = buildUser(userId, attributes);
+	public static Optional<FURMSUser> map(PersistentId userId,  List<Identity> identities, List<Attribute> attributes){
+		FURMSUser user = buildUser(userId, getFenixId(identities), attributes);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
@@ -44,15 +47,17 @@ public class UnityUserMapper {
 	private static FURMSUser buildUser(GroupMember groupMember) {
 		return FURMSUser.builder()
 			.id(new PersistentId(getId(groupMember)))
+			.fenixUserId(getFenixId(groupMember))
 			.firstName(getFirstAttributeValue(groupMember, "firstname"))
 			.lastName(getFirstAttributeValue(groupMember, "surname"))
 			.email(getFirstAttributeValue(groupMember, "email"))
 			.build();
 	}
 
-	private static FURMSUser buildUser(PersistentId userId, List<Attribute> attributes) {
+	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<Attribute> attributes) {
 		return FURMSUser.builder()
 			.id(userId)
+			.fenixUserId(fenixUserId)
 			.firstName(getFirstAttributeValue(attributes, "firstname"))
 			.lastName(getFirstAttributeValue(attributes, "surname"))
 			.email(getFirstAttributeValue(attributes, "email"))
@@ -65,6 +70,20 @@ public class UnityUserMapper {
 			.findAny()
 			.map(Identity::getComparableValue)
 			.orElse(null);
+	}
+	
+	private static FenixUserId getFenixId(GroupMember groupMember) {
+		return groupMember.getEntity().getIdentities().stream()
+			.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
+			.findAny()
+			.map(Identity::getComparableValue)
+			.map(id -> new FenixUserId(id))
+			.orElse(null);
+	}
+	
+	private static FenixUserId getFenixId(List<Identity> identities) {
+		return identities.stream().filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
+				.findAny().map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
 	}
 
 	private static String getFirstAttributeValue(GroupMember groupMember, String attributeValue) {

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +24,12 @@ import com.google.common.collect.Sets;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +42,9 @@ class SSHKeyServiceValidatorTest {
 	private SiteRepository siteRepository;
 
 	@Mock
+	private SSHKeyOperationRepository sshKeyOperationRepository;
+
+	@Mock
 	private AuthzService authzService;
 
 	@InjectMocks
@@ -45,7 +52,8 @@ class SSHKeyServiceValidatorTest {
 
 	@BeforeEach
 	void setUp() {
-		validator = new SSHKeyServiceValidator(sshKeysRepository, authzService, siteRepository);
+		validator = new SSHKeyServiceValidator(sshKeysRepository, authzService, siteRepository,
+				sshKeyOperationRepository);
 	}
 
 	@Test
@@ -266,6 +274,38 @@ class SSHKeyServiceValidatorTest {
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(key));
 	}
+
+	@Test
+	void shouldNotPassRemoveWhenUnfinishedOperationsExists() {
+		// given
+		final SSHKey key = getKey();
+		
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(sshKeysRepository.findById(key.id)).thenReturn(Optional.of(key));
+		when(sshKeysRepository.exists(key.id)).thenReturn(true);
+		when(sshKeyOperationRepository.findBySSHKey(key.id))
+				.thenReturn(List.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
+
+		// when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(key.id));
+	}
+	
+	@Test
+	void shouldNotPassUpdateWhenUnfinishedOperationsExists() {
+		// given
+		final SSHKey key = getKey();
+		
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(sshKeysRepository.exists(key.id)).thenReturn(true);
+		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
+		when(siteRepository.exists("s1")).thenReturn(true);
+		when(sshKeyOperationRepository.findBySSHKey(key.id)).thenReturn(List
+				.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
+
+		// when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(key));
+	}
+
 
 	@Test
 	void shouldCreateWhenSitesRequireFromOptionAndKeyWithFromOption() {

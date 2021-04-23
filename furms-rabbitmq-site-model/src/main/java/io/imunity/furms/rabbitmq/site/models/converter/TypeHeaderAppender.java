@@ -15,13 +15,25 @@ public class TypeHeaderAppender implements MessagePostProcessor {
 
 	private static final String FURMS_MESSAGE_TYPE = "furmsMessageType";
 	private static final String VERSION = "version";
+	private static final String STATUS = "status";
+	
 	private final Object body;
 	private final String correlationId;
+	private final String status;
 
 	public TypeHeaderAppender(Object body, String correlationId) {
 		this.body = body;
 		this.correlationId = correlationId;
+		this.status = null;
 	}
+	
+	public TypeHeaderAppender(Object body, String correlationId, String status) {
+		this.body = body;
+		this.correlationId = correlationId;
+		this.status = status;
+	}
+	
+	
 
 	@Override
 	public Message postProcessMessage(Message message) throws AmqpException {
@@ -30,6 +42,10 @@ public class TypeHeaderAppender implements MessagePostProcessor {
 			message.getMessageProperties().getHeaders().put(FURMS_MESSAGE_TYPE, furmsMessage.type());
 		}
 		message.getMessageProperties().getHeaders().put(VERSION, 1);
+		if (status != null)
+		{
+			message.getMessageProperties().getHeaders().put(STATUS, status);
+		}
 		message.getMessageProperties().setCorrelationId(correlationId);
 		message.getMessageProperties().setReplyTo(Queues.REPLY_QUEUE);
 		return message;

@@ -1,6 +1,6 @@
 logging.level.org.springframework.amqp: DEBUG
 queue:
-  name: cin-x
+  name: fzj-x
 spring:
    rabbitmq:
       username: guest

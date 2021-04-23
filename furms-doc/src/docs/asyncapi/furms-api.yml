@@ -262,6 +262,53 @@ channels:
                      $ref: "#/components/schemas/uid"
 
 
+   site/site_id/sshkey/update/req:
+      subscribe:
+         summary: Update user's SSH key
+         description: Is used to request SSH key update on a site
+         operationId: UserSSHKeyUpdateRequest
+         message:
+            name: UserSSHKeyUpdateRequest
+            traits:
+               - $ref: "#/components/messageTraits/request"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  fenixUserId:
+                     $ref: "#/components/schemas/fenixUserId"
+                  uid:
+                     $ref: "#/components/schemas/uid"
+                  oldPublicKey:
+                     type: string
+                  newPublicKey:
+                     type: string
+
+   site/site_id/sshkey/update/ack:
+      publish:
+         summary: Acknowledge SSH key update request
+         operationId: UserSSHKeyUpdateRequestAck
+         message:
+            $ref: "#/components/messages/requestAck"
+            
+   site/site_id/sshkey/update/resp:
+      publish:
+         summary: Acknowledge updating SSH key
+         operationId: UserSSHKeyUpdateResult
+         message:
+            name: UserSSHKeyUpdateResult
+            traits:
+               - $ref: "#/components/messageTraits/response"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  fenixUserId:
+                     $ref: "#/components/schemas/fenixUserId"
+                  uid:
+                     $ref: "#/components/schemas/uid"
+   
+   
    site/site_id/sshkey/remove/req:
       subscribe:
          summary: Remove user's SSH key
