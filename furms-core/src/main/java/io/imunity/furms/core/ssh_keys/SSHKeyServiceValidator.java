@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;

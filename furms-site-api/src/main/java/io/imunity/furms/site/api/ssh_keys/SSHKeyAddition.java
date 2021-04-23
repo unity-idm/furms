@@ -3,21 +3,22 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
-package io.imunity.furms.domain.ssh_key_operation;
-
-import java.util.Objects;
+package io.imunity.furms.site.api.ssh_keys;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 
-public class SSHKeyRemoval {
+import java.util.Objects;
+
+
+public class SSHKeyAddition {
+
 	public final SiteExternalId siteExternalId;
 	public final FenixUserId user;
 	public final String userUid;
 	public final String publicKey;
 
-	SSHKeyRemoval(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
+	SSHKeyAddition(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
 		
 		this.siteExternalId = siteExternalId;
 		this.user = user;
@@ -77,8 +78,9 @@ public class SSHKeyRemoval {
 			return this;
 		}
 
-		public SSHKeyRemoval build() {
-			return new SSHKeyRemoval(siteExternalId, user, userUid, publicKey);
+		public SSHKeyAddition build() {
+			return new SSHKeyAddition(siteExternalId, user, userUid, publicKey);
 		}
 	}
+
 }

@@ -5,10 +5,9 @@
 
 package io.imunity.furms.db.ssh_key_operation;
 
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ACK;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.SEND;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.ADD;
-
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;

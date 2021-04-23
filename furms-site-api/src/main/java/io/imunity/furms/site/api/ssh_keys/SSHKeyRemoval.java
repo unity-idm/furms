@@ -3,34 +3,31 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.domain.ssh_key_operation;
+
+package io.imunity.furms.site.api.ssh_keys;
+
+import java.util.Objects;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 
-import java.util.Objects;
-
-public class SSHKeyUpdating {
-
+public class SSHKeyRemoval {
 	public final SiteExternalId siteExternalId;
 	public final FenixUserId user;
 	public final String userUid;
-	public final String oldPublicKey;
-	public final String newPublicKey;
+	public final String publicKey;
 
-	SSHKeyUpdating(SiteExternalId siteExternalId, FenixUserId user, String userUid, String oldPublicKey,
-			String newPublicKey) {
-
+	SSHKeyRemoval(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
+		
 		this.siteExternalId = siteExternalId;
 		this.user = user;
 		this.userUid = userUid;
-		this.oldPublicKey = oldPublicKey;
-		this.newPublicKey = newPublicKey;
+		this.publicKey = publicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(newPublicKey, oldPublicKey, siteExternalId, user, userUid);
+		return Objects.hash(publicKey, siteExternalId, user, userUid);
 	}
 
 	@Override
@@ -41,9 +38,8 @@ public class SSHKeyUpdating {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SSHKeyUpdating other = (SSHKeyUpdating) obj;
-		return Objects.equals(newPublicKey, other.newPublicKey)
-				&& Objects.equals(oldPublicKey, other.oldPublicKey)
+		SSHKeyAddition other = (SSHKeyAddition) obj;
+		return Objects.equals(publicKey, other.publicKey)
 				&& Objects.equals(siteExternalId, other.siteExternalId)
 				&& Objects.equals(user, other.user) && Objects.equals(userUid, other.userUid);
 	}
@@ -56,8 +52,7 @@ public class SSHKeyUpdating {
 		private SiteExternalId siteExternalId;
 		private FenixUserId user;
 		private String userUid;
-		private String oldPublicKey;
-		private String newPublicKey;
+		private String publicKey;
 
 		private Builder() {
 		}
@@ -77,19 +72,13 @@ public class SSHKeyUpdating {
 			return this;
 		}
 
-		public Builder oldPublicKey(String oldPublicKey) {
-			this.oldPublicKey = oldPublicKey;
+		public Builder publicKey(String publicKey) {
+			this.publicKey = publicKey;
 			return this;
 		}
 
-		public Builder newPublicKey(String newPublicKey) {
-			this.newPublicKey = newPublicKey;
-			return this;
-		}
-
-		public SSHKeyUpdating build() {
-			return new SSHKeyUpdating(siteExternalId, user, userUid, oldPublicKey, newPublicKey);
+		public SSHKeyRemoval build() {
+			return new SSHKeyRemoval(siteExternalId, user, userUid, publicKey);
 		}
 	}
-
 }

@@ -3,12 +3,11 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.api.ssh_key_installation;
+package io.imunity.furms.api.ssh_keys;
 
 import java.util.List;
 
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 public interface SSHKeyOperationService {
 	
@@ -17,8 +16,6 @@ public interface SSHKeyOperationService {
 	SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
 
 	void deleteBySSHKeyIdAndSiteId(String id, String id2);
-	
-	SSHKeyOperationJob findByCorrelationId(CorrelationId correlationId);
 
 	List<SSHKeyOperationJob> findBySSHKey(String sshkeyId);
 }

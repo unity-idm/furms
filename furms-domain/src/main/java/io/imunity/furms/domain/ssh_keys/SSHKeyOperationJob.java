@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.ssh_key_operation;
+package io.imunity.furms.domain.ssh_keys;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 

@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 class SSHKeyViewModelMapper {
 

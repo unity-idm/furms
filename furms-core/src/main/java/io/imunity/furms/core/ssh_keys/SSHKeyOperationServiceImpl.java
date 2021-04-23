@@ -3,12 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.core.ssh_key_installation;
+package io.imunity.furms.core.ssh_keys;
 
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -19,11 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.imunity.furms.api.ssh_key_installation.SSHKeyOperationService;
+import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
@@ -65,12 +65,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		LOG.info("SSHKeyInstallationJob for key={} and site={} was deleted", sshkeyId, siteId);
 
 	}
-
-	@Override
-	public SSHKeyOperationJob findByCorrelationId(CorrelationId correlationId) {
-		return sshKeyOperationRepository.findByCorrelationId(correlationId);
-	}
-
+	
 	@Override
 	public List<SSHKeyOperationJob> findBySSHKey(String sshkeyId) {
 		return sshKeyOperationRepository.findBySSHKey(sshkeyId);

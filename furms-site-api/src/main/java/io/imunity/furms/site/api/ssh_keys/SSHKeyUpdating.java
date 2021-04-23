@@ -3,32 +3,34 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.domain.ssh_key_operation;
+package io.imunity.furms.site.api.ssh_keys;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-
-public class SSHKeyAddition {
+public class SSHKeyUpdating {
 
 	public final SiteExternalId siteExternalId;
 	public final FenixUserId user;
 	public final String userUid;
-	public final String publicKey;
+	public final String oldPublicKey;
+	public final String newPublicKey;
 
-	SSHKeyAddition(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
-		
+	SSHKeyUpdating(SiteExternalId siteExternalId, FenixUserId user, String userUid, String oldPublicKey,
+			String newPublicKey) {
+
 		this.siteExternalId = siteExternalId;
 		this.user = user;
 		this.userUid = userUid;
-		this.publicKey = publicKey;
+		this.oldPublicKey = oldPublicKey;
+		this.newPublicKey = newPublicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(publicKey, siteExternalId, user, userUid);
+		return Objects.hash(newPublicKey, oldPublicKey, siteExternalId, user, userUid);
 	}
 
 	@Override
@@ -39,8 +41,9 @@ public class SSHKeyAddition {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SSHKeyAddition other = (SSHKeyAddition) obj;
-		return Objects.equals(publicKey, other.publicKey)
+		SSHKeyUpdating other = (SSHKeyUpdating) obj;
+		return Objects.equals(newPublicKey, other.newPublicKey)
+				&& Objects.equals(oldPublicKey, other.oldPublicKey)
 				&& Objects.equals(siteExternalId, other.siteExternalId)
 				&& Objects.equals(user, other.user) && Objects.equals(userUid, other.userUid);
 	}
@@ -53,7 +56,8 @@ public class SSHKeyAddition {
 		private SiteExternalId siteExternalId;
 		private FenixUserId user;
 		private String userUid;
-		private String publicKey;
+		private String oldPublicKey;
+		private String newPublicKey;
 
 		private Builder() {
 		}
@@ -73,13 +77,18 @@ public class SSHKeyAddition {
 			return this;
 		}
 
-		public Builder publicKey(String publicKey) {
-			this.publicKey = publicKey;
+		public Builder oldPublicKey(String oldPublicKey) {
+			this.oldPublicKey = oldPublicKey;
 			return this;
 		}
 
-		public SSHKeyAddition build() {
-			return new SSHKeyAddition(siteExternalId, user, userUid, publicKey);
+		public Builder newPublicKey(String newPublicKey) {
+			this.newPublicKey = newPublicKey;
+			return this;
+		}
+
+		public SSHKeyUpdating build() {
+			return new SSHKeyUpdating(siteExternalId, user, userUid, oldPublicKey, newPublicKey);
 		}
 	}
 

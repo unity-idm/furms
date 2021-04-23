@@ -3,12 +3,9 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site.api.site_agent;
+package io.imunity.furms.site.api.ssh_keys;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyRemoval;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyAddition;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyUpdating;
 
 public interface SiteAgentSSHKeyOperationService {
 	void addSSHKey(CorrelationId correlationId, SSHKeyAddition installation);

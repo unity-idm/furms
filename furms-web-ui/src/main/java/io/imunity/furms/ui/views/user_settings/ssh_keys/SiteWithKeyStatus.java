@@ -8,8 +8,8 @@ package io.imunity.furms.ui.views.user_settings.ssh_keys;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 
 class SiteWithKeyStatus {
 	public final String id;

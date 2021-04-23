@@ -5,9 +5,9 @@
 
 package io.imunity.furms.db.ssh_key_operation;
 
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.SEND;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -27,8 +27,8 @@ import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;

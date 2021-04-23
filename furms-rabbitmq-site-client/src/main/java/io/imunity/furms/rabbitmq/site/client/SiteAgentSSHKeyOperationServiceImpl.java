@@ -5,9 +5,9 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ACK;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.FAILED;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
@@ -20,9 +20,6 @@ import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyAddition;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyRemoval;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyUpdating;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
@@ -36,7 +33,10 @@ import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
-import io.imunity.furms.site.api.site_agent.SiteAgentSSHKeyOperationService;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
+import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 
 @Service
 class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationService {

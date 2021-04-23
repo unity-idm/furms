@@ -11,8 +11,8 @@ import java.util.UUID;
 import org.springframework.data.relational.core.mapping.Table;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 
 @Table("ssh_key_operation_job")
 public class SSHKeyOperationJobEntity extends UUIDIdentifiable {

@@ -5,8 +5,8 @@
 
 package io.imunity.furms.site;
 
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ACK;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -21,15 +21,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyAddition;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyRemoval;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyUpdating;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
-import io.imunity.furms.site.api.site_agent.SiteAgentSSHKeyOperationService;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
+import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
+import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 
 @SpringBootTest
 class SiteAgentSSHKeyOperationServiceTest {

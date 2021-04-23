@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.furms.domain.ssh_key_operation;
+package io.imunity.furms.domain.ssh_keys;
 
 public enum SSHKeyOperation {
 	ADD, REMOVE, UPDATE

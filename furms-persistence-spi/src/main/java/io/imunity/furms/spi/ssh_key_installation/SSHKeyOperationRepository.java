@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 
 public interface SSHKeyOperationRepository {
 	SSHKeyOperationJob findByCorrelationId(CorrelationId id);
