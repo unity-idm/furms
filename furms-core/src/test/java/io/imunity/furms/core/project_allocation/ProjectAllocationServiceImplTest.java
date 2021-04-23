@@ -11,6 +11,7 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ class ProjectAllocationServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	@Mock
+	private CommunityAllocationRepository communityAllocationRepository;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -46,7 +49,7 @@ class ProjectAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, validator, siteAgentProjectInstallationService, publisher);
+		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, communityAllocationRepository, validator, siteAgentProjectInstallationService, publisher);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
 
@@ -61,7 +64,7 @@ class ProjectAllocationServiceImplTest {
 		);
 
 		//when
-		Optional<ProjectAllocation> byId = service.findById(id);
+		Optional<ProjectAllocation> byId = service.findByProjectIdAndId("communityId", id);
 
 		//then
 		assertThat(byId).isPresent();
@@ -71,7 +74,7 @@ class ProjectAllocationServiceImplTest {
 	@Test
 	void shouldNotReturnNotExisting() {
 		//when
-		Optional<ProjectAllocation> otherId = service.findById("otherId");
+		Optional<ProjectAllocation> otherId = service.findByProjectIdAndId("communityId", "otherId");
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -80,12 +83,12 @@ class ProjectAllocationServiceImplTest {
 	@Test
 	void shouldReturnAllProjectAllocationsExistingInRepository() {
 		//given
-		when(projectAllocationRepository.findAll()).thenReturn(Set.of(
+		when(projectAllocationRepository.findAll("projectId")).thenReturn(Set.of(
 			ProjectAllocation.builder().id("id1").name("name").build(),
 			ProjectAllocation.builder().id("id2").name("name2").build()));
 
 		//when
-		Set<ProjectAllocation> allProjectAllocations = service.findAll();
+		Set<ProjectAllocation> allProjectAllocations = service.findAll("communityId", "projectId");
 
 		//then
 		assertThat(allProjectAllocations).hasSize(2);
@@ -103,7 +106,7 @@ class ProjectAllocationServiceImplTest {
 			.build();
 
 		//when
-		service.create(request);
+		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
 		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectAllocationEvent("id")));
@@ -121,7 +124,7 @@ class ProjectAllocationServiceImplTest {
 			.build();
 
 		//when
-		service.update(request);
+		service.update("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).update(eq(request));
 		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectAllocationEvent("id")));

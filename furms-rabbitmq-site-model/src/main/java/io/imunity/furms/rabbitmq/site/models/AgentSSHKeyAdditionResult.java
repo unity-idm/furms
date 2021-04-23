@@ -5,51 +5,41 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.util.Objects;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonDeserialize(builder = AgentSSHKeyAdditionResult.AgentSSHKeyAdditionResultBuilder.class)
-@FurmsMessage(type = "UserSSHKeyAddResult")
-public class AgentSSHKeyAdditionResult {
+@JsonTypeName("UserSSHKeyAddResult")
+public class AgentSSHKeyAdditionResult implements Body{
 	public final String fenixUserId;
 	public final String uid;
 
-	AgentSSHKeyAdditionResult(String fenixUserId, String uid) {
+	@JsonCreator
+	public AgentSSHKeyAdditionResult(String fenixUserId, String uid) {
 		this.fenixUserId = fenixUserId;
 		this.uid = uid;
 	}
 
 	@Override
-	public String toString() {
-		return "AgentSSHKeyInstallationResult{" + "fenixUserId=" + fenixUserId + ", uid=" + uid + '}';
+	public int hashCode() {
+		return Objects.hash(fenixUserId, uid);
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
-	public static final class AgentSSHKeyAdditionResultBuilder {
-		private String fenixUserId;
-		private String uid;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AgentSSHKeyAdditionResult other = (AgentSSHKeyAdditionResult) obj;
+		return Objects.equals(fenixUserId, other.fenixUserId) && Objects.equals(uid, other.uid);
+	}
 
-		private AgentSSHKeyAdditionResultBuilder() {
-		}
-
-		public static AgentSSHKeyAdditionResultBuilder anAgentSSHKeyAdditionResultBuilder() {
-			return new AgentSSHKeyAdditionResultBuilder();
-		}
-
-		public AgentSSHKeyAdditionResultBuilder fenixUserId(String fenixUserId) {
-			this.fenixUserId = fenixUserId;
-			return this;
-		}
-
-		public AgentSSHKeyAdditionResultBuilder uid(String uid) {
-			this.uid = uid;
-			return this;
-		}
-
-		public AgentSSHKeyAdditionResult build() {
-			return new AgentSSHKeyAdditionResult(fenixUserId, uid);
-		}
+	@Override
+	public String toString() {
+		return "AgentSSHKeyInstallationResult{" + "fenixUserId=" + fenixUserId + ", uid=" + uid + '}';
 	}
 }

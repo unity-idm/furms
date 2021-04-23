@@ -5,10 +5,10 @@
 
 package io.imunity.furms.db.community_allocation;
 
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,10 +16,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 
 @Repository
 class CommunityAllocationDatabaseRepository implements CommunityAllocationRepository {
@@ -70,33 +71,33 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public String create(CommunityAllocation service) {
+	public String create(CommunityAllocation allocation) {
 		CommunityAllocationEntity savedCommunityAllocation = repository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(UUID.fromString(service.communityId))
-				.resourceCreditId(UUID.fromString(service.resourceCreditId))
-				.name(service.name)
-				.amount(service.amount)
+				.communityId(UUID.fromString(allocation.communityId))
+				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
+				.name(allocation.name)
+				.amount(allocation.amount)
 				.build()
 		);
 		return savedCommunityAllocation.getId().toString();
 	}
 
 	@Override
-	public String update(CommunityAllocation service) {
-		return repository.findById(UUID.fromString(service.id))
+	public String update(CommunityAllocation allocation) {
+		return repository.findById(UUID.fromString(allocation.id))
 			.map(oldCommunityAllocation -> CommunityAllocationEntity.builder()
 				.id(oldCommunityAllocation.getId())
-				.communityId(UUID.fromString(service.communityId))
-				.resourceCreditId(UUID.fromString(service.resourceCreditId))
-				.name(service.name)
-				.amount(service.amount)
+				.communityId(UUID.fromString(allocation.communityId))
+				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
+				.name(allocation.name)
+				.amount(allocation.amount)
 				.build()
 			)
 			.map(repository::save)
 			.map(CommunityAllocationEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalStateException("Community allocation not found: " + allocation.id));
 	}
 
 	@Override

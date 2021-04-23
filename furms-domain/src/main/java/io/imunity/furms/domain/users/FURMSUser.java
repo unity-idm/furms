@@ -5,13 +5,21 @@
 
 package io.imunity.furms.domain.users;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.Optional.ofNullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 
-import java.util.*;
-
-import static java.util.Collections.*;
-import static java.util.Optional.*;
+import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 
 public class FURMSUser {
 	public final Optional<PersistentId> id;
@@ -19,25 +27,34 @@ public class FURMSUser {
 	public final Optional<String> firstName;
 	public final Optional<String> lastName;
 	public final String email;
+	public final UserStatus status;
 	public final Map<ResourceId, Set<Role>> roles;
 
-	private FURMSUser(PersistentId id, FenixUserId fenixUserId, String firstName, String lastName, String email, Map<ResourceId, Set<Role>> roles) {
-		if(email == null)
+	private FURMSUser(PersistentId id, FenixUserId fenixUserId,
+					  String firstName,
+					  String lastName,
+					  String email,
+					  UserStatus status,
+					  Map<ResourceId, Set<Role>> roles) {
+		if (email == null)
 			throw new IllegalArgumentException("Email must be not null");
 		this.id = ofNullable(id);
 		this.fenixUserId = ofNullable(fenixUserId);
 		this.firstName = ofNullable(firstName);
 		this.lastName = ofNullable(lastName);
 		this.email = email;
+		this.status = status == null ? DISABLED : status;
 		this.roles = copyRoles(roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser) {
-		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, furmsUser.roles);
+		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null),  furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+				furmsUser.email, furmsUser.status, furmsUser.roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser, Map<ResourceId, Set<Role>> roles) {
-		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null), furmsUser.email, roles);
+		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+				furmsUser.email, furmsUser.status, roles);
 	}
 
 	private static Map<ResourceId, Set<Role>> copyRoles(Map<ResourceId, Set<Role>> roles) {
@@ -62,12 +79,13 @@ public class FURMSUser {
 			Objects.equals(firstName, furmsUser.firstName) &&
 			Objects.equals(lastName, furmsUser.lastName) &&
 			Objects.equals(email, furmsUser.email) &&
+			Objects.equals(status, furmsUser.status) &&
 			Objects.equals(roles, furmsUser.roles);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, fenixUserId, firstName, lastName, email, roles);
+		return Objects.hash(id, fenixUserId, firstName, lastName, email, status, roles);
 	}
 
 	@Override
@@ -78,6 +96,7 @@ public class FURMSUser {
 			", firstName='" + firstName + '\'' +
 			", lastName='" + lastName + '\'' +
 			", email='" + email + '\'' +
+			", status='" + status + '\'' +
 			", roles=" + roles +
 			'}';
 	}
@@ -88,6 +107,7 @@ public class FURMSUser {
 		public String firstName;
 		public String lastName;
 		public String email;
+		public UserStatus status;
 		public Map<ResourceId, Set<Role>> roles;
 
 		private FURMSUserBuilder() {
@@ -118,13 +138,18 @@ public class FURMSUser {
 			return this;
 		}
 
+		public FURMSUserBuilder status(UserStatus status) {
+			this.status = status;
+			return this;
+		}
+
 		public FURMSUserBuilder roles(Map<ResourceId, Set<Role>> roles) {
 			this.roles = roles;
 			return this;
 		}
 
 		public FURMSUser build() {
-			return new FURMSUser(id, fenixUserId, firstName, lastName, email, roles);
+			return new FURMSUser(id, fenixUserId, firstName, lastName, email, status, roles);
 		}
 	}
 }

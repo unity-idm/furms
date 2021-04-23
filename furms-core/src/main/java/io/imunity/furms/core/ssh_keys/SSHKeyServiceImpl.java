@@ -110,7 +110,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
 	public String update(SSHKey sshKey) {
 		validator.validateUpdate(sshKey);
-		SSHKey oldKey = sshKeysRepository.findById(sshKey.id).get();
+		final SSHKey oldKey = sshKeysRepository.findById(sshKey.id)
+				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey.id));
 		SSHKey merged = merge(oldKey, sshKey);
 		updateKeyOnSites(getSiteDiff(oldKey, merged), oldKey, merged);
 		String updatedId = sshKeysRepository.update(merged);

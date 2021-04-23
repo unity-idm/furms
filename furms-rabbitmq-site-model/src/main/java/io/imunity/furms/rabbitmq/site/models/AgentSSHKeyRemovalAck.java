@@ -5,11 +5,9 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@FurmsMessage(type = "UserSSHKeyRemovalAck")
-public class AgentSSHKeyRemovalAck extends EmptyBodyResponse {
-	private AgentSSHKeyRemovalAck(String correlationId, String status) {
-		super(correlationId, status);
-	}
+@JsonTypeName("UserSSHKeyRemovalAck")
+public class AgentSSHKeyRemovalAck implements Body {
+	
 }

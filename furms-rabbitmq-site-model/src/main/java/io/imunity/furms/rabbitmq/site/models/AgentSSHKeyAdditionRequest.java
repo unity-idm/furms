@@ -7,19 +7,18 @@ package io.imunity.furms.rabbitmq.site.models;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
-
-@JsonDeserialize(builder = AgentSSHKeyAdditionRequest.SSHKeyAdditionRequestBuilder.class)
-@FurmsMessage(type = "UserSSHKeyAddRequest")
-public class AgentSSHKeyAdditionRequest {
+@JsonTypeName("UserSSHKeyAddRequest")
+public class AgentSSHKeyAdditionRequest implements Body{
 	public final String fenixUserId;
 	public final String uid;
 	public final String publicKey;
-
-	AgentSSHKeyAdditionRequest(String fenixUserId, String uid, String publicKey) {
+	
+	@JsonCreator
+	public AgentSSHKeyAdditionRequest(String fenixUserId, String uid, String publicKey) {
 
 		this.fenixUserId = fenixUserId;
 		this.uid = uid;

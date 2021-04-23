@@ -4,6 +4,6 @@
  */
 package io.imunity.furms.rabbitmq.site.models.consts;
 
-public class Queues {
-	public static final String REPLY_QUEUE = "reply-queue";
+public class Protocol {
+	public static final String VERSION = "1";
 }

@@ -74,7 +74,9 @@ class BreadCrumbComponent extends Composite<Div> {
 
 	private void updateView() {
 		List<Component> components = new ArrayList<>();
-		RouterLink firstRouterLink = createRouterLink(bredCrumbs.firstElement()).findFirst().get();
+		RouterLink firstRouterLink = createRouterLink(bredCrumbs.firstElement()).findFirst()
+				.orElseThrow(() -> new IllegalStateException("Expecting bread crumbs to contain at least one element: " 
+						+ bredCrumbs));
 		List<Component> nextComponents = bredCrumbs.stream()
 			.skip(1)
 			.flatMap(this::createNextRouterLink)

@@ -8,22 +8,17 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
+import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACK;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.DONE;
-import static io.imunity.furms.rabbitmq.site.models.consts.Headers.CORRELATION_ID;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.*;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Service
 class SiteAgentProjectInstallationServiceImpl implements SiteAgentProjectInstallationService {
@@ -35,24 +30,30 @@ class SiteAgentProjectInstallationServiceImpl implements SiteAgentProjectInstall
 		this.projectInstallationService = projectInstallationService;
 	}
 
-	void receive(AgentProjectInstallationAck ack) {
-		projectInstallationService.updateStatus(new CorrelationId(ack.correlationId), ACK);
+	@EventListener
+	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
+		if(ack.header.status.equals(Status.FAILED)){
+			projectInstallationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED);
+		}
+		projectInstallationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK);
 	}
 
-	void receive(AgentProjectInstallationResult result, Map<String,Object> headers) {
-		String correlationId = headers.get(CORRELATION_ID).toString();
-		projectInstallationService.updateStatus(new CorrelationId(correlationId), DONE);
+	@EventListener
+	void receiveAgentProjectInstallationResult(Payload<AgentProjectInstallationResult> result) {
+		String correlationId = result.header.messageCorrelationId;
+		if(result.header.status.equals(Status.FAILED)){
+			projectInstallationService.updateStatus(new CorrelationId(correlationId), FAILED);
+		}
+		projectInstallationService.updateStatus(new CorrelationId(correlationId), INSTALLED);
 	}
 
 	@Override
-	public CorrelationId installProject(ProjectInstallation installation) {
-		String correlationId = UUID.randomUUID().toString();
+	public void installProject(CorrelationId correlationId, ProjectInstallation installation) {
 		AgentProjectInstallationRequest request = ProjectInstallationMapper.map(installation);
 		try {
-			rabbitTemplate.convertAndSend(installation.siteExternalId, request, new TypeHeaderAppender(request, correlationId));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteExternalId), new Payload<>(new Header(VERSION, correlationId.id), request));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
-		return new CorrelationId(correlationId);
 	}
 }

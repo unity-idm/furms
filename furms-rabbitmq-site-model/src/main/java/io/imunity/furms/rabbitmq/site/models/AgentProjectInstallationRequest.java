@@ -6,33 +6,33 @@
 package io.imunity.furms.rabbitmq.site.models;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@JsonDeserialize(builder = AgentProjectInstallationRequest.ProjectInstallationRequestBuilder.class)
-@FurmsMessage(type = "ProjectInstallationRequest")
-public class AgentProjectInstallationRequest {
-	public final String id;
+@JsonTypeName("ProjectInstallationRequest")
+public class AgentProjectInstallationRequest implements Body {
+	public final String identifier;
 	public final String name;
 	public final String description;
 	public final String communityId;
-	public final String communityName;
+	public final String community;
 	public final String acronym;
 	public final String researchField;
-	public final LocalDateTime validityStart;
-	public final LocalDateTime validityEnd;
+	public final ZonedDateTime validityStart;
+	public final ZonedDateTime validityEnd;
 	public final ProjectLeader projectLeader;
 
-	AgentProjectInstallationRequest(String id, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, ProjectLeader projectLeader) {
-		this.id = id;
+	@JsonCreator
+	public AgentProjectInstallationRequest(String identifier, String name, String description, String communityId,
+	                                       String community, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, ProjectLeader projectLeader) {
+		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
 		this.communityId = communityId;
-		this.communityName = communityName;
+		this.community = community;
 		this.acronym = acronym;
 		this.researchField = researchField;
 		this.validityStart = validityStart;
@@ -45,11 +45,11 @@ public class AgentProjectInstallationRequest {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AgentProjectInstallationRequest that = (AgentProjectInstallationRequest) o;
-		return Objects.equals(id, that.id) &&
+		return Objects.equals(identifier, that.identifier) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(communityId, that.communityId) &&
-			Objects.equals(communityName, that.communityName) &&
+			Objects.equals(community, that.community) &&
 			Objects.equals(acronym, that.acronym) &&
 			Objects.equals(researchField, that.researchField) &&
 			Objects.equals(validityStart, that.validityStart) &&
@@ -59,17 +59,17 @@ public class AgentProjectInstallationRequest {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
+		return Objects.hash(identifier, name, description, communityId, community, acronym, researchField, validityStart, validityEnd, projectLeader);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectInstallationRequest{" +
-			"id='" + id + '\'' +
+			"id='" + identifier + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
 			", communityId='" + communityId + '\'' +
-			", communityName='" + communityName + '\'' +
+			", communityName='" + community + '\'' +
 			", acronym='" + acronym + '\'' +
 			", researchField='" + researchField + '\'' +
 			", validityStart=" + validityStart +
@@ -82,24 +82,23 @@ public class AgentProjectInstallationRequest {
 		return new ProjectInstallationRequestBuilder();
 	}
 
-	@JsonPOJOBuilder(withPrefix = "")
 	public static final class ProjectInstallationRequestBuilder {
-		private String id;
+		private String identifier;
 		private String name;
 		private String description;
 		private String communityId;
-		private String communityName;
+		private String community;
 		private String acronym;
 		private String researchField;
-		private LocalDateTime validityStart;
-		private LocalDateTime validityEnd;
+		private ZonedDateTime validityStart;
+		private ZonedDateTime validityEnd;
 		private ProjectLeader projectLeader;
 
 		private ProjectInstallationRequestBuilder() {
 		}
 
-		public ProjectInstallationRequestBuilder id(String id) {
-			this.id = id;
+		public ProjectInstallationRequestBuilder identifier(String identifier) {
+			this.identifier = identifier;
 			return this;
 		}
 
@@ -118,8 +117,8 @@ public class AgentProjectInstallationRequest {
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder communityName(String communityName) {
-			this.communityName = communityName;
+		public ProjectInstallationRequestBuilder community(String community) {
+			this.community = community;
 			return this;
 		}
 
@@ -133,12 +132,12 @@ public class AgentProjectInstallationRequest {
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder validityStart(LocalDateTime validityStart) {
+		public ProjectInstallationRequestBuilder validityStart(ZonedDateTime validityStart) {
 			this.validityStart = validityStart;
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder validityEnd(LocalDateTime validityEnd) {
+		public ProjectInstallationRequestBuilder validityEnd(ZonedDateTime validityEnd) {
 			this.validityEnd = validityEnd;
 			return this;
 		}
@@ -149,7 +148,7 @@ public class AgentProjectInstallationRequest {
 		}
 
 		public AgentProjectInstallationRequest build() {
-			return new AgentProjectInstallationRequest(id, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, projectLeader);
+			return new AgentProjectInstallationRequest(identifier, name, description, communityId, community, acronym, researchField, validityStart, validityEnd, projectLeader);
 		}
 	}
 }

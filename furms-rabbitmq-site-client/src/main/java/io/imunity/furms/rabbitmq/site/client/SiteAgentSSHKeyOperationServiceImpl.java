@@ -5,22 +5,23 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.rabbitmq.site.models.consts.Headers.CORRELATION_ID;
-import static io.imunity.furms.rabbitmq.site.models.consts.Headers.STATUS;
-import static io.imunity.furms.rabbitmq.site.models.consts.Headers.ERROR;
+import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ACK;
+import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.FAILED;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.MessageStatus;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.ssh_key_operation.SSHKeyRemoval;
 import io.imunity.furms.domain.ssh_key_operation.SSHKeyAddition;
+import io.imunity.furms.domain.ssh_key_operation.SSHKeyRemoval;
 import io.imunity.furms.domain.ssh_key_operation.SSHKeyUpdating;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
@@ -31,7 +32,9 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
-import io.imunity.furms.rabbitmq.site.models.converter.TypeHeaderAppender;
+import io.imunity.furms.rabbitmq.site.models.Header;
+import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentSSHKeyOperationService;
 
@@ -48,52 +51,67 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 		this.sshKeyOperationService = sshKeyInstallationService;
 	}
 
-	void receive(AgentSSHKeyAdditionAck ack) {
-		sshKeyOperationService.addSSHKeyAck(new CorrelationId(ack.correlationId));
-	}
+	@EventListener
+	void receiveAgentSSHKeyAdditionAck(Payload<AgentSSHKeyAdditionAck> ack) {
 
-	void receive(AgentSSHKeyRemovalAck ack) {
-		sshKeyOperationService.removeSSHKeyAck(new CorrelationId(ack.correlationId));
-	}
-
-	void receive(AgentSSHKeyUpdatingAck ack) {
-		sshKeyOperationService.updateSSHKeyAck(new CorrelationId(ack.correlationId));
-	}
-
-	void receive(AgentSSHKeyAdditionResult result, Map<String, Object> headers) {
-		String correlationId = headers.get(CORRELATION_ID).toString();
-		MessageStatus status = MessageStatus.valueOf(headers.get(STATUS).toString());
-		String error = null;
-		if (status.equals(MessageStatus.FAILED)) {
-			error = headers.get(ERROR).toString();
+		if (ack.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
+					Optional.ofNullable(ack.header.error.message));
 		}
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
+				Optional.empty());
+	}
 
-		sshKeyOperationService.onSSHKeyAddToSite(new CorrelationId(correlationId), status,
-				Optional.ofNullable(error));
+	@EventListener
+	void receiveAgentSSHKeyRemovalAck(Payload<AgentSSHKeyRemovalAck> ack) {
+		if (ack.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
+					Optional.ofNullable(ack.header.error.message));
+		}
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
+				Optional.empty());
+	}
+
+	@EventListener
+	void receiveAgentSSHKeyUpdatingAck(Payload<AgentSSHKeyUpdatingAck> ack) {
+		if (ack.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
+					Optional.ofNullable(ack.header.error.message));
+		}
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
+				Optional.empty());
+	}
+
+	@EventListener
+	void receiveAgentSSHKeyAdditionResult(Payload<AgentSSHKeyAdditionResult> result) {
+		if (result.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+					FAILED, Optional.ofNullable(result.header.error.message));
+		}
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
+				Optional.empty());
 
 	}
 
-	void receive(AgentSSHKeyRemovalResult result, Map<String, Object> headers) {
-		String correlationId = headers.get(CORRELATION_ID).toString();
-		MessageStatus status = MessageStatus.valueOf(headers.get(STATUS).toString());
-		String error = null;
-		if (status.equals(MessageStatus.FAILED)) {
-			error = headers.get(ERROR).toString();
+	@EventListener
+	void receiveAgentSSHKeyRemovalResult(Payload<AgentSSHKeyRemovalResult> result) {
+		if (result.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+					FAILED, Optional.ofNullable(result.header.error.message));
 		}
-
-		sshKeyOperationService.onSSHKeyRemovalFromSite(new CorrelationId(correlationId), status,
-				Optional.ofNullable(error));
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
+				Optional.empty());
+		sshKeyOperationService.onSSHKeyRemovalFromSite(new CorrelationId(result.header.messageCorrelationId));
 	}
 
-	void receive(AgentSSHKeyUpdatingResult result, Map<String, Object> headers) {
-		String correlationId = headers.get(CORRELATION_ID).toString();
-		MessageStatus status = MessageStatus.valueOf(headers.get(STATUS).toString());
-		String error = null;
-		if (status.equals(MessageStatus.FAILED)) {
-			error = headers.get(ERROR).toString();
+	@EventListener
+	void receiveAgentSSHKeyUpdatingResult(Payload<AgentSSHKeyUpdatingResult> result) {
+		if (result.header.status.equals(Status.FAILED)) {
+			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+					FAILED, Optional.ofNullable(result.header.error.message));
 		}
-		sshKeyOperationService.onSSHKeyUpdateOnSite(new CorrelationId(correlationId), status,
-				Optional.ofNullable(error));
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
+				Optional.empty());
 	}
 
 	@Override
@@ -101,8 +119,8 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 
 		AgentSSHKeyAdditionRequest request = SSHKeyOperationMapper.map(installation);
 		try {
-			rabbitTemplate.convertAndSend(installation.siteExternalId.id, request,
-					new TypeHeaderAppender(request, correlationId.id));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteExternalId),
+					new Payload<>(new Header(VERSION, correlationId.id), request));
 		} catch (AmqpConnectException e) {
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -113,8 +131,8 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 
 		AgentSSHKeyUpdatingRequest request = SSHKeyOperationMapper.map(updating);
 		try {
-			rabbitTemplate.convertAndSend(updating.siteExternalId.id, request,
-					new TypeHeaderAppender(request, correlationId.id));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(updating.siteExternalId),
+					new Payload<>(new Header(VERSION, correlationId.id), request));
 		} catch (AmqpConnectException e) {
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -124,8 +142,8 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 	public void removeSSHKey(CorrelationId correlationId, SSHKeyRemoval deinstallation) {
 		AgentSSHKeyRemovalRequest request = SSHKeyOperationMapper.map(deinstallation);
 		try {
-			rabbitTemplate.convertAndSend(deinstallation.siteExternalId.id, request,
-					new TypeHeaderAppender(request, correlationId.id));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(deinstallation.siteExternalId),
+					new Payload<>(new Header(VERSION, correlationId.id), request));
 		} catch (AmqpConnectException e) {
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

@@ -4,15 +4,15 @@
  */
 package io.imunity.furms.ui.project;
 
-import io.imunity.furms.domain.users.FURMSUser;
+import java.time.ZoneId;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
-
-import java.time.ZoneId;
-import java.util.List;
+import io.imunity.furms.domain.users.FURMSUser;
 
 @Component
 public class ProjectModelResolver {
@@ -39,7 +39,7 @@ public class ProjectModelResolver {
 
 	public ProjectViewModel resolve(List<FURMSUser> users, Project project, ZoneId zoneId){
 		FURMSUser leader = users.stream()
-			.filter(user -> user.id.equals(project.getLeaderId()))
+			.filter(user -> user.id.isPresent() && user.id.get().equals(project.getLeaderId()))
 			.findAny()
 			.orElse(null);
 		return ProjectViewModelMapper.map(project, leader, zoneId);

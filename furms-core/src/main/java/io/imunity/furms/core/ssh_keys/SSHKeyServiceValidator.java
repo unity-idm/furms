@@ -62,9 +62,11 @@ public class SSHKeyServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
-		SSHKey key = sshKeysRepository.findById(id).get();
-		validateOwner(key.ownerId);
-		validateOpenOperation(key);
+
+		final SSHKey findById = sshKeysRepository.findById(id)
+				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + id));
+		validateOwner(findById.ownerId);
+		validateOpenOperation(findById);
 	}
 
 	void validateOwner(PersistentId ownerId) {

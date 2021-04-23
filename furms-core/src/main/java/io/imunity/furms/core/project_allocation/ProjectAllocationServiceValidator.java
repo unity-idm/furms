@@ -5,8 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
-import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -34,16 +33,18 @@ class ProjectAllocationServiceValidator {
 		this.projectRepository = projectRepository;
 	}
 
-	void validateCreate(ProjectAllocation projectAllocation) {
+	void validateCreate(String communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
+		checkIfProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		validateProjectId(projectAllocation.projectId);
 		validateCommunityAllocationId(projectAllocation.communityAllocationId);
 		validateName(projectAllocation);
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
 	}
 
-	void validateUpdate(ProjectAllocation projectAllocation) {
+	void validateUpdate(String communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
+		checkIfProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		validateId(projectAllocation.id);
 		validateName(projectAllocation);
 		validateUpdateProjectId(projectAllocation);
@@ -51,8 +52,37 @@ class ProjectAllocationServiceValidator {
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
 	}
 
-	void validateDelete(String id) {
-		validateId(id);
+	void validateCommunityIdAndProjectId(String communityId, String projectId) {
+		checkIfProjectBelongsToCommunity(communityId, projectId);
+	}
+
+	void validateCommunityIdAndProjectAllocationId(String communityId, String projectAllocationId) {
+		String projectId = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+		checkIfProjectBelongsToCommunity(communityId, projectId);
+	}
+
+	void validateCommunityIdAndCommunityAllocationId(String communityId, String communityAllocationId) {
+		String id = communityAllocationRepository.findById(communityAllocationId).map(allocation -> allocation.communityId).orElse(null);
+		if(!communityId.equals(id)){
+			throw new CommunityIsNotRelatedWithCommunityAllocation("Community "+ communityId +" is not related with community allocation " + communityAllocationId);
+		}
+	}
+
+	void validateProjectIdAndProjectAllocationId(String projectId, String projectAllocationId) {
+		String id = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+		if(!projectId.equals(id)){
+			throw new ProjectIsNotRelatedWithProjectAllocation("Project "+ projectId +" is not related with project allocation " + projectAllocationId);
+		}
+	}
+
+	void validateDelete(String communityId, String projectAllocationId) {
+		projectAllocationRepository.findById(projectAllocationId)
+			.ifPresentOrElse(
+				pa -> checkIfProjectBelongsToCommunity(communityId, pa.projectId),
+				() -> {
+					throw new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists.");
+				}
+		);
 	}
 
 	private void validateName(ProjectAllocation projectAllocation) {
@@ -60,6 +90,12 @@ class ProjectAllocationServiceValidator {
 		validateLength("name", projectAllocation.name, MAX_NAME_LENGTH);
 		if (isNameUnique(projectAllocation)) {
 			throw new DuplicatedNameValidationError("ProjectAllocation name has to be unique.");
+		}
+	}
+
+	private void checkIfProjectBelongsToCommunity(String communityId, String projectId) {
+		if (!projectRepository.isProjectRelatedWithCommunity(communityId, projectId)) {
+			throw new ProjectIsNotRelatedWithCommunity("Project "+ projectId +" is not related with community " + communityId);
 		}
 	}
 

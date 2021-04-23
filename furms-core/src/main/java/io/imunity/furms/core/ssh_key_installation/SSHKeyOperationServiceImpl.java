@@ -8,10 +8,7 @@ package io.imunity.furms.core.ssh_key_installation;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ACK;
 import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ERROR;
-
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -25,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import io.imunity.furms.api.ssh_key_installation.SSHKeyOperationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.MessageStatus;
 import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
@@ -84,51 +80,19 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	// FIXME To auth this method special user for queue message resolving is
 	// needed
 	@Override
-	public void addSSHKeyAck(CorrelationId correlationId) {
-		updateStatus(correlationId, ACK);
-
+	@Transactional
+	public void updateStatus(CorrelationId correlationId, SSHKeyOperationStatus status, Optional<String> error) {
+		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
+		sshKeyOperationRepository.update(job.id, status, error);
+		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, status);
 	}
 
 	// FIXME To auth this method special user for queue message resolving is
 	// needed
 	@Override
-	public void onSSHKeyAddToSite(CorrelationId correlationId, MessageStatus status, Optional<String> error) {
-		updateStatus(correlationId, status, error);
-
-	}
-
-	// FIXME To auth this method special user for queue message resolving is
-	// needed
-	@Override
-	public void removeSSHKeyAck(CorrelationId correlationId) {
-		updateStatus(correlationId, ACK);
-
-	}
-
-	// FIXME To auth this method special user for queue message resolving is
-	// needed
-	@Override
-	public void onSSHKeyRemovalFromSite(CorrelationId correlationId, MessageStatus status, Optional<String> error) {
-		updateStatus(correlationId, status, error);
-		if (status.equals(MessageStatus.OK))
-		{
-			removeSSHKeyIfRemovedFromLastSite(correlationId);
-		}
-	}
-
-	// FIXME To auth this method special user for queue message resolving is
-	// needed
-	@Override
-	public void updateSSHKeyAck(CorrelationId correlationId) {
-		updateStatus(correlationId, ACK);
-
-	}
-
-	// FIXME To auth this method special user for queue message resolving is
-	// needed
-	@Override
-	public void onSSHKeyUpdateOnSite(CorrelationId correlationId, MessageStatus status, Optional<String> error) {
-		updateStatus(correlationId, status, error);
+	@Transactional
+	public void onSSHKeyRemovalFromSite(CorrelationId correlationId) {
+		removeSSHKeyIfRemovedFromLastSite(correlationId);
 
 	}
 
@@ -144,22 +108,6 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 			sshKeysRepository.delete(operationJob.sshkeyId);
 			LOG.info("Removed SSH key from repository with ID={}", operationJob.sshkeyId);
 		}
-	}
-
-	void updateStatus(CorrelationId correlationId, SSHKeyOperationStatus status) {
-		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
-		sshKeyOperationRepository.update(job.id, status, Optional.empty());
-		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, status);
-	}
-
-	void updateStatus(CorrelationId correlationId, MessageStatus status, Optional<String> error) {
-		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
-		if (status.equals(MessageStatus.FAILED)) {
-			sshKeyOperationRepository.update(job.id, ERROR, error);
-		} else {
-			sshKeyOperationRepository.update(job.id, DONE, Optional.empty());
-		}
-		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, status);
 	}
 
 }

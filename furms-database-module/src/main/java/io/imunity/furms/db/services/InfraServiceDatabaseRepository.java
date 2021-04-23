@@ -5,18 +5,19 @@
 
 package io.imunity.furms.db.services;
 
-import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.spi.services.InfraServiceRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 
 @Repository
 class InfraServiceDatabaseRepository implements InfraServiceRepository {
@@ -74,7 +75,7 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 			.map(repository::save)
 			.map(InfraServiceEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalStateException("Infra Service not found: " + infraService));
 	}
 
 	@Override

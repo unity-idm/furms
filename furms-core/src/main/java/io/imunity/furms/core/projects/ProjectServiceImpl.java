@@ -5,34 +5,45 @@
 
 package io.imunity.furms.core.projects;
 
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.projects.*;
-import io.imunity.furms.domain.users.InviteUserEvent;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.spi.projects.ProjectGroupsDAO;
-import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.projects.CreateProjectEvent;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.RemoveProjectEvent;
+import io.imunity.furms.domain.projects.UpdateProjectEvent;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
+import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -69,7 +80,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
 	public Set<Project> findAll() {
 		return projectRepository.findAll();
 	}
@@ -103,7 +114,8 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "attributes.id")
 	public void update(ProjectAdminControlledAttributes attributes) {
 		validator.validateLimitedUpdate(attributes);
-		Project project = projectRepository.findById(attributes.getId()).get();
+		Project project = projectRepository.findById(attributes.getId())
+				.orElseThrow(() -> new IllegalStateException("Project not found: " + attributes.getId()));
 		Project updatedProject = Project.builder()
 			.id(project.getId())
 			.communityId(project.getCommunityId())

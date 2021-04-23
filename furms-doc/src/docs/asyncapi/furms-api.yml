@@ -1,7 +1,8 @@
 asyncapi: 2.0.0
 info:
    title: FURMS messaging API for site agents
-   version: 1.0.0
+   version: 1.0.0   
+   description: Introduction to the Async API is available [here](./messaging-api-intro.html)
 channels:
    site/site_id/project/provision/req:
       subscribe:
@@ -808,4 +809,8 @@ components:
                type: string
             homeCountry:
                type: string
-         
+
+               
+externalDocs:  
+   description: Introduction to the Async API is available here
+   url: https://unity-idm.github.io/furms/current-head/messaging-api-intro.html

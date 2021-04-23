@@ -5,10 +5,9 @@
 
 package io.imunity.furms.db.project_allocation;
 
-import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
-import org.springframework.stereotype.Repository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,10 +15,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 
 @Repository
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
@@ -62,8 +62,8 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public Set<ProjectAllocation> findAll() {
-		return stream(repository.findAll().spliterator(), false)
+	public Set<ProjectAllocation> findAll(String projectId) {
+		return repository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectAllocationEntity::toProjectAllocation)
 			.collect(toSet());
 	}
@@ -95,7 +95,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 			.map(repository::save)
 			.map(ProjectAllocationEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalStateException("Project allocation not found: " + projectAllocation.id));
 	}
 
 	@Override

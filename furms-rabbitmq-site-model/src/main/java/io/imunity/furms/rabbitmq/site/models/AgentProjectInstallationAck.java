@@ -6,11 +6,8 @@
 package io.imunity.furms.rabbitmq.site.models;
 
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@FurmsMessage(type = "ProjectInstallationAck")
-public class AgentProjectInstallationAck extends EmptyBodyResponse {
-	private AgentProjectInstallationAck(String correlationId, String status) {
-		super(correlationId, status);
-	}
+@JsonTypeName("ProjectInstallationAck")
+public class AgentProjectInstallationAck implements Body {
 }

@@ -14,7 +14,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperation.REMOVE;
 import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.ERROR;
+import static io.imunity.furms.domain.ssh_key_operation.SSHKeyOperationStatus.FAILED;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -41,7 +41,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -66,7 +67,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.page.title")
-public class SSHKeysView extends FurmsViewComponent {
+public class SSHKeysView extends FurmsViewComponent implements AfterNavigationObserver{
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -174,7 +175,7 @@ public class SSHKeysView extends FurmsViewComponent {
 			String errorPostfix, Optional<String> error) {
 		if (status.equals(DONE)) {
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + donePostfix);
-		} else if (status.equals(ERROR)) {
+		} else if (status.equals(FAILED)) {
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + errorPostfix);
 		} else {
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + inProgressPostfix);
@@ -224,6 +225,11 @@ public class SSHKeysView extends FurmsViewComponent {
 	private void loadGridContent() {
 		grid.setItems(loadSSHKeysViewsModels());
 	}
+	
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
+		loadGridContent();
+	}
 
 	private List<SSHKeyViewModel> loadSSHKeysViewsModels() {
 		return handleExceptions(() -> sshKeysService.findOwned()).orElseGet(Collections::emptySet).stream()
@@ -237,9 +243,5 @@ public class SSHKeysView extends FurmsViewComponent {
 			getStyle().set("white-space", "nowrap");
 		}
 	}
-
-	@Override
-	public void setParameter(BeforeEvent event, String parameter) {
-		loadGridContent();
-	}
+	
 }

@@ -6,5 +6,5 @@
 package io.imunity.furms.domain.ssh_key_operation;
 
 public enum SSHKeyOperationStatus {
-	SEND, ACK, DONE, ERROR
+	SEND, ACK, DONE, FAILED
 }

@@ -23,6 +23,8 @@ import java.util.List;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -75,7 +77,8 @@ public class CommunityAllocationComponent extends Composite<Div> {
 			.setSortable(true);
 		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.5"))
-			.setSortable(true);
+			.setSortable(true)
+			.setComparator(comparing(c -> c.amount));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.6"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -108,10 +111,11 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String CommunityAllocationId, String resourceCreditName) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.resource-credits-allocation.dialog.text", resourceCreditName));
+	private Dialog createConfirmDialog(String CommunityAllocationId, String communityAllocationName) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.resource-credits-allocation.dialog.text", communityAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> service.delete(CommunityAllocationId));
+			getResultOrException(() -> service.delete(CommunityAllocationId))
+				.getThrowable().ifPresent(t -> showErrorNotification(getTranslation(t.getMessage(), communityAllocationName)));
 			loadGridContent();
 		});
 		return furmsDialog;

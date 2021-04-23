@@ -5,15 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-import java.util.function.Function;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -23,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
@@ -34,6 +24,15 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
@@ -112,7 +111,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 
 		optionalException.getThrowable().ifPresentOrElse(
 				throwable -> NotificationUtils
-						.showErrorNotification(getTranslation("ssh-key.error.message")),
+						.showErrorNotification(getTranslation(throwable.getMessage())),
 				() -> UI.getCurrent().navigate(SSHKeysView.class));
 	}
 

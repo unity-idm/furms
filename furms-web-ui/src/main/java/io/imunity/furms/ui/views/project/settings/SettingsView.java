@@ -124,7 +124,7 @@ public class SettingsView extends FurmsViewComponent {
 				getResultOrException(() -> projectService.update(project))
 					.getThrowable()
 					.ifPresentOrElse(
-						e -> showErrorNotification(getTranslation("project.error.message")),
+						e -> showErrorNotification(getTranslation("base.error.message")),
 						() -> {
 							oldProject = projectViewModel;
 							disableEditorMode();

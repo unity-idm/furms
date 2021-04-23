@@ -7,19 +7,18 @@ package io.imunity.furms.rabbitmq.site.models;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
-
-@JsonDeserialize(builder = AgentSSHKeyRemovalRequest.SSHKeyRemovalRequestBuilder.class)
-@FurmsMessage(type = "UserSSHKeyRemovalRequest")
-public class AgentSSHKeyRemovalRequest {
+@JsonTypeName("UserSSHKeyRemovalRequest")
+public class AgentSSHKeyRemovalRequest implements Body{
 	public final String fenixUserId;
 	public final String uid;
 	public final String publicKey;
 
-	AgentSSHKeyRemovalRequest(String fenixUserId, String uid, String publicKey) {
+	@JsonCreator
+	public AgentSSHKeyRemovalRequest(String fenixUserId, String uid, String publicKey) {
 
 		this.fenixUserId = fenixUserId;
 		this.uid = uid;

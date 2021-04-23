@@ -9,22 +9,30 @@ import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.stereotype.Service;
+
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSitePublishQueueName;
 
 @Service
 class SiteAgentServiceImpl implements SiteAgentService {
 
 	private final RabbitAdmin rabbitAdmin;
+	private final SiteAgentListenerConnector siteAgentListenerConnector;
 
-	SiteAgentServiceImpl(RabbitAdmin rabbitAdmin) {
+	SiteAgentServiceImpl(RabbitAdmin rabbitAdmin, SiteAgentListenerConnector siteAgentListenerConnector) {
 		this.rabbitAdmin = rabbitAdmin;
+		this.siteAgentListenerConnector = siteAgentListenerConnector;
 	}
 
 	@Override
 	public void initializeSiteConnection(SiteExternalId externalId) {
 		try {
-			rabbitAdmin.declareQueue(new org.springframework.amqp.core.Queue(externalId.id));
+			rabbitAdmin.declareQueue(new Queue(getFurmsPublishQueueName(externalId)));
+			rabbitAdmin.declareQueue(new Queue(getSitePublishQueueName(externalId)));
+			siteAgentListenerConnector.connectListenerToQueue(getSitePublishQueueName(externalId));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -33,7 +41,9 @@ class SiteAgentServiceImpl implements SiteAgentService {
 	@Override
 	public void removeSiteConnection(SiteExternalId externalId) {
 		try {
-			rabbitAdmin.deleteQueue(externalId.id);
+			rabbitAdmin.deleteQueue(getFurmsPublishQueueName(externalId));
+			rabbitAdmin.deleteQueue(getSitePublishQueueName(externalId));
+			siteAgentListenerConnector.disconnectListenerToQueue(getSitePublishQueueName(externalId));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

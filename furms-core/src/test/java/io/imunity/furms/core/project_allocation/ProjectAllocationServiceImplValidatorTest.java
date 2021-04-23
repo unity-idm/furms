@@ -5,6 +5,9 @@
 
 package io.imunity.furms.core.project_allocation;
 
+import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -49,9 +52,10 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateCreate(projectAllocation));
+		assertDoesNotThrow(() -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -66,9 +70,10 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -84,9 +89,10 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -100,9 +106,10 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(false);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -114,7 +121,7 @@ class ProjectAllocationServiceImplValidatorTest {
 			.build();
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -134,9 +141,10 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
 		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation));
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate(projectAllocation));
+		assertDoesNotThrow(() -> validator.validateUpdate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -151,9 +159,10 @@ class ProjectAllocationServiceImplValidatorTest {
 			.build();
 
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(false);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate("communityId", projectAllocation));
 	}
 
 	@Test
@@ -178,20 +187,29 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation1));
 		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate("communityId", projectAllocation));
 	}
 
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		String id = "id";
+		String communityId = "communityId";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+			.id("id")
+			.projectId("id")
+			.communityAllocationId("id")
+			.name("name")
+			.amount(new BigDecimal(1))
+			.build();
 
-		when(projectAllocationRepository.exists(id)).thenReturn(true);
+		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateDelete(id));
+		assertDoesNotThrow(() -> validator.validateDelete(communityId, projectAllocation.id));
 	}
 
 	@Test
@@ -199,10 +217,85 @@ class ProjectAllocationServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(projectAllocationRepository.exists(id)).thenReturn(false);
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete("communityId", id));
+	}
+
+	@Test
+	void shouldNotPassWhenCommunityIdAndCommunityAllocationIdAreNotRelated() {
+		//given
+		String id = "id";
+		String communityId = "id";
+
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.empty());
+
+		//when+then
+		assertThrows(CommunityIsNotRelatedWithCommunityAllocation.class, () -> validator.validateCommunityIdAndCommunityAllocationId(communityId, id));
+	}
+
+	@Test
+	void shouldNotPassWhenProjectIdAndProjectAllocationIdAreNotRelated() {
+		//given
+		String id = "id";
+		String projectId = "id";
+
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
+
+		//when+then
+		assertThrows(ProjectIsNotRelatedWithProjectAllocation.class, () -> validator.validateProjectIdAndProjectAllocationId(projectId, id));
+	}
+
+	@Test
+	void shouldPassWhenProjectIdAndProjectAllocationIdAreRelated() {
+		//given
+		String id = "id";
+		String projectId = "id";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+			.projectId(projectId)
+			.build();
+
+		//when
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(projectAllocation));
+
+		//then
+		validator.validateProjectIdAndProjectAllocationId(projectId, id);
+	}
+
+	@Test
+	void shouldPassWhenCommunityIdAndCommunityAllocationIdAreRelated() {
+		//given
+		String id = "id";
+		String communityId = "id";
+		CommunityAllocation communityAllocation = CommunityAllocation.builder()
+			.communityId(communityId)
+			.build();
+
+		//when
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(communityAllocation));
+
+		//then
+		validator.validateCommunityIdAndCommunityAllocationId(communityId, id);
+	}
+
+	@Test
+	void shouldNotPassDeleteWhenCommunityAndProjectAreNotRelated() {
+		//given
+		String communityId = "communityId";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+			.id("id")
+			.projectId("id")
+			.communityAllocationId("id")
+			.name("name")
+			.amount(new BigDecimal(1))
+			.build();
+
+		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(false);
+
+		//when+then
+		assertThrows(ProjectIsNotRelatedWithCommunity.class, () -> validator.validateDelete("communityId", projectAllocation.id));
 	}
 
 }

@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 
 @Component
-public class UnityOauthAccessTokenRepository implements AccessTokenRepository {
+class UnityOauthAccessTokenRepository implements AccessTokenRepository {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -29,7 +29,7 @@ public class UnityOauthAccessTokenRepository implements AccessTokenRepository {
 	private final UnityOauthClient unityOauthClient;
 	private final UnityOauthProperties unityOauthProperties;
 
-	public UnityOauthAccessTokenRepository(UnityClient unityClient,
+	UnityOauthAccessTokenRepository(UnityClient unityClient,
 	                                       UnityOauthClient unityOauthClient,
 	                                       UnityOauthProperties unityOauthProperties) {
 		this.unityClient = unityClient;
@@ -59,7 +59,8 @@ public class UnityOauthAccessTokenRepository implements AccessTokenRepository {
 			formData.add("refresh_token", refreshToken);
 
 			@SuppressWarnings("unchecked")
-			LinkedHashMap<String, Object> response = unityOauthClient.postForObject(uri, LinkedHashMap.class, formData, MediaType.APPLICATION_FORM_URLENCODED);
+			LinkedHashMap<String, Object> response = unityOauthClient.postForObject(uri, LinkedHashMap.class, 
+					formData, MediaType.APPLICATION_FORM_URLENCODED);
 
 			return new TokenRefreshResponse(response);
 		} catch (final Exception e) {

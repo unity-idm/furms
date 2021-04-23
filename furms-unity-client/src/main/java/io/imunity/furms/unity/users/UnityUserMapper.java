@@ -5,8 +5,14 @@
 
 package io.imunity.furms.unity.users;
 
+
+import static io.imunity.furms.domain.users.UserStatus.DISABLED;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import static org.springframework.util.StringUtils.isEmpty;
+import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
+import static pl.edu.icm.unity.types.basic.EntityState.valid;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -18,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.GroupMember;
@@ -28,7 +35,7 @@ public class UnityUserMapper {
 
 	public static Optional<FURMSUser> map(GroupMember groupMember){
 		FURMSUser user = buildUser(groupMember);
-		if(user.id == null || user.email == null) {
+		if(user.id.isEmpty() || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
 		}
@@ -51,6 +58,7 @@ public class UnityUserMapper {
 			.firstName(getFirstAttributeValue(groupMember, "firstname"))
 			.lastName(getFirstAttributeValue(groupMember, "surname"))
 			.email(getFirstAttributeValue(groupMember, "email"))
+			.status(getStatus(groupMember))
 			.build();
 	}
 
@@ -61,6 +69,7 @@ public class UnityUserMapper {
 			.firstName(getFirstAttributeValue(attributes, "firstname"))
 			.lastName(getFirstAttributeValue(attributes, "surname"))
 			.email(getFirstAttributeValue(attributes, "email"))
+			.status(getStatus(attributes))
 			.build();
 	}
 
@@ -84,6 +93,21 @@ public class UnityUserMapper {
 	private static FenixUserId getFenixId(List<Identity> identities) {
 		return identities.stream().filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
 				.findAny().map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
+	}
+
+
+	private static UserStatus getStatus(final GroupMember groupMember) {
+		return getStatus(groupMember.getEntity().getEntityInformation().getState().name());
+	}
+
+	private static UserStatus getStatus(final List<Attribute> attributes) {
+		return getStatus(getFirstAttributeValue(attributes, "entityState"));
+	}
+
+	private static UserStatus getStatus(String entityState) {
+		return !isEmpty(entityState) && (entityState.equals(valid.name()) || entityState.equals(onlyLoginPermitted.name()))
+				? ENABLED
+				: DISABLED;
 	}
 
 	private static String getFirstAttributeValue(GroupMember groupMember, String attributeValue) {

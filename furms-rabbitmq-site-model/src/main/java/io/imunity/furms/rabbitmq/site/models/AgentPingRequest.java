@@ -5,11 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsMessage;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@FurmsMessage(type = "AgentPingRequest")
-public class AgentPingRequest extends EmptyBodyResponse {
-	public AgentPingRequest(String correlationId, String status) {
-		super(correlationId, status);
-	}
+@JsonTypeName("AgentPingRequest")
+public class AgentPingRequest implements Body {
 }
