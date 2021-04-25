@@ -24,7 +24,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
@@ -37,8 +36,6 @@ class SiteAgentSSHKeyOperationServiceTest {
 	private SiteAgentSSHKeyOperationService siteAgent;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
-	private ProjectInstallationMessageResolver projectInstallationService;
 	@MockBean
 	private SSHKeyOperationMessageResolver sshKeyOperationService;
 	@MockBean

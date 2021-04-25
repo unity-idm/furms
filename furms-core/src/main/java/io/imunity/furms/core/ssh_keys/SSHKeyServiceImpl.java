@@ -17,7 +17,6 @@ import static java.util.Optional.ofNullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -167,8 +166,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
-		LOG.debug("Updating SSH key {} on site {}", newKey.name, site.getName());
-		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		LOG.info("Updating SSH key {} on site {}", newKey.name, site.getName());
+		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyInstallationService.deleteBySSHKeyIdAndSiteId(newKey.id, site.getId());
 
 		sshKeyInstallationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
@@ -233,8 +232,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
-		LOG.debug("Adding SSH key {} on site {}", sshKey.name, site.getName());
-		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		LOG.info("Adding SSH key {} to site {}", sshKey.name, site.getName());
+		CorrelationId correlationId = CorrelationId.randomID();
 
 		sshKeyInstallationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 		
@@ -248,8 +247,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void removeKeyFromSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
-		LOG.debug("Removing SSH key {} from site {}", sshKey.name, site.getName());
-		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		LOG.info("Removing SSH key {} from site {}", sshKey.name, site.getName());
+		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyInstallationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 
 		sshKeyInstallationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
