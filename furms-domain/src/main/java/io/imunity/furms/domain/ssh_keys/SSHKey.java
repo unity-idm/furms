@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.domain.ssh_key;
+package io.imunity.furms.domain.ssh_keys;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -98,6 +98,7 @@ public class SSHKey {
 		if (publicSSHKey == null || publicSSHKey.isEmpty())
 			throw new IllegalArgumentException("Invalid SSH Key value: SSH Key value is empty.");
 		AuthorizedKeyEntry.parseAuthorizedKeyEntry(publicSSHKey);
+		getKeyFingerprint(publicSSHKey);
 	}
 
 	public static class SSHKeyBuilder {

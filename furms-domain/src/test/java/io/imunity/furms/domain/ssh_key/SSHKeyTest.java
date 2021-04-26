@@ -14,6 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+
 public class SSHKeyTest {
 
 	@Test

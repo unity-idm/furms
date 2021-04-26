@@ -10,6 +10,7 @@ import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 public class UnityConst {
 	public static final String IDENTITY_TYPE = "identityType";
 	public static final String PERSISTENT_IDENTITY = "persistent";
+	public static final String IDENTIFIER_IDENTITY = "identifier";
 	public static final String ENUMERATION = "enumeration";
 	public static final String RECURSIVE = "recursive";
 	public static final String WITH_PARENTS = "withParents";

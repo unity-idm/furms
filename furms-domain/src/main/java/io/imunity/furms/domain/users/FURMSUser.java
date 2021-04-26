@@ -23,13 +23,14 @@ import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 
 public class FURMSUser {
 	public final Optional<PersistentId> id;
+	public final Optional<FenixUserId> fenixUserId;
 	public final Optional<String> firstName;
 	public final Optional<String> lastName;
 	public final String email;
 	public final UserStatus status;
 	public final Map<ResourceId, Set<Role>> roles;
 
-	private FURMSUser(PersistentId id,
+	private FURMSUser(PersistentId id, FenixUserId fenixUserId,
 					  String firstName,
 					  String lastName,
 					  String email,
@@ -38,6 +39,7 @@ public class FURMSUser {
 		if (email == null)
 			throw new IllegalArgumentException("Email must be not null");
 		this.id = ofNullable(id);
+		this.fenixUserId = ofNullable(fenixUserId);
 		this.firstName = ofNullable(firstName);
 		this.lastName = ofNullable(lastName);
 		this.email = email;
@@ -46,12 +48,12 @@ public class FURMSUser {
 	}
 
 	public FURMSUser(FURMSUser furmsUser) {
-		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null),  furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
 				furmsUser.email, furmsUser.status, furmsUser.roles);
 	}
 
 	public FURMSUser(FURMSUser furmsUser, Map<ResourceId, Set<Role>> roles) {
-		this(furmsUser.id.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
+		this(furmsUser.id.orElse(null), furmsUser.fenixUserId.orElse(null), furmsUser.firstName.orElse(null), furmsUser.lastName.orElse(null),
 				furmsUser.email, furmsUser.status, roles);
 	}
 
@@ -73,6 +75,7 @@ public class FURMSUser {
 		if (o == null || getClass() != o.getClass()) return false;
 		FURMSUser furmsUser = (FURMSUser) o;
 		return Objects.equals(id, furmsUser.id) &&
+			Objects.equals(fenixUserId, furmsUser.fenixUserId) &&
 			Objects.equals(firstName, furmsUser.firstName) &&
 			Objects.equals(lastName, furmsUser.lastName) &&
 			Objects.equals(email, furmsUser.email) &&
@@ -82,13 +85,14 @@ public class FURMSUser {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, firstName, lastName, email, status, roles);
+		return Objects.hash(id, fenixUserId, firstName, lastName, email, status, roles);
 	}
 
 	@Override
 	public String toString() {
 		return "FURMSUser{" +
 			"id='" + id + '\'' +
+			"fenixUserId='" + fenixUserId + '\'' +
 			", firstName='" + firstName + '\'' +
 			", lastName='" + lastName + '\'' +
 			", email='" + email + '\'' +
@@ -99,6 +103,7 @@ public class FURMSUser {
 
 	public static final class FURMSUserBuilder {
 		public PersistentId id;
+		public FenixUserId fenixUserId;
 		public String firstName;
 		public String lastName;
 		public String email;
@@ -110,6 +115,11 @@ public class FURMSUser {
 
 		public FURMSUserBuilder id(PersistentId id) {
 			this.id = id;
+			return this;
+		}
+		
+		public FURMSUserBuilder fenixUserId(FenixUserId fenixUserId) {
+			this.fenixUserId = fenixUserId;
 			return this;
 		}
 
@@ -139,7 +149,7 @@ public class FURMSUser {
 		}
 
 		public FURMSUser build() {
-			return new FURMSUser(id, firstName, lastName, email, status, roles);
+			return new FURMSUser(id, fenixUserId, firstName, lastName, email, status, roles);
 		}
 	}
 }
