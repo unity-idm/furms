@@ -13,6 +13,7 @@ import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,9 @@ class SiteAgentStatusServiceTest {
 	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
 	@MockBean
 	private SiteExternalIdsResolver siteExternalIdsResolver;
-
+	@MockBean
+	private SSHKeyOperationMessageResolver sshKeyOperationService;
+	
 	@BeforeEach
 	void init(){
 		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");

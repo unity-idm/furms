@@ -8,7 +8,7 @@ package io.imunity.furms.api.ssh_keys;
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
 
 public interface SSHKeyService {
 

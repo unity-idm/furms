@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.*;
@@ -102,7 +103,9 @@ public class UserService {
 
 	public Optional<FURMSUser> getUser(PersistentId userId){
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
-		return UnityUserMapper.map(userId, attributesFromGroup);
+		Entity entity  = getEntity(userId);
+		
+		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
 	}
 
 	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
@@ -125,6 +128,15 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));
 	}
 
+	private Entity getEntity(PersistentId userId) {
+		String path = UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.path(userId.id)
+			.build()
+			.toUriString();
+		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+	}
+	
 	public List<FURMSUser> getAllUsersByRole(String group, Role role) {
 		Predicate<AttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&

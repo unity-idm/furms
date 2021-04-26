@@ -20,6 +20,16 @@ import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 	@Type(value = AgentProjectAllocationInstallationAck.class),
 	@Type(value = AgentProjectAllocationInstallationRequest.class),
 	@Type(value = AgentProjectAllocationInstallationResult.class)
+	@Type(value = AgentProjectInstallationResult.class),
+	@Type(value = AgentSSHKeyAdditionAck.class),
+	@Type(value = AgentSSHKeyAdditionRequest.class),
+	@Type(value = AgentSSHKeyAdditionResult.class),
+	@Type(value = AgentSSHKeyRemovalAck.class),
+	@Type(value = AgentSSHKeyRemovalRequest.class),
+	@Type(value = AgentSSHKeyRemovalResult.class),
+	@Type(value = AgentSSHKeyUpdatingAck.class),
+	@Type(value = AgentSSHKeyUpdatingRequest.class),
+	@Type(value = AgentSSHKeyUpdatingResult.class)
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 public interface Body {

@@ -24,7 +24,7 @@ class SiteComboBoxModelResolver {
 				.build()).collect(toMap(siteModel -> siteModel.id, siteModel -> siteModel));
 	}
 
-	List<SiteComboBoxModel> getSitess() {
+	List<SiteComboBoxModel> getSites() {
 		return new ArrayList<>(map.values());
 	}
 

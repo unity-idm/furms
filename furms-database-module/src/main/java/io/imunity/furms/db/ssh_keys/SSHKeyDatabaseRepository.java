@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;

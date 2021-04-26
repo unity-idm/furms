@@ -14,26 +14,29 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.domain.users.PersistentId;
 
-public class SSHKeyViewModel {
+class SSHKeyViewModel {
 
 	public final String id;
 	public final PersistentId ownerId;
 	public final ZonedDateTime createTime;
+	public final SiteWithKeyStatus sourceSite;
 
-	private Set<String> sites;
-	private String name;
-	private String value;
-	private ZonedDateTime updateTime;
+	public final Set<SiteWithKeyStatus> sites;
+	public final String name;
+	public final String value;
 
 	SSHKeyViewModel(PersistentId ownerId) {
 		this.id = null;
 		this.ownerId = ownerId;
 		this.createTime = ZonedDateTime.now();
 		this.sites = Collections.emptySet();
+		this.sourceSite = null;
+		this.name = null;
+		this.value = null;
 	}
 
-	SSHKeyViewModel(String id, PersistentId ownerId, String name, Set<String> sites, String value,
-			ZonedDateTime createTime, ZonedDateTime updateTime) {
+	SSHKeyViewModel(String id, PersistentId ownerId, String name, SiteWithKeyStatus sourceSite,
+			Set<SiteWithKeyStatus> sites, String value, ZonedDateTime createTime) {
 
 		this.id = id;
 		this.ownerId = ownerId;
@@ -41,45 +44,13 @@ public class SSHKeyViewModel {
 		this.sites = sites;
 		this.value = value;
 		this.createTime = createTime;
-		this.updateTime = updateTime;
-	}
-
-	public Set<String> getSites() {
-		return sites;
-	}
-
-	public void setSites(Set<String> sites) {
-		this.sites = sites;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public ZonedDateTime getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(ZonedDateTime updateTime) {
-		this.updateTime = updateTime;
+		this.sourceSite = sourceSite;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createTime, id, name, ownerId, sites, updateTime, value);
-	}
+		return Objects.hash(createTime, id, name, ownerId, sourceSite, sites, value);
+	} 
 
 	@Override
 	public boolean equals(Object obj) {
@@ -92,7 +63,8 @@ public class SSHKeyViewModel {
 		SSHKeyViewModel other = (SSHKeyViewModel) obj;
 		return Objects.equals(createTime, other.createTime) && Objects.equals(id, other.id)
 				&& Objects.equals(name, other.name) && Objects.equals(ownerId, other.ownerId)
-				&& Objects.equals(sites, other.sites) && Objects.equals(updateTime, other.updateTime) 
+				&& Objects.equals(sites, other.sites) 
+				&& Objects.equals(sourceSite, other.sourceSite) 
 				&& Objects.equals(value, other.value);
 	}
 
@@ -104,10 +76,10 @@ public class SSHKeyViewModel {
 		private String id;
 		private PersistentId ownerId;
 		private ZonedDateTime createTime;
-		private Set<String> sites = Collections.emptySet();
+		private Set<SiteWithKeyStatus> sites = Collections.emptySet();
 		private String name;
 		private String value;
-		private ZonedDateTime updateTime;
+		private SiteWithKeyStatus sourceSite;
 
 		private Builder() {
 		}
@@ -127,8 +99,13 @@ public class SSHKeyViewModel {
 			return this;
 		}
 
-		public Builder sites(Set<String> sites) {
+		public Builder sites(Set<SiteWithKeyStatus> sites) {
 			this.sites = sites == null ? Sets.newHashSet() : sites;
+			return this;
+		}
+
+		public Builder sourceSite(SiteWithKeyStatus sourceSite) {
+			this.sourceSite = sourceSite;
 			return this;
 		}
 
@@ -142,13 +119,8 @@ public class SSHKeyViewModel {
 			return this;
 		}
 
-		public Builder updateTime(ZonedDateTime updateTime) {
-			this.updateTime = updateTime;
-			return this;
-		}
-
 		public SSHKeyViewModel build() {
-			return new SSHKeyViewModel(id, ownerId, name, sites, value, createTime, updateTime);
+			return new SSHKeyViewModel(id, ownerId, name, sourceSite, sites, value, createTime);
 		}
 	}
 
