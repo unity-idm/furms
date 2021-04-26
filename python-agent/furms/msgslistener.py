@@ -40,29 +40,47 @@ class SiteListener:
     def on_message(self, channel, basic_deliver, properties, body):
         logger.debug("Received \nbody=%r\nbasic_deliver=%r, \nproperties=%r" % (body, basic_deliver, properties))
 
-        payload = furms.Payload.from_body(body)
-        logger.info("Received payload=%r" % str(payload))
+        payload = furms.PayloadRequest.from_body(body)
+        logger.info("Received payload\n%s" % str(payload))
 
         if isinstance(payload.body, furms.AgentPingRequest):
-            self.handleAgentPingRequest(channel, basic_deliver, payload)
+            self.handle_ping_request(channel, basic_deliver, payload)
+        else:
+            self.handle_request(channel, basic_deliver, payload)
 
-
-    def handleAgentPingRequest(self, channel, basic_deliver, payload:furms.Payload):
+    def handle_ping_request(self, channel, basic_deliver, payload:furms.PayloadRequest):
         pingListener = self.listeners.get(payload.body)
         pingListener()
+        self.publish(channel, basic_deliver, self._response_header(payload), furms.AgentPingAck())
 
-        header = furms.Header(payload.header.messageCorrelationId, payload.header.version, status="OK")
-        response = furms.Payload(header, furms.AgentPingAck())
-        self.publish(channel, basic_deliver, response)
+    def handle_request(self, channel, basic_deliver, payload:furms.PayloadRequest):
+        header = self._response_header(payload)
+        self.publish(channel, basic_deliver, header, payload.body.ack_message())
 
-    def publish(self, channel, basic_deliver, payload:furms.Payload):
-        response_body = str(payload)
+        listener = self.listeners.get(payload.body)
+        try:
+            result = listener(payload.body)
+            self.publish(channel, basic_deliver, header, result)
+        except Exception as e:
+            logger.error("Failed to provide respons to FURMS", e)
+
+
+    def publish(self, channel, basic_deliver, header:furms.Header, message:furms.ProtocolMessage):
+        response = furms.PayloadResponse(header, message)
+        self._publish(channel, basic_deliver, response)
+
+    def _response_header(self, requestPayload:furms.PayloadRequest, status="OK") -> furms.Header:
+        return furms.Header(requestPayload.header.messageCorrelationId, requestPayload.header.version, status=status)
+
+    def _publish(self, channel, basic_deliver, payload:furms.PayloadResponse):
+        response_body = payload.to_body()
         reply_to = self.config.queues.site_to_furms_queue_name()
         channel.basic_publish(basic_deliver.exchange, 
             routing_key=reply_to, 
             properties=pika.BasicProperties(
                 content_type='application/json', 
                 delivery_mode=2, # make message persistent
+#                headers={'__TypeId__': 'io.imunity.furms.rabbitmq.site.models.Payload'},
             ),
             body=response_body)
         logger.info("response published to %s body=%r" % (reply_to, response_body))
