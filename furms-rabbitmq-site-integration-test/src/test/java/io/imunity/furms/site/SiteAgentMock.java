@@ -5,12 +5,7 @@
 
 package io.imunity.furms.site;
 
-import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
-
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
+import io.imunity.furms.rabbitmq.site.models.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,23 +13,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
-import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalResult;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
-import io.imunity.furms.rabbitmq.site.models.Header;
-import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.rabbitmq.site.models.Status;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Component
 public class SiteAgentMock {
