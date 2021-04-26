@@ -46,7 +46,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	public String create(ProjectAllocationInstallation projectAllocation) {
 		ProjectAllocationInstallationEntity savedProjectAllocation = repository.save(
 			ProjectAllocationInstallationEntity.builder()
-				.correlationId(UUID.fromString(projectAllocation.correlationId))
+				.correlationId(UUID.fromString(projectAllocation.correlationId.id))
 				.siteId(Optional.ofNullable(projectAllocation.siteId).map(UUID::fromString).orElse(null))
 				.projectAllocationId(UUID.fromString(projectAllocation.projectAllocationId))
 				.chunkId(projectAllocation.chunkId)
@@ -80,7 +80,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 
 	@Override
 	public String update(ProjectAllocationInstallation projectAllocation) {
-		return repository.findByCorrelationId(UUID.fromString(projectAllocation.correlationId))
+		return repository.findByCorrelationId(UUID.fromString(projectAllocation.correlationId.id))
 			.map(oldProjectAllocation -> ProjectAllocationInstallationEntity.builder()
 				.id(oldProjectAllocation.getId())
 				.correlationId(oldProjectAllocation.correlationId)

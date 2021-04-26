@@ -42,15 +42,13 @@ class MockListeners {
 	public void receiveAgentPingRequest(Payload<AgentPingRequest> message) throws InterruptedException {
 		TimeUnit.SECONDS.sleep(5);
 
-		String correlationId = message.header.messageCorrelationId;
-		Header header = new Header(VERSION, correlationId, Status.OK, null);
+		Header header = getHeader(message.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentPingAck()));
 	}
 
 	@EventListener
 	public void receiveAgentProjectInstallationRequest(Payload<AgentProjectInstallationRequest> projectInstallationRequest) throws InterruptedException {
-		String correlationId = projectInstallationRequest.header.messageCorrelationId;
-		Header header = new Header(VERSION, correlationId, Status.OK, null);
+		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
@@ -62,8 +60,7 @@ class MockListeners {
 
 	@EventListener
 	public void receiveAgentProjectAllocationInstallationRequest(Payload<AgentProjectAllocationInstallationRequest> projectInstallationRequest) throws InterruptedException {
-		String correlationId = projectInstallationRequest.header.messageCorrelationId;
-		Header header = new Header("1", correlationId, Status.OK, null);
+		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectAllocationInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
@@ -90,7 +87,11 @@ class MockListeners {
 			.validFrom(projectInstallationRequest.body.validFrom)
 			.validTo(projectInstallationRequest.body.validTo)
 			.build();
-		Header header1 = new Header("1", UUID.randomUUID().toString(), Status.OK, null);
+		Header header1 = new Header(VERSION, UUID.randomUUID().toString(), Status.OK, null);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header1, result1));
+	}
+
+	private Header getHeader(Header header) {
+		return new Header(VERSION, header.messageCorrelationId, Status.OK, null);
 	}
 }

@@ -22,6 +22,8 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Component
 public class SiteAgentMock {
 
+	private static final String MOCK_SITE_PUB = "mock-site-pub";
+	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
 
@@ -32,7 +34,7 @@ public class SiteAgentMock {
 	}
 
 	@RabbitHandler
-	@RabbitListener(queues = "mock-furms-pub")
+	@RabbitListener(queues = MOCK_FURMS_PUB)
 	public void receive(Payload<?> payload) {
 		publisher.publishEvent(payload);
 	}
@@ -40,30 +42,26 @@ public class SiteAgentMock {
 	@EventListener
 	public void receiveAgentPingRequest(Payload<AgentPingRequest> message) throws InterruptedException {
 		TimeUnit.SECONDS.sleep(5);
-
-		String correlationId = message.header.messageCorrelationId;
-		Header header = new Header(VERSION, correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentPingAck()));
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentPingAck()));
 	}
 
 	@EventListener
 	public void receiveAgentProjectInstallationRequest(Payload<AgentProjectInstallationRequest> projectInstallationRequest) throws InterruptedException {
-		String correlationId = projectInstallationRequest.header.messageCorrelationId;
-		Header header = new Header(VERSION, correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentProjectInstallationAck()));
+		Header header = getHeader(projectInstallationRequest.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
 		String i = String.valueOf(new Random().nextInt(1000));
 		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", i));
-		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
 	@EventListener
 	public void receiveAgentProjectAllocationInstallationRequest(Payload<AgentProjectAllocationInstallationRequest> projectInstallationRequest) throws InterruptedException {
-		String correlationId = projectInstallationRequest.header.messageCorrelationId;
-		Header header = new Header("1", correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, new AgentProjectAllocationInstallationAck()));
+		Header header = getHeader(projectInstallationRequest.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectAllocationInstallationAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
@@ -76,7 +74,7 @@ public class SiteAgentMock {
 			.validFrom(projectInstallationRequest.body.validFrom)
 			.validTo(projectInstallationRequest.body.validTo)
 			.build();
-		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 
 		TimeUnit.SECONDS.sleep(5);
 
@@ -89,6 +87,10 @@ public class SiteAgentMock {
 			.validFrom(projectInstallationRequest.body.validFrom)
 			.validTo(projectInstallationRequest.body.validTo)
 			.build();
-		rabbitTemplate.convertAndSend("mock-pub-site", new Payload<>(header, result1));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result1));
+	}
+
+	private Header getHeader(Header header) {
+		return new Header(VERSION, header.messageCorrelationId, Status.OK, null);
 	}
 }

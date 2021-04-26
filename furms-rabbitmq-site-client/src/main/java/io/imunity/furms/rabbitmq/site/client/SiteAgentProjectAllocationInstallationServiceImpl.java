@@ -14,13 +14,17 @@ import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationM
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACK;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.PUB_FURMS;
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
@@ -33,13 +37,15 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		this.projectAllocationInstallationMessageResolver = projectAllocationInstallationMessageResolver;
 	}
 
+	@EventListener
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
-		projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK);
+		projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACKNOWLEDGED);
 	}
 
+	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
 		ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
-			.correlationId(result.header.messageCorrelationId)
+			.correlationId(new CorrelationId(result.header.messageCorrelationId))
 			.projectAllocationId(result.body.allocationIdentifier)
 			.chunkId(result.body.allocationChunkIdentifier)
 			.amount(BigDecimal.valueOf(result.body.amount))
@@ -52,11 +58,12 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.NESTED)
 	public void allocateProject(CorrelationId correlationId, ProjectAllocationResolved projectAllocation) {
 		AgentProjectAllocationInstallationRequest request = ProjectAllocationMapper.map(projectAllocation);
-		String queueName = projectAllocation.site.getExternalId().id + PUB_FURMS;
 		try {
-			rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header("1", correlationId.id), request));
+			String queueName = getFurmsPublishQueueName(projectAllocation.site.getExternalId());
+			rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, correlationId.id), request));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

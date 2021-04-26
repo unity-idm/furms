@@ -42,7 +42,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.SEND;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.SENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -161,10 +161,10 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-				.correlationId(correlationId.id)
+				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when
@@ -173,8 +173,8 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//then
 		ProjectAllocationInstallation allocationInstallation = entityRepository.findAll(projectId.toString()).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
-		assertThat(allocationInstallation.correlationId).isEqualTo(correlationId.id);
-		assertThat(allocationInstallation.status).isEqualTo(SEND);
+		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
+		assertThat(allocationInstallation.status).isEqualTo(SENT);
 	}
 
 	@Test
@@ -183,10 +183,10 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 				.id("id")
-				.correlationId(correlationId.id)
+				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when
@@ -195,8 +195,8 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//then
 		ProjectAllocationInstallation allocationInstallation = entityRepository.findAll(projectId.toString()).iterator().next();
-		assertThat(allocationInstallation.id.toString()).isEqualTo(id);
-		assertThat(allocationInstallation.correlationId.toString()).isEqualTo(correlationId.id);
+		assertThat(allocationInstallation.id).isEqualTo(id);
+		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
 		assertThat(allocationInstallation.status).isEqualTo(INSTALLED);
 	}
 
@@ -205,10 +205,10 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-				.correlationId(correlationId.id)
+				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when

@@ -8,11 +8,13 @@ package io.imunity.furms.db.project_allocation_installation;
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Table("project_allocation_installation")
@@ -45,8 +47,8 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	ProjectAllocationInstallation toProjectAllocationInstallation() {
 		return ProjectAllocationInstallation.builder()
 			.id(id.toString())
-			.correlationId(correlationId.toString())
-			.siteId(siteId.toString())
+			.correlationId(new CorrelationId(correlationId.toString()))
+			.siteId(Optional.ofNullable(siteId).map(UUID::toString).orElse(null))
 			.projectAllocationId(projectAllocationId.toString())
 			.chunkId(chunkId)
 			.amount(amount)

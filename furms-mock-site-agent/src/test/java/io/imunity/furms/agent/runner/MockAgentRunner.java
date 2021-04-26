@@ -5,7 +5,7 @@
 
 package io.imunity.furms.agent.runner;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsConverter;
+import io.imunity.furms.rabbitmq.site.models.converter.FurmsPayloadConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,6 +22,6 @@ public class MockAgentRunner {
 
 	@Bean
 	MessageConverter messageConverter() {
-		return FurmsConverter.init();
+		return new FurmsPayloadConverter();
 	}
 }

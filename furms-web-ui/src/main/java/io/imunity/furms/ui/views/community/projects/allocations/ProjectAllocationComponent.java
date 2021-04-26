@@ -18,7 +18,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.ui.components.*;
 
@@ -43,11 +42,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final String communityId;
 	private final String projectId;
 
-	public ProjectAllocationComponent(ProjectAllocationService service, ProjectAllocationInstallationService projectAllocationInstallationService, String projectId) {
+	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
 		this.communityId = getCurrentResourceId();
 		this.service = service;
 		this.projectId = projectId;
-		groupedProjectAllocations = projectAllocationInstallationService.findAll(communityId, projectId).stream()
+		groupedProjectAllocations = service.findAllInstallations(communityId, projectId).stream()
 			.collect(groupingBy(installation -> installation.projectAllocationId));
 		this.grid = createCommunityGrid();
 		loadGridContent();

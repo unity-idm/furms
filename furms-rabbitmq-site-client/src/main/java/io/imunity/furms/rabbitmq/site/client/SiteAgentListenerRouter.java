@@ -40,13 +40,4 @@ class SiteAgentListenerRouter {
 		LOG.info("Received object, which cannot be process {}", o);
 	}
 
-	@EventListener
-	public void receiveAgentProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
-		siteAgentProjectAllocationService.receiveProjectResourceAllocationAck(ack);
-	}
-
-	@EventListener
-	public void receiveAgentProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
-		siteAgentProjectAllocationService.receiveProjectResourceAllocationResult(result);
-	}
 }

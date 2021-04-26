@@ -5,13 +5,15 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.site_agent.CorrelationId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectAllocationInstallation {
 	public final String id;
-	public final String correlationId;
+	public final CorrelationId correlationId;
 	public final String siteId;
 	public final String projectAllocationId;
 	public final String chunkId;
@@ -21,7 +23,7 @@ public class ProjectAllocationInstallation {
 	public final LocalDateTime receivedTime;
 	public final ProjectAllocationInstallationStatus status;
 
-	ProjectAllocationInstallation(String id, String correlationId, String siteId, String projectAllocationId,
+	ProjectAllocationInstallation(String id, CorrelationId correlationId, String siteId, String projectAllocationId,
 	                              String chunkId, BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
 	                              LocalDateTime receivedTime, ProjectAllocationInstallationStatus status) {
 		this.id = id;
@@ -80,7 +82,7 @@ public class ProjectAllocationInstallation {
 
 	public static final class ProjectAllocationInstallationBuilder {
 		public String id;
-		public String correlationId;
+		public CorrelationId correlationId;
 		public String siteId;
 		public String projectAllocationId;
 		public String chunkId;
@@ -98,7 +100,7 @@ public class ProjectAllocationInstallation {
 			return this;
 		}
 
-		public ProjectAllocationInstallationBuilder correlationId(String correlationId) {
+		public ProjectAllocationInstallationBuilder correlationId(CorrelationId correlationId) {
 			this.correlationId = correlationId;
 			return this;
 		}

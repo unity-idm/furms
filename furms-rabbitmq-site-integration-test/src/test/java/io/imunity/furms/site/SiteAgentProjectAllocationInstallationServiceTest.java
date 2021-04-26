@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.broker;
+package io.imunity.furms.site;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -12,12 +12,13 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
+import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,17 +35,22 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 	@Autowired
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Autowired
-	private RabbitListenerEndpointRegistry endpointRegistry;
+	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@MockBean
 	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationMessageResolver;
+	@MockBean
+	private SiteExternalIdsResolver siteExternalIdsResolver;
+
+	@BeforeEach
+	void init(){
+		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
+	}
 
 	@Test
 	void shouldInstallProjectAllocation() {
-		AbstractMessageListenerContainer container = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer("FURMS_LISTENER");
-		container.addQueueNames("mock-pub-site");
-		CorrelationId correlationId = new CorrelationId();
+		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.id("id")
 			.projectId("id")
@@ -65,7 +71,7 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACK);
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED);
 		verify(projectAllocationInstallationMessageResolver, timeout(15000).times(2)).updateStatus(any());
 	}
 }

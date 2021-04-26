@@ -8,6 +8,7 @@ package io.imunity.furms.core.project_allocation_installation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +16,15 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
 
-class ProjectAllocationInstallationServiceImplTest {
+class ProjectAllocationInstallationServiceTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
+	@Mock
+	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
+
 
 	private ProjectAllocationInstallationServiceImpl service;
 	private InOrder orderVerifier;
@@ -31,42 +32,24 @@ class ProjectAllocationInstallationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationServiceImpl(repository);
+		service = new ProjectAllocationInstallationServiceImpl(repository, siteAgentProjectAllocationInstallationService);
 		orderVerifier = inOrder(repository);
 	}
 
 	@Test
-	void shouldCreateProjectInstallation() {
+	void shouldCreateProjectAllocationInstallation() {
 		//given
 		CorrelationId id = new CorrelationId("id");
 		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
-				.correlationId(id.id)
-				.status(ProjectAllocationInstallationStatus.SEND)
+				.correlationId(id)
+				.status(ProjectAllocationInstallationStatus.SENT)
 				.build();
 
 		//when
-		service.create("communityId", projectAllocationInstallation);
+		service.create("communityId", projectAllocationInstallation, null);
 
 		//then
 		orderVerifier.verify(repository).create(eq(projectAllocationInstallation));
-	}
-
-	@Test
-	void shouldUpdateProjectInstallation() {
-		//given
-		CorrelationId id = new CorrelationId("id");
-		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
-				.id("id")
-				.correlationId(id.id)
-				.status(ProjectAllocationInstallationStatus.SEND)
-				.build();
-
-		//when
-		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(projectAllocationInstallation));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.SEND);
-
-		//then
-		orderVerifier.verify(repository).update("id", ProjectAllocationInstallationStatus.SEND);
 	}
 
 	@Test

@@ -24,6 +24,8 @@ public interface ProjectInstallationRepository {
 
 	String update(String id, ProjectInstallationStatus status);
 
+	boolean existsByProjectId(String projectId);
+
 	void delete(String id);
 
 	void deleteAll();

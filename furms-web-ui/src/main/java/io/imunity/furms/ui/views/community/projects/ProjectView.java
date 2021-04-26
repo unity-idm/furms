@@ -12,7 +12,6 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
@@ -37,7 +36,6 @@ public class ProjectView extends FurmsViewComponent {
 	private final UserService userService;
 	private final PersistentId currentUserId;
 	private final ProjectAllocationService projectAllocationService;
-	private final ProjectAllocationInstallationService projectAllocationInstallationService;
 
 	private Tab defaultTab;
 	private Tabs tabs;
@@ -50,19 +48,18 @@ public class ProjectView extends FurmsViewComponent {
 	private Div page2;
 
 	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService,
-	            ProjectAllocationService projectAllocationService, ProjectAllocationInstallationService projectAllocationInstallationService) {
+	            ProjectAllocationService projectAllocationService) {
 		this.projectService = projectService;
 		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
 		this.projectAllocationService = projectAllocationService;
-		this.projectAllocationInstallationService = projectAllocationInstallationService;
 	}
 
 	private void loadTabs(String projectId) {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new ProjectAllocationComponent(projectAllocationService, projectAllocationInstallationService, projectId).getContent();
+		page2 = new ProjectAllocationComponent(projectAllocationService, projectId).getContent();
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), ProjectView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);

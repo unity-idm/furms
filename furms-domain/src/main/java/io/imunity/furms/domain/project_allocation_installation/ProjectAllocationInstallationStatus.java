@@ -6,5 +6,5 @@
 package io.imunity.furms.domain.project_allocation_installation;
 
 public enum ProjectAllocationInstallationStatus {
-	SEND, ACK, INSTALLED
+	SENT, ACKNOWLEDGED, INSTALLED, FAILED
 }
