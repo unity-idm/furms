@@ -19,7 +19,7 @@ import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 	@Type(value = AgentProjectInstallationResult.class),
 	@Type(value = AgentProjectAllocationInstallationAck.class),
 	@Type(value = AgentProjectAllocationInstallationRequest.class),
-	@Type(value = AgentProjectAllocationInstallationResult.class)
+	@Type(value = AgentProjectAllocationInstallationResult.class),
 	@Type(value = AgentProjectInstallationResult.class),
 	@Type(value = AgentSSHKeyAdditionAck.class),
 	@Type(value = AgentSSHKeyAdditionRequest.class),

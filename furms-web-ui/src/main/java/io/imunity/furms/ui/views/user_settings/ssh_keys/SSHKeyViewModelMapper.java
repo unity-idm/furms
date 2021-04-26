@@ -5,8 +5,8 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-
-import io.imunity.furms.domain.ssh_key.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 import java.time.ZoneId;
 import java.util.Collections;
@@ -16,8 +16,6 @@ import java.util.function.BiFunction;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 class SSHKeyViewModelMapper {
 
