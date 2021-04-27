@@ -7,8 +7,10 @@ package io.imunity.furms.site.api;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface SiteExternalIdsResolver {
 	Set<SiteExternalId> findAllIds();
+	Optional<SiteExternalId> translate(String siteId);
 }

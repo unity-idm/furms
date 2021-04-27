@@ -29,7 +29,13 @@ import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 	@Type(value = AgentSSHKeyRemovalResult.class),
 	@Type(value = AgentSSHKeyUpdatingAck.class),
 	@Type(value = AgentSSHKeyUpdatingRequest.class),
-	@Type(value = AgentSSHKeyUpdatingResult.class)
+	@Type(value = AgentSSHKeyUpdatingResult.class),
+	@Type(value = UserProjectAddRequest.class),
+	@Type(value = UserProjectAddRequestAck.class),
+	@Type(value = UserProjectAddResult.class),
+	@Type(value = UserProjectRemovalRequest.class),
+	@Type(value = UserProjectRemovalRequestAck.class),
+	@Type(value = UserProjectRemovalResult.class)
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 public interface Body {
