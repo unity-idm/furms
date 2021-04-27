@@ -52,8 +52,8 @@ public class FurmsPayloadConverter implements MessageConverter {
 			String contentAsString = new String(message.getBody(), contentEncoding);
 			return mapper.readValue(contentAsString, mapper.constructType(Payload.class));
 		} catch (Exception e) {
-			LOG.info("Message cannot be convert: {}", message);
-			LOG.info("This error occurred when message was parsing: ", e);
+			LOG.error("Message cannot be convert: {}", message);
+			LOG.error("This error occurred when message was parsing: ", e);
 			return new Object();
 		}
 	}
