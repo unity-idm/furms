@@ -39,4 +39,5 @@ class SiteAgentListenerRouter {
 	public void receive(Object o) {
 		LOG.info("Received object, which cannot be process {}", o);
 	}
+
 }

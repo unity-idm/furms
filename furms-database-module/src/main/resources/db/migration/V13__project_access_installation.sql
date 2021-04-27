@@ -9,6 +9,6 @@ CREATE TABLE project_installation_job (
     site_Id UUID NOT NULL,
     project_Id UUID NOT NULL,
     status VARCHAR(255) NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES project(id),
+    FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
     FOREIGN KEY (site_id) REFERENCES site(id)
 );

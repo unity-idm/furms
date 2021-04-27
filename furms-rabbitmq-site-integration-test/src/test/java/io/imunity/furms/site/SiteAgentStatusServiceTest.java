@@ -11,6 +11,7 @@ import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
@@ -32,6 +33,8 @@ class SiteAgentStatusServiceTest {
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@MockBean
 	private ProjectInstallationMessageResolver projectInstallationService;
+	@MockBean
+	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
 	@MockBean
 	private SiteExternalIdsResolver siteExternalIdsResolver;
 	@MockBean

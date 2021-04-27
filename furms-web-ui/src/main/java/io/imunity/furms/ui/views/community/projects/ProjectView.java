@@ -47,7 +47,8 @@ public class ProjectView extends FurmsViewComponent {
 	private Div page1;
 	private Div page2;
 
-	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectAllocationService projectAllocationService) {
+	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService,
+	            ProjectAllocationService projectAllocationService) {
 		this.projectService = projectService;
 		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();

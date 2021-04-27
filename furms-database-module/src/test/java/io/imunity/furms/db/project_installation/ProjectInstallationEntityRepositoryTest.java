@@ -26,8 +26,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACK;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -109,7 +109,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when
@@ -120,7 +120,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(SEND);
+		assertThat(byId.get().status).isEqualTo(SENT);
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -132,7 +132,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when
@@ -143,7 +143,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.correlationId(save.correlationId)
 			.siteId(save.siteId)
 			.projectId(save.projectId)
-			.status(ACK)
+			.status(ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(entityToUpdate);
@@ -152,7 +152,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACK);
+		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED);
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -164,7 +164,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		entityRepository.save(toSave);
@@ -184,7 +184,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		entityRepository.save(toFind);
@@ -205,14 +205,14 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectId(projectId2)
-			.status(ACK)
+			.status(ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(toSave);
@@ -233,7 +233,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId2)
 				.projectId(projectId2)
-				.status(SEND)
+				.status(SENT)
 				.build();
 
 		//when
@@ -252,14 +252,14 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SEND)
+				.status(SENT)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectId(projectId2)
-			.status(ACK)
+			.status(ACKNOWLEDGED)
 			.build();
 
 		//when

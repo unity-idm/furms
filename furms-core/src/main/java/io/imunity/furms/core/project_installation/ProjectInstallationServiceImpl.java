@@ -5,18 +5,17 @@
 
 package io.imunity.furms.core.project_installation;
 
-import io.imunity.furms.api.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.project_installation.ProjectInstallationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
@@ -24,14 +23,17 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 
 @Service
-class ProjectInstallationServiceImpl implements ProjectInstallationService, ProjectInstallationMessageResolver {
+class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectInstallationRepository projectInstallationRepository;
+	private final SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 	private final UsersDAO usersDAO;
 
-	ProjectInstallationServiceImpl(ProjectInstallationRepository projectInstallationRepository, UsersDAO usersDAO) {
+	ProjectInstallationServiceImpl(ProjectInstallationRepository projectInstallationRepository,
+	                               SiteAgentProjectInstallationService siteAgentProjectInstallationService, UsersDAO usersDAO) {
 		this.projectInstallationRepository = projectInstallationRepository;
+		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
 		this.usersDAO = usersDAO;
 	}
 
@@ -41,19 +43,17 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService, Proj
 		return projectInstallationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
-	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void create(String communityId, ProjectInstallationJob projectInstallationJob) {
-		projectInstallationRepository.create(projectInstallationJob);
-		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
+	public boolean existsByProjectId(String communityId, String projectId) {
+		return projectInstallationRepository.existsByProjectId(projectId);
 	}
 
-	@Override
-	//FIXME To auth this method special user for queue message resolving is needed
-	public void updateStatus(CorrelationId correlationId, ProjectInstallationStatus status) {
-		ProjectInstallationJob job = projectInstallationRepository.findByCorrelationId(correlationId);
-		projectInstallationRepository.update(job.id, status);
-		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, status);
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void create(String communityId, ProjectInstallationJob projectInstallationJob, ProjectInstallation projectInstallation) {
+		projectInstallationRepository.create(projectInstallationJob);
+		siteAgentProjectInstallationService.installProject(projectInstallationJob.correlationId, projectInstallation);
+		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
 	}
 
 	@Override

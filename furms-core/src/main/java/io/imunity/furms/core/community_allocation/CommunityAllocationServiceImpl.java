@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
@@ -68,6 +69,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void create(CommunityAllocation communityAllocation) {
 		validator.validateCreate(communityAllocation);
@@ -77,6 +79,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void update(CommunityAllocation communityAllocation) {
 		validator.validateUpdate(communityAllocation);
@@ -86,6 +89,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void delete(String id) {
 		validator.validateDelete(id);

@@ -15,6 +15,8 @@ import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.*;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
@@ -35,7 +37,7 @@ class SiteAgentProjectInstallationServiceImpl implements SiteAgentProjectInstall
 		if(ack.header.status.equals(Status.FAILED)){
 			projectInstallationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED);
 		}
-		projectInstallationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK);
+		projectInstallationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACKNOWLEDGED);
 	}
 
 	@EventListener
@@ -48,6 +50,7 @@ class SiteAgentProjectInstallationServiceImpl implements SiteAgentProjectInstall
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.NESTED)
 	public void installProject(CorrelationId correlationId, ProjectInstallation installation) {
 		AgentProjectInstallationRequest request = ProjectInstallationMapper.map(installation);
 		try {
