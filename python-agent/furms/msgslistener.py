@@ -80,7 +80,7 @@ class SiteListener:
             properties=pika.BasicProperties(
                 content_type='application/json', 
                 delivery_mode=2, # make message persistent
-#                headers={'__TypeId__': 'io.imunity.furms.rabbitmq.site.models.Payload'},
+                content_encoding='UTF-8',
             ),
             body=response_body)
         logger.info("response published to %s body=%r" % (reply_to, response_body))
