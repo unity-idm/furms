@@ -6,14 +6,13 @@ import sys
 import os
 import time
 import furms
-from furms.msgslistener import SiteListener
 
 
 if len(sys.argv) != 2:
     print("Provide Site Id as command line parameter.")
     sys.exit(1)
 
-furms.set_stream_logger('furms.msgslistener', logging.DEBUG)
+furms.set_stream_logger('furms.sitelistener', logging.INFO)
 
 host = os.getenv('BROKER_HOST', '127.0.0.1')
 brokerConfig = furms.BrokerConfiguration(
@@ -46,7 +45,7 @@ listeners.sshkey_remove_listener(handle_sshkey_remove)
 listeners.sshkey_update_listener(handle_sshkey_update)
 
 try:
-    SiteListener(config=brokerConfig, listeners=listeners).start_consuming()
+    furms.SiteListener(config=brokerConfig, listeners=listeners).start_consuming()
 except KeyboardInterrupt:
     print('Interrupted')
     try:

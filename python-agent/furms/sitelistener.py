@@ -2,16 +2,21 @@
 # See LICENSE file for licensing information.
 
 import pika
-import functools
 import logging
 import ssl
-import furms
+from furms.protocol_messages import PayloadRequest
+from furms.protocol_messages import PayloadResponse
+from furms.protocol_messages import Header
+from furms.configuration import BrokerConfiguration
+from furms.configuration import RequestListeners
+from furms.furms_messages import AgentPingRequest
+from furms.furms_messages import AgentPingAck
+from furms.furms_messages import ProtocolMessage
 
 logger = logging.getLogger(__name__)
 
-
 class SiteListener:
-    def __init__(self, config: furms.BrokerConfiguration, listeners: furms.RequestListeners) -> None:
+    def __init__(self, config: BrokerConfiguration, listeners: RequestListeners) -> None:
         self.config = config
         self.listeners = listeners
 
@@ -40,20 +45,20 @@ class SiteListener:
     def on_message(self, channel, basic_deliver, properties, body):
         logger.debug("Received \nbody=%r\nbasic_deliver=%r, \nproperties=%r" % (body, basic_deliver, properties))
 
-        payload = furms.PayloadRequest.from_body(body)
-        logger.info("Received payload\n%s" % str(payload))
+        payload = PayloadRequest.from_body(body)
+        logger.info("Received payload:\n%s" % str(payload))
 
-        if isinstance(payload.body, furms.AgentPingRequest):
+        if isinstance(payload.body, AgentPingRequest):
             self.handle_ping_request(channel, basic_deliver, payload)
         else:
             self.handle_request(channel, basic_deliver, payload)
 
-    def handle_ping_request(self, channel, basic_deliver, payload:furms.PayloadRequest):
+    def handle_ping_request(self, channel, basic_deliver, payload:PayloadRequest):
         pingListener = self.listeners.get(payload.body)
         pingListener()
-        self.publish(channel, basic_deliver, self._response_header(payload), furms.AgentPingAck())
+        self.publish(channel, basic_deliver, self._response_header(payload), AgentPingAck())
 
-    def handle_request(self, channel, basic_deliver, payload:furms.PayloadRequest):
+    def handle_request(self, channel, basic_deliver, payload:PayloadRequest):
         header = self._response_header(payload)
         self.publish(channel, basic_deliver, header, payload.body.ack_message())
 
@@ -65,14 +70,14 @@ class SiteListener:
             logger.error("Failed to provide respons to FURMS", e)
 
 
-    def publish(self, channel, basic_deliver, header:furms.Header, message:furms.ProtocolMessage):
-        response = furms.PayloadResponse(header, message)
+    def publish(self, channel, basic_deliver, header:Header, message:ProtocolMessage):
+        response = PayloadResponse(header, message)
         self._publish(channel, basic_deliver, response)
 
-    def _response_header(self, requestPayload:furms.PayloadRequest, status="OK") -> furms.Header:
-        return furms.Header(requestPayload.header.messageCorrelationId, requestPayload.header.version, status=status)
+    def _response_header(self, requestPayload:PayloadRequest, status="OK") -> Header:
+        return Header(requestPayload.header.messageCorrelationId, requestPayload.header.version, status=status)
 
-    def _publish(self, channel, basic_deliver, payload:furms.PayloadResponse):
+    def _publish(self, channel, basic_deliver, payload:PayloadResponse):
         response_body = payload.to_body()
         reply_to = self.config.queues.site_to_furms_queue_name()
         channel.basic_publish(basic_deliver.exchange, 
@@ -83,6 +88,6 @@ class SiteListener:
                 content_encoding='UTF-8',
             ),
             body=response_body)
-        logger.info("response published to %s body=%r" % (reply_to, response_body))
+        logger.info("response published to %s payload:\n%s" % (reply_to, str(payload)))
 
 
