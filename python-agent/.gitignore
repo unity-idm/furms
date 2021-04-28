@@ -6,3 +6,4 @@ furms.egg-info
 html
 **/**.pyc
 /.pytest_cache/
+demo-agent/ssh_keys/
