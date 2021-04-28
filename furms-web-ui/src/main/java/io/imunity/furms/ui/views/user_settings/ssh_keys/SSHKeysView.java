@@ -133,7 +133,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private Component gridNameComponent(Grid<SSHKeyViewModel> grid, SSHKeyViewModel item) {
 		Icon icon = grid.isDetailsVisible(item) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
 		Component routerLink;
-		if (item.sites.stream().filter(s -> !DONE.equals(s.keyOperationStatus)).findAny().isEmpty()) {
+		if (item.sites.stream().filter(s -> s.keyOperationStatus.inProgress()).findAny().isEmpty()) {
 			routerLink = new RouterLink(item.name, SSHKeyFormView.class, item.id);
 		} else {
 			routerLink = new NoWrapLabel(item.name);
@@ -198,7 +198,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		GridActionMenu contextMenu = new GridActionMenu();
 		contextMenu.setId(key.id);
 
-		if (key.sites.stream().filter(s -> !DONE.equals(s.keyOperationStatus)).findAny().isEmpty()) {
+		if (key.sites.stream().filter(s ->s.keyOperationStatus.inProgress()).findAny().isEmpty()) {
 			contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
 					event -> UI.getCurrent().navigate(SSHKeyFormView.class, key.id));
 			contextMenu.addItem(
@@ -215,6 +215,8 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		return target;
 	}
 
+	
+	
 	private void actionDeleteSSHKey(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
 		FurmsDialog cancelDialog = new FurmsDialog(getTranslation(
 				"view.user-settings.ssh-keys.main.confirmation.dialog.delete", key.name));
@@ -240,8 +242,13 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	
 	private void refreshDetails(SSHKeyViewModel key) {
 		boolean details = grid.isDetailsVisible(key);
-		grid.setItems(loadSSHKeysViewsModels());
-		grid.setDetailsVisible(key, details);
+		List<SSHKeyViewModel> models = loadSSHKeysViewsModels();
+		grid.setItems(models);
+		Optional<SSHKeyViewModel> selectedModel = models.stream().filter(m -> m.id.equals(key.id)).findAny();
+		if (selectedModel.isPresent())
+		{
+			grid.setDetailsVisible(selectedModel.get(), details);
+		}
 	}
 
 	@Override

@@ -28,7 +28,7 @@ class SSHKeyRequestCleaner {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 
-	@Value("${furms.sshkeys.cleanStaleRequestsAfter}")
+	@Value("${furms.sshkeys.cleanStaleRequestsAfter: 86400000}")
 	private int cleanStaleRequestsAfter;
 
 	SSHKeyRequestCleaner(SSHKeyOperationRepository sshKeyOperationRepository) {
@@ -36,7 +36,7 @@ class SSHKeyRequestCleaner {
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 	}
 
-	@Scheduled(fixedDelayString = "${furms.sshkeys.cleanStaleRequestsAfter:86400000}")
+	@Scheduled(fixedDelayString = "#{${furms.sshkeys.cleanStaleRequestsAfter: 86400000}/10}")
 	@Transactional
 	private void cleanStaleRequest() {
 		LOG.debug("Cleaning ssh key operation stale requests");

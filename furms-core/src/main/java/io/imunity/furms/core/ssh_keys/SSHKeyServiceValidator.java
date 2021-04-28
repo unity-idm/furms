@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
@@ -125,7 +124,7 @@ public class SSHKeyServiceValidator {
 
 	void validateOpenOperation(SSHKey key) {
 		assertTrue(sshKeyOperationRepository.findBySSHKey(key.id).stream()
-				.filter(operation -> !DONE.equals(operation.status)).findAny().isEmpty(),
+				.filter(operation -> operation.status.inProgress()).findAny().isEmpty(),
 				() -> new IllegalArgumentException(
 						"Invalid SSH key: there are uncompleted key operations"));
 	}

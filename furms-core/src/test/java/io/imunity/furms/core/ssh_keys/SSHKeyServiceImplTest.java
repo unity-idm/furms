@@ -140,6 +140,10 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
+
 		// when
 		service.update(request);
 
@@ -207,12 +211,69 @@ public class SSHKeyServiceImplTest {
 		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
 		when(repository.update(expectedKey)).thenReturn(request.id);
 		when(repository.findById(request.id)).thenReturn(Optional.of(expectedKey));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
 
 		// when
 		service.update(request);
 
 		// then
 		verify(repository, times(1)).update(expectedKey);
+
+	}
+
+	@Test
+	void shouldCreateOnSitesIfStatusIsNotTerminedWhenUpdateKey() {
+		// given
+		final SSHKey oldKey = getKey("name", Set.of("s1"));
+
+		final SSHKey request = getKey("brandNewName", Set.of("s1", "s2"));
+
+		final SSHKey expectedKey = getKey(request.name, Set.of("s1", "s2"));
+
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(repository.exists(request.id)).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
+		when(repository.update(expectedKey)).thenReturn(request.id);
+		when(repository.findById(request.id)).thenReturn(Optional.of(oldKey));
+		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists("s2")).thenReturn(true);
+		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
+		when(siteRepository.findById("s2")).thenReturn(Optional.of(Site.builder().id("s2").build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+
+		// when
+		service.update(request);
+
+		// then
+		verify(sshKeyInstallationService).deleteBySSHKeyIdAndSiteId("id", "s2");
+		verify(siteAgentSSHKeyInstallationService, times(2)).addSSHKey(any(), any());
+
+	}
+
+	@Test
+	void shouldOnlyCleanStatusWhenDeleteKeyWitNotTerminedOperation() {
+		// given
+
+		final SSHKey key = getKey("key", Set.of("s1"));
+
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(repository.exists(key.id)).thenReturn(true);
+		when(repository.findById(key.id)).thenReturn(Optional.of(key));
+		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+		// when
+		service.delete("id");
+
+		// then
+		verify(sshKeyInstallationService).deleteBySSHKeyIdAndSiteId("id", "s1");
+		verify(siteAgentSSHKeyInstallationService, times(0)).removeSSHKey(any(), any());
 
 	}
 
@@ -227,12 +288,13 @@ public class SSHKeyServiceImplTest {
 		when(usersDAO.findById(new PersistentId("ownerId"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
 
 		// when
 		service.delete(id);
 
 		verify(siteAgentSSHKeyInstallationService, times(1)).removeSSHKey(any(), any());
-
 	}
 
 	@Test
