@@ -28,6 +28,8 @@ furms:
    psk:
       centralIdPUser: cidp
       centralIdPSecret: cidppass
+   sshkeys:
+      cleanStaleRequestsAfter: 30000
 
 spring:
    profiles:

@@ -10,6 +10,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
@@ -67,7 +68,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.page.title")
-public class SSHKeysView extends FurmsViewComponent implements AfterNavigationObserver{
+public class SSHKeysView extends FurmsViewComponent implements AfterNavigationObserver {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -131,7 +132,14 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 
 	private Component gridNameComponent(Grid<SSHKeyViewModel> grid, SSHKeyViewModel item) {
 		Icon icon = grid.isDetailsVisible(item) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-		return new Div(icon, new RouterLink(item.name, SSHKeyFormView.class, item.id));
+		Component routerLink;
+		if (item.sites.stream().filter(s -> !DONE.equals(s.keyOperationStatus)).findAny().isEmpty()) {
+			routerLink = new RouterLink(item.name, SSHKeyFormView.class, item.id);
+		} else {
+			routerLink = new NoWrapLabel(item.name);
+		}
+
+		return new Div(icon, routerLink);
 	}
 
 	private Component additionalInfoComponent(SSHKeyViewModel sshKey) {
@@ -188,14 +196,18 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 
 	private Component createContextMenu(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
 		GridActionMenu contextMenu = new GridActionMenu();
-		contextMenu.setVisible(
-				key.sites.stream().filter(s -> !DONE.equals(s.keyOperationStatus)).findAny().isEmpty());
 		contextMenu.setId(key.id);
-		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
-				event -> UI.getCurrent().navigate(SSHKeyFormView.class, key.id));
-		contextMenu.addItem(
-				new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.delete"), TRASH),
-				e -> actionDeleteSSHKey(key, grid));
+
+		if (key.sites.stream().filter(s -> !DONE.equals(s.keyOperationStatus)).findAny().isEmpty()) {
+			contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
+					event -> UI.getCurrent().navigate(SSHKeyFormView.class, key.id));
+			contextMenu.addItem(
+					new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.delete"),
+							TRASH),
+					e -> actionDeleteSSHKey(key, grid));
+		}
+		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
+				REFRESH), e -> refreshDetails(key));
 
 		getContent().add(contextMenu);
 		Component target = contextMenu.getTarget();
@@ -226,6 +238,12 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		grid.setItems(loadSSHKeysViewsModels());
 	}
 	
+	private void refreshDetails(SSHKeyViewModel key) {
+		boolean details = grid.isDetailsVisible(key);
+		grid.setItems(loadSSHKeysViewsModels());
+		grid.setDetailsVisible(key, details);
+	}
+
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
 		loadGridContent();
@@ -243,5 +261,5 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			getStyle().set("white-space", "nowrap");
 		}
 	}
-	
+
 }

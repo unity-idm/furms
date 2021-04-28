@@ -11,6 +11,7 @@ CREATE TABLE ssh_key_operation_job (
 	status VARCHAR(255) NOT NULL,
 	operation VARCHAR(255) NOT NULL,
 	error VARCHAR(255),
+	operation_time TIMESTAMP NOT NULL,
 	UNIQUE (sshkey_id, site_id),
 	FOREIGN KEY (sshkey_id) REFERENCES sshkey(id) ,
 	FOREIGN KEY (site_id) REFERENCES site(id)

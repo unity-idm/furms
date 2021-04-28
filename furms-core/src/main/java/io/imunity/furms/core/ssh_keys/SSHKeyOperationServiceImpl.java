@@ -11,6 +11,7 @@ import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,7 +79,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationStatus status, Optional<String> error) {
 		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
-		sshKeyOperationRepository.update(job.id, status, error);
+		sshKeyOperationRepository.update(job.id, status, error, LocalDateTime.now());
 		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, status);
 	}
 

@@ -7,6 +7,7 @@ package io.imunity.furms.domain.ssh_keys;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class SSHKeyOperationJob {
@@ -17,9 +18,11 @@ public class SSHKeyOperationJob {
 	public final SSHKeyOperationStatus status;
 	public final SSHKeyOperation operation;
 	public final String error;
+	public final LocalDateTime operationTime;
 
 	SSHKeyOperationJob(String id, String siteId, String sshkeyId, CorrelationId correlationId,
-			SSHKeyOperation operation, SSHKeyOperationStatus status, String error) {
+			SSHKeyOperation operation, SSHKeyOperationStatus status, String error,
+			LocalDateTime operationTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.sshkeyId = sshkeyId;
@@ -27,6 +30,7 @@ public class SSHKeyOperationJob {
 		this.operation = operation;
 		this.status = status;
 		this.error = error;
+		this.operationTime = operationTime;
 	}
 
 	@Override
@@ -39,8 +43,8 @@ public class SSHKeyOperationJob {
 		return Objects.equals(id, that.id) && Objects.equals(siteId, that.siteId)
 				&& Objects.equals(sshkeyId, that.sshkeyId)
 				&& Objects.equals(correlationId, that.correlationId) && operation == that.operation
-				&& status == that.status 
-				&& Objects.equals(error, that.error);
+				&& status == that.status && Objects.equals(error, that.error)
+						&& Objects.equals(operationTime, that.operationTime);
 	}
 
 	@Override
@@ -52,7 +56,7 @@ public class SSHKeyOperationJob {
 	public String toString() {
 		return "SSHKeyInstallationJob{" + "id='" + id + '\'' + ", siteId='" + siteId + '\'' + ", sshkeyId='"
 				+ sshkeyId + '\'' + ", correlationId=" + correlationId + ", status=" + status
-				+ ", operation=" + operation + ", error=" + error + '}';
+				+ ", operation=" + operation + ", error=" + error + ", operationTime=" + operationTime + '}';
 	}
 
 	public static ProjectInstallationJobBuilder builder() {
@@ -67,6 +71,7 @@ public class SSHKeyOperationJob {
 		public SSHKeyOperationStatus status;
 		public SSHKeyOperation operation;
 		public String error;
+		public LocalDateTime operationTime;
 		
 		private ProjectInstallationJobBuilder() {
 		}
@@ -100,14 +105,19 @@ public class SSHKeyOperationJob {
 			this.operation = operation;
 			return this;
 		}
-		
+
 		public ProjectInstallationJobBuilder error(String error) {
 			this.error = error;
 			return this;
 		}
+		
+		public ProjectInstallationJobBuilder operationTime(LocalDateTime operationTime) {
+			this.operationTime = operationTime;
+			return this;
+		}
 
 		public SSHKeyOperationJob build() {
-			return new SSHKeyOperationJob(id, siteId, sshkeyId, correlationId, operation, status, error);
+			return new SSHKeyOperationJob(id, siteId, sshkeyId, correlationId, operation, status, error, operationTime);
 		}
 	}
 }

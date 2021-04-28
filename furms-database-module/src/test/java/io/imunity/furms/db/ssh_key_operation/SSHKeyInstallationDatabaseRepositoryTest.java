@@ -75,9 +75,8 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD)
-				.status(SEND).build();
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -97,13 +96,12 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(siteId.toString())
-				.operation(ADD)
-				.sshkeyId(sshkeyId.toString()).status(SEND).build();
+				.siteId(siteId.toString()).operation(ADD).sshkeyId(sshkeyId.toString()).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, DONE, Optional.empty());
+		entityDatabaseRepository.update(id, DONE, Optional.empty(), LocalDateTime.now());
 
 		// then
 		Optional<SSHKeyOperationJobEntity> byId = entityRepository.findById(UUID.fromString(id));
@@ -118,9 +116,8 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD)
-				.status(SEND).build();
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -129,15 +126,14 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// then
 		assertThat(entityRepository.findById(UUID.fromString(id))).isEmpty();
 	}
-	
+
 	@Test
 	void shouldRemoveBySiteAndKeyId() {
 		// given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD)
-				.status(SEND).build();
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -152,18 +148,17 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD)
-				.status(SEND).build();
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		entityDatabaseRepository.create(request);
 
 		// then
-		SSHKeyOperationJobEntity foundByKeyAndSite = entityRepository.findBySshkeyIdAndSiteId(sshkeyId, siteId);
+		SSHKeyOperationJob foundByKeyAndSite = entityDatabaseRepository.findBySSHKeyIdAndSiteId(sshkeyId.toString(), siteId.toString());
 
-		assertThat(foundByKeyAndSite.siteId).isEqualTo(siteId);
-		assertThat(foundByKeyAndSite.sshkeyId).isEqualTo(sshkeyId);
+		assertThat(foundByKeyAndSite.siteId).isEqualTo(siteId.toString());
+		assertThat(foundByKeyAndSite.sshkeyId).isEqualTo(sshkeyId.toString());
 	}
 
 	@Test
@@ -171,21 +166,46 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		// given
 		CorrelationId correlationId1 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request1 = SSHKeyOperationJob.builder().correlationId(correlationId1)
-				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD).status(SEND).build();
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD)
+				.operationTime(LocalDateTime.now()).status(SEND).build();
 		Site site2 = Site.builder().name("name2").build();
 		UUID siteId2 = UUID.fromString(siteRepository.create(site2, new SiteExternalId("id2")));
 		CorrelationId correlationId2 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request2 = SSHKeyOperationJob.builder().correlationId(correlationId2)
-				.siteId(siteId2.toString()).sshkeyId(sshkeyId.toString())
-				.operation(ADD).status(SEND).build();
+				.siteId(siteId2.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
 
 		// when
 		entityDatabaseRepository.create(request1);
 		entityDatabaseRepository.create(request2);
 
 		// then
-		List<SSHKeyOperationJobEntity> foundByKeyAndSite = entityRepository.findBySshkeyId(sshkeyId.toString());
+		List<SSHKeyOperationJob> foundByKeyAndSite = entityDatabaseRepository.findBySSHKey(sshkeyId.toString());
+
+		assertThat(foundByKeyAndSite).hasSize(2);
+
+	}
+	
+	@Test
+	void shouldFindByStatus() {
+		// given
+		CorrelationId correlationId1 = new CorrelationId(UUID.randomUUID().toString());
+		SSHKeyOperationJob request1 = SSHKeyOperationJob.builder().correlationId(correlationId1)
+				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD)
+				.operationTime(LocalDateTime.now()).status(SEND).build();
+		Site site2 = Site.builder().name("name2").build();
+		UUID siteId2 = UUID.fromString(siteRepository.create(site2, new SiteExternalId("id2")));
+		CorrelationId correlationId2 = new CorrelationId(UUID.randomUUID().toString());
+		SSHKeyOperationJob request2 = SSHKeyOperationJob.builder().correlationId(correlationId2)
+				.siteId(siteId2.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
+				.operationTime(LocalDateTime.now()).build();
+
+		// when
+		entityDatabaseRepository.create(request1);
+		entityDatabaseRepository.create(request2);
+
+		// then
+		List<SSHKeyOperationJob> foundByKeyAndSite = entityDatabaseRepository.findByStatus(SEND);
 
 		assertThat(foundByKeyAndSite).hasSize(2);
 
