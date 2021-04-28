@@ -1,9 +1,0 @@
-venv
-furms-agent-venv
-build
-dist
-furms.egg-info
-html
-**/**.pyc
-/.pytest_cache/
-demo-agent/ssh_keys/
