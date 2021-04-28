@@ -53,6 +53,6 @@ If aforementioned variables are not present a default values takes place:
 * cafile - ./ca_certificate.pem
 ```
 cd demo-agent
-./demo-agent.sh <name-of-queue-to-listen-to>
+./demo-agent.sh <site-id-from-furms-ui>
 ```
 
