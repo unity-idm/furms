@@ -18,12 +18,14 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Component
 public class SSHKeyServiceValidator {
@@ -31,14 +33,17 @@ public class SSHKeyServiceValidator {
 	private final SSHKeyRepository sshKeysRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteRepository siteRepository;
+	private final UsersDAO userDao;
 	private final AuthzService authzService;
 
 	SSHKeyServiceValidator(SSHKeyRepository sshKeysRepository, AuthzService authzService,
-			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository) {
+			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository,
+			UsersDAO userDao) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.authzService = authzService;
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
+		this.userDao = userDao;
 	}
 
 	void validateCreate(SSHKey sshKey) {
@@ -72,6 +77,10 @@ public class SSHKeyServiceValidator {
 		notNull(ownerId, "SSH key owner id has to be declared.");
 		assertTrue(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
+
+		assertTrue(userDao.findById(ownerId).get().fenixUserId.isPresent(),
+				() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
+
 	}
 
 	private void validateId(String id) {

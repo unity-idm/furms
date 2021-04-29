@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,14 +84,13 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		this.sshKeysService = sshKeysService;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.grid = createSSHKeysGrid();
-		this.resolver = new SiteComboBoxModelResolver(siteService.findAll());
+		this.resolver = new SiteComboBoxModelResolver(siteService.findForUser(authzService.getCurrentUserId()));
 
 		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
 			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
 		});
 
 		Button addButton = createAddButton();
-		loadGridContent();
 		getContent().add(createHeaderLayout(addButton), new HorizontalLayout(grid));
 	}
 
@@ -238,6 +238,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 
 	private void loadGridContent() {
 		grid.setItems(loadSSHKeysViewsModels());
+		
 	}
 	
 	private void refreshDetails(SSHKeyViewModel key) {
@@ -257,9 +258,16 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	}
 
 	private List<SSHKeyViewModel> loadSSHKeysViewsModels() {
-		return handleExceptions(() -> sshKeysService.findOwned()).orElseGet(Collections::emptySet).stream()
-				.map(key -> SSHKeyViewModelMapper.map(key, zoneId, (k, s) -> getKeyStatus(k, s)))
-				.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase())).collect(toList());
+		Optional<Set<SSHKey>> keys = handleExceptions(() -> sshKeysService.findOwned());
+		if (keys.isEmpty()) {
+			getContent().removeAll();
+		} else {
+			return keys.get().stream().map(
+					key -> SSHKeyViewModelMapper.map(key, zoneId, (k, s) -> getKeyStatus(k, s)))
+					.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase()))
+					.collect(toList());
+		}
+		return Collections.emptyList();
 	}
 
 	static class NoWrapLabel extends Label {

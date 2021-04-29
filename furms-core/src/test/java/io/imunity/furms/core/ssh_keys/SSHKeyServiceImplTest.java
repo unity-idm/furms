@@ -75,7 +75,7 @@ public class SSHKeyServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
-				sshKeyOperationRepository);
+				sshKeyOperationRepository, usersDAO);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
 				sshKeyInstallationService, siteAgentSSHKeyInstallationService, usersDAO);
 	}
@@ -87,7 +87,8 @@ public class SSHKeyServiceImplTest {
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId"));
 		when(repository.findById(id)).thenReturn(Optional
 				.of(SSHKey.builder().id(id).name("name").ownerId(new PersistentId("ownerId")).build()));
-
+		when(usersDAO.findById(new PersistentId("ownerId"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when
 		final Optional<SSHKey> byId = service.findById(id);
 		final Optional<SSHKey> otherId = service.findById("otherId");
@@ -176,6 +177,8 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKey("id")).thenReturn(List
 				.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional.of(
+				FURMSUser.builder().email("demo@demo.pl").fenixUserId(new FenixUserId("id")).build()));
 
 		// when
 		assertThrows(IllegalArgumentException.class, () -> service.update(request));

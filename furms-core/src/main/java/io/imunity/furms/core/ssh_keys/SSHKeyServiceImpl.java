@@ -167,7 +167,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		sshKeyInstallationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
-				.operationTime(LocalDateTime.now()).build());
+				.originationTime(LocalDateTime.now()).build());
 		siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
 				SSHKeyUpdating.builder().siteExternalId(site.getExternalId()).oldPublicKey(oldKey.value)
 						.newPublicKey(newKey.value).user(userId).build());
@@ -243,23 +243,28 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
 				.collect(Collectors.toSet());
-
+		boolean removeFromSite = false;
 		for (Site site : sites) {
 			SSHKeyOperationJob operation;
 			try {
 				operation = sshKeyInstallationService.findBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 			} catch (Exception e) {
 				LOG.error("Can not get ssh key operation for key {0}", sshKey.id);
-				sshKeysRepository.delete(sshKey.id);
 				return;
 			}
-			if (operation == null || operation.status.equals(FAILED)) {
+			if (operation.status.equals(FAILED)) {
 				sshKeyInstallationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-				sshKeysRepository.delete(sshKey.id);
+
 			} else {
+				removeFromSite = true;
 				removeKeyFromSite(sshKey, site, userId);
 			}
 		}
+
+		if (!removeFromSite && sshKeyInstallationService.findBySSHKey(sshKey.id).isEmpty()) {
+			sshKeysRepository.delete(sshKey.id);
+		}
+
 	}
 
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
@@ -271,7 +276,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		sshKeyInstallationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build());
+				.originationTime(LocalDateTime.now()).build());
 
 		siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
@@ -286,7 +291,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		sshKeyInstallationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(REMOVE).status(SEND)
-				.operationTime(LocalDateTime.now()).build());
+				.originationTime(LocalDateTime.now()).build());
 		siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
 	}

@@ -94,6 +94,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		LOG.debug("Getting all Sites");
 		return siteRepository.findAll();
 	}
+	
+	// FIXME auth this method, return only sites on which user is installed
+	@Override
+	public Set<Site> findForUser(PersistentId userId) {
+		LOG.debug("Getting all Sites for user");
+		return siteRepository.findAll();
+	}
 
 	@Override
 	@Transactional

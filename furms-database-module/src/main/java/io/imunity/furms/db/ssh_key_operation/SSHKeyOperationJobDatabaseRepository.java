@@ -35,7 +35,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 						.correlationId(new CorrelationId(job.correlationId.toString()))
 						.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
 						.operation(job.operation).status(job.status).error(job.error)
-						.operationTime(job.operationTime).build())
+						.originationTime(job.originationTime).build())
 				.collect(Collectors.toList());
 	}
 
@@ -46,7 +46,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 						.correlationId(new CorrelationId(job.correlationId.toString()))
 						.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
 						.operation(job.operation).status(job.status).error(job.error)
-						.operationTime(job.operationTime).build())
+						.originationTime(job.originationTime).build())
 				.collect(Collectors.toList());
 	}
 
@@ -57,7 +57,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 				.correlationId(new CorrelationId(job.correlationId.toString()))
 				.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
 				.operation(job.operation).status(job.status).error(job.error)
-				.operationTime(job.operationTime).build();
+				.originationTime(job.originationTime).build();
 	}
 
 	@Override
@@ -68,7 +68,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 				.correlationId(new CorrelationId(job.correlationId.toString()))
 				.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
 				.operation(job.operation).status(job.status).error(job.error)
-				.operationTime(job.operationTime).build();
+				.originationTime(job.originationTime).build();
 	}
 
 	@Override
@@ -78,20 +78,20 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 				.siteId(UUID.fromString(sshkeyOperationJob.siteId))
 				.sshkeyId(UUID.fromString(sshkeyOperationJob.sshkeyId))
 				.status(sshkeyOperationJob.status).operation(sshkeyOperationJob.operation)
-				.error(sshkeyOperationJob.error).operationTime(sshkeyOperationJob.operationTime)
+				.error(sshkeyOperationJob.error).originationTime(sshkeyOperationJob.originationTime)
 				.build();
 		SSHKeyOperationJobEntity job = repository.save(sshkeyInstallationJobEntity);
 		return job.getId().toString();
 	}
 
 	@Override
-	public String update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime) {
+	public String update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime originationTime) {
 		repository.findById(UUID.fromString(id))
 				.map(job -> SSHKeyOperationJobEntity.builder().id(job.getId())
 						.correlationId(job.correlationId).siteId(job.siteId)
 						.sshkeyId(job.sshkeyId).operation(job.operation).status(status)
 						.error(error.orElse(null))
-						.operationTime(operationTime)
+						.originationTime(originationTime)
 						.build())
 				.ifPresent(repository::save);
 		return id;
@@ -120,7 +120,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 						.correlationId(new CorrelationId(job.correlationId.toString()))
 						.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
 						.operation(job.operation).status(job.status).error(job.error)
-						.operationTime(job.operationTime).build())
+						.originationTime(job.originationTime).build())
 				.collect(Collectors.toList());
 	}
 }

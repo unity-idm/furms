@@ -29,7 +29,7 @@ furms:
       centralIdPUser: cidp
       centralIdPSecret: cidppass
    sshkeys:
-      cleanStaleRequestsAfter: 30000
+      cleanStaleRequestsAfter: 60S
 
 spring:
    profiles:

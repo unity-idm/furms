@@ -82,7 +82,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity entityToSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		SSHKeyOperationJobEntity saved = entityRepository.save(entityToSave);
@@ -102,14 +102,14 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity entityToSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		SSHKeyOperationJobEntity save = entityRepository.save(entityToSave);
 
 		SSHKeyOperationJobEntity entityToUpdate = SSHKeyOperationJobEntity.builder().id(save.getId())
 				.correlationId(save.correlationId).siteId(save.siteId).sshkeyId(sshkeyId).operation(ADD)
-				.status(ACK).operationTime(LocalDateTime.now()).build();
+				.status(ACK).originationTime(LocalDateTime.now()).build();
 
 		entityRepository.save(entityToUpdate);
 
@@ -127,7 +127,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity entityToSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		entityRepository.save(entityToSave);
 
@@ -144,7 +144,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toFind = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		entityRepository.save(toFind);
 		SSHKeyOperationJobEntity findById = entityRepository.findByCorrelationId(correlationId);
@@ -162,10 +162,10 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 
 		SSHKeyOperationJobEntity toFind1 = SSHKeyOperationJobEntity.builder().correlationId(UUID.randomUUID())
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		SSHKeyOperationJobEntity toFind2 = SSHKeyOperationJobEntity.builder().correlationId(UUID.randomUUID())
 				.siteId(siteId).sshkeyId(sshkeyId1).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		entityRepository.save(toFind1);
 		entityRepository.save(toFind2);
@@ -183,11 +183,11 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		UUID correlationId1 = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave1 = SSHKeyOperationJobEntity.builder().correlationId(correlationId1)
 				.siteId(siteId1).sshkeyId(sshkeyId1).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		entityRepository.save(toSave);
 		entityRepository.save(toSave1);
 
@@ -204,7 +204,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		entityRepository.save(toSave);
@@ -220,11 +220,11 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		UUID correlationId1 = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave1 = SSHKeyOperationJobEntity.builder().correlationId(correlationId1)
 				.siteId(siteId1).sshkeyId(sshkeyId1).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		// when
 		entityRepository.save(toSave);
 		entityRepository.save(toSave1);
@@ -240,7 +240,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(SEND)
-				.operationTime(LocalDate.now().atStartOfDay()).build();
+				.originationTime(LocalDate.now().atStartOfDay()).build();
 		// when
 		entityRepository.save(toSave);
 
@@ -254,7 +254,7 @@ class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		SSHKeyOperationJobEntity toSave = SSHKeyOperationJobEntity.builder().correlationId(correlationId)
 				.siteId(siteId).sshkeyId(sshkeyId).operation(ADD).status(ACK)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 		entityRepository.save(toSave);
 		// when
 		entityRepository.deleteBySshKeyIdAndSiteId(sshkeyId, siteId);

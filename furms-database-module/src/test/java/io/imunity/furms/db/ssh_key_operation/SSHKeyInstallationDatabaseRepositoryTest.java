@@ -76,7 +76,7 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -97,7 +97,7 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(siteId.toString()).operation(ADD).sshkeyId(sshkeyId.toString()).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -117,7 +117,7 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -133,7 +133,7 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		String id = entityDatabaseRepository.create(request);
@@ -149,7 +149,7 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request = SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		entityDatabaseRepository.create(request);
@@ -167,13 +167,13 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId1 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request1 = SSHKeyOperationJob.builder().correlationId(correlationId1)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD)
-				.operationTime(LocalDateTime.now()).status(SEND).build();
+				.originationTime(LocalDateTime.now()).status(SEND).build();
 		Site site2 = Site.builder().name("name2").build();
 		UUID siteId2 = UUID.fromString(siteRepository.create(site2, new SiteExternalId("id2")));
 		CorrelationId correlationId2 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request2 = SSHKeyOperationJob.builder().correlationId(correlationId2)
 				.siteId(siteId2.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		entityDatabaseRepository.create(request1);
@@ -192,13 +192,13 @@ class SSHKeyInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId1 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request1 = SSHKeyOperationJob.builder().correlationId(correlationId1)
 				.siteId(siteId.toString()).sshkeyId(sshkeyId.toString()).operation(ADD)
-				.operationTime(LocalDateTime.now()).status(SEND).build();
+				.originationTime(LocalDateTime.now()).status(SEND).build();
 		Site site2 = Site.builder().name("name2").build();
 		UUID siteId2 = UUID.fromString(siteRepository.create(site2, new SiteExternalId("id2")));
 		CorrelationId correlationId2 = new CorrelationId(UUID.randomUUID().toString());
 		SSHKeyOperationJob request2 = SSHKeyOperationJob.builder().correlationId(correlationId2)
 				.siteId(siteId2.toString()).sshkeyId(sshkeyId.toString()).operation(ADD).status(SEND)
-				.operationTime(LocalDateTime.now()).build();
+				.originationTime(LocalDateTime.now()).build();
 
 		// when
 		entityDatabaseRepository.create(request1);

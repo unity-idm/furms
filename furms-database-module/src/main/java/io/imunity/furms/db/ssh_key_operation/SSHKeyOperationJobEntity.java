@@ -23,10 +23,10 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 	public final SSHKeyOperation operation;
 	public final SSHKeyOperationStatus status;
 	public final String error;
-	public final LocalDateTime operationTime;
+	public final LocalDateTime originationTime;
 
 	SSHKeyOperationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID sshkeyId, SSHKeyOperation operation,
-			SSHKeyOperationStatus status, String error, LocalDateTime operationTime) {
+			SSHKeyOperationStatus status, String error, LocalDateTime originationTime) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -34,7 +34,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 		this.operation = operation;
 		this.status = status;
 		this.error = error;
-		this.operationTime = operationTime;
+		this.originationTime = originationTime;
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 				&& Objects.equals(siteId, that.siteId) && Objects.equals(sshkeyId, that.sshkeyId)
 				&& operation == that.operation && status == that.status
 				&& Objects.equals(error, that.error)
-				&& Objects.equals(operationTime, that.operationTime);
+				&& Objects.equals(originationTime, that.originationTime);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 	public String toString() {
 		return "SSHKeyInstallationJobEntity{" + "id=" + id + ", correlationId=" + correlationId + ", siteId="
 				+ siteId + ", sshkeyId=" + sshkeyId + ", status=" + status + ", operation=" + operation
-				+ ", error=" + error + ", operationTime=" + operationTime + '}';
+				+ ", error=" + error + ", originationTime=" + originationTime + '}';
 	}
 
 	public static SSHKeyInstallationJobEntityBuilder builder() {
@@ -75,7 +75,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 		public SSHKeyOperationStatus status;
 		public UUID id;
 		public String error;
-		private LocalDateTime operationTime;
+		private LocalDateTime originationTime;
 
 		private SSHKeyInstallationJobEntityBuilder() {
 		}
@@ -115,14 +115,14 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public SSHKeyInstallationJobEntityBuilder operationTime(LocalDateTime operationTime) {
-			this.operationTime = operationTime;
+		public SSHKeyInstallationJobEntityBuilder originationTime(LocalDateTime originationTime) {
+			this.originationTime = originationTime;
 			return this;
 		}
 
 		public SSHKeyOperationJobEntity build() {
 			return new SSHKeyOperationJobEntity(id, correlationId, siteId, sshkeyId, operation, status,
-					error, operationTime);
+					error, originationTime);
 		}
 	}
 }

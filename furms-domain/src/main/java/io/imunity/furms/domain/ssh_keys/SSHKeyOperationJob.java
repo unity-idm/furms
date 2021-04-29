@@ -18,11 +18,11 @@ public class SSHKeyOperationJob {
 	public final SSHKeyOperationStatus status;
 	public final SSHKeyOperation operation;
 	public final String error;
-	public final LocalDateTime operationTime;
+	public final LocalDateTime originationTime;
 
 	SSHKeyOperationJob(String id, String siteId, String sshkeyId, CorrelationId correlationId,
 			SSHKeyOperation operation, SSHKeyOperationStatus status, String error,
-			LocalDateTime operationTime) {
+			LocalDateTime originationTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.sshkeyId = sshkeyId;
@@ -30,7 +30,7 @@ public class SSHKeyOperationJob {
 		this.operation = operation;
 		this.status = status;
 		this.error = error;
-		this.operationTime = operationTime;
+		this.originationTime = originationTime;
 	}
 
 	@Override
@@ -44,19 +44,19 @@ public class SSHKeyOperationJob {
 				&& Objects.equals(sshkeyId, that.sshkeyId)
 				&& Objects.equals(correlationId, that.correlationId) && operation == that.operation
 				&& status == that.status && Objects.equals(error, that.error)
-						&& Objects.equals(operationTime, that.operationTime);
+						&& Objects.equals(originationTime, that.originationTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, sshkeyId, correlationId, operation, status, error);
+		return Objects.hash(id, siteId, sshkeyId, correlationId, operation, status, error, originationTime);
 	}
 
 	@Override
 	public String toString() {
 		return "SSHKeyInstallationJob{" + "id='" + id + '\'' + ", siteId='" + siteId + '\'' + ", sshkeyId='"
 				+ sshkeyId + '\'' + ", correlationId=" + correlationId + ", status=" + status
-				+ ", operation=" + operation + ", error=" + error + ", operationTime=" + operationTime + '}';
+				+ ", operation=" + operation + ", error=" + error + ", originationTime=" + originationTime + '}';
 	}
 
 	public static ProjectInstallationJobBuilder builder() {
@@ -71,7 +71,7 @@ public class SSHKeyOperationJob {
 		public SSHKeyOperationStatus status;
 		public SSHKeyOperation operation;
 		public String error;
-		public LocalDateTime operationTime;
+		public LocalDateTime originationTime;
 		
 		private ProjectInstallationJobBuilder() {
 		}
@@ -111,13 +111,13 @@ public class SSHKeyOperationJob {
 			return this;
 		}
 		
-		public ProjectInstallationJobBuilder operationTime(LocalDateTime operationTime) {
-			this.operationTime = operationTime;
+		public ProjectInstallationJobBuilder originationTime(LocalDateTime originationTime) {
+			this.originationTime = originationTime;
 			return this;
 		}
 
 		public SSHKeyOperationJob build() {
-			return new SSHKeyOperationJob(id, siteId, sshkeyId, correlationId, operation, status, error, operationTime);
+			return new SSHKeyOperationJob(id, siteId, sshkeyId, correlationId, operation, status, error, originationTime);
 		}
 	}
 }
