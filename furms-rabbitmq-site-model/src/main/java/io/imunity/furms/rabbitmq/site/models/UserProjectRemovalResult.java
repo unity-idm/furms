@@ -17,7 +17,7 @@ public class UserProjectRemovalResult implements Body {
 	public final String projectIdentifier;
 
 	@JsonCreator
-	UserProjectRemovalResult(String fenixUserId, String uid, String projectIdentifier) {
+	public UserProjectRemovalResult(String fenixUserId, String uid, String projectIdentifier) {
 		this.fenixUserId = fenixUserId;
 		this.uid = uid;
 		this.projectIdentifier = projectIdentifier;

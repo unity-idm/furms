@@ -17,7 +17,7 @@ public class UserProjectAddResult implements Body {
 	public final String projectIdentifier;
 
 	@JsonCreator
-	UserProjectAddResult(String fenixUserId, String uid, String projectIdentifier) {
+	public UserProjectAddResult(String fenixUserId, String uid, String projectIdentifier) {
 		this.fenixUserId = fenixUserId;
 		this.uid = uid;
 		this.projectIdentifier = projectIdentifier;

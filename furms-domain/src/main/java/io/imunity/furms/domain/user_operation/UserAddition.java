@@ -3,20 +3,23 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.user_addition;
+package io.imunity.furms.domain.user_operation;
+
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 public class UserAddition {
 	public final String id;
-	public final String siteId;
+	public final SiteId siteId;
 	public final String projectId;
-	public final String correlationId;
+	public final CorrelationId correlationId;
 	public final String userId;
 	public final String  uid;
 	public final UserAdditionStatus status;
 
-	UserAddition(String id, String siteId, String projectId, String correlationId, String userId, String uid, UserAdditionStatus status) {
+	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String userId, String uid, UserAdditionStatus status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -63,9 +66,9 @@ public class UserAddition {
 
 	public static final class UserAdditionBuilder {
 		public String id;
-		public String siteId;
+		public SiteId siteId;
 		public String projectId;
-		public String correlationId;
+		public CorrelationId correlationId;
 		public String userId;
 		public String  uid;
 		public UserAdditionStatus status;
@@ -83,7 +86,7 @@ public class UserAddition {
 			return this;
 		}
 
-		public UserAdditionBuilder correlationId(String correlationId) {
+		public UserAdditionBuilder correlationId(CorrelationId correlationId) {
 			this.correlationId = correlationId;
 			return this;
 		}
@@ -98,7 +101,7 @@ public class UserAddition {
 			return this;
 		}
 
-		public UserAdditionBuilder siteId(String uid) {
+		public UserAdditionBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

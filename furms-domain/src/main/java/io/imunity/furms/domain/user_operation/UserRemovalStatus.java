@@ -3,8 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.user_addition;
+package io.imunity.furms.domain.user_operation;
 
-public enum UserAdditionStatus {
-	PENDING, ACK, DONE, FAILED
+public enum UserRemovalStatus {
+	PENDING, ACK, REMOVED, FAILED
 }

@@ -12,6 +12,7 @@ import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
@@ -42,6 +43,8 @@ class SiteAgentSSHKeyOperationServiceTest {
 	private SiteExternalIdsResolver siteExternalIdsResolver;
 	@MockBean
 	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
+	@MockBean
+	private UserOperationMessageResolver userOperationMessageResolver;
 
 	@BeforeEach
 	void init() {

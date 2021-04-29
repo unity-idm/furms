@@ -14,6 +14,7 @@ import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ class SiteAgentStatusServiceTest {
 	private SiteExternalIdsResolver siteExternalIdsResolver;
 	@MockBean
 	private SSHKeyOperationMessageResolver sshKeyOperationService;
+	@MockBean
+	private UserOperationMessageResolver userOperationMessageResolver;
 	
 	@BeforeEach
 	void init(){

@@ -277,10 +277,4 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			.map(Site::getExternalId)
 			.collect(toSet());
 	}
-
-	@Override
-	public Optional<SiteExternalId> translate(String siteId) {
-		return siteRepository.findById(siteId)
-			.map(Site::getExternalId);
-	}
 }

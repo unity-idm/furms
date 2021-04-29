@@ -16,6 +16,7 @@ import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 	private ProjectInstallationMessageResolver projectInstallationMessageResolver;
 	@MockBean
 	private SiteExternalIdsResolver siteExternalIdsResolver;
+	@MockBean
+	private UserOperationMessageResolver userOperationMessageResolver;
 
 	@BeforeEach
 	void init(){
