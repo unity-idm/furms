@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.Objects;
 
-public class ProjectLeader {
+public class AgentUser {
 	public final String fenixUserId;
 	public final String firstName;
 	public final String lastName;
 	public final String email;
 
 	@JsonCreator
-	ProjectLeader(String fenixUserId, String firstName, String lastName, String email) {
+	AgentUser(String fenixUserId, String firstName, String lastName, String email) {
 		this.fenixUserId = fenixUserId;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -27,7 +27,7 @@ public class ProjectLeader {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectLeader that = (ProjectLeader) o;
+		AgentUser that = (AgentUser) o;
 		return Objects.equals(fenixUserId, that.fenixUserId) && Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(email, that.email);
 	}
 
@@ -79,8 +79,8 @@ public class ProjectLeader {
 			return this;
 		}
 
-		public ProjectLeader build() {
-			return new ProjectLeader(fenixUserId, firstName, lastName, email);
+		public AgentUser build() {
+			return new AgentUser(fenixUserId, firstName, lastName, email);
 		}
 	}
 }

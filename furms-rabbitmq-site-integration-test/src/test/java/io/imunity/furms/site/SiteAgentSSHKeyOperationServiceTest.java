@@ -9,8 +9,6 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
@@ -20,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -36,12 +33,8 @@ class SiteAgentSSHKeyOperationServiceTest {
 	private SiteAgentSSHKeyOperationService siteAgent;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
+	@Autowired
 	private SSHKeyOperationMessageResolver sshKeyOperationService;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
-	@MockBean
-	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
 
 	@BeforeEach
 	void init() {

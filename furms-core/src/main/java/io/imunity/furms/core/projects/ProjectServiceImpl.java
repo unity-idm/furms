@@ -44,13 +44,15 @@ class ProjectServiceImpl implements ProjectService {
 	private final UsersDAO usersDAO;
 	private final ProjectServiceValidator validator;
 	private final AuthzService authzService;
+	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
 	private final ProjectInstallationService projectInstallationService;
 
 
 	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
 	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher,
-	                          AuthzService authzService, ProjectInstallationService projectInstallationService) {
+	                          AuthzService authzService, UserOperationService userOperationService,
+	                          ProjectInstallationService projectInstallationService) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
@@ -58,6 +60,7 @@ class ProjectServiceImpl implements ProjectService {
 		this.publisher = publisher;
 		this.authzService = authzService;
 		this.projectInstallationService = projectInstallationService;
+		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -211,6 +214,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addUser(communityId, projectId, userId);
+		userOperationService.createUserAdditions(projectId, userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
@@ -222,6 +226,7 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		projectGroupsDAO.addUser(communityId, projectId, user.get().id.orElse(null));
+		userOperationService.createUserAdditions(projectId, userId);
 		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
@@ -229,6 +234,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
 	public void removeUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
+		userOperationService.createUserRemovals(projectId, userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 }

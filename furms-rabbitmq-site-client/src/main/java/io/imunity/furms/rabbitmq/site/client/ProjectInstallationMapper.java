@@ -28,12 +28,7 @@ class ProjectInstallationMapper {
 			.researchField(projectInstallation.researchField)
 			.validityStart(convertToZoneTime(projectInstallation.validityStart, ZoneOffset.UTC))
 			.validityEnd(convertToZoneTime(projectInstallation.validityEnd, ZoneOffset.UTC))
-			.projectLeader(ProjectLeader.builder()
-				.fenixUserId(user.id.map(persistentId -> persistentId.id).orElse(null))
-				.email(user.email)
-				.firstName(user.firstName.orElse(null))
-				.lastName(user.lastName.orElse(null))
-				.build())
+			.projectLeader(UserMapper.map(user))
 			.build();
 	}
 
