@@ -82,6 +82,28 @@ class MockListeners {
 	}
 
 	@EventListener
+	public void receiveAgentProjectUpdateRequest(Payload<AgentProjectUpdateRequest> projectUpdateRequest) throws InterruptedException {
+		Header header = getHeader(projectUpdateRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectUpdateRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult(projectUpdateRequest.body.identifier);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectRemovalRequest(Payload<AgentProjectRemovalRequest> projectRemovalRequest) throws InterruptedException {
+		Header header = getHeader(projectRemovalRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectRemovalRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult(projectRemovalRequest.body.identifier);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
 	public void receiveAgentSSHKeyAdditionRequest(
 			Payload<AgentSSHKeyAdditionRequest> agentSSHKeyInstallationRequest)
 			throws InterruptedException {

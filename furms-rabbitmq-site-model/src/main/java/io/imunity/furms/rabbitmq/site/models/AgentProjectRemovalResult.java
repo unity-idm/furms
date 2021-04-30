@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.Objects;
 public class AgentProjectRemovalResult implements Body {
 	public final String identifier;
 
+	@JsonCreator
 	public AgentProjectRemovalResult(String identifier) {
 		this.identifier = identifier;
 	}

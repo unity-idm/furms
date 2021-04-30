@@ -3,12 +3,11 @@
  *  See LICENSE file for licensing information.
  */
 
-CREATE TABLE project_update_job (
+CREATE TABLE project_removal_job (
     id UUID PRIMARY KEY NOT NULL,
     correlation_Id UUID NOT NULL,
     site_Id UUID NOT NULL,
     project_Id UUID NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
+    status INT NOT NULL,
     FOREIGN KEY (site_id) REFERENCES site(id)
 );

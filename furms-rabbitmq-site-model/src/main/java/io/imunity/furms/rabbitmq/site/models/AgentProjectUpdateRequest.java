@@ -19,10 +19,10 @@ public class AgentProjectUpdateRequest implements Body {
 	public final String researchField;
 	public final ZonedDateTime validityStart;
 	public final ZonedDateTime validityEnd;
-	public final ProjectLeader projectLeader;
+	public final AgentUser projectLeader;
 
 	@JsonCreator
-	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, ProjectLeader projectLeader) {
+	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, AgentUser projectLeader) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
@@ -75,7 +75,7 @@ public class AgentProjectUpdateRequest implements Body {
 		private String researchField;
 		private ZonedDateTime validityStart;
 		private ZonedDateTime validityEnd;
-		private ProjectLeader projectLeader;
+		private AgentUser projectLeader;
 
 		private AgentProjectUpdateRequestBuilder() {
 		}
@@ -110,7 +110,7 @@ public class AgentProjectUpdateRequest implements Body {
 			return this;
 		}
 
-		public AgentProjectUpdateRequestBuilder projectLeader(ProjectLeader projectLeader) {
+		public AgentProjectUpdateRequestBuilder projectLeader(AgentUser projectLeader) {
 			this.projectLeader = projectLeader;
 			return this;
 		}

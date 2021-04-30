@@ -9,6 +9,7 @@ package io.imunity.furms.db.project_installation;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -27,11 +28,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
+class ProjectRemovalEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -41,7 +41,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	private ProjectRepository projectRepository;
 
 	@Autowired
-	private ProjectInstallationJobEntityRepository entityRepository;
+	private ProjectRemovalJobEntityRepository entityRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
@@ -102,54 +102,54 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldCreateProjectInstallationJob() {
+	void shouldCreateProjectRemovalJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity entityToSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 
 		//when
-		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
+		ProjectRemovalJobEntity saved = entityRepository.save(entityToSave);
 
 		//then
 		assertThat(entityRepository.findAll()).hasSize(1);
-		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(saved.getId());
+		Optional<ProjectRemovalJobEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(ProjectRemovalStatus.PENDING.getValue());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
 	@Test
-	void shouldUpdateProjectInstallationJob() {
+	void shouldUpdateProjectRemovalJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity entityToSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 
 		//when
-		ProjectInstallationJobEntity save = entityRepository.save(entityToSave);
+		ProjectRemovalJobEntity save = entityRepository.save(entityToSave);
 
-		ProjectInstallationJobEntity entityToUpdate = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity entityToUpdate = ProjectRemovalJobEntity.builder()
 			.id(save.getId())
 			.correlationId(save.correlationId)
 			.siteId(save.siteId)
 			.projectId(save.projectId)
-			.status(ACKNOWLEDGED)
+			.status(ProjectRemovalStatus.ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(entityToUpdate);
 
 		//then
-		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(entityToSave.getId());
+		Optional<ProjectRemovalJobEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
 		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getValue());
@@ -157,83 +157,83 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindCreatedProjectInstallationJob() {
+	void shouldFindCreatedProjectRemovalJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 
 		entityRepository.save(toSave);
 
 		//when
-		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(toSave.getId());
+		Optional<ProjectRemovalJobEntity> byId = entityRepository.findById(toSave.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindCreatedProjectInstallationJobByCorrelationId() {
+	void shouldFindCreatedProjectRemovalJobByCorrelationId() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toFind = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 
 		entityRepository.save(toFind);
-		ProjectInstallationJobEntity findById = entityRepository.findByCorrelationId(correlationId);
+		ProjectRemovalJobEntity findById = entityRepository.findByCorrelationId(correlationId);
 
 		//when
-		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(findById.getId());
+		Optional<ProjectRemovalJobEntity> byId = entityRepository.findById(findById.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindAllAvailableProjectInstallationJob() {
+	void shouldFindAllAvailableProjectRemovalJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave1 = ProjectRemovalJobEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectId(projectId2)
-			.status(ACKNOWLEDGED)
+			.status(ProjectRemovalStatus.ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(toSave);
 		entityRepository.save(toSave1);
 
 		//when
-		Iterable<ProjectInstallationJobEntity> all = entityRepository.findAll();
+		Iterable<ProjectRemovalJobEntity> all = entityRepository.findAll();
 
 		//then
 		assertThat(all).hasSize(2);
 	}
 
 	@Test
-	void shouldDeleteProjectInstallationJob() {
+	void shouldDeleteProjectRemovalJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId2)
 				.projectId(projectId2)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 
 		//when
@@ -245,21 +245,21 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldDeleteAllProjectInstallationJobs() {
+	void shouldDeleteAllProjectRemovalJobs() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave = ProjectRemovalJobEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(PENDING)
+				.status(ProjectRemovalStatus.PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
+		ProjectRemovalJobEntity toSave1 = ProjectRemovalJobEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectId(projectId2)
-			.status(ACKNOWLEDGED)
+			.status(ProjectRemovalStatus.ACKNOWLEDGED)
 			.build();
 
 		//when

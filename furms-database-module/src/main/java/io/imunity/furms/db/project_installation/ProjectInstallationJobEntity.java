@@ -17,10 +17,10 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final UUID siteId;
 	public final UUID projectId;
-	public final ProjectInstallationStatus status;
+	public final int status;
 
 
-	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, ProjectInstallationStatus status) {
+	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -64,7 +64,7 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 		public UUID correlationId;
 		public UUID siteId;
 		public UUID projectId;
-		public ProjectInstallationStatus status;
+		public int status;
 		protected UUID id;
 
 		private ProjectInstallationJobEntityBuilder() {
@@ -91,7 +91,7 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectInstallationJobEntityBuilder status(ProjectInstallationStatus status) {
-			this.status = status;
+			this.status = status.getValue();
 			return this;
 		}
 

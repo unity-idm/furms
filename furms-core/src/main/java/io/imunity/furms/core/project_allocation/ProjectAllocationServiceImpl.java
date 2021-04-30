@@ -13,6 +13,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -133,7 +134,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
 		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
-			projectInstallationService.create(communityId, projectAllocation.projectId);
+			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
+			projectInstallationService.create(communityId, projectAllocation.projectId, projectInstallation);
 		}
 	}
 

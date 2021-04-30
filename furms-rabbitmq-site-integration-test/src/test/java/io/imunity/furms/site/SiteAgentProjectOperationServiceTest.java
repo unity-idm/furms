@@ -6,7 +6,12 @@
 package io.imunity.furms.site;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
@@ -18,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ExecutionException;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -40,7 +42,7 @@ class SiteAgentProjectOperationServiceTest {
 	}
 
 	@Test
-	void shouldInstallProject() throws ExecutionException, InterruptedException {
+	void shouldInstallProject() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallation projectInstallation = ProjectInstallation.builder()
 			.id("id")
@@ -54,7 +56,37 @@ class SiteAgentProjectOperationServiceTest {
 			.build();
 		siteAgentProjectOperationService.installProject(correlationId, projectInstallation);
 
-		verify(projectInstallationService, timeout(10000)).update(correlationId, ACKNOWLEDGED);
-		verify(projectInstallationService, timeout(10000)).update(correlationId, INSTALLED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectInstallationStatus.ACKNOWLEDGED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectInstallationStatus.INSTALLED);
+	}
+
+	@Test
+	void shouldUpdateProject() {
+		CorrelationId correlationId = CorrelationId.randomID();
+		PersistentId userId = new PersistentId("id");
+		FURMSUser user = FURMSUser.builder()
+			.id(userId)
+			.email("email")
+			.build();
+		Project project = Project.builder()
+			.id("id")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.leaderId(userId)
+			.build();
+		siteAgentProjectOperationService.updateProject(correlationId, new SiteExternalId("mock"), project, user);
+
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectUpdateStatus.ACKNOWLEDGED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectUpdateStatus.UPDATED);
+	}
+
+	@Test
+	void shouldRemoveProject() {
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		siteAgentProjectOperationService.removeProject(correlationId, new SiteExternalId("mock"), "projectId");
+
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectRemovalStatus.ACKNOWLEDGED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ProjectRemovalStatus.REMOVED);
 	}
 }

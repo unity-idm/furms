@@ -7,10 +7,11 @@ package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +31,15 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	private final ProjectOperationRepository projectOperationRepository;
 	private final SiteAgentProjectOperationService siteAgentProjectOperationService;
 	private final UsersDAO usersDAO;
+	private final SiteRepository siteRepository;
 
 	ProjectInstallationServiceImpl(ProjectOperationRepository projectOperationRepository,
-	                               SiteAgentProjectOperationService siteAgentProjectOperationService, UsersDAO usersDAO) {
+	                               SiteAgentProjectOperationService siteAgentProjectOperationService,
+	                               UsersDAO usersDAO, SiteRepository siteRepository) {
 		this.projectOperationRepository = projectOperationRepository;
 		this.siteAgentProjectOperationService = siteAgentProjectOperationService;
 		this.usersDAO = usersDAO;
+		this.siteRepository = siteRepository;
 	}
 
 	@Override
@@ -51,8 +55,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void create(String communityId, String projectId) {
-		ProjectInstallation projectInstallation = findProjectInstallation(communityId, projectId);
+	public void create(String communityId, String projectId, ProjectInstallation projectInstallation) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.correlationId(correlationId)
@@ -67,37 +70,42 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional
-	public void update(String communityId, String projectId) {
-		ProjectInstallation projectInstallation = findProjectInstallation(communityId, projectId);
-		CorrelationId correlationId = CorrelationId.randomID();
-		ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
-			.correlationId(correlationId)
-			.siteId(projectInstallation.siteId)
-			.projectId(projectId)
-			.status(ProjectUpdateStatus.PENDING)
-			.build();
-		projectOperationRepository.create(projectUpdateJob);
-		siteAgentProjectOperationService.updateProject(projectUpdateJob.correlationId, projectInstallation);
-		LOG.info("ProjectUpdate was updated: {}", projectUpdateJob);
+	public void update(String communityId, Project project) {
+		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
+			ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
+				.correlationId(CorrelationId.randomID())
+				.siteId(siteId.id)
+				.projectId(project.getId())
+				.status(ProjectUpdateStatus.PENDING)
+				.build();
+			projectOperationRepository.create(projectUpdateJob);
+			siteAgentProjectOperationService.updateProject(
+				projectUpdateJob.correlationId,
+				siteId.externalId,
+				project,
+				usersDAO.findById(project.getLeaderId()).get()
+			);
+			LOG.info("ProjectUpdateJob was created: {}", projectUpdateJob);
+		});
 	}
 
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void remove(String communityId, String projectId) {
-		ProjectInstallation projectInstallation = findProjectInstallation(communityId, projectId);
-		CorrelationId correlationId = CorrelationId.randomID();
-		ProjectRemovalJob projectRemovalJob = ProjectRemovalJob.builder()
-			.correlationId(correlationId)
-			.siteId(projectInstallation.siteId)
-			.projectId(projectId)
-			.status(ProjectRemovalStatus.PENDING)
-			.build();
-		projectOperationRepository.create(projectRemovalJob);
-		siteAgentProjectOperationService.removeProject(
-			projectRemovalJob.correlationId,
-			new SiteExternalId(projectInstallation.siteExternalId),
-			projectRemovalJob.projectId
-		);
-		LOG.info("ProjectRemoval was updated: {}", projectRemovalJob);
+		siteRepository.findByProjectId(projectId).forEach(siteId -> {
+			ProjectRemovalJob projectRemovalJob = ProjectRemovalJob.builder()
+				.correlationId(CorrelationId.randomID())
+				.siteId(siteId.id)
+				.projectId(projectId)
+				.status(ProjectRemovalStatus.PENDING)
+				.build();
+			projectOperationRepository.create(projectRemovalJob);
+			siteAgentProjectOperationService.removeProject(
+				projectRemovalJob.correlationId,
+				siteId.externalId,
+				projectRemovalJob.projectId
+			);
+			LOG.info("ProjectRemovalJob was created: {}", projectRemovalJob);
+		});
 	}
 }

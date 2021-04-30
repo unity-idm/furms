@@ -37,7 +37,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.correlationId(new CorrelationId(job.correlationId.toString()))
 			.siteId(job.siteId.toString())
 			.projectId(job.projectId.toString())
-			.status(job.status)
+			.status(ProjectInstallationStatus.valueOf(job.status))
 			.build();
 	}
 
@@ -49,7 +49,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.correlationId(new CorrelationId(job.correlationId.toString()))
 			.siteId(job.siteId.toString())
 			.projectId(job.projectId.toString())
-			.status(job.status)
+			.status(ProjectUpdateStatus.valueOf(job.status))
 			.build();
 	}
 
@@ -61,7 +61,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.correlationId(new CorrelationId(job.correlationId.toString()))
 			.siteId(job.siteId.toString())
 			.projectId(job.projectId.toString())
-			.status(job.status)
+			.status(ProjectRemovalStatus.valueOf(job.status))
 			.build();
 	}
 
@@ -110,13 +110,13 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public String create(ProjectRemovalJob projectRemovalJob) {
-		ProjectRemovalJobEntity projectUpdateJobEntity = ProjectRemovalJobEntity.builder()
+		ProjectRemovalJobEntity projectRemovalJobEntity = ProjectRemovalJobEntity.builder()
 			.correlationId(UUID.fromString(projectRemovalJob.correlationId.id))
 			.siteId(UUID.fromString(projectRemovalJob.siteId))
 			.projectId(UUID.fromString(projectRemovalJob.projectId))
 			.status(projectRemovalJob.status)
 			.build();
-		ProjectRemovalJobEntity job = removalRepository.save(projectUpdateJobEntity);
+		ProjectRemovalJobEntity job = removalRepository.save(projectRemovalJobEntity);
 		return job.getId().toString();
 	}
 

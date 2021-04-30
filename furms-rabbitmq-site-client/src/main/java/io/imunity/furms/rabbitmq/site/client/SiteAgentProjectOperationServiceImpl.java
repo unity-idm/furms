@@ -9,9 +9,11 @@ import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.*;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
@@ -40,6 +41,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
 		if(ack.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectInstallationStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectInstallationStatus.ACKNOWLEDGED);
 	}
@@ -49,6 +51,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 		String correlationId = result.header.messageCorrelationId;
 		if(result.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(correlationId), ProjectInstallationStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(correlationId), ProjectInstallationStatus.INSTALLED);
 	}
@@ -57,6 +60,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	void receiveAgentProjectUpdateAck(Payload<AgentProjectUpdateRequestAck> ack) {
 		if(ack.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectUpdateStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectUpdateStatus.ACKNOWLEDGED);
 	}
@@ -66,6 +70,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 		String correlationId = result.header.messageCorrelationId;
 		if(result.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(correlationId), ProjectUpdateStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(correlationId), ProjectUpdateStatus.UPDATED);
 	}
@@ -74,6 +79,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	void receiveAgentProjectRemovalRequestAck(Payload<AgentProjectRemovalRequestAck> ack) {
 		if(ack.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectRemovalStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectRemovalStatus.ACKNOWLEDGED);
 	}
@@ -83,6 +89,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 		String correlationId = result.header.messageCorrelationId;
 		if(result.header.status.equals(Status.FAILED)){
 			projectInstallationService.update(new CorrelationId(correlationId), ProjectRemovalStatus.FAILED);
+			return;
 		}
 		projectInstallationService.update(new CorrelationId(correlationId), ProjectRemovalStatus.REMOVED);
 	}
@@ -90,7 +97,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
 	public void installProject(CorrelationId correlationId, ProjectInstallation installation) {
-		AgentProjectInstallationRequest request = ProjectInstallationMapper.mapInstall(installation);
+		AgentProjectInstallationRequest request = ProjectInstallationMapper.map(installation);
 		try {
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteExternalId), new Payload<>(new Header(VERSION, correlationId.id), request));
 		}catch (AmqpConnectException e){
@@ -100,10 +107,10 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
-	public void updateProject(CorrelationId correlationId, ProjectInstallation installation) {
-		AgentProjectUpdateRequest request = ProjectInstallationMapper.mapUpdate(installation);
+	public void updateProject(CorrelationId correlationId, SiteExternalId siteExternalId, Project project, FURMSUser user) {
+		AgentProjectUpdateRequest request = ProjectInstallationMapper.map(project, user);
 		try {
-			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteExternalId), new Payload<>(new Header(VERSION, correlationId.id), request));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(siteExternalId), new Payload<>(new Header(VERSION, correlationId.id), request));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
