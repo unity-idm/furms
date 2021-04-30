@@ -132,6 +132,28 @@ public class SiteAgentMock {
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result1));
 	}
 
+	@EventListener
+	public void receiveUserProjectAddRequest(Payload<UserProjectAddRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserProjectAddRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId, "1", payload.body.projectIdentifier);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveUserProjectRemovalRequest(Payload<UserProjectRemovalRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserProjectRemovalRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		UserProjectRemovalResult result = new UserProjectRemovalResult(payload.body.fenixUserId, "1", payload.body.projectIdentifier);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
 	private Header getHeader(Header header) {
 		return new Header(VERSION, header.messageCorrelationId, Status.OK, null);
 	}

@@ -10,15 +10,12 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutionException;
@@ -34,12 +31,8 @@ class SiteAgentProjectInstallationServiceTest {
 	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
+	@Autowired
 	private ProjectInstallationMessageResolver projectInstallationService;
-	@MockBean
-	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
 
 	@BeforeEach
 	void init(){

@@ -23,11 +23,11 @@ public class AgentProjectInstallationRequest implements Body {
 	public final String researchField;
 	public final ZonedDateTime validityStart;
 	public final ZonedDateTime validityEnd;
-	public final ProjectLeader projectLeader;
+	public final AgentUser projectLeader;
 
 	@JsonCreator
 	public AgentProjectInstallationRequest(String identifier, String name, String description, String communityId,
-	                                       String community, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, ProjectLeader projectLeader) {
+	                                       String community, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, AgentUser projectLeader) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
@@ -92,7 +92,7 @@ public class AgentProjectInstallationRequest implements Body {
 		private String researchField;
 		private ZonedDateTime validityStart;
 		private ZonedDateTime validityEnd;
-		private ProjectLeader projectLeader;
+		private AgentUser projectLeader;
 
 		private ProjectInstallationRequestBuilder() {
 		}
@@ -142,7 +142,7 @@ public class AgentProjectInstallationRequest implements Body {
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder projectLeader(ProjectLeader projectLeader) {
+		public ProjectInstallationRequestBuilder projectLeader(AgentUser projectLeader) {
 			this.projectLeader = projectLeader;
 			return this;
 		}
