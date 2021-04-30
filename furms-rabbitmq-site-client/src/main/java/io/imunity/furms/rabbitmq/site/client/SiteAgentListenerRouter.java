@@ -32,12 +32,17 @@ class SiteAgentListenerRouter {
 
 	@RabbitHandler
 	public void receive(Payload<?> payload) {
-		publisher.publishEvent(payload);
+		try {
+			publisher.publishEvent(payload);
+		}catch (Exception e){
+			LOG.error("Received payload cannot be processed {}", payload);
+			LOG.error("This error occurred when message was processed", e);
+		}
 	}
 
 	@RabbitHandler(isDefault = true)
 	public void receive(Object o) {
-		LOG.info("Received object, which cannot be process {}", o);
+		LOG.info("Received object, which cannot be processed {}", o);
 	}
 
 }
