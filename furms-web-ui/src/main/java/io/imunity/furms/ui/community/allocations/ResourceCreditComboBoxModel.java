@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.communites.allocations;
+package io.imunity.furms.ui.community.allocations;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-class ResourceCreditComboBoxModel {
+public class ResourceCreditComboBoxModel {
 	public final String id;
 	public final String name;
 	public final BigDecimal amount;
 	public final boolean split;
 
-	ResourceCreditComboBoxModel(String id, String name, BigDecimal amount, boolean split) {
+	public ResourceCreditComboBoxModel(String id, String name, BigDecimal amount, boolean split) {
 		this.id = id;
 		this.name = name;
 		this.amount = amount;

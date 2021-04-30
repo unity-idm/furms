@@ -41,13 +41,13 @@ import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_LANDING_PAGE;
+import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_SITES;
 import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static java.util.stream.Collectors.toList;
 
-@Route(value = FENIX_ADMIN_LANDING_PAGE, layout = FenixAdminMenu.class)
+@Route(value = FENIX_ADMIN_SITES, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
 

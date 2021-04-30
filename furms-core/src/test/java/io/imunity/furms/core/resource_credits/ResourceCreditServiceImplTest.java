@@ -5,9 +5,11 @@
 
 package io.imunity.furms.core.resource_credits;
 
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditFenixDashboard;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -40,6 +42,8 @@ class ResourceCreditServiceImplTest {
 	@Mock
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Mock
+	private CommunityAllocationService communityAllocationService;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private ResourceCreditServiceImpl service;
@@ -49,7 +53,7 @@ class ResourceCreditServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, resourceCreditRepository, resourceTypeRepository, siteRepository);
-		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher);
+		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, communityAllocationService);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -100,6 +104,44 @@ class ResourceCreditServiceImplTest {
 
 		//then
 		assertThat(allResourceCredits).hasSize(2);
+	}
+
+	@Test
+	void shouldReturnResourceCreditsIncludedFullyDistributed() {
+		//given
+		when(resourceCreditRepository.findAllByNameAndIncludedExpired("", false)).thenReturn(Set.of(
+				ResourceCredit.builder().id("id1").name("name").build(),
+				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
+				ResourceCredit.builder().id("id3").name("name2").build()));
+		when(communityAllocationService.getAvailableAmount("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmount("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
+
+		//when
+		final Set<ResourceCreditFenixDashboard> all = service.findAllForFenixAdminDashboard("", true, false);
+
+		//then
+		assertThat(all).hasSize(3);
+	}
+
+	@Test
+	void shouldReturnResourceCreditsNotIncludedFullyDistributed() {
+		//given
+		when(resourceCreditRepository.findAllByNameAndIncludedExpired("", false)).thenReturn(Set.of(
+				ResourceCredit.builder().id("id1").name("name").build(),
+				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
+				ResourceCredit.builder().id("id3").name("name2").build()));
+		when(communityAllocationService.getAvailableAmount("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmount("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
+
+		//when
+		final Set<ResourceCreditFenixDashboard> all = service.findAllForFenixAdminDashboard("", false, false);
+
+		//then
+		assertThat(all).hasSize(2);
+		assertThat(all.stream()
+					.noneMatch(credit -> credit.getId().equals("id2")));
 	}
 
 	@Test

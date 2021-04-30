@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.progressbar-container {
+    height: 2em;
+    position: relative;
+}
+
+.progressbar-label {
+    width: 100%;
+    position: absolute;
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 4px #000;
+}
+
+.progressbar-value {
+    height: 1.4em
+}

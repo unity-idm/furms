@@ -23,11 +23,11 @@ class ProjectAllocationModelsMapper {
 
 	static ProjectAllocation map(ProjectAllocationViewModel projectAllocationViewModel){
 		return ProjectAllocation.builder()
-			.id(projectAllocationViewModel.id)
+			.id(projectAllocationViewModel.getId())
 			.communityAllocationId(projectAllocationViewModel.getAllocationCommunity().id)
-			.projectId(projectAllocationViewModel.projectId)
-			.name(projectAllocationViewModel.name)
-			.amount(projectAllocationViewModel.amount)
+			.projectId(projectAllocationViewModel.getProjectId())
+			.name(projectAllocationViewModel.getName())
+			.amount(projectAllocationViewModel.getAmount())
 			.build();
 	}
 

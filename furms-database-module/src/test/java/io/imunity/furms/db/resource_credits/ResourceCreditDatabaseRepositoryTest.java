@@ -198,6 +198,50 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllResourceCreditsByNameAndExpired() {
+		//given
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("test")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(LocalDateTime.now().minusDays(1))
+				.endTime(LocalDateTime.now().plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("testAsPreffix")
+				.split(false)
+				.access(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusDays(1))
+				.endTime(LocalDateTime.now().plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("insideTextTestIs")
+				.split(false)
+				.access(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusDays(1))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+
+		//when
+		Set<ResourceCredit> all = repository.findAllByNameAndIncludedExpired("test", true);
+
+		//then
+		assertThat(all).hasSize(3);
+	}
+
+	@Test
 	void shouldCreateResourceCredit() {
 		//given
 		ResourceCredit request = ResourceCredit.builder()
