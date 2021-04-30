@@ -87,8 +87,7 @@ public class SSHKeyServiceImplTest {
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("ownerId"));
 		when(repository.findById(id)).thenReturn(Optional
 				.of(SSHKey.builder().id(id).name("name").ownerId(new PersistentId("ownerId")).build()));
-		when(usersDAO.findById(new PersistentId("ownerId"))).thenReturn(Optional
-				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when
 		final Optional<SSHKey> byId = service.findById(id);
 		final Optional<SSHKey> otherId = service.findById("otherId");

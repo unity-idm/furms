@@ -21,7 +21,7 @@ public interface SiteService {
 
 	Set<Site> findAll();
 	
-	Set<Site> findForUser(PersistentId userId);
+	Set<Site> findUserSites(PersistentId userId);
 
 	void create(Site site);
 

@@ -16,7 +16,7 @@ class SSHKeyRequestCleanerConfiguration {
 	public final Duration cleanStaleRequestsAfter;
 
 	SSHKeyRequestCleanerConfiguration(
-			@Value("${furms.sshkeys.cleanStaleRequestsAfter:1}") Duration cleanStaleRequestsAfter) {
+			@Value("${furms.sshkeys.cleanStaleRequestsAfter:1D}") Duration cleanStaleRequestsAfter) {
 
 		this.cleanStaleRequestsAfter = cleanStaleRequestsAfter;
 	}

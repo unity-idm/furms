@@ -50,6 +50,7 @@ public class SSHKeyServiceValidator {
 		notNull(sshKey, "SSH key object cannot be null.");
 		validateName(sshKey.name);
 		validateOwner(sshKey.ownerId);
+		validateFenixId(sshKey.ownerId);
 		validateValue(sshKey.value);
 		validateSites(sshKey);
 	}
@@ -59,6 +60,7 @@ public class SSHKeyServiceValidator {
 		validateId(sshKey.id);
 		validateIsNamePresentIgnoringRecord(sshKey.name, sshKey.id);
 		validateOwner(sshKey.ownerId);
+		validateFenixId(sshKey.ownerId);
 		validateValue(sshKey.value);
 		validateSites(sshKey);
 		validateOpenOperation(sshKey);
@@ -70,6 +72,7 @@ public class SSHKeyServiceValidator {
 		final SSHKey findById = sshKeysRepository.findById(id)
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + id));
 		validateOwner(findById.ownerId);
+		validateFenixId(findById.ownerId);
 		validateOpenOperation(findById);
 	}
 
@@ -77,10 +80,12 @@ public class SSHKeyServiceValidator {
 		notNull(ownerId, "SSH key owner id has to be declared.");
 		assertTrue(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
-
+	}
+	
+	void validateFenixId(PersistentId ownerId)
+	{
 		assertTrue(userDao.findById(ownerId).get().fenixUserId.isPresent(),
 				() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
-
 	}
 
 	private void validateId(String id) {

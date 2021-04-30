@@ -9,7 +9,6 @@ import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
@@ -54,13 +53,6 @@ public class VaadinExceptionHandler {
 			showErrorNotification(getTranslation("community-allocation.removing.error.message"));
 			return Optional.empty();
 		}
-		
-		catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
-			showErrorNotification(getTranslation("access.denied.error.message"));
-			return Optional.empty();
-		}
-		
 		catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
@@ -97,17 +89,6 @@ public class VaadinExceptionHandler {
 			LOG.error(e.getMessage(), e);
 			return OptionalException.of(new FrontException("community-allocation.removing.error.message", e));
 		}
-		
-		catch (UserWithoutFenixIdValidationError e){
-			LOG.error(e.getMessage(), e);
-			return OptionalException.of(new FrontException("user.without.fenixid.error.message", e));
-		}
-		
-		catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
-			return OptionalException.of(new FrontException("access.denied.error.message", e));
-		}
-		
 		catch (Exception e){
 			LOG.error(e.getMessage(), e);
 			return OptionalException.of(new FrontException("base.error.message", e));
