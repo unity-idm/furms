@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.ssh_key_installation;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public interface SSHKeyOperationRepository {
 
 	String create(SSHKeyOperationJob projectInstallationJob);
 
-	String update(String id, SSHKeyOperationStatus status, Optional<String> error);
+	String update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
 
 	void delete(String id);
 
@@ -28,4 +29,8 @@ public interface SSHKeyOperationRepository {
 	void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
 
 	List<SSHKeyOperationJob> findBySSHKey(String sshkeyId);
+
+	List<SSHKeyOperationJob> findAll();
+	
+	List<SSHKeyOperationJob> findByStatus(SSHKeyOperationStatus status);
 }

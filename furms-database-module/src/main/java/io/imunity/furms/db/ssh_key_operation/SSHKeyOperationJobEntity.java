@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.ssh_key_operation;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,9 +23,10 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 	public final SSHKeyOperation operation;
 	public final SSHKeyOperationStatus status;
 	public final String error;
+	public final LocalDateTime originationTime;
 
 	SSHKeyOperationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID sshkeyId, SSHKeyOperation operation,
-			SSHKeyOperationStatus status, String error) {
+			SSHKeyOperationStatus status, String error, LocalDateTime originationTime) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -32,6 +34,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 		this.operation = operation;
 		this.status = status;
 		this.error = error;
+		this.originationTime = originationTime;
 	}
 
 	@Override
@@ -44,19 +47,20 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 		return Objects.equals(id, that.id) && Objects.equals(correlationId, that.correlationId)
 				&& Objects.equals(siteId, that.siteId) && Objects.equals(sshkeyId, that.sshkeyId)
 				&& operation == that.operation && status == that.status
-				&& Objects.equals(error, that.error);
+				&& Objects.equals(error, that.error)
+				&& Objects.equals(originationTime, that.originationTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, sshkeyId, operation, status, error);
+		return Objects.hash(id, correlationId, siteId, sshkeyId, operation, status, error, operation);
 	}
 
 	@Override
 	public String toString() {
 		return "SSHKeyInstallationJobEntity{" + "id=" + id + ", correlationId=" + correlationId + ", siteId="
 				+ siteId + ", sshkeyId=" + sshkeyId + ", status=" + status + ", operation=" + operation
-				+ ", error=" + error + '}';
+				+ ", error=" + error + ", originationTime=" + originationTime + '}';
 	}
 
 	public static SSHKeyInstallationJobEntityBuilder builder() {
@@ -71,7 +75,8 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 		public SSHKeyOperationStatus status;
 		public UUID id;
 		public String error;
-		
+		private LocalDateTime originationTime;
+
 		private SSHKeyInstallationJobEntityBuilder() {
 		}
 
@@ -104,14 +109,20 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 			this.status = status;
 			return this;
 		}
-		
+
 		public SSHKeyInstallationJobEntityBuilder error(String error) {
 			this.error = error;
 			return this;
 		}
 
+		public SSHKeyInstallationJobEntityBuilder originationTime(LocalDateTime originationTime) {
+			this.originationTime = originationTime;
+			return this;
+		}
+
 		public SSHKeyOperationJobEntity build() {
-			return new SSHKeyOperationJobEntity(id, correlationId, siteId, sshkeyId, operation, status, error);
+			return new SSHKeyOperationJobEntity(id, correlationId, siteId, sshkeyId, operation, status,
+					error, originationTime);
 		}
 	}
 }

@@ -5,6 +5,26 @@
 
 package io.imunity.furms.core.sites;
 
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -86,6 +106,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<Site> findAll() {
 		LOG.debug("Getting all Sites");
+		return siteRepository.findAll();
+	}
+	
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@Override
+	public Set<Site> findUserSites(PersistentId userId) {
+		LOG.debug("Getting all Sites for user");
 		return siteRepository.findAll();
 	}
 

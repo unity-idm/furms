@@ -27,10 +27,13 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @ExtendWith(MockitoExtension.class)
 class SSHKeyServiceValidatorTest {
@@ -46,14 +49,17 @@ class SSHKeyServiceValidatorTest {
 
 	@Mock
 	private AuthzService authzService;
-
+	
+	@Mock
+	private UsersDAO usersDAO;
+	
 	@InjectMocks
 	private SSHKeyServiceValidator validator;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(sshKeysRepository, authzService, siteRepository,
-				sshKeyOperationRepository);
+				sshKeyOperationRepository, usersDAO);
 	}
 
 	@Test
@@ -69,7 +75,9 @@ class SSHKeyServiceValidatorTest {
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(false);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateCreate(key));
 	}
@@ -94,6 +102,8 @@ class SSHKeyServiceValidatorTest {
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
 		when(siteRepository.exists("s1")).thenReturn(true);
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(key));
 	}
@@ -130,7 +140,8 @@ class SSHKeyServiceValidatorTest {
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
 		when(sshKeysRepository.exists(id)).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
 	}
@@ -155,7 +166,8 @@ class SSHKeyServiceValidatorTest {
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
 		when(sshKeysRepository.exists(id)).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
 	}
@@ -205,7 +217,9 @@ class SSHKeyServiceValidatorTest {
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(false);
 		when(siteRepository.exists("s1")).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateCreate(key));
 	}
@@ -231,7 +245,9 @@ class SSHKeyServiceValidatorTest {
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
 		when(siteRepository.exists("s1")).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(key));
 	}
@@ -256,7 +272,8 @@ class SSHKeyServiceValidatorTest {
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(siteRepository.exists("s1")).thenReturn(false);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(key));
 	}
@@ -270,7 +287,8 @@ class SSHKeyServiceValidatorTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		when(siteRepository.findAll()).thenReturn(
 				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(key));
 	}
@@ -285,7 +303,9 @@ class SSHKeyServiceValidatorTest {
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKey(key.id))
 				.thenReturn(List.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(key.id));
 	}
@@ -301,7 +321,8 @@ class SSHKeyServiceValidatorTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKey(key.id)).thenReturn(List
 				.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(key));
 	}
@@ -320,7 +341,9 @@ class SSHKeyServiceValidatorTest {
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(siteRepository.exists("s1")).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateCreate(key));
 	}
@@ -336,7 +359,8 @@ class SSHKeyServiceValidatorTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		when(siteRepository.findAll()).thenReturn(
 				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(key));
 	}
@@ -356,7 +380,9 @@ class SSHKeyServiceValidatorTest {
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
 		when(siteRepository.exists("s1")).thenReturn(true);
-
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(key));
 	}

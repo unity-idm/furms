@@ -20,6 +20,8 @@ public interface SiteService {
 	Optional<Site> findById(String id);
 
 	Set<Site> findAll();
+	
+	Set<Site> findUserSites(PersistentId userId);
 
 	void create(Site site);
 

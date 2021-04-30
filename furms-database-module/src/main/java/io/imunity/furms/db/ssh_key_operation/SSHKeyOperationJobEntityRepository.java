@@ -25,4 +25,6 @@ public interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKe
 
 	List<SSHKeyOperationJobEntity> findBySshkeyId(String sshkeyId);
 
+	List<SSHKeyOperationJobEntity> findByStatus(String status);
+
 }
