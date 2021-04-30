@@ -6,6 +6,7 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.*;
@@ -49,6 +50,8 @@ class ProjectServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private AuthzService authzService;
+	@Mock
+	private UserOperationService userOperationService;
 
 	private ProjectServiceImpl service;
 	private InOrder orderVerifier;
@@ -57,7 +60,7 @@ class ProjectServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		ProjectServiceValidator validator = new ProjectServiceValidator(projectRepository, communityRepository);
-		service = new ProjectServiceImpl(projectRepository, projectGroupsDAO, usersDAO, validator, publisher, authzService);
+		service = new ProjectServiceImpl(projectRepository, projectGroupsDAO, usersDAO, validator, publisher, authzService, userOperationService);
 		orderVerifier = inOrder(projectRepository, projectGroupsDAO, publisher);
 	}
 

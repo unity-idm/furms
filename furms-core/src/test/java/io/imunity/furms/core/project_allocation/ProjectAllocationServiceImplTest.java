@@ -5,11 +5,12 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
-import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
-import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,10 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
 	@Mock
+	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
+	@Mock
+	private ProjectAllocationInstallationService projectAllocationInstallationService;
+	@Mock
 	private CommunityAllocationRepository communityAllocationRepository;
 
 	private ProjectAllocationServiceImpl service;
@@ -49,7 +55,11 @@ class ProjectAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(projectAllocationRepository, projectInstallationService, communityAllocationRepository, validator, siteAgentProjectInstallationService, publisher);
+		service = new ProjectAllocationServiceImpl(
+			projectAllocationRepository, projectInstallationService,
+			communityAllocationRepository, validator,
+			projectAllocationInstallationService, publisher
+		);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
 
@@ -106,6 +116,13 @@ class ProjectAllocationServiceImplTest {
 			.build();
 
 		//when
+		when(projectAllocationRepository.findByIdWithRelatedObjects(any())).thenReturn(Optional.of(
+			ProjectAllocationResolved.builder()
+				.site(Site.builder().build())
+				.build()));
+		when(projectInstallationService.findProjectInstallation("communityId", null)).thenReturn(
+			ProjectInstallation.builder().build()
+		);
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));

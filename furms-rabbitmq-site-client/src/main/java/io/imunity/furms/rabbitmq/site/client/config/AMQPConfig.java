@@ -5,7 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client.config;
 
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsConverter;
+import io.imunity.furms.rabbitmq.site.models.converter.FurmsPayloadConverter;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -22,6 +22,6 @@ class AMQPConfig {
 
 	@Bean
 	MessageConverter messageConverter() {
-		return FurmsConverter.init();
+		return new FurmsPayloadConverter();
 	}
 }

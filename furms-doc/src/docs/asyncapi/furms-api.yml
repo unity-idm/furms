@@ -47,7 +47,12 @@ channels:
          summary: Acknowledge request
          operationId: ProjectInstallationRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: ProjectInstallationRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
                                  
    site/site_id/project/provision/resp:
       publish:
@@ -95,7 +100,12 @@ channels:
          summary: Acknowledge removal request
          operationId: ProjectRemovalRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: ProjectRemovalRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
 
    site/site_id/project/removal/resp:
       publish:
@@ -151,7 +161,12 @@ channels:
          summary: Acknowledge update request
          operationId: ProjectUpdateRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: ProjectUpdateRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/project/update/resp:
       publish:
@@ -199,7 +214,12 @@ channels:
          summary: Acknowledge status update request
          operationId: SetUserStatusRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: SetUserStatusRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/user/status/resp:
       publish:
@@ -243,7 +263,12 @@ channels:
          summary: Acknowledge SSH key add request
          operationId: UserSSHKeyAddRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserSSHKeyAddRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/sshkey/add/resp:
       publish:
@@ -290,7 +315,12 @@ channels:
          summary: Acknowledge SSH key update request
          operationId: UserSSHKeyUpdateRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserSSHKeyUpdateRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/sshkey/update/resp:
       publish:
@@ -335,7 +365,12 @@ channels:
          summary: Acknowledge SSH key removal request
          operationId: UserSSHKeyRemovalRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserSSHKeyRemovalRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/sshkey/remove/resp:
       publish:
@@ -402,7 +437,12 @@ channels:
          summary: Acknowledge user add to project request
          operationId: UserProjectAddRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserProjectAddRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
             
    site/site_id/project/user_add/resp:
       publish:
@@ -450,7 +490,11 @@ channels:
          summary: Acknowledge user removal from project request
          operationId: UserProjectRemovalRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserProjectRemovalRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
             
    site/site_id/project/user_remove/resp:
       publish:
@@ -515,7 +559,11 @@ channels:
          summary: Acknowledge allocate resource to a project request
          operationId: ProjectResourceAllocationRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: ProjectResourceAllocationRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
             
    site/site_id/resource/allocate/resp:
       publish:
@@ -578,7 +626,11 @@ channels:
          summary: Acknowledge deallocation request
          operationId: ProjectResourceDeallocationRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: ProjectResourceDeallocationRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
 
 
 
@@ -609,7 +661,11 @@ channels:
          summary: Acknowledge grant user access to allocation request
          operationId: UserAllocationGrantAccessRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserAllocationGrantAccessRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
             
    site/site_id/allocation/user_add/resp:
       publish:
@@ -660,7 +716,11 @@ channels:
          summary: Acknowledge remove user's access to allocation request
          operationId: UserAllocationBlockAccessRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: UserAllocationBlockAccessRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
             
    site/site_id/allocation/user_remove/resp:
       publish:
@@ -700,7 +760,11 @@ channels:
          summary: Acknowledge ping request
          operationId: AgentPingRequestAck
          message:
-            $ref: "#/components/messages/requestAck"
+            name: AgentPingRequestAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
 
 
 
@@ -719,6 +783,11 @@ components:
       response:
          headers:
             $ref: "#/components/schemas/responseMeta"
+            
+      requestAck:
+         headers:
+            $ref: "#/components/schemas/responseMeta"
+
             
    messages:
       requestAck:
@@ -767,6 +836,10 @@ components:
                      type: string
                   message:
                      type: string
+
+      emptyObject:
+         type: object
+         additionalProperties: false
                   
       userRecord:
          type: object

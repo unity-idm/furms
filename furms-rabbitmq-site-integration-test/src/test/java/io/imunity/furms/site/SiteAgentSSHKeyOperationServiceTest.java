@@ -5,30 +5,27 @@
 
 package io.imunity.furms.site;
 
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class SiteAgentSSHKeyOperationServiceTest {
@@ -36,10 +33,8 @@ class SiteAgentSSHKeyOperationServiceTest {
 	private SiteAgentSSHKeyOperationService siteAgent;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
+	@Autowired
 	private SSHKeyOperationMessageResolver sshKeyOperationService;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
 
 	@BeforeEach
 	void init() {

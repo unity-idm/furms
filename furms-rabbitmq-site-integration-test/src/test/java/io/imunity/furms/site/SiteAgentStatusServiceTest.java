@@ -10,15 +10,11 @@ import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.concurrent.ExecutionException;
 
@@ -30,12 +26,6 @@ class SiteAgentStatusServiceTest {
 	private SiteAgentStatusService siteAgentStatusService;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
-	private ProjectInstallationMessageResolver projectInstallationService;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
-	@MockBean
-	private SSHKeyOperationMessageResolver sshKeyOperationService;
 	
 	@BeforeEach
 	void init(){

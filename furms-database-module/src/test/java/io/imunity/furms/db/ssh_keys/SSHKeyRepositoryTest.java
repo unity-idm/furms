@@ -20,9 +20,6 @@ import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import io.imunity.furms.db.ssh_keys.SSHKeyEntity;
-import io.imunity.furms.db.ssh_keys.SSHKeyEntityRepository;
-import io.imunity.furms.db.ssh_keys.SSHKeySiteReference;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.sites.SiteRepository;

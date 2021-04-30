@@ -5,8 +5,9 @@
 
 package io.imunity.furms.spi.sites;
 
-import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +17,8 @@ public interface SiteRepository {
 	Optional<Site> findById(String id);
 
 	SiteExternalId findByIdExternalId(String id);
+
+	Set<SiteId> findByProjectId(String id);
 
 	Set<Site> findAll();
 

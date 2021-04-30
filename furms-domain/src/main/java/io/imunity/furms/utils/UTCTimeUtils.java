@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
+ */
+
+package io.imunity.furms.utils;
+
+import java.time.*;
+
+import static java.util.Optional.ofNullable;
+
+public class UTCTimeUtils {
+	public static ZonedDateTime convertToZoneTime(LocalDateTime utcLocalDateTime, ZoneId zoneId){
+		return ofNullable(utcLocalDateTime)
+			.map(time -> time.atOffset(ZoneOffset.UTC))
+			.map(time -> time.atZoneSameInstant(zoneId))
+			.orElse(null);
+	}
+
+	public static LocalDateTime convertToUTCTime(ZonedDateTime zonedDateTime){
+		return ofNullable(zonedDateTime)
+			.map(ZonedDateTime::toOffsetDateTime)
+			.map(time -> time.withOffsetSameInstant(ZoneOffset.UTC))
+			.map(OffsetDateTime::toLocalDateTime)
+			.orElse(null);
+	}
+}

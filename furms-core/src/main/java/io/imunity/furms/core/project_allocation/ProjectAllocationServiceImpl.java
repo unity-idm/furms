@@ -6,20 +6,23 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
@@ -29,7 +32,7 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SEND;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
 
 @Service
 class ProjectAllocationServiceImpl implements ProjectAllocationService {
@@ -39,20 +42,20 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
-	private final SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private final ProjectAllocationInstallationService projectAllocationInstallationService;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
 	                             ProjectInstallationService projectInstallationService,
 	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
-	                             SiteAgentProjectInstallationService siteAgentProjectInstallationService,
+	                             ProjectAllocationInstallationService projectAllocationInstallationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
-		this.siteAgentProjectInstallationService = siteAgentProjectInstallationService;
+		this.projectAllocationInstallationService = projectAllocationInstallationService;
 		this.publisher = publisher;
 	}
 
@@ -98,6 +101,13 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId) {
+		validator.validateCommunityIdAndProjectId(communityId, projectId);
+		return projectAllocationInstallationService.findAll(communityId, projectId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
@@ -111,31 +121,47 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void create(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateCreate(communityId, projectAllocation);
 		String id = projectAllocationRepository.create(projectAllocation);
+
 		installProject(projectAllocation, communityId, id);
+		allocateProject(communityId, id);
+
 		publisher.publishEvent(new CreateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
 
 	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
-		if(projectAllocationRepository.isFirstAllocation(projectAllocation.projectId)) {
+		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
 			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
 			CorrelationId correlationId = CorrelationId.randomID();
-			projectInstallationService.create(communityId, ProjectInstallationJob.builder()
+			ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 				.correlationId(correlationId)
 				.siteId(projectInstallation.siteId)
 				.projectId(projectAllocation.projectId)
-				.status(SEND)
-				.build()
-			);
-			siteAgentProjectInstallationService.installProject(correlationId, projectInstallation);
+				.status(SENT)
+				.build();
+			projectInstallationService.create(communityId, projectInstallationJob, projectInstallation);
 		}
 	}
 
+	private void allocateProject(String communityId, String projectAllocationId) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
+			.correlationId(correlationId)
+			.siteId(projectAllocationResolved.site.getId())
+			.projectAllocationId(projectAllocationId)
+			.status(ProjectAllocationInstallationStatus.SENT)
+			.build();
+		projectAllocationInstallationService.create(communityId, projectAllocationInstallation, projectAllocationResolved);
+	}
+
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void update(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateUpdate(communityId, projectAllocation);
@@ -145,6 +171,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String communityId, String id) {
 		validator.validateDelete(communityId, id);

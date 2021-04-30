@@ -5,21 +5,22 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.spi.sites.SiteRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.spi.sites.SiteRepository;
 
 @Repository
 class SiteDatabaseRepository implements SiteRepository {
@@ -47,6 +48,16 @@ class SiteDatabaseRepository implements SiteRepository {
 		return repository.findExternalId(fromString(id))
 			.map(SiteExternalId::new)
 			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
+	}
+
+	@Override
+	public Set<SiteId> findByProjectId(String id) {
+		if (isEmpty(id)) {
+			throw new IllegalArgumentException("Id should not be null");
+		}
+		return repository.findRelatedSites(fromString(id)).stream()
+			.map(site -> new SiteId(site.getId().toString(), new SiteExternalId(site.getExternalId())))
+			.collect(Collectors.toSet());
 	}
 
 	@Override

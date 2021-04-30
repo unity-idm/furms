@@ -31,8 +31,10 @@ Each message sent from FURMS to site or from site to FURMS which is not a respon
 
 ----
 { 
-	"header": [object with message metadata]
-	"MESSAGE_NAME": [object with main message payload]
+	"header": {object with message metadata},
+	"body": {
+		"MESSAGE_NAME": {object with main message payload}
+	}
 }
 ----
 

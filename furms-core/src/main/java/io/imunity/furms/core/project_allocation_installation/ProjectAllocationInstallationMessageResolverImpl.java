@@ -1,0 +1,50 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
+ */
+
+package io.imunity.furms.core.project_allocation_installation;
+
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
+import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+
+@Service
+class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocationInstallationMessageResolver {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
+
+	ProjectAllocationInstallationMessageResolverImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository) {
+		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
+	}
+
+	@Override
+	@Transactional
+	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status) {
+		projectAllocationInstallationRepository.findByCorrelationId(correlationId).ifPresent(job -> {
+			projectAllocationInstallationRepository.update(job.id, status);
+			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", job.id, status);
+		});
+	}
+
+	@Override
+	@Transactional
+	public void updateStatus(ProjectAllocationInstallation result) {
+		projectAllocationInstallationRepository.findByCorrelationId(result.correlationId).ifPresentOrElse(job -> {
+			projectAllocationInstallationRepository.update(result);
+			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", job.id, result.status);
+		}, () -> {
+			projectAllocationInstallationRepository.create(result);
+			LOG.info("ProjectAllocationInstallation was updated: {}", result);
+		});
+	}
+}

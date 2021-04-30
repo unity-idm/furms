@@ -76,7 +76,6 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID communityId;
 
 	private UUID projectId;
-	private UUID projectId2;
 
 	private UUID resourceTypeId;
 
@@ -121,7 +120,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		UUID.fromString(projectRepository.create(project2));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
