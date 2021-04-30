@@ -15,16 +15,12 @@ import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.concurrent.ExecutionException;
 
@@ -38,13 +34,7 @@ class SiteAgentUserServiceTest {
 	private SiteAgentUserService siteAgentUserService;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
-	private ProjectInstallationMessageResolver projectInstallationService;
-	@MockBean
-	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
-	@MockBean
+	@Autowired
 	private UserOperationMessageResolver userOperationMessageResolver;
 
 	@BeforeEach
@@ -67,7 +57,7 @@ class SiteAgentUserServiceTest {
 			.build();
 		siteAgentUserService.addUser(userAddition, user);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserAdditionStatus.ACK);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
 		verify(userOperationMessageResolver, timeout(10000)).update(any());
 	}
 
@@ -83,7 +73,7 @@ class SiteAgentUserServiceTest {
 
 		siteAgentUserService.removeUser(userRemoval);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.ACK);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.ACKNOWLEDGED);
 		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.REMOVED);
 	}
 }

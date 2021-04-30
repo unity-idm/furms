@@ -21,7 +21,6 @@ import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,11 +80,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		projectId = UUID.fromString(projectRepository.create(project));
 	}
 
-	@AfterEach
-	void clean(){
-		userAdditionEntityRepository.deleteAll();
-	}
-
 	@Test
 	void shouldFindAllUserAdditions() {
 		userAdditionEntityRepository.save(
@@ -106,7 +100,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(UUID.randomUUID())
 				.uid("uid")
 				.userId("userId")
-				.status(UserAdditionStatus.ACK)
+				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.build()
 		);
 
@@ -122,7 +116,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 			.correlationId(CorrelationId.randomID())
 			.uid("uid")
 			.userId("userId")
-			.status(UserAdditionStatus.ACK)
+			.status(UserAdditionStatus.ACKNOWLEDGED)
 			.build();
 
 		String id = userOperationDatabaseRepository.create(userAddition);
@@ -133,7 +127,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userAddition.projectId);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userAddition.correlationId.id);
 		assertThat(byId.get().uid).isEqualTo(userAddition.uid);
-		assertThat(byId.get().status).isEqualTo(userAddition.status);
+		assertThat(byId.get().status).isEqualTo(userAddition.status.getValue());
 	}
 
 	@Test
@@ -145,7 +139,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(UUID.randomUUID())
 				.uid("uid")
 				.userId("userId")
-				.status(UserAdditionStatus.ACK)
+				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.build()
 		);
 
@@ -156,7 +150,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 			.userAdditionId(userAdditionSaveEntity.getId().toString())
 			.uid("uid")
 			.userId("userId")
-			.status(UserRemovalStatus.ACK)
+			.status(UserRemovalStatus.ACKNOWLEDGED)
 			.build();
 
 		String id = userOperationDatabaseRepository.create(userRemoval);
@@ -167,7 +161,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userRemoval.projectId);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userRemoval.correlationId.id);
 		assertThat(byId.get().uid).isEqualTo(userRemoval.uid);
-		assertThat(byId.get().status).isEqualTo(userRemoval.status);
+		assertThat(byId.get().status).isEqualTo(userRemoval.status.getValue());
 	}
 
 	@Test
@@ -185,7 +179,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		userOperationDatabaseRepository.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(userAdditionSaveEntity.correlationId.toString()))
-				.status(UserAdditionStatus.ACK)
+				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.uid("uid")
 				.build()
 		);
@@ -196,7 +190,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userAdditionSaveEntity.projectId.toString());
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userAdditionSaveEntity.correlationId.toString());
 		assertThat(byId.get().uid).isEqualTo("uid");
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ACK);
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ACKNOWLEDGED.getValue());
 	}
 
 	@Test
@@ -215,7 +209,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(UUID.fromString(userAdditionSaveEntity.getId().toString()));
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED);
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getValue());
 	}
 
 	@Test
@@ -227,7 +221,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(UUID.randomUUID())
 				.uid("uid")
 				.userId("userId")
-				.status(UserAdditionStatus.ACK)
+				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.build()
 		);
 
@@ -239,7 +233,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.userAdditionId(userAdditionSaveEntity.getId())
 				.uid("uid")
 				.userId("userId")
-				.status(UserRemovalStatus.ACK)
+				.status(UserRemovalStatus.ACKNOWLEDGED)
 				.build()
 		);
 
@@ -247,6 +241,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(UUID.fromString(userRemovalSaveEntity.getId().toString()));
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED);
+		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getValue());
 	}
 }

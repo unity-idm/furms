@@ -13,16 +13,12 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,14 +33,8 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@MockBean
+	@Autowired
 	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
-	@MockBean
-	private ProjectInstallationMessageResolver projectInstallationMessageResolver;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
-	@MockBean
-	private UserOperationMessageResolver userOperationMessageResolver;
 
 	@BeforeEach
 	void init(){

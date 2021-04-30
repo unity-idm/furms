@@ -11,7 +11,7 @@ CREATE TABLE user_removal (
     user_addition_id UUID NOT NULL,
     user_id VARCHAR(255),
     uid VARCHAR(255),
-    status VARCHAR(255) NOT NULL,
+    status INT NOT NULL,
     FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
     FOREIGN KEY (user_addition_id) REFERENCES user_addition(id) ON DELETE CASCADE,
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE

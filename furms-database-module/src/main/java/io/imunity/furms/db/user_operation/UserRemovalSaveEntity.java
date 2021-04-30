@@ -21,9 +21,9 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 	public final UUID userAdditionId;
 	public final String userId;
 	public final String  uid;
-	public final UserRemovalStatus status;
+	public final int status;
 
-	UserRemovalSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, UUID userAdditionId, String userId, String uid, UserRemovalStatus status) {
+	UserRemovalSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, UUID userAdditionId, String userId, String uid, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -77,7 +77,7 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 		public UUID userAdditionId;
 		public String userId;
 		public String  uid;
-		public UserRemovalStatus status;
+		public int status;
 		protected UUID id;
 
 		private UserAdditionEntityBuilder() {
@@ -119,7 +119,7 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 		}
 
 		public UserAdditionEntityBuilder status(UserRemovalStatus status) {
-			this.status = status;
+			this.status = status.getValue();
 			return this;
 		}
 

@@ -23,9 +23,9 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final String userId;
 	public final String  uid;
-	public final UserAdditionStatus status;
+	public final int status;
 
-	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, String uid, UserAdditionStatus status) {
+	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, String uid, int status) {
 		this.id = id;
 		this.site = site;
 		this.projectId = projectId;
@@ -43,7 +43,7 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
 			.uid(uid)
-			.status(status)
+			.status(UserAdditionStatus.valueOf(status))
 			.build();
 	}
 

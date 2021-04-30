@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +68,10 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
 
+	private String siteId;
+	private String siteId2;
 	private String projectId;
+	private String projectId2;
 
 	@BeforeEach
 	void init() {
@@ -76,14 +80,21 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.externalId("id")
 			.connectionInfo("alala")
 			.build();
-		String siteId = siteRepository.save(site).getId().toString();
+		siteId = siteRepository.save(site).getId().toString();
 
 		SiteEntity site2 = SiteEntity.builder()
 			.name("name2")
 			.externalId("id2")
 			.connectionInfo("alala")
 			.build();
-		String siteId2 = siteRepository.save(site2).getId().toString();
+		siteId2 = siteRepository.save(site2).getId().toString();
+
+		SiteEntity site3 = SiteEntity.builder()
+			.name("name3")
+			.externalId("id4")
+			.connectionInfo("alala")
+			.build();
+		siteRepository.save(site2);
 
 		Community community = Community.builder()
 			.name("name")
@@ -102,8 +113,20 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
+		Project project2 = Project.builder()
+			.communityId(communityId)
+			.name("name2")
+			.description("new_description")
+			.logo(FurmsImage.empty())
+			.acronym("acronym")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+
 
 		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId)
@@ -183,10 +206,22 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldReturnAllocationWithRelatedObjects() {
+	void shouldReturnSites() {
 		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(UUID.fromString(projectId));
 
 		assertThat(relatedSites.size()).isEqualTo(2);
+		Set<String> ids = relatedSites.stream()
+			.map(site -> site.getId().toString())
+			.collect(Collectors.toSet());
+		assertThat(ids).contains(siteId);
+		assertThat(ids).contains(siteId2);
+	}
+
+	@Test
+	void shouldNotReturnSites() {
+		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(UUID.fromString(projectId2));
+
+		assertThat(relatedSites.size()).isEqualTo(0);
 	}
 
 }

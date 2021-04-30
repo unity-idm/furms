@@ -40,19 +40,25 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectAddRequestAck(Payload<UserProjectAddRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.ACK);
+			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
 		else
 			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.FAILED);
 	}
 
 	@EventListener
 	void receiveUserProjectAddResult(Payload<UserProjectAddResult> result) {
+		UserAdditionStatus status;
+		if(result.header.status.equals(Status.OK))
+			status = UserAdditionStatus.ADDED;
+		else
+			status = UserAdditionStatus.FAILED;
 		userOperationMessageResolver.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
 				.projectId(result.body.projectIdentifier)
 				.uid(result.body.uid)
 				.userId(result.body.fenixUserId)
+				.status(status)
 				.build()
 		);
 	}
@@ -61,7 +67,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectRemovalRequestAck(Payload<UserProjectRemovalRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.ACK);
+			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.ACKNOWLEDGED);
 		else
 			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.FAILED);
 	}

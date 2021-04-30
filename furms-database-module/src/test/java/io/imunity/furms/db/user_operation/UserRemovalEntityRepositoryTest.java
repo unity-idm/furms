@@ -16,7 +16,6 @@ import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,11 +82,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 				.status(UserAdditionStatus.PENDING)
 				.build()
 		).getId();
-	}
-
-	@AfterEach
-	void clean(){
-		userAdditionEntityRepository.deleteAll();
 	}
 
 	@Test
@@ -174,6 +168,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED);
+		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getValue());
 	}
 }

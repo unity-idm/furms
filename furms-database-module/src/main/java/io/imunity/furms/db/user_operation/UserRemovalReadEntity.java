@@ -22,9 +22,9 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 	public final UUID userAdditionalId;
 	public final String userId;
 	public final String  uid;
-	public final UserRemovalStatus status;
+	public final int status;
 
-	UserRemovalReadEntity(UUID id, SiteId siteId, UUID projectId, UUID correlationId, UUID userAdditionalId, String userId, String uid, UserRemovalStatus status) {
+	UserRemovalReadEntity(UUID id, SiteId siteId, UUID projectId, UUID correlationId, UUID userAdditionalId, String userId, String uid, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -43,7 +43,7 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
 			.uid(uid)
-			.status(status)
+			.status(UserRemovalStatus.valueOf(status))
 			.build();
 	}
 

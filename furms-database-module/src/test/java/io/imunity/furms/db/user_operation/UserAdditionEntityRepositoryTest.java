@@ -16,7 +16,6 @@ import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +72,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 		projectId = UUID.fromString(projectRepository.create(project));
 	}
 
-	@AfterEach
-	void clean(){
-		userAdditionEntityRepository.deleteAll();
-	}
-
 	@Test
 	void shouldFindAllByProjectIdAndUserIdWithRelatedSite(){
 		userAdditionEntityRepository.save(
@@ -98,13 +92,13 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(UUID.randomUUID())
 				.uid("uid")
 				.userId("userId2")
-				.status(UserAdditionStatus.ACK)
+				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.build()
 		);
 
 		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
-		assertThat(userAdditions.iterator().next().status).isEqualTo(UserAdditionStatus.PENDING);
+		assertThat(userAdditions.iterator().next().status).isEqualTo(UserAdditionStatus.PENDING.getValue());
 		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
 		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId);
 	}
@@ -134,7 +128,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED, UserRemovalStatus.REMOVED);
+		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
 		assertThat(userId).isTrue();
 	}
 
@@ -151,7 +145,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED, UserRemovalStatus.REMOVED);
+		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
 		assertThat(userId).isTrue();
 	}
 
@@ -180,7 +174,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED, UserRemovalStatus.REMOVED);
+		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
 		assertThat(userId).isFalse();
 	}
 
@@ -263,6 +257,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED);
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getValue());
 	}
 }

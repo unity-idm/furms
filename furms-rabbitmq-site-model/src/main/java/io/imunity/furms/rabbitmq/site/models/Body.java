@@ -5,38 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-
-
-@JsonSubTypes({
-	@Type(value = AgentPingAck.class),
-	@Type(value = AgentPingRequest.class),
-	@Type(value = AgentProjectInstallationAck.class),
-	@Type(value = AgentProjectInstallationRequest.class),
-	@Type(value = AgentProjectInstallationResult.class),
-	@Type(value = AgentProjectAllocationInstallationAck.class),
-	@Type(value = AgentProjectAllocationInstallationRequest.class),
-	@Type(value = AgentProjectAllocationInstallationResult.class),
-	@Type(value = AgentProjectInstallationResult.class),
-	@Type(value = AgentSSHKeyAdditionAck.class),
-	@Type(value = AgentSSHKeyAdditionRequest.class),
-	@Type(value = AgentSSHKeyAdditionResult.class),
-	@Type(value = AgentSSHKeyRemovalAck.class),
-	@Type(value = AgentSSHKeyRemovalRequest.class),
-	@Type(value = AgentSSHKeyRemovalResult.class),
-	@Type(value = AgentSSHKeyUpdatingAck.class),
-	@Type(value = AgentSSHKeyUpdatingRequest.class),
-	@Type(value = AgentSSHKeyUpdatingResult.class),
-	@Type(value = UserProjectAddRequest.class),
-	@Type(value = UserProjectAddRequestAck.class),
-	@Type(value = UserProjectAddResult.class),
-	@Type(value = UserProjectRemovalRequest.class),
-	@Type(value = UserProjectRemovalRequestAck.class),
-	@Type(value = UserProjectRemovalResult.class)
-})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 public interface Body {
 }

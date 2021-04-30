@@ -20,9 +20,9 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final String userId;
 	public final String  uid;
-	public final UserAdditionStatus status;
+	public final int status;
 
-	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, String userId, String uid, UserAdditionStatus status) {
+	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, String userId, String uid, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -72,7 +72,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		public UUID correlationId;
 		public String userId;
 		public String  uid;
-		public UserAdditionStatus status;
+		public int status;
 		protected UUID id;
 
 		private UserAdditionEntityBuilder() {
@@ -109,7 +109,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		}
 
 		public UserAdditionEntityBuilder status(UserAdditionStatus status) {
-			this.status = status;
+			this.status = status.getValue();
 			return this;
 		}
 

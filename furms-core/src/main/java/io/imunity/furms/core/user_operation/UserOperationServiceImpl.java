@@ -20,7 +20,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
@@ -39,7 +39,7 @@ class UserOperationServiceImpl implements UserOperationService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void createUserAdditions(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		siteRepository.findByProjectId(projectId)
@@ -48,6 +48,7 @@ class UserOperationServiceImpl implements UserOperationService {
 					.correlationId(CorrelationId.randomID())
 					.projectId(projectId)
 					.siteId(siteId)
+					.userId(userId.id)
 					.status(UserAdditionStatus.PENDING)
 					.build();
 				repository.create(userAddition);
@@ -57,7 +58,7 @@ class UserOperationServiceImpl implements UserOperationService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void createUserRemovals(String projectId, PersistentId userId) {
 		repository.findAllUserAdditions(projectId, userId.id).stream()
 			.map(userAddition -> UserRemoval.builder()
