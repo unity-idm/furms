@@ -13,7 +13,7 @@ import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,9 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-class SiteAgentProjectInstallationServiceTest {
+class SiteAgentProjectOperationServiceTest {
 	@Autowired
-	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@MockBean
@@ -59,9 +59,9 @@ class SiteAgentProjectInstallationServiceTest {
 				.email("email")
 				.build())
 			.build();
-		siteAgentProjectInstallationService.installProject(correlationId, projectInstallation);
+		siteAgentProjectOperationService.installProject(correlationId, projectInstallation);
 
-		verify(projectInstallationService, timeout(10000)).updateStatus(correlationId, ACKNOWLEDGED);
-		verify(projectInstallationService, timeout(10000)).updateStatus(correlationId, INSTALLED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, ACKNOWLEDGED);
+		verify(projectInstallationService, timeout(10000)).update(correlationId, INSTALLED);
 	}
 }

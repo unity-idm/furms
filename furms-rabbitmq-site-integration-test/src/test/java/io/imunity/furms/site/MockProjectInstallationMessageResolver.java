@@ -15,7 +15,7 @@ import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageReso
 public class MockProjectInstallationMessageResolver implements ProjectInstallationMessageResolver {
 
 	@Override
-	public void updateStatus(CorrelationId correlationId, ProjectInstallationStatus status) {
+	public void update(CorrelationId correlationId, ProjectInstallationStatus status) {
 	}
 
 }

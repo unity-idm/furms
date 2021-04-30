@@ -7,8 +7,8 @@ package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
-import io.imunity.furms.spi.project_installation.ProjectInstallationRepository;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,15 +16,15 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 
 class ProjectInstallationServiceTest {
 	@Mock
-	private ProjectInstallationRepository repository;
+	private ProjectOperationRepository repository;
 	@Mock
-	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Mock
 	private UsersDAO usersDAO;
 
@@ -34,7 +34,7 @@ class ProjectInstallationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectInstallationService, usersDAO);
+		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectOperationService, usersDAO);
 		orderVerifier = inOrder(repository);
 	}
 
@@ -44,7 +44,7 @@ class ProjectInstallationServiceTest {
 		CorrelationId id = new CorrelationId("id");
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 				.correlationId(id)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when

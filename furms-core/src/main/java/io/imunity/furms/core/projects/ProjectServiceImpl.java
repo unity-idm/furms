@@ -5,38 +5,12 @@
 
 package io.imunity.furms.core.projects;
 
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.projects.CreateProjectEvent;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
-import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.projects.RemoveProjectEvent;
-import io.imunity.furms.domain.projects.UpdateProjectEvent;
+import io.imunity.furms.domain.projects.*;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -44,6 +18,22 @@ import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -55,16 +45,19 @@ class ProjectServiceImpl implements ProjectService {
 	private final ProjectServiceValidator validator;
 	private final AuthzService authzService;
 	private final ApplicationEventPublisher publisher;
+	private final ProjectInstallationService projectInstallationService;
 
 
 	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
-	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher, AuthzService authzService) {
+	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher,
+	                          AuthzService authzService, ProjectInstallationService projectInstallationService) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.authzService = authzService;
+		this.projectInstallationService = projectInstallationService;
 	}
 
 	@Override
@@ -105,6 +98,7 @@ class ProjectServiceImpl implements ProjectService {
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
 		addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
+		updateInAgent(project);
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", project);
 	}
@@ -129,8 +123,15 @@ class ProjectServiceImpl implements ProjectService {
 			.build();
 		projectRepository.update(updatedProject);
 		projectGroupsDAO.update(new ProjectGroup(updatedProject.getId(), updatedProject.getName(), updatedProject.getCommunityId()));
+		updateInAgent(project);
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", attributes);
+	}
+
+	private void updateInAgent(Project project) {
+		if(projectInstallationService.existsByProjectId(project.getCommunityId(), project.getId())) {
+			projectInstallationService.update(project.getCommunityId(), project.getId());
+		}
 	}
 
 	@Override
@@ -140,8 +141,15 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateDelete(projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
+		removeFromAgent(communityId, projectId);
 		publisher.publishEvent(new RemoveProjectEvent(projectId));
 		LOG.info("Project with given ID: {} was deleted", projectId);
+	}
+
+	private void removeFromAgent(String communityId, String projectId) {
+		if(projectInstallationService.existsByProjectId(communityId, projectId)) {
+			projectInstallationService.remove(communityId, projectId);
+		}
 	}
 
 	@Override

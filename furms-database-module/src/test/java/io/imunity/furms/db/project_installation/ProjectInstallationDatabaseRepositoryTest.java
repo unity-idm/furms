@@ -7,7 +7,7 @@ package io.imunity.furms.db.project_installation;
 
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	private ProjectInstallationJobEntityRepository entityRepository;
 
 	@Autowired
-	private ProjectInstallationJobDatabaseRepository entityDatabaseRepository;
+	private ProjectOperationJobDatabaseRepository entityDatabaseRepository;
 
 	private UUID siteId;
 
@@ -92,7 +92,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId.toString())
 				.projectId(projectId.toString())
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
@@ -103,7 +103,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(SENT);
+		assertThat(byId.get().status).isEqualTo(PENDING);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId.toString())
 				.projectId(projectId.toString())
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
@@ -138,7 +138,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId.toString())
 				.projectId(projectId.toString())
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when

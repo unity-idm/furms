@@ -5,6 +5,6 @@
 
 package io.imunity.furms.domain.project_installation;
 
-public enum ProjectInstallationStatus {
-	PENDING, ACKNOWLEDGED, INSTALLED, FAILED
+public enum ProjectRemovalStatus {
+	PENDING, ACKNOWLEDGED, REMOVED, FAILED
 }
