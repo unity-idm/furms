@@ -12,6 +12,8 @@ import io.imunity.furms.domain.ssh_keys.SSHKey;
 
 public interface SSHKeyService {
 
+	void assertIsEligibleToManageKeys();
+	
 	Optional<SSHKey> findById(String id);
 
 	Set<SSHKey> findOwned();
