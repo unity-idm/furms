@@ -7,13 +7,13 @@ package io.imunity.furms.ui.views.fenix.dashboard;
 
 class DashboardViewFilters {
 	private String name;
-	private boolean includedFullyDistributed;
-	private boolean includedExpired;
+	private boolean includeFullyDistributed;
+	private boolean includeExpired;
 
 	DashboardViewFilters() {
 		this.name = "";
-		this.includedFullyDistributed = false;
-		this.includedExpired = false;
+		this.includeFullyDistributed = false;
+		this.includeExpired = false;
 	}
 
 	String getName() {
@@ -24,43 +24,20 @@ class DashboardViewFilters {
 		this.name = name;
 	}
 
-	boolean isIncludedFullyDistributed() {
-		return includedFullyDistributed;
+	boolean isIncludeFullyDistributed() {
+		return includeFullyDistributed;
 	}
 
-	void setIncludedFullyDistributed(boolean includedFullyDistributed) {
-		this.includedFullyDistributed = includedFullyDistributed;
+	void setIncludeFullyDistributed(boolean includeFullyDistributed) {
+		this.includeFullyDistributed = includeFullyDistributed;
 	}
 
-	boolean isIncludedExpired() {
-		return includedExpired;
+	boolean isIncludeExpired() {
+		return includeExpired;
 	}
 
-	void setIncludedExpired(boolean includedExpired) {
-		this.includedExpired = includedExpired;
-	}
-
-	static class Checkboxes {
-		enum Options {
-			INCLUDED_FULLY_DISTRIBUTED,
-			INCLUDED_EXPIRED;
-		}
-
-		private final Options option;
-		private final String label;
-
-		Checkboxes(Options option, String label) {
-			this.option = option;
-			this.label = label;
-		}
-
-		Options getOption() {
-			return option;
-		}
-
-		String getLabel() {
-			return label;
-		}
+	void setIncludeExpired(boolean includeExpired) {
+		this.includeExpired = includeExpired;
 	}
 
 }

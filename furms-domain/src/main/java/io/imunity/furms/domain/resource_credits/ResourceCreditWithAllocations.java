@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class ResourceCreditFenixDashboard {
+public class ResourceCreditWithAllocations {
 	public final String id;
 	public final String name;
 	public final String siteId;
@@ -22,17 +22,17 @@ public class ResourceCreditFenixDashboard {
 	public final LocalDateTime utcStartTime;
 	public final LocalDateTime utcEndTime;
 
-	public ResourceCreditFenixDashboard(String id,
-	                                    String name,
-	                                    String siteId,
-	                                    String resourceTypeId,
-	                                    Boolean split,
-	                                    Boolean access,
-	                                    BigDecimal amount,
-	                                    BigDecimal remaining,
-	                                    LocalDateTime utcCreateTime,
-	                                    LocalDateTime utcStartTime,
-	                                    LocalDateTime utcEndTime) {
+	public ResourceCreditWithAllocations(String id,
+	                                     String name,
+	                                     String siteId,
+	                                     String resourceTypeId,
+	                                     Boolean split,
+	                                     Boolean access,
+	                                     BigDecimal amount,
+	                                     BigDecimal remaining,
+	                                     LocalDateTime utcCreateTime,
+	                                     LocalDateTime utcStartTime,
+	                                     LocalDateTime utcEndTime) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
@@ -94,7 +94,7 @@ public class ResourceCreditFenixDashboard {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ResourceCreditFenixDashboard that = (ResourceCreditFenixDashboard) o;
+		ResourceCreditWithAllocations that = (ResourceCreditWithAllocations) o;
 		return Objects.equals(id, that.id) &&
 				Objects.equals(name, that.name) &&
 				Objects.equals(siteId, that.siteId) &&
@@ -115,7 +115,7 @@ public class ResourceCreditFenixDashboard {
 
 	@Override
 	public String toString() {
-		return "ResourceCreditFenixDashboard{" +
+		return "ResourceCreditWithAllocations{" +
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
 				", siteId='" + siteId + '\'' +
@@ -130,11 +130,11 @@ public class ResourceCreditFenixDashboard {
 				'}';
 	}
 
-	public static ResourceCreditFenixDashboardBuilder builder() {
-		return new ResourceCreditFenixDashboardBuilder();
+	public static ResourceCreditWithAllocationsBuilder builder() {
+		return new ResourceCreditWithAllocationsBuilder();
 	}
 
-	public static final class ResourceCreditFenixDashboardBuilder {
+	public static final class ResourceCreditWithAllocationsBuilder {
 		public String id;
 		public String name;
 		public String siteId;
@@ -147,66 +147,66 @@ public class ResourceCreditFenixDashboard {
 		public LocalDateTime utcStartTime;
 		public LocalDateTime utcEndTime;
 
-		private ResourceCreditFenixDashboardBuilder() {
+		private ResourceCreditWithAllocationsBuilder() {
 		}
 
-		public ResourceCreditFenixDashboardBuilder id(String id) {
+		public ResourceCreditWithAllocationsBuilder id(String id) {
 			this.id = id;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder name(String name) {
+		public ResourceCreditWithAllocationsBuilder name(String name) {
 			this.name = name;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder siteId(String siteId) {
+		public ResourceCreditWithAllocationsBuilder siteId(String siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder resourceTypeId(String resourceTypeId) {
+		public ResourceCreditWithAllocationsBuilder resourceTypeId(String resourceTypeId) {
 			this.resourceTypeId = resourceTypeId;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder split(Boolean split) {
+		public ResourceCreditWithAllocationsBuilder split(Boolean split) {
 			this.split = split;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder access(Boolean access) {
+		public ResourceCreditWithAllocationsBuilder access(Boolean access) {
 			this.access = access;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder amount(BigDecimal amount) {
+		public ResourceCreditWithAllocationsBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder remaining(BigDecimal remaining) {
+		public ResourceCreditWithAllocationsBuilder remaining(BigDecimal remaining) {
 			this.remaining = remaining;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder utcCreateTime(LocalDateTime utcCreateTime) {
+		public ResourceCreditWithAllocationsBuilder utcCreateTime(LocalDateTime utcCreateTime) {
 			this.utcCreateTime = utcCreateTime;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder utcStartTime(LocalDateTime utcStartTime) {
+		public ResourceCreditWithAllocationsBuilder utcStartTime(LocalDateTime utcStartTime) {
 			this.utcStartTime = utcStartTime;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboardBuilder utcEndTime(LocalDateTime utcEndTime) {
+		public ResourceCreditWithAllocationsBuilder utcEndTime(LocalDateTime utcEndTime) {
 			this.utcEndTime = utcEndTime;
 			return this;
 		}
 
-		public ResourceCreditFenixDashboard build() {
-			return new ResourceCreditFenixDashboard(id, name, siteId, resourceTypeId, split, access, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
+		public ResourceCreditWithAllocations build() {
+			return new ResourceCreditWithAllocations(id, name, siteId, resourceTypeId, split, access, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}
 }

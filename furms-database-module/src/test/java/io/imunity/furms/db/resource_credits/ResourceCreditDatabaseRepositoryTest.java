@@ -235,7 +235,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		Set<ResourceCredit> all = repository.findAllByNameAndIncludedExpired("test", true);
+		Set<ResourceCredit> all = repository.findAllByNameOrSiteName("test");
 
 		//then
 		assertThat(all).hasSize(3);

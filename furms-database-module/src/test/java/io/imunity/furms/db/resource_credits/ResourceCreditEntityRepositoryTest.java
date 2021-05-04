@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static java.util.stream.Collectors.toList;
@@ -276,7 +275,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameAndIncludedExpired("name2", false)
+		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("name2")
 													.collect(toList());
 
 		//then
@@ -323,7 +322,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameAndIncludedExpired("name2", true)
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("name2")
 												.collect(toSet());
 
 		//then
@@ -358,7 +357,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameAndIncludedExpired("other", false)
+		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("other")
 													.collect(toList());
 
 		//then
@@ -405,7 +404,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameAndIncludedExpired("ther", true)
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("ther")
 												.collect(toSet());
 
 		//then

@@ -11,7 +11,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_credits.ResourceCreditFenixDashboard;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import org.slf4j.Logger;
@@ -74,23 +74,27 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	public Set<ResourceCreditFenixDashboard> findAllForFenixAdminDashboard(String name, boolean fullyDistributed, boolean includedExpired) {
-		return resourceCreditRepository.findAllByNameAndIncludedExpired(name, includedExpired).stream()
-				.map(credit -> ResourceCreditFenixDashboard.builder()
-						.id(credit.id)
-						.name(credit.name)
-						.siteId(credit.siteId)
-						.resourceTypeId(credit.resourceTypeId)
-						.split(credit.split)
-						.access(credit.access)
-						.amount(credit.amount)
-						.remaining(communityAllocationService.getAvailableAmount(credit.id))
-						.utcCreateTime(credit.utcCreateTime)
-						.utcStartTime(credit.utcStartTime)
-						.utcEndTime(credit.utcEndTime)
-						.build())
-				.filter(credit -> fullyDistributedFilter(credit.remaining, fullyDistributed))
-				.collect(toSet());
+	public Set<ResourceCreditWithAllocations> findAllWithAllocations(String name,
+	                                                                 boolean includedFullyDistributed,
+	                                                                 boolean includedExpired) {
+		final Set<ResourceCredit> resourceCredits = includedExpired
+				? resourceCreditRepository.findAllByNameOrSiteName(name)
+				: resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired(name);
+		return resourceCredits.stream().map(credit -> ResourceCreditWithAllocations.builder()
+					.id(credit.id)
+					.name(credit.name)
+					.siteId(credit.siteId)
+					.resourceTypeId(credit.resourceTypeId)
+					.split(credit.split)
+					.access(credit.access)
+					.amount(credit.amount)
+					.remaining(communityAllocationService.getAvailableAmount(credit.id))
+					.utcCreateTime(credit.utcCreateTime)
+					.utcStartTime(credit.utcStartTime)
+					.utcEndTime(credit.utcEndTime)
+					.build())
+			.filter(credit -> fullyDistributedFilter(credit.remaining, includedFullyDistributed))
+			.collect(toSet());
 	}
 
 	@Override
@@ -120,8 +124,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 		LOG.info("ResourceCredit with given ID: {} was deleted", id);
 	}
 
-	private boolean fullyDistributedFilter(BigDecimal availableAmount, boolean fullyDistributed) {
+	private boolean fullyDistributedFilter(BigDecimal availableAmount, boolean includedFullyDistributed) {
 		return availableAmount.compareTo(ZERO) != 0
-				|| (availableAmount.compareTo(ZERO) == 0) == fullyDistributed;
+				|| (availableAmount.compareTo(ZERO) == 0) == includedFullyDistributed;
 	}
 }

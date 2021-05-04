@@ -61,8 +61,15 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public Set<ResourceCredit> findAllByNameAndIncludedExpired(String name, boolean includedExpired) {
-		return repository.findAllByNameAndIncludedExpired(name, includedExpired)
+	public Set<ResourceCredit> findAllByNameOrSiteName(String name) {
+		return repository.findAllByNameOrSiteName(name)
+				.map(ResourceCreditEntity::toResourceCredit)
+				.collect(toSet());
+	}
+
+	@Override
+	public Set<ResourceCredit> findAllByNameOrSiteNameWithoutExpired(String name) {
+		return repository.findAllByNameOrSiteNameWithoutExpired(name)
 				.map(ResourceCreditEntity::toResourceCredit)
 				.collect(toSet());
 	}

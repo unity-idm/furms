@@ -21,7 +21,9 @@ public interface ResourceCreditRepository {
 
 	Set<ResourceCredit> findAll();
 
-	Set<ResourceCredit> findAllByNameAndIncludedExpired(String name, boolean includedExpired);
+	Set<ResourceCredit> findAllByNameOrSiteName(String name);
+
+	Set<ResourceCredit> findAllByNameOrSiteNameWithoutExpired(String name);
 
 	String create(ResourceCredit resourceType);
 

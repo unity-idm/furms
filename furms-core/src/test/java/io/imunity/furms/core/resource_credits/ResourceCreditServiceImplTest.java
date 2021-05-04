@@ -9,7 +9,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_credits.ResourceCreditFenixDashboard;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -109,7 +109,7 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsIncludedFullyDistributed() {
 		//given
-		when(resourceCreditRepository.findAllByNameAndIncludedExpired("", false)).thenReturn(Set.of(
+		when(resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("")).thenReturn(Set.of(
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
@@ -118,7 +118,7 @@ class ResourceCreditServiceImplTest {
 		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
 
 		//when
-		final Set<ResourceCreditFenixDashboard> all = service.findAllForFenixAdminDashboard("", true, false);
+		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", true, false);
 
 		//then
 		assertThat(all).hasSize(3);
@@ -127,7 +127,7 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsNotIncludedFullyDistributed() {
 		//given
-		when(resourceCreditRepository.findAllByNameAndIncludedExpired("", false)).thenReturn(Set.of(
+		when(resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("")).thenReturn(Set.of(
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
@@ -136,7 +136,7 @@ class ResourceCreditServiceImplTest {
 		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
 
 		//when
-		final Set<ResourceCreditFenixDashboard> all = service.findAllForFenixAdminDashboard("", false, false);
+		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", false, false);
 
 		//then
 		assertThat(all).hasSize(2);

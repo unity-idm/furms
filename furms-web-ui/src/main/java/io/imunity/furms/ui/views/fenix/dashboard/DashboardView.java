@@ -22,9 +22,10 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.resource_credits.ResourceCreditFenixDashboard;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.FilterCheckboxData;
 import io.imunity.furms.ui.components.FurmsProgressBar;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -44,8 +45,8 @@ import java.util.stream.Collectors;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardViewFilters.Checkboxes.Options.INCLUDED_EXPIRED;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardViewFilters.Checkboxes.Options.INCLUDED_FULLY_DISTRIBUTED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
 import static java.lang.String.format;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_UP;
@@ -86,7 +87,7 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private void addFiltersAndSearch() {
-		final CheckboxGroup<DashboardViewFilters.Checkboxes> filters = createFiltersForm();
+		final CheckboxGroup<FilterCheckboxData<DashboardOptions>> filters = createFiltersForm();
 		final TextField searchForm = createSearchForm();
 
 		final HorizontalLayout layout = new HorizontalLayout(filters, searchForm);
@@ -97,26 +98,25 @@ public class DashboardView extends FurmsViewComponent {
 		getContent().add(layout);
 	}
 
-	private CheckboxGroup<DashboardViewFilters.Checkboxes> createFiltersForm() {
-		final CheckboxGroup<DashboardViewFilters.Checkboxes> checkboxGroup = new CheckboxGroup<>();
+	private CheckboxGroup<FilterCheckboxData<DashboardOptions>> createFiltersForm() {
+		final CheckboxGroup<FilterCheckboxData<DashboardOptions>> checkboxGroup = new CheckboxGroup<>();
 		checkboxGroup.setLabel(getTranslation("view.fenix-admin.dashboard.filters.title"));
-		checkboxGroup.setItemLabelGenerator(DashboardViewFilters.Checkboxes::getLabel);
+		checkboxGroup.setItemLabelGenerator(FilterCheckboxData::getLabel);
 		checkboxGroup.setItems(
-				new DashboardViewFilters.Checkboxes(INCLUDED_FULLY_DISTRIBUTED,
+				new FilterCheckboxData<>(INCLUDE_FULLY_DISTRIBUTED,
 						getTranslation("view.fenix-admin.dashboard.filters.fully-distributed")),
-				new DashboardViewFilters.Checkboxes(INCLUDED_EXPIRED,
+				new FilterCheckboxData<>(INCLUDE_EXPIRED,
 						getTranslation("view.fenix-admin.dashboard.filters.expired")));
 		checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		checkboxGroup.addValueChangeListener(event -> {
-			filters.setIncludedFullyDistributed(isSelectedCheckbox(INCLUDED_FULLY_DISTRIBUTED, event.getValue()));
-			filters.setIncludedExpired(isSelectedCheckbox(INCLUDED_EXPIRED, event.getValue()));
+			filters.setIncludeFullyDistributed(isSelectedCheckbox(INCLUDE_FULLY_DISTRIBUTED, event.getValue()));
+			filters.setIncludeExpired(isSelectedCheckbox(INCLUDE_EXPIRED, event.getValue()));
 			UI.getCurrent().accessSynchronously(this::reloadGrid);
 		});
 		return checkboxGroup;
 	}
 
-	private boolean isSelectedCheckbox(DashboardViewFilters.Checkboxes.Options checkbox,
-	                                   Set<DashboardViewFilters.Checkboxes> value) {
+	private boolean isSelectedCheckbox(DashboardOptions checkbox, Set<FilterCheckboxData<DashboardOptions>> value) {
 		return value.stream()
 				.anyMatch(filter -> checkbox.equals(filter.getOption()));
 	}
@@ -176,7 +176,7 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private FurmsProgressBar showAvailability(DashboardGridItem item) {
-		final Double value = item.getRemaining().getAmount()
+		final double value = item.getRemaining().getAmount()
 				.divide(item.getCredit().getAmount(), 4, HALF_UP)
 				.doubleValue();
 
@@ -205,17 +205,17 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private List<DashboardGridItem> loadCredits() {
-		return creditService.findAllForFenixAdminDashboard(
+		return creditService.findAllWithAllocations(
 					filters.getName(),
-					filters.isIncludedFullyDistributed(),
-					filters.isIncludedExpired())
+					filters.isIncludeFullyDistributed(),
+					filters.isIncludeExpired())
 				.stream()
 				.map(this::buildItem)
 				.sorted(defaultGridSort)
 				.collect(Collectors.toList());
 	}
 
-	private DashboardGridItem buildItem(ResourceCreditFenixDashboard credit) {
+	private DashboardGridItem buildItem(ResourceCreditWithAllocations credit) {
 		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.resourceTypeId)
 				.map(type -> type.unit)
 				.orElse(ResourceMeasureUnit.SiUnit.none);

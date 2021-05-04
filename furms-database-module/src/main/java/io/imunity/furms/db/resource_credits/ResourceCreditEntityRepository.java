@@ -20,11 +20,19 @@ public interface ResourceCreditEntityRepository extends CrudRepository<ResourceC
 	@Query("SELECT rc.* " +
 			"FROM resource_credit rc " +
 			"JOIN site s ON rc.site_id = s.id " +
-			"WHERE (end_time > now() OR (end_time <= now()) = :includedExpired) " +
+			"WHERE (UPPER(rc.name) LIKE UPPER(CONCAT('%', :name, '%')) " +
+			"        OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%')))")
+	Stream<ResourceCreditEntity> findAllByNameOrSiteName(@Param("name") String name);
+
+	@Query("SELECT rc.* " +
+			"FROM resource_credit rc " +
+			"JOIN site s ON rc.site_id = s.id " +
+			"WHERE end_time > now() " +
 			"   AND (UPPER(rc.name) LIKE UPPER(CONCAT('%', :name, '%')) " +
 			"        OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%')))")
-	Stream<ResourceCreditEntity> findAllByNameAndIncludedExpired(@Param("name") String name,
-	                                                             @Param("includedExpired") boolean includedExpired);
+	Stream<ResourceCreditEntity> findAllByNameOrSiteNameWithoutExpired(@Param("name") String name);
+
+
 	boolean existsByName(String name);
 	boolean existsBySiteId(UUID siteId);
 	boolean existsByResourceTypeId(UUID resourceTypeId);
