@@ -17,13 +17,16 @@ public class Site {
 	private final FurmsImage logo;
 	private final Boolean sshKeyFromOptionMandatory;
 	private final SiteExternalId externalId;
+	private final Integer sshKeyHistoryLength;
 
-	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory, SiteExternalId externalId) {
+	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory,
+			Integer sshKeyHistoryLength, SiteExternalId externalId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.sshKeyHistoryLength = sshKeyHistoryLength;
 		this.externalId = externalId;
 	}
 
@@ -51,6 +54,11 @@ public class Site {
 	public SiteExternalId getExternalId() {
 		return externalId;
 	}
+	
+	public Integer getSshKeyHistoryLength() {
+		return sshKeyHistoryLength;
+	}
+
 
 	public static SiteBuilder builder() {
 		return new SiteBuilder();
@@ -66,12 +74,13 @@ public class Site {
 				Objects.equals(connectionInfo, site.connectionInfo) &&
 				Objects.equals(logo, site.logo) &&
 				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory) &&
+				Objects.equals(sshKeyHistoryLength, site.sshKeyHistoryLength) &&
 				Objects.equals(externalId, site.externalId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId);
+		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength);
 	}
 
 	@Override
@@ -82,6 +91,7 @@ public class Site {
 				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + logo +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", sshKeyHistoryLength=" + sshKeyHistoryLength +
 				", externalId=" + externalId +
 				'}';
 	}
@@ -94,6 +104,7 @@ public class Site {
 		private FurmsImage logo;
 		private Boolean sshKeyFromOptionMandatory;
 		private SiteExternalId externalId;
+		private Integer sshKeyHistoryLength;
 
 		public SiteBuilder id(String id) {
 			this.id = id;
@@ -124,10 +135,17 @@ public class Site {
 			this.externalId = externalId;
 			return this;
 		}
+		
+		public SiteBuilder sshKeyHistoryLength(Integer sshKeyHistoryLength) {
+			this.sshKeyHistoryLength = sshKeyHistoryLength;
+			return this;
+		}
 
 		public Site build() {
-			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId);
+			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId);
 		}
+
+		
 
 	}
 

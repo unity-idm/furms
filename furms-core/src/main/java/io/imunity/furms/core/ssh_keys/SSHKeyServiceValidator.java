@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
@@ -23,7 +24,8 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -32,18 +34,20 @@ public class SSHKeyServiceValidator {
 
 	private final SSHKeyRepository sshKeysRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
+	private final SSHKeyHistoryRepository sshKeyHistoryRepository;
 	private final SiteRepository siteRepository;
 	private final UsersDAO userDao;
 	private final AuthzService authzService;
 
 	SSHKeyServiceValidator(SSHKeyRepository sshKeysRepository, AuthzService authzService,
 			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository,
-			UsersDAO userDao) {
+			UsersDAO userDao, SSHKeyHistoryRepository sshKeyHistoryRepository) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.authzService = authzService;
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.userDao = userDao;
+		this.sshKeyHistoryRepository = sshKeyHistoryRepository;
 	}
 
 	void validateCreate(SSHKey sshKey) {
@@ -141,5 +145,15 @@ public class SSHKeyServiceValidator {
 				.filter(operation -> operation.status.inProgress()).findAny().isEmpty(),
 				() -> new IllegalArgumentException(
 						"Invalid SSH key: there are uncompleted key operations"));
+	}
+
+	public void validateHistory(Site site, SSHKey sshKey) {
+		if (site.getSshKeyHistoryLength() == null || site.getSshKeyHistoryLength().equals(0))
+			return;
+		String fingerprint = sshKey.getFingerprint();	
+		assertTrue(sshKeyHistoryRepository.findLastBySSHKeyIdLimitTo(site.getId(), site.getSshKeyHistoryLength())
+				.stream().filter(h -> h.sshkeyFingerprint.equals(fingerprint)).findAny().isEmpty(),
+				() -> new SSHKeyHistoryException("Invalid SSH key: The key does not meet the history requirements", site.getId()));
+		
 	}
 }

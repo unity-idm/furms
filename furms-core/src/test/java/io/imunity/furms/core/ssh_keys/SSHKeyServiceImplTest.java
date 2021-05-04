@@ -40,7 +40,8 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -68,6 +69,9 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
 
+	@Mock
+	private SSHKeyHistoryRepository sshKeyHistoryRepository;
+	
 	private SSHKeyServiceImpl service;
 
 	private SSHKeyServiceValidator validator;
@@ -75,7 +79,7 @@ public class SSHKeyServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
-				sshKeyOperationRepository, usersDAO);
+				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
 				sshKeyInstallationService, siteAgentSSHKeyInstallationService, usersDAO);
 	}

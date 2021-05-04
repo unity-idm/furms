@@ -92,6 +92,7 @@ class SiteDatabaseRepository implements SiteRepository {
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
 						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
+						.sshKeyHistoryLength(site.getSshKeyHistoryLength())
 						.externalId(oldEntity.getExternalId())
 						.build())
 				.map(repository::save)
