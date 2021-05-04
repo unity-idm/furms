@@ -8,6 +8,9 @@ package io.imunity.furms.core.project_allocation_installation;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.slf4j.Logger;
@@ -18,8 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectAllocationInstallationServiceImpl implements ProjectAllocationInstallationService {
@@ -35,24 +39,39 @@ class ProjectAllocationInstallationServiceImpl implements ProjectAllocationInsta
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectAllocationInstallation> findAll(String communityId, String projectId) {
+		return projectAllocationInstallationRepository.findAll(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ProjectAllocationInstallation> findAll(String projectId) {
 		return projectAllocationInstallationRepository.findAll(projectId);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void create(String communityId, ProjectAllocationInstallation projectAllocationInstallation, ProjectAllocationResolved projectAllocationResolved) {
+	public void createAllocation(String communityId, ProjectAllocationInstallation projectAllocationInstallation, ProjectAllocationResolved projectAllocationResolved) {
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
 		siteAgentProjectAllocationInstallationService.allocateProject(projectAllocationInstallation.correlationId, projectAllocationResolved);
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void delete(String communityId, String id) {
-		projectAllocationInstallationRepository.delete(id);
-		LOG.info("ProjectAllocationInstallation with given ID {} was deleted", id);
+	public void createDeallocation(String communityId, ProjectAllocationResolved projectAllocationResolved) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		ProjectDeallocation projectDeallocation = ProjectDeallocation.builder()
+			.siteId(projectAllocationResolved.site.getId())
+			.correlationId(correlationId)
+			.projectAllocationId(projectAllocationResolved.projectId)
+			.status(ProjectDeallocationStatus.PENDING)
+			.build();
+		projectAllocationInstallationRepository.create(projectDeallocation);
+		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
+		LOG.info("ProjectDeallocation was created: {}", projectDeallocation);
 	}
 }

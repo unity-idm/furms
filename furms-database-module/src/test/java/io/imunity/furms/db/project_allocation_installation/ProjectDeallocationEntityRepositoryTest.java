@@ -39,12 +39,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTest {
+class ProjectDeallocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -64,7 +64,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
-	private ProjectAllocationInstallationEntityRepository entityRepository;
+	private ProjectDeallocationEntityRepository entityRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
@@ -187,10 +187,10 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldCreateProjectAllocationInstallation() {
+	void shouldCreateProjectDeallocation() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity entityToSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity entityToSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
@@ -198,11 +198,11 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.build();
 
 		//when
-		ProjectAllocationInstallationEntity saved = entityRepository.save(entityToSave);
+		ProjectDeallocationEntity saved = entityRepository.save(entityToSave);
 
 		//then
 		assertThat(entityRepository.findAll()).hasSize(1);
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(saved.getId());
+		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
 		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
@@ -210,10 +210,10 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldUpdateProjectAllocationInstallation() {
+	void shouldUpdateProjectDeallocation() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity entityToSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity entityToSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
@@ -221,9 +221,9 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.build();
 
 		//when
-		ProjectAllocationInstallationEntity save = entityRepository.save(entityToSave);
+		ProjectDeallocationEntity save = entityRepository.save(entityToSave);
 
-		ProjectAllocationInstallationEntity entityToUpdate = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity entityToUpdate = ProjectDeallocationEntity.builder()
 			.id(save.getId())
 			.correlationId(save.correlationId)
 			.siteId(save.siteId)
@@ -234,7 +234,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		entityRepository.save(entityToUpdate);
 
 		//then
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(entityToSave.getId());
+		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
 		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getValue());
@@ -242,10 +242,10 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldFindCreatedProjectAllocationInstallation() {
+	void shouldFindCreatedProjectDeallocation() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
@@ -255,17 +255,17 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		entityRepository.save(toSave);
 
 		//when
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(toSave.getId());
+		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(toSave.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindCreatedProjectAllocationInstallationByCorrelationId() {
+	void shouldFindCreatedProjectDeallocationByCorrelationId() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toFind = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toFind = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
@@ -273,27 +273,27 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.build();
 
 		entityRepository.save(toFind);
-		ProjectAllocationInstallationEntity findById = entityRepository.findByCorrelationId(correlationId).get();
+		ProjectDeallocationEntity findById = entityRepository.findByCorrelationId(correlationId).get();
 
 		//when
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(findById.getId());
+		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(findById.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindAllAvailableProjectAllocationInstallation() {
+	void shouldFindAllAvailableProjectDeallocation() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
 				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave1 = ProjectDeallocationEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectAllocationId(projectAllocationId2)
@@ -304,17 +304,17 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		entityRepository.save(toSave1);
 
 		//when
-		Iterable<ProjectAllocationInstallationEntity> all = entityRepository.findAll();
+		Iterable<ProjectDeallocationEntity> all = entityRepository.findAll();
 
 		//then
 		assertThat(all).hasSize(2);
 	}
 
 	@Test
-	void shouldDeleteProjectAllocationInstallation() {
+	void shouldDeleteProjectDeallocation() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId2)
 				.projectAllocationId(projectAllocationId2)
@@ -330,17 +330,17 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldDeleteAllProjectAllocationInstallations() {
+	void shouldDeleteAllProjectDeallocations() {
 		//given
 		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave = ProjectDeallocationEntity.builder()
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
 				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
+		ProjectDeallocationEntity toSave1 = ProjectDeallocationEntity.builder()
 			.correlationId(correlationId1)
 			.siteId(siteId2)
 			.projectAllocationId(projectAllocationId2)

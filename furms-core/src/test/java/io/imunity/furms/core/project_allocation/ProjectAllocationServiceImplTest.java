@@ -152,6 +152,7 @@ class ProjectAllocationServiceImplTest {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(ProjectAllocationResolved.builder().build()));
 
 		//when
 		service.delete("projectId", id);

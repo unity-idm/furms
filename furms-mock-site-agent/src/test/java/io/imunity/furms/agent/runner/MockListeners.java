@@ -170,6 +170,12 @@ class MockListeners {
 	}
 
 	@EventListener
+	public void receiveAgentProjectDeallocationRequest(Payload<AgentProjectDeallocationRequest> payload) {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectDeallocationRequestAck()));
+	}
+
+	@EventListener
 	public void receiveUserProjectRemovalRequest(Payload<UserProjectRemovalRequest> payload) throws InterruptedException {
 		Header header = getHeader(payload.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new UserProjectRemovalRequestAck()));

@@ -7,6 +7,7 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -30,10 +31,15 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status) {
-		projectAllocationInstallationRepository.findByCorrelationId(correlationId).ifPresent(job -> {
-			projectAllocationInstallationRepository.update(job.id, status);
-			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", job.id, status);
-		});
+		projectAllocationInstallationRepository.update(correlationId.id, status);
+		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
+	}
+
+	@Override
+	@Transactional
+	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status) {
+		projectAllocationInstallationRepository.update(correlationId.id, status);
+		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
 	@Override

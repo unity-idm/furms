@@ -7,10 +7,10 @@ package io.imunity.furms.domain.project_allocation_installation;
 
 import java.util.Arrays;
 
-public enum ProjectAllocationInstallationStatus {
-	PENDING(0), ACKNOWLEDGED(1), INSTALLED(2), FAILED(3);
+public enum ProjectDeallocationStatus {
+	PENDING(0), ACKNOWLEDGED(1), FAILED(2);
 
-	ProjectAllocationInstallationStatus(int value) {
+	ProjectDeallocationStatus(int value) {
 		this.value = value;
 	}
 
@@ -20,7 +20,7 @@ public enum ProjectAllocationInstallationStatus {
 		return value;
 	}
 
-	public static ProjectAllocationInstallationStatus valueOf(int status){
+	public static ProjectDeallocationStatus valueOf(int status){
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getValue() == status)
 			.findAny()

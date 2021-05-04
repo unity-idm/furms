@@ -13,21 +13,21 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.ui.components.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -71,7 +71,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Grid<ProjectAllocationGridModel> createCommunityGrid() {
 		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
 
-		grid.addColumn(ProjectAllocationGridModel::getSiteName)
+		grid.addComponentColumn(allocation -> {
+			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+			return new Div(icon, new Label(allocation.getSiteName()));
+		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
 			.setSortable(true);
 		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectAllocationFormView.class, c.id))
@@ -85,52 +88,23 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
-		grid.addComponentColumn(this::createLastColumnContent)
+		grid.addColumn(c -> {
+			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.get(c.id);
+			return projectAllocationInstallations.stream()
+				.map(x -> x.status)
+				.max(comparing(ProjectAllocationInstallationStatus::getValue))
+				.orElse(null);
+		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
+			.setSortable(true);
+		grid.addComponentColumn(this::createLastColumnContent)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
 			.setTextAlign(ColumnTextAlign.END);
 
-		grid.setItemDetailsRenderer(new ComponentRenderer<>(this::additionalInfoComponent));
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(x -> ProjectAllocationDetailsComponentFactory.create(groupedProjectAllocations.get(x.id))));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
-	}
-
-	private Component additionalInfoComponent(ProjectAllocationGridModel model) {
-		Element tableElement = new Element("table");
-		tableElement.getStyle().set("width", "90%");
-		tableElement.getStyle().set("text-align", "left");
-		Element thead = new Element("thead");
-
-		Element theadRow = new Element("tr");
-		Element amountHeader = new Element("th");
-		amountHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.1"));
-		Element receivedHeader = new Element("th");
-		receivedHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.2"));
-		Element validFromHeader = new Element("th");
-		validFromHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.3"));
-		Element validToHeader = new Element("th");
-		validToHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.4"));
-		theadRow.appendChild(amountHeader, receivedHeader, validFromHeader, validToHeader);
-		thead.appendChild(theadRow);
-
-		Element tbody = new Element("tbody");
-		for(ProjectAllocationInstallation installation: groupedProjectAllocations.get(model.id)){
-			Element row = new Element("tr");
-			Element amountField = new Element("td");
-			amountField.setText(Optional.ofNullable(installation.amount).map(Object::toString).orElse(""));
-			Element receivedField = new Element("td");
-			receivedField.setText(Optional.ofNullable(installation.receivedTime).map(Object::toString).orElse(""));
-			Element validFrom = new Element("td");
-			validFrom.setText(Optional.ofNullable(installation.validFrom).map(Object::toString).orElse(""));
-			Element validTo = new Element("td");
-			validTo.setText(Optional.ofNullable(installation.validTo).map(Object::toString).orElse(""));
-			row.appendChild(amountField, receivedField, validFrom, validTo);
-			tbody.appendChild(row);
-		}
-		tableElement.appendChild(thead, tbody);
-		Div div = new Div();
-		div.getElement().appendChild(tableElement);
-		return div;
 	}
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {

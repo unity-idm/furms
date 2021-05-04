@@ -109,6 +109,12 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ProjectAllocationInstallation> findAllInstallations(String projectId) {
+		return projectAllocationInstallationService.findAll(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
@@ -155,9 +161,9 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 			.correlationId(correlationId)
 			.siteId(projectAllocationResolved.site.getId())
 			.projectAllocationId(projectAllocationId)
-			.status(ProjectAllocationInstallationStatus.SENT)
+			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build();
-		projectAllocationInstallationService.create(communityId, projectAllocationInstallation, projectAllocationResolved);
+		projectAllocationInstallationService.createAllocation(communityId, projectAllocationInstallation, projectAllocationResolved);
 	}
 
 	@Override
@@ -175,7 +181,9 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String communityId, String id) {
 		validator.validateDelete(communityId, id);
+		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
 		projectAllocationRepository.delete(id);
+		projectAllocationInstallationService.createDeallocation(communityId, projectAllocationResolved);
 		publisher.publishEvent(new RemoveProjectAllocationEvent(id));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);
 	}

@@ -12,6 +12,7 @@ import java.util.Set;
 
 public interface ProjectAllocationInstallationService {
 	Set<ProjectAllocationInstallation> findAll(String communityId, String projectId);
-	void create(String communityId, ProjectAllocationInstallation projectAllocationInstallation, ProjectAllocationResolved projectAllocationResolved);
-	void delete(String communityId, String id);
+	Set<ProjectAllocationInstallation> findAll(String projectId);
+	void createAllocation(String communityId, ProjectAllocationInstallation projectAllocationInstallation, ProjectAllocationResolved projectAllocationResolved);
+	void createDeallocation(String communityId, ProjectAllocationResolved projectAllocationResolved);
 }

@@ -154,6 +154,12 @@ public class SiteAgentMock {
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
+	@EventListener
+	public void receiveAgentProjectDeallocationRequest(Payload<AgentProjectDeallocationRequest> payload) {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectDeallocationRequestAck()));
+	}
+
 	private Header getHeader(Header header) {
 		return new Header(VERSION, header.messageCorrelationId, Status.OK, null);
 	}
