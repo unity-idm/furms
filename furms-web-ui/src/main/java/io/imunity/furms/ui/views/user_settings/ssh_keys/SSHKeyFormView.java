@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -50,12 +51,13 @@ class SSHKeyFormView extends FurmsViewComponent {
 	private final AuthzService authzService;
 	private BreadCrumbParameter breadCrumbParameter;
 	private ZoneId zoneId;
-
+	private SiteComboBoxModelResolver resolver;
+	
 	SSHKeyFormView(SSHKeyService sshKeysService, SiteService siteService, AuthzService authzService) {
 
 		this.sshKeyService = sshKeysService;
 		this.authzService = authzService;
-		SiteComboBoxModelResolver resolver = new SiteComboBoxModelResolver(siteService.findAll());
+		this.resolver = new SiteComboBoxModelResolver(siteService.findAll());
 		this.sshKeyComponent = new SSHKeyFormComponent(binder, resolver, sshKeysService);
 		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
 			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
@@ -116,10 +118,18 @@ class SSHKeyFormView extends FurmsViewComponent {
 		} catch (UserWithoutFenixIdValidationError e) {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
-		} catch (Exception e) {
+			return;
+		} catch (SSHKeyHistoryException e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("view.user-settings.ssh-keys.history.error.message", resolver.getName(e.siteId)));
+			return;	
+		}
+		catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
+			return;
 		}
+		UI.getCurrent().navigate(SSHKeysView.class);
 	}
 
 	@Override
