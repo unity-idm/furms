@@ -51,6 +51,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -251,6 +252,22 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
+
+		try {
+			sshKeysService.assertIsEligibleToManageKeys();
+		} catch (UserWithoutFenixIdValidationError e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+			setVisible(false);
+			return;
+		} catch (AccessDeniedException e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(
+					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
+			setVisible(false);
+			return;
+		}
+
 		loadGridContent();
 	}
 
@@ -263,7 +280,8 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 					.collect(toList());
 		} catch (AccessDeniedException e) {
 			LOG.error(e.getMessage(), e);
-			showErrorNotification(getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
+			showErrorNotification(
+					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

@@ -147,6 +147,7 @@ public class SSHKeyServiceValidator {
 						"Invalid SSH key: there are uncompleted key operations"));
 	}
 
+
 	public void validateHistory(Site site, SSHKey sshKey) {
 		if (site.getSshKeyHistoryLength() == null || site.getSshKeyHistoryLength().equals(0))
 			return;
@@ -154,6 +155,12 @@ public class SSHKeyServiceValidator {
 		assertTrue(sshKeyHistoryRepository.findLastBySSHKeyIdLimitTo(site.getId(), site.getSshKeyHistoryLength())
 				.stream().filter(h -> h.sshkeyFingerprint.equals(fingerprint)).findAny().isEmpty(),
 				() -> new SSHKeyHistoryException("Invalid SSH key: The key does not meet the history requirements", site.getId()));
-		
+	}
+	
+	void assertIsEligibleToManageKeys() {
+		validateFenixId(authzService.getCurrentAuthNUser().id.get());
 	}
 }
+
+
+

@@ -328,4 +328,10 @@ class SSHKeyServiceImpl implements SSHKeyService {
 					&& Objects.equals(toUpdate, other.toUpdate);
 		}
 	}
+
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	public void assertIsEligibleToManageKeys() {
+		validator.assertIsEligibleToManageKeys();
+	}
 }
