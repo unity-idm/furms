@@ -148,7 +148,7 @@ public class SSHKeyServiceValidator {
 	}
 
 
-	public void validateHistory(Site site, SSHKey sshKey) {
+	void validateHistory(Site site, SSHKey sshKey) {
 		if (site.getSshKeyHistoryLength() == null || site.getSshKeyHistoryLength().equals(0))
 			return;
 		String fingerprint = sshKey.getFingerprint();	
