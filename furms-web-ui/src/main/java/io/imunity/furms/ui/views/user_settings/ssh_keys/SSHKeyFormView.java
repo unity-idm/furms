@@ -106,7 +106,6 @@ class SSHKeyFormView extends FurmsViewComponent {
 		SSHKeyUpdateModel sshKeyUpdateModel = binder.getBean();
 
 		try {
-
 			if (sshKeyUpdateModel.id == null) {
 				sshKeyService.create(SSHKeyViewModelMapper.map(sshKeyUpdateModel));
 			} else {
@@ -120,6 +119,8 @@ class SSHKeyFormView extends FurmsViewComponent {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 		}
+		
+		UI.getCurrent().navigate(SSHKeysView.class);
 	}
 
 	@Override
