@@ -11,7 +11,7 @@ import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Mock
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Mock

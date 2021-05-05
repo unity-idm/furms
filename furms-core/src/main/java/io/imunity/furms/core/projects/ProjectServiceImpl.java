@@ -8,6 +8,7 @@ package io.imunity.furms.core.projects;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.projects.*;
@@ -46,17 +47,20 @@ class ProjectServiceImpl implements ProjectService {
 	private final AuthzService authzService;
 	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
+	private final ProjectInstallationService projectInstallationService;
 
 
 	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
 	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher,
-	                          AuthzService authzService, UserOperationService userOperationService) {
+	                          AuthzService authzService, UserOperationService userOperationService,
+	                          ProjectInstallationService projectInstallationService) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.authzService = authzService;
+		this.projectInstallationService = projectInstallationService;
 		this.userOperationService = userOperationService;
 	}
 
@@ -98,6 +102,7 @@ class ProjectServiceImpl implements ProjectService {
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
 		addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
+		updateInAgent(project);
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", project);
 	}
@@ -122,8 +127,15 @@ class ProjectServiceImpl implements ProjectService {
 			.build();
 		projectRepository.update(updatedProject);
 		projectGroupsDAO.update(new ProjectGroup(updatedProject.getId(), updatedProject.getName(), updatedProject.getCommunityId()));
+		updateInAgent(project);
 		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
 		LOG.info("Project was updated {}", attributes);
+	}
+
+	private void updateInAgent(Project project) {
+		if(projectInstallationService.existsByProjectId(project.getCommunityId(), project.getId())) {
+			projectInstallationService.update(project.getCommunityId(), project);
+		}
 	}
 
 	@Override
@@ -131,10 +143,17 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String projectId, String communityId) {
 		validator.validateDelete(projectId);
+		removeFromAgent(communityId, projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
 		publisher.publishEvent(new RemoveProjectEvent(projectId));
 		LOG.info("Project with given ID: {} was deleted", projectId);
+	}
+
+	private void removeFromAgent(String communityId, String projectId) {
+		if(projectInstallationService.existsByProjectId(communityId, projectId)) {
+			projectInstallationService.remove(communityId, projectId);
+		}
 	}
 
 	@Override

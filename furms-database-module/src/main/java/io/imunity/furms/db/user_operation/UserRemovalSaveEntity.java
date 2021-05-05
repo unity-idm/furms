@@ -119,7 +119,7 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 		}
 
 		public UserAdditionEntityBuilder status(UserRemovalStatus status) {
-			this.status = status.getValue();
+			this.status = status.getPersistentId();
 			return this;
 		}
 

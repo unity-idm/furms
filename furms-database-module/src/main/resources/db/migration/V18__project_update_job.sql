@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-CREATE TABLE project_installation_job (
+CREATE TABLE project_update_job (
     id UUID PRIMARY KEY NOT NULL,
     correlation_Id UUID NOT NULL,
     site_Id UUID NOT NULL,

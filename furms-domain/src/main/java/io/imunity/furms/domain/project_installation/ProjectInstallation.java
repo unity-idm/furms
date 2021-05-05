@@ -86,18 +86,18 @@ public class ProjectInstallation {
 	}
 
 	public static final class ProjectInstallationBuilder {
-		public String id;
-		public String siteId;
-		public String siteExternalId;
-		public String name;
-		public String description;
-		public String communityId;
-		public String communityName;
-		public String acronym;
-		public String researchField;
-		public LocalDateTime validityStart;
-		public LocalDateTime validityEnd;
-		public FURMSUser leader;
+		private String id;
+		private String siteId;
+		private String siteExternalId;
+		private String name;
+		private String description;
+		private String communityId;
+		private String communityName;
+		private String acronym;
+		private String researchField;
+		private LocalDateTime validityStart;
+		private LocalDateTime validityEnd;
+		private FURMSUser leader;
 
 		private ProjectInstallationBuilder() {
 		}

@@ -14,7 +14,6 @@ import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -32,7 +31,6 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
 
 @Service
 class ProjectAllocationServiceImpl implements ProjectAllocationService {
@@ -137,14 +135,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
 		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
 			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
-			CorrelationId correlationId = CorrelationId.randomID();
-			ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
-				.correlationId(correlationId)
-				.siteId(projectInstallation.siteId)
-				.projectId(projectAllocation.projectId)
-				.status(SENT)
-				.build();
-			projectInstallationService.create(communityId, projectInstallationJob, projectInstallation);
+			projectInstallationService.create(communityId, projectAllocation.projectId, projectInstallation);
 		}
 	}
 

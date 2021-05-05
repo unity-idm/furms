@@ -7,10 +7,10 @@ package io.imunity.furms.domain.project_installation;
 
 import java.util.Arrays;
 
-public enum ProjectInstallationStatus {
-	PENDING(0), ACKNOWLEDGED(1), INSTALLED(2), FAILED(3);
+public enum ProjectUpdateStatus {
+	PENDING(0), ACKNOWLEDGED(1), UPDATED(2), FAILED(3);
 
-	ProjectInstallationStatus(int persistentId) {
+	ProjectUpdateStatus(int persistentId) {
 		this.persistentId = persistentId;
 	}
 
@@ -20,7 +20,7 @@ public enum ProjectInstallationStatus {
 		return persistentId;
 	}
 
-	public static ProjectInstallationStatus valueOf(int status){
+	public static ProjectUpdateStatus valueOf(int status){
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()

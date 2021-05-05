@@ -5,22 +5,22 @@
 
 package io.imunity.furms.core.project_installation;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.spi.project_installation.ProjectInstallationRepository;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
 class ProjectInstallationMessageResolverTest {
 	@Mock
-	private ProjectInstallationRepository repository;
+	private ProjectOperationRepository repository;
 
 	private ProjectInstallationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -32,7 +32,6 @@ class ProjectInstallationMessageResolverTest {
 		orderVerifier = inOrder(repository);
 	}
 
-
 	@Test
 	void shouldUpdateProjectInstallation() {
 		//given
@@ -40,14 +39,32 @@ class ProjectInstallationMessageResolverTest {
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 				.id("id")
 				.correlationId(id)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
-		when(repository.findByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.updateStatus(id, SENT);
+		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		service.update(id, new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, null));
 
 		//then
-		orderVerifier.verify(repository).update("id", SENT);
+		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED);
+	}
+
+	@Test
+	void shouldUpdateProjectUpdate() {
+		//given
+		CorrelationId id = new CorrelationId("id");
+		ProjectUpdateJob projectInstallationJob = ProjectUpdateJob.builder()
+			.id("id")
+			.correlationId(id)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		//when
+		when(repository.findUpdateJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		service.update(id, new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, null));
+
+		//then
+		orderVerifier.verify(repository).update("id", ProjectUpdateStatus.UPDATED);
 	}
 }

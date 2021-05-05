@@ -5,16 +5,13 @@
 
 package io.imunity.furms.domain.project_installation;
 
-import java.util.Map;
 import java.util.Objects;
 
-public class ProjectInstallationResult {
-	public final Map<String, String> attributes;
-	public final ProjectInstallationStatus status;
+public class ProjectUpdateResult {
+	public final ProjectUpdateStatus status;
 	public final Error error;
 
-	public ProjectInstallationResult(Map<String, String> attributes, ProjectInstallationStatus status, Error error) {
-		this.attributes = attributes;
+	public ProjectUpdateResult(ProjectUpdateStatus status, Error error) {
 		this.status = status;
 		this.error = error;
 	}
@@ -23,21 +20,19 @@ public class ProjectInstallationResult {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectInstallationResult that = (ProjectInstallationResult) o;
-		return Objects.equals(attributes, that.attributes) &&
-			status == that.status &&
+		ProjectUpdateResult that = (ProjectUpdateResult) o;
+		return status == that.status &&
 			Objects.equals(error, that.error);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(attributes, status, error);
+		return Objects.hash(status, error);
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectInstallationResult{" +
-			"attributes=" + attributes +
+		return "ProjectUpdateResult{" +
 			", status=" + status +
 			", error=" + error +
 			'}';

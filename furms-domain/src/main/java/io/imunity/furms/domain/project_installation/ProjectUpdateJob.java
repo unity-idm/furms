@@ -9,14 +9,14 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 
 import java.util.Objects;
 
-public class ProjectInstallationJob {
+public class ProjectUpdateJob {
 	public final String id;
 	public final String siteId;
 	public final String projectId;
 	public final CorrelationId correlationId;
-	public final ProjectInstallationStatus status;
+	public final ProjectUpdateStatus status;
 
-	ProjectInstallationJob(String id, String siteId, String projectId, CorrelationId correlationId, ProjectInstallationStatus status) {
+	ProjectUpdateJob(String id, String siteId, String projectId, CorrelationId correlationId, ProjectUpdateStatus status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -28,7 +28,7 @@ public class ProjectInstallationJob {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectInstallationJob that = (ProjectInstallationJob) o;
+		ProjectUpdateJob that = (ProjectUpdateJob) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
@@ -43,7 +43,7 @@ public class ProjectInstallationJob {
 
 	@Override
 	public String toString() {
-		return "ProjectInstallationJob{" +
+		return "ProjectUpdateStatus{" +
 			"id='" + id + '\'' +
 			", siteId='" + siteId + '\'' +
 			", projectId='" + projectId + '\'' +
@@ -52,47 +52,47 @@ public class ProjectInstallationJob {
 			'}';
 	}
 
-	public static ProjectInstallationJobBuilder builder() {
-		return new ProjectInstallationJobBuilder();
+	public static ProjectUpdateJobBuilder builder() {
+		return new ProjectUpdateJobBuilder();
 	}
 
-	public static final class ProjectInstallationJobBuilder {
+	public static final class ProjectUpdateJobBuilder {
 		private String id;
 		private String siteId;
 		private String projectId;
 		private CorrelationId correlationId;
-		private ProjectInstallationStatus status;
+		private ProjectUpdateStatus status;
 
-		private ProjectInstallationJobBuilder() {
+		private ProjectUpdateJobBuilder() {
 		}
 
-		public ProjectInstallationJobBuilder id(String id) {
+		public ProjectUpdateJobBuilder id(String id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder siteId(String siteId) {
+		public ProjectUpdateJobBuilder siteId(String siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder projectId(String projectId) {
+		public ProjectUpdateJobBuilder projectId(String projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder correlationId(CorrelationId correlationId) {
+		public ProjectUpdateJobBuilder correlationId(CorrelationId correlationId) {
 			this.correlationId = correlationId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder status(ProjectInstallationStatus status) {
+		public ProjectUpdateJobBuilder status(ProjectUpdateStatus status) {
 			this.status = status;
 			return this;
 		}
 
-		public ProjectInstallationJob build() {
-			return new ProjectInstallationJob(id, siteId, projectId, correlationId, status);
+		public ProjectUpdateJob build() {
+			return new ProjectUpdateJob(id, siteId, projectId, correlationId, status);
 		}
 	}
 }
