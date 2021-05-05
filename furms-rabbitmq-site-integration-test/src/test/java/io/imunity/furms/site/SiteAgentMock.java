@@ -68,9 +68,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult(
-				agentSSHKeyInstallationRequest.body.fenixUserId,
-				agentSSHKeyInstallationRequest.body.uid);
+		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 
@@ -82,8 +80,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult(
-				agentSSHKeyUpdatingRequest.body.fenixUserId, agentSSHKeyUpdatingRequest.body.uid);
+		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 
@@ -95,8 +92,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult(
-				agentSSHKeyRemovalRequest.body.fenixUserId, agentSSHKeyRemovalRequest.body.uid);
+		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 

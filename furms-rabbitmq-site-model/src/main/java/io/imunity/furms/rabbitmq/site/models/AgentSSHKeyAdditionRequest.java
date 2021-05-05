@@ -12,22 +12,19 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 @JsonTypeName("UserSSHKeyAddRequest")
-public class AgentSSHKeyAdditionRequest implements Body{
+public class AgentSSHKeyAdditionRequest implements Body {
 	public final String fenixUserId;
-	public final String uid;
 	public final String publicKey;
-	
-	@JsonCreator
-	public AgentSSHKeyAdditionRequest(String fenixUserId, String uid, String publicKey) {
 
+	@JsonCreator
+	public AgentSSHKeyAdditionRequest(String fenixUserId, String publicKey) {
 		this.fenixUserId = fenixUserId;
-		this.uid = uid;
 		this.publicKey = publicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, publicKey, uid);
+		return Objects.hash(fenixUserId, publicKey);
 	}
 
 	@Override
@@ -39,14 +36,13 @@ public class AgentSSHKeyAdditionRequest implements Body{
 		if (getClass() != obj.getClass())
 			return false;
 		AgentSSHKeyAdditionRequest other = (AgentSSHKeyAdditionRequest) obj;
-		return Objects.equals(fenixUserId, other.fenixUserId) && Objects.equals(publicKey, other.publicKey)
-				&& Objects.equals(uid, other.uid);
+		return Objects.equals(fenixUserId, other.fenixUserId) && Objects.equals(publicKey, other.publicKey);
 	}
 
 	@Override
 	public String toString() {
-		return "AgentSSHKeyInstallationRequest{" + "fenixUserId='" + fenixUserId + '\'' + ", uid='" + uid + '\''
-				+ ", publicKey='" + publicKey + "}";
+		return "AgentSSHKeyInstallationRequest{" + "fenixUserId='" + fenixUserId + ", publicKey='" + publicKey
+				+ "}";
 	}
 
 	public static SSHKeyAdditionRequestBuilder builder() {
@@ -56,7 +52,6 @@ public class AgentSSHKeyAdditionRequest implements Body{
 	@JsonPOJOBuilder(withPrefix = "")
 	public static final class SSHKeyAdditionRequestBuilder {
 		private String fenixUserId;
-		private String uid;
 		private String publicKey;
 
 		private SSHKeyAdditionRequestBuilder() {
@@ -67,18 +62,13 @@ public class AgentSSHKeyAdditionRequest implements Body{
 			return this;
 		}
 
-		public SSHKeyAdditionRequestBuilder uid(String uid) {
-			this.uid = uid;
-			return this;
-		}
-
 		public SSHKeyAdditionRequestBuilder publicKey(String publicKey) {
 			this.publicKey = publicKey;
 			return this;
 		}
 
 		public AgentSSHKeyAdditionRequest build() {
-			return new AgentSSHKeyAdditionRequest(fenixUserId, uid, publicKey);
+			return new AgentSSHKeyAdditionRequest(fenixUserId, publicKey);
 		}
 	}
 }
