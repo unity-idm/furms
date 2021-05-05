@@ -14,20 +14,18 @@ import io.imunity.furms.domain.users.FenixUserId;
 public class SSHKeyRemoval {
 	public final SiteExternalId siteExternalId;
 	public final FenixUserId user;
-	public final String userUid;
 	public final String publicKey;
 
-	SSHKeyRemoval(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
+	SSHKeyRemoval(SiteExternalId siteExternalId, FenixUserId user, String publicKey) {
 		
 		this.siteExternalId = siteExternalId;
 		this.user = user;
-		this.userUid = userUid;
 		this.publicKey = publicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(publicKey, siteExternalId, user, userUid);
+		return Objects.hash(publicKey, siteExternalId, user);
 	}
 
 	@Override
@@ -41,7 +39,7 @@ public class SSHKeyRemoval {
 		SSHKeyAddition other = (SSHKeyAddition) obj;
 		return Objects.equals(publicKey, other.publicKey)
 				&& Objects.equals(siteExternalId, other.siteExternalId)
-				&& Objects.equals(user, other.user) && Objects.equals(userUid, other.userUid);
+				&& Objects.equals(user, other.user);
 	}
 
 	public static Builder builder() {
@@ -51,7 +49,7 @@ public class SSHKeyRemoval {
 	public static final class Builder {
 		private SiteExternalId siteExternalId;
 		private FenixUserId user;
-		private String userUid;
+		
 		private String publicKey;
 
 		private Builder() {
@@ -67,18 +65,13 @@ public class SSHKeyRemoval {
 			return this;
 		}
 
-		public Builder userUid(String userUid) {
-			this.userUid = userUid;
-			return this;
-		}
-
 		public Builder publicKey(String publicKey) {
 			this.publicKey = publicKey;
 			return this;
 		}
 
 		public SSHKeyRemoval build() {
-			return new SSHKeyRemoval(siteExternalId, user, userUid, publicKey);
+			return new SSHKeyRemoval(siteExternalId, user, publicKey);
 		}
 	}
 }
