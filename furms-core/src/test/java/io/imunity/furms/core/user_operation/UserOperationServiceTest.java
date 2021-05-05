@@ -10,8 +10,10 @@ import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserRemoval;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -38,6 +40,8 @@ class UserOperationServiceTest {
 	private SiteRepository siteRepository;
 	@Mock
 	private UsersDAO usersDAO;
+	@Mock
+	private ProjectGroupsDAO projectGroupsDAO;
 
 	private UserOperationServiceImpl service;
 	private InOrder orderVerifier;
@@ -45,7 +49,7 @@ class UserOperationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationServiceImpl(repository, siteAgentUserService, siteRepository, usersDAO);
+		service = new UserOperationServiceImpl(repository, siteAgentUserService, siteRepository, projectGroupsDAO, usersDAO);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 
@@ -73,6 +77,10 @@ class UserOperationServiceTest {
 		PersistentId userId = new PersistentId("userId");
 		UserAddition userAddition = UserAddition.builder().build();
 
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.email("email")
+			.fenixUserId(new FenixUserId("userId"))
+			.build()));
 		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
 		service.createUserRemovals(projectId, userId);
 

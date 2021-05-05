@@ -128,7 +128,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString() ,"userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isTrue();
 	}
 
@@ -145,7 +145,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isTrue();
 	}
 
@@ -174,7 +174,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isFalse();
 	}
 

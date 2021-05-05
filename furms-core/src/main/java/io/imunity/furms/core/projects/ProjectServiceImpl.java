@@ -234,8 +234,8 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
 	public void removeUser(String communityId, String projectId, PersistentId userId){
-		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		userOperationService.createUserRemovals(projectId, userId);
+		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 }
