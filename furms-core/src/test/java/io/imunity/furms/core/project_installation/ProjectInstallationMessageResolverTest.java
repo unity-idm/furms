@@ -44,7 +44,7 @@ class ProjectInstallationMessageResolverTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, ProjectInstallationStatus.ACKNOWLEDGED);
+		service.update(id, new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, null));
 
 		//then
 		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED);
@@ -62,27 +62,9 @@ class ProjectInstallationMessageResolverTest {
 
 		//when
 		when(repository.findUpdateJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, ProjectUpdateStatus.UPDATED);
+		service.update(id, new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, null));
 
 		//then
 		orderVerifier.verify(repository).update("id", ProjectUpdateStatus.UPDATED);
-	}
-
-	@Test
-	void shouldUpdateProjectRemoval() {
-		//given
-		CorrelationId id = new CorrelationId("id");
-		ProjectRemovalJob projectInstallationJob = ProjectRemovalJob.builder()
-			.id("id")
-			.correlationId(id)
-			.status(ProjectRemovalStatus.PENDING)
-			.build();
-
-		//when
-		when(repository.findRemovalJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, ProjectRemovalStatus.FAILED);
-
-		//then
-		orderVerifier.verify(repository).update("id", ProjectRemovalStatus.FAILED);
 	}
 }

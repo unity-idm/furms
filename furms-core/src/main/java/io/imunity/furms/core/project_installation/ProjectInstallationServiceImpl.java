@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService {
@@ -48,11 +50,13 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 		return projectOperationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
+	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public boolean existsByProjectId(String communityId, String projectId) {
 		return projectOperationRepository.existsByProjectId(projectId);
 	}
 
+	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void create(String communityId, String projectId, ProjectInstallation projectInstallation) {
@@ -70,6 +74,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "project.id")
 	public void update(String communityId, Project project) {
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
@@ -93,19 +98,13 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void remove(String communityId, String projectId) {
 		siteRepository.findByProjectId(projectId).forEach(siteId -> {
-			ProjectRemovalJob projectRemovalJob = ProjectRemovalJob.builder()
-				.correlationId(CorrelationId.randomID())
-				.siteId(siteId.id)
-				.projectId(projectId)
-				.status(ProjectRemovalStatus.PENDING)
-				.build();
-			projectOperationRepository.create(projectRemovalJob);
+			CorrelationId correlationId = CorrelationId.randomID();
 			siteAgentProjectOperationService.removeProject(
-				projectRemovalJob.correlationId,
+				correlationId,
 				siteId.externalId,
-				projectRemovalJob.projectId
+				projectId
 			);
-			LOG.info("ProjectRemovalJob was created: {}", projectRemovalJob);
+			LOG.info("ProjectRemovalJob was created: {}", correlationId);
 		});
 	}
 }

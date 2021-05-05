@@ -127,7 +127,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userAddition.projectId);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userAddition.correlationId.id);
 		assertThat(byId.get().uid).isEqualTo(userAddition.uid);
-		assertThat(byId.get().status).isEqualTo(userAddition.status.getValue());
+		assertThat(byId.get().status).isEqualTo(userAddition.status.getPersistentId());
 	}
 
 	@Test
@@ -161,7 +161,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userRemoval.projectId);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userRemoval.correlationId.id);
 		assertThat(byId.get().uid).isEqualTo(userRemoval.uid);
-		assertThat(byId.get().status).isEqualTo(userRemoval.status.getValue());
+		assertThat(byId.get().status).isEqualTo(userRemoval.status.getPersistentId());
 	}
 
 	@Test
@@ -190,7 +190,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId.toString()).isEqualTo(userAdditionSaveEntity.projectId.toString());
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userAdditionSaveEntity.correlationId.toString());
 		assertThat(byId.get().uid).isEqualTo("uid");
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ACKNOWLEDGED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ACKNOWLEDGED.getPersistentId());
 	}
 
 	@Test
@@ -209,7 +209,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(UUID.fromString(userAdditionSaveEntity.getId().toString()));
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getPersistentId());
 	}
 
 	@Test
@@ -241,6 +241,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(UUID.fromString(userRemovalSaveEntity.getId().toString()));
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getPersistentId());
 	}
 }

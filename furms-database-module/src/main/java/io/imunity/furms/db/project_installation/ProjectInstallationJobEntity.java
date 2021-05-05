@@ -61,11 +61,11 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 	}
 
 	public static final class ProjectInstallationJobEntityBuilder {
-		public UUID correlationId;
-		public UUID siteId;
-		public UUID projectId;
-		public int status;
-		protected UUID id;
+		private UUID id;
+		private UUID correlationId;
+		private UUID siteId;
+		private UUID projectId;
+		private int status;
 
 		private ProjectInstallationJobEntityBuilder() {
 		}
@@ -91,7 +91,7 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectInstallationJobEntityBuilder status(ProjectInstallationStatus status) {
-			this.status = status.getValue();
+			this.status = status.getPersistentId();
 			return this;
 		}
 

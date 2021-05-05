@@ -168,6 +168,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getPersistentId());
 	}
 }

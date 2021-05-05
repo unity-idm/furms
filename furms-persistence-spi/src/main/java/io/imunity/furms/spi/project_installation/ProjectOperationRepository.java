@@ -18,21 +18,17 @@ public interface ProjectOperationRepository {
 
 	ProjectUpdateJob findUpdateJobByCorrelationId(CorrelationId id);
 
-	ProjectRemovalJob findRemovalJobByCorrelationId(CorrelationId id);
-
 	ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter);
 
 	String create(ProjectInstallationJob projectInstallationJob);
 
 	String create(ProjectUpdateJob projectUpdateJob);
 
-	String create(ProjectRemovalJob projectRemovalJob);
-
 	String update(String id, ProjectInstallationStatus status);
 
 	String update(String id, ProjectUpdateStatus status);
 
-	String update(String id, ProjectRemovalStatus status);
-
 	boolean existsByProjectId(String projectId);
+
+	void deleteAll();
 }

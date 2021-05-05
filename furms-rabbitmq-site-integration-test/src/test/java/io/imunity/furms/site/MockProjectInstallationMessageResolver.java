@@ -5,29 +5,23 @@
 
 package io.imunity.furms.site;
 
-import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.project_installation.*;
 import org.springframework.stereotype.Service;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 
 @Service
 public class MockProjectInstallationMessageResolver implements ProjectInstallationMessageResolver {
 
+
 	@Override
-	public void update(CorrelationId correlationId, ProjectInstallationStatus status) {
+	public void update(CorrelationId correlationId, ProjectInstallationResult result) {
+
 	}
 
 	@Override
-	public void update(CorrelationId correlationId, ProjectUpdateStatus status) {
+	public void update(CorrelationId correlationId, ProjectUpdateResult result) {
 
 	}
-
-	@Override
-	public void update(CorrelationId correlationId, ProjectRemovalStatus status) {
-
-	}
-
 }

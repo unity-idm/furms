@@ -10,19 +10,19 @@ import java.util.Arrays;
 public enum UserRemovalStatus {
 	PENDING(0), ACKNOWLEDGED(1), REMOVED(2), FAILED(3);
 
-	UserRemovalStatus(int value) {
-		this.value = value;
+	UserRemovalStatus(int persistentId) {
+		this.persistentId = persistentId;
 	}
 
-	private final int value;
+	private final int persistentId;
 
-	public int getValue() {
-		return value;
+	public int getPersistentId() {
+		return persistentId;
 	}
 
 	public static UserRemovalStatus valueOf(int status){
 		return Arrays.stream(values())
-			.filter(userRemovalStatus -> userRemovalStatus.getValue() == status)
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
 			.orElse(null);
 	}

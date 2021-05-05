@@ -5,10 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
@@ -17,6 +15,8 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
@@ -24,11 +24,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.invoke.MethodHandles;
+
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
+import static java.util.Optional.ofNullable;
 
 @Service
 class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationService {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+
 	private final RabbitTemplate rabbitTemplate;
 	private final ProjectInstallationMessageResolver projectInstallationService;
 
@@ -39,59 +45,52 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 
 	@EventListener
 	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
-		if(ack.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectInstallationStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectInstallationStatus.ACKNOWLEDGED);
+		ProjectInstallationStatus status = ack.header.status.equals(Status.FAILED) ? ProjectInstallationStatus.FAILED : ProjectInstallationStatus.ACKNOWLEDGED;
+		ProjectInstallationResult projectInstallationResult = new ProjectInstallationResult(
+			null,
+			status,
+			new Error(ofNullable(ack.header.error).map(e -> e.code).orElse(null), ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
+		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), projectInstallationResult);
 	}
 
 	@EventListener
 	void receiveAgentProjectInstallationResult(Payload<AgentProjectInstallationResult> result) {
-		String correlationId = result.header.messageCorrelationId;
-		if(result.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(correlationId), ProjectInstallationStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(correlationId), ProjectInstallationStatus.INSTALLED);
+		ProjectInstallationStatus status = result.header.status.equals(Status.FAILED) ? ProjectInstallationStatus.FAILED : ProjectInstallationStatus.INSTALLED;
+		ProjectInstallationResult projectInstallationResult = new ProjectInstallationResult(
+			result.body.attributes,
+			status,
+			new Error(ofNullable(result.header.error).map(e -> e.code).orElse(null), ofNullable(result.header.error).map(e -> e.message).orElse(null)));
+		projectInstallationService.update(new CorrelationId(result.header.messageCorrelationId), projectInstallationResult);
 	}
 
 	@EventListener
 	void receiveAgentProjectUpdateAck(Payload<AgentProjectUpdateRequestAck> ack) {
-		if(ack.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectUpdateStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectUpdateStatus.ACKNOWLEDGED);
+		ProjectUpdateStatus status = ack.header.status.equals(Status.FAILED) ? ProjectUpdateStatus.FAILED : ProjectUpdateStatus.ACKNOWLEDGED;
+		ProjectUpdateResult projectInstallationResult = new ProjectUpdateResult(
+			status,
+			new Error(ofNullable(ack.header.error).map(e -> e.code).orElse(null), ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
+		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), projectInstallationResult);
 	}
 
 	@EventListener
 	void receiveAgentProjectUpdateResult(Payload<AgentProjectUpdateResult> result) {
-		String correlationId = result.header.messageCorrelationId;
-		if(result.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(correlationId), ProjectUpdateStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(correlationId), ProjectUpdateStatus.UPDATED);
+		ProjectUpdateStatus status = result.header.status.equals(Status.FAILED) ? ProjectUpdateStatus.FAILED : ProjectUpdateStatus.UPDATED;
+		ProjectUpdateResult projectInstallationResult = new ProjectUpdateResult(
+			status,
+			new Error(ofNullable(result.header.error).map(e -> e.code).orElse(null), ofNullable(result.header.error).map(e -> e.message).orElse(null)));
+		projectInstallationService.update(new CorrelationId(result.header.messageCorrelationId), projectInstallationResult);
 	}
 
 	@EventListener
 	void receiveAgentProjectRemovalRequestAck(Payload<AgentProjectRemovalRequestAck> ack) {
-		if(ack.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectRemovalStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), ProjectRemovalStatus.ACKNOWLEDGED);
+		ProjectRemovalStatus status = ack.header.status.equals(Status.FAILED) ? ProjectRemovalStatus.FAILED : ProjectRemovalStatus.ACKNOWLEDGED;
+		LOG.info("Project Removal Job status with correlation id {} is {}", ack.header.messageCorrelationId, status);
 	}
 
 	@EventListener
 	void receiveAgentProjectRemovalResult(Payload<AgentProjectRemovalResult> result) {
-		String correlationId = result.header.messageCorrelationId;
-		if(result.header.status.equals(Status.FAILED)){
-			projectInstallationService.update(new CorrelationId(correlationId), ProjectRemovalStatus.FAILED);
-			return;
-		}
-		projectInstallationService.update(new CorrelationId(correlationId), ProjectRemovalStatus.REMOVED);
+		ProjectRemovalStatus status = result.header.status.equals(Status.FAILED) ? ProjectRemovalStatus.FAILED : ProjectRemovalStatus.REMOVED;
+		LOG.info("Project Removal Job status with correlation id {} is {}", result.header.messageCorrelationId, status);
 	}
 
 	@Override

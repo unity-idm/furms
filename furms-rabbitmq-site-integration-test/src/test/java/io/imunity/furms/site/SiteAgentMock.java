@@ -14,7 +14,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
@@ -53,8 +52,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		String i = String.valueOf(new Random().nextInt(1000));
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", i));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", "1"));
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 

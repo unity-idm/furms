@@ -57,11 +57,11 @@ public class ProjectUpdateJob {
 	}
 
 	public static final class ProjectUpdateJobBuilder {
-		public String id;
-		public String siteId;
-		public String projectId;
-		public CorrelationId correlationId;
-		public ProjectUpdateStatus status;
+		private String id;
+		private String siteId;
+		private String projectId;
+		private CorrelationId correlationId;
+		private ProjectUpdateStatus status;
 
 		private ProjectUpdateJobBuilder() {
 		}

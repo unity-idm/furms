@@ -5,13 +5,11 @@
 
 package io.imunity.furms.site.api.message_resolver;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.project_installation.ProjectRemovalStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
 public interface ProjectInstallationMessageResolver {
-	void update(CorrelationId correlationId, ProjectInstallationStatus status);
-	void update(CorrelationId correlationId, ProjectUpdateStatus status);
-	void update(CorrelationId correlationId, ProjectRemovalStatus status);
+	void update(CorrelationId correlationId, ProjectInstallationResult result);
+	void update(CorrelationId correlationId, ProjectUpdateResult result);
 }

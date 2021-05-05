@@ -15,7 +15,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,11 +95,6 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		projectId2 = UUID.fromString(projectRepository.create(project2));
 	}
 
-	@AfterEach
-	void clean(){
-		entityRepository.deleteAll();
-	}
-
 	@Test
 	void shouldCreateProjectInstallationJob() {
 		//given
@@ -120,7 +114,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -152,7 +146,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getValue());
+		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 

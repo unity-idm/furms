@@ -17,7 +17,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +44,6 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	private ProjectInstallationJobEntityRepository installationRepository;
 	@Autowired
 	private ProjectUpdateJobEntityRepository updateRepository;
-	@Autowired
-	private ProjectRemovalJobEntityRepository removalRepository;
 
 	@Autowired
 	private ProjectOperationJobDatabaseRepository entityDatabaseRepository;
@@ -82,11 +79,6 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		projectId = UUID.fromString(projectRepository.create(project));
 	}
 
-	@AfterEach
-	void clean(){
-		installationRepository.deleteAll();
-	}
-
 	@Test
 	void shouldCreateProjectInstallationJob() {
 		//given
@@ -106,7 +98,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 	}
 
 	@Test
@@ -130,7 +122,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(INSTALLED.getValue());
+		assertThat(byId.get().status).isEqualTo(INSTALLED.getPersistentId());
 	}
 
 	@Test
@@ -152,7 +144,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 	}
 
 	@Test
@@ -176,53 +168,6 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(ProjectUpdateStatus.UPDATED.getValue());
-	}
-
-
-	@Test
-	void shouldCreateProjectRemovalJob() {
-		//given
-		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-		ProjectRemovalJob request = ProjectRemovalJob.builder()
-			.correlationId(correlationId)
-			.siteId(siteId.toString())
-			.projectId(projectId.toString())
-			.status(ProjectRemovalStatus.PENDING)
-			.build();
-
-		//when
-		String id = entityDatabaseRepository.create(request);
-
-		//then
-		Optional<ProjectRemovalJobEntity> byId = removalRepository.findById(UUID.fromString(id));
-		assertThat(byId).isPresent();
-		assertThat(byId.get().getId().toString()).isEqualTo(id);
-		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
-	}
-
-	@Test
-	void shouldUpdateProjectRemovalJob() {
-		//given
-		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
-		ProjectRemovalJob request = ProjectRemovalJob.builder()
-			.id("id")
-			.correlationId(correlationId)
-			.siteId(siteId.toString())
-			.projectId(projectId.toString())
-			.status(ProjectRemovalStatus.PENDING)
-			.build();
-
-		//when
-		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, ProjectRemovalStatus.REMOVED);
-
-		//then
-		Optional<ProjectRemovalJobEntity> byId = removalRepository.findById(UUID.fromString(id));
-		assertThat(byId).isPresent();
-		assertThat(byId.get().getId().toString()).isEqualTo(id);
-		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(byId.get().status).isEqualTo(ProjectRemovalStatus.REMOVED.getValue());
+		assertThat(byId.get().status).isEqualTo(ProjectUpdateStatus.UPDATED.getPersistentId());
 	}
 }

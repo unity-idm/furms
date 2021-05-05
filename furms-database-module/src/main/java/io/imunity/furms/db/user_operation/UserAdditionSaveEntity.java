@@ -109,7 +109,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		}
 
 		public UserAdditionEntityBuilder status(UserAdditionStatus status) {
-			this.status = status.getValue();
+			this.status = status.getPersistentId();
 			return this;
 		}
 

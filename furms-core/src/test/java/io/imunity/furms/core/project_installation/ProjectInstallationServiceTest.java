@@ -7,7 +7,6 @@ package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.domain.project_installation.ProjectRemovalJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -87,16 +86,5 @@ class ProjectInstallationServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(ProjectUpdateJob.class));
 		orderVerifier.verify(siteAgentProjectOperationService).updateProject(any(), any(), any(), any());
-	}
-
-	@Test
-	void shouldCreateProjectRemoval() {
-		//when
-		when(siteRepository.findByProjectId("projectId")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
-		service.remove("communityId", "projectId");
-
-		//then
-		orderVerifier.verify(repository).create(any(ProjectRemovalJob.class));
-		orderVerifier.verify(siteAgentProjectOperationService).removeProject(any(), any(), any());
 	}
 }

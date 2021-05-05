@@ -26,23 +26,16 @@ class ProjectInstallationMessageResolverImpl implements ProjectInstallationMessa
 	}
 
 	@Override
-	public void update(CorrelationId correlationId, ProjectInstallationStatus status) {
+	public void update(CorrelationId correlationId, ProjectInstallationResult result) {
 		ProjectInstallationJob job = projectOperationRepository.findInstallationJobByCorrelationId(correlationId);
-		projectOperationRepository.update(job.id, status);
-		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, status);
+		projectOperationRepository.update(job.id, result.status);
+		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, result.status);
 	}
 
 	@Override
-	public void update(CorrelationId correlationId, ProjectUpdateStatus status) {
+	public void update(CorrelationId correlationId, ProjectUpdateResult result) {
 		ProjectUpdateJob job = projectOperationRepository.findUpdateJobByCorrelationId(correlationId);
-		projectOperationRepository.update(job.id, status);
-		LOG.info("ProjectUpdate status with given id {} was updated to {}", job.id, status);
-	}
-
-	@Override
-	public void update(CorrelationId correlationId, ProjectRemovalStatus status) {
-		ProjectRemovalJob job = projectOperationRepository.findRemovalJobByCorrelationId(correlationId);
-		projectOperationRepository.update(job.id, status);
-		LOG.info("ProjectRemoval status with given id {} was updated to {}", job.id, status);
+		projectOperationRepository.update(job.id, result.status);
+		LOG.info("ProjectUpdate status with given id {} was updated to {}", job.id, result.status);
 	}
 }

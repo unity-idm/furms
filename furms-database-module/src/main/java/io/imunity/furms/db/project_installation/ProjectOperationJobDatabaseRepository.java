@@ -20,13 +20,11 @@ import java.util.function.Function;
 class ProjectOperationJobDatabaseRepository implements ProjectOperationRepository {
 	private final ProjectInstallationJobEntityRepository installationRepository;
 	private final ProjectUpdateJobEntityRepository updateRepository;
-	private final ProjectRemovalJobEntityRepository removalRepository;
 
 	ProjectOperationJobDatabaseRepository(ProjectInstallationJobEntityRepository installationRepository,
-	                                      ProjectUpdateJobEntityRepository updateRepository, ProjectRemovalJobEntityRepository removalRepository) {
+	                                      ProjectUpdateJobEntityRepository updateRepository) {
 		this.installationRepository = installationRepository;
 		this.updateRepository = updateRepository;
-		this.removalRepository = removalRepository;
 	}
 
 	@Override
@@ -50,18 +48,6 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.siteId(job.siteId.toString())
 			.projectId(job.projectId.toString())
 			.status(ProjectUpdateStatus.valueOf(job.status))
-			.build();
-	}
-
-	@Override
-	public ProjectRemovalJob findRemovalJobByCorrelationId(CorrelationId correlationId) {
-		ProjectRemovalJobEntity job = removalRepository.findByCorrelationId(UUID.fromString(correlationId.id));
-		return ProjectRemovalJob.builder()
-			.id(job.getId().toString())
-			.correlationId(new CorrelationId(job.correlationId.toString()))
-			.siteId(job.siteId.toString())
-			.projectId(job.projectId.toString())
-			.status(ProjectRemovalStatus.valueOf(job.status))
 			.build();
 	}
 
@@ -109,18 +95,6 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String create(ProjectRemovalJob projectRemovalJob) {
-		ProjectRemovalJobEntity projectRemovalJobEntity = ProjectRemovalJobEntity.builder()
-			.correlationId(UUID.fromString(projectRemovalJob.correlationId.id))
-			.siteId(UUID.fromString(projectRemovalJob.siteId))
-			.projectId(UUID.fromString(projectRemovalJob.projectId))
-			.status(projectRemovalJob.status)
-			.build();
-		ProjectRemovalJobEntity job = removalRepository.save(projectRemovalJobEntity);
-		return job.getId().toString();
-	}
-
-	@Override
 	public String update(String id, ProjectInstallationStatus status) {
 		installationRepository.findById(UUID.fromString(id))
 			.map(job -> ProjectInstallationJobEntity.builder()
@@ -149,22 +123,14 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String update(String id, ProjectRemovalStatus status) {
-		removalRepository.findById(UUID.fromString(id))
-			.map(job -> ProjectRemovalJobEntity.builder()
-				.id(job.getId())
-				.correlationId(job.correlationId)
-				.siteId(job.siteId)
-				.projectId(job.projectId)
-				.status(status)
-				.build())
-			.ifPresent(removalRepository::save);
-		return id;
+	public boolean existsByProjectId(String projectId) {
+		return installationRepository.existsByProjectId(UUID.fromString(projectId));
 	}
 
 	@Override
-	public boolean existsByProjectId(String projectId) {
-		return installationRepository.existsByProjectId(UUID.fromString(projectId));
+	public void deleteAll() {
+		installationRepository.deleteAll();
+		updateRepository.deleteAll();
 	}
 }
 

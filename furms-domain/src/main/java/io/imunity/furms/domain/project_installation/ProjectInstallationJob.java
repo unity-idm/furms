@@ -57,11 +57,11 @@ public class ProjectInstallationJob {
 	}
 
 	public static final class ProjectInstallationJobBuilder {
-		public String id;
-		public String siteId;
-		public String projectId;
-		public CorrelationId correlationId;
-		public ProjectInstallationStatus status;
+		private String id;
+		private String siteId;
+		private String projectId;
+		private CorrelationId correlationId;
+		private ProjectInstallationStatus status;
 
 		private ProjectInstallationJobBuilder() {
 		}
