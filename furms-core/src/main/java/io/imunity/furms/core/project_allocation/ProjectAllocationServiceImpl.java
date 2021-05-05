@@ -9,12 +9,14 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
@@ -41,6 +43,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
+	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
@@ -48,12 +51,14 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             ProjectAllocationInstallationService projectAllocationInstallationService,
+	                             UserOperationService userOperationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
+		this.userOperationService = userOperationService;
 		this.publisher = publisher;
 	}
 
@@ -136,6 +141,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
 			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
 			projectInstallationService.create(communityId, projectAllocation.projectId, projectInstallation);
+			SiteId siteId = new SiteId(projectInstallation.siteId, projectInstallation.siteExternalId);
+			userOperationService.createUserAdditions(siteId, communityId, projectAllocation.projectId);
 		}
 	}
 

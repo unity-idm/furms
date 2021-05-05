@@ -5,34 +5,13 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -47,6 +26,23 @@ import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.*;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
 
 @Service
 class SSHKeyServiceImpl implements SSHKeyService {
@@ -60,11 +56,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
+	private final UserOperationService userOperationService;
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
 			SSHKeyOperationService sshKeyInstallationService,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
+			          UserOperationService userOperationService) {
 
 		this.userDao = userDao;
 		this.validator = validator;
@@ -73,6 +71,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
+		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -232,12 +231,21 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
-		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-				.collect(Collectors.toSet());
-
+		if(sitesIds.isEmpty())
+			return;
+		Set<Site> sites = findSites(sitesIds, userId);
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
 		}
+	}
+
+	private Set<Site> findSites(Set<String> sitesIds, FenixUserId userId) {
+		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
+			.filter(site -> userOperationService.isUserAdded(site.getId(), userId.id))
+			.collect(Collectors.toSet());
+		if(sites.isEmpty())
+			throw new UninstalledUserError("User is not installed to any site");
+		return sites;
 	}
 
 	private void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {

@@ -7,6 +7,7 @@ package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.sites.Site;
@@ -48,6 +49,8 @@ class ProjectAllocationServiceImplTest {
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
 	@Mock
 	private CommunityAllocationRepository communityAllocationRepository;
+	@Mock
+	private UserOperationService userOperationService;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -58,7 +61,7 @@ class ProjectAllocationServiceImplTest {
 		service = new ProjectAllocationServiceImpl(
 			projectAllocationRepository, projectInstallationService,
 			communityAllocationRepository, validator,
-			projectAllocationInstallationService, publisher
+			projectAllocationInstallationService, userOperationService, publisher
 		);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
