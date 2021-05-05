@@ -42,7 +42,6 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 	@Override
 	public void deleteOldestLeaveOnly(String siteId, int leave) {
 		repository.deleteOldestLeaveOnly(siteId, leave);
-
 	}
 
 }

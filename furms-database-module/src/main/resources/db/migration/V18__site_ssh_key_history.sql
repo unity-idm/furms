@@ -10,5 +10,5 @@ CREATE TABLE ssh_key_history (
 	site_Id UUID NOT NULL,
 	sshkey_fingerprint VARCHAR(255) NOT NULL,
 	origination_time TIMESTAMP NOT NULL,
-	FOREIGN KEY (site_id) REFERENCES site(id)
+	FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
 );

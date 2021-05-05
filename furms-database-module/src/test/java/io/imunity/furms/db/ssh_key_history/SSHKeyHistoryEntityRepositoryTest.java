@@ -131,7 +131,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindCreatedSSHKeHistory() {
+	void shouldFindCreatedSSHKeyHistory() {
 		// given
 		SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId)
 				.sshkeyFingerprint("fingerprint1")
@@ -147,7 +147,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindAllAvailableSSHKeyHistory() {
+	void shouldFindAllAvailableSSHKeyHistories() {
 		// given
 		SSHKeyHistoryEntity entityToSave1 = SSHKeyHistoryEntity.builder().siteId(siteId)
 				.sshkeyFingerprint("fingerprint1")
