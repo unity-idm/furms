@@ -95,7 +95,6 @@ public class UnityUserMapper {
 				.findAny().map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
 	}
 
-
 	private static UserStatus getStatus(final GroupMember groupMember) {
 		return getStatus(groupMember.getEntity().getEntityInformation().getState().name());
 	}
