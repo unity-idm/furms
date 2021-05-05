@@ -99,8 +99,8 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	private void addKeyHistory(String siteId, String sshkeyId) {
 		Optional<SSHKey> findById = sshKeysRepository.findById(sshkeyId);
 		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId).originationTime(LocalDateTime.now())
-				.sshkeyFingerprint(findById.get().getFingerprint()).build());
-		sshKeyHistoryRepository.deleteOldestLeaveOnly(siteId, MAX_HISTORY_SIZE);
+				.sshkeyFingerprint(findById.get().getFingerprint()).sshkeyOwnerId(findById.get().ownerId).build());
+		sshKeyHistoryRepository.deleteOldestLeaveOnly(siteId, findById.get().ownerId.id, MAX_HISTORY_SIZE);
 	}
 
 	// FIXME To auth this method special user for queue message resolving is

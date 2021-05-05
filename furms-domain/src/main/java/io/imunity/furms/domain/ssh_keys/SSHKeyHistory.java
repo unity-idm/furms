@@ -8,28 +8,34 @@ package io.imunity.furms.domain.ssh_keys;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import io.imunity.furms.domain.users.PersistentId;
+
 public class SSHKeyHistory {
 	public final String id;
 	public final String siteId;
+	public final PersistentId  sshkeyOwnerId;
 	public final String sshkeyFingerprint;
 	public final LocalDateTime originationTime;
 
-	SSHKeyHistory(String id, String siteId, String sshkeyFingerprint, LocalDateTime originationTime) {
+	SSHKeyHistory(String id, String siteId, PersistentId  sshkeyOwnerId, String sshkeyFingerprint, LocalDateTime originationTime) {
 		this.id = id;
 		this.siteId = siteId;
+		this.sshkeyOwnerId = sshkeyOwnerId;
 		this.sshkeyFingerprint = sshkeyFingerprint;
 		this.originationTime = originationTime;
 	}
 
 	@Override
 	public String toString() {
-		return "SSHKeyHistory{" + "id=" + id + ", sshkeyFingerprint=" + sshkeyFingerprint + ", originationTime="
-				+ originationTime + '}';
+		return "SSHKeyHistory{" + "id=" + id + ", sshkeyFingerprint=" + sshkeyFingerprint
+				+ ", siteId=" + siteId
+				+ ", sshkeyOwnerId=" + sshkeyOwnerId
+				+ ", originationTime=" + originationTime + '}';
 	}
-
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, originationTime, siteId, sshkeyFingerprint);
+		return Objects.hash(id, originationTime, siteId, sshkeyFingerprint, sshkeyOwnerId);
 	}
 
 	@Override
@@ -43,6 +49,7 @@ public class SSHKeyHistory {
 		SSHKeyHistory other = (SSHKeyHistory) obj;
 		return Objects.equals(id, other.id) && Objects.equals(originationTime, other.originationTime)
 				&& Objects.equals(siteId, other.siteId)
+				&& Objects.equals(sshkeyOwnerId, other.sshkeyOwnerId)
 				&& Objects.equals(sshkeyFingerprint, other.sshkeyFingerprint);
 	}
 
@@ -53,6 +60,7 @@ public class SSHKeyHistory {
 	public static final class Builder {
 		private String id;
 		private String siteId;
+		private PersistentId  sshkeyOwnerId;
 		private String sshkeyFingerprint;
 		private LocalDateTime originationTime;
 
@@ -68,6 +76,11 @@ public class SSHKeyHistory {
 			this.siteId = siteId;
 			return this;
 		}
+		
+		public Builder sshkeyOwnerId(PersistentId sshkeyOwnerId) {
+			this.sshkeyOwnerId = sshkeyOwnerId;
+			return this;
+		}
 
 		public Builder sshkeyFingerprint(String sshkeyFingerprint) {
 			this.sshkeyFingerprint = sshkeyFingerprint;
@@ -80,7 +93,7 @@ public class SSHKeyHistory {
 		}
 
 		public SSHKeyHistory build() {
-			return new SSHKeyHistory(id, siteId, sshkeyFingerprint, originationTime);
+			return new SSHKeyHistory(id, siteId, sshkeyOwnerId, sshkeyFingerprint, originationTime);
 		}
 	}
 

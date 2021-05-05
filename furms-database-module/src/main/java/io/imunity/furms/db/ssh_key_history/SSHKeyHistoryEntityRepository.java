@@ -15,10 +15,10 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface SSHKeyHistoryEntityRepository extends CrudRepository<SSHKeyHistoryEntity, UUID> {
 
-	List<SSHKeyHistoryEntity> findBysiteIdOrderByOriginationTimeDesc(String siteId, Pageable pageable);
+	List<SSHKeyHistoryEntity> findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(String siteId, String sshkeyOwnerId, Pageable pageable);
 
 	@Modifying
-	@Query("delete from ssh_key_history where site_id = :siteId and id not in (select id from ssh_key_history where site_id = :siteId order by origination_time desc  limit :leave)")
-	void deleteOldestLeaveOnly(String siteId, int leave);
+	@Query("delete from ssh_key_history where site_id = :siteId and sshkey_owner_id = :ownerId and id not in (select id from ssh_key_history where site_id = :siteId and sshkey_owner_id = :ownerId order by origination_time desc  limit :leave)")
+	void deleteOldestLeaveOnly(String siteId, String ownerId, int leave);
 
 }

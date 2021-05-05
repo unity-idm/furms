@@ -13,17 +13,20 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
+import io.imunity.furms.domain.users.PersistentId;
 
 @Table("ssh_key_history")
 class SSHKeyHistoryEntity extends UUIDIdentifiable {
 
 	public final UUID siteId;
+	public final String sshkeyOwnerId;
 	public final String sshkeyFingerprint;
 	public final LocalDateTime originationTime;
 
-	SSHKeyHistoryEntity(UUID id, UUID siteId, String sshkeyFingerprint, LocalDateTime originationTime) {
+	SSHKeyHistoryEntity(UUID id, UUID siteId, String sshkeyOwnerId, String sshkeyFingerprint, LocalDateTime originationTime) {
 		this.id = id;
 		this.siteId = siteId;
+		this.sshkeyOwnerId = sshkeyOwnerId;
 		this.sshkeyFingerprint = sshkeyFingerprint;
 		this.originationTime = originationTime;
 	}
@@ -36,24 +39,28 @@ class SSHKeyHistoryEntity extends UUIDIdentifiable {
 			return false;
 		SSHKeyHistoryEntity that = (SSHKeyHistoryEntity) o;
 		return Objects.equals(id, that.id) && Objects.equals(siteId, that.siteId)
+				&& Objects.equals(sshkeyOwnerId, that.sshkeyOwnerId)
 				&& Objects.equals(sshkeyFingerprint, that.sshkeyFingerprint)
 				&& Objects.equals(originationTime, that.originationTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, sshkeyFingerprint, originationTime);
+		return Objects.hash(id, siteId, sshkeyOwnerId, sshkeyFingerprint, originationTime);
 	}
 
 	@Override
 	public String toString() {
 		return "SSHKeyHistoryEntity{" + "id=" + id + ", sshkeyFingerprint=" + sshkeyFingerprint
+				+ ", siteId=" + siteId
+				+ ", sshkeyOwnerId=" + sshkeyOwnerId
 				+ ", originationTime=" + originationTime + '}';
 	}
 
 	SSHKeyHistory toSSHKeyHistory() {
 		return SSHKeyHistory.builder().id(id.toString()).siteId(siteId.toString())
-				.sshkeyFingerprint(sshkeyFingerprint).originationTime(originationTime).build();
+				.sshkeyFingerprint(sshkeyFingerprint).originationTime(originationTime)
+				.sshkeyOwnerId(new PersistentId(sshkeyOwnerId)).build();
 	}
 
 	public static SSHKeyHistoryEntityBuilder builder() {
@@ -63,6 +70,7 @@ class SSHKeyHistoryEntity extends UUIDIdentifiable {
 	public static final class SSHKeyHistoryEntityBuilder {
 		public UUID id;
 		public UUID siteId;
+		public String sshkeyOwnerId;
 		public String sshkeyFingerprint;
 		private LocalDateTime originationTime;
 
@@ -78,6 +86,12 @@ class SSHKeyHistoryEntity extends UUIDIdentifiable {
 			this.siteId = siteId;
 			return this;
 		}
+		
+		public SSHKeyHistoryEntityBuilder sshkeyOwnerId(String sshkeyOwnerId) {
+			this.sshkeyOwnerId = sshkeyOwnerId;
+			return this;
+		}
+
 
 		public SSHKeyHistoryEntityBuilder sshkeyFingerprint(String sshkeyFingerprint) {
 			this.sshkeyFingerprint = sshkeyFingerprint;
@@ -90,7 +104,7 @@ class SSHKeyHistoryEntity extends UUIDIdentifiable {
 		}
 
 		public SSHKeyHistoryEntity build() {
-			return new SSHKeyHistoryEntity(id, siteId, sshkeyFingerprint, originationTime);
+			return new SSHKeyHistoryEntity(id, siteId, sshkeyOwnerId, sshkeyFingerprint, originationTime);
 		}
 	}
 }

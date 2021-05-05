@@ -11,9 +11,9 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 
 public interface SSHKeyHistoryRepository {
 	
-	List<SSHKeyHistory>findLastBySSHKeyIdLimitTo(String siteId, int limit);
+	List<SSHKeyHistory>findLastBySiteIdANdOwnerIdLimitTo(String siteId, String ownerId, int limit);
 
 	String create(SSHKeyHistory sshKeyHistory);
 	
-	void deleteOldestLeaveOnly(String siteId, int leave);
+	void deleteOldestLeaveOnly(String siteId, String ownerId, int leave);
 }

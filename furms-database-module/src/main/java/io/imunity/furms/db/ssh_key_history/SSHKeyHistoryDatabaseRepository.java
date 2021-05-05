@@ -24,8 +24,8 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 	}
 
 	@Override
-	public List<SSHKeyHistory> findLastBySSHKeyIdLimitTo(String siteId, int limit) {
-		return repository.findBysiteIdOrderByOriginationTimeDesc(siteId, PageRequest.of(0, limit)).stream()
+	public List<SSHKeyHistory> findLastBySiteIdANdOwnerIdLimitTo(String siteId, String ownerId, int limit) {
+		return repository.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId, ownerId, PageRequest.of(0, limit)).stream()
 				.map(SSHKeyHistoryEntity::toSSHKeyHistory).collect(Collectors.toList());
 	}
 
@@ -34,14 +34,15 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 		SSHKeyHistoryEntity sshkeyHistoryEntity = SSHKeyHistoryEntity.builder()
 				.siteId(UUID.fromString(sshKeyHistory.siteId))
 				.sshkeyFingerprint(sshKeyHistory.sshkeyFingerprint)
+				.sshkeyOwnerId(sshKeyHistory.sshkeyOwnerId.id)
 				.originationTime(sshKeyHistory.originationTime).build();
 		SSHKeyHistoryEntity history = repository.save(sshkeyHistoryEntity);
 		return history.getId().toString();
 	}
 
 	@Override
-	public void deleteOldestLeaveOnly(String siteId, int leave) {
-		repository.deleteOldestLeaveOnly(siteId, leave);
+	public void deleteOldestLeaveOnly(String siteId, String ownerId, int leave) {
+		repository.deleteOldestLeaveOnly(siteId, ownerId, leave);
 	}
 
 }

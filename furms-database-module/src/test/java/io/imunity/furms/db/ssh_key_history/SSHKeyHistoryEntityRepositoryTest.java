@@ -53,7 +53,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreateSSHKeyHistory() {
 		// given
 
-		SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId)
+		SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId).sshkeyOwnerId("owner")
 				.sshkeyFingerprint("fingerprint").originationTime(LocalDateTime.now()).build();
 
 		// when
@@ -70,13 +70,13 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindSSHKeyHistoryBySiteIdLimitTo2() {
 		// given
-		SSHKeyHistoryEntity entityToSave1 = SSHKeyHistoryEntity.builder().siteId(siteId)
+		SSHKeyHistoryEntity entityToSave1 = SSHKeyHistoryEntity.builder().siteId(siteId).sshkeyOwnerId("owner")
 				.sshkeyFingerprint("fingerprint1")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
-		SSHKeyHistoryEntity entityToSave2 = SSHKeyHistoryEntity.builder().siteId(siteId)
+		SSHKeyHistoryEntity entityToSave2 = SSHKeyHistoryEntity.builder().siteId(siteId).sshkeyOwnerId("owner")
 				.sshkeyFingerprint("fingerprint2")
 				.originationTime(LocalDateTime.now().withSecond(2).withNano(0)).build();
-		SSHKeyHistoryEntity entityToSave3 = SSHKeyHistoryEntity.builder().siteId(siteId)
+		SSHKeyHistoryEntity entityToSave3 = SSHKeyHistoryEntity.builder().siteId(siteId).sshkeyOwnerId("owner")
 				.sshkeyFingerprint("fingerprint3")
 				.originationTime(LocalDateTime.now().withSecond(3).withNano(0)).build();
 
@@ -86,7 +86,8 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 
 		// when
 		List<SSHKeyHistoryEntity> findBysiteIdOrderByOriginationTime = entityRepository
-				.findBysiteIdOrderByOriginationTimeDesc(siteId.toString(), PageRequest.of(0, 2));
+				.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId.toString(), "owner",
+						PageRequest.of(0, 2));
 
 		// then
 		assertThat(findBysiteIdOrderByOriginationTime).hasSize(2);
@@ -97,7 +98,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllSSHKeyHistories() {
 		// given
 		SSHKeyHistoryEntity entityToSave1 = SSHKeyHistoryEntity.builder().siteId(siteId)
-				.sshkeyFingerprint("fingerprint1")
+				.sshkeyFingerprint("fingerprint1").sshkeyOwnerId("owner")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
 		entityRepository.save(entityToSave1);
 		// when
@@ -113,14 +114,15 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 
 		for (int i = 0; i < 10; i++) {
 			SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId)
-					.sshkeyFingerprint("fingerprint" + i)
+					.sshkeyOwnerId("owner").sshkeyFingerprint("fingerprint" + i)
 					.originationTime(LocalDateTime.now().withSecond(i).withNano(0)).build();
 			entityRepository.save(entityToSave);
 		}
 		// when
-		entityRepository.deleteOldestLeaveOnly(siteId.toString(), 5);
+		entityRepository.deleteOldestLeaveOnly(siteId.toString(), "owner", 5);
 		List<SSHKeyHistoryEntity> findAll = entityRepository
-				.findBysiteIdOrderByOriginationTimeDesc(siteId.toString(), PageRequest.of(0, 1000));
+				.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId.toString(), "owner",
+						PageRequest.of(0, 1000));
 
 		assertThat(findAll.size()).isEqualTo(5);
 		assertThat(findAll.get(0).sshkeyFingerprint).isEqualTo("fingerprint9");
@@ -134,7 +136,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedSSHKeyHistory() {
 		// given
 		SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId)
-				.sshkeyFingerprint("fingerprint1")
+				.sshkeyFingerprint("fingerprint1").sshkeyOwnerId("owner")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
 
 		entityRepository.save(entityToSave);
@@ -150,10 +152,10 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableSSHKeyHistories() {
 		// given
 		SSHKeyHistoryEntity entityToSave1 = SSHKeyHistoryEntity.builder().siteId(siteId)
-				.sshkeyFingerprint("fingerprint1")
+				.sshkeyFingerprint("fingerprint1").sshkeyOwnerId("owner")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
 		SSHKeyHistoryEntity entityToSave2 = SSHKeyHistoryEntity.builder().siteId(siteId)
-				.sshkeyFingerprint("fingerprint2")
+				.sshkeyFingerprint("fingerprint2").sshkeyOwnerId("owner")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
 		entityRepository.save(entityToSave1);
 		entityRepository.save(entityToSave2);
@@ -169,7 +171,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteSSHKeyHistory() {
 		// given
 		SSHKeyHistoryEntity toSave = SSHKeyHistoryEntity.builder().siteId(siteId)
-				.sshkeyFingerprint("fingerprint1")
+				.sshkeyFingerprint("fingerprint1").sshkeyOwnerId("owner")
 				.originationTime(LocalDateTime.now().withSecond(1).withNano(0)).build();
 
 		// when
