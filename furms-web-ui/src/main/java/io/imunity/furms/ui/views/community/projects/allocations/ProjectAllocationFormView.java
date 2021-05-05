@@ -109,7 +109,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 		String projectId = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
-			.getOrDefault("projectId", singletonList(serviceViewModel.projectId))
+			.getOrDefault("projectId", singletonList(serviceViewModel.getProjectId()))
 			.iterator().next();
 		Optional.ofNullable(projectId)
 			.ifPresent(id -> this.projectId = id);

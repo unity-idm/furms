@@ -145,13 +145,13 @@ public class ProjectAllocationFormComponent extends Composite<Div> {
 
 	public void setFormPools(ProjectAllocationViewModel model) {
 		binder.setBean(model);
-		if(model.resourceType != null)
+		if(model.getResourceType() != null)
 			resourceTypeComboBox.setEnabled(false);
 		else
 			resourceTypeComboBox.setValue(resolver.getDefaultResourceType());
-		if(model.allocationCommunity != null)
+		if(model.getAllocationCommunity() != null)
 			communityAllocationComboBox.setEnabled(false);
-		if(model.amount != null)
-			lastAmount = model.amount;
+		if(model.getAmount() != null)
+			lastAmount = model.getAmount();
 	}
 }

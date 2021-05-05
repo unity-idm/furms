@@ -9,22 +9,33 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 class ProjectAllocationViewModel {
-	public String id;
-	public String projectId;
-	public ResourceTypeComboBoxModel resourceType;
-	public AllocationCommunityComboBoxModel allocationCommunity;
-	public String name;
-	public BigDecimal amount;
+	private String id;
+	private String projectId;
+	private ResourceTypeComboBoxModel resourceType;
+	private AllocationCommunityComboBoxModel allocationCommunity;
+	private String name;
+	private BigDecimal amount;
 
-	ProjectAllocationViewModel(String id, String projectId,
+	ProjectAllocationViewModel(String id,
+	                           String projectId,
 	                           ResourceTypeComboBoxModel resourceType,
-	                           AllocationCommunityComboBoxModel allocationCommunity, String name, BigDecimal amount) {
+	                           AllocationCommunityComboBoxModel allocationCommunity,
+	                           String name,
+	                           BigDecimal amount) {
 		this.id = id;
 		this.projectId = projectId;
 		this.resourceType = resourceType;
 		this.allocationCommunity = allocationCommunity;
 		this.name = name;
 		this.amount = amount;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getProjectId() {
+		return projectId;
 	}
 
 	void setProjectId(String projectId) {
@@ -94,12 +105,12 @@ class ProjectAllocationViewModel {
 	}
 
 	public static final class ProjectAllocationViewModelBuilder {
-		public String id;
-		public String projectId;
-		public ResourceTypeComboBoxModel resourceType;
-		public AllocationCommunityComboBoxModel allocationCommunity;
-		public String name;
-		public BigDecimal amount;
+		private String id;
+		private String projectId;
+		private ResourceTypeComboBoxModel resourceType;
+		private AllocationCommunityComboBoxModel allocationCommunity;
+		private String name;
+		private BigDecimal amount;
 
 		private ProjectAllocationViewModelBuilder() {
 		}

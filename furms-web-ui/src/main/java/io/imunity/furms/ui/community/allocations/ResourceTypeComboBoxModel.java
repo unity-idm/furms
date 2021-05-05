@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.communites.allocations;
+package io.imunity.furms.ui.community.allocations;
 
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.util.Objects;
 
-class ResourceTypeComboBoxModel {
+public class ResourceTypeComboBoxModel {
 	public final String id;
 	public final String name;
 	public final ResourceMeasureUnit unit;

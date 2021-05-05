@@ -1,25 +1,32 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.communites.allocations;
+package io.imunity.furms.ui.community.allocations;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-class CommunityAllocationViewModel {
-	public String id;
-	public String communityId;
-	public SiteComboBoxModel site;
-	public ResourceTypeComboBoxModel resourceType;
-	public ResourceCreditComboBoxModel resourceCredit;
-	public String name;
-	public BigDecimal amount;
+public class CommunityAllocationViewModel {
+	private String id;
+	private String communityId;
+	private SiteComboBoxModel site;
+	private ResourceTypeComboBoxModel resourceType;
+	private ResourceCreditComboBoxModel resourceCredit;
+	private String name;
+	private BigDecimal amount;
 
-	CommunityAllocationViewModel(String id, String communityId, SiteComboBoxModel site,
-	                             ResourceTypeComboBoxModel resourceType,
-	                             ResourceCreditComboBoxModel resourceCredit, String name, BigDecimal amount) {
+	public CommunityAllocationViewModel() {
+	}
+
+	public CommunityAllocationViewModel(String id,
+	                                    String communityId,
+	                                    SiteComboBoxModel site,
+	                                    ResourceTypeComboBoxModel resourceType,
+	                                    ResourceCreditComboBoxModel resourceCredit,
+	                                    String name,
+	                                    BigDecimal amount) {
 		this.id = id;
 		this.communityId = communityId;
 		this.site = site;
@@ -29,55 +36,55 @@ class CommunityAllocationViewModel {
 		this.amount = amount;
 	}
 
-	CommunityAllocationViewModel(String communityId) {
-		this.communityId = communityId;
+	public String getId() {
+		return id;
 	}
 
-	String getCommunityId() {
+	public String getCommunityId() {
 		return communityId;
 	}
 
-	void setCommunityId(String communityId) {
+	public void setCommunityId(String communityId) {
 		this.communityId = communityId;
 	}
 
-	SiteComboBoxModel getSite() {
+	public SiteComboBoxModel getSite() {
 		return site;
 	}
 
-	void setSite(SiteComboBoxModel site) {
+	public void setSite(SiteComboBoxModel site) {
 		this.site = site;
 	}
 
-	ResourceTypeComboBoxModel getResourceType() {
+	public ResourceTypeComboBoxModel getResourceType() {
 		return resourceType;
 	}
 
-	void setResourceType(ResourceTypeComboBoxModel resourceType) {
+	public void setResourceType(ResourceTypeComboBoxModel resourceType) {
 		this.resourceType = resourceType;
 	}
 
-	ResourceCreditComboBoxModel getResourceCredit() {
+	public ResourceCreditComboBoxModel getResourceCredit() {
 		return resourceCredit;
 	}
 
-	void setResourceCredit(ResourceCreditComboBoxModel resourceCredit) {
+	public void setResourceCredit(ResourceCreditComboBoxModel resourceCredit) {
 		this.resourceCredit = resourceCredit;
 	}
 
-	String getName() {
+	public String getName() {
 		return name;
 	}
 
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
-	BigDecimal getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	void setAmount(BigDecimal amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
@@ -107,20 +114,18 @@ class CommunityAllocationViewModel {
 			'}';
 	}
 
-	public CommunityAllocationViewModel() {}
-
 	public static CommunityAllocationViewModelBuilder builder() {
 		return new CommunityAllocationViewModelBuilder();
 	}
 
 	public static final class CommunityAllocationViewModelBuilder {
-		public String id;
-		public String communityId;
-		public SiteComboBoxModel site;
-		public ResourceTypeComboBoxModel resourceType;
-		public ResourceCreditComboBoxModel resourceCredit;
-		public String name;
-		public BigDecimal amount;
+		private String id;
+		private String communityId;
+		private SiteComboBoxModel site;
+		private ResourceTypeComboBoxModel resourceType;
+		private ResourceCreditComboBoxModel resourceCredit;
+		private String name;
+		private BigDecimal amount;
 
 		private CommunityAllocationViewModelBuilder() {
 		}
