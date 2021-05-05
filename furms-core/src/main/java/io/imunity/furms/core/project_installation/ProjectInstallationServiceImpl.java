@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
@@ -73,7 +72,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "project.id")
 	public void update(String communityId, Project project) {
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
@@ -96,6 +95,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void remove(String communityId, String projectId) {
 		siteRepository.findByProjectId(projectId).forEach(siteId -> {
 			CorrelationId correlationId = CorrelationId.randomID();
