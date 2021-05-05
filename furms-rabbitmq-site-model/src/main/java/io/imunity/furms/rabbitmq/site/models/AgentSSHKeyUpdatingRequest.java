@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-@JsonTypeName("UserSSHKeyUpdatingRequest")
+@JsonTypeName("UserSSHKeyUpdateRequest")
 public class AgentSSHKeyUpdatingRequest implements Body {
 	public final String fenixUserId;
 	public final String oldPublicKey;
