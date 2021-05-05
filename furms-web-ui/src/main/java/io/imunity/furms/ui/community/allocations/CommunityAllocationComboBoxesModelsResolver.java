@@ -8,6 +8,9 @@ package io.imunity.furms.ui.community.allocations;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -17,7 +20,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 public class CommunityAllocationComboBoxesModelsResolver {
-	private final Set<SiteComboBoxModel> sites;
+	private final Set<ComboBoxModel> sites;
 	private final Function<String, Set<ResourceType>> functionResourceType;
 	private final Function<String, Set<ResourceCredit>> functionResourceCredit;
 	private final Function<String, BigDecimal> functionAvailableAmount;
@@ -26,7 +29,7 @@ public class CommunityAllocationComboBoxesModelsResolver {
 	                                                   Function<String, Set<ResourceType>> functionResourceType,
 	                                                   Function<String, Set<ResourceCredit>> functionResourceCredit,
 	                                                   Function<String, BigDecimal> functionAvailableAmount) {
-		this.sites = sites.stream().map(s -> new SiteComboBoxModel(s.getId(), s.getName())).collect(Collectors.toSet());
+		this.sites = sites.stream().map(s -> new ComboBoxModel(s.getId(), s.getName())).collect(Collectors.toSet());
 		this.functionResourceType = functionResourceType;
 		this.functionResourceCredit = functionResourceCredit;
 		this.functionAvailableAmount = functionAvailableAmount;
@@ -48,7 +51,7 @@ public class CommunityAllocationComboBoxesModelsResolver {
 				.collect(toSet());
 	}
 
-	public Set<SiteComboBoxModel> getSites() {
+	public Set<ComboBoxModel> getSites() {
 		return sites;
 	}
 

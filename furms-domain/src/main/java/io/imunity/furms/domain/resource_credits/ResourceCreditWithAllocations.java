@@ -10,17 +10,17 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ResourceCreditWithAllocations {
-	public final String id;
-	public final String name;
-	public final String siteId;
-	public final String resourceTypeId;
-	public final Boolean split;
-	public final Boolean access;
-	public final BigDecimal amount;
-	public final BigDecimal remaining;
-	public final LocalDateTime utcCreateTime;
-	public final LocalDateTime utcStartTime;
-	public final LocalDateTime utcEndTime;
+	private final String id;
+	private final String name;
+	private final String siteId;
+	private final String resourceTypeId;
+	private final Boolean split;
+	private final Boolean access;
+	private final BigDecimal amount;
+	private final BigDecimal remaining;
+	private final LocalDateTime utcCreateTime;
+	private final LocalDateTime utcStartTime;
+	private final LocalDateTime utcEndTime;
 
 	public ResourceCreditWithAllocations(String id,
 	                                     String name,

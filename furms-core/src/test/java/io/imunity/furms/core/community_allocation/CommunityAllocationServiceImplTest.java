@@ -5,10 +5,14 @@
 
 package io.imunity.furms.core.community_allocation;
 
+import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,8 @@ class CommunityAllocationServiceImplTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private ProjectAllocationService projectAllocationService;
 
 	private CommunityAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -40,7 +46,8 @@ class CommunityAllocationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new CommunityAllocationServiceImpl(communityAllocationRepository, validator, publisher);
+		service = new CommunityAllocationServiceImpl(communityAllocationRepository, validator,
+														publisher, projectAllocationService);
 		orderVerifier = inOrder(communityAllocationRepository, publisher);
 	}
 
@@ -83,6 +90,44 @@ class CommunityAllocationServiceImplTest {
 
 		//then
 		assertThat(allCommunityAllocations).hasSize(2);
+	}
+
+	@Test
+	void shouldReturnAllCommunityAllocationsIncludedFullyDistributed() {
+		//given
+		when(communityAllocationRepository.findAllByCommunityIdWithRelatedObjects("id1")).thenReturn(Set.of(
+				CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
+				CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
+				CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
+		when(projectAllocationService.getAvailableAmount("id1", "id1")).thenReturn(BigDecimal.ONE);
+		when(projectAllocationService.getAvailableAmount("id1", "id2")).thenReturn(BigDecimal.ZERO);
+		when(projectAllocationService.getAvailableAmount("id1", "id3")).thenReturn(BigDecimal.ONE);
+
+		//when
+		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", true, true);
+
+		//then
+		assertThat(all).hasSize(3);
+	}
+
+	@Test
+	void shouldReturnAllCommunityAllocationsNotIncludedFullyDistributed() {
+		//given
+		when(communityAllocationRepository.findAllByCommunityIdWithRelatedObjects("id1")).thenReturn(Set.of(
+				CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
+				CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
+				CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
+		when(projectAllocationService.getAvailableAmount("id1", "id1")).thenReturn(BigDecimal.ONE);
+		when(projectAllocationService.getAvailableAmount("id1", "id2")).thenReturn(BigDecimal.ZERO);
+		when(projectAllocationService.getAvailableAmount("id1", "id3")).thenReturn(BigDecimal.ONE);
+
+		//when
+		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", false, true);
+
+		//then
+		assertThat(all).hasSize(2);
+		assertThat(all.stream()
+				.noneMatch(credit -> credit.id.equals("id2")));
 	}
 
 	@Test

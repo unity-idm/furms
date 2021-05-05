@@ -17,7 +17,9 @@ public interface CommunityAllocationRepository {
 
 	Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id);
 
-	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId);
+	Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId);
+
+	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId);
 
 	BigDecimal getAvailableAmount(String resourceCreditId);
 

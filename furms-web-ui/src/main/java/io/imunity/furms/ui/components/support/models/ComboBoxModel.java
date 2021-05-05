@@ -3,29 +3,32 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.community.allocations;
+package io.imunity.furms.ui.components.support.models;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
-public class ResourceCreditComboBoxModel {
-	public final String id;
-	public final String name;
-	public final BigDecimal amount;
-	public final boolean split;
+public class ComboBoxModel {
+	private final String id;
+	private final String name;
 
-	public ResourceCreditComboBoxModel(String id, String name, BigDecimal amount, boolean split) {
+	public ComboBoxModel(String id, String name) {
 		this.id = id;
 		this.name = name;
-		this.amount = amount;
-		this.split = split;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ResourceCreditComboBoxModel that = (ResourceCreditComboBoxModel) o;
+		ComboBoxModel that = (ComboBoxModel) o;
 		return Objects.equals(id, that.id);
 	}
 
@@ -36,10 +39,9 @@ public class ResourceCreditComboBoxModel {
 
 	@Override
 	public String toString() {
-		return "ResourceTypeComboBoxModel{" +
+		return "ComboBoxModel{" +
 			"id='" + id + '\'' +
 			", name='" + name + '\'' +
-			", amount='" + amount + '\'' +
 			'}';
 	}
 }

@@ -86,7 +86,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findCorrelatedCommunityAllocation(String communityId) {
-		return communityAllocationRepository.findAllWithRelatedObjects(communityId);
+		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId);
 	}
 
 	@Override
