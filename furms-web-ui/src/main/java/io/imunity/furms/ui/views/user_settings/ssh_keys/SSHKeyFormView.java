@@ -5,6 +5,19 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,31 +27,24 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.utils.NotificationUtils;
-import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-import java.util.function.Function;
-
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
 class SSHKeyFormView extends FurmsViewComponent {
 
-	private final Binder<SSHKeyUpdateModel> binder = new BeanValidationBinder<>(SSHKeyUpdateModel .class);
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final Binder<SSHKeyUpdateModel> binder = new BeanValidationBinder<>(SSHKeyUpdateModel.class);
 	private final SSHKeyFormComponent sshKeyComponent;
 	private final SSHKeyService sshKeyService;
 	private final AuthzService authzService;
@@ -87,8 +93,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 
 		SSHKeyUpdateModel serviceViewModel = ofNullable(parameter)
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
-				.flatMap(Function.identity())
-				.map(k -> SSHKeyViewModelMapper.mapToUpdate(k, zoneId))
+				.flatMap(Function.identity()).map(k -> SSHKeyViewModelMapper.mapToUpdate(k, zoneId))
 				.orElseGet(() -> new SSHKeyUpdateModel(authzService.getCurrentUserId()));
 
 		String trans = parameter == null ? "view.user-settings.ssh-keys.form.parameter.new"
@@ -99,20 +104,23 @@ class SSHKeyFormView extends FurmsViewComponent {
 
 	private void saveSSHKey() {
 		SSHKeyUpdateModel sshKeyUpdateModel = binder.getBean();
-		OptionalException<String> optionalException;
-		if (sshKeyUpdateModel.id == null) {
-			optionalException = getResultOrException(
-					() -> sshKeyService.create(SSHKeyViewModelMapper.map(sshKeyUpdateModel)));
-		} else {
-			sshKeyUpdateModel.setUpdateTime(ZonedDateTime.now());
-			optionalException = getResultOrException(
-					() -> sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyUpdateModel)));
-		}
 
-		optionalException.getThrowable().ifPresentOrElse(
-				throwable -> NotificationUtils
-						.showErrorNotification(getTranslation(throwable.getMessage())),
-				() -> UI.getCurrent().navigate(SSHKeysView.class));
+		try {
+			if (sshKeyUpdateModel.id == null) {
+				sshKeyService.create(SSHKeyViewModelMapper.map(sshKeyUpdateModel));
+			} else {
+				sshKeyUpdateModel.setUpdateTime(ZonedDateTime.now());
+				sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyUpdateModel));
+			}
+		} catch (UserWithoutFenixIdValidationError e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("base.error.message"));
+		}
+		
+		UI.getCurrent().navigate(SSHKeysView.class);
 	}
 
 	@Override

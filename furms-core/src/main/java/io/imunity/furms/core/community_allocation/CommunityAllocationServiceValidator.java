@@ -89,7 +89,7 @@ class CommunityAllocationServiceValidator {
 	}
 
 	private void validateCommunityId(String id) {
-		notNull(id, "Site ID has to be declared.");
+		notNull(id, "Community ID has to be declared.");
 		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
 	}
 

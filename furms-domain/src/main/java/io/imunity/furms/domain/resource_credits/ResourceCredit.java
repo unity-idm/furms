@@ -80,16 +80,16 @@ public class ResourceCredit {
 	}
 
 	public static final class ResourceCreditBuilder {
-		public String id;
-		public String name;
-		public String siteId;
-		public String resourceTypeId;
-		public Boolean split;
-		public Boolean access;
-		public BigDecimal amount;
-		public LocalDateTime utcCreateTime;
-		public LocalDateTime utcStartTime;
-		public LocalDateTime utcEndTime;
+		private String id;
+		private String name;
+		private String siteId;
+		private String resourceTypeId;
+		private Boolean split;
+		private Boolean access;
+		private BigDecimal amount;
+		private LocalDateTime utcCreateTime;
+		private LocalDateTime utcStartTime;
+		private LocalDateTime utcEndTime;
 
 		private ResourceCreditBuilder() {
 		}

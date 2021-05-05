@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
@@ -19,12 +18,14 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Component
 public class SSHKeyServiceValidator {
@@ -32,20 +33,24 @@ public class SSHKeyServiceValidator {
 	private final SSHKeyRepository sshKeysRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteRepository siteRepository;
+	private final UsersDAO userDao;
 	private final AuthzService authzService;
 
 	SSHKeyServiceValidator(SSHKeyRepository sshKeysRepository, AuthzService authzService,
-			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository) {
+			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository,
+			UsersDAO userDao) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.authzService = authzService;
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
+		this.userDao = userDao;
 	}
 
 	void validateCreate(SSHKey sshKey) {
 		notNull(sshKey, "SSH key object cannot be null.");
 		validateName(sshKey.name);
 		validateOwner(sshKey.ownerId);
+		validateFenixId(sshKey.ownerId);
 		validateValue(sshKey.value);
 		validateSites(sshKey);
 	}
@@ -55,6 +60,7 @@ public class SSHKeyServiceValidator {
 		validateId(sshKey.id);
 		validateIsNamePresentIgnoringRecord(sshKey.name, sshKey.id);
 		validateOwner(sshKey.ownerId);
+		validateFenixId(sshKey.ownerId);
 		validateValue(sshKey.value);
 		validateSites(sshKey);
 		validateOpenOperation(sshKey);
@@ -66,6 +72,7 @@ public class SSHKeyServiceValidator {
 		final SSHKey findById = sshKeysRepository.findById(id)
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + id));
 		validateOwner(findById.ownerId);
+		validateFenixId(findById.ownerId);
 		validateOpenOperation(findById);
 	}
 
@@ -73,6 +80,12 @@ public class SSHKeyServiceValidator {
 		notNull(ownerId, "SSH key owner id has to be declared.");
 		assertTrue(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
+	}
+	
+	void validateFenixId(PersistentId ownerId)
+	{
+		assertTrue(userDao.findById(ownerId).get().fenixUserId.isPresent(),
+				() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
 	}
 
 	private void validateId(String id) {
@@ -125,8 +138,15 @@ public class SSHKeyServiceValidator {
 
 	void validateOpenOperation(SSHKey key) {
 		assertTrue(sshKeyOperationRepository.findBySSHKey(key.id).stream()
-				.filter(operation -> !DONE.equals(operation.status)).findAny().isEmpty(),
+				.filter(operation -> operation.status.inProgress()).findAny().isEmpty(),
 				() -> new IllegalArgumentException(
 						"Invalid SSH key: there are uncompleted key operations"));
 	}
+	
+	void assertIsEligibleToManageKeys() {
+		validateFenixId(authzService.getCurrentAuthNUser().id.get());
+	}
 }
+
+
+

@@ -20,6 +20,7 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
@@ -42,7 +43,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.roles, resourceId);
-		capabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ));
+		capabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT));
 		return capabilities.contains(capability);
 	}
 

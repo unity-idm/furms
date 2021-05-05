@@ -113,9 +113,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult(
-				agentSSHKeyInstallationRequest.body.fenixUserId,
-				agentSSHKeyInstallationRequest.body.uid);
+		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -128,8 +126,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult(
-				agentSSHKeyUpdatingRequest.body.fenixUserId, agentSSHKeyUpdatingRequest.body.uid);
+		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -142,8 +139,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult(
-				agentSSHKeyRemovalRequest.body.fenixUserId, agentSSHKeyRemovalRequest.body.uid);
+		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 

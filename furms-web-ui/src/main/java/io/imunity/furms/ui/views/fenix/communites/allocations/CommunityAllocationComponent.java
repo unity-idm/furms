@@ -129,7 +129,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		return handleExceptions(() -> service.findAllWithRelatedObjects(communityId))
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(CommunityAllocationModelsMapper::gridMap)
+			.map(CommunityAllocationGridModelMapper::gridMap)
 			.sorted(comparing(resourceTypeViewModel -> resourceTypeViewModel.name.toLowerCase()))
 			.collect(toList());
 	}
