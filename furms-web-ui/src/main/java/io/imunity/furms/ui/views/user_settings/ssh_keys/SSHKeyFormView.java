@@ -55,7 +55,8 @@ class SSHKeyFormView extends FurmsViewComponent {
 
 		this.sshKeyService = sshKeysService;
 		this.authzService = authzService;
-		SiteComboBoxModelResolver resolver = new SiteComboBoxModelResolver(siteService.findAll());
+		SiteComboBoxModelResolver resolver = new SiteComboBoxModelResolver(
+				siteService.findUserSites(authzService.getCurrentUserId()));
 		this.sshKeyComponent = new SSHKeyFormComponent(binder, resolver, sshKeysService);
 		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
 			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
