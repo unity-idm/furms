@@ -511,24 +511,20 @@ channels:
       publish:
          summary: Information about allocated resources
          description: In case when a request is generally accepted, the site should actually allocate resources. Since the allocation scheme can vary from site to site, the site agent can report multiple allocations, with different amounts then the requested ones. Reporting of allocation is communicated with the message ResourceAllocationResult
-         operationId: ResourceAllocationResult
+         operationId: ProjectResourceAllocationResult
          message:
-            name: ResourceAllocationResult
+            name: ProjectResourceAllocationResult
             traits:
                - $ref: "#/components/messageTraits/response"
             payload:
                type: object
                additionalProperties: false
                properties:
-                  projectIdentifier:
-                     $ref: "#/components/schemas/projectIdentifier"
                   allocationIdentifier:
                      $ref: "#/components/schemas/allocationIdentifier"
                   allocationChunkIdentifier:
                      type: string
                      description: Identifies chunk assigned by site under the requested allocationIdentifier. Single FURMS allocation can be realized with multiple chunks.  
-                  resourceType:
-                     type: string
                   amount:
                      type: number
                      format: double
