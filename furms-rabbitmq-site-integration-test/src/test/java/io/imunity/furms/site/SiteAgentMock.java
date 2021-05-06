@@ -166,7 +166,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectRemovalResult result = new UserProjectRemovalResult(payload.body.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectRemovalResult result = new UserProjectRemovalResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
