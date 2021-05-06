@@ -125,7 +125,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 
 	public boolean isUserAdded(String siteId, String userId) {
 		return userAdditionEntityRepository.isUserAdded(
-			siteId, userId,
+			UUID.fromString(siteId), userId,
 			UserAdditionStatus.ADDED.getPersistentId(),
 			UserRemovalStatus.REMOVED.getPersistentId()
 		);
