@@ -51,7 +51,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	private UUID siteId;
 	private UUID projectId;
-	private UUID userAdditionalId;
 
 	@BeforeEach
 	void init() {

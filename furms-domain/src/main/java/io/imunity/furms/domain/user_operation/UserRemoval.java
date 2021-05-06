@@ -5,10 +5,10 @@
 
 package io.imunity.furms.domain.user_operation;
 
+import java.util.Objects;
+
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
-
-import java.util.Objects;
 
 public class UserRemoval {
 	public final String id;

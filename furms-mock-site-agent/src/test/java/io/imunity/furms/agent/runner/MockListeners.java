@@ -199,7 +199,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectRemovalResult result = new UserProjectRemovalResult(payload.body.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectRemovalResult result = new UserProjectRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
