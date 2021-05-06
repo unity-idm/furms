@@ -12,24 +12,19 @@ import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 
-class SSHKeyOperationMapper
-{
-	static AgentSSHKeyAdditionRequest map(SSHKeyAddition installation)
-	{
+class SSHKeyOperationMapper {
+	static AgentSSHKeyAdditionRequest map(SSHKeyAddition installation) {
 		return AgentSSHKeyAdditionRequest.builder().fenixUserId(installation.user.id)
-				.publicKey(installation.publicKey).uid(installation.userUid).build();
+				.publicKey(installation.publicKey).build();
 	}
 
-	static AgentSSHKeyRemovalRequest map(SSHKeyRemoval deInstallation)
-	{
+	static AgentSSHKeyRemovalRequest map(SSHKeyRemoval deInstallation) {
 		return AgentSSHKeyRemovalRequest.builder().fenixUserId(deInstallation.user.id)
-				.publicKey(deInstallation.publicKey).uid(deInstallation.userUid).build();
+				.publicKey(deInstallation.publicKey).build();
 	}
 
-	static AgentSSHKeyUpdatingRequest map(SSHKeyUpdating updating)
-	{
+	static AgentSSHKeyUpdatingRequest map(SSHKeyUpdating updating) {
 		return AgentSSHKeyUpdatingRequest.builder().fenixUserId(updating.user.id)
-				.oldPublicKey(updating.oldPublicKey).newPublicKey(updating.newPublicKey)
-				.uid(updating.userUid).build();
+				.oldPublicKey(updating.oldPublicKey).newPublicKey(updating.newPublicKey).build();
 	}
 }

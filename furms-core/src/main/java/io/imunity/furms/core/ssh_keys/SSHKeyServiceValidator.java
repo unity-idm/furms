@@ -142,4 +142,11 @@ public class SSHKeyServiceValidator {
 				() -> new IllegalArgumentException(
 						"Invalid SSH key: there are uncompleted key operations"));
 	}
+	
+	void assertIsEligibleToManageKeys() {
+		validateFenixId(authzService.getCurrentAuthNUser().id.get());
+	}
 }
+
+
+

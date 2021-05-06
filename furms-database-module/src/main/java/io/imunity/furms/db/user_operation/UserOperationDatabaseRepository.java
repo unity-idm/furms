@@ -113,4 +113,12 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.build())
 			.ifPresent(userAdditionEntityRepository::save);
 	}
+
+	public boolean isUserAdded(String siteId, String userId) {
+		return userAdditionEntityRepository.isUserAdded(
+			siteId, userId,
+			UserAdditionStatus.ADDED.getPersistentId(),
+			UserRemovalStatus.REMOVED.getPersistentId()
+		);
+	}
 }

@@ -98,7 +98,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 
 		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
-		assertThat(userAdditions.iterator().next().status).isEqualTo(UserAdditionStatus.PENDING.getValue());
+		assertThat(userAdditions.iterator().next().status).isEqualTo(UserAdditionStatus.PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
 		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId);
 	}
@@ -128,7 +128,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString() ,"userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isTrue();
 	}
 
@@ -145,7 +145,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isTrue();
 	}
 
@@ -174,7 +174,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded("userId", UserAdditionStatus.ADDED.getValue(), UserRemovalStatus.REMOVED.getValue());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isFalse();
 	}
 
@@ -257,6 +257,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserAdditionStatus.ADDED.getPersistentId());
 	}
 }

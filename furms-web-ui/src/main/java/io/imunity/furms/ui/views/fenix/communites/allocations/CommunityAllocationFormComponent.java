@@ -22,6 +22,11 @@ import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
+import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
+import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
+import io.imunity.furms.ui.community.allocations.ResourceCreditComboBoxModel;
+import io.imunity.furms.ui.community.allocations.ResourceTypeComboBoxModel;
+import io.imunity.furms.ui.community.allocations.SiteComboBoxModel;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
 public class CommunityAllocationFormComponent extends Composite<Div> {
@@ -159,20 +164,20 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(CommunityAllocationViewModel model) {
-		if(model.site != null) {
+		if(model.getSite() != null) {
 			siteComboBox.setEnabled(false);
-			siteComboBox.setItems(model.site);
+			siteComboBox.setItems(model.getSite());
 		}
-		if(model.resourceType != null){
+		if(model.getResourceType() != null){
 			resourceTypeComboBox.setEnabled(false);
-			resourceTypeComboBox.setItems(model.resourceType);
+			resourceTypeComboBox.setItems(model.getResourceType());
 		}
-		if(model.resourceCredit != null) {
+		if(model.getResourceCredit() != null) {
 			resourceCreditComboBox.setEnabled(false);
-			resourceCreditComboBox.setItems(model.resourceCredit);
+			resourceCreditComboBox.setItems(model.getResourceCredit());
 		}
-		if(model.amount != null) {
-			lastAmount = model.amount;
+		if(model.getAmount() != null) {
+			lastAmount = model.getAmount();
 		}
 		binder.setBean(model);
 	}

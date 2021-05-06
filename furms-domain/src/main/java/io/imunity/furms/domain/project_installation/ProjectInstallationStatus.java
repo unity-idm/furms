@@ -5,6 +5,25 @@
 
 package io.imunity.furms.domain.project_installation;
 
+import java.util.Arrays;
+
 public enum ProjectInstallationStatus {
-	SENT, ACKNOWLEDGED, INSTALLED, FAILED
+	PENDING(0), ACKNOWLEDGED(1), INSTALLED(2), FAILED(3);
+
+	ProjectInstallationStatus(int persistentId) {
+		this.persistentId = persistentId;
+	}
+
+	private final int persistentId;
+
+	public int getPersistentId() {
+		return persistentId;
+	}
+
+	public static ProjectInstallationStatus valueOf(int status){
+		return Arrays.stream(values())
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
+			.findAny()
+			.orElse(null);
+	}
 }

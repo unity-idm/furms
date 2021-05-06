@@ -82,6 +82,28 @@ class MockListeners {
 	}
 
 	@EventListener
+	public void receiveAgentProjectUpdateRequest(Payload<AgentProjectUpdateRequest> projectUpdateRequest) throws InterruptedException {
+		Header header = getHeader(projectUpdateRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectUpdateRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult(projectUpdateRequest.body.identifier);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectRemovalRequest(Payload<AgentProjectRemovalRequest> projectRemovalRequest) throws InterruptedException {
+		Header header = getHeader(projectRemovalRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectRemovalRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult(projectRemovalRequest.body.identifier);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
 	public void receiveAgentSSHKeyAdditionRequest(
 			Payload<AgentSSHKeyAdditionRequest> agentSSHKeyInstallationRequest)
 			throws InterruptedException {
@@ -91,9 +113,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult(
-				agentSSHKeyInstallationRequest.body.fenixUserId,
-				agentSSHKeyInstallationRequest.body.uid);
+		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -106,8 +126,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult(
-				agentSSHKeyUpdatingRequest.body.fenixUserId, agentSSHKeyUpdatingRequest.body.uid);
+		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -120,8 +139,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult(
-				agentSSHKeyRemovalRequest.body.fenixUserId, agentSSHKeyRemovalRequest.body.uid);
+		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 

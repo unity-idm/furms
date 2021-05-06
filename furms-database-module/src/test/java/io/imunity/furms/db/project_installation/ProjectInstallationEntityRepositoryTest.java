@@ -15,7 +15,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -96,11 +95,6 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		projectId2 = UUID.fromString(projectRepository.create(project2));
 	}
 
-	@AfterEach
-	void clean(){
-		entityRepository.deleteAll();
-	}
-
 	@Test
 	void shouldCreateProjectInstallationJob() {
 		//given
@@ -109,7 +103,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
@@ -120,7 +114,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(SENT);
+		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -132,7 +126,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
@@ -152,7 +146,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectInstallationJobEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED);
+		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -164,7 +158,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		entityRepository.save(toSave);
@@ -184,7 +178,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		entityRepository.save(toFind);
@@ -205,7 +199,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
@@ -233,7 +227,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId2)
 				.projectId(projectId2)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 
 		//when
@@ -252,7 +246,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectId(projectId)
-				.status(SENT)
+				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()

@@ -5,10 +5,17 @@
 
 package io.imunity.furms.core.project_installation;
 
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
-import io.imunity.furms.spi.project_installation.ProjectInstallationRepository;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,17 +23,23 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.SENT;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
 
 class ProjectInstallationServiceTest {
 	@Mock
-	private ProjectInstallationRepository repository;
+	private ProjectOperationRepository repository;
 	@Mock
-	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Mock
 	private UsersDAO usersDAO;
+	@Mock
+	private SiteRepository siteRepository;
 
 	private ProjectInstallationServiceImpl service;
 	private InOrder orderVerifier;
@@ -34,30 +47,44 @@ class ProjectInstallationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectInstallationService, usersDAO);
-		orderVerifier = inOrder(repository);
+		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectOperationService, usersDAO, siteRepository);
+		orderVerifier = inOrder(repository, siteAgentProjectOperationService);
 	}
 
 	@Test
 	void shouldCreateProjectInstallation() {
 		//given
-		CorrelationId id = new CorrelationId("id");
-		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
-				.correlationId(id)
-				.status(SENT)
-				.build();
-
+		ProjectInstallation projectInstallation = ProjectInstallation.builder().build();
 		//when
-		service.create("communityId", projectInstallationJob, null);
+		when(repository.findProjectInstallation(eq("projectAllocationId"), any()))
+			.thenReturn(projectInstallation);
+		service.create("communityId", "projectId", projectInstallation);
 
 		//then
-		orderVerifier.verify(repository).create(eq(projectInstallationJob));
+		orderVerifier.verify(repository).create(any(ProjectInstallationJob.class));
+		orderVerifier.verify(siteAgentProjectOperationService).installProject(any(), any());
 	}
 
 	@Test
-	void shouldDeleteProjectInstallation() {
-		service.delete("id", "id");
+	void shouldCreateProjectUpdate() {
+		//given
+		PersistentId userId = new PersistentId("userId");
+		Project project = Project.builder()
+			.id("id")
+			.leaderId(userId)
+			.build();
+		FURMSUser user = FURMSUser.builder()
+			.id(userId)
+			.email("email")
+			.build();
 
-		orderVerifier.verify(repository).delete(eq("id"));
+		//when
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
+		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
+		service.update("communityId", project);
+
+		//then
+		orderVerifier.verify(repository).create(any(ProjectUpdateJob.class));
+		orderVerifier.verify(siteAgentProjectOperationService).updateProject(any(), any(), any(), any());
 	}
 }

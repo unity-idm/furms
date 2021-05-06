@@ -14,7 +14,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
@@ -53,11 +52,32 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		String i = String.valueOf(new Random().nextInt(1000));
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", i));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", "1"));
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
-	
+
+	@EventListener
+	public void receiveAgentProjectUpdateRequest(Payload<AgentProjectUpdateRequest> projectUpdateRequest) throws InterruptedException {
+		Header header = getHeader(projectUpdateRequest.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectUpdateRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult(projectUpdateRequest.body.identifier);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectRemovalRequest(Payload<AgentProjectRemovalRequest> projectRemovalRequest) throws InterruptedException {
+		Header header = getHeader(projectRemovalRequest.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectRemovalRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult(projectRemovalRequest.body.identifier);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
 	@EventListener
 	public void receiveAgentSSHKeyAdditionRequest(
 			Payload<AgentSSHKeyAdditionRequest> agentSSHKeyInstallationRequest)
@@ -68,9 +88,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult(
-				agentSSHKeyInstallationRequest.body.fenixUserId,
-				agentSSHKeyInstallationRequest.body.uid);
+		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 
@@ -82,8 +100,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult(
-				agentSSHKeyUpdatingRequest.body.fenixUserId, agentSSHKeyUpdatingRequest.body.uid);
+		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 
@@ -95,8 +112,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult(
-				agentSSHKeyRemovalRequest.body.fenixUserId, agentSSHKeyRemovalRequest.body.uid);
+		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
 	}
 
