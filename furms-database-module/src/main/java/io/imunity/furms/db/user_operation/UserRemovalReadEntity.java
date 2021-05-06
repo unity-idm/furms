@@ -42,7 +42,6 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
-			.uid(uid)
 			.status(UserRemovalStatus.valueOf(status))
 			.build();
 	}

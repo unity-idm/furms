@@ -104,7 +104,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 				getFurmsPublishQueueName(userRemoval.siteId.externalId),
 				new Payload<>(
 					new Header(VERSION, userRemoval.correlationId.id),
-					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.uid, userRemoval.projectId)
+					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.projectId)
 				)
 			);
 		}catch (AmqpConnectException e){

@@ -51,7 +51,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	private UUID siteId;
 	private UUID projectId;
-	private UUID userAdditionalId;
 
 	@BeforeEach
 	void init() {
@@ -148,7 +147,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 			.projectId(projectId.toString())
 			.correlationId(CorrelationId.randomID())
 			.userAdditionId(userAdditionSaveEntity.getId().toString())
-			.uid("uid")
 			.userId("userId")
 			.status(UserRemovalStatus.ACKNOWLEDGED)
 			.build();
@@ -160,7 +158,6 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().siteId.toString()).isEqualTo(userRemoval.siteId.id);
 		assertThat(byId.get().projectId.toString()).isEqualTo(userRemoval.projectId);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(userRemoval.correlationId.id);
-		assertThat(byId.get().uid).isEqualTo(userRemoval.uid);
 		assertThat(byId.get().status).isEqualTo(userRemoval.status.getPersistentId());
 	}
 

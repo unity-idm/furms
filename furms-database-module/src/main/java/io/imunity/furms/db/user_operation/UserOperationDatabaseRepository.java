@@ -61,7 +61,8 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.projectId(fromString(userRemoval.projectId))
 				.userAdditionId(fromString(userRemoval.userAdditionId))
 				.userId(userRemoval.userId)
-				.uid(userRemoval.uid)
+//FIXME drop from db with FU-173
+//				.uid(userRemoval.uid)
 				.status(userRemoval.status)
 				.build()
 		);

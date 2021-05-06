@@ -91,7 +91,6 @@ class UserOperationServiceImpl implements UserOperationService {
 				.siteId(userAddition.siteId)
 				.projectId(userAddition.projectId)
 				.userAdditionId(userAddition.id)
-				.uid(userAddition.uid)
 				.userId(fenixUserId)
 				.status(UserRemovalStatus.PENDING)
 				.build())
