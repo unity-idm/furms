@@ -22,7 +22,8 @@ public final class RoutesConst {
 	public static final String OAUTH_START_WITH_AUTOPROXY_URL = "/oauth2/authorization/param";
 	public static final String REGISTRATION_ID = "/unity";
 
-	public static final String FENIX_ADMIN_LANDING_PAGE = "fenix/admin/sites";
+	public static final String FENIX_ADMIN_LANDING_PAGE = "fenix/admin/dashboard";
+	public static final String FENIX_ADMIN_SITES = "fenix/admin/sites";
 	public static final String SITE_BASE_LANDING_PAGE = "site/admin/policy/documents";
 	public static final String SITE_SUPPORT_LANDING_PAGE = "site/support/signed/policies";
 	public static final String COMMUNITY_BASE_LANDING_PAGE = "community/admin/dashboard";

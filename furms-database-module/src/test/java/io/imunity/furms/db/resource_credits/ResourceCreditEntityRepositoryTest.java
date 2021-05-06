@@ -24,10 +24,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -231,6 +235,181 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 
 		//then
 		assertThat(all).hasSize(2);
+	}
+
+	@Test
+	void shouldFindAllBySiteNameAndNonExpired() {
+		//given
+		final ResourceCreditEntity nonExpired = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId2)
+				.resourceTypeId(resourceTypeId)
+				.name("other1")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().plusDays(10))
+				.build());
+		final ResourceCreditEntity expired = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId2)
+				.resourceTypeId(resourceTypeId)
+				.name("other2")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+		final ResourceCreditEntity otherSite = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other3")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+
+		//when
+		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("name2")
+													.collect(toList());
+
+		//then
+		assertThat(all).hasSize(1);
+		final ResourceCreditEntity foundEntity = all.get(0);
+		assertThat(foundEntity.getId()).isEqualTo(nonExpired.getId());
+	}
+
+	@Test
+	void shouldFindAllBySiteNameAndIncludeExpired() {
+		//given
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId2)
+				.resourceTypeId(resourceTypeId)
+				.name("other1")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().plusDays(10))
+				.build());
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId2)
+				.resourceTypeId(resourceTypeId)
+				.name("other2")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+		final ResourceCreditEntity otherSite = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other3")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+
+		//when
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("name2")
+												.collect(toSet());
+
+		//then
+		assertThat(all).hasSize(2);
+		assertThat(all).doesNotContain(otherSite);
+	}
+
+	@Test
+	void shouldFindAllByCreditNameAndNonExpired() {
+		//given
+		final ResourceCreditEntity nonExpired = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other1")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().plusDays(10))
+				.build());
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other2")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+
+		//when
+		final List<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("other")
+													.collect(toList());
+
+		//then
+		assertThat(all).hasSize(1);
+		final ResourceCreditEntity foundEntity = all.get(0);
+		assertThat(foundEntity.getId()).isEqualTo(nonExpired.getId());
+	}
+
+	@Test
+	void shouldFindAllByCreditNamePartAndIncludeExpired() {
+		//given
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other1")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().plusDays(10))
+				.build());
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("other2")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+		final ResourceCreditEntity differentName = resourceCreditRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("different")
+				.split(true)
+				.access(false)
+				.amount(new BigDecimal(342))
+				.createTime(createTime2)
+				.startTime(LocalDateTime.now().minusSeconds(10))
+				.endTime(LocalDateTime.now().minusSeconds(1))
+				.build());
+
+		//when
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("ther")
+												.collect(toSet());
+
+		//then
+		assertThat(all).hasSize(2);
+		assertThat(all).doesNotContain(differentName);
 	}
 
 	@Test

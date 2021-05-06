@@ -19,6 +19,9 @@ import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
+import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
+import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -110,7 +113,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		String communityId = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
-			.getOrDefault("communityId", singletonList(serviceViewModel.communityId))
+			.getOrDefault("communityId", singletonList(serviceViewModel.getCommunityId()))
 			.iterator().next();
 		Optional.ofNullable(communityId)
 			.ifPresent(id -> this.communityId = id);
