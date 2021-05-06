@@ -92,7 +92,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.get(c.id);
 			return projectAllocationInstallations.stream()
 				.map(x -> x.status)
-				.max(comparing(ProjectAllocationInstallationStatus::getValue))
+				.max(comparing(ProjectAllocationInstallationStatus::getPersistentId))
 				.orElse(null);
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))

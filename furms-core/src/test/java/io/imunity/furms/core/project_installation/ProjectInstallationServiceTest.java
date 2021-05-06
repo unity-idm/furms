@@ -58,7 +58,7 @@ class ProjectInstallationServiceTest {
 		//when
 		when(repository.findProjectInstallation(eq("projectAllocationId"), any()))
 			.thenReturn(projectInstallation);
-		service.create("communityId", "projectId", projectInstallation);
+		service.create("projectId", projectInstallation);
 
 		//then
 		orderVerifier.verify(repository).create(any(ProjectInstallationJob.class));
@@ -81,7 +81,7 @@ class ProjectInstallationServiceTest {
 		//when
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
-		service.update("communityId", project);
+		service.update(project);
 
 		//then
 		orderVerifier.verify(repository).create(any(ProjectUpdateJob.class));

@@ -13,6 +13,8 @@ import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
 
 import java.time.ZoneOffset;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+
 class ProjectInstallationMapper {
 	static AgentProjectInstallationRequest map(ProjectInstallation projectInstallation){
 		FURMSUser user = projectInstallation.leader;
@@ -36,8 +38,8 @@ class ProjectInstallationMapper {
 			.name(project.getName())
 			.description(project.getDescription())
 			.researchField(project.getResearchField())
-			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC))
-			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC))
+			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC).toOffsetDateTime())
+			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC).toOffsetDateTime())
 			.projectLeader(UserMapper.map(user))
 			.build();
 	}

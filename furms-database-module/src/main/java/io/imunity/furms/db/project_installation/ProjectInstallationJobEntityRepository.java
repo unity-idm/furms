@@ -9,10 +9,11 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectInstallationJobEntityRepository extends CrudRepository<ProjectInstallationJobEntity, UUID> {
-	ProjectInstallationJobEntity findByCorrelationId(UUID correlationId);
+	Optional<ProjectInstallationJobEntity> findByCorrelationId(UUID correlationId);
 
 	boolean existsBySiteIdAndProjectId(UUID siteId, UUID projectId);
 

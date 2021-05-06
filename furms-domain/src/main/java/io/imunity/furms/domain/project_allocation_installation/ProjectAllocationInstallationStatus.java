@@ -8,22 +8,21 @@ package io.imunity.furms.domain.project_allocation_installation;
 import java.util.Arrays;
 
 public enum ProjectAllocationInstallationStatus {
-	PENDING(0), ACKNOWLEDGED(1), INSTALLED(2), FAILED(3);
+	PROVISIONING_PROJECT(0), PENDING(1), ACKNOWLEDGED(2), INSTALLED(3), FAILED(4);
 
-	ProjectAllocationInstallationStatus(int value) {
-		this.value = value;
+	ProjectAllocationInstallationStatus(int persistentId) {
+		this.persistentId = persistentId;
 	}
 
-	private final int value;
+	private final int persistentId;
 
-	public int getValue() {
-		return value;
+	public int getPersistentId() {
+		return persistentId;
 	}
 
 	public static ProjectAllocationInstallationStatus valueOf(int status){
 		return Arrays.stream(values())
-			.filter(userRemovalStatus -> userRemovalStatus.getValue() == status)
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElse(null);
-	}
+			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));	}
 }

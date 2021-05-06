@@ -90,7 +90,7 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectAllocationInstallationEntityBuilder status(ProjectDeallocationStatus status) {
-			this.status = status.getValue();
+			this.status = status.getPersistentId();
 			return this;
 		}
 

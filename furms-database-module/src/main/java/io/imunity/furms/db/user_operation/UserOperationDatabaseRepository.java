@@ -45,11 +45,24 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(fromString(userAddition.siteId.id))
 				.projectId(fromString(userAddition.projectId))
 				.userId(userAddition.userId)
-				.uid(userAddition.uid)
 				.status(userAddition.status)
 				.build()
 		);
 		return userAdditionSaveEntity.getId().toString();
+	}
+
+	@Override
+	public UserAdditionStatus findAdditionStatusByCorrelationId(String correlationId) {
+		return userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+			.map(x -> UserAdditionStatus.valueOf(x.status))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+	}
+
+	@Override
+	public UserRemovalStatus findRemovalStatusByCorrelationId(String correlationId) {
+		return userRemovalEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+			.map(x -> UserRemovalStatus.valueOf(x.status))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 
 	@Override
@@ -61,7 +74,6 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.projectId(fromString(userRemoval.projectId))
 				.userAdditionId(fromString(userRemoval.userAdditionId))
 				.userId(userRemoval.userId)
-				.uid(userRemoval.uid)
 				.status(userRemoval.status)
 				.build()
 		);
@@ -77,7 +89,6 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(oldEntity.siteId)
 				.userId(oldEntity.userId)
 				.projectId(oldEntity.projectId)
-				.uid(userAddition.uid)
 				.status(userAddition.status)
 				.build())
 			.ifPresent(userAdditionEntityRepository::save);
@@ -93,7 +104,6 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.projectId(oldEntity.projectId)
 				.userId(oldEntity.userId)
 				.userAdditionId(oldEntity.userAdditionId)
-				.uid(oldEntity.uid)
 				.status(userRemovalStatus)
 				.build())
 			.ifPresent(userRemovalEntityRepository::save);
@@ -108,7 +118,6 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(oldEntity.siteId)
 				.userId(oldEntity.userId)
 				.projectId(oldEntity.projectId)
-				.uid(oldEntity.uid)
 				.status(userAdditionStatus)
 				.build())
 			.ifPresent(userAdditionEntityRepository::save);

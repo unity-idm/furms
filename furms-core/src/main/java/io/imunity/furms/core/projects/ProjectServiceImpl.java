@@ -133,9 +133,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	private void updateInAgent(Project project) {
-		if(projectInstallationService.existsByProjectId(project.getCommunityId(), project.getId())) {
-			projectInstallationService.update(project.getCommunityId(), project);
-		}
+		projectInstallationService.update(project);
 	}
 
 	@Override
@@ -143,17 +141,15 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String projectId, String communityId) {
 		validator.validateDelete(projectId);
-		removeFromAgent(communityId, projectId);
+		removeFromAgent(projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
 		publisher.publishEvent(new RemoveProjectEvent(projectId));
 		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 
-	private void removeFromAgent(String communityId, String projectId) {
-		if(projectInstallationService.existsByProjectId(communityId, projectId)) {
-			projectInstallationService.remove(communityId, projectId);
-		}
+	private void removeFromAgent(String projectId) {
+		projectInstallationService.remove(projectId);
 	}
 
 	@Override

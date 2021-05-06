@@ -29,7 +29,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public ProjectInstallationJob findInstallationJobByCorrelationId(CorrelationId correlationId) {
-		ProjectInstallationJobEntity job = installationRepository.findByCorrelationId(UUID.fromString(correlationId.id));
+		ProjectInstallationJobEntity job = installationRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		return ProjectInstallationJob.builder()
 			.id(job.getId().toString())
 			.correlationId(new CorrelationId(job.correlationId.toString()))
@@ -41,7 +42,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public ProjectUpdateJob findUpdateJobByCorrelationId(CorrelationId correlationId) {
-		ProjectUpdateJobEntity job = updateRepository.findByCorrelationId(UUID.fromString(correlationId.id));
+		ProjectUpdateJobEntity job = updateRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		return ProjectUpdateJob.builder()
 			.id(job.getId().toString())
 			.correlationId(new CorrelationId(job.correlationId.toString()))
@@ -123,8 +125,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public boolean existsByProjectId(String projectId) {
-		return installationRepository.existsByProjectId(UUID.fromString(projectId));
+	public boolean existsByProjectId(String siteId, String projectId) {
+		return installationRepository.existsBySiteIdAndProjectId(UUID.fromString(siteId), UUID.fromString(projectId));
 	}
 
 	@Override

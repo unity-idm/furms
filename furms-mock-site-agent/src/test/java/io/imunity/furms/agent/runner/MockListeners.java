@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
@@ -71,13 +71,12 @@ class MockListeners {
 		String correlationId = projectInstallationRequest.header.messageCorrelationId;
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
 		rabbitTemplate.convertAndSend(responseQueueName,
-				new Payload<>(header, new AgentProjectInstallationAck()));
+				new Payload<>(header, new AgentProjectInstallationRequestAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
 		String i = String.valueOf(new Random().nextInt(1000));
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(
-				projectInstallationRequest.body.identifier, Map.of("gid", i));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(Map.of("gid", i));
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -88,7 +87,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentProjectUpdateResult result = new AgentProjectUpdateResult(projectUpdateRequest.body.identifier);
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -99,7 +98,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentProjectRemovalResult result = new AgentProjectRemovalResult(projectRemovalRequest.body.identifier);
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -183,7 +182,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 

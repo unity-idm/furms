@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.project_installation;
 
+import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
@@ -21,6 +23,10 @@ import static org.mockito.Mockito.when;
 class ProjectInstallationMessageResolverTest {
 	@Mock
 	private ProjectOperationRepository repository;
+	@Mock
+	private ProjectAllocationInstallationService projectAllocationInstallationService;
+	@Mock
+	private UserOperationService userOperationService;
 
 	private ProjectInstallationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -28,8 +34,8 @@ class ProjectInstallationMessageResolverTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectInstallationMessageResolverImpl(repository);
-		orderVerifier = inOrder(repository);
+		service = new ProjectInstallationMessageResolverImpl(repository, projectAllocationInstallationService, userOperationService);
+		orderVerifier = inOrder(repository, projectAllocationInstallationService);
 	}
 
 	@Test
@@ -48,6 +54,26 @@ class ProjectInstallationMessageResolverTest {
 
 		//then
 		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED);
+	}
+
+	@Test
+	void shouldUpdateProjectInstallationAndStartAllocationsInstallation() {
+		//given
+		CorrelationId id = new CorrelationId("id");
+		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
+			.id("id")
+			.projectId("projectId")
+			.correlationId(id)
+			.status(PENDING)
+			.build();
+
+		//when
+		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		service.update(id, new ProjectInstallationResult(null, ProjectInstallationStatus.INSTALLED, null));
+
+		//then
+		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED);
+		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId");
 	}
 
 	@Test

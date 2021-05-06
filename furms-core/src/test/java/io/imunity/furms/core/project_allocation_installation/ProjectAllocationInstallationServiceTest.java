@@ -9,8 +9,10 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,38 +20,68 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+import java.util.Set;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
 
 class ProjectAllocationInstallationServiceTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
 	@Mock
+	private ProjectAllocationRepository projectAllocationRepository;
+	@Mock
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 
-	private ProjectAllocationInstallationServiceImpl service;
+	private ProjectAllocationInstallationService service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationServiceImpl(repository, siteAgentProjectAllocationInstallationService);
-		orderVerifier = inOrder(repository, siteAgentProjectAllocationInstallationService);
+		service = new ProjectAllocationInstallationService(repository, projectAllocationRepository, siteAgentProjectAllocationInstallationService);
+		orderVerifier = inOrder(repository, siteAgentProjectAllocationInstallationService, projectAllocationRepository);
 	}
 
 	@Test
 	void shouldCreateProjectAllocationInstallation() {
 		//given
-		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
-				.status(ProjectAllocationInstallationStatus.PENDING)
-				.build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
+			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
+				.site(Site.builder().build())
+				.build()));
 
 		//when
-		service.createAllocation("communityId", projectAllocationInstallation, null);
+		service.createAllocation("projectAllocationId");
 
 		//then
 		orderVerifier.verify(repository).create(any(ProjectAllocationInstallation.class));
-		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(any(), any());
+	}
+
+	@Test
+	void shouldStartProjectAllocationInstallation() {
+		//given
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		when(repository.findAll("projectId"))
+			.thenReturn(Set.of(ProjectAllocationInstallation.builder()
+				.correlationId(correlationId)
+				.projectAllocationId("projectAllocationId")
+				.build()));
+		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
+			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
+				.site(Site.builder().build())
+				.build()));
+
+		//when
+		service.startWaitingAllocations("projectId");
+
+		//then
+		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING);
+		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(eq(correlationId), any());
 	}
 
 	@Test
@@ -60,7 +92,7 @@ class ProjectAllocationInstallationServiceTest {
 			.build();
 
 		//when
-		service.createDeallocation("communityId", projectAllocationInstallation);
+		service.createDeallocation(projectAllocationInstallation);
 
 		//then
 		orderVerifier.verify(repository).create(any(ProjectDeallocation.class));

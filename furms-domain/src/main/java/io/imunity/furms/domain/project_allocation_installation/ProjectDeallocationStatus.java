@@ -10,20 +10,20 @@ import java.util.Arrays;
 public enum ProjectDeallocationStatus {
 	PENDING(0), ACKNOWLEDGED(1), FAILED(2);
 
-	ProjectDeallocationStatus(int value) {
-		this.value = value;
+	ProjectDeallocationStatus(int persistentId) {
+		this.persistentId = persistentId;
 	}
 
-	private final int value;
+	private final int persistentId;
 
-	public int getValue() {
-		return value;
+	public int getPersistentId() {
+		return persistentId;
 	}
 
 	public static ProjectDeallocationStatus valueOf(int status){
 		return Arrays.stream(values())
-			.filter(userRemovalStatus -> userRemovalStatus.getValue() == status)
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElse(null);
+			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));
 	}
 }

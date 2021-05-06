@@ -8,7 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonTypeName("ProjectUpdateRequest")
@@ -17,12 +17,12 @@ public class AgentProjectUpdateRequest implements Body {
 	public final String name;
 	public final String description;
 	public final String researchField;
-	public final ZonedDateTime validityStart;
-	public final ZonedDateTime validityEnd;
+	public final OffsetDateTime validityStart;
+	public final OffsetDateTime validityEnd;
 	public final AgentUser projectLeader;
 
 	@JsonCreator
-	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, AgentUser projectLeader) {
+	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, OffsetDateTime validityStart, OffsetDateTime validityEnd, AgentUser projectLeader) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
@@ -73,8 +73,8 @@ public class AgentProjectUpdateRequest implements Body {
 		private String name;
 		private String description;
 		private String researchField;
-		private ZonedDateTime validityStart;
-		private ZonedDateTime validityEnd;
+		private OffsetDateTime validityStart;
+		private OffsetDateTime validityEnd;
 		private AgentUser projectLeader;
 
 		private AgentProjectUpdateRequestBuilder() {
@@ -100,12 +100,12 @@ public class AgentProjectUpdateRequest implements Body {
 			return this;
 		}
 
-		public AgentProjectUpdateRequestBuilder validityStart(ZonedDateTime validityStart) {
+		public AgentProjectUpdateRequestBuilder validityStart(OffsetDateTime validityStart) {
 			this.validityStart = validityStart;
 			return this;
 		}
 
-		public AgentProjectUpdateRequestBuilder validityEnd(ZonedDateTime validityEnd) {
+		public AgentProjectUpdateRequestBuilder validityEnd(OffsetDateTime validityEnd) {
 			this.validityEnd = validityEnd;
 			return this;
 		}

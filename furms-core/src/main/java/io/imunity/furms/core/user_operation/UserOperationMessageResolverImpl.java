@@ -28,16 +28,31 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 	}
 
 	public void update(UserAddition userAddition){
+		UserAdditionStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
+		if(status.equals(UserAdditionStatus.ADDED) || status.equals(UserAdditionStatus.FAILED)){
+			LOG.info("UserAddition with given correlation id {} cannot be modified", userAddition.correlationId.id);
+			return;
+		}
 		repository.update(userAddition);
 		LOG.info("UserAddition was update: {}", userAddition);
 	}
 
 	public void updateStatus(CorrelationId correlationId, UserRemovalStatus userRemovalStatus) {
+		UserRemovalStatus status = repository.findRemovalStatusByCorrelationId(correlationId.id);
+		if(status.equals(UserRemovalStatus.REMOVED) || status.equals(UserRemovalStatus.FAILED)){
+			LOG.info("UserRemoval with given correlation id {} cannot be modified", correlationId.id);
+			return;
+		}
 		repository.updateStatus(correlationId, userRemovalStatus);
 		LOG.info("UserRemoval status with given correlation id {} was update to: {}", correlationId.id, userRemovalStatus);
 	}
 
 	public void updateStatus(CorrelationId correlationId, UserAdditionStatus userAdditionStatus) {
+		UserAdditionStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
+		if(status.equals(UserAdditionStatus.ADDED) || status.equals(UserAdditionStatus.FAILED)){
+			LOG.info("UserAddition with given correlation id {} cannot be modified", correlationId.id);
+			return;
+		}
 		repository.updateStatus(correlationId, userAdditionStatus);
 		LOG.info("UserAddition status with given correlation id {} was update to: {}", correlationId.id, userAdditionStatus);
 	}

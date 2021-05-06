@@ -205,7 +205,7 @@ class ProjectDeallocationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -237,7 +237,7 @@ class ProjectDeallocationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectDeallocationEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getValue());
+		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 

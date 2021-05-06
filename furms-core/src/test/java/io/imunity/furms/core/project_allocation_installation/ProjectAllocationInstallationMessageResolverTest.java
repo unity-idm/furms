@@ -37,10 +37,10 @@ class ProjectAllocationInstallationMessageResolverTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
-		service.updateStatus(id, ProjectAllocationInstallationStatus.PENDING);
+		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PENDING);
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
 	}
 
 	@Test

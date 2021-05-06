@@ -40,7 +40,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -194,7 +194,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -205,7 +205,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(PENDING.getValue());
+		assertThat(byId.get().status).isEqualTo(PROVISIONING_PROJECT.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -217,7 +217,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -237,7 +237,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getValue());
+		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -249,7 +249,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		entityRepository.save(toSave);
@@ -269,7 +269,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		entityRepository.save(toFind);
@@ -290,7 +290,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
@@ -318,7 +318,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId2)
 				.projectAllocationId(projectAllocationId2)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -337,7 +337,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 				.correlationId(correlationId)
 				.siteId(siteId)
 				.projectAllocationId(projectAllocationId)
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()

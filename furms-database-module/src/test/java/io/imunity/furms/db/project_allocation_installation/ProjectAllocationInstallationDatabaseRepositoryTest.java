@@ -44,7 +44,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -168,7 +168,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -178,7 +178,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
-		assertThat(allocationInstallation.status).isEqualTo(PENDING);
+		assertThat(allocationInstallation.status).isEqualTo(PROVISIONING_PROJECT);
 	}
 
 	@Test
@@ -199,7 +199,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		ProjectDeallocationEntity deallocation = deallocationRepository.findAll().iterator().next();
 		assertThat(deallocation.getId().toString()).isEqualTo(id);
 		assertThat(deallocation.correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(deallocation.status).isEqualTo(ProjectDeallocationStatus.PENDING.getValue());
+		assertThat(deallocation.status).isEqualTo(ProjectDeallocationStatus.PENDING.getPersistentId());
 	}
 
 	@Test
@@ -211,7 +211,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -245,7 +245,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		ProjectDeallocationEntity projectDeallocationEntity = deallocationRepository.findAll().iterator().next();
 		assertThat(projectDeallocationEntity.getId().toString()).isEqualTo(id);
 		assertThat(projectDeallocationEntity.correlationId.toString()).isEqualTo(correlationId.id);
-		assertThat(projectDeallocationEntity.status).isEqualTo(ProjectDeallocationStatus.ACKNOWLEDGED.getValue());
+		assertThat(projectDeallocationEntity.status).isEqualTo(ProjectDeallocationStatus.ACKNOWLEDGED.getPersistentId());
 	}
 
 	@Test
@@ -256,7 +256,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(PENDING)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when

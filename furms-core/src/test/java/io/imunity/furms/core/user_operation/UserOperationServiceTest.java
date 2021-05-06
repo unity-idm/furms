@@ -14,6 +14,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -42,14 +43,16 @@ class UserOperationServiceTest {
 	private UsersDAO usersDAO;
 	@Mock
 	private ProjectGroupsDAO projectGroupsDAO;
+	@Mock
+	private ProjectRepository projectRepository;
 
-	private UserOperationServiceImpl service;
+	private UserOperationService service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationServiceImpl(repository, siteAgentUserService, siteRepository, projectGroupsDAO, usersDAO);
+		service = new UserOperationService(repository, siteAgentUserService, siteRepository, projectGroupsDAO, usersDAO, projectRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 

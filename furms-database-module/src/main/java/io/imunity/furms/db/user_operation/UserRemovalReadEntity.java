@@ -21,17 +21,15 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final UUID userAdditionalId;
 	public final String userId;
-	public final String  uid;
 	public final int status;
 
-	UserRemovalReadEntity(UUID id, SiteId siteId, UUID projectId, UUID correlationId, UUID userAdditionalId, String userId, String uid, int status) {
+	UserRemovalReadEntity(UUID id, SiteId siteId, UUID projectId, UUID correlationId, UUID userAdditionalId, String userId, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userAdditionalId = userAdditionalId;
 		this.userId = userId;
-		this.uid = uid;
 		this.status = status;
 	}
 
@@ -42,7 +40,6 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
-			.uid(uid)
 			.status(UserRemovalStatus.valueOf(status))
 			.build();
 	}
@@ -56,13 +53,12 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(userAdditionalId, that.userAdditionalId) &&
-			Objects.equals(userId, that.userId) &&
-			Objects.equals(uid, that.uid) && status == that.status;
+			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, siteId, correlationId, userAdditionalId, userId, uid, status);
+		return Objects.hash(id, projectId, siteId, correlationId, userAdditionalId, userId, status);
 	}
 
 	@Override
@@ -74,7 +70,6 @@ public class UserRemovalReadEntity extends UUIDIdentifiable {
 			", correlationId=" + correlationId +
 			", userAdditionalId=" + userAdditionalId +
 			", userId='" + userId + '\'' +
-			", uid='" + uid + '\'' +
 			", status=" + status +
 			'}';
 	}

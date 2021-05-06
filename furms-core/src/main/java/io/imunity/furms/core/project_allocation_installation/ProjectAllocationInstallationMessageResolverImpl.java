@@ -31,6 +31,11 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status) {
+		if(status.equals(ProjectAllocationInstallationStatus.FAILED)){
+			LOG.info("ProjectInstallationAllocation with given correlation id {} failed. It's not supported", correlationId.id);
+			return;
+		}
+		projectAllocationInstallationRepository.findByCorrelationId(correlationId);
 		projectAllocationInstallationRepository.update(correlationId.id, status);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
@@ -38,6 +43,10 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status) {
+		if(status.equals(ProjectDeallocationStatus.FAILED)){
+			LOG.info("ProjectDeallocation with given correlation id {} failed. It's not supported", correlationId.id);
+			return;
+		}
 		projectAllocationInstallationRepository.update(correlationId.id, status);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
@@ -45,6 +54,10 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(ProjectAllocationInstallation result) {
+		if(result.status.equals(ProjectAllocationInstallationStatus.FAILED)){
+			LOG.info("ProjectInstallationAllocation with given correlation id {} failed. It's not supported", result.correlationId.id);
+			return;
+		}
 		projectAllocationInstallationRepository.findByCorrelationId(result.correlationId).ifPresentOrElse(job -> {
 			projectAllocationInstallationRepository.update(result);
 			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", job.id, result.status);

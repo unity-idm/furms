@@ -162,7 +162,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectAllocationInstallationEntityBuilder status(ProjectAllocationInstallationStatus status) {
-			this.status = status.getValue();
+			this.status = status.getPersistentId();
 			return this;
 		}
 

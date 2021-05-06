@@ -9,14 +9,10 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
@@ -43,7 +39,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
-	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
@@ -51,14 +46,12 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             ProjectAllocationInstallationService projectAllocationInstallationService,
-	                             UserOperationService userOperationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
-		this.userOperationService = userOperationService;
 		this.publisher = publisher;
 	}
 
@@ -136,32 +129,22 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		validator.validateCreate(communityId, projectAllocation);
 		String id = projectAllocationRepository.create(projectAllocation);
 
-		installProject(projectAllocation, communityId, id);
-		allocateProject(communityId, id);
+		installProject(projectAllocation, id);
+		allocateProject(id);
 
 		publisher.publishEvent(new CreateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
 
-	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
-		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
-			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
-			projectInstallationService.create(communityId, projectAllocation.projectId, projectInstallation);
-			SiteId siteId = new SiteId(projectInstallation.siteId, projectInstallation.siteExternalId);
-			userOperationService.createUserAdditions(siteId, communityId, projectAllocation.projectId);
+	private void installProject(ProjectAllocation projectAllocation, String id) {
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(id);
+		if(!projectInstallationService.existsByProjectId(projectInstallation.siteId, projectAllocation.projectId)) {
+			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
 		}
 	}
 
-	private void allocateProject(String communityId, String projectAllocationId) {
-		CorrelationId correlationId = CorrelationId.randomID();
-		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
-			.correlationId(correlationId)
-			.siteId(projectAllocationResolved.site.getId())
-			.projectAllocationId(projectAllocationId)
-			.status(ProjectAllocationInstallationStatus.PENDING)
-			.build();
-		projectAllocationInstallationService.createAllocation(communityId, projectAllocationInstallation, projectAllocationResolved);
+	private void allocateProject(String projectAllocationId) {
+		projectAllocationInstallationService.createAllocation(projectAllocationId);
 	}
 
 	@Override
@@ -181,7 +164,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		validator.validateDelete(communityId, id);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
 		projectAllocationRepository.delete(id);
-		projectAllocationInstallationService.createDeallocation(communityId, projectAllocationResolved);
+		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
 		publisher.publishEvent(new RemoveProjectAllocationEvent(id));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);
 	}

@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.project_installation;
 
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -20,10 +19,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService {
@@ -44,23 +39,18 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public ProjectInstallation findProjectInstallation(String communityId, String projectAllocationId) {
+	public ProjectInstallation findProjectInstallation(String projectAllocationId) {
 		return projectOperationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public boolean existsByProjectId(String communityId, String projectId) {
-		return projectOperationRepository.existsByProjectId(projectId);
-	public boolean existsByProjectId(String siteId, String communityId, String projectId) {
-		return projectInstallationRepository.existsByProjectId(siteId, projectId);
+	public boolean existsByProjectId(String siteId, String projectId) {
+		return projectOperationRepository.existsByProjectId(siteId, projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void create(String communityId, String projectId, ProjectInstallation projectInstallation) {
+	public void create(String projectId, ProjectInstallation projectInstallation) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.correlationId(correlationId)
@@ -75,8 +65,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "project.id")
-	public void update(String communityId, Project project) {
+	public void update(Project project) {
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
 				.correlationId(CorrelationId.randomID())
@@ -97,8 +86,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void remove(String communityId, String projectId) {
+	public void remove(String projectId) {
 		siteRepository.findByProjectId(projectId).forEach(siteId -> {
 			CorrelationId correlationId = CorrelationId.randomID();
 			siteAgentProjectOperationService.removeProject(
