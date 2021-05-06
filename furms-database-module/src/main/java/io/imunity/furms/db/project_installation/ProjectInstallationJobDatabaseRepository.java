@@ -84,8 +84,8 @@ class ProjectInstallationJobDatabaseRepository implements ProjectInstallationRep
 	}
 
 	@Override
-	public boolean existsByProjectId(String projectId) {
-		return repository.existsByProjectId(UUID.fromString(projectId));
+	public boolean existsByProjectId(String siteId, String projectId) {
+		return repository.existsBySiteIdAndProjectId(UUID.fromString(siteId), UUID.fromString(projectId));
 	}
 
 	@Override

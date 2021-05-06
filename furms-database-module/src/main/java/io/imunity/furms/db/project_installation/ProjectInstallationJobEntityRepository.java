@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface ProjectInstallationJobEntityRepository extends CrudRepository<ProjectInstallationJobEntity, UUID> {
 	ProjectInstallationJobEntity findByCorrelationId(UUID correlationId);
 
-	boolean existsByProjectId(UUID projectId);
+	boolean existsBySiteIdAndProjectId(UUID siteId, UUID projectId);
 
 	@Query(
 		"select p.id as id, s.id as site_id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +

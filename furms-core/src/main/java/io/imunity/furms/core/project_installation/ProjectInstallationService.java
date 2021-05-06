@@ -10,7 +10,7 @@ import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 
 public interface ProjectInstallationService {
 	ProjectInstallation findProjectInstallation(String communityId, String projectAllocationId);
-	boolean existsByProjectId(String communityId, String projectId);
+	boolean existsByProjectId(String siteId, String communityId, String projectId);
 	void create(String communityId, ProjectInstallationJob projectInstallationJob, ProjectInstallation projectInstallation);
 	void delete(String communityId, String id);
 }

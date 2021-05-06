@@ -141,8 +141,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	private void installProject(ProjectAllocation projectAllocation, String communityId, String id) {
-		if(!projectInstallationService.existsByProjectId(communityId, projectAllocation.projectId)) {
-			ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(communityId, id);
+		if(!projectInstallationService.existsByProjectId(projectInstallation.siteId, communityId, projectAllocation.projectId)) {
 			CorrelationId correlationId = CorrelationId.randomID();
 			ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 				.correlationId(correlationId)

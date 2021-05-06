@@ -44,8 +44,8 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public boolean existsByProjectId(String communityId, String projectId) {
-		return projectInstallationRepository.existsByProjectId(projectId);
+	public boolean existsByProjectId(String siteId, String communityId, String projectId) {
+		return projectInstallationRepository.existsByProjectId(siteId, projectId);
 	}
 
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
