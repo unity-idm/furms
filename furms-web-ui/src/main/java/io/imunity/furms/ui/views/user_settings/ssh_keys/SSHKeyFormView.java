@@ -51,7 +51,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 	private final AuthzService authzService;
 	private BreadCrumbParameter breadCrumbParameter;
 	private ZoneId zoneId;
-	private SiteComboBoxModelResolver resolver;
+	private final SiteComboBoxModelResolver resolver;
 	
 	SSHKeyFormView(SSHKeyService sshKeysService, SiteService siteService, AuthzService authzService) {
 

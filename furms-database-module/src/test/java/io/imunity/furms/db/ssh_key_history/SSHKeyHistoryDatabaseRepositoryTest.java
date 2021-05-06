@@ -98,7 +98,7 @@ class SSHKeyHistoryDatabaseRepositoryTest extends DBIntegrationTest {
 
 		// when
 		List<SSHKeyHistory> findBysiteIdOrderByOriginationTime = entityDatabaseRepository
-				.findLastBySiteIdANdOwnerIdLimitTo(siteId.toString(), "owner", 2);
+				.findBySiteIdAndOwnerIdLimitTo(siteId.toString(), "owner", 2);
 
 		// then
 		assertThat(findBysiteIdOrderByOriginationTime).hasSize(2);
@@ -120,7 +120,7 @@ class SSHKeyHistoryDatabaseRepositoryTest extends DBIntegrationTest {
 		entityDatabaseRepository.deleteOldestLeaveOnly(siteId.toString(), "owner", 5);
 
 		// then
-		List<SSHKeyHistory> findAll = entityDatabaseRepository.findLastBySiteIdANdOwnerIdLimitTo(siteId.toString(),
+		List<SSHKeyHistory> findAll = entityDatabaseRepository.findBySiteIdAndOwnerIdLimitTo(siteId.toString(),
 				"owner", 1000);
 
 		assertThat(findAll.size()).isEqualTo(5);

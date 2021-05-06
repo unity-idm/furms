@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +25,10 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -389,6 +393,37 @@ class SSHKeyServiceValidatorTest {
 		
 		// when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(key));
+	}
+	
+	@Test
+	void shouldNotPassHistoryValidation() {
+
+		//given
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
+				.thenReturn(Arrays.asList(SSHKeyHistory.builder().siteId("siteId")
+						.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey().getFingerprint()).build()));
+		// when+then
+		assertThrows(SSHKeyHistoryException.class, () -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
+				getKey()));
+	}
+	
+	@Test
+	void shouldPassHistoryValidationWhenHistoryIsNotActiveOnSite() {
+
+		// when+then
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(0).build(),
+				getKey()));
+	}
+	
+	@Test
+	void shouldNotPassHistoryValidationWhenHistoryForKeyIsEmpty() {
+
+		//given
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
+				.thenReturn(Collections.emptyList());
+		// when+then
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
+				getKey()));
 	}
 
 	SSHKey getKey() {

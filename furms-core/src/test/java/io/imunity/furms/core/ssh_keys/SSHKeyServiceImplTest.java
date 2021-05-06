@@ -319,7 +319,7 @@ public class SSHKeyServiceImplTest {
 		service.create(key);
 
 		// then
-		verify(sshKeyHistoryRepository).findLastBySiteIdANdOwnerIdLimitTo("s1", "id", 10);
+		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
 	}
 
 	@Test
@@ -349,7 +349,7 @@ public class SSHKeyServiceImplTest {
 		service.update(request);
 
 		// then
-		verify(sshKeyHistoryRepository).findLastBySiteIdANdOwnerIdLimitTo("s1", "id", 10);
+		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
 	}
 
 	@Test

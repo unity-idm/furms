@@ -58,6 +58,12 @@ public class Site {
 	public Integer getSshKeyHistoryLength() {
 		return sshKeyHistoryLength;
 	}
+	
+	public boolean isSshKeyHistoryActive() {
+		if (sshKeyHistoryLength == null || sshKeyHistoryLength.equals(0))
+			return false;
+		return true;
+	}
 
 
 	public static SiteBuilder builder() {

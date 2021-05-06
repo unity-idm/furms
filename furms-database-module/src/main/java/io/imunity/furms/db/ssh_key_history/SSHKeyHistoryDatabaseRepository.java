@@ -24,7 +24,7 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 	}
 
 	@Override
-	public List<SSHKeyHistory> findLastBySiteIdANdOwnerIdLimitTo(String siteId, String ownerId, int limit) {
+	public List<SSHKeyHistory> findBySiteIdAndOwnerIdLimitTo(String siteId, String ownerId, int limit) {
 		return repository.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId, ownerId, PageRequest.of(0, limit)).stream()
 				.map(SSHKeyHistoryEntity::toSSHKeyHistory).collect(Collectors.toList());
 	}

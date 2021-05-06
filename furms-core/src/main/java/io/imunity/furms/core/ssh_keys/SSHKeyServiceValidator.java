@@ -148,13 +148,13 @@ public class SSHKeyServiceValidator {
 	}
 
 
-	void validateHistory(Site site, SSHKey sshKey) {
-		if (site.getSshKeyHistoryLength() == null || site.getSshKeyHistoryLength().equals(0))
+	void assertKeyWasNotUsedPreviously(Site site, SSHKey sshKey) {
+		if (!site.isSshKeyHistoryActive())
 			return;
 		String fingerprint = sshKey.getFingerprint();	
-		assertTrue(sshKeyHistoryRepository.findLastBySiteIdANdOwnerIdLimitTo(site.getId(), sshKey.ownerId.id, site.getSshKeyHistoryLength())
+		assertTrue(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo(site.getId(), sshKey.ownerId.id, site.getSshKeyHistoryLength())
 				.stream().filter(h -> h.sshkeyFingerprint.equals(fingerprint)).findAny().isEmpty(),
-				() -> new SSHKeyHistoryException("Invalid SSH key: The key does not meet the history requirements", site.getId()));
+				() -> new SSHKeyHistoryException("Invalid SSH key: the key does not meet the history requirements", site.getId()));
 	}
 	
 	void assertIsEligibleToManageKeys() {

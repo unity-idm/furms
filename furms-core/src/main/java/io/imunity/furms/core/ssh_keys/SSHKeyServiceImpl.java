@@ -162,7 +162,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
-		validator.validateHistory(site, newKey);
+		validator.assertKeyWasNotUsedPreviously(site, newKey);
 		LOG.info("Updating SSH key {} on site {}", newKey.name, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(newKey.id, site.getId());
@@ -271,7 +271,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
-		validator.validateHistory(site, sshKey);
+		validator.assertKeyWasNotUsedPreviously(site, sshKey);
 		LOG.info("Adding SSH key {} to site {}", sshKey.name, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 

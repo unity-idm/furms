@@ -11,7 +11,7 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 
 public interface SSHKeyHistoryRepository {
 	
-	List<SSHKeyHistory>findLastBySiteIdANdOwnerIdLimitTo(String siteId, String ownerId, int limit);
+	List<SSHKeyHistory> findBySiteIdAndOwnerIdLimitTo(String siteId, String ownerId, int limit);
 
 	String create(SSHKeyHistory sshKeyHistory);
 	
