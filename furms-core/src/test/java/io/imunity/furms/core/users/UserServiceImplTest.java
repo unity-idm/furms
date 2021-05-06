@@ -55,25 +55,23 @@ class UserServiceImplTest {
 	private SSHKeyRepository sshKeyRepository;
 	@Mock
 	private SSHKeyOperationRepository sshKeyOperationRepository;
-	
-	
+
 	@Test
 	void shouldAllowToInviteUser() {
-		//given
+		// given
 		PersistentId id = new PersistentId("userId");
-		when(usersDAO.findById(eq(id))).thenReturn(Optional.of(FURMSUser.builder()
-				.id(id)
-				.email("email")
-				.build()));
+		when(usersDAO.findById(eq(id)))
+				.thenReturn(Optional.of(FURMSUser.builder().id(id).email("email").build()));
 
-		//when
+		// when
 		service.inviteFenixAdmin(id);
 
-		//then
+		// then
 		verify(usersDAO, times(1)).addFenixAdminRole(eq(id));
-		verify(publisher, times(1)).publishEvent(new InviteUserEvent(id, new ResourceId((String) null, APP_LEVEL)));
+		verify(publisher, times(1))
+				.publishEvent(new InviteUserEvent(id, new ResourceId((String) null, APP_LEVEL)));
 	}
-	
+
 	@Test
 	void shouldGetUserSSHKeyWithSitesWithCompletedStatus() {
 		// given
