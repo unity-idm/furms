@@ -36,7 +36,7 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 			return;
 		}
 		projectAllocationInstallationRepository.findByCorrelationId(correlationId);
-		projectAllocationInstallationRepository.update(correlationId.id, status);
+		projectAllocationInstallationRepository.update(correlationId.id, status, null);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 

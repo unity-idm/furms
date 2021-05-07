@@ -8,7 +8,7 @@ package io.imunity.furms.domain.project_allocation_installation;
 import java.util.Arrays;
 
 public enum ProjectAllocationInstallationStatus {
-	PROVISIONING_PROJECT(0), PENDING(1), ACKNOWLEDGED(2), INSTALLED(3), FAILED(4);
+	PROVISIONING_PROJECT(0), PENDING(1), ACKNOWLEDGED(2), INSTALLED(3), FAILED(4), PROJECT_INSTALLATION_FAILED(5);
 
 	ProjectAllocationInstallationStatus(int persistentId) {
 		this.persistentId = persistentId;

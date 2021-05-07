@@ -46,6 +46,9 @@ class ProjectInstallationMessageResolverImpl implements ProjectInstallationMessa
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId);
 			userOperationService.createUserAdditions(job.siteId, job.projectId);
 		}
+		if(result.status.equals(ProjectInstallationStatus.FAILED)){
+			projectAllocationInstallationService.cancelWaitingAllocations(job.projectId, result.error.message);
+		}
 		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, result.status);
 	}
 

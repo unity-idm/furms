@@ -25,7 +25,7 @@ public interface ProjectAllocationInstallationRepository {
 
 	String update(ProjectAllocationInstallation projectAllocation);
 
-	String update(String correlationId, ProjectAllocationInstallationStatus status);
+	String update(String correlationId, ProjectAllocationInstallationStatus status, String msg);
 
 	String update(String correlationId, ProjectDeallocationStatus status);
 
