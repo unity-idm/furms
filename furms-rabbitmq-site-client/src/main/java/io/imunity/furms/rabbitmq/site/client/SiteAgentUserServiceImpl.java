@@ -55,7 +55,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 		userOperationMessageResolver.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
-				.userId(result.body.uid)
+				.uid(result.body.uid)
 				.status(status)
 				.build()
 		);

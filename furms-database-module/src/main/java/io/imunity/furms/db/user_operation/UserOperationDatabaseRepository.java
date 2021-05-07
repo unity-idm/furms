@@ -89,6 +89,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(oldEntity.siteId)
 				.userId(oldEntity.userId)
 				.projectId(oldEntity.projectId)
+				.uid(userAddition.uid)
 				.status(userAddition.status)
 				.build())
 			.ifPresent(userAdditionEntityRepository::save);
