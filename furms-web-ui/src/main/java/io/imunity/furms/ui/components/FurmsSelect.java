@@ -92,6 +92,9 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	}
 
 	private void addSeparators(List<FurmsSelectText> items) {
+		if (items.size() <= 1) {
+			return;
+		}
 		final Map<Integer, List<FurmsSelectText>> itemsGroupedByOrder = items.stream()
 				.collect(groupingBy(x -> x.furmsViewUserContext.viewMode.order));
 		itemsGroupedByOrder.keySet().stream()

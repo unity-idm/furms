@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LANDING_PAGE_URL;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -92,6 +93,10 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 		List<FurmsViewUserContext> viewUserContexts = data.values().stream()
 				.flatMap(Collection::stream)
 				.collect(toList());
+		if (viewUserContexts.size() == 0) {
+			UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
+			return;
+		}
 		if (viewUserContexts.size() == 1 || (viewUserContexts.size() == 2 && data.containsKey(ViewMode.USER))) {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, viewUserContexts.get(0));
 			UI.getCurrent().navigate(viewUserContexts.get(0).route);
