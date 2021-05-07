@@ -70,6 +70,7 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
 
+	@Mock
 	private UserOperationService userOperationService;
 
 
@@ -341,7 +342,7 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.findById("s1"))
 				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
 		when(repository.create(key)).thenReturn("x");
-
+		when(userOperationService.isUserAdded("s1", "id")).thenReturn(true);
 		// when
 		service.create(key);
 
