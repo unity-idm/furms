@@ -18,14 +18,16 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;
 	public final UUID correlationId;
+	public final String uid;
 	public final String userId;
 	public final int status;
 
-	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, String userId, int status) {
+	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, String uid, String userId, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
+		this.uid = uid;
 		this.userId = userId;
 		this.status = status;
 	}
@@ -38,6 +40,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		return Objects.equals(projectId, that.projectId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(correlationId, that.correlationId) &&
+			Objects.equals(uid, that.uid) &&
 			Objects.equals(userId, that.userId);
 	}
 
@@ -53,6 +56,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 			", siteId=" + siteId +
 			", projectId=" + projectId +
 			", correlationId=" + correlationId +
+			", uid=" + uid +
 			", userId='" + userId + '\'' +
 			", status=" + status +
 			'}';
@@ -67,6 +71,7 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		public UUID siteId;
 		public UUID projectId;
 		public UUID correlationId;
+		public String uid;
 		public String userId;
 		public int status;
 
@@ -98,13 +103,18 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public UserAdditionEntityBuilder uid(String uid) {
+			this.uid = uid;
+			return this;
+		}
+
 		public UserAdditionEntityBuilder status(UserAdditionStatus status) {
 			this.status = status.getPersistentId();
 			return this;
 		}
 
 		public UserAdditionSaveEntity build() {
-			return new UserAdditionSaveEntity(id, siteId, projectId, correlationId, userId, status);
+			return new UserAdditionSaveEntity(id, siteId, projectId, correlationId, uid, userId, status);
 		}
 	}
 }
