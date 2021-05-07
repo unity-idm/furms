@@ -22,16 +22,14 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 	public final UUID projectId;
 	public final UUID correlationId;
 	public final String userId;
-	public final String  uid;
 	public final int status;
 
-	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, String uid, int status) {
+	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, int status) {
 		this.id = id;
 		this.site = site;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userId = userId;
-		this.uid = uid;
 		this.status = status;
 	}
 
@@ -42,7 +40,6 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
-			.uid(uid)
 			.status(UserAdditionStatus.valueOf(status))
 			.build();
 	}
@@ -55,13 +52,12 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 		return Objects.equals(projectId, that.projectId) &&
 			Objects.equals(site, that.site) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(userId, that.userId) &&
-			Objects.equals(uid, that.uid) && status == that.status;
+			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, site, correlationId, userId, uid, status);
+		return Objects.hash(id, projectId, site, correlationId, userId, status);
 	}
 
 	@Override
@@ -72,7 +68,6 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 			", projectId=" + projectId +
 			", correlationId=" + correlationId +
 			", userId='" + userId + '\'' +
-			", uid='" + uid + '\'' +
 			", status=" + status +
 			'}';
 	}

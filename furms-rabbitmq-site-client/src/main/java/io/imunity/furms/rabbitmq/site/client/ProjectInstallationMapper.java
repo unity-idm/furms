@@ -6,8 +6,10 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
 
 import java.time.ZoneOffset;
 
@@ -24,8 +26,20 @@ class ProjectInstallationMapper {
 			.community(projectInstallation.communityName)
 			.acronym(projectInstallation.acronym)
 			.researchField(projectInstallation.researchField)
-			.validityStart(convertToZoneTime(projectInstallation.validityStart, ZoneOffset.UTC))
-			.validityEnd(convertToZoneTime(projectInstallation.validityEnd, ZoneOffset.UTC))
+			.validityStart(projectInstallation.validityStart.atOffset(ZoneOffset.UTC))
+			.validityEnd(projectInstallation.validityEnd.atOffset(ZoneOffset.UTC))
+			.projectLeader(UserMapper.map(user))
+			.build();
+	}
+
+	static AgentProjectUpdateRequest map(Project project, FURMSUser user){
+		return AgentProjectUpdateRequest.builder()
+			.identifier(project.getId())
+			.name(project.getName())
+			.description(project.getDescription())
+			.researchField(project.getResearchField())
+			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC).toOffsetDateTime())
+			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC).toOffsetDateTime())
 			.projectLeader(UserMapper.map(user))
 			.build();
 	}

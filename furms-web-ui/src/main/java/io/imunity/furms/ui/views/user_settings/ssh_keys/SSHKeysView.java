@@ -57,7 +57,6 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
@@ -146,14 +145,20 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private Component additionalInfoComponent(SSHKeyViewModel sshKey) {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
-		FurmsFormLayout formLayout = new FurmsFormLayout();
+		layout.setSpacing(false);
+		HorizontalLayout formLayout = new HorizontalLayout();
+		formLayout.setSpacing(false);
+		formLayout.setMargin(false);
 		layout.add(new NoWrapLabel(getTranslation("view.user-settings.ssh-keys.grid.details.status")));
 		layout.add(formLayout);
 		sshKey.sites.stream().sorted((s1, s2) -> resolver.getName(s1.id).compareTo(resolver.getName(s2.id)))
-				.forEach(s -> formLayout.addFormItem(new NoWrapLabel(resolver.getName(s.id) + ": "
-						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error)), ""));
-
-		return layout;
+				.forEach(s -> formLayout.add(new NoWrapLabel(resolver.getName(s.id) + ": "
+						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error))));
+		VerticalLayout wrap = new VerticalLayout(layout);
+		wrap.setSpacing(false);
+		wrap.setPadding(true);
+		wrap.getStyle().set("padding-top", "0px");
+		return wrap;
 	}
 
 	private SSHKeyOperationJob getKeyStatus(String sshKey, String site) {
@@ -192,7 +197,9 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	}
 
 	private Component createLastColumnContent(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
-		return new GridActionsButtonLayout(createContextMenu(key, grid));
+		return new GridActionsButtonLayout(
+				createContextMenu(key, grid)
+		);
 	}
 
 	private Component createContextMenu(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
@@ -213,6 +220,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		getContent().add(contextMenu);
 		Component target = contextMenu.getTarget();
 		target.setVisible(contextMenu.isVisible());
+		
 		return target;
 	}
 

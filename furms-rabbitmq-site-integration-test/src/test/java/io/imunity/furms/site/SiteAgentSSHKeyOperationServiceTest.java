@@ -46,7 +46,7 @@ class SiteAgentSSHKeyOperationServiceTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		siteAgent.addSSHKey(correlationId, SSHKeyAddition.builder().siteExternalId(new SiteExternalId("mock"))
-				.publicKey("key").userUid("uid").user(new FenixUserId("xx")).build());
+				.publicKey("key").user(new FenixUserId("xx")).build());
 
 		verify(sshKeyOperationService, timeout(10000)).updateStatus(correlationId, ACK, Optional.empty());
 		verify(sshKeyOperationService, timeout(10000)).updateStatus(correlationId, DONE, Optional.empty());
@@ -57,7 +57,7 @@ class SiteAgentSSHKeyOperationServiceTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		siteAgent.removeSSHKey(correlationId, SSHKeyRemoval.builder().siteExternalId(new SiteExternalId("mock"))
-				.publicKey("key").userUid("uid").user(new FenixUserId("xx")).build());
+				.publicKey("key").user(new FenixUserId("xx")).build());
 
 		verify(sshKeyOperationService, timeout(10000)).updateStatus(correlationId, ACK, Optional.empty());
 		verify(sshKeyOperationService, timeout(10000)).updateStatus(correlationId, DONE, Optional.empty());
@@ -69,7 +69,7 @@ class SiteAgentSSHKeyOperationServiceTest {
 
 		siteAgent.updateSSHKey(correlationId,
 				SSHKeyUpdating.builder().siteExternalId(new SiteExternalId("mock")).oldPublicKey("key")
-						.newPublicKey("key2").userUid("uid").user(new FenixUserId("xx"))
+						.newPublicKey("key2").user(new FenixUserId("xx"))
 						.build());
 
 		verify(sshKeyOperationService, timeout(10000)).updateStatus(correlationId, ACK, Optional.empty());

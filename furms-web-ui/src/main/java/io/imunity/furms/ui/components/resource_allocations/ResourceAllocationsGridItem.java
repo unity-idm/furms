@@ -3,43 +3,51 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.fenix.dashboard;
+package io.imunity.furms.ui.components.resource_allocations;
+
+import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class DashboardGridItem {
+public class ResourceAllocationsGridItem {
 
 	private final String id;
 	private final String siteId;
 	private final String siteName;
 	private final String name;
+	private final String communityId;
 	private final boolean split;
 	private final String resourceTypeId;
 	private final DashboardGridResource credit;
+	private final DashboardGridResource consumed;
 	private final DashboardGridResource remaining;
 	private final LocalDate created;
 	private final LocalDate validFrom;
 	private final LocalDate validTo;
 
-	public DashboardGridItem(String id,
-	                         String siteId,
-	                         String siteName,
-	                         String name,
-	                         boolean split,
-	                         String resourceTypeId,
-	                         DashboardGridResource credit,
-	                         DashboardGridResource remaining,
-	                         LocalDate created,
-	                         LocalDate validFrom,
-	                         LocalDate validTo) {
+	ResourceAllocationsGridItem(String id,
+	                            String siteId,
+	                            String siteName,
+	                            String name,
+	                            String communityId,
+	                            boolean split,
+	                            String resourceTypeId,
+	                            DashboardGridResource credit,
+	                            DashboardGridResource consumed,
+	                            DashboardGridResource remaining,
+	                            LocalDate created,
+	                            LocalDate validFrom,
+	                            LocalDate validTo) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.name = name;
+		this.communityId = communityId;
 		this.split = split;
 		this.resourceTypeId = resourceTypeId;
 		this.credit = credit;
+		this.consumed = consumed;
 		this.remaining = remaining;
 		this.created = created;
 		this.validFrom = validFrom;
@@ -62,6 +70,10 @@ public class DashboardGridItem {
 		return name;
 	}
 
+	public String getCommunityId() {
+		return communityId;
+	}
+
 	public boolean isSplit() {
 		return split;
 	}
@@ -72,6 +84,10 @@ public class DashboardGridItem {
 
 	public DashboardGridResource getCredit() {
 		return credit;
+	}
+
+	public DashboardGridResource getConsumed() {
+		return consumed;
 	}
 
 	public DashboardGridResource getRemaining() {
@@ -94,7 +110,7 @@ public class DashboardGridItem {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		DashboardGridItem that = (DashboardGridItem) o;
+		ResourceAllocationsGridItem that = (ResourceAllocationsGridItem) o;
 		return Objects.equals(id, that.id);
 	}
 
@@ -110,9 +126,11 @@ public class DashboardGridItem {
 				", siteId='" + siteId + '\'' +
 				", siteName='" + siteName + '\'' +
 				", name='" + name + '\'' +
+				", communityId='" + communityId + '\'' +
 				", split='" + split + '\'' +
 				", resourceTypeId='" + resourceTypeId + '\'' +
 				", credit=" + credit +
+				", consumed=" + consumed +
 				", remaining=" + remaining +
 				", created=" + created +
 				", validFrom=" + validFrom +
@@ -129,9 +147,11 @@ public class DashboardGridItem {
 		private String siteId;
 		private String siteName;
 		private String name;
+		private String communityId;
 		private boolean split;
 		private String resourceTypeId;
 		private DashboardGridResource credit;
+		private DashboardGridResource consumed;
 		private DashboardGridResource remaining;
 		private LocalDate created;
 		private LocalDate validFrom;
@@ -160,6 +180,11 @@ public class DashboardGridItem {
 			return this;
 		}
 
+		public DashboardGridItemBuilder communityId(String communityId) {
+			this.communityId = communityId;
+			return this;
+		}
+
 		public DashboardGridItemBuilder split(boolean split) {
 			this.split = split;
 			return this;
@@ -172,6 +197,11 @@ public class DashboardGridItem {
 
 		public DashboardGridItemBuilder credit(DashboardGridResource credit) {
 			this.credit = credit;
+			return this;
+		}
+
+		public DashboardGridItemBuilder consumed(DashboardGridResource consumed) {
+			this.consumed = consumed;
 			return this;
 		}
 
@@ -195,9 +225,9 @@ public class DashboardGridItem {
 			return this;
 		}
 
-		public DashboardGridItem build() {
-			return new DashboardGridItem(id, siteId, siteName, name, split, resourceTypeId, credit,
-					remaining, created, validFrom, validTo);
+		public ResourceAllocationsGridItem build() {
+			return new ResourceAllocationsGridItem(id, siteId, siteName, name, communityId, split, resourceTypeId, credit,
+					consumed, remaining, created, validFrom, validTo);
 		}
 	}
 }

@@ -24,17 +24,17 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
-import io.imunity.furms.ui.community.allocations.ResourceCreditComboBoxModel;
-import io.imunity.furms.ui.community.allocations.ResourceTypeComboBoxModel;
-import io.imunity.furms.ui.community.allocations.SiteComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import io.imunity.furms.ui.components.support.models.ComboBoxModel;
 
 public class CommunityAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<CommunityAllocationViewModel> binder;
 
-	private ComboBox<SiteComboBoxModel> siteComboBox;
+	private ComboBox<ComboBoxModel> siteComboBox;
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
 	private Label availableAmountLabel;
@@ -52,14 +52,14 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 
 		siteComboBox = new ComboBox<>();
 		siteComboBox.setItems(resolver.getSites());
-		siteComboBox.setItemLabelGenerator(site -> site.name);
+		siteComboBox.setItemLabelGenerator(ComboBoxModel::getName);
 		formLayout.addFormItem(siteComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.site"));
 
 		resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		siteComboBox.addValueChangeListener(event -> {
-			SiteComboBoxModel value = Optional.ofNullable(event.getValue()).orElse(event.getOldValue());
-			resourceTypeComboBox.setItems(resolver.getResourceTypes(value.id));
+			ComboBoxModel value = Optional.ofNullable(event.getValue()).orElse(event.getOldValue());
+			resourceTypeComboBox.setItems(resolver.getResourceTypes(value.getId()));
 		});
 		formLayout.addFormItem(resourceTypeComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_type"));
 
@@ -101,7 +101,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			amountField.setSuffixComponent(new Label(unit.name()));
 	}
 
-	private void prepareValidator(TextField nameField, ComboBox<SiteComboBoxModel> siteComboBox,
+	private void prepareValidator(TextField nameField, ComboBox<ComboBoxModel> siteComboBox,
 	                              ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
 	                              ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox, BigDecimalField amountField) {
 		binder.forField(nameField)

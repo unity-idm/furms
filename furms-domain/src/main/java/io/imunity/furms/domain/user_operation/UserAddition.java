@@ -16,16 +16,14 @@ public class UserAddition {
 	public final String projectId;
 	public final CorrelationId correlationId;
 	public final String userId;
-	public final String  uid;
 	public final UserAdditionStatus status;
 
-	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String userId, String uid, UserAdditionStatus status) {
+	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String userId, UserAdditionStatus status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userId = userId;
-		this.uid = uid;
 		this.status = status;
 	}
 
@@ -38,13 +36,12 @@ public class UserAddition {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(userId, that.userId) &&
-			Objects.equals(uid, that.uid) && status == that.status;
+			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, projectId, correlationId, userId, uid, status);
+		return Objects.hash(id, siteId, projectId, correlationId, userId, status);
 	}
 
 	@Override
@@ -55,7 +52,6 @@ public class UserAddition {
 			", projectId='" + projectId + '\'' +
 			", correlationId='" + correlationId + '\'' +
 			", userId='" + userId + '\'' +
-			", uid='" + uid + '\'' +
 			", status=" + status +
 			'}';
 	}
@@ -70,7 +66,6 @@ public class UserAddition {
 		public String projectId;
 		public CorrelationId correlationId;
 		public String userId;
-		public String  uid;
 		public UserAdditionStatus status;
 
 		private UserAdditionBuilder() {
@@ -96,11 +91,6 @@ public class UserAddition {
 			return this;
 		}
 
-		public UserAdditionBuilder uid(String uid) {
-			this.uid = uid;
-			return this;
-		}
-
 		public UserAdditionBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
@@ -112,7 +102,7 @@ public class UserAddition {
 		}
 
 		public UserAddition build() {
-			return new UserAddition(id, siteId, projectId, correlationId, userId, uid, status);
+			return new UserAddition(id, siteId, projectId, correlationId, userId, status);
 		}
 	}
 }

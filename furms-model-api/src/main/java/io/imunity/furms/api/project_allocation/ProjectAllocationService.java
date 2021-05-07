@@ -31,6 +31,8 @@ public interface ProjectAllocationService {
 
 	Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId);
 
+	Set<ProjectAllocationInstallation> findAllInstallations(String projectId);
+
 	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId);
 
 	void create(String communityId, ProjectAllocation projectAllocation);

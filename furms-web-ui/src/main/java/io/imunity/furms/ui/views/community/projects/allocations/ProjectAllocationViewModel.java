@@ -5,25 +5,34 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 class ProjectAllocationViewModel {
 	private String id;
 	private String projectId;
+	private String communityId;
 	private ResourceTypeComboBoxModel resourceType;
 	private AllocationCommunityComboBoxModel allocationCommunity;
 	private String name;
 	private BigDecimal amount;
 
+	ProjectAllocationViewModel() {
+	}
+
 	ProjectAllocationViewModel(String id,
 	                           String projectId,
+	                           String communityId,
 	                           ResourceTypeComboBoxModel resourceType,
 	                           AllocationCommunityComboBoxModel allocationCommunity,
 	                           String name,
 	                           BigDecimal amount) {
 		this.id = id;
 		this.projectId = projectId;
+		this.communityId = communityId;
 		this.resourceType = resourceType;
 		this.allocationCommunity = allocationCommunity;
 		this.name = name;
@@ -40,6 +49,18 @@ class ProjectAllocationViewModel {
 
 	void setProjectId(String projectId) {
 		this.projectId = projectId;
+	}
+
+	void setId(String id) {
+		this.id = id;
+	}
+
+	String getCommunityId() {
+		return communityId;
+	}
+
+	void setCommunityId(String communityId) {
+		this.communityId = communityId;
 	}
 
 	ResourceTypeComboBoxModel getResourceType() {
@@ -90,15 +111,15 @@ class ProjectAllocationViewModel {
 	@Override
 	public String toString() {
 		return "ProjectAllocationViewModel{" +
-			"id='" + id + '\'' +
-			", resourceTypeId='" + resourceType + '\'' +
-			", resourceCreditId='" + allocationCommunity + '\'' +
-			", name='" + name + '\'' +
-			", amount=" + amount +
-			'}';
+				"id='" + id + '\'' +
+				", projectId='" + projectId + '\'' +
+				", communityId='" + communityId + '\'' +
+				", resourceType=" + resourceType +
+				", allocationCommunity=" + allocationCommunity +
+				", name='" + name + '\'' +
+				", amount=" + amount +
+				'}';
 	}
-
-	public ProjectAllocationViewModel() {}
 
 	public static ProjectAllocationViewModelBuilder builder() {
 		return new ProjectAllocationViewModelBuilder();
@@ -107,6 +128,7 @@ class ProjectAllocationViewModel {
 	public static final class ProjectAllocationViewModelBuilder {
 		private String id;
 		private String projectId;
+		private String communityId;
 		private ResourceTypeComboBoxModel resourceType;
 		private AllocationCommunityComboBoxModel allocationCommunity;
 		private String name;
@@ -122,6 +144,11 @@ class ProjectAllocationViewModel {
 
 		public ProjectAllocationViewModelBuilder projectId(String projectId) {
 			this.projectId = projectId;
+			return this;
+		}
+
+		public ProjectAllocationViewModelBuilder communityId(String communityId) {
+			this.communityId = communityId;
 			return this;
 		}
 
@@ -146,7 +173,7 @@ class ProjectAllocationViewModel {
 		}
 
 		public ProjectAllocationViewModel build() {
-			return new ProjectAllocationViewModel(id, projectId, resourceType, allocationCommunity, name, amount);
+			return new ProjectAllocationViewModel(id, projectId, communityId, resourceType, allocationCommunity, name, amount);
 		}
 	}
 }

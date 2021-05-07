@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
@@ -71,13 +71,34 @@ class MockListeners {
 		String correlationId = projectInstallationRequest.header.messageCorrelationId;
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
 		rabbitTemplate.convertAndSend(responseQueueName,
-				new Payload<>(header, new AgentProjectInstallationAck()));
+				new Payload<>(header, new AgentProjectInstallationRequestAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
 		String i = String.valueOf(new Random().nextInt(1000));
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(
-				projectInstallationRequest.body.identifier, Map.of("gid", i));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(Map.of("gid", i));
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectUpdateRequest(Payload<AgentProjectUpdateRequest> projectUpdateRequest) throws InterruptedException {
+		Header header = getHeader(projectUpdateRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectUpdateRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult();
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectRemovalRequest(Payload<AgentProjectRemovalRequest> projectRemovalRequest) throws InterruptedException {
+		Header header = getHeader(projectRemovalRequest.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectRemovalRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -91,9 +112,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult(
-				agentSSHKeyInstallationRequest.body.fenixUserId,
-				agentSSHKeyInstallationRequest.body.uid);
+		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -106,8 +125,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult(
-				agentSSHKeyUpdatingRequest.body.fenixUserId, agentSSHKeyUpdatingRequest.body.uid);
+		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -120,8 +138,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult(
-				agentSSHKeyRemovalRequest.body.fenixUserId, agentSSHKeyRemovalRequest.body.uid);
+		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
@@ -165,8 +182,14 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectDeallocationRequest(Payload<AgentProjectDeallocationRequest> payload) {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectDeallocationRequestAck()));
 	}
 
 	@EventListener
@@ -176,7 +199,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectRemovalResult result = new UserProjectRemovalResult(payload.body.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectRemovalResult result = new UserProjectRemovalResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 

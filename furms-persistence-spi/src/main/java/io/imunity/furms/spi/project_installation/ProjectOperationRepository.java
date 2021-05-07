@@ -5,9 +5,7 @@
 
 package io.imunity.furms.spi.project_installation;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -15,18 +13,22 @@ import io.imunity.furms.domain.users.PersistentId;
 import java.util.Optional;
 import java.util.function.Function;
 
-public interface ProjectInstallationRepository {
-	ProjectInstallationJob findByCorrelationId(CorrelationId id);
+public interface ProjectOperationRepository {
+	ProjectInstallationJob findInstallationJobByCorrelationId(CorrelationId id);
+
+	ProjectUpdateJob findUpdateJobByCorrelationId(CorrelationId id);
 
 	ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter);
 
 	String create(ProjectInstallationJob projectInstallationJob);
 
+	String create(ProjectUpdateJob projectUpdateJob);
+
 	String update(String id, ProjectInstallationStatus status);
 
-	boolean existsByProjectId(String projectId);
+	String update(String id, ProjectUpdateStatus status);
 
-	void delete(String id);
+	boolean existsByProjectId(String siteId, String projectId);
 
 	void deleteAll();
 }

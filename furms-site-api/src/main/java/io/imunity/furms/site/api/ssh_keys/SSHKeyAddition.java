@@ -15,20 +15,18 @@ public class SSHKeyAddition {
 
 	public final SiteExternalId siteExternalId;
 	public final FenixUserId user;
-	public final String userUid;
 	public final String publicKey;
 
-	SSHKeyAddition(SiteExternalId siteExternalId, FenixUserId user, String userUid, String publicKey) {
+	SSHKeyAddition(SiteExternalId siteExternalId, FenixUserId user, String publicKey) {
 		
 		this.siteExternalId = siteExternalId;
 		this.user = user;
-		this.userUid = userUid;
 		this.publicKey = publicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(publicKey, siteExternalId, user, userUid);
+		return Objects.hash(publicKey, siteExternalId, user);
 	}
 
 	@Override
@@ -42,7 +40,7 @@ public class SSHKeyAddition {
 		SSHKeyAddition other = (SSHKeyAddition) obj;
 		return Objects.equals(publicKey, other.publicKey)
 				&& Objects.equals(siteExternalId, other.siteExternalId)
-				&& Objects.equals(user, other.user) && Objects.equals(userUid, other.userUid);
+				&& Objects.equals(user, other.user);
 	}
 
 	public static Builder builder() {
@@ -52,7 +50,6 @@ public class SSHKeyAddition {
 	public static final class Builder {
 		private SiteExternalId siteExternalId;
 		private FenixUserId user;
-		private String userUid;
 		private String publicKey;
 
 		private Builder() {
@@ -68,18 +65,13 @@ public class SSHKeyAddition {
 			return this;
 		}
 
-		public Builder userUid(String userUid) {
-			this.userUid = userUid;
-			return this;
-		}
-
 		public Builder publicKey(String publicKey) {
 			this.publicKey = publicKey;
 			return this;
 		}
 
 		public SSHKeyAddition build() {
-			return new SSHKeyAddition(siteExternalId, user, userUid, publicKey);
+			return new SSHKeyAddition(siteExternalId, user, publicKey);
 		}
 	}
 

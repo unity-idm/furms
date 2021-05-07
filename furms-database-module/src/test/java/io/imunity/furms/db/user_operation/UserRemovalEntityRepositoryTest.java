@@ -77,7 +77,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.PENDING)
 				.build()
@@ -168,6 +167,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getValue());
+		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getPersistentId());
 	}
 }

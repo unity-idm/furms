@@ -9,12 +9,14 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ProjectInstallationResult {
-	public final String identifier;
 	public final Map<String, String> attributes;
+	public final ProjectInstallationStatus status;
+	public final Error error;
 
-	public ProjectInstallationResult(String identifier, Map<String, String> attributes) {
-		this.identifier = identifier;
+	public ProjectInstallationResult(Map<String, String> attributes, ProjectInstallationStatus status, Error error) {
 		this.attributes = attributes;
+		this.status = status;
+		this.error = error;
 	}
 
 	@Override
@@ -22,19 +24,22 @@ public class ProjectInstallationResult {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectInstallationResult that = (ProjectInstallationResult) o;
-		return Objects.equals(identifier, that.identifier) && Objects.equals(attributes, that.attributes);
+		return Objects.equals(attributes, that.attributes) &&
+			status == that.status &&
+			Objects.equals(error, that.error);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(identifier, attributes);
+		return Objects.hash(attributes, status, error);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectInstallationResult{" +
-			"identifier='" + identifier + '\'' +
-			", attributes=" + attributes +
+			"attributes=" + attributes +
+			", status=" + status +
+			", error=" + error +
 			'}';
 	}
 }

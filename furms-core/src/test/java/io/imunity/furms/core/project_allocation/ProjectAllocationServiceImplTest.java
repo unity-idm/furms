@@ -11,7 +11,7 @@ import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
-import io.imunity.furms.site.api.site_agent.SiteAgentProjectInstallationService;
+import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private SiteAgentProjectInstallationService siteAgentProjectInstallationService;
+	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Mock
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Mock
@@ -120,9 +120,13 @@ class ProjectAllocationServiceImplTest {
 			ProjectAllocationResolved.builder()
 				.site(Site.builder().build())
 				.build()));
-		when(projectInstallationService.findProjectInstallation("communityId", null)).thenReturn(
-			ProjectInstallation.builder().build()
+		when(projectInstallationService.findProjectInstallation( "projectAllocationId")).thenReturn(
+			ProjectInstallation.builder()
+				.siteId("siteId")
+				.build()
 		);
+		when(projectAllocationRepository.create(request)).thenReturn("projectAllocationId");
+
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
@@ -152,6 +156,7 @@ class ProjectAllocationServiceImplTest {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(ProjectAllocationResolved.builder().build()));
 
 		//when
 		service.delete("projectId", id);

@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
 
 class UserOperationMessageResolverTest {
 	@Mock
@@ -35,21 +36,33 @@ class UserOperationMessageResolverTest {
 
 	@Test
 	void shouldUpdateUserAddition() {
-		service.update(UserAddition.builder().build());
+		CorrelationId correlationId = CorrelationId.randomID();
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserAdditionStatus.ACKNOWLEDGED);
+
+		service.update(UserAddition.builder()
+			.correlationId(correlationId)
+			.build());
+
 		orderVerifier.verify(repository).update(any(UserAddition.class));
 	}
 
 	@Test
 	void shouldUpdateUserAdditionStatus() {
 		CorrelationId correlationId = CorrelationId.randomID();
+
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserAdditionStatus.ACKNOWLEDGED);
 		service.updateStatus(correlationId, UserAdditionStatus.PENDING);
+
 		orderVerifier.verify(repository).updateStatus(correlationId, UserAdditionStatus.PENDING);
 	}
 
 	@Test
 	void shouldUpdateUserRemovalStatus() {
 		CorrelationId correlationId = CorrelationId.randomID();
+
+		when(repository.findRemovalStatusByCorrelationId(correlationId.id)).thenReturn(UserRemovalStatus.ACKNOWLEDGED);
 		service.updateStatus(correlationId, UserRemovalStatus.PENDING);
+
 		orderVerifier.verify(repository).updateStatus(correlationId, UserRemovalStatus.PENDING);
 	}
 }

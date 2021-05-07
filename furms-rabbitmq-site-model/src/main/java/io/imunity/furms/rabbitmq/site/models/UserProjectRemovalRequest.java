@@ -13,13 +13,11 @@ import java.util.Objects;
 @JsonTypeName("UserProjectRemovalRequest")
 public class UserProjectRemovalRequest implements Body {
 	public final String fenixUserId;
-	public final String uid;
 	public final String projectIdentifier;
 
 	@JsonCreator
-	public UserProjectRemovalRequest(String fenixUserId, String uid, String projectIdentifier) {
+	public UserProjectRemovalRequest(String fenixUserId, String projectIdentifier) {
 		this.fenixUserId = fenixUserId;
-		this.uid = uid;
 		this.projectIdentifier = projectIdentifier;
 	}
 
@@ -29,20 +27,18 @@ public class UserProjectRemovalRequest implements Body {
 		if (o == null || getClass() != o.getClass()) return false;
 		UserProjectRemovalRequest that = (UserProjectRemovalRequest) o;
 		return Objects.equals(fenixUserId, that.fenixUserId) &&
-			Objects.equals(uid, that.uid) &&
 			Objects.equals(projectIdentifier, that.projectIdentifier);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, uid, projectIdentifier);
+		return Objects.hash(fenixUserId, projectIdentifier);
 	}
 
 	@Override
 	public String toString() {
 		return "UserProjectRemovalRequest{" +
 			"fenixUserId='" + fenixUserId + '\'' +
-			", uid='" + uid + '\'' +
 			", projectIdentifier='" + projectIdentifier + '\'' +
 			'}';
 	}

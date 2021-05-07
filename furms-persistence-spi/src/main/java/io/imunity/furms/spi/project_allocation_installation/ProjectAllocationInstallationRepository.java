@@ -7,6 +7,8 @@ package io.imunity.furms.spi.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
 import java.util.Optional;
@@ -19,9 +21,13 @@ public interface ProjectAllocationInstallationRepository {
 
 	String create(ProjectAllocationInstallation projectAllocation);
 
+	String create(ProjectDeallocation projectDeallocation);
+
 	String update(ProjectAllocationInstallation projectAllocation);
 
-	String update(String id, ProjectAllocationInstallationStatus status);
+	String update(String correlationId, ProjectAllocationInstallationStatus status);
+
+	String update(String correlationId, ProjectDeallocationStatus status);
 
 	boolean exists(String id);
 
