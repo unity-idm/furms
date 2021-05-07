@@ -59,12 +59,9 @@ public class Site {
 		return sshKeyHistoryLength;
 	}
 	
-	public boolean isSshKeyHistoryActive() {
-		if (sshKeyHistoryLength == null || sshKeyHistoryLength.equals(0))
-			return false;
-		return true;
+	public boolean isSshKeyHistoryActive(){
+		return sshKeyHistoryLength == null || sshKeyHistoryLength.equals(0) ? false : true;
 	}
-
 
 	public static SiteBuilder builder() {
 		return new SiteBuilder();
