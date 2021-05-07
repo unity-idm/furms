@@ -14,6 +14,7 @@ CREATE TABLE project_allocation_installation (
     received_time TIMESTAMP,
     amount DECIMAL,
     status INT NOT NULL,
+    message VARCHAR(255),
     FOREIGN KEY (project_allocation_id) REFERENCES project_allocation(id) ON DELETE CASCADE,
     FOREIGN KEY (site_id) REFERENCES site(id)
 );

@@ -216,7 +216,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, INSTALLED);
+		entityDatabaseRepository.update(correlationId.id, INSTALLED, null);
 
 		//then
 		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();

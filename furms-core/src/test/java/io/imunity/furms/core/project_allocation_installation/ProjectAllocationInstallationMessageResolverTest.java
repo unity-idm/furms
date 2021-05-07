@@ -40,7 +40,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
 	}
 
 	@Test

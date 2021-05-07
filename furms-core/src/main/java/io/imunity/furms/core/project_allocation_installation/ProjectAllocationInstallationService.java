@@ -60,10 +60,17 @@ public class ProjectAllocationInstallationService {
 
 	public void startWaitingAllocations(String projectId) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
-			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
+			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, null);
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId).get();
 			siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId, projectAllocationResolved);
 			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
+		});
+	}
+
+	public void cancelWaitingAllocations(String projectId, String msg) {
+		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
+			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED, msg);
+			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED);
 		});
 	}
 

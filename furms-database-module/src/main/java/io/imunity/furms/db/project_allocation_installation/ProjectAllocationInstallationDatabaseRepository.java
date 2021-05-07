@@ -78,7 +78,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectAllocationInstallationStatus status) {
+	public String update(String correlationId, ProjectAllocationInstallationStatus status, String msg) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(installationEntity -> ProjectAllocationInstallationEntity.builder()
 				.id(installationEntity.getId())
@@ -90,6 +90,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.validTo(installationEntity.validTo)
 				.receivedTime(installationEntity.receivedTime)
 				.status(status)
+				.message(msg)
 				.build())
 			.map(allocationRepository::save)
 			.map(ProjectAllocationInstallationEntity::getId)
