@@ -5,37 +5,62 @@
 
 package io.imunity.furms.core.users;
 
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.*;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.users.UsersDAO;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
+import io.imunity.furms.domain.users.CommunityMembership;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UnknownUserException;
+import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserRecord;
+import io.imunity.furms.domain.users.UserSSHKey;
+import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
 class UserServiceImpl implements UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UsersDAO usersDAO;
+	private final SSHKeyRepository sshKeyRepository;
+	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
 
 
-	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher) {
+	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
+			SSHKeyRepository sshKeyRepository, SSHKeyOperationRepository sshKeyOperationRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
+		this.sshKeyOperationRepository = sshKeyOperationRepository;
+		this.sshKeyRepository = sshKeyRepository;
 	}
 
 	@Override
@@ -119,12 +144,34 @@ class UserServiceImpl implements UserService {
 			Set<CommunityMembership> communityMembership = 
 					membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
 			Set<UserAttribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
-			return new UserRecord(userStatus, rootAttribtues, communityMembership);
+			PersistentId userId = usersDAO.getPersistentId(fenixUserId);
+			Set<UserSSHKey> sshKeys = getUserSSHKeys(userId);
+			return new UserRecord(userStatus, rootAttribtues, communityMembership, sshKeys);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
 		}
 	}
+	
+	private Set<UserSSHKey> getUserSSHKeys(PersistentId userId)
+	{
+		return sshKeyRepository.findAllByOwnerId(userId).stream()
+				.map(key -> new UserSSHKey(key.id, key.value, key.sites.stream()
+						.filter(site -> iskeyOnSite(site, key.id))
+						.collect(Collectors.toSet())))
+				.filter(s -> !s.sites.isEmpty())
+				.collect(Collectors.toSet());
+	}
+	
+	private boolean iskeyOnSite(String siteId, String keyId) {
+		SSHKeyOperationJob keyJob = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(keyId, siteId);
+		if ((keyJob.operation.equals(SSHKeyOperation.ADD) || keyJob.operation.equals(SSHKeyOperation.UPDATE))
+				&& keyJob.status.equals(SSHKeyOperationStatus.DONE))
+			return true;
+
+		return false;
+	}
+	
 }
 
 
