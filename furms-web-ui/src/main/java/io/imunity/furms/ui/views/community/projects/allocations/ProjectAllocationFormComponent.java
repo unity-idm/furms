@@ -24,8 +24,10 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
-public class ProjectAllocationFormComponent extends Composite<Div> {
+class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<ProjectAllocationViewModel> binder;

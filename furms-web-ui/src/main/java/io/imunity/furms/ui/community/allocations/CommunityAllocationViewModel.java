@@ -5,13 +5,17 @@
 
 package io.imunity.furms.ui.community.allocations;
 
+import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class CommunityAllocationViewModel {
 	private String id;
 	private String communityId;
-	private SiteComboBoxModel site;
+	private ComboBoxModel site;
 	private ResourceTypeComboBoxModel resourceType;
 	private ResourceCreditComboBoxModel resourceCredit;
 	private String name;
@@ -22,7 +26,7 @@ public class CommunityAllocationViewModel {
 
 	public CommunityAllocationViewModel(String id,
 	                                    String communityId,
-	                                    SiteComboBoxModel site,
+	                                    ComboBoxModel site,
 	                                    ResourceTypeComboBoxModel resourceType,
 	                                    ResourceCreditComboBoxModel resourceCredit,
 	                                    String name,
@@ -48,11 +52,11 @@ public class CommunityAllocationViewModel {
 		this.communityId = communityId;
 	}
 
-	public SiteComboBoxModel getSite() {
+	public ComboBoxModel getSite() {
 		return site;
 	}
 
-	public void setSite(SiteComboBoxModel site) {
+	public void setSite(ComboBoxModel site) {
 		this.site = site;
 	}
 
@@ -121,7 +125,7 @@ public class CommunityAllocationViewModel {
 	public static final class CommunityAllocationViewModelBuilder {
 		private String id;
 		private String communityId;
-		private SiteComboBoxModel site;
+		private ComboBoxModel site;
 		private ResourceTypeComboBoxModel resourceType;
 		private ResourceCreditComboBoxModel resourceCredit;
 		private String name;
@@ -140,7 +144,7 @@ public class CommunityAllocationViewModel {
 			return this;
 		}
 
-		public CommunityAllocationViewModelBuilder site(SiteComboBoxModel site) {
+		public CommunityAllocationViewModelBuilder site(ComboBoxModel site) {
 			this.site = site;
 			return this;
 		}

@@ -180,15 +180,15 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
 		entityRepository.save(
-			CommunityAllocationEntity.builder()
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.name("anem")
-				.amount(new BigDecimal(10))
-				.build()
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("anem")
+						.amount(new BigDecimal(10))
+						.build()
 		);
 
-		Set<CommunityAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjects(communityId.toString());
+		Set<CommunityAllocationResolved> entities = entityDatabaseRepository.findAllByCommunityIdWithRelatedObjects(communityId.toString());
 		assertThat(entities.size()).isEqualTo(1);
 		CommunityAllocationResolved entity = entities.iterator().next();
 		assertThat(entity.name).isEqualTo("anem");
@@ -200,6 +200,45 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(entity.resourceCredit.split).isEqualTo(true);
 		assertThat(entity.resourceCredit.access).isEqualTo(true);
 		assertThat(entity.resourceCredit.amount).isEqualTo(new BigDecimal(100));
+	}
+
+	@Test
+	void shouldReturnNotExpiredAllocationsWithRelatedObjects() {
+		//given
+		final LocalDateTime now = LocalDateTime.now();
+		final String expiredResource = resourceCreditRepository.create(ResourceCredit.builder()
+				.siteId(siteId.toString())
+				.resourceTypeId(resourceTypeId.toString())
+				.name("expiredRes")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.utcCreateTime(now)
+				.utcStartTime(now.minusSeconds(2))
+				.utcEndTime(now.minusSeconds(1))
+				.build());
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(UUID.fromString(expiredResource))
+						.name("expired")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("not-expired")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+
+
+		final Set<CommunityAllocationResolved> all = entityDatabaseRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId.toString());
+		assertThat(all.size()).isEqualTo(1);
+		final CommunityAllocationResolved entity = all.stream().findFirst().get();
+		assertThat(entity.name).isEqualTo("not-expired");
 	}
 
 	@Test
