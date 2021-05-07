@@ -15,15 +15,17 @@ public class UserAddition {
 	public final SiteId siteId;
 	public final String projectId;
 	public final CorrelationId correlationId;
+	public final String uid;
 	public final String userId;
 	public final UserAdditionStatus status;
 
-	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String userId, UserAdditionStatus status) {
+	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId, UserAdditionStatus status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userId = userId;
+		this.uid = uid;
 		this.status = status;
 	}
 
@@ -36,12 +38,13 @@ public class UserAddition {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(correlationId, that.correlationId) &&
+			Objects.equals(uid, that.uid) &&
 			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, projectId, correlationId, userId, status);
+		return Objects.hash(id, siteId, projectId, correlationId, uid, userId, status);
 	}
 
 	@Override
@@ -51,6 +54,7 @@ public class UserAddition {
 			", siteId='" + siteId + '\'' +
 			", projectId='" + projectId + '\'' +
 			", correlationId='" + correlationId + '\'' +
+			", uid='" + uid + '\'' +
 			", userId='" + userId + '\'' +
 			", status=" + status +
 			'}';
@@ -65,6 +69,7 @@ public class UserAddition {
 		public SiteId siteId;
 		public String projectId;
 		public CorrelationId correlationId;
+		public String uid;
 		public String userId;
 		public UserAdditionStatus status;
 
@@ -91,6 +96,11 @@ public class UserAddition {
 			return this;
 		}
 
+		public UserAdditionBuilder uid(String uid) {
+			this.uid = uid;
+			return this;
+		}
+
 		public UserAdditionBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
@@ -102,7 +112,7 @@ public class UserAddition {
 		}
 
 		public UserAddition build() {
-			return new UserAddition(id, siteId, projectId, correlationId, userId, status);
+			return new UserAddition(id, siteId, projectId, correlationId, uid, userId, status);
 		}
 	}
 }
