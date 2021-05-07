@@ -19,6 +19,6 @@ public interface SSHKeyHistoryEntityRepository extends CrudRepository<SSHKeyHist
 
 	@Modifying
 	@Query("delete from ssh_key_history where site_id = :siteId and sshkey_owner_id = :ownerId and id not in (select id from ssh_key_history where site_id = :siteId and sshkey_owner_id = :ownerId order by origination_time desc  limit :leave)")
-	void deleteOldestLeaveOnly(String siteId, String ownerId, int leave);
+	void deleteOldestLeaveOnly(UUID siteId, String ownerId, int leave);
 
 }
