@@ -5,15 +5,10 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -25,32 +20,23 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.FilterCheckboxData;
-import io.imunity.furms.ui.components.FurmsProgressBar;
+import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.views.fenix.dashboard.allocate.DashboardResourceAllocateFormView;
+import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
+import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
 import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
-import static java.lang.String.format;
-import static java.math.BigDecimal.ZERO;
-import static java.math.RoundingMode.HALF_UP;
-import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "fenix/admin/dashboard", layout = FenixAdminMenu.class)
@@ -61,9 +47,8 @@ public class DashboardView extends FurmsViewComponent {
 	private final ResourceTypeService resourceTypeService;
 	private final SiteService siteService;
 
-	private final SparseGrid<DashboardGridItem> grid;
-	private final Comparator<DashboardGridItem> defaultGridSort;
 	private final DashboardViewFilters filters;
+	private final ResourceAllocationsGrid grid;
 
 	DashboardView(ResourceCreditService creditService,
 	              ResourceTypeService resourceTypeService,
@@ -72,13 +57,12 @@ public class DashboardView extends FurmsViewComponent {
 		this.resourceTypeService = resourceTypeService;
 		this.siteService = siteService;
 
-		this.grid = new SparseGrid<>(DashboardGridItem.class);
-		this.defaultGridSort = comparing(DashboardGridItem::getSiteName);
 		this.filters = new DashboardViewFilters();
+		this.grid = new ResourceAllocationsGrid(this::allocateButtonAction, this::loadCredits);
 
 		addTitle();
 		addFiltersAndSearch();
-		addGrid();
+		getContent().add(grid);
 	}
 
 	private void addTitle() {
@@ -87,7 +71,7 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private void addFiltersAndSearch() {
-		final CheckboxGroup<FilterCheckboxData<DashboardOptions>> filters = createFiltersForm();
+		final CheckboxGroup<CheckboxModel<DashboardOptions>> filters = createFiltersForm();
 		final TextField searchForm = createSearchForm();
 
 		final HorizontalLayout layout = new HorizontalLayout(filters, searchForm);
@@ -98,25 +82,24 @@ public class DashboardView extends FurmsViewComponent {
 		getContent().add(layout);
 	}
 
-	private CheckboxGroup<FilterCheckboxData<DashboardOptions>> createFiltersForm() {
-		final CheckboxGroup<FilterCheckboxData<DashboardOptions>> checkboxGroup = new CheckboxGroup<>();
-		checkboxGroup.setLabel(getTranslation("view.fenix-admin.dashboard.filters.title"));
-		checkboxGroup.setItemLabelGenerator(FilterCheckboxData::getLabel);
+	private CheckboxGroup<CheckboxModel<DashboardOptions>> createFiltersForm() {
+		final CheckboxGroup<CheckboxModel<DashboardOptions>> checkboxGroup = new CheckboxGroup<>();
+		checkboxGroup.setItemLabelGenerator(CheckboxModel::getLabel);
 		checkboxGroup.setItems(
-				new FilterCheckboxData<>(INCLUDE_FULLY_DISTRIBUTED,
+				new CheckboxModel<>(INCLUDE_FULLY_DISTRIBUTED,
 						getTranslation("view.fenix-admin.dashboard.filters.fully-distributed")),
-				new FilterCheckboxData<>(INCLUDE_EXPIRED,
+				new CheckboxModel<>(INCLUDE_EXPIRED,
 						getTranslation("view.fenix-admin.dashboard.filters.expired")));
 		checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		checkboxGroup.addValueChangeListener(event -> {
 			filters.setIncludeFullyDistributed(isSelectedCheckbox(INCLUDE_FULLY_DISTRIBUTED, event.getValue()));
 			filters.setIncludeExpired(isSelectedCheckbox(INCLUDE_EXPIRED, event.getValue()));
-			UI.getCurrent().accessSynchronously(this::reloadGrid);
+			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 		});
 		return checkboxGroup;
 	}
 
-	private boolean isSelectedCheckbox(DashboardOptions checkbox, Set<FilterCheckboxData<DashboardOptions>> value) {
+	private boolean isSelectedCheckbox(DashboardOptions checkbox, Set<CheckboxModel<DashboardOptions>> value) {
 		return value.stream()
 				.anyMatch(filter -> checkbox.equals(filter.getOption()));
 	}
@@ -130,109 +113,53 @@ public class DashboardView extends FurmsViewComponent {
 		textField.addValueChangeListener(event -> {
 			textField.blur();
 			filters.setName(event.getValue().toLowerCase());
-			UI.getCurrent().accessSynchronously(this::reloadGrid);
+			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 			textField.focus();
 		});
 
 		return textField;
 	}
 
-	private void addGrid() {
-		grid.getStyle().set("word-wrap", "break-word");
-		grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
-
-		grid.addColumn(DashboardGridItem::getSiteName)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.site-name"))
-				.setSortable(true)
-				.setComparator(defaultGridSort)
-				.setFlexGrow(18);
-		grid.addColumn(DashboardGridItem::getName)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.name"))
-				.setFlexGrow(18);
-		grid.addColumn(item -> showResource(item.getCredit()))
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.credit"))
-				.setFlexGrow(10);
-		grid.addColumn(item -> showResource(item.getRemaining()))
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.remaining"))
-				.setFlexGrow(10);
-		grid.addColumn(DashboardGridItem::getCreated)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.created"))
-				.setFlexGrow(7);
-		grid.addColumn(DashboardGridItem::getValidFrom)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.valid-from"))
-				.setFlexGrow(7);
-		grid.addColumn(DashboardGridItem::getValidTo)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.valid-to"))
-				.setFlexGrow(7);
-		grid.addComponentColumn(this::showAvailability)
-				.setHeader(getTranslation("view.fenix-admin.dashboard.grid.column.availability"))
-				.setFlexGrow(22);
-		grid.addComponentColumn(this::showAllocateButton)
-				.setWidth("3em")
-				.setFlexGrow(1);
-
-		reloadGrid();
-		getContent().add(grid);
+	private void allocateButtonAction(ResourceAllocationsGridItem item) {
+		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, item);
+		UI.getCurrent().navigate(DashboardResourceAllocateFormView.class);
 	}
 
-	private FurmsProgressBar showAvailability(DashboardGridItem item) {
-		final double value = item.getRemaining().getAmount()
-				.divide(item.getCredit().getAmount(), 4, HALF_UP)
-				.doubleValue();
-
-		return new FurmsProgressBar(value);
-	}
-
-	private Component showAllocateButton(DashboardGridItem item) {
-		if (item.getRemaining() == null || ZERO.compareTo(item.getRemaining().getAmount())!=0) {
-			final Button plus = new Button(new Icon(PLUS_CIRCLE));
-			plus.addClickListener(event -> {
-				ComponentUtil.setData(UI.getCurrent(), DashboardGridItem.class, item);
-				UI.getCurrent().navigate(DashboardResourceAllocateFormView.class);
-			});
-			plus.addThemeVariants(LUMO_TERTIARY);
-			return plus;
-		}
-		return new Div();
-	}
-
-	private Object showResource(DashboardGridResource item) {
-		return format("%s %s", item.getAmount(), item.getUnit().name());
-	}
-
-	private void reloadGrid() {
-		grid.setItems(loadCredits());
-	}
-
-	private List<DashboardGridItem> loadCredits() {
+	private Stream<ResourceAllocationsGridItem> loadCredits() {
 		return creditService.findAllWithAllocations(
 					filters.getName(),
 					filters.isIncludeFullyDistributed(),
 					filters.isIncludeExpired())
 				.stream()
-				.map(this::buildItem)
-				.sorted(defaultGridSort)
-				.collect(Collectors.toList());
+				.map(this::buildItem);
 	}
 
-	private DashboardGridItem buildItem(ResourceCreditWithAllocations credit) {
-		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.resourceTypeId)
+	private ResourceAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
+		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceTypeId())
 				.map(type -> type.unit)
 				.orElse(ResourceMeasureUnit.SiUnit.none);
 
-		return DashboardGridItem.builder()
-				.id(credit.id)
-				.siteId(credit.siteId)
-				.siteName(findSiteName(credit.siteId))
-				.name(credit.name)
-				.split(credit.split)
-				.resourceTypeId(credit.resourceTypeId)
-				.credit(createResource(credit.amount, unit))
-				.remaining(createResource(credit.remaining, unit))
-				.created(extractLocalDate(credit.utcCreateTime))
-				.validFrom(extractLocalDate(credit.utcStartTime))
-				.validTo(extractLocalDate(credit.utcEndTime))
+		return ResourceAllocationsGridItem.builder()
+				.id(credit.getId())
+				.siteId(credit.getSiteId())
+				.siteName(findSiteName(credit.getSiteId()))
+				.name(credit.getName())
+				.split(credit.getSplit())
+				.resourceTypeId(credit.getResourceTypeId())
+				.credit(createResource(credit.getAmount(), unit))
+				.consumed(createResource(calcConsumed(credit), unit))
+				.remaining(createResource(credit.getRemaining(), unit))
+				.created(extractLocalDate(credit.getUtcCreateTime()))
+				.validFrom(extractLocalDate(credit.getUtcStartTime()))
+				.validTo(extractLocalDate(credit.getUtcEndTime()))
 				.build();
+	}
+
+	private BigDecimal calcConsumed(ResourceCreditWithAllocations credit) {
+		if (credit == null || credit.getAmount() == null || credit.getRemaining() == null) {
+			return BigDecimal.ZERO;
+		}
+		return credit.getAmount().subtract(credit.getRemaining());
 	}
 
 	private String findSiteName(String siteId) {

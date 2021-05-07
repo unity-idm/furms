@@ -9,7 +9,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonTypeName("ProjectInstallationRequest")
@@ -21,13 +21,13 @@ public class AgentProjectInstallationRequest implements Body {
 	public final String community;
 	public final String acronym;
 	public final String researchField;
-	public final ZonedDateTime validityStart;
-	public final ZonedDateTime validityEnd;
+	public final OffsetDateTime validityStart;
+	public final OffsetDateTime validityEnd;
 	public final AgentUser projectLeader;
 
 	@JsonCreator
 	public AgentProjectInstallationRequest(String identifier, String name, String description, String communityId,
-	                                       String community, String acronym, String researchField, ZonedDateTime validityStart, ZonedDateTime validityEnd, AgentUser projectLeader) {
+	                                       String community, String acronym, String researchField, OffsetDateTime validityStart, OffsetDateTime validityEnd, AgentUser projectLeader) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
@@ -90,8 +90,8 @@ public class AgentProjectInstallationRequest implements Body {
 		private String community;
 		private String acronym;
 		private String researchField;
-		private ZonedDateTime validityStart;
-		private ZonedDateTime validityEnd;
+		private OffsetDateTime validityStart;
+		private OffsetDateTime validityEnd;
 		private AgentUser projectLeader;
 
 		private ProjectInstallationRequestBuilder() {
@@ -132,12 +132,12 @@ public class AgentProjectInstallationRequest implements Body {
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder validityStart(ZonedDateTime validityStart) {
+		public ProjectInstallationRequestBuilder validityStart(OffsetDateTime validityStart) {
 			this.validityStart = validityStart;
 			return this;
 		}
 
-		public ProjectInstallationRequestBuilder validityEnd(ZonedDateTime validityEnd) {
+		public ProjectInstallationRequestBuilder validityEnd(OffsetDateTime validityEnd) {
 			this.validityEnd = validityEnd;
 			return this;
 		}

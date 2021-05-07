@@ -7,6 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -137,6 +139,15 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 	
+	private Entity getEntity(FenixUserId userId) {
+		String path = UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.path(userId.id)
+			.build()
+			.toUriString();
+		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY));
+	}
+	
 	public List<FURMSUser> getAllUsersByRole(String group, Role role) {
 		Predicate<AttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&
@@ -159,5 +170,12 @@ public class UserService {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());
+	}
+
+	public PersistentId getPersistentId(FenixUserId userId) {
+		return getEntity(userId).getIdentities().stream()
+				.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY)).findAny()
+				.map(Identity::getComparableValue).map(id -> new PersistentId(id)).orElse(null);
+
 	}
 }

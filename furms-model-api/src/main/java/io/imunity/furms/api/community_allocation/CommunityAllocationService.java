@@ -21,6 +21,10 @@ public interface CommunityAllocationService {
 
 	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId);
 
+	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId,
+	                                                           boolean includedFullyDistributed,
+	                                                           boolean includedExpired);
+
 	BigDecimal getAvailableAmount(String resourceCreditId);
 
 	void create(CommunityAllocation resourceType);

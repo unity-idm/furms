@@ -31,5 +31,5 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 			"left join user_removal ur on ua.id = ur.user_addition_id " +
 			"where ua.site_id = :site_id and ua.user_id = :user_id and ua.status = :addition_status and (ur.id is null or ur.status != :removal_status)"
 	)
-	boolean isUserAdded(@Param("site_id") String siteId, @Param("user_id") String userId, @Param("addition_status") int additionStatus, @Param("removal_status") int removalStatus);
+	boolean isUserAdded(@Param("site_id") UUID siteId, @Param("user_id") String userId, @Param("addition_status") int additionStatus, @Param("removal_status") int removalStatus);
 }

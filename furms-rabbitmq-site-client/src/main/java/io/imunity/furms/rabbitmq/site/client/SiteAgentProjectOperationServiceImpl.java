@@ -44,7 +44,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	}
 
 	@EventListener
-	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationAck> ack) {
+	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationRequestAck> ack) {
 		ProjectInstallationStatus status = ack.header.status.equals(Status.FAILED) ? ProjectInstallationStatus.FAILED : ProjectInstallationStatus.ACKNOWLEDGED;
 		ProjectInstallationResult projectInstallationResult = new ProjectInstallationResult(
 			null,

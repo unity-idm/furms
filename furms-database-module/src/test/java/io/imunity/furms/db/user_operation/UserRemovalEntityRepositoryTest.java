@@ -77,7 +77,6 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.PENDING)
 				.build()

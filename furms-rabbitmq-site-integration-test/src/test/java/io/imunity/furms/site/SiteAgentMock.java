@@ -48,11 +48,11 @@ public class SiteAgentMock {
 	@EventListener
 	public void receiveAgentProjectInstallationRequest(Payload<AgentProjectInstallationRequest> projectInstallationRequest) throws InterruptedException {
 		Header header = getHeader(projectInstallationRequest.header);
-		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectInstallationAck()));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectInstallationRequestAck()));
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentProjectInstallationResult result = new AgentProjectInstallationResult(projectInstallationRequest.body.identifier, Map.of("gid", "1"));
+		AgentProjectInstallationResult result = new AgentProjectInstallationResult(Map.of("gid", "1"));
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
@@ -63,7 +63,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentProjectUpdateResult result = new AgentProjectUpdateResult(projectUpdateRequest.body.identifier);
+		AgentProjectUpdateResult result = new AgentProjectUpdateResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
@@ -74,7 +74,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		AgentProjectRemovalResult result = new AgentProjectRemovalResult(projectRemovalRequest.body.identifier);
+		AgentProjectRemovalResult result = new AgentProjectRemovalResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
@@ -155,7 +155,7 @@ public class SiteAgentMock {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId, "1", payload.body.projectIdentifier);
+		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
@@ -168,6 +168,12 @@ public class SiteAgentMock {
 
 		UserProjectRemovalResult result = new UserProjectRemovalResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveAgentProjectDeallocationRequest(Payload<AgentProjectDeallocationRequest> payload) {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectDeallocationRequestAck()));
 	}
 
 	private Header getHeader(Header header) {

@@ -5,9 +5,10 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
-
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
 class ProjectAllocationModelsMapper {
 	static ProjectAllocationViewModel map(ProjectAllocationResolved projectAllocation) {

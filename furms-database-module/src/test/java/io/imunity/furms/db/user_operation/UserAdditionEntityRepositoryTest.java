@@ -79,7 +79,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.PENDING)
 				.build()
@@ -90,7 +89,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId2")
 				.status(UserAdditionStatus.ACKNOWLEDGED)
 				.build()
@@ -110,7 +108,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
@@ -121,15 +118,14 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId2")
 				.userAdditionId(userAdditionSaveEntity.getId())
 				.status(UserRemovalStatus.PENDING)
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString() ,"userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
-		assertThat(userId).isTrue();
+		boolean added = userAdditionEntityRepository.isUserAdded(siteId, "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		assertThat(added).isTrue();
 	}
 
 	@Test
@@ -139,13 +135,12 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId, "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isTrue();
 	}
 
@@ -156,7 +151,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
@@ -167,14 +161,13 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId2")
 				.userAdditionId(userAdditionSaveEntity.getId())
 				.status(UserRemovalStatus.REMOVED)
 				.build()
 		);
 
-		boolean userId = userAdditionEntityRepository.isUserAdded(siteId.toString(), "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
+		boolean userId = userAdditionEntityRepository.isUserAdded(siteId, "userId", UserAdditionStatus.ADDED.getPersistentId(), UserRemovalStatus.REMOVED.getPersistentId());
 		assertThat(userId).isFalse();
 	}
 
@@ -185,7 +178,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
@@ -202,7 +194,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
@@ -219,7 +210,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()
@@ -238,7 +228,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.PENDING)
 				.build()
@@ -249,7 +238,6 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
 				.userId("userId")
 				.status(UserAdditionStatus.ADDED)
 				.build()

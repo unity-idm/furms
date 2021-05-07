@@ -182,7 +182,7 @@ class ProjectUpdateEntityRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		entityRepository.save(toFind);
-		ProjectUpdateJobEntity findById = entityRepository.findByCorrelationId(correlationId);
+		ProjectUpdateJobEntity findById = entityRepository.findByCorrelationId(correlationId).get();
 
 		//when
 		Optional<ProjectUpdateJobEntity> byId = entityRepository.findById(findById.getId());

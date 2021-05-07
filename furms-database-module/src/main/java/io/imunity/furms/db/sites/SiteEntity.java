@@ -23,16 +23,19 @@ public class SiteEntity extends UUIDIdentifiable {
 	private final byte[] logo;
 	private final String logoType;
 	private final Boolean sshKeyFromOptionMandatory;
+	private final Integer sshKeyHistoryLength;
 	private final String externalId;
 
 
-	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType,  Boolean sshKeyFromOptionMandatory, String externalId) {
+	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType,
+			Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, String externalId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
 		this.logoType = logoType;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.sshKeyHistoryLength = sshKeyHistoryLength;
 		this.externalId = externalId;
 	}
 
@@ -43,6 +46,7 @@ public class SiteEntity extends UUIDIdentifiable {
 				.connectionInfo(connectionInfo)
 				.logo(new FurmsImage(logo, logoType))
 				.sshKeyFromOptionMandatory(sshKeyFromOptionMandatory)
+				.sshKeyHistoryLength(sshKeyHistoryLength)
 				.externalId(new SiteExternalId(externalId))
 				.build();
 	}
@@ -70,12 +74,13 @@ public class SiteEntity extends UUIDIdentifiable {
 				Arrays.equals(logo, entity.logo) &&
 				Objects.equals(logoType, entity.logoType)&&
 				Objects.equals(sshKeyFromOptionMandatory, entity.sshKeyFromOptionMandatory) &&
+				Objects.equals(sshKeyHistoryLength, entity.sshKeyHistoryLength) &&
 				Objects.equals(externalId, entity.externalId);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, externalId);
+		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength);
 		result = 31 * result + Arrays.hashCode(logo);
 		return result;
 	}
@@ -89,6 +94,7 @@ public class SiteEntity extends UUIDIdentifiable {
 				", logo=" + Arrays.toString(logo) +
 				", logoType='" + logoType + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", sshKeyHistoryLength=" + sshKeyHistoryLength +
 				", externalId=" + externalId +
 				'}';
 	}
@@ -102,6 +108,7 @@ public class SiteEntity extends UUIDIdentifiable {
 		private String logoType;
 		private Boolean sshKeyFromOptionMandatory;
 		private String externalId;
+		private Integer sshKeyHistoryLength;
 		
 		public SiteEntity.SiteEntityBuilder id(UUID id) {
 			this.id = id;
@@ -135,10 +142,15 @@ public class SiteEntity extends UUIDIdentifiable {
 			this.sshKeyFromOptionMandatory = sshKeyFromMandatory;
 			return this;
 		}
+		
+		public SiteEntity.SiteEntityBuilder sshKeyHistoryLength(Integer sshKeyHistoryLength) {
+			this.sshKeyHistoryLength = sshKeyHistoryLength;
+			return this;
+		}
 
 
 		public SiteEntity build() {
-			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, externalId);
+			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId);
 		}
 	}
 }

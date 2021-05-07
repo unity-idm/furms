@@ -28,7 +28,7 @@ public interface ProjectOperationRepository {
 
 	String update(String id, ProjectUpdateStatus status);
 
-	boolean existsByProjectId(String projectId);
+	boolean existsByProjectId(String siteId, String projectId);
 
 	void deleteAll();
 }

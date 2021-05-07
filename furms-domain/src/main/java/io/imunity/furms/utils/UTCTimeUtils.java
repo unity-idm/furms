@@ -24,4 +24,11 @@ public class UTCTimeUtils {
 			.map(OffsetDateTime::toLocalDateTime)
 			.orElse(null);
 	}
+
+	public static LocalDateTime convertToUTCTime(OffsetDateTime offsetDateTime){
+		return ofNullable(offsetDateTime)
+			.map(time -> time.withOffsetSameInstant(ZoneOffset.UTC))
+			.map(OffsetDateTime::toLocalDateTime)
+			.orElse(null);
+	}
 }

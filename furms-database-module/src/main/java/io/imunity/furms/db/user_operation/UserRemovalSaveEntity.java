@@ -20,17 +20,15 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final UUID userAdditionId;
 	public final String userId;
-	public final String  uid;
 	public final int status;
 
-	UserRemovalSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, UUID userAdditionId, String userId, String uid, int status) {
+	UserRemovalSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, UUID userAdditionId, String userId, int status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userAdditionId = userAdditionId;
 		this.userId = userId;
-		this.uid = uid;
 		this.status = status;
 	}
 
@@ -43,13 +41,12 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(userAdditionId, that.userAdditionId) &&
-			Objects.equals(userId, that.userId) &&
-			Objects.equals(uid, that.uid) && status == that.status;
+			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, siteId, correlationId, userAdditionId, userId, uid, status);
+		return Objects.hash(id, projectId, siteId, correlationId, userAdditionId, userId, status);
 	}
 
 	@Override
@@ -61,7 +58,6 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 			", correlationId=" + correlationId +
 			", userAdditionalId=" + userAdditionId +
 			", userId='" + userId + '\'' +
-			", uid='" + uid + '\'' +
 			", status=" + status +
 			'}';
 	}
@@ -124,7 +120,7 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 		}
 
 		public UserRemovalSaveEntity build() {
-			return new UserRemovalSaveEntity(id, siteId, projectId, correlationId, userAdditionId, userId, uid, status);
+			return new UserRemovalSaveEntity(id, siteId, projectId, correlationId, userAdditionId, userId, status);
 		}
 	}
 }

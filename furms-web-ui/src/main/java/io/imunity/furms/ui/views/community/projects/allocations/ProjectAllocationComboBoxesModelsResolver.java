@@ -6,6 +6,8 @@
 package io.imunity.furms.ui.views.community.projects.allocations;
 
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
 import java.math.BigDecimal;
 import java.util.Collection;

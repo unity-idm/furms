@@ -12,15 +12,11 @@ import java.util.Objects;
 
 @JsonTypeName("UserProjectAddResult")
 public class UserProjectAddResult implements Body {
-	public final String fenixUserId;
 	public final String uid;
-	public final String projectIdentifier;
 
 	@JsonCreator
-	public UserProjectAddResult(String fenixUserId, String uid, String projectIdentifier) {
-		this.fenixUserId = fenixUserId;
+	public UserProjectAddResult(String uid) {
 		this.uid = uid;
-		this.projectIdentifier = projectIdentifier;
 	}
 
 	@Override
@@ -28,22 +24,18 @@ public class UserProjectAddResult implements Body {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserProjectAddResult that = (UserProjectAddResult) o;
-		return Objects.equals(fenixUserId, that.fenixUserId) &&
-			Objects.equals(uid, that.uid) &&
-			Objects.equals(projectIdentifier, that.projectIdentifier);
+		return Objects.equals(uid, that.uid);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, uid, projectIdentifier);
+		return Objects.hash(uid);
 	}
 
 	@Override
 	public String toString() {
 		return "UserProjectAddResult{" +
-			"fenixUserId='" + fenixUserId + '\'' +
 			", uid='" + uid + '\'' +
-			", projectIdentifier='" + projectIdentifier + '\'' +
 			'}';
 	}
 }

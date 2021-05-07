@@ -5,9 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.models;
 
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonTypeName("ProjectInstallationRequestAck")
-public class AgentProjectInstallationAck implements Body {
+@JsonTypeName("ProjectResourceDeallocationRequestAck")
+public class AgentProjectDeallocationRequestAck implements Body {
 }

@@ -26,8 +26,8 @@ class ProjectInstallationMapper {
 			.community(projectInstallation.communityName)
 			.acronym(projectInstallation.acronym)
 			.researchField(projectInstallation.researchField)
-			.validityStart(convertToZoneTime(projectInstallation.validityStart, ZoneOffset.UTC))
-			.validityEnd(convertToZoneTime(projectInstallation.validityEnd, ZoneOffset.UTC))
+			.validityStart(projectInstallation.validityStart.atOffset(ZoneOffset.UTC))
+			.validityEnd(projectInstallation.validityEnd.atOffset(ZoneOffset.UTC))
 			.projectLeader(UserMapper.map(user))
 			.build();
 	}
@@ -38,8 +38,8 @@ class ProjectInstallationMapper {
 			.name(project.getName())
 			.description(project.getDescription())
 			.researchField(project.getResearchField())
-			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC))
-			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC))
+			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC).toOffsetDateTime())
+			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC).toOffsetDateTime())
 			.projectLeader(UserMapper.map(user))
 			.build();
 	}

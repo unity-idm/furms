@@ -52,10 +52,17 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
+	public Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 			.map(CommunityAllocationReadEntity::toCommunityAllocation)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
+		return readRepository.findAllNotExpiredByCommunityId(UUID.fromString(communityId)).stream()
+				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.collect(Collectors.toSet());
 	}
 
 	@Override

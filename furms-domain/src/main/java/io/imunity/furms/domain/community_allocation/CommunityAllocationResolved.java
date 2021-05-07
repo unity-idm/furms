@@ -21,9 +21,10 @@ public class CommunityAllocationResolved {
 	public final String communityId;
 	public final String name;
 	public final BigDecimal amount;
+	public final BigDecimal remaining;
 
 	CommunityAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
-	                            String communityId, String name, BigDecimal amount) {
+	                            String communityId, String name, BigDecimal amount, BigDecimal remaining) {
 		this.id = id;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -31,6 +32,7 @@ public class CommunityAllocationResolved {
 		this.communityId = communityId;
 		this.name = name;
 		this.amount = amount;
+		this.remaining = remaining;
 	}
 
 	@Override
@@ -44,12 +46,13 @@ public class CommunityAllocationResolved {
 			Objects.equals(resourceCredit, that.resourceCredit) &&
 			Objects.equals(communityId, that.communityId) &&
 			Objects.equals(name, that.name) &&
-			Objects.equals(amount, that.amount);
+			Objects.equals(amount, that.amount) &&
+			Objects.equals(remaining, that.remaining);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount, remaining);
 	}
 
 	@Override
@@ -62,6 +65,7 @@ public class CommunityAllocationResolved {
 			", communityId=" + communityId +
 			", name='" + name + '\'' +
 			", amount='" + amount + '\'' +
+			", remaining='" + remaining + '\'' +
 			'}';
 	}
 
@@ -70,13 +74,14 @@ public class CommunityAllocationResolved {
 	}
 
 	public static final class CommunityAllocationResolvedBuilder {
-		protected String id;
-		public Site site;
-		public ResourceType resourceType;
-		public ResourceCredit resourceCredit;
-		public String communityId;
-		public String name;
-		public BigDecimal amount;
+		private String id;
+		private Site site;
+		private ResourceType resourceType;
+		private ResourceCredit resourceCredit;
+		private String communityId;
+		private String name;
+		private BigDecimal amount;
+		private BigDecimal remaining;
 
 		private CommunityAllocationResolvedBuilder() {
 		}
@@ -116,8 +121,13 @@ public class CommunityAllocationResolved {
 			return this;
 		}
 
+		public CommunityAllocationResolvedBuilder remaining(BigDecimal remaining) {
+			this.remaining = remaining;
+			return this;
+		}
+
 		public CommunityAllocationResolved build() {
-			return new CommunityAllocationResolved(id, site, resourceType, resourceCredit, communityId, name, amount);
+			return new CommunityAllocationResolved(id, site, resourceType, resourceCredit, communityId, name, amount, remaining);
 		}
 	}
 }
