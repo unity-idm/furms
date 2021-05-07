@@ -50,4 +50,6 @@ public interface ProjectService {
 	void inviteUser(String communityId, String projectId, PersistentId userId);
 
 	void removeUser(String communityId, String projectId, PersistentId userId);
+
+	void resignationUser(String communityId, String projectId);
 }
