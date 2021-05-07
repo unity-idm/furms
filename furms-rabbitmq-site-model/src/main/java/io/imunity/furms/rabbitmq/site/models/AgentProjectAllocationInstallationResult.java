@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -19,13 +20,13 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public final String allocationChunkIdentifier;
 	public final String resourceType;
 	public final double amount;
-	public final ZonedDateTime validFrom;
-	public final ZonedDateTime validTo;
+	public final OffsetDateTime validFrom;
+	public final OffsetDateTime validTo;
 	@JsonIgnore
 	public final ZonedDateTime receivedTime = ZonedDateTime.now();
 
 	@JsonCreator
-	AgentProjectAllocationInstallationResult(String projectIdentifier, String allocationIdentifier, String allocationChunkIdentifier, String resourceType, double amount, ZonedDateTime validFrom, ZonedDateTime validTo) {
+	AgentProjectAllocationInstallationResult(String projectIdentifier, String allocationIdentifier, String allocationChunkIdentifier, String resourceType, double amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.allocationChunkIdentifier = allocationChunkIdentifier;
@@ -77,8 +78,8 @@ public class AgentProjectAllocationInstallationResult implements Body {
 		public String allocationChunkIdentifier;
 		public String resourceType;
 		public double amount;
-		public ZonedDateTime validFrom;
-		public ZonedDateTime validTo;
+		public OffsetDateTime validFrom;
+		public OffsetDateTime validTo;
 
 		private AgentProjectResourceAllocationResultBuilder() {
 		}
@@ -108,12 +109,12 @@ public class AgentProjectAllocationInstallationResult implements Body {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResultBuilder validFrom(ZonedDateTime validFrom) {
+		public AgentProjectResourceAllocationResultBuilder validFrom(OffsetDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResultBuilder validTo(ZonedDateTime validTo) {
+		public AgentProjectResourceAllocationResultBuilder validTo(OffsetDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}

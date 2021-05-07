@@ -3,14 +3,14 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.user_operation;
+package io.imunity.furms.domain.project_allocation_installation;
 
 import java.util.Arrays;
 
-public enum UserAdditionStatus {
-	PENDING(0), ACKNOWLEDGED(1), ADDED(2), FAILED(3);
+public enum ProjectDeallocationStatus {
+	PENDING(0), ACKNOWLEDGED(1), FAILED(2);
 
-	UserAdditionStatus(int persistentId) {
+	ProjectDeallocationStatus(int persistentId) {
 		this.persistentId = persistentId;
 	}
 
@@ -20,7 +20,7 @@ public enum UserAdditionStatus {
 		return persistentId;
 	}
 
-	public static UserAdditionStatus valueOf(int status){
+	public static ProjectDeallocationStatus valueOf(int status){
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()

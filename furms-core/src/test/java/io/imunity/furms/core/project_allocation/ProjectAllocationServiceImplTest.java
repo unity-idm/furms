@@ -7,7 +7,6 @@ package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.sites.Site;
@@ -49,8 +48,6 @@ class ProjectAllocationServiceImplTest {
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
 	@Mock
 	private CommunityAllocationRepository communityAllocationRepository;
-	@Mock
-	private UserOperationService userOperationService;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -61,7 +58,7 @@ class ProjectAllocationServiceImplTest {
 		service = new ProjectAllocationServiceImpl(
 			projectAllocationRepository, projectInstallationService,
 			communityAllocationRepository, validator,
-			projectAllocationInstallationService, userOperationService, publisher
+			projectAllocationInstallationService, publisher
 		);
 		orderVerifier = inOrder(projectAllocationRepository, publisher);
 	}
@@ -123,9 +120,13 @@ class ProjectAllocationServiceImplTest {
 			ProjectAllocationResolved.builder()
 				.site(Site.builder().build())
 				.build()));
-		when(projectInstallationService.findProjectInstallation("communityId", null)).thenReturn(
-			ProjectInstallation.builder().build()
+		when(projectInstallationService.findProjectInstallation( "projectAllocationId")).thenReturn(
+			ProjectInstallation.builder()
+				.siteId("siteId")
+				.build()
 		);
+		when(projectAllocationRepository.create(request)).thenReturn("projectAllocationId");
+
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
@@ -155,6 +156,7 @@ class ProjectAllocationServiceImplTest {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(ProjectAllocationResolved.builder().build()));
 
 		//when
 		service.delete("projectId", id);

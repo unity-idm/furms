@@ -8,7 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonTypeName("ProjectResourceAllocationRequest")
@@ -18,11 +18,11 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 	public final String resourceCreditIdentifier;
 	public final String resourceType;
 	public final double amount;
-	public final ZonedDateTime validFrom;
-	public final ZonedDateTime validTo;
+	public final OffsetDateTime validFrom;
+	public final OffsetDateTime validTo;
 
 	@JsonCreator
-	AgentProjectAllocationInstallationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, double amount, ZonedDateTime validFrom, ZonedDateTime validTo) {
+	AgentProjectAllocationInstallationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, double amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.resourceCreditIdentifier = resourceCreditIdentifier;
@@ -74,8 +74,8 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 		public String resourceCreditIdentifier;
 		public String resourceType;
 		public double amount;
-		public ZonedDateTime validFrom;
-		public ZonedDateTime validTo;
+		public OffsetDateTime validFrom;
+		public OffsetDateTime validTo;
 
 		private AgentProjectResourceAllocationRequestBuilder() {
 		}
@@ -105,12 +105,12 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequestBuilder validFrom(ZonedDateTime validFrom) {
+		public AgentProjectResourceAllocationRequestBuilder validFrom(OffsetDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequestBuilder validTo(ZonedDateTime validTo) {
+		public AgentProjectResourceAllocationRequestBuilder validTo(OffsetDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}

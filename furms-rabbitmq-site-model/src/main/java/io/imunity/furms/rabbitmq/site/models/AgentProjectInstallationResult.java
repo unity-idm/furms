@@ -14,12 +14,10 @@ import java.util.Objects;
 
 @JsonTypeName("ProjectInstallationResult")
 public class AgentProjectInstallationResult implements Body{
-	public final String identifier;
 	public final Map<String, String> attributes;
 
 	@JsonCreator
-	public AgentProjectInstallationResult(String identifier, Map<String, String> attributes) {
-		this.identifier = identifier;
+	public AgentProjectInstallationResult(Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
 
@@ -28,18 +26,17 @@ public class AgentProjectInstallationResult implements Body{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AgentProjectInstallationResult that = (AgentProjectInstallationResult) o;
-		return Objects.equals(identifier, that.identifier) && Objects.equals(attributes, that.attributes);
+		return Objects.equals(attributes, that.attributes);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(identifier, attributes);
+		return Objects.hash(attributes);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectInstallationResult{" +
-			"identifier='" + identifier + '\'' +
 			", attributes=" + attributes +
 			'}';
 	}

@@ -24,6 +24,6 @@ public enum UserRemovalStatus {
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElse(null);
+			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));
 	}
 }
