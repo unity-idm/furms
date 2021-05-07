@@ -11,6 +11,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.*;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
@@ -20,6 +21,7 @@ import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,11 +62,13 @@ class SiteServiceImplTest {
 	private SiteAgentStatusService siteAgentStatusService;
 	@Mock
 	private AuthzService authzService;
-
+	@Mock
+	private UserOperationRepository userOperationRepository;
+	
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService, siteAgentStatusService);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService, siteAgentStatusService, userOperationRepository);
 	}
 
 	@Test
@@ -100,6 +104,27 @@ class SiteServiceImplTest {
 		assertThat(allSites).hasSize(2);
 	}
 
+	@Test
+	void shouldReturnOnlyUserSites() {	
+		//given
+		PersistentId pId = new PersistentId("id");
+		FenixUserId fId = new FenixUserId("fenixId");
+		when(repository.findAll()).thenReturn(Set.of(
+				Site.builder().id("id1").name("name").build(),
+				Site.builder().id("id2").name("name").build()));
+		when(usersDAO.getFenixUserId(pId)).thenReturn(fId);
+		when(userOperationRepository.isUserAdded("id1", fId.id)).thenReturn(true);
+		when(userOperationRepository.isUserAdded("id2", fId.id)).thenReturn(false);
+		
+		//when
+		final Set<Site> allSites = service.findUserSites(new PersistentId("id"));
+
+		//then
+		assertThat(allSites).hasSize(1);
+		assertThat(allSites.iterator().next().getId()).isEqualTo("id1");
+	}
+
+	
 	@Test
 	void shouldAllowToCreateSite() {
 		//given

@@ -38,6 +38,7 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,13 +62,17 @@ class SSHKeyServiceValidatorTest {
 	@Mock
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
 	
+	@Mock
+	private UserOperationRepository userOperationRepository;
+	
+	
 	@InjectMocks
 	private SSHKeyServiceValidator validator;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(sshKeysRepository, authzService, siteRepository,
-				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository);
+				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 	}
 
 	@Test

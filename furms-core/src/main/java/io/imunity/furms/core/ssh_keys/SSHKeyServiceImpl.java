@@ -170,7 +170,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
 		validator.assertKeyWasNotUsedPreviously(site, newKey);
-		LOG.info("Updating SSH key {} on site {}", newKey.name, site.getName());
+		LOG.info("Updating SSH key {} on site {}", newKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(newKey.id, site.getId());
 
@@ -243,19 +243,21 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
 		if(sitesIds.isEmpty())
 			return;
-		Set<Site> sites = findSites(sitesIds, userId);
+		assertUserIsInstalledOnSites(sitesIds, userId);
+		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
+				.collect(Collectors.toSet());
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
 		}
 	}
 
-	private Set<Site> findSites(Set<String> sitesIds, FenixUserId userId) {
-		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-			.filter(site -> userOperationService.isUserAdded(site.getId(), userId.id))
-			.collect(Collectors.toSet());
-		if(sites.isEmpty())
-			throw new UninstalledUserError("User is not installed to any site");
-		return sites;
+	private void assertUserIsInstalledOnSites(Set<String> sitesIds, FenixUserId userId) {
+		for (String siteId : sitesIds) {
+			if (!userOperationService.isUserAdded(siteId, userId.id))
+			{
+				throw new UninstalledUserError("User " + userId.id + " is not installed on site " + siteId);
+			}
+		}
 	}
 
 	private void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
@@ -288,7 +290,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
 		validator.assertKeyWasNotUsedPreviously(site, sshKey);
-		LOG.info("Adding SSH key {} to site {}", sshKey.name, site.getName());
+		LOG.info("Adding SSH key {} to site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
@@ -304,7 +306,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void removeKeyFromSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
-		LOG.info("Removing SSH key {} from site {}", sshKey.name, site.getName());
+		LOG.info("Removing SSH key {} from site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 

@@ -9,6 +9,7 @@ import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,14 +20,17 @@ import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @Component
@@ -35,19 +39,22 @@ public class SSHKeyServiceValidator {
 	private final SSHKeyRepository sshKeysRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SSHKeyHistoryRepository sshKeyHistoryRepository;
+	private final UserOperationRepository userOperationRepository;
 	private final SiteRepository siteRepository;
 	private final UsersDAO userDao;
 	private final AuthzService authzService;
 
 	SSHKeyServiceValidator(SSHKeyRepository sshKeysRepository, AuthzService authzService,
 			SiteRepository siteRepository, SSHKeyOperationRepository sshKeyOperationRepository,
-			UsersDAO userDao, SSHKeyHistoryRepository sshKeyHistoryRepository) {
+			UsersDAO userDao, SSHKeyHistoryRepository sshKeyHistoryRepository,
+			UserOperationRepository userOperationRepository) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.authzService = authzService;
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.userDao = userDao;
 		this.sshKeyHistoryRepository = sshKeyHistoryRepository;
+		this.userOperationRepository = userOperationRepository;
 	}
 
 	void validateCreate(SSHKey sshKey) {
@@ -85,11 +92,13 @@ public class SSHKeyServiceValidator {
 		assertTrue(authzService.getCurrentUserId().equals(ownerId), () -> new SSHKeyAuthzException(
 				"SSH key owner id has to be equal to current manager id."));
 	}
-	
-	void validateFenixId(PersistentId ownerId)
-	{
+
+	FenixUserId validateFenixId(PersistentId ownerId) {
+		
+		Optional<FenixUserId> id = userDao.findById(ownerId).get().fenixUserId;
 		assertTrue(userDao.findById(ownerId).get().fenixUserId.isPresent(),
 				() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
+		return id.get();
 	}
 
 	private void validateId(String id) {
@@ -147,20 +156,29 @@ public class SSHKeyServiceValidator {
 						"Invalid SSH key: there are uncompleted key operations"));
 	}
 
-
 	void assertKeyWasNotUsedPreviously(Site site, SSHKey sshKey) {
 		if (!site.isSshKeyHistoryActive())
 			return;
-		String fingerprint = sshKey.getFingerprint();	
-		assertTrue(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo(site.getId(), sshKey.ownerId.id, site.getSshKeyHistoryLength())
+		String fingerprint = sshKey.getFingerprint();
+		assertTrue(sshKeyHistoryRepository
+				.findBySiteIdAndOwnerIdLimitTo(site.getId(), sshKey.ownerId.id,
+						site.getSshKeyHistoryLength())
 				.stream().filter(h -> h.sshkeyFingerprint.equals(fingerprint)).findAny().isEmpty(),
-				() -> new SSHKeyHistoryException("Invalid SSH key: the key does not meet the history requirements", site.getId()));
+				() -> new SSHKeyHistoryException(
+						"Invalid SSH key: the key does not meet the history requirements",
+						site.getId()));
 	}
-	
+
 	void assertIsEligibleToManageKeys() {
-		validateFenixId(authzService.getCurrentAuthNUser().id.get());
+
+		PersistentId userId = authzService.getCurrentAuthNUser().id.get();
+		FenixUserId fenixId = validateFenixId(userId);
+		
+		assertTrue(siteRepository.findAll().stream()
+				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixId.id)).findAny()
+				.isPresent(),
+				() -> new UninstalledUserError("User with id" + userId.id
+						+ " don't have access to any site to install SSH keys"));
+
 	}
 }
-
-
-
