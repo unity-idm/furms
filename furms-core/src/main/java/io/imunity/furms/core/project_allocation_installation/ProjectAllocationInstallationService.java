@@ -58,6 +58,20 @@ public class ProjectAllocationInstallationService {
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
+	public void createAndStartAllocation(String projectAllocationId) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
+			.correlationId(correlationId)
+			.siteId(projectAllocationResolved.site.getId())
+			.projectAllocationId(projectAllocationId)
+			.status(ProjectAllocationInstallationStatus.PENDING)
+			.build();
+		projectAllocationInstallationRepository.create(projectAllocationInstallation);
+		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
+		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
+	}
+
 	public void startWaitingAllocations(String projectId) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
 			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, null);

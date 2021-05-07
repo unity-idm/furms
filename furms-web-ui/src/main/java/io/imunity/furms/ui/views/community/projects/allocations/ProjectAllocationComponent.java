@@ -8,7 +8,6 @@ package io.imunity.furms.ui.views.community.projects.allocations;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -17,7 +16,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -75,7 +73,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectAllocationFormView.class, c.id))
+		grid.addColumn(c -> c.name)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.2"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -116,11 +114,6 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private Component createContextMenu(ProjectAllocationGridModel model) {
 		GridActionMenu contextMenu = new GridActionMenu();
-
-		contextMenu.addItem(new MenuButton(
-				getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, model.id)
-		);
 
 		Dialog confirmDialog = createConfirmDialog(model.id, model.name);
 

@@ -10,12 +10,15 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.dom.Element;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class ProjectAllocationDetailsComponentFactory {
+	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 	public static Component create(List<ProjectAllocationInstallation> allocationInstallation) {
 		Element tableElement = new Element("table");
 		tableElement.getStyle().set("width", "90%");
@@ -40,11 +43,11 @@ public class ProjectAllocationDetailsComponentFactory {
 			Element amountField = new Element("td");
 			amountField.setText(Optional.ofNullable(installation.amount).map(Object::toString).orElse(""));
 			Element receivedField = new Element("td");
-			receivedField.setText(Optional.ofNullable(installation.receivedTime).map(Object::toString).orElse(""));
+			receivedField.setText(Optional.ofNullable(installation.receivedTime).map(t -> t.format(dateTimeFormatter)).orElse(""));
 			Element validFrom = new Element("td");
-			validFrom.setText(Optional.ofNullable(installation.validFrom).map(Object::toString).orElse(""));
+			validFrom.setText(Optional.ofNullable(installation.validFrom).map(t -> t.format(dateTimeFormatter)).orElse(""));
 			Element validTo = new Element("td");
-			validTo.setText(Optional.ofNullable(installation.validTo).map(Object::toString).orElse(""));
+			validTo.setText(Optional.ofNullable(installation.validTo).map(t -> t.format(dateTimeFormatter)).orElse(""));
 			row.appendChild(amountField, receivedField, validFrom, validTo);
 			tbody.appendChild(row);
 		}
