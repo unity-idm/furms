@@ -35,7 +35,7 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
 @SpringBootTest
-class SSHKeyInstallationEntityRepositoryTest extends DBIntegrationTest {
+class SSHKeyOperationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;

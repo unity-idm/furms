@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.settings;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.domain.constant.SSHKeysConst.MAX_HISTORY_SIZE;
 import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -25,9 +26,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
@@ -79,6 +82,7 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
 		formLayout.addFormItem(sshKeyFromMandatory(binder), "");
+		formLayout.addFormItem(sshKeyHistoryLength(binder), getTranslation("view.site-admin.settings.form.sshKeyHistoryLength"));
 		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.add(buttonsRow(binder));
 
@@ -151,6 +155,17 @@ public class SettingsView extends FurmsViewComponent {
 		return sshKeyFromMandatoryCheckbox;
 	}
 
+	private IntegerField sshKeyHistoryLength(Binder<SiteSettingsDto> binder) {
+		IntegerField sshKeyHistoryLengthField = new IntegerField();
+		sshKeyHistoryLengthField.setValueChangeMode(EAGER);
+		binder.forField(sshKeyHistoryLengthField)
+				.withValidator(new IntegerRangeValidator(getTranslation(
+						"view.site-admin.settings.form.validation.sshKeyHistoryLength",
+						MAX_HISTORY_SIZE), 0, MAX_HISTORY_SIZE))
+				.bind(SiteSettingsDto::getSshKeyHistoryLength, SiteSettingsDto::setSshKeyHistoryLength);
+		return sshKeyHistoryLengthField;
+	}	
+	
 	private Component buttonsRow(Binder<SiteSettingsDto> binder) {
 		
 		Button cancel = new Button(getTranslation("view.site-admin.settings.form.button.cancel"));
@@ -192,6 +207,7 @@ public class SettingsView extends FurmsViewComponent {
 						.connectionInfo(settings.getConnectionInfo())
 						.logo(settings.getLogo())
 						.sshKeyFromOptionMandatory(settings.isSshKeyFromOptionMandatory())
+						.sshKeyHistoryLength(settings.getSshKeyHistoryLength())
 						.build());
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
@@ -224,7 +240,8 @@ public class SettingsView extends FurmsViewComponent {
 		return !Objects.equals(bufferedSettings.getName(), bean.getName())
 				|| !Objects.equals(bufferedSettings.getLogo(), bean.getLogo())
 				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo())
-				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory());
+				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory())
+				|| !Objects.equals(bufferedSettings.getSshKeyHistoryLength(), bean.getSshKeyHistoryLength());
 	}
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {

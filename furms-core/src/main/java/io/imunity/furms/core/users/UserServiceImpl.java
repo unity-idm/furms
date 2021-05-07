@@ -40,7 +40,7 @@ import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserSSHKey;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 

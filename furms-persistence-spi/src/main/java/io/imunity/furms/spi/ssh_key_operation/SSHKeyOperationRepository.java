@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.spi.ssh_key_installation;
+package io.imunity.furms.spi.ssh_key_operation;
 
 import java.time.LocalDateTime;
 import java.util.List;

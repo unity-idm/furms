@@ -53,7 +53,7 @@ public class SSHKeyOperationJobEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, sshkeyId, operation, status, error, operation);
+		return Objects.hash(id, correlationId, siteId, sshkeyId, operation, status, error, originationTime);
 	}
 
 	@Override
