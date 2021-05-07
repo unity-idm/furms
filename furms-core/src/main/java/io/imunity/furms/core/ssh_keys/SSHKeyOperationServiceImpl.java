@@ -14,6 +14,7 @@ import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,7 +99,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 
 	private void addKeyHistory(String siteId, String sshkeyId) {
 		Optional<SSHKey> findById = sshKeysRepository.findById(sshkeyId);
-		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId).originationTime(LocalDateTime.now())
+		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId).originationTime(LocalDateTime.now(ZoneOffset.UTC))
 				.sshkeyFingerprint(findById.get().getFingerprint()).sshkeyOwnerId(findById.get().ownerId).build());
 		sshKeyHistoryRepository.deleteOldestLeaveOnly(siteId, findById.get().ownerId.id, MAX_HISTORY_SIZE);
 	}
