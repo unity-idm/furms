@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -38,15 +39,18 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	private final ResourceCreditServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
 	private final CommunityAllocationService communityAllocationService;
+	private final AuthzService authzService;
 
 	public ResourceCreditServiceImpl(ResourceCreditRepository resourceCreditRepository,
 	                                 ResourceCreditServiceValidator validator,
 	                                 ApplicationEventPublisher publisher,
-	                                 CommunityAllocationService communityAllocationService) {
+	                                 CommunityAllocationService communityAllocationService,
+	                                 AuthzService authzService) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.communityAllocationService = communityAllocationService;
+		this.authzService = authzService;
 	}
 
 	@Override
@@ -103,7 +107,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	public void create(ResourceCredit resourceCredit) {
 		validator.validateCreate(resourceCredit);
 		String id = resourceCreditRepository.create(resourceCredit);
-		publisher.publishEvent(new CreateResourceCreditEvent(id));
+		publisher.publishEvent(new CreateResourceCreditEvent(id, authzService.getCurrentUserId()));
 		LOG.info("ResourceCredit with given ID: {} was created: {}", id, resourceCredit);
 	}
 

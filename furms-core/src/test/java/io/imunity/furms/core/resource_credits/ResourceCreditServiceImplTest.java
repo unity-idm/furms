@@ -24,12 +24,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -48,6 +50,8 @@ class ResourceCreditServiceImplTest {
 	private CommunityAllocationService communityAllocationService;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private AuthzService authzService;
 
 	private ResourceCreditServiceImpl service;
 	private InOrder orderVerifier;
@@ -55,8 +59,10 @@ class ResourceCreditServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, resourceCreditRepository, resourceTypeRepository, siteRepository);
-		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, communityAllocationService);
+		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
+				resourceCreditRepository, resourceTypeRepository, siteRepository);
+		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, 
+				communityAllocationService, authzService);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -169,7 +175,7 @@ class ResourceCreditServiceImplTest {
 		service.create(request);
 
 		orderVerifier.verify(resourceCreditRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("userId"))));
 	}
 
 	@Test
@@ -180,11 +186,12 @@ class ResourceCreditServiceImplTest {
 			.name("name")
 			.build();
 		when(resourceCreditRepository.isUniqueName(request.name)).thenReturn(false);
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("use"));
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(resourceCreditRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("use"))));
 	}
 
 	@Test
