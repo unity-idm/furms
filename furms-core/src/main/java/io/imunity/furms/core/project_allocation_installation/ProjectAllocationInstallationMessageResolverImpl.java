@@ -31,11 +31,12 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status) {
-		if(status.equals(ProjectAllocationInstallationStatus.FAILED)){
-			LOG.info("ProjectInstallationAllocation with given correlation id {} failed. It's not supported", correlationId.id);
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+		if(job.status.equals(ProjectAllocationInstallationStatus.INSTALLED) || job.status.equals(ProjectAllocationInstallationStatus.FAILED)) {
+			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.findByCorrelationId(correlationId);
 		projectAllocationInstallationRepository.update(correlationId.id, status, null);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
@@ -43,12 +44,13 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status) {
-		if(status.equals(ProjectDeallocationStatus.FAILED)){
-			LOG.info("ProjectDeallocation with given correlation id {} failed. It's not supported", correlationId.id);
+		ProjectDeallocationStatus jobStatus = projectAllocationInstallationRepository.findDeallocationStatusByCorrelationId(correlationId.id);
+		if(jobStatus.equals(ProjectDeallocationStatus.ACKNOWLEDGED) || jobStatus.equals(ProjectDeallocationStatus.FAILED)) {
+			LOG.info("ProjectDeallocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
 		projectAllocationInstallationRepository.update(correlationId.id, status);
-		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
+		LOG.info("ProjectDeallocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
 	@Override

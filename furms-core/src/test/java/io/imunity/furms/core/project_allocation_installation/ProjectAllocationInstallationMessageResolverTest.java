@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -15,7 +16,10 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
 
 class ProjectAllocationInstallationMessageResolverTest {
 	@Mock
@@ -37,6 +41,9 @@ class ProjectAllocationInstallationMessageResolverTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
+		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.PENDING)
+			.build()));
 		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
 
 		//then
@@ -49,6 +56,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
+		when(repository.findDeallocationStatusByCorrelationId(id.id)).thenReturn(ProjectDeallocationStatus.PENDING);
 		service.updateStatus(id, ProjectDeallocationStatus.PENDING);
 
 		//then

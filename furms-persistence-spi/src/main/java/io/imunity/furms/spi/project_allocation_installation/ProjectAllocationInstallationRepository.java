@@ -27,6 +27,8 @@ public interface ProjectAllocationInstallationRepository {
 
 	String update(String correlationId, ProjectAllocationInstallationStatus status, String msg);
 
+	ProjectDeallocationStatus findDeallocationStatusByCorrelationId(String correlationId);
+
 	String update(String correlationId, ProjectDeallocationStatus status);
 
 	boolean exists(String id);
