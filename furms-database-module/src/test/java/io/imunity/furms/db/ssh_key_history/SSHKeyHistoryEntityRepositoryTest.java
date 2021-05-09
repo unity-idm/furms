@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.ssh_key_history;
 
+import static java.util.UUID.fromString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -119,7 +120,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 			entityRepository.save(entityToSave);
 		}
 		// when
-		entityRepository.deleteOldestLeaveOnly(siteId.toString(), "owner", 5);
+		entityRepository.deleteOldestLeaveOnly(fromString(siteId.toString()), "owner", 5);
 		List<SSHKeyHistoryEntity> findAll = entityRepository
 				.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId.toString(), "owner",
 						PageRequest.of(0, 1000));

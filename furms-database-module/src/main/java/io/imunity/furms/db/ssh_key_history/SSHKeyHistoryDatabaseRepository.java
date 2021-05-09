@@ -5,6 +5,8 @@
 
 package io.imunity.furms.db.ssh_key_history;
 
+import static java.util.UUID.fromString;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,7 +44,7 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 
 	@Override
 	public void deleteOldestLeaveOnly(String siteId, String ownerId, int leave) {
-		repository.deleteOldestLeaveOnly(siteId, ownerId, leave);
+		repository.deleteOldestLeaveOnly(fromString(siteId), ownerId, leave);
 	}
 
 }
