@@ -178,4 +178,11 @@ public class UserService {
 				.map(Identity::getComparableValue).map(id -> new PersistentId(id)).orElse(null);
 
 	}
+	
+	public FenixUserId getFenixUserId(PersistentId userId) {
+		return getEntity(userId).getIdentities().stream()
+				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
+				.map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
+
+	}
 }

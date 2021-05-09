@@ -19,6 +19,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
@@ -48,6 +50,7 @@ import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
@@ -56,6 +59,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private static final Logger LOG = LoggerFactory.getLogger(SiteServiceImpl.class);
 
 	private final SiteRepository siteRepository;
+	private final UserOperationRepository userOperationRepository;
 	private final SiteServiceValidator validator;
 	private final SiteWebClient webClient;
 	private final UsersDAO usersDAO;
@@ -71,7 +75,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
-	                SiteAgentStatusService siteAgentStatusService) {
+	                SiteAgentStatusService siteAgentStatusService,
+	                UserOperationRepository userOperationRepository) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -80,6 +85,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.publisher = publisher;
 		this.siteAgentService = siteAgentService;
 		this.siteAgentStatusService = siteAgentStatusService;
+		this.userOperationRepository = userOperationRepository;
 	}
 
 	@Override
@@ -100,7 +106,10 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	public Set<Site> findUserSites(PersistentId userId) {
 		LOG.debug("Getting all Sites for user");
-		return siteRepository.findAll();
+		FenixUserId fenixUserId = usersDAO.getFenixUserId(userId);
+		return siteRepository.findAll().stream()
+				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
+				.collect(Collectors.toSet());
 	}
 
 	@Override
