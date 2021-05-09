@@ -5,6 +5,18 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toSet;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -19,6 +31,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
@@ -27,29 +40,17 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
-import io.imunity.furms.ui.components.support.models.ComboBoxModel;
-import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
-import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
+import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
+import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
-import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static java.math.BigDecimal.ZERO;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/dashboard/allocate", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
@@ -81,7 +82,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 
 	private CommunityAllocationViewModel createViewModel() {
 		final ResourceAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceAllocationsGridItem.class);
-		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId())
+		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId(), item.getSiteId())
 				.orElseThrow();
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, null);
 		return CommunityAllocationViewModel.builder()

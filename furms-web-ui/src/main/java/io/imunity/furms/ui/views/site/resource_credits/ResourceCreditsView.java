@@ -5,6 +5,18 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,20 +26,18 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 @Route(value = "site/admin/resource/credits", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.resource-credits.page.title")
@@ -119,7 +129,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String resourceTypeId, String resourceCreditName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-credits.dialog.text", resourceCreditName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> resourceCreditService.delete(resourceTypeId));
+			handleExceptions(() -> resourceCreditService.delete(resourceTypeId, getCurrentResourceId()));
 			loadGridContent();
 		});
 		return furmsDialog;

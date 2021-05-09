@@ -7,11 +7,15 @@ package io.imunity.furms.domain.resource_credits;
 
 import java.util.Objects;
 
+import io.imunity.furms.domain.users.PersistentId;
+
 public class CreateResourceCreditEvent implements ResourceCreditEvent {
 	public final String id;
+	public final PersistentId originator;
 
-	public CreateResourceCreditEvent(String id) {
+	public CreateResourceCreditEvent(String id, PersistentId originator) {
 		this.id = id;
+		this.originator = originator;
 	}
 
 	@Override

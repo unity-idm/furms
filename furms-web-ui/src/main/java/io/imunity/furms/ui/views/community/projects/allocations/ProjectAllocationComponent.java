@@ -7,17 +7,15 @@ package io.imunity.furms.ui.views.community.projects.allocations;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -37,7 +35,7 @@ import static java.util.stream.Collectors.toList;
 public class ProjectAllocationComponent extends Composite<Div> {
 
 	private final Grid<ProjectAllocationGridModel> grid;
-	private final Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
+	private Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
 	private final ProjectAllocationService service;
 	private final String communityId;
 	private final String projectId;
@@ -46,8 +44,6 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		this.communityId = getCurrentResourceId();
 		this.service = service;
 		this.projectId = projectId;
-		groupedProjectAllocations = service.findAllInstallations(communityId, projectId).stream()
-			.collect(groupingBy(installation -> installation.projectAllocationId));
 		this.grid = createCommunityGrid();
 		loadGridContent();
 
@@ -73,11 +69,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 		grid.addComponentColumn(allocation -> {
 			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-			return new Div(icon, new Label(allocation.getSiteName()));
+			return new Div(icon, new Text(allocation.getSiteName()));
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addComponentColumn(c -> new RouterLink(c.name, ProjectAllocationFormView.class, c.id))
+		grid.addColumn(c -> c.name)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.2"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -88,12 +84,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
-		grid.addColumn(c -> {
+		grid.addComponentColumn(c -> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.get(c.id);
-			return projectAllocationInstallations.stream()
+			String text = projectAllocationInstallations.stream()
 				.map(x -> x.status)
 				.max(comparing(ProjectAllocationInstallationStatus::getPersistentId))
-				.orElse(null);
+				.map(x -> getTranslation("view.community-admin.project-allocation.status." + x.getPersistentId()))
+				.orElse("");
+			return new HorizontalLayout(new Text(text));
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
 			.setSortable(true);
@@ -107,26 +105,27 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return grid;
 	}
 
+
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(projectAllocationGridModel.id, projectAllocationGridModel.name)
+			createContextMenu(projectAllocationGridModel)
 		);
 	}
 
-	private Component createContextMenu(String projectAllocationId, String projectAllocation) {
+	private Component createContextMenu(ProjectAllocationGridModel model) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
-		contextMenu.addItem(new MenuButton(
-				getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, projectAllocationId)
-		);
-
-		Dialog confirmDialog = createConfirmDialog(projectAllocationId, projectAllocation);
+		Dialog confirmDialog = createConfirmDialog(model.id, model.name);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
 			event -> confirmDialog.open()
 		);
+
+		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
+			REFRESH), e -> {
+			loadGridContent();
+		});
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
@@ -142,6 +141,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	}
 
 	private void loadGridContent() {
+		groupedProjectAllocations = service.findAllInstallations(communityId, projectId).stream()
+			.collect(groupingBy(installation -> installation.projectAllocationId));
 		grid.setItems(loadServicesViewsModels());
 	}
 
