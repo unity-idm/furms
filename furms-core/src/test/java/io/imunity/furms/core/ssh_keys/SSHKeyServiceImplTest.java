@@ -359,6 +359,37 @@ public class SSHKeyServiceImplTest {
 	void shouldValidateSSHKeyHistoryWhenUpdate() {
 		final SSHKey request = getKey("name", Sets.newHashSet("s1"));
 		final SSHKey actual = SSHKey.builder().id("id").name("name").value(
+				"ssh-dss AAAAB3NzaC1kc3MAAABZAIAB5nrP9OtmQnlVLs0gwztCYEF8u1noe1havIqYqNNtBZp5n"
+				+ "O9swNIkIkgaU2trWT3eWXWxT7eCQ+WBLfBTgrm3qLKcd8q4JzBz4DHhywew4VWKMJ/XcOUAAAAVAO8nBt2J"
+				+ "WpuQU8hNlXJ7OUdjrlyVAAAAWApF5A+eqDNHMmmqVFpJQI/AreIVb/B6APQuW81TWltf6asvxgzaFhh2MJs"
+				+ "S74DqEtyPCAPw+UZ5ovyVXAbEfQEZI7DkHcJFMkPSOrLVT/5xsNJYYXDaJcsAAABYVNcJxBZZI6wktSncZi"
+				+ "rXg3Qh7oX2o2R0l+oGSC6fnSZ7OMO1OySpciRozSKI4XFxH5xW3OtAplHII2XIW72g3UBJMFXMPeYPDQBbb"
+				+ "3Hv2u18bOPO1R5Sfw==  demo@demo2.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(repository.exists(request.id)).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
+		when(repository.update(request)).thenReturn(request.id);
+		when(repository.findById(request.id)).thenReturn(Optional.of(actual));
+		when(siteRepository.exists("s1")).thenReturn(true);
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+		when(siteRepository.findById("s1"))
+				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
+
+		// when
+		service.update(request);
+
+		// then
+		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
+	}
+
+	@Test
+	void shouldNotValidateSSHKeyHistoryWhenUpdateOfTheSameKey() {
+		final SSHKey request = getKey("name", Sets.newHashSet("s1"));
+		final SSHKey actual = SSHKey.builder().id("id").name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
@@ -382,9 +413,9 @@ public class SSHKeyServiceImplTest {
 		service.update(request);
 
 		// then
-		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
+		verify(sshKeyHistoryRepository, times(0)).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
 	}
-
+	
 	@Test
 	void shouldNotAllowToDeleteSSHKeyDueToKeyNotExists() {
 		// given
