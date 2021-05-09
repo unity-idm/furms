@@ -182,33 +182,46 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueName() {
+	void shouldReturnTrueForPresentName() {
 		//given
-		entityRepository.save(InfraServiceEntity.builder()
+		InfraServiceEntity existingService = entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
 			.build()
 		);
-		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNameUsed(existingService.name, siteId.toString())).isTrue();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnFalseForNotPresentName() {
 		//given
-		InfraServiceEntity existedService = entityRepository.save(InfraServiceEntity.builder()
+		InfraServiceEntity existingService = entityRepository.save(InfraServiceEntity.builder()
 			.siteId(siteId)
 			.name("name")
 			.description("new_description")
 			.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedService.name)).isFalse();
+		assertThat(repository.isNameUsed(existingService.name + "foo", siteId.toString())).isFalse();
 	}
 
+	@Test
+	void shouldReturnFalseForPresentNameInOtherSite() {
+		//given
+		InfraServiceEntity existingService = entityRepository.save(InfraServiceEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.description("new_description")
+			.build());
+
+		//when + then
+		assertThat(repository.isNameUsed(existingService.name, UUID.randomUUID().toString())).isFalse();
+	}
+
+	
 	@Test
 	void shouldRemoveInfraServiceWhenAssociatedSiteHasRemoved() {
 		//given

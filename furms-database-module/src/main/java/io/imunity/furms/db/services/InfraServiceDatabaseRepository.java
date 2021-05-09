@@ -87,10 +87,10 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNameUsed(String name, String siteId) {
+		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
 	}
-
+	
 	@Override
 	public void delete(String id) {
 		repository.deleteById(UUID.fromString(id));
