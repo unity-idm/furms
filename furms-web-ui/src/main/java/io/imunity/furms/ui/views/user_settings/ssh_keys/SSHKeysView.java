@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.invoke.MethodHandles;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -52,12 +53,12 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
@@ -118,7 +119,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.fingerprint"))
 				.setSortable(true).setResizable(true).setFlexGrow(10);
 
-		grid.addColumn(k -> k.createTime.toLocalDate())
+		grid.addColumn(k -> k.createTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.createTime"))
 				.setSortable(true).setFlexGrow(1);
 
@@ -146,14 +147,20 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private Component additionalInfoComponent(SSHKeyViewModel sshKey) {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
-		FurmsFormLayout formLayout = new FurmsFormLayout();
-		layout.add(new NoWrapLabel(getTranslation("view.user-settings.ssh-keys.grid.details.status")));
+		layout.setSpacing(false);
+		HorizontalLayout formLayout = new HorizontalLayout();
+		formLayout.setSpacing(false);
+		formLayout.setMargin(false);
+		layout.add(new BoldLabel(getTranslation("view.user-settings.ssh-keys.grid.details.status")));
 		layout.add(formLayout);
 		sshKey.sites.stream().sorted((s1, s2) -> resolver.getName(s1.id).compareTo(resolver.getName(s2.id)))
-				.forEach(s -> formLayout.addFormItem(new NoWrapLabel(resolver.getName(s.id) + ": "
-						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error)), ""));
-
-		return layout;
+				.forEach(s -> formLayout.add(new NoWrapLabel(resolver.getName(s.id) + ": "
+						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error))));
+		VerticalLayout wrap = new VerticalLayout(layout);
+		wrap.setSpacing(false);
+		wrap.setPadding(true);
+		wrap.getStyle().set("padding-top", "0px");
+		return wrap;
 	}
 
 	private SSHKeyOperationJob getKeyStatus(String sshKey, String site) {
@@ -213,6 +220,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		getContent().add(contextMenu);
 		Component target = contextMenu.getTarget();
 		target.setVisible(contextMenu.isVisible());
+
 		return target;
 	}
 
@@ -260,6 +268,15 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			setVisible(false);
 			return;
+		}
+
+		catch (UserWithoutSitesError e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(
+					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
+			setVisible(false);
+			return;
+
 		} catch (AccessDeniedException e) {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(
@@ -295,6 +312,13 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		NoWrapLabel(String text) {
 			super(text);
 			getStyle().set("white-space", "nowrap");
+		}
+	}
+	
+	static class BoldLabel extends Label {
+		BoldLabel(String text) {
+			super(text);
+			getStyle().set("font-weight", "bold");
 		}
 	}
 

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 
 @Repository
 class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository {

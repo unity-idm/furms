@@ -33,6 +33,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.constant.SSHKeysConst;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
@@ -79,6 +80,7 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
 		formLayout.addFormItem(sshKeyFromMandatory(binder), "");
+		formLayout.addFormItem(prohibitOldSSHKey(binder), "");
 		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
 		formLayout.add(buttonsRow(binder));
 
@@ -151,6 +153,14 @@ public class SettingsView extends FurmsViewComponent {
 		return sshKeyFromMandatoryCheckbox;
 	}
 
+	private Checkbox prohibitOldSSHKey(Binder<SiteSettingsDto> binder) {
+		Checkbox prohibitOldSSHkeys = new Checkbox(
+				getTranslation("view.site-admin.settings.form.prohibitOldSSHkeys"));
+		binder.forField(prohibitOldSSHkeys)
+				.bind(SiteSettingsDto::isProhibitOldsshKeys, SiteSettingsDto::setProhibitOldsshKeys);
+		return prohibitOldSSHkeys;
+	}
+	
 	private Component buttonsRow(Binder<SiteSettingsDto> binder) {
 		
 		Button cancel = new Button(getTranslation("view.site-admin.settings.form.button.cancel"));
@@ -192,6 +202,7 @@ public class SettingsView extends FurmsViewComponent {
 						.connectionInfo(settings.getConnectionInfo())
 						.logo(settings.getLogo())
 						.sshKeyFromOptionMandatory(settings.isSshKeyFromOptionMandatory())
+						.sshKeyHistoryLength(settings.isProhibitOldsshKeys()? SSHKeysConst.MAX_HISTORY_SIZE : 0)
 						.build());
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
@@ -224,7 +235,8 @@ public class SettingsView extends FurmsViewComponent {
 		return !Objects.equals(bufferedSettings.getName(), bean.getName())
 				|| !Objects.equals(bufferedSettings.getLogo(), bean.getLogo())
 				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo())
-				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory());
+				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory())
+				|| !Objects.equals(bufferedSettings.isProhibitOldsshKeys(), bean.isProhibitOldsshKeys());
 	}
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {

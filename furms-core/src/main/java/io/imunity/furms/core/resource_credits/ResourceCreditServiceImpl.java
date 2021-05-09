@@ -20,14 +20,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static java.math.BigDecimal.ZERO;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -74,6 +73,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
 	public Set<ResourceCreditWithAllocations> findAllWithAllocations(String name,
 	                                                                 boolean includedFullyDistributed,
 	                                                                 boolean includedExpired) {
@@ -93,7 +93,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					.utcStartTime(credit.utcStartTime)
 					.utcEndTime(credit.utcEndTime)
 					.build())
-			.filter(credit -> fullyDistributedFilter(credit.remaining, includedFullyDistributed))
+			.filter(credit -> includedFullyDistributedFilter(credit.getRemaining(), includedFullyDistributed))
 			.collect(toSet());
 	}
 
@@ -122,10 +122,5 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 		resourceCreditRepository.delete(id);
 		publisher.publishEvent(new RemoveResourceCreditEvent(id));
 		LOG.info("ResourceCredit with given ID: {} was deleted", id);
-	}
-
-	private boolean fullyDistributedFilter(BigDecimal availableAmount, boolean includedFullyDistributed) {
-		return availableAmount.compareTo(ZERO) != 0
-				|| (availableAmount.compareTo(ZERO) == 0) == includedFullyDistributed;
 	}
 }

@@ -10,4 +10,5 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 
 public interface SiteAgentProjectAllocationInstallationService {
 	void allocateProject(CorrelationId correlationId, ProjectAllocationResolved projectAllocation);
+	void deallocateProject(CorrelationId correlationId, ProjectAllocationResolved projectAllocation);
 }

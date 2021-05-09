@@ -10,24 +10,22 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-@JsonTypeName("UserSSHKeyUpdatingRequest")
+@JsonTypeName("UserSSHKeyUpdateRequest")
 public class AgentSSHKeyUpdatingRequest implements Body {
 	public final String fenixUserId;
-	public final String uid;
 	public final String oldPublicKey;
 	public final String newPublicKey;
 
-	AgentSSHKeyUpdatingRequest(String fenixUserId, String uid, String oldPublicKey, String newPublicKey) {
+	AgentSSHKeyUpdatingRequest(String fenixUserId, String oldPublicKey, String newPublicKey) {
 
 		this.fenixUserId = fenixUserId;
-		this.uid = uid;
 		this.oldPublicKey = oldPublicKey;
 		this.newPublicKey = newPublicKey;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, oldPublicKey, newPublicKey, uid);
+		return Objects.hash(fenixUserId, oldPublicKey, newPublicKey);
 	}
 
 	@Override
@@ -40,13 +38,13 @@ public class AgentSSHKeyUpdatingRequest implements Body {
 			return false;
 		AgentSSHKeyUpdatingRequest other = (AgentSSHKeyUpdatingRequest) obj;
 		return Objects.equals(fenixUserId, other.fenixUserId)
-				&& Objects.equals(oldPublicKey, other.oldPublicKey) && Objects.equals(uid, other.uid);
+				&& Objects.equals(oldPublicKey, other.oldPublicKey);
 	}
 
 	@Override
 	public String toString() {
-		return "AgentSSHKeyInstallationRequest{" + "fenixUserId='" + fenixUserId + '\'' + ", uid='" + uid + '\''
-				+ ", oldPublicKey='" + oldPublicKey + ", newPublicKey='" + newPublicKey + "}";
+		return "AgentSSHKeyInstallationRequest{" + "fenixUserId='" + fenixUserId + ", oldPublicKey='"
+				+ oldPublicKey + ", newPublicKey='" + newPublicKey + "}";
 	}
 
 	public static SSHKeyUpdatingRequestBuilder builder() {
@@ -56,7 +54,6 @@ public class AgentSSHKeyUpdatingRequest implements Body {
 	@JsonPOJOBuilder(withPrefix = "")
 	public static final class SSHKeyUpdatingRequestBuilder {
 		private String fenixUserId;
-		private String uid;
 		private String oldPublicKey;
 		private String newPublicKey;
 
@@ -65,11 +62,6 @@ public class AgentSSHKeyUpdatingRequest implements Body {
 
 		public SSHKeyUpdatingRequestBuilder fenixUserId(String fenixUserId) {
 			this.fenixUserId = fenixUserId;
-			return this;
-		}
-
-		public SSHKeyUpdatingRequestBuilder uid(String uid) {
-			this.uid = uid;
 			return this;
 		}
 
@@ -84,7 +76,7 @@ public class AgentSSHKeyUpdatingRequest implements Body {
 		}
 
 		public AgentSSHKeyUpdatingRequest build() {
-			return new AgentSSHKeyUpdatingRequest(fenixUserId, uid, oldPublicKey, newPublicKey);
+			return new AgentSSHKeyUpdatingRequest(fenixUserId, oldPublicKey, newPublicKey);
 		}
 	}
 }

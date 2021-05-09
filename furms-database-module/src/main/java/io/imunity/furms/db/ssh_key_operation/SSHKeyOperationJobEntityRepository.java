@@ -13,7 +13,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperationJobEntity, UUID> {
+interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperationJobEntity, UUID> {
 	SSHKeyOperationJobEntity findByCorrelationId(UUID correlationId);
 
 	SSHKeyOperationJobEntity findBySshkeyIdAndSiteId(UUID sshkeyId, UUID siteId);

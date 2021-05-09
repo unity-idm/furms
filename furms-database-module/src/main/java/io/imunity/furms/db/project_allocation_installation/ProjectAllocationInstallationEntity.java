@@ -27,11 +27,11 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
-	public final ProjectAllocationInstallationStatus status;
+	public final int status;
 
 	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, String chunkId,
 	                                    BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
-	                                    LocalDateTime receivedTime, ProjectAllocationInstallationStatus status) {
+	                                    LocalDateTime receivedTime, int status) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -55,7 +55,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			.validFrom(validFrom)
 			.validTo(validTo)
 			.receivedTime(receivedTime)
-			.status(status)
+			.status(ProjectAllocationInstallationStatus.valueOf(status))
 			.build();
 	}
 
@@ -102,6 +102,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	}
 
 	public static final class ProjectAllocationInstallationEntityBuilder {
+		protected UUID id;
 		public UUID correlationId;
 		public UUID siteId;
 		public UUID projectAllocationId;
@@ -110,8 +111,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		public LocalDateTime validFrom;
 		public LocalDateTime validTo;
 		public LocalDateTime receivedTime;
-		public ProjectAllocationInstallationStatus status;
-		protected UUID id;
+		public int status;
 
 		private ProjectAllocationInstallationEntityBuilder() {
 		}
@@ -162,7 +162,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectAllocationInstallationEntityBuilder status(ProjectAllocationInstallationStatus status) {
-			this.status = status;
+			this.status = status.getPersistentId();
 			return this;
 		}
 

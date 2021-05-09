@@ -24,7 +24,7 @@ class SiteSSHKeysJson {
 	
 	SiteSSHKeysJson(SiteSSHKeys keys) {
 		this.siteId = keys.siteId;
-		this.siteName = keys.siteId;
+		this.siteName = keys.siteName;
 		this.sshKeys = Set.copyOf(keys.sshKeys);
 	}
 

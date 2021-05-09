@@ -16,6 +16,11 @@ public class SiteId {
 		this.externalId = externalId;
 	}
 
+	public SiteId(String id, String externalId) {
+		this.id = id;
+		this.externalId = new SiteExternalId(externalId);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

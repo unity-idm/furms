@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,16 +25,21 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
+import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,13 +60,20 @@ class SSHKeyServiceValidatorTest {
 	@Mock
 	private UsersDAO usersDAO;
 	
+	@Mock
+	private SSHKeyHistoryRepository sshKeyHistoryRepository;
+	
+	@Mock
+	private UserOperationRepository userOperationRepository;
+	
+	
 	@InjectMocks
 	private SSHKeyServiceValidator validator;
 
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(sshKeysRepository, authzService, siteRepository,
-				sshKeyOperationRepository, usersDAO);
+				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 	}
 
 	@Test
@@ -386,7 +400,47 @@ class SSHKeyServiceValidatorTest {
 		// when+then
 		assertDoesNotThrow(() -> validator.validateUpdate(key));
 	}
+	
+	@Test
+	void shouldNotPassHistoryValidation() {
 
+		//given
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
+				.thenReturn(Arrays.asList(SSHKeyHistory.builder().siteId("siteId")
+						.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey().getFingerprint()).build()));
+		// when+then
+		assertThrows(SSHKeyHistoryException.class, () -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
+				getKey()));
+	}
+	
+	@Test
+	void shouldPassHistoryValidationWhenHistoryIsNotActiveOnSite() {
+
+		// when+then
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(0).build(),
+				getKey()));
+	}
+	
+	@Test
+	void shouldNotPassHistoryValidationWhenHistoryForKeyIsEmpty() {
+
+		//given
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
+				.thenReturn(Collections.emptyList());
+		// when+then
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
+				getKey()));
+	}
+
+	@Test
+	void shouldNotPassWhenUserIsNotInsalledOnSite() {
+
+		//given
+		when(userOperationRepository.isUserAdded("site", "user")).thenReturn(false);
+		// when+then
+		assertThrows(UninstalledUserError.class, () -> validator.assertUserIsInstalledOnSites(Sets.newHashSet("site"), new FenixUserId("user")));
+	}
+	
 	SSHKey getKey() {
 		return SSHKey.builder().id("id").name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+"

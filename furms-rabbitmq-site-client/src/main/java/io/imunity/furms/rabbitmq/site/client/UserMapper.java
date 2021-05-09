@@ -11,7 +11,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentUser;
 class UserMapper {
 	static AgentUser map(FURMSUser user) {
 		return AgentUser.builder()
-			.fenixUserId(user.id.map(persistentId -> persistentId.id).orElse(null))
+			.fenixUserId(user.fenixUserId.map(uId -> uId.id).orElse(null))
 			.email(user.email)
 			.firstName(user.firstName.orElse(null))
 			.lastName(user.lastName.orElse(null))

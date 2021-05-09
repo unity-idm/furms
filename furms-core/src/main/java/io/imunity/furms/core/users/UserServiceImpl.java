@@ -47,7 +47,7 @@ import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_installation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -150,9 +150,10 @@ class UserServiceImpl implements UserService {
 		try {
 			UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
 			UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
-			Set<CommunityMembership> communityMembership = 
-					membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
-			Set<UserAttribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
+			Set<CommunityMembership> communityMembership = membershipResolver
+					.resolveCommunitiesMembership(userAttributes.attributesByResource);
+			Set<UserAttribute> rootAttribtues = membershipResolver
+					.filterExposedAttribtues(userAttributes.rootAttributes);
 			PersistentId userId = usersDAO.getPersistentId(fenixUserId);
 			Set<SiteSSHKeys> sshKeys = getSitesSSHKeys(userId);
 			return new UserRecord(userStatus, rootAttribtues, communityMembership, sshKeys);

@@ -12,13 +12,15 @@ import java.util.Objects;
 public class PoliciesAcceptance {
 	public final String policyIdentifier;
 	public final int currentVersion;
+	public final int processedVersion;
 	public final String serviceIdentifier;
 	public final Acceptance acceptance;
 
 	@JsonCreator
-	PoliciesAcceptance(String policyIdentifier, int currentVersion, String serviceIdentifier, Acceptance acceptance) {
+	PoliciesAcceptance(String policyIdentifier, int currentVersion, String serviceIdentifier, Acceptance acceptance, int processedVersion) {
 		this.policyIdentifier = policyIdentifier;
 		this.currentVersion = currentVersion;
+		this.processedVersion = processedVersion;
 		this.serviceIdentifier = serviceIdentifier;
 		this.acceptance = acceptance;
 	}
@@ -29,6 +31,7 @@ public class PoliciesAcceptance {
 		if (o == null || getClass() != o.getClass()) return false;
 		PoliciesAcceptance that = (PoliciesAcceptance) o;
 		return currentVersion == that.currentVersion &&
+			processedVersion == that.processedVersion &&
 			Objects.equals(policyIdentifier, that.policyIdentifier) &&
 			Objects.equals(serviceIdentifier, that.serviceIdentifier) &&
 			acceptance == that.acceptance;
@@ -36,7 +39,7 @@ public class PoliciesAcceptance {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(policyIdentifier, currentVersion, serviceIdentifier, acceptance);
+		return Objects.hash(policyIdentifier, currentVersion, processedVersion, serviceIdentifier, acceptance);
 	}
 
 	@Override
@@ -44,6 +47,7 @@ public class PoliciesAcceptance {
 		return "PoliciesAcceptance{" +
 			"policyIdentifier='" + policyIdentifier + '\'' +
 			", currentVersion=" + currentVersion +
+			", processedVersion=" + processedVersion +
 			", serviceIdentifier='" + serviceIdentifier + '\'' +
 			", acceptance=" + acceptance +
 			'}';

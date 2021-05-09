@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.resource-allocation-grid {
+    word-wrap: break-word;
+    font-size: var(--lumo-font-size-s);
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.resource-allocation-grid > vaadin-grid-cell-content {
+    padding-left: 0;
+    padding-right: 0;
+}

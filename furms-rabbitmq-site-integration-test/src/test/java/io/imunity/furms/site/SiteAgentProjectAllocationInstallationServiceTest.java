@@ -7,6 +7,7 @@ package io.imunity.furms.site;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -66,5 +67,31 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 
 		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED);
 		verify(projectAllocationInstallationMessageResolver, timeout(15000).times(2)).updateStatus(any());
+	}
+
+	@Test
+	void shouldDeallocateProject() {
+		CorrelationId correlationId = CorrelationId.randomID();
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.id("id")
+			.projectId("id")
+			.amount(BigDecimal.TEN)
+			.site(Site.builder()
+				.id("id")
+				.externalId(new SiteExternalId("mock"))
+				.build()
+			)
+			.resourceType(ResourceType.builder()
+				.name("name")
+				.build())
+			.resourceCredit(ResourceCredit.builder()
+				.id("id")
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now())
+				.build())
+			.build();
+		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
+
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED);
 	}
 }

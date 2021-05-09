@@ -5,11 +5,11 @@
 
 package io.imunity.furms.ui.views.site.settings;
 
+import java.util.Objects;
+
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-
-import java.util.Objects;
 
 public class SiteSettingsDto implements Cloneable {
 
@@ -18,6 +18,7 @@ public class SiteSettingsDto implements Cloneable {
 	private FurmsImage logo;
 	private String connectionInfo;
 	private Boolean sshKeyFromOptionMandatory;
+	private Boolean prohibitOldsshKeys;
 	private SiteExternalId externalId;
 
 	public SiteSettingsDto(Site site) {
@@ -27,14 +28,17 @@ public class SiteSettingsDto implements Cloneable {
 		this.connectionInfo = site.getConnectionInfo();
 		this.sshKeyFromOptionMandatory = site.isSshKeyFromOptionMandatory();
 		this.externalId = site.getExternalId();
+		this.prohibitOldsshKeys = site.getSshKeyHistoryLength() != null && site.getSshKeyHistoryLength() > 0;
 	}
 
-	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo, Boolean sshKeyFromOptionMandatory, SiteExternalId externalId) {
+	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo,
+			Boolean sshKeyFromOptionMandatory, Boolean prohibitOldsshKeys, SiteExternalId externalId) {
 		this.id = id;
 		this.name = name;
 		this.logo = logo;
 		this.connectionInfo = connectionInfo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
+		this.prohibitOldsshKeys = prohibitOldsshKeys;
 		this.externalId = externalId;
 	}
 
@@ -77,12 +81,6 @@ public class SiteSettingsDto implements Cloneable {
 	public void setExternalId(SiteExternalId externalId) {
 		this.externalId = externalId;
 	}
-
-	@Override
-	public SiteSettingsDto clone() {
-		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo,
-				this.sshKeyFromOptionMandatory, new SiteExternalId(externalId.id));
-	}
 	
 	public Boolean isSshKeyFromOptionMandatory() {
 		return sshKeyFromOptionMandatory;
@@ -91,7 +89,21 @@ public class SiteSettingsDto implements Cloneable {
 	public void setSshKeyFromOptionMandatory(Boolean sshKeyFromOptionMandatory) {
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 	}
+	
+	public Boolean isProhibitOldsshKeys() {
+		return prohibitOldsshKeys;
+	}
 
+	public void setProhibitOldsshKeys(Boolean prohibitOldsshKeys) {
+		this.prohibitOldsshKeys = prohibitOldsshKeys;
+	}
+	
+	@Override
+	public SiteSettingsDto clone() {
+		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo,
+				this.sshKeyFromOptionMandatory, this.prohibitOldsshKeys, new SiteExternalId(externalId.id));
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -113,7 +125,10 @@ public class SiteSettingsDto implements Cloneable {
 				", logo=" + logo +
 				", connectionInfo='" + connectionInfo + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
+				", prohibitOldsshKeys=" + prohibitOldsshKeys +
 				", externalId=" + externalId +
 				'}';
 	}
+
+	
 }

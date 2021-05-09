@@ -9,6 +9,6 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
-@JsonTypeName("UserSSHKeyUpdateAck")
+@JsonTypeName("UserSSHKeyUpdateRequestAck")
 public class AgentSSHKeyUpdatingAck implements Body{
 }

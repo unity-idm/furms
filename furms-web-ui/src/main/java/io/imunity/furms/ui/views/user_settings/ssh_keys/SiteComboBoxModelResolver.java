@@ -29,10 +29,10 @@ class SiteComboBoxModelResolver {
 	}
 
 	String getName(String id) {
-		return map.get(id).name;
+		return map.get(id) != null ? map.get(id).name : id;
 	}
 
 	SiteComboBoxModel getSite(String id) {
-		return map.get(id);
+		return map.get(id) != null ? map.get(id) : new SiteComboBoxModel(id, id, false);
 	}
 }

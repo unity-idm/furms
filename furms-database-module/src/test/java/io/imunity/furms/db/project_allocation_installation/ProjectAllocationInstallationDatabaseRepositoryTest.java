@@ -12,6 +12,8 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
@@ -42,7 +44,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.SENT;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -65,7 +67,9 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
-	private ProjectAllocationInstallationRepository entityRepository;
+	private ProjectAllocationInstallationRepository allocationRepository;
+	@Autowired
+	private ProjectDeallocationEntityRepository deallocationRepository;
 
 	@Autowired
 	private ProjectAllocationInstallationDatabaseRepository entityDatabaseRepository;
@@ -153,28 +157,49 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 	@AfterEach
 	void clean(){
-		entityRepository.deleteAll();
+		allocationRepository.deleteAll();
 	}
 
 	@Test
-	void shouldCreateProjectAllocation() {
+	void shouldCreateProjectAllocationInstallation() {
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SENT)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
 		String id = entityDatabaseRepository.create(request);
 
 		//then
-		ProjectAllocationInstallation allocationInstallation = entityRepository.findAll(projectId.toString()).iterator().next();
+		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
-		assertThat(allocationInstallation.status).isEqualTo(SENT);
+		assertThat(allocationInstallation.status).isEqualTo(PROVISIONING_PROJECT);
+	}
+
+	@Test
+	void shouldCreateProjectDeallocation() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectDeallocation request = ProjectDeallocation.builder()
+			.correlationId(new CorrelationId(correlationId.id))
+			.siteId(siteId.toString())
+			.projectAllocationId(projectAllocationId.toString())
+			.status(ProjectDeallocationStatus.PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.create(request);
+
+		//then
+		ProjectDeallocationEntity deallocation = deallocationRepository.findAll().iterator().next();
+		assertThat(deallocation.getId().toString()).isEqualTo(id);
+		assertThat(deallocation.correlationId.toString()).isEqualTo(correlationId.id);
+		assertThat(deallocation.status).isEqualTo(ProjectDeallocationStatus.PENDING.getPersistentId());
 	}
 
 	@Test
@@ -186,18 +211,41 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SENT)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, INSTALLED);
+		entityDatabaseRepository.update(correlationId.id, INSTALLED);
 
 		//then
-		ProjectAllocationInstallation allocationInstallation = entityRepository.findAll(projectId.toString()).iterator().next();
+		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
 		assertThat(allocationInstallation.status).isEqualTo(INSTALLED);
+	}
+
+	@Test
+	void shouldUpdateProjectDeallocation() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectDeallocation request = ProjectDeallocation.builder()
+			.id("id")
+			.correlationId(new CorrelationId(correlationId.id))
+			.siteId(siteId.toString())
+			.projectAllocationId(projectAllocationId.toString())
+			.status(ProjectDeallocationStatus.PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.create(request);
+		entityDatabaseRepository.update(correlationId.id, ProjectDeallocationStatus.ACKNOWLEDGED);
+
+		//then
+		ProjectDeallocationEntity projectDeallocationEntity = deallocationRepository.findAll().iterator().next();
+		assertThat(projectDeallocationEntity.getId().toString()).isEqualTo(id);
+		assertThat(projectDeallocationEntity.correlationId.toString()).isEqualTo(correlationId.id);
+		assertThat(projectDeallocationEntity.status).isEqualTo(ProjectDeallocationStatus.ACKNOWLEDGED.getPersistentId());
 	}
 
 	@Test
@@ -208,7 +256,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 				.correlationId(new CorrelationId(correlationId.id))
 				.siteId(siteId.toString())
 				.projectAllocationId(projectAllocationId.toString())
-				.status(SENT)
+				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
@@ -216,7 +264,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		entityDatabaseRepository.delete(id);
 
 		//then
-		assertThat(entityRepository.findAll(projectId.toString())).isEmpty();
+		assertThat(allocationRepository.findAll(projectId.toString())).isEmpty();
 	}
 
 }

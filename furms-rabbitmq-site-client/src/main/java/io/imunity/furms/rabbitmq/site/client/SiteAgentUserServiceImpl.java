@@ -55,9 +55,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 		userOperationMessageResolver.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
-				.projectId(result.body.projectIdentifier)
 				.uid(result.body.uid)
-				.userId(result.body.fenixUserId)
 				.status(status)
 				.build()
 		);
@@ -104,7 +102,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 				getFurmsPublishQueueName(userRemoval.siteId.externalId),
 				new Payload<>(
 					new Header(VERSION, userRemoval.correlationId.id),
-					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.uid, userRemoval.projectId)
+					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.projectId)
 				)
 			);
 		}catch (AmqpConnectException e){

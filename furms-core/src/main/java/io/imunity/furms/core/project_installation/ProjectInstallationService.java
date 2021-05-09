@@ -6,11 +6,12 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.projects.Project;
 
 public interface ProjectInstallationService {
-	ProjectInstallation findProjectInstallation(String communityId, String projectAllocationId);
-	boolean existsByProjectId(String communityId, String projectId);
-	void create(String communityId, ProjectInstallationJob projectInstallationJob, ProjectInstallation projectInstallation);
-	void delete(String communityId, String id);
+	ProjectInstallation findProjectInstallation(String projectAllocationId);
+	boolean existsByProjectId(String siteId, String projectId);
+	void create(String projectId, ProjectInstallation projectInstallation);
+	void update(Project project);
+	void remove(String projectId);
 }

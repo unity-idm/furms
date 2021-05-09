@@ -34,6 +34,7 @@ class SiteAgentListenerRouter {
 	public void receive(Payload<?> payload) {
 		try {
 			publisher.publishEvent(payload);
+			LOG.debug("Received payload {}", payload);
 		}catch (Exception e){
 			LOG.error("Received payload cannot be processed {}", payload);
 			LOG.error("This error occurred when message was processed", e);
