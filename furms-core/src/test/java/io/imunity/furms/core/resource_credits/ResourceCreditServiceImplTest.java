@@ -5,16 +5,18 @@
 
 package io.imunity.furms.core.resource_credits;
 
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
-import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -22,15 +24,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
+import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 
 class ResourceCreditServiceImplTest {
 	@Mock
@@ -45,6 +50,8 @@ class ResourceCreditServiceImplTest {
 	private CommunityAllocationService communityAllocationService;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private AuthzService authzService;
 
 	private ResourceCreditServiceImpl service;
 	private InOrder orderVerifier;
@@ -52,8 +59,10 @@ class ResourceCreditServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, resourceCreditRepository, resourceTypeRepository, siteRepository);
-		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, communityAllocationService);
+		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
+				resourceCreditRepository, resourceTypeRepository, siteRepository);
+		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, 
+				communityAllocationService, authzService);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -68,7 +77,7 @@ class ResourceCreditServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceCredit> byId = service.findById(id);
+		Optional<ResourceCredit> byId = service.findById(id, "");
 
 		//then
 		assertThat(byId).isPresent();
@@ -86,7 +95,7 @@ class ResourceCreditServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceCredit> otherId = service.findById("otherId");
+		Optional<ResourceCredit> otherId = service.findById("otherId", "");
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -166,7 +175,7 @@ class ResourceCreditServiceImplTest {
 		service.create(request);
 
 		orderVerifier.verify(resourceCreditRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("userId"))));
 	}
 
 	@Test
@@ -177,11 +186,12 @@ class ResourceCreditServiceImplTest {
 			.name("name")
 			.build();
 		when(resourceCreditRepository.isUniqueName(request.name)).thenReturn(false);
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("use"));
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(resourceCreditRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("use"))));
 	}
 
 	@Test
@@ -217,7 +227,7 @@ class ResourceCreditServiceImplTest {
 		when(resourceCreditRepository.exists(id)).thenReturn(true);
 
 		//when
-		service.delete(id);
+		service.delete(id, "");
 
 		orderVerifier.verify(resourceCreditRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveResourceCreditEvent("id")));
@@ -230,7 +240,7 @@ class ResourceCreditServiceImplTest {
 		when(resourceCreditRepository.exists(id)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(resourceCreditRepository, times(0)).delete(eq(id));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateResourceCreditEvent("id")));
 	}

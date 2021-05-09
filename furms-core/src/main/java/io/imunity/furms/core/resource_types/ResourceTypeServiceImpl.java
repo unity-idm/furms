@@ -5,6 +5,19 @@
 
 package io.imunity.furms.core.resource_types;
 
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_types.CreateResourceTypeEvent;
@@ -12,18 +25,6 @@ import io.imunity.furms.domain.resource_types.RemoveResourceTypeEvent;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.UpdateResourceTypeEvent;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class ResourceTypeServiceImpl implements ResourceTypeService {
@@ -40,8 +41,8 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
-	public Optional<ResourceType> findById(String id) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Optional<ResourceType> findById(String id, String siteId) {
 		return resourceTypeRepository.findById(id);
 	}
 
@@ -58,7 +59,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId")
 	public void create(ResourceType resourceType) {
 		validator.validateCreate(resourceType);
 		String id = resourceTypeRepository.create(resourceType);
@@ -67,7 +68,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId")
 	public void update(ResourceType resourceType) {
 		validator.validateUpdate(resourceType);
 		resourceTypeRepository.update(resourceType);
@@ -76,8 +77,8 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "id")
-	public void delete(String id) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
+	public void delete(String id, String siteId) {
 		validator.validateDelete(id);
 		resourceTypeRepository.delete(id);
 		publisher.publishEvent(new RemoveResourceTypeEvent(id));

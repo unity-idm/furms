@@ -129,22 +129,21 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		validator.validateCreate(communityId, projectAllocation);
 		String id = projectAllocationRepository.create(projectAllocation);
 
-		installProject(projectAllocation, id);
-		allocateProject(id);
+		allocateProject(projectAllocation, id);
 
 		publisher.publishEvent(new CreateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
 
-	private void installProject(ProjectAllocation projectAllocation, String id) {
+	private void allocateProject(ProjectAllocation projectAllocation, String id) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(id);
 		if(!projectInstallationService.existsByProjectId(projectInstallation.siteId, projectAllocation.projectId)) {
 			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
+			projectAllocationInstallationService.createAllocation(id);
 		}
-	}
-
-	private void allocateProject(String projectAllocationId) {
-		projectAllocationInstallationService.createAllocation(projectAllocationId);
+		else {
+			projectAllocationInstallationService.createAndStartAllocation(id);
+		}
 	}
 
 	@Override

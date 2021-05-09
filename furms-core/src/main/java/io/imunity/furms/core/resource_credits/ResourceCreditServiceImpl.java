@@ -5,6 +5,22 @@
 
 package io.imunity.furms.core.resource_credits;
 
+import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static java.util.stream.Collectors.toSet;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -14,20 +30,6 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static java.util.stream.Collectors.toSet;
 
 @Service
 class ResourceCreditServiceImpl implements ResourceCreditService {
@@ -37,20 +39,23 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	private final ResourceCreditServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
 	private final CommunityAllocationService communityAllocationService;
+	private final AuthzService authzService;
 
 	public ResourceCreditServiceImpl(ResourceCreditRepository resourceCreditRepository,
 	                                 ResourceCreditServiceValidator validator,
 	                                 ApplicationEventPublisher publisher,
-	                                 CommunityAllocationService communityAllocationService) {
+	                                 CommunityAllocationService communityAllocationService,
+	                                 AuthzService authzService) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.communityAllocationService = communityAllocationService;
+		this.authzService = authzService;
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
-	public Optional<ResourceCredit> findById(String id) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Optional<ResourceCredit> findById(String id, String siteId) {
 		return resourceCreditRepository.findById(id);
 	}
 
@@ -98,16 +103,16 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId")
 	public void create(ResourceCredit resourceCredit) {
 		validator.validateCreate(resourceCredit);
 		String id = resourceCreditRepository.create(resourceCredit);
-		publisher.publishEvent(new CreateResourceCreditEvent(resourceCredit.id));
+		publisher.publishEvent(new CreateResourceCreditEvent(id, authzService.getCurrentUserId()));
 		LOG.info("ResourceCredit with given ID: {} was created: {}", id, resourceCredit);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId")
 	public void update(ResourceCredit resourceCredit) {
 		validator.validateUpdate(resourceCredit);
 		resourceCreditRepository.update(resourceCredit);
@@ -116,8 +121,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "id")
-	public void delete(String id) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
+	public void delete(String id, String siteId) {
 		validator.validateDelete(id);
 		resourceCreditRepository.delete(id);
 		publisher.publishEvent(new RemoveResourceCreditEvent(id));

@@ -5,10 +5,14 @@
 
 package io.imunity.furms.ui.views.project.allocations;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
@@ -22,8 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -35,7 +38,7 @@ import static java.util.stream.Collectors.toList;
 public class ResourceAllocationsView extends FurmsViewComponent {
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
-	private final Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
+	private Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
 	private final String projectId;
 
 
@@ -43,8 +46,6 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		this.service = service;
 		this.grid = createCommunityGrid();
 		this.projectId = getCurrentResourceId();
-		groupedProjectAllocations = service.findAllInstallations(projectId).stream()
-			.collect(groupingBy(installation -> installation.projectAllocationId));
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.project-admin.resource-allocations.page.header")
@@ -74,15 +75,21 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.5"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
-		grid.addColumn(c -> {
+		grid.addComponentColumn(c -> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.get(c.id);
-			return projectAllocationInstallations.stream()
+			String text = projectAllocationInstallations.stream()
 				.map(x -> x.status)
 				.max(comparing(ProjectAllocationInstallationStatus::getPersistentId))
-				.orElse(null);
+				.map(x -> getTranslation("view.community-admin.project-allocation.status." + x.getPersistentId()))
+				.orElse("");
+			return new HorizontalLayout(new Text(text));
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
 			.setSortable(true);
+		grid.addComponentColumn(this::createLastColumnContent)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setTextAlign(ColumnTextAlign.END);
+
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory.create(groupedProjectAllocations.get(c.id))));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -90,7 +97,25 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		return grid;
 	}
 
+	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
+		return new GridActionsButtonLayout(
+			createContextMenu()
+		);
+	}
+
+	private Component createContextMenu() {
+		GridActionMenu contextMenu = new GridActionMenu();
+
+		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
+			REFRESH), e -> loadGridContent());
+
+		getContent().add(contextMenu);
+		return contextMenu.getTarget();
+	}
+
 	private void loadGridContent() {
+		groupedProjectAllocations = service.findAllInstallations(projectId).stream()
+			.collect(groupingBy(installation -> installation.projectAllocationId));
 		grid.setItems(loadServicesViewsModels());
 	}
 
