@@ -166,7 +166,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
-		validator.assertKeyWasNotUsedPreviously(site, newKey);
+		
+		if (!oldKey.getFingerprint().equals(newKey.getFingerprint()))
+		{
+			validator.assertKeyWasNotUsedPreviously(site, newKey);
+		}
 		LOG.info("Updating SSH key {} on site {}", newKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(newKey.id, site.getId());
