@@ -72,6 +72,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 @PageTitle(key = "view.user-settings.ssh-keys.page.title")
 public class SSHKeysView extends FurmsViewComponent implements AfterNavigationObserver {
 
+	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SSHKeyService sshKeysService;
@@ -119,7 +120,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.fingerprint"))
 				.setSortable(true).setResizable(true).setFlexGrow(10);
 
-		grid.addColumn(k -> k.createTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+		grid.addColumn(k -> k.createTime.format(dateTimeFormatter))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.createTime"))
 				.setSortable(true).setFlexGrow(1);
 
