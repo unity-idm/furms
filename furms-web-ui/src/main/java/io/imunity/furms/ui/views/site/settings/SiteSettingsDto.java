@@ -5,11 +5,11 @@
 
 package io.imunity.furms.ui.views.site.settings;
 
+import java.util.Objects;
+
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-
-import java.util.Objects;
 
 public class SiteSettingsDto implements Cloneable {
 
@@ -18,7 +18,7 @@ public class SiteSettingsDto implements Cloneable {
 	private FurmsImage logo;
 	private String connectionInfo;
 	private Boolean sshKeyFromOptionMandatory;
-	private Integer sshKeyHistoryLength;
+	private Boolean prohibitOldsshKeys;
 	private SiteExternalId externalId;
 
 	public SiteSettingsDto(Site site) {
@@ -28,17 +28,17 @@ public class SiteSettingsDto implements Cloneable {
 		this.connectionInfo = site.getConnectionInfo();
 		this.sshKeyFromOptionMandatory = site.isSshKeyFromOptionMandatory();
 		this.externalId = site.getExternalId();
-		this.sshKeyHistoryLength = site.getSshKeyHistoryLength();
+		this.prohibitOldsshKeys = site.getSshKeyHistoryLength() != null && site.getSshKeyHistoryLength() > 0;
 	}
 
 	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo,
-			Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, SiteExternalId externalId) {
+			Boolean sshKeyFromOptionMandatory, Boolean prohibitOldsshKeys, SiteExternalId externalId) {
 		this.id = id;
 		this.name = name;
 		this.logo = logo;
 		this.connectionInfo = connectionInfo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
-		this.sshKeyHistoryLength = sshKeyHistoryLength;
+		this.prohibitOldsshKeys = prohibitOldsshKeys;
 		this.externalId = externalId;
 	}
 
@@ -90,18 +90,18 @@ public class SiteSettingsDto implements Cloneable {
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 	}
 	
-	public Integer getSshKeyHistoryLength() {
-		return sshKeyHistoryLength;
+	public Boolean isProhibitOldsshKeys() {
+		return prohibitOldsshKeys;
 	}
 
-	public void setSshKeyHistoryLength(Integer sshKeyHistoryLength) {
-		this.sshKeyHistoryLength = sshKeyHistoryLength;
+	public void setProhibitOldsshKeys(Boolean prohibitOldsshKeys) {
+		this.prohibitOldsshKeys = prohibitOldsshKeys;
 	}
-
+	
 	@Override
 	public SiteSettingsDto clone() {
 		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo,
-				this.sshKeyFromOptionMandatory, this.sshKeyHistoryLength, new SiteExternalId(externalId.id));
+				this.sshKeyFromOptionMandatory, this.prohibitOldsshKeys, new SiteExternalId(externalId.id));
 	}
 	
 	@Override
@@ -125,8 +125,10 @@ public class SiteSettingsDto implements Cloneable {
 				", logo=" + logo +
 				", connectionInfo='" + connectionInfo + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
-				", sshKeyHistoryLength=" + sshKeyHistoryLength +
+				", prohibitOldsshKeys=" + prohibitOldsshKeys +
 				", externalId=" + externalId +
 				'}';
 	}
+
+	
 }
