@@ -11,10 +11,10 @@ public class UserRecord {
 	public final UserStatus userStatus;
 	public final Set<UserAttribute> attributes;
 	public final Set<CommunityMembership> communities;
-	public final Set<UserSSHKey> sshKeys;
+	public final Set<SiteSSHKeys> sshKeys;
 
 	public UserRecord(UserStatus userStatus, Collection<UserAttribute> attributes,
-			Collection<CommunityMembership> communities, Collection<UserSSHKey> sshKeys) {
+			Collection<CommunityMembership> communities, Collection<SiteSSHKeys> sshKeys) {
 		this.userStatus = userStatus;
 		this.attributes = Set.copyOf(attributes);
 		this.communities = Set.copyOf(communities);
