@@ -168,7 +168,7 @@ class ResourceCreditServiceImplTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceCreditRepository.create(request)).thenReturn("id");
 
 		//when
@@ -183,9 +183,10 @@ class ResourceCreditServiceImplTest {
 		//given
 		ResourceCredit request = ResourceCredit.builder()
 			.id("id")
+			.siteId("siteId")
 			.name("name")
 			.build();
-		when(resourceCreditRepository.isUniqueName(request.name)).thenReturn(false);
+		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("use"));
 
 		//when
@@ -210,7 +211,7 @@ class ResourceCreditServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.exists(request.id)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 		when(resourceCreditRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when

@@ -251,7 +251,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.startTime(LocalDateTime.now().minusSeconds(10))
 				.endTime(LocalDateTime.now().plusDays(10))
 				.build());
-		final ResourceCreditEntity expired = resourceCreditRepository.save(ResourceCreditEntity.builder()
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
 				.siteId(siteId2)
 				.resourceTypeId(resourceTypeId)
 				.name("other2")
@@ -262,7 +262,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.startTime(LocalDateTime.now().minusSeconds(10))
 				.endTime(LocalDateTime.now().minusSeconds(1))
 				.build());
-		final ResourceCreditEntity otherSite = resourceCreditRepository.save(ResourceCreditEntity.builder()
+		resourceCreditRepository.save(ResourceCreditEntity.builder()
 				.siteId(siteId)
 				.resourceTypeId(resourceTypeId)
 				.name("other3")
@@ -448,7 +448,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = resourceCreditRepository.existsByName(service.name);
+		boolean exists = resourceCreditRepository.existsByNameAndSiteId(service.name, service.siteId);
 
 		//then
 		assertThat(exists).isTrue();
@@ -470,7 +470,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = resourceCreditRepository.existsByName("wrong_name");
+		boolean nonExists = resourceCreditRepository.existsByNameAndSiteId("wrong_name", siteId);
 
 		//then
 		assertThat(nonExists).isFalse();

@@ -150,8 +150,8 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNamePresent(String name, String siteId) {
+		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
 	}
 
 	@Override

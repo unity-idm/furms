@@ -37,7 +37,7 @@ public interface ResourceCreditRepository {
 
 	boolean existsByResourceTypeIdIn(Collection<String> ids);
 
-	boolean isUniqueName(String name);
+	boolean isNamePresent(String name, String siteId);
 
 	void delete(String id);
 
