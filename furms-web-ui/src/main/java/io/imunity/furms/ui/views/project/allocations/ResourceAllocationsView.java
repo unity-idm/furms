@@ -134,7 +134,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.projectId(projectAllocation.projectId)
 			.siteName(projectAllocation.site.getName())
 			.resourceTypeName(projectAllocation.resourceType.name)
-			.resourceTypeUnit(projectAllocation.resourceType.unit.name())
+			.resourceTypeUnit(projectAllocation.resourceType.unit.getSuffix())
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
 			.build();

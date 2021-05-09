@@ -82,7 +82,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		grid.addColumn(c -> resolver.getName(c.resourceTypeId))
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.2"))
 			.setSortable(true);
-		grid.addColumn(c -> c.amount.toPlainString() + " " + resolver.getResourceType(c.resourceTypeId).unit.name())
+		grid.addColumn(c -> c.amount.toPlainString() + " " + resolver.getResourceType(c.resourceTypeId).unit.getSuffix())
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.3"))
 			.setSortable(true);
 		grid.addColumn(c -> c.createTime.toLocalDate())

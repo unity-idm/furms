@@ -5,6 +5,14 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
+import static java.util.Optional.ofNullable;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Objects;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -15,18 +23,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Objects;
-
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.*;
-import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
-import static java.util.Optional.ofNullable;
 
 class ResourceCreditFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -77,9 +77,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	}
 
 	private void createUnitLabel(TextField amountField, ResourceMeasureUnit unit) {
-		if(unit.equals(SiUnit.none))
-			return;
-		amountField.setSuffixComponent(new Label(unit.name()));
+		amountField.setSuffixComponent(new Label(unit.getSuffix()));
 	}
 
 	private void prepareValidator(TextField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,

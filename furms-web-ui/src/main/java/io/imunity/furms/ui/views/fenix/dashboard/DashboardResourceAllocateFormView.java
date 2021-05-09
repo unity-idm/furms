@@ -254,11 +254,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private void createUnitLabel(BigDecimalField amountField, ResourceMeasureUnit unit) {
-		if (unit == null) {
-			amountField.setSuffixComponent(new Label(""));
-		} else if (!unit.equals(ResourceMeasureUnit.SiUnit.none)) {
-			amountField.setSuffixComponent(new Label(unit.name()));
-		}
+		amountField.setSuffixComponent(new Label(unit == null ? "" : unit.getSuffix()));
 	}
 
 	private boolean isAmountCorrect(BigDecimal current) {

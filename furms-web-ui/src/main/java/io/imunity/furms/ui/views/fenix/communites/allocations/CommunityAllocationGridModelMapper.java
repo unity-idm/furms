@@ -14,7 +14,7 @@ class CommunityAllocationGridModelMapper {
 				.id(CommunityAllocation.id)
 				.siteName(CommunityAllocation.site.getName())
 				.resourceTypeName(CommunityAllocation.resourceType.name)
-				.resourceTypeUnit(CommunityAllocation.resourceType.unit.name())
+				.resourceTypeUnit(CommunityAllocation.resourceType.unit.getSuffix())
 				.resourceCreditName(CommunityAllocation.resourceCredit.name)
 				.name(CommunityAllocation.name)
 				.amount(CommunityAllocation.amount)
