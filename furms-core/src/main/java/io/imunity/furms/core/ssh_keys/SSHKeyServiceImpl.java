@@ -28,14 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import com.google.common.collect.Sets;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
-import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -64,13 +62,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
-	private final UserOperationService userOperationService;
+
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
 			SSHKeyOperationService sshKeyInstallationService,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
-			          UserOperationService userOperationService) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
 
 		this.userDao = userDao;
 		this.validator = validator;
@@ -79,7 +76,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationService = sshKeyInstallationService;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
-		this.userOperationService = userOperationService;
+	
 	}
 
 	@Override
@@ -243,20 +240,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
 		if(sitesIds.isEmpty())
 			return;
-		assertUserIsInstalledOnSites(sitesIds, userId);
+		validator.assertUserIsInstalledOnSites(sitesIds, userId);
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
 				.collect(Collectors.toSet());
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
-		}
-	}
-
-	private void assertUserIsInstalledOnSites(Set<String> sitesIds, FenixUserId userId) {
-		for (String siteId : sitesIds) {
-			if (!userOperationService.isUserAdded(siteId, userId.id))
-			{
-				throw new UninstalledUserError("User " + userId.id + " is not installed on site " + siteId);
-			}
 		}
 	}
 

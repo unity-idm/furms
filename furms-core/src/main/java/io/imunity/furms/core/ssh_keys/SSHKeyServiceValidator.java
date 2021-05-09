@@ -22,6 +22,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -177,8 +178,17 @@ public class SSHKeyServiceValidator {
 		assertTrue(siteRepository.findAll().stream()
 				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixId.id)).findAny()
 				.isPresent(),
-				() -> new UninstalledUserError("User with id" + userId.id
+				() -> new UserWithoutSitesError("User with id" + userId.id
 						+ " don't have access to any site to install SSH keys"));
 
+	}
+	
+	void assertUserIsInstalledOnSites(Set<String> sitesIds, FenixUserId userId) {
+		for (String siteId : sitesIds) {
+			if (!userOperationRepository.isUserAdded(siteId, userId.id))
+			{
+				throw new UninstalledUserError("User " + userId.id + " is not installed on site " + siteId, siteId);
+			}
+		}
 	}
 }

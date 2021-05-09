@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.lang.invoke.MethodHandles;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +52,8 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
-import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -118,7 +119,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.fingerprint"))
 				.setSortable(true).setResizable(true).setFlexGrow(10);
 
-		grid.addColumn(k -> k.createTime.toLocalDate())
+		grid.addColumn(k -> k.createTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.createTime"))
 				.setSortable(true).setFlexGrow(1);
 
@@ -269,7 +270,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			return;
 		}
 
-		catch (UninstalledUserError e) {
+		catch (UserWithoutSitesError e) {
 			LOG.error(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));

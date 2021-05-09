@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
+import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
@@ -431,6 +432,15 @@ class SSHKeyServiceValidatorTest {
 				getKey()));
 	}
 
+	@Test
+	void shouldNotPassWhenUserIsNotInsalledOnSite() {
+
+		//given
+		when(userOperationRepository.isUserAdded("site", "user")).thenReturn(false);
+		// when+then
+		assertThrows(UninstalledUserError.class, () -> validator.assertUserIsInstalledOnSites(Sets.newHashSet("site"), new FenixUserId("user")));
+	}
+	
 	SSHKey getKey() {
 		return SSHKey.builder().id("id").name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+"
