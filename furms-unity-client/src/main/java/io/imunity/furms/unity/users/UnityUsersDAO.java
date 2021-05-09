@@ -107,6 +107,12 @@ class UnityUsersDAO implements UsersDAO {
 	public PersistentId getPersistentId(FenixUserId userId) {
 		return userService.getPersistentId(userId);
 	}
+	
+	@Override
+	public FenixUserId getFenixUserId(PersistentId userId) {
+		return userService.getFenixUserId(userId);
+	}
+	
 
 	@Override
 	public UserAttributes getUserAttributes(FenixUserId fenixUserId) {
