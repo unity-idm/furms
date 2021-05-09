@@ -13,5 +13,5 @@ import java.util.stream.Stream;
 public interface ResourceTypeEntityRepository extends CrudRepository<ResourceTypeEntity, UUID> {
 	Stream<ResourceTypeEntity> findAllBySiteId(UUID siteId);
 	Stream<ResourceTypeEntity> findAllByServiceId(UUID serviceId);
-	boolean existsByName(String name);
+	boolean existsByNameAndSiteId(String name, UUID siteId);
 }

@@ -192,7 +192,7 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when + then
-		assertThat(repository.isNameUsed(existingService.name, siteId.toString())).isTrue();
+		assertThat(repository.isNamePresent(existingService.name, siteId.toString())).isTrue();
 	}
 
 	@Test
@@ -205,7 +205,7 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isNameUsed(existingService.name + "foo", siteId.toString())).isFalse();
+		assertThat(repository.isNamePresent(existingService.name + "foo", siteId.toString())).isFalse();
 	}
 
 	@Test
@@ -218,7 +218,7 @@ class InfraServiceDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isNameUsed(existingService.name, UUID.randomUUID().toString())).isFalse();
+		assertThat(repository.isNamePresent(existingService.name, UUID.randomUUID().toString())).isFalse();
 	}
 
 	

@@ -77,7 +77,7 @@ class InfraServiceServiceValidator {
 		Optional<InfraService> existingService = infraServiceRepository.findById(infraService.id);
 		if (existingService.isPresent() && existingService.get().name.equals(infraService.name))
 			return false;
-		return infraServiceRepository.isNameUsed(infraService.name, infraService.siteId);
+		return infraServiceRepository.isNamePresent(infraService.name, infraService.siteId);
 	}
 
 	private void validateLength(String fieldName, String fieldVale, int length) {

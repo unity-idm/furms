@@ -24,7 +24,7 @@ public interface InfraServiceRepository {
 
 	boolean exists(String id);
 
-	boolean isNameUsed(String name, String siteId);
+	boolean isNamePresent(String name, String siteId);
 
 	void delete(String id);
 

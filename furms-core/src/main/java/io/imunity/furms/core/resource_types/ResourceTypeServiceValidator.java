@@ -5,6 +5,15 @@
 
 package io.imunity.furms.core.resource_types;
 
+import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
@@ -14,14 +23,6 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.springframework.stereotype.Component;
-
-import java.util.Objects;
-import java.util.Optional;
-
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static org.springframework.util.Assert.notNull;
 
 @Component
 class ResourceTypeServiceValidator {
@@ -69,7 +70,7 @@ class ResourceTypeServiceValidator {
 	private void validateName(ResourceType resourceType) {
 		notNull(resourceType.name, "ResourceType name has to be declared.");
 		validateLength("name", resourceType.name, MAX_NAME_LENGTH);
-		if (isNameUnique(resourceType)) {
+		if (isNameOccupied(resourceType)) {
 			throw new DuplicatedNameValidationError("ResourceType name has to be unique.");
 		}
 	}
@@ -82,12 +83,13 @@ class ResourceTypeServiceValidator {
 		}
 	}
 
-	private boolean isNameUnique(ResourceType resourceType) {
-		Optional<ResourceType> optionalProject = resourceTypeRepository.findById(resourceType.id);
-		return !resourceTypeRepository.isUniqueName(resourceType.name) &&
-			(optionalProject.isEmpty() || !optionalProject.get().name.equals(resourceType.name));
+	private boolean isNameOccupied(ResourceType resourceType) {
+		Optional<ResourceType> existingResource = resourceTypeRepository.findById(resourceType.id);
+		if (existingResource.isPresent() && existingResource.get().name.equals(resourceType.name))
+			return false;
+		return resourceTypeRepository.isNamePresent(resourceType.name, resourceType.siteId);
 	}
-
+	
 	private void validateLength(String fieldName, String fieldVale, int length) {
 		if (Objects.nonNull(fieldVale) && fieldVale.length() > length) {
 			throw new IllegalArgumentException("ResourceType " + fieldName + " is too long.");

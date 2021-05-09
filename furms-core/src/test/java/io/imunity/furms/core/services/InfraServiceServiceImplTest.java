@@ -113,7 +113,7 @@ class InfraServiceServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNameUsed(request.name, request.siteId)).thenReturn(false);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.create(request)).thenReturn("id");
 
 		//when
@@ -130,7 +130,7 @@ class InfraServiceServiceImplTest {
 			.id("id")
 			.name("name")
 			.build();
-		when(infraServiceRepository.isNameUsed(request.name, request.siteId)).thenReturn(true);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -149,7 +149,7 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNameUsed(request.name, request.siteId)).thenReturn(false);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when

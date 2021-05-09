@@ -196,7 +196,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = resourceTypeRepository.existsByName(service.name);
+		boolean exists = resourceTypeRepository.existsByNameAndSiteId(service.name, siteId);
 
 		//then
 		assertThat(exists).isTrue();
@@ -214,7 +214,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = resourceTypeRepository.existsByName("wrong_name");
+		boolean nonExists = resourceTypeRepository.existsByNameAndSiteId("wrong_name", serviceId);
 
 		//then
 		assertThat(nonExists).isFalse();

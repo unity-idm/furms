@@ -8,6 +8,6 @@ CREATE TABLE service (
     site_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(510),
-    CONSTRAINT name_unique UNIQUE (name, site_id), 
+    CONSTRAINT service_name_unique UNIQUE (name, site_id), 
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
 );

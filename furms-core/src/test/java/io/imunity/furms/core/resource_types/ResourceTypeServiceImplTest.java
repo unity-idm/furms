@@ -119,7 +119,7 @@ class ResourceTypeServiceImplTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceTypeRepository.create(request)).thenReturn("id");
 
 		//when
@@ -136,7 +136,7 @@ class ResourceTypeServiceImplTest {
 			.id("id")
 			.name("name")
 			.build();
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(false);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -159,7 +159,7 @@ class ResourceTypeServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.id)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceTypeRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when

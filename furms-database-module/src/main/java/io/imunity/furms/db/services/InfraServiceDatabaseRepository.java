@@ -87,7 +87,7 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public boolean isNameUsed(String name, String siteId) {
+	public boolean isNamePresent(String name, String siteId) {
 		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
 	}
 	
