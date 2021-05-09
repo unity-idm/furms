@@ -99,12 +99,19 @@ class WorkshopService {
 				.filter(c -> c.getName().contains(key))
 				.findAny();
 		
+		Optional<FURMSUser> user = usersDAO.findById(originator);
+		if (user.isEmpty() || user.get().fenixUserId.isEmpty())
+		{
+			LOG.info("No corresponding community for user w/o fenix id");
+			return Optional.empty();
+		}
+		
 		if (community.isEmpty()) {
 			LOG.info("Community name has been changed, using different heuristic basing on {}", originator);
 			for (Community c : communities)
 			{
 				boolean isOriginatorAdmin = communityGroupsDAO.getAllAdmins(c.getId()).stream()
-					.map(user -> user.id)
+					.map(u -> u.id)
 					.filter(Optional::isPresent)
 					.map(Optional::get)
 					.anyMatch(id -> id.equals(originator));
