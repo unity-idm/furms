@@ -221,8 +221,8 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = projectRepository.existsByName(site.getName());
-		boolean nonExists = projectRepository.existsByName("wrong_name");
+		boolean exists = projectRepository.existsByCommunityIdAndName(communityId, site.getName());
+		boolean nonExists = projectRepository.existsByCommunityIdAndName(communityId, "wrong_name");
 
 		//then
 		assertThat(exists).isTrue();

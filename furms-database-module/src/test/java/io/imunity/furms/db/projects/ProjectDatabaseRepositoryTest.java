@@ -6,8 +6,15 @@
 package io.imunity.furms.db.projects;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -15,16 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.spi.communites.CommunityRepository;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
@@ -42,6 +41,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 	private byte[] imgTestFile2;
 
 	private UUID communityId;
+	private UUID communityId2;
 
 	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
 	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
@@ -63,7 +63,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 			.logo(imgTestFile2, "jpg")
 			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
-		communityRepository.create(community2);
+		communityId2 = UUID.fromString(communityRepository.create(community2));
 	}
 
 	@Test
@@ -262,7 +262,67 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueForUniqueNameInCommunityScope() {
+		//given
+		entityRepository.save(ProjectEntity.builder()
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
+		entityRepository.save(ProjectEntity.builder()
+			.communityId(communityId2)
+			.name("unique_name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
+		String uniqueName = "unique_name";
+
+		//when + then
+		assertThat(repository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonUniqueNameInCommunityScope() {
+		//given
+		ProjectEntity existedProject = entityRepository.save(ProjectEntity.builder()
+			.communityId(communityId)
+			.name("name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build());
+		entityRepository.save(ProjectEntity.builder()
+			.communityId(communityId2)
+			.name("unique_name")
+			.description("new_description")
+			.logo(imgTestFile, "jpg")
+			.acronym("acronym")
+			.researchField("research filed")
+			.startTime(startTime)
+			.endTime(endTime)
+			.build()
+		);
+
+		//when + then
+		assertThat(repository.isNamePresent(communityId2.toString(), "unique_name")).isFalse();
 	}
 
 	@Test
@@ -280,9 +340,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedProject.getName())).isFalse();
+		assertThat(repository.isNamePresent(communityId.toString(), existedProject.getName())).isFalse();
 	}
-
-
 
 }
