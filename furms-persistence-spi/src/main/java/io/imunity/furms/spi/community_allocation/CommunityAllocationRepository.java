@@ -19,7 +19,11 @@ public interface CommunityAllocationRepository {
 
 	Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId);
 
-	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId);
+	Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	                                                                                         String name);
+
+	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	                                                                                                   String name);
 
 	BigDecimal getAvailableAmount(String resourceCreditId);
 

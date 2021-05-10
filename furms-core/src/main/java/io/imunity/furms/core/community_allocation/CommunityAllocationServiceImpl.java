@@ -77,11 +77,12 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId,
+	                                                                  String name,
 	                                                                  boolean includedFullyDistributed,
 	                                                                  boolean includedExpired) {
 		final Set<CommunityAllocationResolved> communityAllocations = includedExpired
-				? communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId)
-				: communityAllocationRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId);
+				? communityAllocationRepository.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name)
+				: communityAllocationRepository.findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name);
 		return communityAllocations.stream()
 				.map(credit -> CommunityAllocationResolved.builder()
 					.id(credit.id)

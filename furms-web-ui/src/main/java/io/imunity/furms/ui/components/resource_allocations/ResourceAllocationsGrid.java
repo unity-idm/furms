@@ -15,6 +15,10 @@ import io.imunity.furms.ui.components.FurmsProgressBar;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -26,6 +30,7 @@ import static java.lang.String.format;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_UP;
 import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 @CssImport("./styles/components/resource-allocation-grid.css")
@@ -56,27 +61,35 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 				.setWidth("10%");
 		addColumn(ResourceAllocationsGridItem::getName)
 				.setHeader(getTranslation("component.resource.credit.grid.column.name"))
+				.setComparator(comparing(ResourceAllocationsGridItem::getName))
 				.setWidth("10%");
 		addColumn(item -> showResource(item.getCredit()))
 				.setHeader(getTranslation("component.resource.credit.grid.column.credit"))
+				.setComparator(comparing(item -> item.getCredit().getAmount()))
 				.setWidth("10%");
-		addColumn(item -> showResource(item.getConsumed()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.consumed"))
+		addColumn(item -> showResource(item.getDistributed()))
+				.setHeader(getTranslation("component.resource.credit.grid.column.distributed"))
+				.setComparator(comparing(item -> item.getDistributed().getAmount()))
 				.setWidth("10%");
 		addColumn(item -> showResource(item.getRemaining()))
 				.setHeader(getTranslation("component.resource.credit.grid.column.remaining"))
+				.setComparator(comparing(item -> item.getRemaining().getAmount()))
 				.setWidth("10%");
-		addColumn(ResourceAllocationsGridItem::getCreated)
+		addColumn(item -> extractLocalDate(item.getCreated()))
 				.setHeader(getTranslation("component.resource.credit.grid.column.created"))
+				.setComparator(comparing(ResourceAllocationsGridItem::getCreated))
 				.setWidth("10%");
-		addColumn(ResourceAllocationsGridItem::getValidFrom)
+		addColumn(item -> extractLocalDate(item.getValidFrom()))
 				.setHeader(getTranslation("component.resource.credit.grid.column.valid-from"))
+				.setComparator(comparing(ResourceAllocationsGridItem::getValidFrom))
 				.setWidth("10%");
-		addColumn(ResourceAllocationsGridItem::getValidTo)
+		addColumn(item -> extractLocalDate(item.getValidTo()))
 				.setHeader(getTranslation("component.resource.credit.grid.column.valid-to"))
+				.setComparator(comparing(ResourceAllocationsGridItem::getValidTo))
 				.setWidth("10%");
 		addComponentColumn(this::showAvailability)
 				.setHeader(getTranslation("component.resource.credit.grid.column.availability"))
+				.setComparator(comparing(this::calcAvailability))
 				.setWidth("15%");
 		addComponentColumn(this::showAllocateButton)
 				.setWidth("3%");
@@ -91,15 +104,20 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 	}
 
 	private FurmsProgressBar showAvailability(ResourceAllocationsGridItem item) {
-		final double value = item.getRemaining().getAmount()
-				.divide(item.getCredit().getAmount(), 4, HALF_UP)
-				.doubleValue();
-
+		final double value = calcAvailability(item);
 		return new FurmsProgressBar(value);
 	}
 
+	private double calcAvailability(ResourceAllocationsGridItem item) {
+		return item.getRemaining().getAmount()
+				.divide(item.getCredit().getAmount(), 4, HALF_UP)
+				.doubleValue();
+	}
+
 	private Component showAllocateButton(ResourceAllocationsGridItem item) {
-		if (item.getRemaining() == null || ZERO.compareTo(item.getRemaining().getAmount())!=0) {
+		if (item.getRemaining() == null
+				|| (ZERO.compareTo(item.getRemaining().getAmount())!=0)
+					&& !Instant.now().isAfter(item.getValidTo().toInstant(ZoneOffset.UTC))) {
 			final Button plus = new Button(new Icon(PLUS_CIRCLE));
 			plus.addClickListener(event -> allocateButtonAction.accept(item));
 			plus.addThemeVariants(LUMO_TERTIARY);
@@ -110,5 +128,11 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 
 	private Object showResource(DashboardGridResource item) {
 		return format("%s %s", item.getAmount(), item.getUnit().name());
+	}
+
+	private LocalDate extractLocalDate(LocalDateTime dateTime) {
+		return ofNullable(dateTime)
+				.map(LocalDateTime::toLocalDate)
+				.orElse(null);
 	}
 }

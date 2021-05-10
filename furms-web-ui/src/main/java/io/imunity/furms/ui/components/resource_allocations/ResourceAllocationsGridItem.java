@@ -8,6 +8,7 @@ package io.imunity.furms.ui.components.resource_allocations;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ResourceAllocationsGridItem {
@@ -20,11 +21,11 @@ public class ResourceAllocationsGridItem {
 	private final boolean split;
 	private final String resourceTypeId;
 	private final DashboardGridResource credit;
-	private final DashboardGridResource consumed;
+	private final DashboardGridResource distributed;
 	private final DashboardGridResource remaining;
-	private final LocalDate created;
-	private final LocalDate validFrom;
-	private final LocalDate validTo;
+	private final LocalDateTime created;
+	private final LocalDateTime validFrom;
+	private final LocalDateTime validTo;
 
 	ResourceAllocationsGridItem(String id,
 	                            String siteId,
@@ -34,11 +35,11 @@ public class ResourceAllocationsGridItem {
 	                            boolean split,
 	                            String resourceTypeId,
 	                            DashboardGridResource credit,
-	                            DashboardGridResource consumed,
+	                            DashboardGridResource distributed,
 	                            DashboardGridResource remaining,
-	                            LocalDate created,
-	                            LocalDate validFrom,
-	                            LocalDate validTo) {
+	                            LocalDateTime created,
+	                            LocalDateTime validFrom,
+	                            LocalDateTime validTo) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteName = siteName;
@@ -47,7 +48,7 @@ public class ResourceAllocationsGridItem {
 		this.split = split;
 		this.resourceTypeId = resourceTypeId;
 		this.credit = credit;
-		this.consumed = consumed;
+		this.distributed = distributed;
 		this.remaining = remaining;
 		this.created = created;
 		this.validFrom = validFrom;
@@ -86,23 +87,23 @@ public class ResourceAllocationsGridItem {
 		return credit;
 	}
 
-	public DashboardGridResource getConsumed() {
-		return consumed;
+	public DashboardGridResource getDistributed() {
+		return distributed;
 	}
 
 	public DashboardGridResource getRemaining() {
 		return remaining;
 	}
 
-	public LocalDate getCreated() {
+	public LocalDateTime getCreated() {
 		return created;
 	}
 
-	public LocalDate getValidFrom() {
+	public LocalDateTime getValidFrom() {
 		return validFrom;
 	}
 
-	public LocalDate getValidTo() {
+	public LocalDateTime getValidTo() {
 		return validTo;
 	}
 
@@ -130,7 +131,7 @@ public class ResourceAllocationsGridItem {
 				", split='" + split + '\'' +
 				", resourceTypeId='" + resourceTypeId + '\'' +
 				", credit=" + credit +
-				", consumed=" + consumed +
+				", distributed=" + distributed +
 				", remaining=" + remaining +
 				", created=" + created +
 				", validFrom=" + validFrom +
@@ -151,11 +152,11 @@ public class ResourceAllocationsGridItem {
 		private boolean split;
 		private String resourceTypeId;
 		private DashboardGridResource credit;
-		private DashboardGridResource consumed;
+		private DashboardGridResource distributed;
 		private DashboardGridResource remaining;
-		private LocalDate created;
-		private LocalDate validFrom;
-		private LocalDate validTo;
+		private LocalDateTime created;
+		private LocalDateTime validFrom;
+		private LocalDateTime validTo;
 
 		private DashboardGridItemBuilder() {
 		}
@@ -200,8 +201,8 @@ public class ResourceAllocationsGridItem {
 			return this;
 		}
 
-		public DashboardGridItemBuilder consumed(DashboardGridResource consumed) {
-			this.consumed = consumed;
+		public DashboardGridItemBuilder distributed(DashboardGridResource distributed) {
+			this.distributed = distributed;
 			return this;
 		}
 
@@ -210,24 +211,24 @@ public class ResourceAllocationsGridItem {
 			return this;
 		}
 
-		public DashboardGridItemBuilder created(LocalDate created) {
+		public DashboardGridItemBuilder created(LocalDateTime created) {
 			this.created = created;
 			return this;
 		}
 
-		public DashboardGridItemBuilder validFrom(LocalDate validFrom) {
+		public DashboardGridItemBuilder validFrom(LocalDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public DashboardGridItemBuilder validTo(LocalDate validTo) {
+		public DashboardGridItemBuilder validTo(LocalDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}
 
 		public ResourceAllocationsGridItem build() {
 			return new ResourceAllocationsGridItem(id, siteId, siteName, name, communityId, split, resourceTypeId, credit,
-					consumed, remaining, created, validFrom, validTo);
+					distributed, remaining, created, validFrom, validTo);
 		}
 	}
 }

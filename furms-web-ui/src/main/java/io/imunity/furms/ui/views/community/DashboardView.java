@@ -8,6 +8,10 @@ package io.imunity.furms.ui.views.community;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
@@ -21,17 +25,15 @@ import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocatio
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.vaadin.flow.component.checkbox.CheckboxGroupVariant.LUMO_VERTICAL;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 import static io.imunity.furms.domain.constant.RoutesConst.COMMUNITY_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_EXPIRED;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_FULLY_DISTRIBUTED;
-import static java.util.Optional.ofNullable;
 
 @Route(value = COMMUNITY_BASE_LANDING_PAGE, layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.dashboard.page.title")
@@ -49,7 +51,7 @@ public class DashboardView extends FurmsViewComponent {
 		this.grid = new ResourceAllocationsGrid(this::allocateButtonAction, this::loadCredits);
 
 		addTitle();
-		addFilters();
+		addFiltersAndSearch();
 		getContent().add(grid);
 	}
 
@@ -58,7 +60,19 @@ public class DashboardView extends FurmsViewComponent {
 		getContent().add(headerLayout);
 	}
 
-	private void addFilters() {
+	private void addFiltersAndSearch() {
+		final CheckboxGroup<DashboardViewFilters.Checkboxes> filters = createFiltersForm();
+		final TextField searchForm = createSearchForm();
+
+		final HorizontalLayout layout = new HorizontalLayout(filters, searchForm);
+		layout.setWidthFull();
+		layout.setAlignItems(FlexComponent.Alignment.CENTER);
+		layout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+
+		getContent().add(layout);
+	}
+
+	private CheckboxGroup<DashboardViewFilters.Checkboxes> createFiltersForm() {
 		final CheckboxGroup<DashboardViewFilters.Checkboxes> checkboxGroup = new CheckboxGroup<>();
 		checkboxGroup.setItemLabelGenerator(DashboardViewFilters.Checkboxes::getLabel);
 		checkboxGroup.setItems(
@@ -73,13 +87,29 @@ public class DashboardView extends FurmsViewComponent {
 			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 		});
 
-		getContent().add(checkboxGroup);
+		return checkboxGroup;
 	}
 
 	private boolean isSelectedCheckbox(DashboardViewFilters.Checkboxes.Options checkbox,
 	                                   Set<DashboardViewFilters.Checkboxes> value) {
 		return value.stream()
 				.anyMatch(filter -> checkbox.equals(filter.getOption()));
+	}
+
+	private TextField createSearchForm() {
+		final TextField textField = new TextField();
+		textField.setPlaceholder(getTranslation("view.fenix-admin.dashboard.search.placeholder"));
+		textField.setPrefixComponent(SEARCH.create());
+		textField.setValueChangeMode(ValueChangeMode.EAGER);
+		textField.getStyle().set("margin-left", "auto");
+		textField.addValueChangeListener(event -> {
+			textField.blur();
+			filters.setName(event.getValue().toLowerCase());
+			UI.getCurrent().accessSynchronously(grid::reloadGrid);
+			textField.focus();
+		});
+
+		return textField;
 	}
 
 	private void allocateButtonAction(ResourceAllocationsGridItem item) {
@@ -90,6 +120,7 @@ public class DashboardView extends FurmsViewComponent {
 	private Stream<ResourceAllocationsGridItem> loadCredits() {
 		return allocationService.findAllWithRelatedObjects(
 					getCurrentResourceId(),
+					filters.getName(),
 					filters.isIncludedFullyDistributed(),
 					filters.isIncludedExpired())
 				.stream()
@@ -106,15 +137,15 @@ public class DashboardView extends FurmsViewComponent {
 				.split(communityAllocation.resourceCredit.split)
 				.resourceTypeId(communityAllocation.resourceType.id)
 				.credit(createResource(communityAllocation.amount, communityAllocation.resourceType.unit))
-				.consumed(createResource(calcConsumed(communityAllocation), communityAllocation.resourceType.unit))
+				.distributed(createResource(calcDistributed(communityAllocation), communityAllocation.resourceType.unit))
 				.remaining(createResource(communityAllocation.remaining, communityAllocation.resourceType.unit))
-				.created(extractLocalDate(communityAllocation.resourceCredit.utcCreateTime))
-				.validFrom(extractLocalDate(communityAllocation.resourceCredit.utcStartTime))
-				.validTo(extractLocalDate(communityAllocation.resourceCredit.utcEndTime))
+				.created(communityAllocation.resourceCredit.utcCreateTime)
+				.validFrom(communityAllocation.resourceCredit.utcStartTime)
+				.validTo(communityAllocation.resourceCredit.utcEndTime)
 				.build();
 	}
 
-	private BigDecimal calcConsumed(CommunityAllocationResolved credit) {
+	private BigDecimal calcDistributed(CommunityAllocationResolved credit) {
 		if (credit == null || credit.amount == null || credit.remaining == null) {
 			return BigDecimal.ZERO;
 		}
@@ -126,12 +157,6 @@ public class DashboardView extends FurmsViewComponent {
 				.amount(amount)
 				.unit(unit)
 				.build();
-	}
-
-	private LocalDate extractLocalDate(LocalDateTime dateTime) {
-		return ofNullable(dateTime)
-				.map(LocalDateTime::toLocalDate)
-				.orElse(null);
 	}
 
 }

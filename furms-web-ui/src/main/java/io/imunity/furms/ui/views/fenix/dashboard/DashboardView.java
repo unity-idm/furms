@@ -147,15 +147,15 @@ public class DashboardView extends FurmsViewComponent {
 				.split(credit.getSplit())
 				.resourceTypeId(credit.getResourceTypeId())
 				.credit(createResource(credit.getAmount(), unit))
-				.consumed(createResource(calcConsumed(credit), unit))
+				.distributed(createResource(calcDistributed(credit), unit))
 				.remaining(createResource(credit.getRemaining(), unit))
-				.created(extractLocalDate(credit.getUtcCreateTime()))
-				.validFrom(extractLocalDate(credit.getUtcStartTime()))
-				.validTo(extractLocalDate(credit.getUtcEndTime()))
+				.created(credit.getUtcCreateTime())
+				.validFrom(credit.getUtcStartTime())
+				.validTo(credit.getUtcEndTime())
 				.build();
 	}
 
-	private BigDecimal calcConsumed(ResourceCreditWithAllocations credit) {
+	private BigDecimal calcDistributed(ResourceCreditWithAllocations credit) {
 		if (credit == null || credit.getAmount() == null || credit.getRemaining() == null) {
 			return BigDecimal.ZERO;
 		}
@@ -175,9 +175,4 @@ public class DashboardView extends FurmsViewComponent {
 				.build();
 	}
 
-	private LocalDate extractLocalDate(LocalDateTime dateTime) {
-		return ofNullable(dateTime)
-				.map(LocalDateTime::toLocalDate)
-				.orElse(null);
-	}
 }

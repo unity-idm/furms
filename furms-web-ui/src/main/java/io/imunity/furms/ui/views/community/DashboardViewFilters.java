@@ -6,12 +6,22 @@
 package io.imunity.furms.ui.views.community;
 
 class DashboardViewFilters {
+	private String name;
 	private boolean includedFullyDistributed;
 	private boolean includedExpired;
 
 	DashboardViewFilters() {
+		this.name = "";
 		this.includedFullyDistributed = false;
 		this.includedExpired = false;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	boolean isIncludedFullyDistributed() {
