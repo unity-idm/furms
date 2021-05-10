@@ -76,6 +76,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID communityId;
 
 	private UUID projectId;
+	private UUID projectId2;
 
 	private UUID resourceTypeId;
 
@@ -98,6 +99,12 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		communityId = UUID.fromString(communityRepository.create(community));
 
+		Community community2 = Community.builder()
+			.name("name2")
+			.logo(FurmsImage.empty())
+			.build();
+		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+
 		Project project = Project.builder()
 			.communityId(communityId.toString())
 			.name("name")
@@ -109,7 +116,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId2.toString())
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -120,7 +127,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		projectId = UUID.fromString(projectRepository.create(project));
-		UUID.fromString(projectRepository.create(project2));
+		projectId2 = UUID.fromString(projectRepository.create(project2));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
@@ -160,7 +167,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		));
 		communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
+				.communityId(communityId2.toString())
 				.resourceCreditId(resourceCreditId.toString())
 				.name("anem2")
 				.amount(new BigDecimal(30))
@@ -377,7 +384,52 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueForUniqueNameInCommunityScope() {
+		//given
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId2)
+			.communityAllocationId(communityAllocationId2)
+			.name("unique_name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		String uniqueName = "unique_name";
+
+		//when + then
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonUniqueNameInCommunityScope() {
+		//given
+		ProjectAllocationEntity existedProjectAllocation = entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build());
+
+		entityRepository.save(ProjectAllocationEntity.builder()
+			.projectId(projectId2)
+			.communityAllocationId(communityAllocationId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+
+		//when + then
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), existedProjectAllocation.name)).isFalse();
 	}
 
 	@Test
@@ -391,7 +443,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(existedProjectAllocation.name)).isFalse();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), existedProjectAllocation.name)).isFalse();
 	}
 
 	@Test

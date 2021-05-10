@@ -51,7 +51,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
-		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
@@ -69,7 +69,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
-		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
@@ -88,7 +88,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
-		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(false);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
@@ -138,7 +138,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
-		when(projectAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation));
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
@@ -186,7 +186,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation1));
-		when(projectAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(false);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then

@@ -38,7 +38,7 @@ class ProjectAllocationServiceValidator {
 		checkIfProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		validateProjectId(projectAllocation.projectId);
 		validateCommunityAllocationId(projectAllocation.communityAllocationId);
-		validateName(projectAllocation);
+		validateName(communityId, projectAllocation);
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
 	}
 
@@ -46,7 +46,7 @@ class ProjectAllocationServiceValidator {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
 		checkIfProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		validateId(projectAllocation.id);
-		validateName(projectAllocation);
+		validateName(communityId, projectAllocation);
 		validateUpdateProjectId(projectAllocation);
 		validateUpdateCommunityAllocationId(projectAllocation);
 		notNull(projectAllocation.amount, "ProjectAllocation amount cannot be null.");
@@ -85,10 +85,10 @@ class ProjectAllocationServiceValidator {
 		);
 	}
 
-	private void validateName(ProjectAllocation projectAllocation) {
+	private void validateName(String communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation.name, "ProjectAllocation name has to be declared.");
 		validateLength("name", projectAllocation.name, MAX_NAME_LENGTH);
-		if (isNameUnique(projectAllocation)) {
+		if (isNameOccupied(communityId, projectAllocation)) {
 			throw new DuplicatedNameValidationError("ProjectAllocation name has to be unique.");
 		}
 	}
@@ -99,9 +99,9 @@ class ProjectAllocationServiceValidator {
 		}
 	}
 
-	private boolean isNameUnique(ProjectAllocation projectAllocation) {
+	private boolean isNameOccupied(String communityId, ProjectAllocation projectAllocation) {
 		Optional<ProjectAllocation> optionalProject = projectAllocationRepository.findById(projectAllocation.id);
-		return !projectAllocationRepository.isUniqueName(projectAllocation.name) &&
+		return !projectAllocationRepository.isNamePresent(communityId, projectAllocation.name) &&
 			(optionalProject.isEmpty() || !optionalProject.get().name.equals(projectAllocation.name));
 	}
 

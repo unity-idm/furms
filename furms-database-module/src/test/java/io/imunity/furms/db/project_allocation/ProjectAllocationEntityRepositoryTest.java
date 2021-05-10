@@ -6,21 +6,6 @@
 package io.imunity.furms.db.project_allocation;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -40,6 +25,20 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
@@ -365,7 +364,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = entityRepository.existsByName(service.name);
+		boolean exists = entityReadRepository.existsByCommunityIdAndName(communityId, service.name);
 
 		//then
 		assertThat(exists).isTrue();
@@ -382,7 +381,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = entityRepository.existsByName("wrong_name");
+		boolean nonExists = entityReadRepository.existsByCommunityIdAndName(communityId, "wrong_name");
 
 		//then
 		assertThat(nonExists).isFalse();
