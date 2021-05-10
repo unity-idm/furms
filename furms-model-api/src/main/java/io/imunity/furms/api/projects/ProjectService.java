@@ -51,5 +51,5 @@ public interface ProjectService {
 
 	void removeUser(String communityId, String projectId, PersistentId userId);
 
-	void resignationUser(String communityId, String projectId);
+	void resignFromMembership(String communityId, String projectId);
 }

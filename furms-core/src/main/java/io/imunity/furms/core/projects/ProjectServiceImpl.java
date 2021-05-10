@@ -230,15 +230,17 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeUser(String communityId, String projectId, PersistentId userId){
-		userOperationService.createUserRemovals(projectId, userId);
-		projectGroupsDAO.removeUser(communityId, projectId, userId);
-		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
+		removeUserFromProject(communityId, projectId, userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
-	public void resignationUser(String communityId, String projectId) {
+	public void resignFromMembership(String communityId, String projectId) {
 		final PersistentId userId = authzService.getCurrentUserId();
+		removeUserFromProject(communityId, projectId, userId);
+	}
+
+	private void removeUserFromProject(String communityId, String projectId, PersistentId userId) {
 		userOperationService.createUserRemovals(projectId, userId);
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));

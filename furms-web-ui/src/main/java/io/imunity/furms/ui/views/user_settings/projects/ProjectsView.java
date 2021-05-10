@@ -162,7 +162,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.projects.dialog.text", projectName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> projectService.resignationUser(communityId, projectId));
+			handleExceptions(() -> projectService.resignFromMembership(communityId, projectId));
 			loadGridContent();
 		});
 		return furmsDialog;
