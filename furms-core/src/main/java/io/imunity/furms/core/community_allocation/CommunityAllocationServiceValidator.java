@@ -66,14 +66,14 @@ class CommunityAllocationServiceValidator {
 	private void validateName(CommunityAllocation communityAllocation) {
 		notNull(communityAllocation.name, "CommunityAllocation name has to be declared.");
 		validateLength("name", communityAllocation.name, MAX_NAME_LENGTH);
-		if (isNameUnique(communityAllocation)) {
+		if (isNameOccupied(communityAllocation)) {
 			throw new DuplicatedNameValidationError("CommunityAllocation name has to be unique.");
 		}
 	}
 
-	private boolean isNameUnique(CommunityAllocation communityAllocation) {
+	private boolean isNameOccupied(CommunityAllocation communityAllocation) {
 		Optional<CommunityAllocation> optionalProject = communityAllocationRepository.findById(communityAllocation.id);
-		return !communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name) &&
+		return !communityAllocationRepository.isNamePresent(communityAllocation.communityId, communityAllocation.name) &&
 			(optionalProject.isEmpty() || !optionalProject.get().name.equals(communityAllocation.name));
 	}
 

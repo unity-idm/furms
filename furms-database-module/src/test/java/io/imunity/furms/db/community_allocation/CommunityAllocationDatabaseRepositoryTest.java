@@ -401,7 +401,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
 	}
 
 	@Test
@@ -424,7 +424,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
 	}
 
 	@Test
@@ -447,7 +447,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(communityId2.toString(), uniqueName)).isFalse();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId2.toString(), uniqueName)).isFalse();
 	}
 
 	@Test
@@ -461,7 +461,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), existedCommunityAllocation.name)).isFalse();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), existedCommunityAllocation.name)).isFalse();
 	}
 
 	@Test

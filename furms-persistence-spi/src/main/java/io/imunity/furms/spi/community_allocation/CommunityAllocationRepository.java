@@ -33,7 +33,7 @@ public interface CommunityAllocationRepository {
 
 	boolean existsByResourceCreditId(String id);
 
-	boolean isUniqueName(String communityId, String name);
+	boolean isNamePresent(String communityId, String name);
 
 	void delete(String id);
 

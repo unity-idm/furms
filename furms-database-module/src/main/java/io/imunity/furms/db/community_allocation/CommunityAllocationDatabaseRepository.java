@@ -123,7 +123,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public boolean isUniqueName(String communityId, String name) {
+	public boolean isNamePresent(String communityId, String name) {
 		return !repository.existsByCommunityIdAndName(UUID.fromString(communityId), name);
 	}
 
