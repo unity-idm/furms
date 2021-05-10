@@ -12,5 +12,5 @@ import java.util.stream.Stream;
 
 public interface InfraServiceEntityRepository extends CrudRepository<InfraServiceEntity, UUID> {
 	Stream<InfraServiceEntity> findAllBySiteId(UUID siteId);
-	boolean existsByName(String name);
+	boolean existsByNameAndSiteId(String name, UUID siteId);
 }

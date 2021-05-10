@@ -11,7 +11,11 @@ import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +28,8 @@ import org.springframework.stereotype.Service;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
@@ -33,13 +39,14 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
-import io.imunity.furms.domain.users.UserSSHKey;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -50,17 +57,19 @@ class UserServiceImpl implements UserService {
 	private final UsersDAO usersDAO;
 	private final SSHKeyRepository sshKeyRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
+	private final SiteRepository siteRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
 
 
 	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
-			SSHKeyRepository sshKeyRepository, SSHKeyOperationRepository sshKeyOperationRepository) {
+			SSHKeyRepository sshKeyRepository, SSHKeyOperationRepository sshKeyOperationRepository,  SiteRepository siteRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.sshKeyRepository = sshKeyRepository;
+		this.siteRepository = siteRepository;
 	}
 
 	@Override
@@ -141,37 +150,50 @@ class UserServiceImpl implements UserService {
 		try {
 			UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
 			UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
-			Set<CommunityMembership> communityMembership = 
-					membershipResolver.resolveCommunitiesMembership(userAttributes.attributesByResource);
-			Set<UserAttribute> rootAttribtues = membershipResolver.filterExposedAttribtues(userAttributes.rootAttributes);
+			Set<CommunityMembership> communityMembership = membershipResolver
+					.resolveCommunitiesMembership(userAttributes.attributesByResource);
+			Set<UserAttribute> rootAttribtues = membershipResolver
+					.filterExposedAttribtues(userAttributes.rootAttributes);
 			PersistentId userId = usersDAO.getPersistentId(fenixUserId);
-			Set<UserSSHKey> sshKeys = getUserSSHKeys(userId);
+			Set<SiteSSHKeys> sshKeys = getSitesSSHKeys(userId);
 			return new UserRecord(userStatus, rootAttribtues, communityMembership, sshKeys);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
 		}
 	}
-	
-	private Set<UserSSHKey> getUserSSHKeys(PersistentId userId)
-	{
-		return sshKeyRepository.findAllByOwnerId(userId).stream()
-				.map(key -> new UserSSHKey(key.id, key.value, key.sites.stream()
-						.filter(site -> iskeyOnSite(site, key.id))
-						.collect(Collectors.toSet())))
-				.filter(s -> !s.sites.isEmpty())
+
+	private Set<SiteSSHKeys> getSitesSSHKeys(PersistentId userId) {
+
+		Map<String, Site> sites = siteRepository.findAll().stream()
+				.collect(Collectors.toMap(s -> s.getId(), s -> s));
+		Set<SSHKey> keys = sshKeyRepository.findAllByOwnerId(userId);
+		Map<String, Set<String>> siteKeys = new HashMap<>();
+
+		keys.forEach(key -> key.sites.forEach(site -> {
+			if (iskeyOnSite(site, key.id)) {
+				if (siteKeys.get(site) == null) {
+					siteKeys.put(site, new HashSet<>(Arrays.asList(key.value)));
+				} else {
+					siteKeys.get(site).add(key.value);
+				}
+			}
+		}));
+
+		return siteKeys.entrySet().stream()
+				.filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
+				.map(entry -> new SiteSSHKeys(entry.getKey(), sites.get(entry.getKey()).getName(),
+						entry.getValue()))
 				.collect(Collectors.toSet());
 	}
-	
+
 	private boolean iskeyOnSite(String siteId, String keyId) {
 		SSHKeyOperationJob keyJob = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(keyId, siteId);
 		if ((keyJob.operation.equals(SSHKeyOperation.ADD) || keyJob.operation.equals(SSHKeyOperation.UPDATE))
 				&& keyJob.status.equals(SSHKeyOperationStatus.DONE))
 			return true;
-
 		return false;
-	}
-	
+	}	
 }
 
 

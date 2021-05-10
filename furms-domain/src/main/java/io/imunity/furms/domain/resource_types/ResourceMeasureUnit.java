@@ -10,18 +10,67 @@ import java.util.stream.Stream;
 
 public interface ResourceMeasureUnit {
 
-	String name();
+	String getSuffix();
+	String getName();
 
 	enum TimeUnit implements ResourceMeasureUnit {
-		s, min, h, day
+		s("s"), min("min"), h("h"), day("day");
+		
+		private final String suffix;
+
+		private TimeUnit(String suffix) {
+			this.suffix = suffix;
+		}
+
+		@Override
+		public String getSuffix() {
+			return suffix;
+		}
+
+		@Override
+		public String getName()	{
+			return name();
+		}
 	}
 
 	enum SiUnit implements ResourceMeasureUnit {
-		none, kilo, mega, giga, tera, peta
+		none(""), kilo("kilo"), mega("mega"), giga("giga"), tera("tera"), peta("peta");
+
+		private final String suffix;
+
+		private SiUnit(String suffix) {
+			this.suffix = suffix;
+		}
+
+		@Override
+		public String getSuffix() {
+			return suffix;
+		}
+
+		@Override
+		public String getName()	{
+			return name();
+		}
 	}
 
 	enum DataUnit implements ResourceMeasureUnit {
-		kB, MB, GB, TB, PB
+		kB("kB"), MB("MB"), GB("GB"), TB("TB"), PB("PB");
+
+		private final String suffix;
+
+		private DataUnit(String suffix) {
+			this.suffix = suffix;
+		}
+
+		@Override
+		public String getSuffix() {
+			return suffix;
+		}
+
+		@Override
+		public String getName()	{
+			return name();
+		}
 	}
 
 	static ResourceMeasureUnit valueOf(String s){

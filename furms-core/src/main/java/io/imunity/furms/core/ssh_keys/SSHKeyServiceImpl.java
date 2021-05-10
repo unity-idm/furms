@@ -28,14 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import com.google.common.collect.Sets;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
-import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -64,13 +62,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
-	private final UserOperationService userOperationService;
+
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
 			SSHKeyOperationService sshKeyInstallationService,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
-			          UserOperationService userOperationService) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
 
 		this.userDao = userDao;
 		this.validator = validator;
@@ -79,7 +76,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationService = sshKeyInstallationService;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
-		this.userOperationService = userOperationService;
+	
 	}
 
 	@Override
@@ -169,8 +166,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
-		validator.assertKeyWasNotUsedPreviously(site, newKey);
-		LOG.info("Updating SSH key {} on site {}", newKey.name, site.getName());
+		
+		if (!oldKey.getFingerprint().equals(newKey.getFingerprint()))
+		{
+			validator.assertKeyWasNotUsedPreviously(site, newKey);
+		}
+		LOG.info("Updating SSH key {} on site {}", newKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(newKey.id, site.getId());
 
@@ -243,19 +244,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
 		if(sitesIds.isEmpty())
 			return;
-		Set<Site> sites = findSites(sitesIds, userId);
+		validator.assertUserIsInstalledOnSites(sitesIds, userId);
+		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
+				.collect(Collectors.toSet());
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
 		}
-	}
-
-	private Set<Site> findSites(Set<String> sitesIds, FenixUserId userId) {
-		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-			.filter(site -> userOperationService.isUserAdded(site.getId(), userId.id))
-			.collect(Collectors.toSet());
-		if(sites.isEmpty())
-			throw new UninstalledUserError("User is not installed to any site");
-		return sites;
 	}
 
 	private void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
@@ -288,7 +282,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
 		validator.assertKeyWasNotUsedPreviously(site, sshKey);
-		LOG.info("Adding SSH key {} to site {}", sshKey.name, site.getName());
+		LOG.info("Adding SSH key {} to site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
@@ -304,7 +298,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void removeKeyFromSite(SSHKey sshKey, Site site, FenixUserId userId) {
 
-		LOG.info("Removing SSH key {} from site {}", sshKey.name, site.getName());
+		LOG.info("Removing SSH key {} from site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
 		sshKeyOperationService.deleteBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 

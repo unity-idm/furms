@@ -54,7 +54,7 @@ class ResourceTypeServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(service));
@@ -73,7 +73,7 @@ class ResourceTypeServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -91,7 +91,7 @@ class ResourceTypeServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -110,7 +110,7 @@ class ResourceTypeServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertThrows(TypeAndUnitAreInconsistentValidationError.class, () -> validator.validateCreate(service));
@@ -129,7 +129,7 @@ class ResourceTypeServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -189,7 +189,7 @@ class ResourceTypeServiceImplValidatorTest {
 	}
 
 	@Test
-	void shouldPassUpdateForUniqueName() {
+	void shouldPassUpdateWithSameName() {
 		//given
 		final ResourceType service = ResourceType.builder()
 			.id("id")
@@ -203,7 +203,6 @@ class ResourceTypeServiceImplValidatorTest {
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(serviceRepository.exists(service.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.id)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(true);
 		when(resourceTypeRepository.findById(any())).thenReturn(Optional.of(service));
 
 		//when+then
@@ -251,7 +250,7 @@ class ResourceTypeServiceImplValidatorTest {
 		when(siteRepository.exists(any())).thenReturn(true);
 		when(resourceTypeRepository.findById(any())).thenReturn(Optional.of(resourceType2));
 		when(serviceRepository.exists(any())).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceTypeRepository.isNamePresent(any(), any())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(resourceType));

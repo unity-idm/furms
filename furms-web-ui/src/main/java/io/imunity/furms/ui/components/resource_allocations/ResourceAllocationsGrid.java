@@ -109,6 +109,6 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 	}
 
 	private Object showResource(DashboardGridResource item) {
-		return format("%s %s", item.getAmount(), item.getUnit().name());
+		return format("%s %s", item.getAmount(), item.getUnit().getSuffix());
 	}
 }

@@ -5,6 +5,19 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.Key.ESCAPE;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toSet;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,6 +31,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
@@ -36,19 +50,6 @@ import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.DashboardView;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.vaadin.flow.component.Key.ESCAPE;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static java.math.BigDecimal.ZERO;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/dashboard/allocation", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
@@ -80,7 +81,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 
 	private ProjectAllocationViewModel createViewModel() {
 		final ResourceAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceAllocationsGridItem.class);
-		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId())
+		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId(), item.getSiteId())
 				.orElseThrow();
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, null);
 		return ProjectAllocationViewModel.builder()
@@ -239,11 +240,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private void createUnitLabel(BigDecimalField amountField, ResourceMeasureUnit unit) {
-		if (unit == null) {
-			amountField.setSuffixComponent(new Label(""));
-		} else if (!unit.equals(ResourceMeasureUnit.SiUnit.none)) {
-			amountField.setSuffixComponent(new Label(unit.name()));
-		}
+		amountField.setSuffixComponent(new Label(unit == null ? "" : unit.getSuffix()));
 	}
 
 	private boolean isAmountCorrect(BigDecimal current) {

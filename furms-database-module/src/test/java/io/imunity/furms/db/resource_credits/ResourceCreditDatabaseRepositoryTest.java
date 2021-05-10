@@ -347,7 +347,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueName() {
+	void shouldReturnFalseForUniqueName() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
 			.siteId(siteId)
@@ -364,11 +364,32 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNamePresent(uniqueName, siteId.toString())).isFalse();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnTrueForPresentNameInOtherSite() {
+		//given
+		entityRepository.save(ResourceCreditEntity.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
+			.name("new_name")
+			.split(true)
+			.access(false)
+			.amount(new BigDecimal(434))
+			.createTime(createTime2)
+			.startTime(newStartTime)
+			.endTime(newEndTime)
+			.build()
+		);
+
+		//when + then
+		assertThat(repository.isNamePresent("new_name", UUID.randomUUID().toString())).isFalse();
+	}
+
+	
+	@Test
+	void shouldReturnTrueForPresentName() {
 		//given
 		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
 			.siteId(siteId)
@@ -383,7 +404,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedResourceCredit.name)).isFalse();
+		assertThat(repository.isNamePresent(existedResourceCredit.name, siteId.toString())).isTrue();
 	}
 
 	@Test

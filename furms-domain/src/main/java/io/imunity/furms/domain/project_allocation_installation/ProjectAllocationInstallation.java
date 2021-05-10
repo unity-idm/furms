@@ -22,10 +22,11 @@ public class ProjectAllocationInstallation {
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
 	public final ProjectAllocationInstallationStatus status;
+	public final String message;
 
 	ProjectAllocationInstallation(String id, CorrelationId correlationId, String siteId, String projectAllocationId,
 	                              String chunkId, BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
-	                              LocalDateTime receivedTime, ProjectAllocationInstallationStatus status) {
+	                              LocalDateTime receivedTime, ProjectAllocationInstallationStatus status, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -36,6 +37,7 @@ public class ProjectAllocationInstallation {
 		this.validTo = validTo;
 		this.receivedTime = receivedTime;
 		this.status = status;
+		this.message = message;
 	}
 
 	@Override
@@ -91,6 +93,7 @@ public class ProjectAllocationInstallation {
 		public LocalDateTime validTo;
 		public LocalDateTime receivedTime;
 		public ProjectAllocationInstallationStatus status;
+		public String message;
 
 		private ProjectAllocationInstallationBuilder() {
 		}
@@ -145,8 +148,13 @@ public class ProjectAllocationInstallation {
 			return this;
 		}
 
+		public ProjectAllocationInstallationBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectAllocationInstallation build() {
-			return new ProjectAllocationInstallation(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status);
+			return new ProjectAllocationInstallation(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, message);
 		}
 	}
 }

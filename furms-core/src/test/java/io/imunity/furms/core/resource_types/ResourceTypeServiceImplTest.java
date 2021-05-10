@@ -5,11 +5,16 @@
 
 package io.imunity.furms.core.resource_types;
 
-import io.imunity.furms.domain.resource_types.*;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -17,13 +22,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import io.imunity.furms.domain.resource_types.CreateResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.RemoveResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.UpdateResourceTypeEvent;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 
 class ResourceTypeServiceImplTest {
 	@Mock
@@ -59,7 +67,7 @@ class ResourceTypeServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceType> byId = service.findById(id);
+		Optional<ResourceType> byId = service.findById(id, "");
 
 		//then
 		assertThat(byId).isPresent();
@@ -77,7 +85,7 @@ class ResourceTypeServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceType> otherId = service.findById("otherId");
+		Optional<ResourceType> otherId = service.findById("otherId", "");
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -111,7 +119,7 @@ class ResourceTypeServiceImplTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceTypeRepository.create(request)).thenReturn("id");
 
 		//when
@@ -128,7 +136,7 @@ class ResourceTypeServiceImplTest {
 			.id("id")
 			.name("name")
 			.build();
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(false);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -151,7 +159,7 @@ class ResourceTypeServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.id)).thenReturn(true);
-		when(resourceTypeRepository.isUniqueName(request.name)).thenReturn(true);
+		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceTypeRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when
@@ -168,7 +176,7 @@ class ResourceTypeServiceImplTest {
 		when(resourceTypeRepository.exists(id)).thenReturn(true);
 
 		//when
-		service.delete(id);
+		service.delete(id, "");
 
 		orderVerifier.verify(resourceTypeRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveResourceTypeEvent("id")));
@@ -181,7 +189,7 @@ class ResourceTypeServiceImplTest {
 		when(resourceTypeRepository.exists(id)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(resourceTypeRepository, times(0)).delete(eq(id));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateResourceTypeEvent("id")));
 	}

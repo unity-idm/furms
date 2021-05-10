@@ -5,6 +5,17 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
+import static java.util.Optional.ofNullable;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -14,30 +25,20 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
+import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
-import static java.util.Optional.ofNullable;
 
 @Route(value = "fenix/admin/dashboard", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.page.title")
@@ -135,7 +136,7 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private ResourceAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
-		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceTypeId())
+		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceTypeId(), credit.getSiteId())
 				.map(type -> type.unit)
 				.orElse(ResourceMeasureUnit.SiUnit.none);
 

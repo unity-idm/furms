@@ -68,15 +68,16 @@ class InfraServiceServiceValidator {
 	private void validateName(InfraService infraService) {
 		notNull(infraService.name, "InfraService name has to be declared.");
 		validateLength("name", infraService.name, MAX_NAME_LENGTH);
-		if (isNameUnique(infraService)) {
+		if (isNameOccupied(infraService)) {
 			throw new DuplicatedNameValidationError("InfraService name has to be unique.");
 		}
 	}
 
-	private boolean isNameUnique(InfraService infraService) {
-		Optional<InfraService> optionalProject = infraServiceRepository.findById(infraService.id);
-		return !infraServiceRepository.isUniqueName(infraService.name) &&
-			(optionalProject.isEmpty() || !optionalProject.get().name.equals(infraService.name));
+	private boolean isNameOccupied(InfraService infraService) {
+		Optional<InfraService> existingService = infraServiceRepository.findById(infraService.id);
+		if (existingService.isPresent() && existingService.get().name.equals(infraService.name))
+			return false;
+		return infraServiceRepository.isNamePresent(infraService.name, infraService.siteId);
 	}
 
 	private void validateLength(String fieldName, String fieldVale, int length) {

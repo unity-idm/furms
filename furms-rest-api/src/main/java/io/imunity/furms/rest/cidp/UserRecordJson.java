@@ -15,9 +15,10 @@ public class UserRecordJson {
 	public final UserStatus userStatus;
 	public final List<AttributeJson> attributes;
 	public final List<CommunityMembershipJson> communities;
-	public final List<UserSSHKeyJson> sshKeys;
+	public final List<SiteSSHKeysJson> sshKeys;
 	
-	UserRecordJson(UserStatus userStatus, List<AttributeJson> attributes, List<CommunityMembershipJson> communities, List<UserSSHKeyJson> sshKeys) {
+	UserRecordJson(UserStatus userStatus, List<AttributeJson> attributes, List<CommunityMembershipJson> communities,
+			List<SiteSSHKeysJson> sshKeys) {
 		this.userStatus = userStatus;
 		this.attributes = List.copyOf(attributes);
 		this.communities = List.copyOf(communities);
@@ -29,6 +30,6 @@ public class UserRecordJson {
 		this(record.userStatus,
 				record.attributes.stream().map(AttributeJson::new).collect(toList()), 
 				record.communities.stream().map(CommunityMembershipJson::new).collect(toList()),
-				record.sshKeys.stream().map(UserSSHKeyJson::new).collect(toList()));
+				record.sshKeys.stream().map(SiteSSHKeysJson::new).collect(toList()));
 	}
 }

@@ -6,7 +6,11 @@
 package io.imunity.furms.api.validation.exceptions;
 
 public class UninstalledUserError extends IllegalArgumentException {
-	public UninstalledUserError(String message) {
+
+	public final String siteId;
+
+	public UninstalledUserError(String message, String siteId) {
 		super(message);
+		this.siteId = siteId;
 	}
 }

@@ -33,7 +33,7 @@ public interface ResourceCreditEntityRepository extends CrudRepository<ResourceC
 	Stream<ResourceCreditEntity> findAllByNameOrSiteNameWithoutExpired(@Param("name") String name);
 
 
-	boolean existsByName(String name);
+	boolean existsByNameAndSiteId(String name, UUID siteId);
 	boolean existsBySiteId(UUID siteId);
 	boolean existsByResourceTypeId(UUID resourceTypeId);
 	boolean existsByResourceTypeIdIn(Collection<UUID> resourceTypeIds);
