@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.site.resource_types;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -54,12 +55,17 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		});
 		formLayout.addFormItem(unitComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.unit"));
 
-		prepareValidator(nameField, servicesComboBox, typeComboBox, unitComboBox);
+		Checkbox accessibleCheckbox = new Checkbox();
+		formLayout.addFormItem(accessibleCheckbox, getTranslation("view.site-admin.resource-types.form.checkbox.accessible"));
+
+		prepareValidator(nameField, servicesComboBox, typeComboBox, unitComboBox, accessibleCheckbox);
 
 		getContent().add(formLayout);
 	}
 
-	private void prepareValidator(TextField nameField, ComboBox<ServiceComboBoxModel> servicesComboBox, ComboBox<ResourceMeasureType> typeComboBox, ComboBox<ResourceMeasureUnit> unitComboBox) {
+	private void prepareValidator(TextField nameField, ComboBox<ServiceComboBoxModel> servicesComboBox,
+	                              ComboBox<ResourceMeasureType> typeComboBox, ComboBox<ResourceMeasureUnit> unitComboBox,
+	                              Checkbox accessibleCheckbox) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
@@ -87,6 +93,8 @@ class ResourceTypeFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-types.form.error.validation.combo-box.unit")
 			)
 			.bind(ResourceTypeViewModel::getUnit, ResourceTypeViewModel::setUnit);
+		binder.forField(accessibleCheckbox)
+			.bind(ResourceTypeViewModel::isAccessible, ResourceTypeViewModel::setAccessible);
 	}
 
 	public void setFormPools(ResourceTypeViewModel resourceTypeViewModel) {
