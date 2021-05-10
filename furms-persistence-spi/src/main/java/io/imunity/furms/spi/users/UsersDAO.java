@@ -21,4 +21,5 @@ public interface UsersDAO {
 	Optional<FURMSUser> findById(PersistentId userId);
 	UserAttributes getUserAttributes(FenixUserId fenixUserId);
 	PersistentId getPersistentId(FenixUserId userId);
+	FenixUserId getFenixUserId(PersistentId userId);
 }

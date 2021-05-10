@@ -26,7 +26,7 @@ public interface ResourceTypeRepository {
 
 	boolean exists(String id);
 
-	boolean isUniqueName(String name);
+	boolean isNamePresent(String name, String siteId);
 
 	void delete(String id);
 

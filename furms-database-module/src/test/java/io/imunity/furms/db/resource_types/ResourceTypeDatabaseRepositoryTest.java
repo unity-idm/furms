@@ -248,7 +248,7 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldReturnTrueForUniqueName() {
+	void shouldReturnFalseForMissingName() {
 		//given
 		entityRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
@@ -261,13 +261,13 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isUniqueName(uniqueName)).isTrue();
+		assertThat(repository.isNamePresent(uniqueName, siteId.toString())).isFalse();
 	}
 
 	@Test
-	void shouldReturnFalseForNonUniqueName() {
+	void shouldReturnTrueForPresentName() {
 		//given
-		ResourceTypeEntity existedResourceType = entityRepository.save(ResourceTypeEntity.builder()
+		ResourceTypeEntity existingResourceType = entityRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("new_name")
@@ -276,9 +276,24 @@ class ResourceTypeDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isUniqueName(existedResourceType.name)).isFalse();
+		assertThat(repository.isNamePresent(existingResourceType.name, siteId.toString())).isTrue();
 	}
 
+	@Test
+	void shouldReturnFalseForPresentNameInOtherSite() {
+		//given
+		ResourceTypeEntity existingResourceType = entityRepository.save(ResourceTypeEntity.builder()
+			.siteId(siteId)
+			.serviceId(serviceId)
+			.name("new_name")
+			.type(ResourceMeasureType.DATA)
+			.unit(ResourceMeasureUnit.DataUnit.MB)
+			.build());
+
+		//when + then
+		assertThat(repository.isNamePresent(existingResourceType.name, UUID.randomUUID().toString())).isFalse();
+	}
+	
 	@Test
 	void shouldRemoveResourceTypeWhenSiteHasRemoved() {
 		//given

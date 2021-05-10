@@ -50,7 +50,7 @@ class InfraServiceServiceImplValidatorTest {
 			.build();
 
 		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
-		when(infraServiceRepository.isUniqueName(any())).thenReturn(true);
+		when(infraServiceRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(infraService));
@@ -65,7 +65,7 @@ class InfraServiceServiceImplValidatorTest {
 			.description("description")
 			.build();
 
-		when(infraServiceRepository.isUniqueName(any())).thenReturn(false);
+		when(infraServiceRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
 		InfraService secondInfraService = InfraService.builder().name("a").build();
 		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(secondInfraService));
@@ -113,7 +113,6 @@ class InfraServiceServiceImplValidatorTest {
 
 		when(siteRepository.exists(infraService.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(infraService.id)).thenReturn(true);
-		when(infraServiceRepository.isUniqueName(any())).thenReturn(true);
 		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(infraService));
 
 		//when+then
@@ -151,7 +150,7 @@ class InfraServiceServiceImplValidatorTest {
 			.build();
 
 		when(infraServiceRepository.exists(community.id)).thenReturn(true);
-		when(infraServiceRepository.isUniqueName(any())).thenReturn(false);
+		when(infraServiceRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(siteRepository.exists(any())).thenReturn(true);
 		when(infraServiceRepository.findById(any())).thenReturn(Optional.of(secondInfraService));
 		//when+then

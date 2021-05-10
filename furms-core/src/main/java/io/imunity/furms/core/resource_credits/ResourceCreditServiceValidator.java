@@ -73,15 +73,16 @@ class ResourceCreditServiceValidator {
 	private void validateName(ResourceCredit resourceCredit) {
 		notNull(resourceCredit.name, "ResourceCredit name has to be declared.");
 		validateLength("name", resourceCredit.name, MAX_NAME_LENGTH);
-		if (isNameUnique(resourceCredit)) {
+		if (isNameOccupied(resourceCredit)) {
 			throw new DuplicatedNameValidationError("ResourceCredit name has to be unique.");
 		}
 	}
 
-	private boolean isNameUnique(ResourceCredit resourceCredit) {
-		Optional<ResourceCredit> optionalProject = resourceCreditRepository.findById(resourceCredit.id);
-		return !resourceCreditRepository.isUniqueName(resourceCredit.name) &&
-			(optionalProject.isEmpty() || !optionalProject.get().name.equals(resourceCredit.name));
+	private boolean isNameOccupied(ResourceCredit resourceCredit) {
+		Optional<ResourceCredit> existingCredit = resourceCreditRepository.findById(resourceCredit.id);
+		if (existingCredit.isPresent() && existingCredit.get().name.equals(resourceCredit.name))
+			return false;
+		return resourceCreditRepository.isNamePresent(resourceCredit.name, resourceCredit.siteId);
 	}
 
 	private void validateLength(String fieldName, String fieldVale, int length) {

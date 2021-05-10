@@ -5,13 +5,9 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
-
-import java.util.Optional;
+import static java.util.Optional.ofNullable;
 
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -20,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
@@ -54,64 +53,66 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 	@EventListener
 	void receiveAgentSSHKeyAdditionAck(Payload<AgentSSHKeyAdditionAck> ack) {
 
-		if (ack.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
-					Optional.ofNullable(ack.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
-				Optional.empty());
+		SSHKeyOperationStatus status = ack.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.ACK;
+		SSHKeyOperationResult result = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(ack.header.error).map(e -> e.code).orElse(null),
+						ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), result);
 	}
 
 	@EventListener
 	void receiveAgentSSHKeyRemovalAck(Payload<AgentSSHKeyRemovalAck> ack) {
-		if (ack.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
-					Optional.ofNullable(ack.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
-				Optional.empty());
+		SSHKeyOperationStatus status = ack.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.ACK;
+		SSHKeyOperationResult result = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(ack.header.error).map(e -> e.code).orElse(null),
+						ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), result);
 	}
 
 	@EventListener
 	void receiveAgentSSHKeyUpdatingAck(Payload<AgentSSHKeyUpdatingAck> ack) {
-		if (ack.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), FAILED,
-					Optional.ofNullable(ack.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ACK,
-				Optional.empty());
+		SSHKeyOperationStatus status = ack.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.ACK;
+		SSHKeyOperationResult result = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(ack.header.error).map(e -> e.code).orElse(null),
+						ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(ack.header.messageCorrelationId), result);
 	}
 
 	@EventListener
 	void receiveAgentSSHKeyAdditionResult(Payload<AgentSSHKeyAdditionResult> result) {
-		if (result.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
-					FAILED, Optional.ofNullable(result.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
-				Optional.empty());
+		SSHKeyOperationStatus status = result.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.DONE;
+		SSHKeyOperationResult operationResult = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(result.header.error).map(e -> e.code).orElse(null),
+						ofNullable(result.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+				operationResult);
 
 	}
 
 	@EventListener
 	void receiveAgentSSHKeyRemovalResult(Payload<AgentSSHKeyRemovalResult> result) {
-		if (result.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
-					FAILED, Optional.ofNullable(result.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
-				Optional.empty());
-		sshKeyOperationService.onSSHKeyRemovalFromSite(new CorrelationId(result.header.messageCorrelationId));
+		SSHKeyOperationStatus status = result.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.DONE;
+		SSHKeyOperationResult operationResult = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(result.header.error).map(e -> e.code).orElse(null),
+						ofNullable(result.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+				operationResult);
 	}
 
 	@EventListener
 	void receiveAgentSSHKeyUpdatingResult(Payload<AgentSSHKeyUpdatingResult> result) {
-		if (result.header.status.equals(Status.FAILED)) {
-			sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
-					FAILED, Optional.ofNullable(result.header.error.message));
-		}
-		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId), DONE,
-				Optional.empty());
+		SSHKeyOperationStatus status = result.header.status.equals(Status.FAILED) ? SSHKeyOperationStatus.FAILED
+				: SSHKeyOperationStatus.DONE;
+		SSHKeyOperationResult operationResult = new SSHKeyOperationResult(status,
+				new SSHKeyOperationError(ofNullable(result.header.error).map(e -> e.code).orElse(null),
+						ofNullable(result.header.error).map(e -> e.message).orElse(null)));
+		sshKeyOperationService.updateStatus(new CorrelationId(result.header.messageCorrelationId),
+				operationResult);
 	}
 
 	@Override

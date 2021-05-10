@@ -99,10 +99,10 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNamePresent(String name, String siteId) {
+		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
 	}
-
+	
 	@Override
 	public void delete(String id) {
 		repository.deleteById(UUID.fromString(id));

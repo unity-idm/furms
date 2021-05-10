@@ -54,7 +54,7 @@ class ResourceCreditServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(service));
@@ -73,7 +73,7 @@ class ResourceCreditServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -92,7 +92,7 @@ class ResourceCreditServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -112,7 +112,7 @@ class ResourceCreditServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -187,7 +187,6 @@ class ResourceCreditServiceImplValidatorTest {
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.exists(service.id)).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(true);
 		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(service));
 
 		//when+then
@@ -240,7 +239,7 @@ class ResourceCreditServiceImplValidatorTest {
 		when(siteRepository.exists(any())).thenReturn(true);
 		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(resourceCredit2));
 		when(resourceTypeRepository.exists(any())).thenReturn(true);
-		when(resourceCreditRepository.isUniqueName(any())).thenReturn(false);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(resourceCredit));

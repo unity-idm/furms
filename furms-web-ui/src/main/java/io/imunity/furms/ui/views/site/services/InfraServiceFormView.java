@@ -5,6 +5,14 @@
 
 package io.imunity.furms.ui.views.site.services;
 
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+
+import java.util.Optional;
+import java.util.function.Function;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,6 +22,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -22,15 +31,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
-import io.imunity.furms.ui.utils.ResourceGetter;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-
-import java.util.Optional;
-import java.util.function.Function;
-
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
 
 @Route(value = "site/admin/service/form", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.service.form.page.title")
@@ -90,10 +91,10 @@ class InfraServiceFormView extends FurmsViewComponent {
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 
 		InfraServiceViewModel serviceViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> infraServiceService.findById(id)))
+			.flatMap(id -> handleExceptions(() -> infraServiceService.findById(id, getCurrentResourceId())))
 			.flatMap(Function.identity())
 			.map(InfraServiceViewModelMapper::map)
-			.orElseGet(() -> new InfraServiceViewModel(ResourceGetter.getCurrentResourceId()));
+			.orElseGet(() -> new InfraServiceViewModel(getCurrentResourceId()));
 
 		String trans = parameter == null
 			? "view.site-admin.service.form.parameter.new"

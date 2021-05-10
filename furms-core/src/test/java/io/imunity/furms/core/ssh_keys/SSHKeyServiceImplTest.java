@@ -5,13 +5,33 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.google.common.collect.Sets;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -24,24 +44,8 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SSHKeyServiceImplTest {
@@ -71,7 +75,7 @@ public class SSHKeyServiceImplTest {
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
 
 	@Mock
-	private UserOperationService userOperationService;
+	private UserOperationRepository userOperationRepository;
 
 
 	private SSHKeyServiceImpl service;
@@ -81,9 +85,9 @@ public class SSHKeyServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
-				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository);
+				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
-				sshKeyInstallationService, siteAgentSSHKeyInstallationService, usersDAO, userOperationService);
+				sshKeyInstallationService, siteAgentSSHKeyInstallationService, usersDAO);
 	}
 
 	@Test
@@ -149,7 +153,7 @@ public class SSHKeyServiceImplTest {
 		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
 				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
-		when(userOperationService.isUserAdded("s1", "id")).thenReturn(true);
+		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
 
 		// when
 		service.update(request);
@@ -251,10 +255,12 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.exists("s2")).thenReturn(true);
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
 		when(siteRepository.findById("s2")).thenReturn(Optional.of(Site.builder().id("s2").build()));
-		when(userOperationService.isUserAdded("s1", "id")).thenReturn(true);
-		when(userOperationService.isUserAdded("s2", "id")).thenReturn(true);
+		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
+		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
 		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
 				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
+		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
 
 		// when
 		service.update(request);
@@ -265,11 +271,11 @@ public class SSHKeyServiceImplTest {
 	}
 
 	@Test
-	void shouldNotCreateOnSitesIfUserNotInstalled() {
+	void shouldNotCreateOnSiteIfUserNotInstalled() {
 		// given
 		final SSHKey oldKey = getKey("name", Set.of("s1"));
 
-		final SSHKey request = getKey("brandNewName", Set.of("s1", "s2"));
+		final SSHKey request = getKey("brandNewName", Set.of("s1"));
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
@@ -278,12 +284,11 @@ public class SSHKeyServiceImplTest {
 		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
 		when(repository.findById(request.id)).thenReturn(Optional.of(oldKey));
 		when(siteRepository.exists("s1")).thenReturn(true);
-		when(siteRepository.exists("s2")).thenReturn(true);
-		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
-		when(siteRepository.findById("s2")).thenReturn(Optional.of(Site.builder().id("s2").build()));
+		
 		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
 			.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
-
+		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(false);
+		
 		// when + then
 		assertThrows(UninstalledUserError.class, () -> service.update(request));
 	}
@@ -342,7 +347,7 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.findById("s1"))
 				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
 		when(repository.create(key)).thenReturn("x");
-		when(userOperationService.isUserAdded("s1", "id")).thenReturn(true);
+		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
 		// when
 		service.create(key);
 
@@ -352,6 +357,37 @@ public class SSHKeyServiceImplTest {
 
 	@Test
 	void shouldValidateSSHKeyHistoryWhenUpdate() {
+		final SSHKey request = getKey("name", Sets.newHashSet("s1"));
+		final SSHKey actual = SSHKey.builder().id("id").name("name").value(
+				"ssh-dss AAAAB3NzaC1kc3MAAABZAIAB5nrP9OtmQnlVLs0gwztCYEF8u1noe1havIqYqNNtBZp5n"
+				+ "O9swNIkIkgaU2trWT3eWXWxT7eCQ+WBLfBTgrm3qLKcd8q4JzBz4DHhywew4VWKMJ/XcOUAAAAVAO8nBt2J"
+				+ "WpuQU8hNlXJ7OUdjrlyVAAAAWApF5A+eqDNHMmmqVFpJQI/AreIVb/B6APQuW81TWltf6asvxgzaFhh2MJs"
+				+ "S74DqEtyPCAPw+UZ5ovyVXAbEfQEZI7DkHcJFMkPSOrLVT/5xsNJYYXDaJcsAAABYVNcJxBZZI6wktSncZi"
+				+ "rXg3Qh7oX2o2R0l+oGSC6fnSZ7OMO1OySpciRozSKI4XFxH5xW3OtAplHII2XIW72g3UBJMFXMPeYPDQBbb"
+				+ "3Hv2u18bOPO1R5Sfw==  demo@demo2.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(repository.exists(request.id)).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
+		when(repository.update(request)).thenReturn(request.id);
+		when(repository.findById(request.id)).thenReturn(Optional.of(actual));
+		when(siteRepository.exists("s1")).thenReturn(true);
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(sshKeyInstallationService.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+		when(siteRepository.findById("s1"))
+				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
+
+		// when
+		service.update(request);
+
+		// then
+		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
+	}
+
+	@Test
+	void shouldNotValidateSSHKeyHistoryWhenUpdateOfTheSameKey() {
 		final SSHKey request = getKey("name", Sets.newHashSet("s1"));
 		final SSHKey actual = SSHKey.builder().id("id").name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
@@ -377,9 +413,9 @@ public class SSHKeyServiceImplTest {
 		service.update(request);
 
 		// then
-		verify(sshKeyHistoryRepository).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
+		verify(sshKeyHistoryRepository, times(0)).findBySiteIdAndOwnerIdLimitTo("s1", "id", 10);
 	}
-
+	
 	@Test
 	void shouldNotAllowToDeleteSSHKeyDueToKeyNotExists() {
 		// given

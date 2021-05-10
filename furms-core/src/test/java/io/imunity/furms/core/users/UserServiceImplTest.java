@@ -12,7 +12,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.google.common.collect.Sets;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -33,8 +36,10 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -53,6 +58,8 @@ class UserServiceImplTest {
 	private MembershipResolver resolver;
 	@Mock
 	private SSHKeyRepository sshKeyRepository;
+	@Mock
+	private SiteRepository siteRepository;
 	@Mock
 	private SSHKeyOperationRepository sshKeyOperationRepository;
 
@@ -73,15 +80,18 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	void shouldGetUserSSHKeyWithSitesWithCompletedStatus() {
+	void shouldGetSiteSSHKeysWithSitesWithCompletedStatus() {
 		// given
 		FenixUserId fid = new FenixUserId("id");
 		PersistentId pid = new PersistentId("id");
 		when(usersDAO.getUserAttributes(fid))
 				.thenReturn(new UserAttributes(Collections.emptySet(), Collections.emptyMap()));
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
-		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(
-				Sets.newHashSet(SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).build()));
+		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
+				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
+		when(siteRepository.findAll())
+				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
+						Site.builder().id("s2").name("site2").build())));
 
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s1")).thenReturn(SSHKeyOperationJob
 				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.DONE).build());
@@ -93,7 +103,12 @@ class UserServiceImplTest {
 
 		// then
 		assertThat(userRecord.sshKeys).hasSize(1);
-		assertThat(userRecord.sshKeys.iterator().next().sites).hasSameElementsAs(Sets.newHashSet("s1"));
+		SiteSSHKeys siteSSHKeys = userRecord.sshKeys.iterator().next();
+
+		assertThat(siteSSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
+		assertThat(siteSSHKeys.siteId).isEqualTo("s1");
+		assertThat(siteSSHKeys.siteName).isEqualTo("site1");
+
 	}
 
 	@Test
@@ -101,11 +116,15 @@ class UserServiceImplTest {
 		// given
 		FenixUserId fid = new FenixUserId("id");
 		PersistentId pid = new PersistentId("id");
+
+		when(siteRepository.findAll())
+				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
+						Site.builder().id("s2").name("site2").build())));
 		when(usersDAO.getUserAttributes(fid))
 				.thenReturn(new UserAttributes(Collections.emptySet(), Collections.emptyMap()));
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
-		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(
-				Sets.newHashSet(SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).build()));
+		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
+				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
 
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s1")).thenReturn(SSHKeyOperationJob
 				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.DONE).build());
@@ -116,7 +135,18 @@ class UserServiceImplTest {
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
 
 		// then
-		assertThat(userRecord.sshKeys).hasSize(1);
-		assertThat(userRecord.sshKeys.iterator().next().sites).hasSameElementsAs(Sets.newHashSet("s1", "s2"));
+		assertThat(userRecord.sshKeys).hasSize(2);
+		SiteSSHKeys site1SSHKeys = userRecord.sshKeys.stream().filter(s -> s.siteId.equals("s1")).findAny()
+				.get();
+		SiteSSHKeys site2SSHKeys = userRecord.sshKeys.stream().filter(s -> s.siteId.equals("s2")).findAny()
+				.get();
+
+		assertThat(site1SSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
+		assertThat(site1SSHKeys.siteId).isEqualTo("s1");
+		assertThat(site1SSHKeys.siteName).isEqualTo("site1");
+
+		assertThat(site2SSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
+		assertThat(site2SSHKeys.siteId).isEqualTo("s2");
+		assertThat(site2SSHKeys.siteName).isEqualTo("site2");
 	}
 }

@@ -22,7 +22,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
@@ -86,10 +85,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 	}
 
 	private void createUnitLabel(BigDecimalField amountField, ResourceMeasureUnit unit) {
-		if(unit == null)
-			amountField.setSuffixComponent(new Label(""));
-		else if(!unit.equals(SiUnit.none))
-			amountField.setSuffixComponent(new Label(unit.name()));
+		amountField.setSuffixComponent(new Label(unit == null ? "" : unit.getSuffix()));
 	}
 
 	private void prepareValidator(TextField nameField,

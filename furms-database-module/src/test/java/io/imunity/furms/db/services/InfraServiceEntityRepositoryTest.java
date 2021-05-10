@@ -157,7 +157,7 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = serviceRepository.existsByName(service.name);
+		boolean exists = serviceRepository.existsByNameAndSiteId(service.name, siteId);
 
 		//then
 		assertThat(exists).isTrue();
@@ -173,10 +173,10 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = serviceRepository.existsByName("wrong_name");
+		boolean exists = serviceRepository.existsByNameAndSiteId("wrong_name", siteId);
 
 		//then
-		assertThat(nonExists).isFalse();
+		assertThat(exists).isFalse();
 	}
 
 	@Test

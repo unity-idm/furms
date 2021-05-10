@@ -10,6 +10,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.springframework.stereotype.Repository;
 
@@ -78,7 +79,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectAllocationInstallationStatus status) {
+	public String update(String correlationId, ProjectAllocationInstallationStatus status, String msg) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(installationEntity -> ProjectAllocationInstallationEntity.builder()
 				.id(installationEntity.getId())
@@ -90,11 +91,19 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.validTo(installationEntity.validTo)
 				.receivedTime(installationEntity.receivedTime)
 				.status(status)
+				.message(msg)
 				.build())
 			.map(allocationRepository::save)
 			.map(ProjectAllocationInstallationEntity::getId)
 			.map(UUID::toString)
 			.get();
+	}
+
+	@Override
+	public ProjectDeallocationStatus findDeallocationStatusByCorrelationId(String correlationId) {
+		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
+			.map(x -> ProjectDeallocationStatus.valueOf(x.status))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 
 	@Override

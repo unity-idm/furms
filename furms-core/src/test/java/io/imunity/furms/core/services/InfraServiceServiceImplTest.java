@@ -5,6 +5,23 @@
 
 package io.imunity.furms.core.services;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
+
 import io.imunity.furms.domain.services.CreateServiceEvent;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.RemoveServiceEvent;
@@ -13,20 +30,6 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
-
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 class InfraServiceServiceImplTest {
 	@Mock
@@ -62,7 +65,7 @@ class InfraServiceServiceImplTest {
 		);
 
 		//when
-		Optional<InfraService> byId = service.findById(id);
+		Optional<InfraService> byId = service.findById(id, "");
 
 		//then
 		assertThat(byId).isPresent();
@@ -80,7 +83,7 @@ class InfraServiceServiceImplTest {
 		);
 
 		//when
-		Optional<InfraService> otherId = service.findById("otherId");
+		Optional<InfraService> otherId = service.findById("otherId", "");
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -110,7 +113,7 @@ class InfraServiceServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isUniqueName(request.name)).thenReturn(true);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.create(request)).thenReturn("id");
 
 		//when
@@ -127,7 +130,7 @@ class InfraServiceServiceImplTest {
 			.id("id")
 			.name("name")
 			.build();
-		when(infraServiceRepository.isUniqueName(request.name)).thenReturn(false);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -146,7 +149,7 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isUniqueName(request.name)).thenReturn(true);
+		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when
@@ -163,7 +166,7 @@ class InfraServiceServiceImplTest {
 		when(infraServiceRepository.exists(id)).thenReturn(true);
 
 		//when
-		service.delete(id);
+		service.delete(id, "");
 
 		orderVerifier.verify(infraServiceRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveServiceEvent("id")));
@@ -176,7 +179,7 @@ class InfraServiceServiceImplTest {
 		when(infraServiceRepository.exists(id)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(infraServiceRepository, times(0)).delete(eq(id));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateServiceEvent("id")));
 	}
