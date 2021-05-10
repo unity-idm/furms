@@ -73,7 +73,7 @@ class CommunityAllocationServiceValidator {
 
 	private boolean isNameUnique(CommunityAllocation communityAllocation) {
 		Optional<CommunityAllocation> optionalProject = communityAllocationRepository.findById(communityAllocation.id);
-		return !communityAllocationRepository.isUniqueName(communityAllocation.name) &&
+		return !communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name) &&
 			(optionalProject.isEmpty() || !optionalProject.get().name.equals(communityAllocation.name));
 	}
 

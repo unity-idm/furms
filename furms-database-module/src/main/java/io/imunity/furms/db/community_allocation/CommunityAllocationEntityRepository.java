@@ -10,7 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.UUID;
 
 public interface CommunityAllocationEntityRepository extends CrudRepository<CommunityAllocationEntity, UUID> {
-	boolean existsByName(String name);
+	boolean existsByCommunityIdAndName(UUID communityId, String name);
 	boolean existsByResourceCreditId(UUID resourceCreditId);
 
 }

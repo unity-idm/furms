@@ -50,7 +50,7 @@ class CommunityAllocationServiceImplValidatorTest {
 
 		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name)).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(communityAllocation));
@@ -67,7 +67,7 @@ class CommunityAllocationServiceImplValidatorTest {
 
 		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name)).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(communityAllocation));
@@ -85,7 +85,7 @@ class CommunityAllocationServiceImplValidatorTest {
 
 		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(communityAllocation));
@@ -133,7 +133,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
 		when(communityAllocationRepository.exists(communityAllocation.id)).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name)).thenReturn(true);
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(communityAllocation));
 
 		//when+then
@@ -180,7 +180,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(communityAllocation1));
 		when(communityRepository.exists(any())).thenReturn(true);
 		when(resourceCreditRepository.exists(any())).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(communityAllocationRepository.isUniqueName(communityAllocation.communityId, communityAllocation.name)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(communityAllocation));

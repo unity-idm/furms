@@ -5,10 +5,10 @@
 
 package io.imunity.furms.db.community_allocation;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,11 +16,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class CommunityAllocationDatabaseRepository implements CommunityAllocationRepository {
@@ -124,8 +123,8 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isUniqueName(String communityId, String name) {
+		return !repository.existsByCommunityIdAndName(UUID.fromString(communityId), name);
 	}
 
 	@Override

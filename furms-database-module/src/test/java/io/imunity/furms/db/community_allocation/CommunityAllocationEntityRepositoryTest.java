@@ -336,7 +336,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void savedCommunityAllocationExistsByName() {
 		//given
-		CommunityAllocationEntity service = entityRepository.save(CommunityAllocationEntity.builder()
+		CommunityAllocationEntity allocationEntity = entityRepository.save(CommunityAllocationEntity.builder()
 			.communityId(communityId)
 			.resourceCreditId(resourceCreditId)
 			.name("anem")
@@ -344,7 +344,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = entityRepository.existsByName(service.name);
+		boolean exists = entityRepository.existsByCommunityIdAndName(allocationEntity.communityId, allocationEntity.name);
 
 		//then
 		assertThat(exists).isTrue();
@@ -361,7 +361,7 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = entityRepository.existsByName("wrong_name");
+		boolean nonExists = entityRepository.existsByCommunityIdAndName(communityId, "wrong_name");
 
 		//then
 		assertThat(nonExists).isFalse();

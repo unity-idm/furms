@@ -401,7 +401,53 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueForUniqueNameInCommunityScope() {
+		//given
+		entityRepository.save(CommunityAllocationEntity.builder()
+			.communityId(communityId)
+			.resourceCreditId(resourceCreditId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		entityRepository.save(CommunityAllocationEntity.builder()
+			.communityId(communityId2)
+			.resourceCreditId(resourceCreditId)
+			.name("unique_name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		String uniqueName = "unique_name";
+
+		//when + then
+		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), uniqueName)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseForNonUniqueNameInCommunityScope() {
+		//given
+		entityRepository.save(CommunityAllocationEntity.builder()
+			.communityId(communityId)
+			.resourceCreditId(resourceCreditId)
+			.name("name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		entityRepository.save(CommunityAllocationEntity.builder()
+			.communityId(communityId2)
+			.resourceCreditId(resourceCreditId)
+			.name("unique_name")
+			.amount(new BigDecimal(10))
+			.build()
+		);
+		String uniqueName = "unique_name";
+
+		//when + then
+		assertThat(entityDatabaseRepository.isUniqueName(communityId2.toString(), uniqueName)).isFalse();
 	}
 
 	@Test
@@ -415,7 +461,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(entityDatabaseRepository.isUniqueName(existedCommunityAllocation.name)).isFalse();
+		assertThat(entityDatabaseRepository.isUniqueName(communityId.toString(), existedCommunityAllocation.name)).isFalse();
 	}
 
 	@Test
