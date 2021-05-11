@@ -21,9 +21,7 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
@@ -45,12 +43,10 @@ public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final ProjectGridModelMapper mapper;
 	private final Grid<ProjectGridModel> grid;
-	private final PersistentId currentUserId;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
 	private String searchText = "";
 
-	ProjectsView(ProjectService projectService, AuthzService authzService) {
-		this.currentUserId = authzService.getCurrentUserId();
+	ProjectsView(ProjectService projectService) {
 		this.projectService = projectService;
 		this.mapper = new ProjectGridModelMapper(projectService);
 		this.grid = createProjectGrid();
@@ -166,7 +162,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.projects.dialog.text", projectName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> projectService.removeUser(communityId, projectId, currentUserId));
+			handleExceptions(() -> projectService.resignFromMembership(communityId, projectId));
 			loadGridContent();
 		});
 		return furmsDialog;
