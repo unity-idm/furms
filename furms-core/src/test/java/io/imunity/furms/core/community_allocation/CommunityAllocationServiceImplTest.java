@@ -95,16 +95,17 @@ class CommunityAllocationServiceImplTest {
 	@Test
 	void shouldReturnAllCommunityAllocationsIncludedFullyDistributed() {
 		//given
-		when(communityAllocationRepository.findAllByCommunityIdWithRelatedObjects("id1")).thenReturn(Set.of(
-				CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
-				CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
-				CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
+		when(communityAllocationRepository.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects("id1", ""))
+				.thenReturn(Set.of(
+					CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
+					CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
+					CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
 		when(projectAllocationService.getAvailableAmount("id1", "id1")).thenReturn(BigDecimal.ONE);
 		when(projectAllocationService.getAvailableAmount("id1", "id2")).thenReturn(BigDecimal.ZERO);
 		when(projectAllocationService.getAvailableAmount("id1", "id3")).thenReturn(BigDecimal.ONE);
 
 		//when
-		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", true, true);
+		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", "", true, true);
 
 		//then
 		assertThat(all).hasSize(3);
@@ -113,16 +114,17 @@ class CommunityAllocationServiceImplTest {
 	@Test
 	void shouldReturnAllCommunityAllocationsNotIncludedFullyDistributed() {
 		//given
-		when(communityAllocationRepository.findAllByCommunityIdWithRelatedObjects("id1")).thenReturn(Set.of(
-				CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
-				CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
-				CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
+		when(communityAllocationRepository.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects("id1", ""))
+				.thenReturn(Set.of(
+					CommunityAllocationResolved.builder().id("id1").communityId("id1").name("name").build(),
+					CommunityAllocationResolved.builder().id("id2").communityId("id1").name("name_fullyDistributed").build(),
+					CommunityAllocationResolved.builder().id("id3").communityId("id1").name("name2").build()));
 		when(projectAllocationService.getAvailableAmount("id1", "id1")).thenReturn(BigDecimal.ONE);
 		when(projectAllocationService.getAvailableAmount("id1", "id2")).thenReturn(BigDecimal.ZERO);
 		when(projectAllocationService.getAvailableAmount("id1", "id3")).thenReturn(BigDecimal.ONE);
 
 		//when
-		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", false, true);
+		final Set<CommunityAllocationResolved> all = service.findAllWithRelatedObjects("id1", "", false, true);
 
 		//then
 		assertThat(all).hasSize(2);

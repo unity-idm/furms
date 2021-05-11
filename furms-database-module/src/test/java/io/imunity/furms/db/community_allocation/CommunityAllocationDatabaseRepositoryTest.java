@@ -203,6 +203,46 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldReturnAllByCommunityIdAndNameAllocationsWithRelatedObjects() {
+		//given
+		final LocalDateTime now = LocalDateTime.now();
+		final String expiredResource = resourceCreditRepository.create(ResourceCredit.builder()
+				.siteId(siteId.toString())
+				.resourceTypeId(resourceTypeId.toString())
+				.name("expiredRes")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.utcCreateTime(now)
+				.utcStartTime(now.minusSeconds(2))
+				.utcEndTime(now.minusSeconds(1))
+				.build());
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(UUID.fromString(expiredResource))
+						.name("nameToFind")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("other")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+
+
+		final Set<CommunityAllocationResolved> all = entityDatabaseRepository
+				.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId.toString(), "oFind");
+		assertThat(all.size()).isEqualTo(1);
+		final CommunityAllocationResolved entity = all.stream().findFirst().get();
+		assertThat(entity.name).isEqualTo("nameToFind");
+	}
+
+	@Test
 	void shouldReturnNotExpiredAllocationsWithRelatedObjects() {
 		//given
 		final LocalDateTime now = LocalDateTime.now();
@@ -235,10 +275,59 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 
-		final Set<CommunityAllocationResolved> all = entityDatabaseRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId.toString());
+		final Set<CommunityAllocationResolved> all = entityDatabaseRepository
+				.findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId.toString(), "");
 		assertThat(all.size()).isEqualTo(1);
 		final CommunityAllocationResolved entity = all.stream().findFirst().get();
 		assertThat(entity.name).isEqualTo("not-expired");
+	}
+
+	@Test
+	void shouldReturnNotExpiredAllocationsWithRelatedObjectsFilteredByName() {
+		//given
+		final LocalDateTime now = LocalDateTime.now();
+		final String expiredResource = resourceCreditRepository.create(ResourceCredit.builder()
+				.siteId(siteId.toString())
+				.resourceTypeId(resourceTypeId.toString())
+				.name("expiredRes")
+				.split(true)
+				.access(true)
+				.amount(new BigDecimal(100))
+				.utcCreateTime(now)
+				.utcStartTime(now.minusSeconds(2))
+				.utcEndTime(now.minusSeconds(1))
+				.build());
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(UUID.fromString(expiredResource))
+						.name("unnecessary-expired")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("toFindAll")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("unnecessary")
+						.amount(new BigDecimal(10))
+						.build()
+		);
+
+
+		final Set<CommunityAllocationResolved> all = entityDatabaseRepository
+				.findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId.toString(), "toFind");
+		assertThat(all.size()).isEqualTo(1);
+		final CommunityAllocationResolved entity = all.stream().findFirst().get();
+		assertThat(entity.name).isEqualTo("toFindAll");
 	}
 
 	@Test
