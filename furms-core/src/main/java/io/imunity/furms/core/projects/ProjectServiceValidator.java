@@ -69,7 +69,7 @@ class ProjectServiceValidator {
 	private void validateName(Project project) {
 		notNull(project.getName(), "Project name has to be declared.");
 		validateLength("name", project.getName(), MAX_NAME_LENGTH);
-		if (isNameUnique(project)) {
+		if (isNameOccupied(project)) {
 			throw new DuplicatedNameValidationError("Project name has to be unique.");
 		}
 	}
@@ -88,9 +88,9 @@ class ProjectServiceValidator {
 		}
 	}
 
-	private boolean isNameUnique(Project project) {
+	private boolean isNameOccupied(Project project) {
 		Optional<Project> optionalProject = projectRepository.findById(project.getId());
-		return !projectRepository.isUniqueName(project.getName()) &&
+		return !projectRepository.isNamePresent(project.getCommunityId(), project.getName()) &&
 			(optionalProject.isEmpty() || !optionalProject.get().getName().equals(project.getName()));
 	}
 

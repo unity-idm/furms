@@ -25,7 +25,7 @@ public interface ProjectRepository {
 
 	boolean isProjectRelatedWithCommunity(String communityId, String projectId);
 
-	boolean isUniqueName(String name);
+	boolean isNamePresent(String communityId, String name);
 
 	void delete(String id);
 	

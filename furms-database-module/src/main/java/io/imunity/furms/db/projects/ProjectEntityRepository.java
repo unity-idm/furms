@@ -13,6 +13,6 @@ import java.util.stream.Stream;
 interface ProjectEntityRepository extends CrudRepository<ProjectEntity, UUID> {
 
 	Stream<ProjectEntity> findAllByCommunityId(UUID communityId);
-	boolean existsByName(String name);
+	boolean existsByCommunityIdAndName(UUID communityId, String name);
 	boolean existsByCommunityIdAndId(UUID communityId, UUID id);
 }

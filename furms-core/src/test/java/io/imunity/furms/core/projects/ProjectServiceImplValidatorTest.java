@@ -45,7 +45,7 @@ class ProjectServiceImplValidatorTest {
 			.build();
 
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
-		when(projectRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(project));
@@ -63,7 +63,7 @@ class ProjectServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
-		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(false);
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		Project secondProject = Project.builder().name("a").build();
 		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
@@ -116,7 +116,7 @@ class ProjectServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
-		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(false);
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		Project secondProject = Project.builder().name("a").build();
 		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
@@ -136,7 +136,7 @@ class ProjectServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 
-		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(false);
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		Project secondProject = Project.builder().name("a").build();
 		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
@@ -156,7 +156,7 @@ class ProjectServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(false);
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		Project secondProject = Project.builder().name("a").build();
 		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
@@ -180,7 +180,7 @@ class ProjectServiceImplValidatorTest {
 
 		when(communityRepository.exists(project.getCommunityId())).thenReturn(true);
 		when(projectRepository.exists(project.getId())).thenReturn(true);
-		when(projectRepository.isUniqueName(any())).thenReturn(true);
+		when(projectRepository.isNamePresent(project.getCommunityId(), project.getName())).thenReturn(true);
 		when(projectRepository.findById(any())).thenReturn(Optional.of(project));
 
 		//when+then
@@ -224,7 +224,7 @@ class ProjectServiceImplValidatorTest {
 			.build();
 
 		when(projectRepository.exists(community.getId())).thenReturn(true);
-		when(projectRepository.isUniqueName(any())).thenReturn(false);
+		when(projectRepository.isNamePresent(any(), any())).thenReturn(false);
 		when(communityRepository.exists(any())).thenReturn(true);
 		when(projectRepository.findById(any())).thenReturn(Optional.of(secondProject));
 		//when+then

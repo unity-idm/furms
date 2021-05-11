@@ -124,7 +124,7 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.build();
 		when(communityRepository.exists("id")).thenReturn(true);
-		when(projectRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(true);
 		when(projectRepository.create(request)).thenReturn(id);
 
 		//when
@@ -145,7 +145,7 @@ class ProjectServiceImplTest {
 			.id(id)
 			.name("userFacingName")
 			.build();
-		when(projectRepository.isUniqueName(request.getName())).thenReturn(false);
+		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(false);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -176,7 +176,7 @@ class ProjectServiceImplTest {
 			.build();
 		when(communityRepository.exists(request.getCommunityId())).thenReturn(true);
 		when(projectRepository.exists(request.getId())).thenReturn(true);
-		when(projectRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(true);
 		when(projectRepository.findById(request.getId())).thenReturn(Optional.of(request));
 
 		//when

@@ -104,8 +104,8 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNamePresent(String communityId, String name) {
+		return !repository.existsByCommunityIdAndName(UUID.fromString(communityId), name);
 	}
 
 	@Override
