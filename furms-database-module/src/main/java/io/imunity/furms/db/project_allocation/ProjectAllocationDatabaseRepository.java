@@ -5,9 +5,10 @@
 
 package io.imunity.furms.db.project_allocation;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -15,11 +16,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
@@ -120,8 +119,8 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public boolean isUniqueName(String name) {
-		return !repository.existsByName(name);
+	public boolean isNamePresent(String communityId, String name) {
+		return !readRepository.existsByCommunityIdAndName(UUID.fromString(communityId), name);
 	}
 
 	@Override

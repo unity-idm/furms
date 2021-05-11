@@ -46,4 +46,12 @@ public interface ProjectAllocationReadEntityRepository extends CrudRepository<Pr
 		"where ca.id = :id " +
 		"group by ca.amount")
 	ProjectAllocationSum calculateAvailableAmount(@Param("id") UUID communityAllocationId);
+
+	@Query(
+		"select count(*) > 0 " +
+		"from project_allocation pa " +
+		"join community_allocation ca on pa.community_allocation_id = ca.id " +
+		"where ca.community_id = :communityId and pa.name = :name")
+	boolean existsByCommunityIdAndName(@Param("communityId") UUID communityId, @Param("name") String name);
+
 }

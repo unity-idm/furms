@@ -33,7 +33,7 @@ public interface ProjectAllocationRepository {
 
 	boolean isFirstAllocation(String id);
 
-	boolean isUniqueName(String name);
+	boolean isNamePresent(String communityId, String name);
 
 	void delete(String id);
 
