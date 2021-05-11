@@ -105,6 +105,7 @@ public class ProjectView extends FurmsViewComponent {
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.withFetchUsersAction(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()))
+			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				membershipLayout.loadAppropriateButton();

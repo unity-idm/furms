@@ -45,7 +45,7 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.views.landing.RoleChooserView;
+import io.imunity.furms.ui.views.landing.LandingPageView;
 
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 
@@ -190,7 +190,7 @@ public class UsersGridComponent extends VerticalLayout {
 
 	private void refreshUserRoles() {
 		if(redirectOnCurrentUserRemoval)
-			UI.getCurrent().navigate(RoleChooserView.class);
+			UI.getCurrent().navigate(LandingPageView.class);
 		else
 			reloadGrid();
 	}
@@ -310,7 +310,7 @@ public class UsersGridComponent extends VerticalLayout {
 			return this;
 		}
 
-		public Builder withremovalNotAllowedMessageKey(String key) {
+		public Builder withRemovalNotAllowedMessageKey(String key) {
 			this.removalNotAllowedMessageKey = key;
 			return this;
 		}
