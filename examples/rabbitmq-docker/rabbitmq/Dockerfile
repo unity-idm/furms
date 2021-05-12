@@ -1,4 +1,4 @@
-FROM rabbitmq:3.8.14
+FROM rabbitmq:3.8.2-management
 
 
 COPY ./certs/ /etc/rabbitmq/certs
