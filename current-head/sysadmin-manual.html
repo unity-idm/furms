@@ -666,31 +666,41 @@ ssl_options.versions.1 = tlsv1.2</code></pre>
 <div class="sect3">
 <h4 id="connection-setup-for-sites-local-agent"><a class="anchor" href="#connection-setup-for-sites-local-agent"></a>Connection setup for site&#8217;s local agent</h4>
 <div class="paragraph">
-<p>The communication between FURMS and particular site is done through two queues:</p>
+<p>The communication between FURMS and particular site is done through two queues which are declared by FURMS when FENIX administrator creates a site. Dedicated queue names consists of site&#8217;s identifier and a special suffix:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>dedicated one used for particular site, created by FURMS during site&#8217;s creation,</p>
+<p><code>&lt;siteid&gt;-site-pub</code> - queue is used by site to publish messages to FURMS</p>
 </li>
 <li>
-<p><code>reply-queue</code> which is fixed, created out of the box by RabbitMQ, and used by all sites to publish messages to FURMS.</p>
+<p><code>&lt;siteid&gt;-furms-pub</code> - queue is used by FURMS to publish message to the site</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>The dedicated queue name is visible on Site administrator&#8217;s Settings view as 'Site Id'.</p>
-</div>
-<div class="paragraph">
-<p>From Site&#8217;s point of view, broker operation must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:</p>
+<p>The site&#8217;s identifier is visible on Site administrator&#8217;s Settings page as 'Site Id'. When the Site Id is e.g. <code>ygmr6</code>, then the created queues names are:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>read/write messages from/to particular sites&#8217;s queue,</p>
+<p><code>ygmr6-site-pub</code></p>
 </li>
 <li>
-<p>read/write messages from/to <code>reply-queue</code> queue,</p>
+<p><code>ygmr6-furms-pub</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>From Site&#8217;s point of view, broker administrator must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>write messages to <code>&lt;siteid&gt;-site-pub</code> queue,</p>
+</li>
+<li>
+<p>read messages from <code>&lt;siteid&gt;-furms-pub</code> queue,</p>
 </li>
 </ul>
 </div>
@@ -1253,7 +1263,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-03 12:52:29 UTC
+Last updated 2021-05-12 06:59:19 UTC
 </div>
 </div>
 <style>
