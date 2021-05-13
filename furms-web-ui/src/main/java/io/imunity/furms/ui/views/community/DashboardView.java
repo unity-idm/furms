@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.views.community;
 
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -25,15 +24,19 @@ import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocatio
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.vaadin.flow.component.ComponentUtil.getData;
+import static com.vaadin.flow.component.ComponentUtil.setData;
 import static com.vaadin.flow.component.checkbox.CheckboxGroupVariant.LUMO_VERTICAL;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 import static io.imunity.furms.domain.constant.RoutesConst.COMMUNITY_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_EXPIRED;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_FULLY_DISTRIBUTED;
+import static java.util.stream.Collectors.toSet;
 
 @Route(value = COMMUNITY_BASE_LANDING_PAGE, layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.dashboard.page.title")
@@ -47,12 +50,25 @@ public class DashboardView extends FurmsViewComponent {
 	DashboardView(CommunityAllocationService allocationService) {
 		this.allocationService = allocationService;
 
-		this.filters = new DashboardViewFilters();
+		this.filters = initializeFilters();
 		this.grid = new ResourceAllocationsGrid(this::allocateButtonAction, this::loadCredits);
 
 		addTitle();
 		addFiltersAndSearch();
 		getContent().add(grid);
+	}
+
+	private DashboardViewFilters initializeFilters() {
+		final DashboardViewFilters filters = new DashboardViewFilters();
+		final DashboardViewFilters savedFilters = getData(UI.getCurrent(), DashboardViewFilters.class);
+		if (savedFilters != null) {
+			filters.setName(savedFilters.getName());
+			filters.setIncludedExpired(savedFilters.isIncludedExpired());
+			filters.setIncludedFullyDistributed(savedFilters.isIncludedFullyDistributed());
+			setData(UI.getCurrent(), DashboardViewFilters.class, null);
+		}
+
+		return filters;
 	}
 
 	private void addTitle() {
@@ -75,17 +91,24 @@ public class DashboardView extends FurmsViewComponent {
 	private CheckboxGroup<DashboardViewFilters.Checkboxes> createFiltersForm() {
 		final CheckboxGroup<DashboardViewFilters.Checkboxes> checkboxGroup = new CheckboxGroup<>();
 		checkboxGroup.setItemLabelGenerator(DashboardViewFilters.Checkboxes::getLabel);
-		checkboxGroup.setItems(
+		final List<DashboardViewFilters.Checkboxes> values = List.of(
 				new DashboardViewFilters.Checkboxes(INCLUDED_FULLY_DISTRIBUTED,
 						getTranslation("view.community-admin.dashboard.filters.fully-distributed")),
 				new DashboardViewFilters.Checkboxes(INCLUDED_EXPIRED,
 						getTranslation("view.community-admin.dashboard.filters.expired")));
+		checkboxGroup.setItems(values);
 		checkboxGroup.addThemeVariants(LUMO_VERTICAL);
 		checkboxGroup.addValueChangeListener(event -> {
 			filters.setIncludedFullyDistributed(isSelectedCheckbox(INCLUDED_FULLY_DISTRIBUTED, event.getValue()));
 			filters.setIncludedExpired(isSelectedCheckbox(INCLUDED_EXPIRED, event.getValue()));
 			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 		});
+		checkboxGroup.setValue(
+			values.stream()
+					.filter(value ->
+						filters.isIncludedFullyDistributed() && INCLUDED_FULLY_DISTRIBUTED.equals(value.getOption())
+						|| filters.isIncludedExpired() && INCLUDED_EXPIRED.equals(value.getOption()))
+				.collect(toSet()));
 
 		return checkboxGroup;
 	}
@@ -108,12 +131,14 @@ public class DashboardView extends FurmsViewComponent {
 			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 			textField.focus();
 		});
+		textField.setValue(filters.getName());
 
 		return textField;
 	}
 
 	private void allocateButtonAction(ResourceAllocationsGridItem item) {
-		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, item);
+		setData(UI.getCurrent(), ResourceAllocationsGridItem.class, item);
+		setData(UI.getCurrent(), DashboardViewFilters.class, filters);
 		UI.getCurrent().navigate(ProjectAllocationDashboardFormView.class);
 	}
 
