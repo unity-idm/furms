@@ -58,30 +58,6 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
 	}
 
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	@Transactional
-	@Override
-	public void create(SSHKeyOperationJob installationJob) {
-		sshKeyOperationRepository.create(installationJob);
-		LOG.info("SSHKeyInstallationJob was created: {}", installationJob);
-
-	}
-
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	@Transactional
-	@Override
-	public void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);
-		LOG.info("SSHKeyInstallationJob for key={} and site={} was deleted", sshkeyId, siteId);
-
-	}
-
-	@Override
-	public List<SSHKeyOperationJob> findBySSHKey(String sshkeyId) {
-		return sshKeyOperationRepository.findBySSHKey(sshkeyId);
-
-	}
-
 	// FIXME To auth this method special user for queue message resolving is
 	// needed
 	@Override
