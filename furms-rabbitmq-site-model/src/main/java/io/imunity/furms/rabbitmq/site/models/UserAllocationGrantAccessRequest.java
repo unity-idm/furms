@@ -17,7 +17,7 @@ public class UserAllocationGrantAccessRequest implements Body {
 	public final String projectIdentifier;
 
 	@JsonCreator
-	UserAllocationGrantAccessRequest(String allocationIdentifier, String fenixUserId, String projectIdentifier) {
+	public UserAllocationGrantAccessRequest(String allocationIdentifier, String fenixUserId, String projectIdentifier) {
 		this.allocationIdentifier = allocationIdentifier;
 		this.fenixUserId = fenixUserId;
 		this.projectIdentifier = projectIdentifier;

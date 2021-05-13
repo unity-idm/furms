@@ -6,10 +6,7 @@
 package io.imunity.furms.site;
 
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
-import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.*;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,4 +22,6 @@ class MockBeansConfig {
 	private SSHKeyOperationMessageResolver sshKeyOperationService;
 	@MockBean
 	private UserOperationMessageResolver userOperationMessageResolver;
+	@MockBean
+	private ResourceAccessMessageResolver resourceAccessMessageResolver;
 }

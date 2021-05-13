@@ -11,13 +11,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
 
 @JsonTypeName("UserAllocationBlockAccessRequest")
-public class UserAllocationBlockAccessRequest {
+public class UserAllocationBlockAccessRequest implements Body {
 	public final String allocationIdentifier;
 	public final String fenixUserId;
 	public final String projectIdentifier;
 
 	@JsonCreator
-	UserAllocationBlockAccessRequest(String allocationIdentifier, String fenixUserId, String projectIdentifier) {
+	public UserAllocationBlockAccessRequest(String allocationIdentifier, String fenixUserId, String projectIdentifier) {
 		this.allocationIdentifier = allocationIdentifier;
 		this.fenixUserId = fenixUserId;
 		this.projectIdentifier = projectIdentifier;

@@ -176,6 +176,28 @@ public class SiteAgentMock {
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectDeallocationRequestAck()));
 	}
 
+	@EventListener
+	public void receiveUserAllocationGrantAccessRequest(Payload<UserAllocationGrantAccessRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserAllocationGrantAccessRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		UserAllocationGrantAccessResult result = new UserAllocationGrantAccessResult();
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveUserAllocationBlockAccessRequest(Payload<UserAllocationBlockAccessRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserAllocationBlockAccessRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		UserAllocationBlockAccessResult result = new UserAllocationBlockAccessResult();
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
 	private Header getHeader(Header header) {
 		return new Header(VERSION, header.messageCorrelationId, Status.OK, null);
 	}

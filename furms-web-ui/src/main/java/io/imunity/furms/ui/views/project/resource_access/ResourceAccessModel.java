@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.project.resource_access;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 
 class ResourceAccessModel {
@@ -14,9 +16,14 @@ class ResourceAccessModel {
 	private String allocation;
 	private String access;
 	private String status;
+	private SiteId siteId;
+	private String allocationId;
+	private String fenixUserId;
 	private boolean accessible;
+	private String message;
 
-	ResourceAccessModel(String firstName, String lastName, String email, String allocation, String access, String status, boolean accessible) {
+	ResourceAccessModel(String firstName, String lastName, String email, String allocation, String access, String status,
+	                    boolean accessible, SiteId siteId, String allocationId, String fenixUserId, String message) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
@@ -24,6 +31,60 @@ class ResourceAccessModel {
 		this.access = access;
 		this.status = status;
 		this.accessible = accessible;
+		this.siteId = siteId;
+		this.allocationId = allocationId;
+		this.fenixUserId = fenixUserId;
+		this.message = message;
+	}
+
+	String getFirstName() {
+		return firstName;
+	}
+
+	String getLastName() {
+		return lastName;
+	}
+
+	String getEmail() {
+		return email;
+	}
+
+	String getAllocation() {
+		return allocation;
+	}
+
+	String getAccess() {
+		return access;
+	}
+
+	String getStatus() {
+		return status;
+	}
+
+	boolean isAccessible() {
+		return accessible;
+	}
+
+	SiteId getSiteId() {
+		return siteId;
+	}
+
+	String getAllocationId() {
+		return allocationId;
+	}
+
+	String getFenixUserId() {
+		return fenixUserId;
+	}
+
+	String getMessage() {
+		return message;
+	}
+
+	boolean matches(String value) {
+		return firstName.toLowerCase().contains(value) ||
+			lastName.toLowerCase().contains(value) ||
+			email.toLowerCase().contains(value);
 	}
 
 	@Override
@@ -31,12 +92,19 @@ class ResourceAccessModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ResourceAccessModel that = (ResourceAccessModel) o;
-		return accessible == that.accessible && Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(email, that.email) && Objects.equals(allocation, that.allocation) && Objects.equals(access, that.access) && Objects.equals(status, that.status);
+		return accessible == that.accessible &&
+			Objects.equals(firstName, that.firstName) &&
+			Objects.equals(lastName, that.lastName) &&
+			Objects.equals(email, that.email) &&
+			Objects.equals(allocation, that.allocation) &&
+			Objects.equals(access, that.access) &&
+			Objects.equals(message, that.message) &&
+			Objects.equals(status, that.status);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(firstName, lastName, email, allocation, access, status, accessible);
+		return Objects.hash(firstName, lastName, email, allocation, access, status, accessible, message);
 	}
 
 	@Override
@@ -49,6 +117,7 @@ class ResourceAccessModel {
 			", access='" + access + '\'' +
 			", status='" + status + '\'' +
 			", accessible=" + accessible +
+			", message=" + message +
 			'}';
 	}
 
@@ -63,7 +132,11 @@ class ResourceAccessModel {
 		private String allocation;
 		private String access;
 		private String status;
+		private SiteId siteId;
+		private String allocationId;
+		private String fenixUserId;
 		private boolean accessible;
+		private String message;
 
 		private ResourceAccessModelBuilder() {
 		}
@@ -98,13 +171,33 @@ class ResourceAccessModel {
 			return this;
 		}
 
+		public ResourceAccessModelBuilder allocationId(String allocationId) {
+			this.allocationId = allocationId;
+			return this;
+		}
+
+		public ResourceAccessModelBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public ResourceAccessModelBuilder accessible(boolean accessible) {
 			this.accessible = accessible;
 			return this;
 		}
 
+		public ResourceAccessModelBuilder fenixUserId(String fenixUserId) {
+			this.fenixUserId = fenixUserId;
+			return this;
+		}
+
+		public ResourceAccessModelBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ResourceAccessModel build() {
-			return new ResourceAccessModel(firstName, lastName, email, allocation, access, status, accessible);
+			return new ResourceAccessModel(firstName, lastName, email, allocation, access, status, accessible, siteId, allocationId, fenixUserId, message);
 		}
 	}
 }

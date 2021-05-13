@@ -131,4 +131,11 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 			UserRemovalStatus.REMOVED.getPersistentId()
 		);
 	}
+
+	@Override
+	public Set<String> findAddedUserIds(String projectId) {
+		return userAdditionEntityRepository.findAddedUserIds(UUID.fromString(projectId),
+			UserAdditionStatus.ADDED.getPersistentId(),
+			UserRemovalStatus.REMOVED.getPersistentId());
+	}
 }
