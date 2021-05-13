@@ -51,7 +51,10 @@ public class DashboardView extends FurmsViewComponent {
 		this.allocationService = allocationService;
 
 		this.filters = initializeFilters();
-		this.grid = new ResourceAllocationsGrid(this::allocateButtonAction, this::loadCredits);
+		this.grid = new ResourceAllocationsGrid(
+				this::allocateButtonAction,
+				this::loadCredits,
+				"view.community-admin.dashboard.grid.column");
 
 		addTitle();
 		addFiltersAndSearch();
