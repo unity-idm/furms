@@ -21,6 +21,7 @@ public interface UserOperationRepository {
 	void updateStatus(CorrelationId correlationId, UserRemovalStatus userRemovalStatus);
 	void updateStatus(CorrelationId correlationId, UserAdditionStatus userAdditionStatus);
 	boolean isUserAdded(String siteId, String userId);
+	Set<String> findAddedUserIds(String projectId);
 	UserAdditionStatus findAdditionStatusByCorrelationId(String correlationId);
 	UserRemovalStatus findRemovalStatusByCorrelationId(String correlationId);
 }

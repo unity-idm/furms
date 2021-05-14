@@ -96,6 +96,10 @@
   			 <groupId>org.vaadin.gatanaso</groupId>
   			 <artifactId>multiselect-combo-box-flow</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin.componentfactory</groupId>
+			<artifactId>tooltip</artifactId>
+		</dependency>
 		
 		
 		<!-- Test dependencies -->

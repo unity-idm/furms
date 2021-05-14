@@ -92,8 +92,4 @@ public class UserOperationService {
 				siteAgentUserService.removeUser(userRemoval);
 			});
 	}
-
-	public boolean isUserAdded(String siteId, String userId) {
-		return repository.isUserAdded(siteId, userId);
-	}
 }
