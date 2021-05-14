@@ -12,5 +12,4 @@ import java.util.UUID;
 
 public interface UserGrantJobEntityRepository extends CrudRepository<UserGrantJobEntity, UUID> {
 	Optional<UserGrantJobEntity> findByCorrelationId(UUID correlationId);
-	Optional<UserGrantJobEntity> findByUserAllocationId(UUID userAllocationId);
 }

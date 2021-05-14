@@ -12,17 +12,17 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("user_allocation_job")
+@Table("user_grant_job")
 class UserGrantJobEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
-	public final UUID userAllocationId;
+	public final UUID userGrantId;
 	public final int status;
 	public final String message;
 
-	UserGrantJobEntity(UUID id, UUID correlationId, UUID userAllocationId, int status, String message) {
+	UserGrantJobEntity(UUID id, UUID correlationId, UUID userGrantId, int status, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
-		this.userAllocationId = userAllocationId;
+		this.userGrantId = userGrantId;
 		this.status = status;
 		this.message = message;
 	}
@@ -35,13 +35,13 @@ class UserGrantJobEntity extends UUIDIdentifiable {
 		return status == that.status &&
 			Objects.equals(id, that.id) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(userAllocationId, that.userAllocationId) &&
+			Objects.equals(userGrantId, that.userGrantId) &&
 			Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(correlationId, userAllocationId, status, message);
+		return Objects.hash(correlationId, userGrantId, status, message);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ class UserGrantJobEntity extends UUIDIdentifiable {
 		return "ResourceRevokeEntity{" +
 			"id=" + id +
 			", correlationId=" + correlationId +
-			", userAllocationId=" + userAllocationId +
+			", userAllocationId=" + userGrantId +
 			", status=" + status +
 			", message='" + message + '\'' +
 			'}';

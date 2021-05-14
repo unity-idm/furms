@@ -6,6 +6,7 @@
 package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
@@ -58,7 +59,7 @@ class ResourceAccessServiceTest {
 		service.revokeAccess(grantAccess);
 
 		//then
-		orderVerifier.verify(repository).update(any(), eq(grantAccess));
+		orderVerifier.verify(repository).update(any(), eq(grantAccess), eq(AccessStatus.REVOKE_PENDING));
 		orderVerifier.verify(siteAgentResourceAccessService).revokeAccess(any(), eq(grantAccess));
 	}
 }

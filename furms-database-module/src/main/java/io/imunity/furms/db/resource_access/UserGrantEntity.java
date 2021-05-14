@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("user_allocation")
+@Table("user_grant")
 class UserGrantEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;

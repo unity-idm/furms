@@ -72,7 +72,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.id(userAllocation.job.getId())
 			.correlationId(UUID.fromString(correlationId.id))
-			.userAllocationId(userAllocation.job.userAllocationId)
+			.userAllocationId(userAllocation.job.userGrantId)
 			.status(status)
 			.build()
 		);
@@ -84,7 +84,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.map(old ->
 					UserGrantJobEntity.builder()
 						.id(old.getId())
-						.userAllocationId(old.userAllocationId)
+						.userAllocationId(old.userGrantId)
 						.correlationId(old.correlationId)
 						.status(status)
 						.message(msg)
@@ -98,7 +98,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	public void delete(CorrelationId correlationId){
 		UserGrantJobEntity userGrantJobEntity = userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-		userGrantEntityRepository.deleteById(userGrantJobEntity.userAllocationId);
+		userGrantEntityRepository.deleteById(userGrantJobEntity.userGrantId);
 	}
 
 	@Override
