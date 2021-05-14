@@ -5,58 +5,50 @@
 
 package io.imunity.furms.domain.user_operation;
 
-import java.util.Objects;
-
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.sites.SiteId;
 
-public class UserRemoval {
+import java.util.Objects;
+import java.util.Optional;
+
+public class UserAdditionJob {
 	public final String id;
-	public final SiteId siteId;
-	public final String projectId;
 	public final String userAdditionId;
 	public final CorrelationId correlationId;
-	public final String userId;
-	public final UserRemovalStatus status;
+	public final UserStatus status;
+	public final Optional<ErrorUserMessage> message;
 
-	UserRemoval(String id, SiteId siteId, String projectId, String userAdditionId, CorrelationId correlationId, String userId, UserRemovalStatus status) {
+	UserAdditionJob(String id, String userAdditionId, CorrelationId correlationId, UserStatus status, Optional<ErrorUserMessage> message) {
 		this.id = id;
-		this.siteId = siteId;
-		this.projectId = projectId;
 		this.userAdditionId = userAdditionId;
 		this.correlationId = correlationId;
-		this.userId = userId;
 		this.status = status;
+		this.message = message;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserRemoval that = (UserRemoval) o;
+		UserAdditionJob that = (UserAdditionJob) o;
 		return Objects.equals(id, that.id) &&
-			Objects.equals(siteId, that.siteId) &&
-			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(userAdditionId, that.userAdditionId) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(userId, that.userId);
+			Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, projectId, correlationId, userId, status, userAdditionId);
+		return Objects.hash(id, correlationId, status, userAdditionId, message);
 	}
 
 	@Override
 	public String toString() {
 		return "UserRemoval{" +
 			"id='" + id + '\'' +
-			", siteId='" + siteId + '\'' +
-			", projectId='" + projectId + '\'' +
 			", userAdditionId='" + userAdditionId + '\'' +
 			", correlationId='" + correlationId + '\'' +
-			", userId='" + userId + '\'' +
 			", status=" + status +
+			", message=" + message +
 			'}';
 	}
 
@@ -66,12 +58,10 @@ public class UserRemoval {
 
 	public static final class UserRemovalBuilder {
 		private String id;
-		private SiteId siteId;
-		private String projectId;
 		private String userAdditionId;
 		private CorrelationId correlationId;
-		private String userId;
-		private UserRemovalStatus status;
+		private UserStatus status;
+		private Optional<ErrorUserMessage> message = Optional.empty();
 
 		private UserRemovalBuilder() {
 		}
@@ -81,13 +71,13 @@ public class UserRemoval {
 			return this;
 		}
 
-		public UserRemovalBuilder userAdditionId(String userAdditionId) {
-			this.userAdditionId = userAdditionId;
+		public UserRemovalBuilder message(String message) {
+			this.message = Optional.ofNullable(message).map(ErrorUserMessage::new);
 			return this;
 		}
 
-		public UserRemovalBuilder projectId(String projectId) {
-			this.projectId = projectId;
+		public UserRemovalBuilder userAdditionId(String userAdditionId) {
+			this.userAdditionId = userAdditionId;
 			return this;
 		}
 
@@ -96,23 +86,13 @@ public class UserRemoval {
 			return this;
 		}
 
-		public UserRemovalBuilder userId(String userId) {
-			this.userId = userId;
-			return this;
-		}
-
-		public UserRemovalBuilder siteId(SiteId siteId) {
-			this.siteId = siteId;
-			return this;
-		}
-
-		public UserRemovalBuilder status(UserRemovalStatus status) {
+		public UserRemovalBuilder status(UserStatus status) {
 			this.status = status;
 			return this;
 		}
 
-		public UserRemoval build() {
-			return new UserRemoval(id, siteId, projectId, userAdditionId, correlationId, userId, status);
+		public UserAdditionJob build() {
+			return new UserAdditionJob(id, userAdditionId, correlationId, status, message);
 		}
 	}
 }

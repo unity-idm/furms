@@ -7,10 +7,11 @@ package io.imunity.furms.domain.user_operation;
 
 import java.util.Arrays;
 
-public enum UserAdditionStatus {
-	PENDING(0), ACKNOWLEDGED(1), ADDED(2), FAILED(3);
+public enum UserStatus {
+	ADDING_PENDING(0), ADDING_ACKNOWLEDGED(1), ADDED(2), ADDING_FAILED(3),
+	REMOVAL_PENDING(4), REMOVAL_ACKNOWLEDGED(5), REMOVED(6), REMOVAL_FAILED(7);
 
-	UserAdditionStatus(int persistentId) {
+	UserStatus(int persistentId) {
 		this.persistentId = persistentId;
 	}
 
@@ -20,7 +21,7 @@ public enum UserAdditionStatus {
 		return persistentId;
 	}
 
-	public static UserAdditionStatus valueOf(int status){
+	public static UserStatus valueOf(int status){
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()

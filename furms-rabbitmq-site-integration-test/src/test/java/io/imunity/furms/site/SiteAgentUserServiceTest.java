@@ -9,9 +9,8 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
@@ -57,21 +56,21 @@ class SiteAgentUserServiceTest {
 			.build();
 		siteAgentUserService.addUser(userAddition, user);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED);
 		verify(userOperationMessageResolver, timeout(10000)).update(any());
 	}
 
 	@Test
 	void shouldRemoveUser() throws ExecutionException, InterruptedException {
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserRemoval userRemoval = UserRemoval.builder()
+		UserAdditionJob userAdditionJob = UserAdditionJob.builder()
 			.id("id")
 			.siteId(new SiteId("id", new SiteExternalId("mock")))
 			.projectId("projectId")
 			.correlationId(correlationId)
 			.build();
 
-		siteAgentUserService.removeUser(userRemoval);
+		siteAgentUserService.removeUser(userAdditionJob);
 
 		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.ACKNOWLEDGED);
 		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.REMOVED);

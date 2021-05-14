@@ -7,10 +7,10 @@ package io.imunity.furms.domain.resource_access;
 
 import java.util.Objects;
 
-public class ErrorMessage {
+public class ErrorAccessMessage {
 	public final String message;
 
-	public ErrorMessage(String message) {
+	public ErrorAccessMessage(String message) {
 		this.message = message;
 	}
 
@@ -18,7 +18,7 @@ public class ErrorMessage {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ErrorMessage that = (ErrorMessage) o;
+		ErrorAccessMessage that = (ErrorAccessMessage) o;
 		return Objects.equals(message, that.message);
 	}
 

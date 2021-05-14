@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.project.allocations;
 
+import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -105,8 +106,15 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		Text text = new Text(status);
 		horizontalLayout.add(text);
-		if(message != null)
-			horizontalLayout.add(WARNING.create());
+		if(message != null){
+			Tooltip tooltip = new Tooltip();
+			Icon icon = WARNING.create();
+			tooltip.attachToComponent(icon);
+			tooltip.add(message);
+			getContent().add(tooltip);
+			horizontalLayout.add(icon);
+		}
+
 		return horizontalLayout;
 	}
 
@@ -127,11 +135,13 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		groupedProjectAllocations = service.findAllInstallations(projectId).stream()
-			.collect(groupingBy(installation -> installation.projectAllocationId));
-		groupedProjectDeallocations = service.findAllUninstallations(projectId).stream()
-			.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity()));
-		grid.setItems(loadServicesViewsModels());
+		handleExceptions(() -> {
+			groupedProjectAllocations = service.findAllInstallations(projectId).stream()
+				.collect(groupingBy(installation -> installation.projectAllocationId));
+			groupedProjectDeallocations = service.findAllUninstallations(projectId).stream()
+				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity()));
+			grid.setItems(loadServicesViewsModels());
+		});
 	}
 
 	private List<ProjectAllocationGridModel> loadServicesViewsModels() {

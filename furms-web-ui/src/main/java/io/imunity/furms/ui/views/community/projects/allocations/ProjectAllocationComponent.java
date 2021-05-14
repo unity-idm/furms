@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
@@ -115,8 +116,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		Text text = new Text(status);
 		horizontalLayout.add(text);
-		if(message != null)
-			horizontalLayout.add(WARNING.create());
+		if(message != null) {
+			Tooltip tooltip = new Tooltip();
+			Icon icon = WARNING.create();
+			tooltip.attachToComponent(icon);
+			tooltip.add(message);
+			getContent().add(tooltip);
+			horizontalLayout.add(icon);
+		}
 		return horizontalLayout;
 	}
 
@@ -158,10 +165,12 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	}
 
 	private void loadGridContent() {
-		groupedProjectAllocations = new GroupedProjectAllocationsSnapshot(
-			service.findAllInstallations(communityId, projectId),
-			service.findAllUninstallations(communityId, projectId));
-		grid.setItems(loadServicesViewsModels());
+		handleExceptions(() -> {
+			groupedProjectAllocations = new GroupedProjectAllocationsSnapshot(
+				service.findAllInstallations(communityId, projectId),
+				service.findAllUninstallations(communityId, projectId));
+			grid.setItems(loadServicesViewsModels());
+		});
 	}
 
 	private List<ProjectAllocationGridModel> loadServicesViewsModels() {

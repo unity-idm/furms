@@ -11,7 +11,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -40,7 +40,7 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
-			.status(UserAdditionStatus.valueOf(status))
+			.status(UserStatus.valueOf(status))
 			.build();
 	}
 

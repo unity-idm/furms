@@ -8,7 +8,7 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserRemoval;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -88,7 +88,7 @@ class UserOperationServiceTest {
 		service.createUserRemovals(projectId, userId);
 
 		//then
-		orderVerifier.verify(repository).create(any(UserRemoval.class));
-		orderVerifier.verify(siteAgentUserService).removeUser(any(UserRemoval.class));
+		orderVerifier.verify(repository).update(any(UserAdditionJob.class));
+		orderVerifier.verify(siteAgentUserService).removeUser(any(UserAdditionJob.class));
 	}
 }

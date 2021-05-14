@@ -9,9 +9,8 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
@@ -51,7 +50,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(siteId)
 					.userId(user.fenixUserId.map(uId -> uId.id).orElse(null))
-					.status(UserAdditionStatus.PENDING)
+					.status(UserStatus.ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -68,7 +67,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(new SiteId(site.getId(), site.getExternalId()))
 					.userId(user.fenixUserId.map(userId -> userId.id).orElse(null))
-					.status(UserAdditionStatus.PENDING)
+					.status(UserStatus.ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -79,17 +78,14 @@ public class UserOperationService {
 		FURMSUser user = usersDAO.findById(userId).get();
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		repository.findAllUserAdditions(projectId, fenixUserId).stream()
-			.map(userAddition -> UserRemoval.builder()
+			.map(userAddition -> UserAdditionJob.builder()
 				.correlationId(CorrelationId.randomID())
-				.siteId(userAddition.siteId)
-				.projectId(userAddition.projectId)
 				.userAdditionId(userAddition.id)
-				.userId(fenixUserId)
-				.status(UserRemovalStatus.PENDING)
+				.status(UserStatus.REMOVAL_PENDING)
 				.build())
-			.forEach(userRemoval -> {
-				repository.create(userRemoval);
-				siteAgentUserService.removeUser(userRemoval);
+			.forEach(userAdditionJob -> {
+				repository.update(userAdditionJob);
+				siteAgentUserService.removeUser(userAdditionJob);
 			});
 	}
 }

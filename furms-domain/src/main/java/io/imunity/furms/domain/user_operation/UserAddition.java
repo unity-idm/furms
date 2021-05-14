@@ -17,9 +17,9 @@ public class UserAddition {
 	public final CorrelationId correlationId;
 	public final String uid;
 	public final String userId;
-	public final UserAdditionStatus status;
+	public final UserStatus status;
 
-	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId, UserAdditionStatus status) {
+	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId, UserStatus status) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -71,7 +71,7 @@ public class UserAddition {
 		public CorrelationId correlationId;
 		public String uid;
 		public String userId;
-		public UserAdditionStatus status;
+		public UserStatus status;
 
 		private UserAdditionBuilder() {
 		}
@@ -106,7 +106,7 @@ public class UserAddition {
 			return this;
 		}
 
-		public UserAdditionBuilder status(UserAdditionStatus status) {
+		public UserAdditionBuilder status(UserStatus status) {
 			this.status = status;
 			return this;
 		}

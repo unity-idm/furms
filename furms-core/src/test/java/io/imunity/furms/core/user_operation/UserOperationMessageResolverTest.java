@@ -7,8 +7,7 @@ package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ class UserOperationMessageResolverTest {
 	@Test
 	void shouldUpdateUserAddition() {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserAdditionStatus.ACKNOWLEDGED);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserStatus.ADDING_ACKNOWLEDGED);
 
 		service.update(UserAddition.builder()
 			.correlationId(correlationId)
@@ -50,19 +49,9 @@ class UserOperationMessageResolverTest {
 	void shouldUpdateUserAdditionStatus() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserAdditionStatus.ACKNOWLEDGED);
-		service.updateStatus(correlationId, UserAdditionStatus.PENDING);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(UserStatus.ADDING_ACKNOWLEDGED);
+		service.updateStatus(correlationId, UserStatus.ADDING_PENDING, "msg");
 
-		orderVerifier.verify(repository).updateStatus(correlationId, UserAdditionStatus.PENDING);
-	}
-
-	@Test
-	void shouldUpdateUserRemovalStatus() {
-		CorrelationId correlationId = CorrelationId.randomID();
-
-		when(repository.findRemovalStatusByCorrelationId(correlationId.id)).thenReturn(UserRemovalStatus.ACKNOWLEDGED);
-		service.updateStatus(correlationId, UserRemovalStatus.PENDING);
-
-		orderVerifier.verify(repository).updateStatus(correlationId, UserRemovalStatus.PENDING);
+		orderVerifier.verify(repository).updateStatus(correlationId, UserStatus.ADDING_PENDING, "msg");
 	}
 }

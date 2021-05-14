@@ -7,8 +7,7 @@ package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
@@ -28,8 +27,8 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 	}
 
 	public void update(UserAddition userAddition){
-		UserAdditionStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
-		if(status.equals(UserAdditionStatus.ADDED) || status.equals(UserAdditionStatus.FAILED)){
+		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
+		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){
 			LOG.info("UserAddition with given correlation id {} cannot be modified", userAddition.correlationId.id);
 			return;
 		}
@@ -37,24 +36,19 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 		LOG.info("UserAddition was update: {}", userAddition);
 	}
 
-	public void updateStatus(CorrelationId correlationId, UserRemovalStatus userRemovalStatus) {
-		UserRemovalStatus status = repository.findRemovalStatusByCorrelationId(correlationId.id);
-		if(status.equals(UserRemovalStatus.REMOVED) || status.equals(UserRemovalStatus.FAILED)){
-			LOG.info("UserRemoval with given correlation id {} cannot be modified", correlationId.id);
-			return;
-		}
-		repository.updateStatus(correlationId, userRemovalStatus);
-		LOG.info("UserRemoval status with given correlation id {} was update to: {}", correlationId.id, userRemovalStatus);
-	}
-
-	public void updateStatus(CorrelationId correlationId, UserAdditionStatus userAdditionStatus) {
-		UserAdditionStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
-		if(status.equals(UserAdditionStatus.ADDED) || status.equals(UserAdditionStatus.FAILED)){
+	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, String message) {
+		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
+		if(userStatus.equals(UserStatus.REMOVED)){
+			repository.deleteByCorrelationId(correlationId.id);
 			LOG.info("UserAddition with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		repository.updateStatus(correlationId, userAdditionStatus);
-		LOG.info("UserAddition status with given correlation id {} was update to: {}", correlationId.id, userAdditionStatus);
+		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){
+			LOG.info("UserAddition with given correlation id {} cannot be modified", correlationId.id);
+			return;
+		}
+		repository.updateStatus(correlationId, userStatus, message);
+		LOG.info("UserAddition status with given correlation id {} was update to: {}", correlationId.id, userStatus);
 	}
 
 }

@@ -9,6 +9,7 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.sites.SiteId;
@@ -22,7 +23,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.resource_access.AccessStatus.*;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -38,9 +43,17 @@ class ResourceAccessViewService {
 	public Map<Pair<String, String>, UserGrant> usersGrants;
 	public Set<String> addedUsersIds;
 
-	ResourceAccessViewService(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService, String projectId) {
+	ResourceAccessViewService(ProjectService projectService, ProjectAllocationService projectAllocationService,
+	                          ResourceAccessService resourceAccessService, String projectId) {
 		this.projectId = projectId;
-		this.communityId = projectService.findById(projectId).get().getCommunityId();
+		this.communityId = getResultOrException(() -> projectService.findById(projectId))
+			.getValue()
+			.flatMap(identity())
+			.map(Project::getCommunityId)
+			.orElseGet(() -> {
+				showErrorNotification(getTranslation("base.error.message"));
+				return null;
+			});
 
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
@@ -50,9 +63,11 @@ class ResourceAccessViewService {
 	}
 
 	public void reloadUserGrants() {
-		this.usersGrants = loadUsersGrants();
-		this.addedUsersIds = resourceAccessService.findAddedUser(projectId);
-		this.data = loadData();
+		handleExceptions(() -> {
+			this.usersGrants = loadUsersGrants();
+			this.addedUsersIds = resourceAccessService.findAddedUser(projectId);
+			this.data = loadData();
+		});
 	}
 
 	private Map<Pair<String, String>, UserGrant> loadUsersGrants() {
@@ -64,7 +79,7 @@ class ResourceAccessViewService {
 		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
 		return resourceAccessModel.getFirstName() == null &&
 			!resourceAccessModel.isAccessible() &&
-			addedUsersIds.contains(resourceAccessModel.getFenixUserId()) &&
+			addedUsersIds.contains(resourceAccessModel.getFenixUserId().id) &&
 			Optional.ofNullable(userGrant).filter(x -> PENDING_AND_ACKNOWLEDGED_STATUES.contains(x.status)).isEmpty();
 	}
 

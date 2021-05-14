@@ -11,8 +11,7 @@ import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -29,7 +28,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
+class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -40,7 +39,7 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserAdditionEntityRepository userAdditionEntityRepository;
 	@Autowired
-	private UserRemovalEntityRepository userRemovalEntityRepository;
+	private UserAdditionJobEntityRepository userAdditionJobEntityRepository;
 
 	private UUID siteId;
 	private UUID projectId;
@@ -76,97 +75,75 @@ class UserRemovalEntityRepositoryTest extends DBIntegrationTest {
 			UserAdditionSaveEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
-				.correlationId(UUID.randomUUID())
 				.userId("userId")
-				.status(UserAdditionStatus.PENDING)
 				.build()
 		).getId();
 	}
 
 	@Test
 	void shouldCreate(){
-		UserRemovalSaveEntity userAdditionSaveEntity = userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
-				.siteId(siteId)
+		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
 				.userAdditionId(userAdditionalId)
-				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
-				.userId("userId")
-				.status(UserRemovalStatus.PENDING)
+				.status(UserStatus.ADDING_PENDING)
 				.build()
 		);
 
-		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserAdditionJobEntity> byId = userAdditionJobEntityRepository.findById(userAdditionSaveEntity.getId());
 		assertThat(byId).isPresent();
 	}
 
 	@Test
 	void shouldFindByCorrelation(){
-		UserRemovalSaveEntity userAdditionSaveEntity = userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
-				.siteId(siteId)
+		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
 				.userAdditionId(userAdditionalId)
-				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
-				.userId("userId")
-				.status(UserRemovalStatus.REMOVED)
+				.status(UserStatus.ADDING_PENDING)
 				.build()
 		);
 
-		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findByCorrelationId(userAdditionSaveEntity.correlationId);
+		Optional<UserAdditionJobEntity> byId = userAdditionJobEntityRepository.findByCorrelationId(userAdditionSaveEntity.correlationId);
 		assertThat(byId).isPresent();
 	}
 
 	@Test
 	void shouldDelete(){
-		UserRemovalSaveEntity userAdditionSaveEntity = userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
-				.siteId(siteId)
+		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
 				.userAdditionId(userAdditionalId)
-				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
-				.userId("userId")
-				.status(UserRemovalStatus.REMOVED)
+				.status(UserStatus.ADDING_PENDING)
 				.build()
 		);
 
-		userRemovalEntityRepository.deleteById(userAdditionSaveEntity.getId());
-		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
+		userAdditionJobEntityRepository.deleteById(userAdditionSaveEntity.getId());
+		Optional<UserAdditionJobEntity> byId = userAdditionJobEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isEmpty();
 	}
 
 	@Test
 	void shouldUpdate(){
-		UserRemovalSaveEntity userAdditionSaveEntity = userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
-				.siteId(siteId)
+		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
 				.userAdditionId(userAdditionalId)
-				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
-				.userId("userId")
-				.status(UserRemovalStatus.PENDING)
+				.status(UserStatus.ADDING_PENDING)
 				.build()
 		);
-		userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
 				.id(userAdditionSaveEntity.getId())
-				.siteId(siteId)
 				.userAdditionId(userAdditionalId)
-				.projectId(projectId)
 				.correlationId(UUID.randomUUID())
-				.uid("uid")
-				.userId("userId")
-				.status(UserRemovalStatus.REMOVED)
+				.status(UserStatus.REMOVAL_PENDING)
 				.build()
 		);
-		Optional<UserRemovalSaveEntity> byId = userRemovalEntityRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserAdditionJobEntity> byId = userAdditionJobEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
-		assertThat(byId.get().status).isEqualTo(UserRemovalStatus.REMOVED.getPersistentId());
+		assertThat(byId.get().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 	}
 }

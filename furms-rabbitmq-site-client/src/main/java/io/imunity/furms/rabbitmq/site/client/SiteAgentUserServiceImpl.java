@@ -8,9 +8,8 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
@@ -40,18 +39,18 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectAddRequestAck(Payload<UserProjectAddRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED);
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.FAILED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_FAILED);
 	}
 
 	@EventListener
 	void receiveUserProjectAddResult(Payload<UserProjectAddResult> result) {
-		UserAdditionStatus status;
+		UserStatus status;
 		if(result.header.status.equals(Status.OK))
-			status = UserAdditionStatus.ADDED;
+			status = UserStatus.ADDED;
 		else
-			status = UserAdditionStatus.FAILED;
+			status = UserStatus.ADDING_FAILED;
 		userOperationMessageResolver.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
@@ -96,13 +95,13 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
-	public void removeUser(UserRemoval userRemoval) {
+	public void removeUser(UserAdditionJob userAdditionJob) {
 		try {
 			rabbitTemplate.convertAndSend(
-				getFurmsPublishQueueName(userRemoval.siteId.externalId),
+				getFurmsPublishQueueName(userAdditionJob.siteId.externalId),
 				new Payload<>(
-					new Header(VERSION, userRemoval.correlationId.id),
-					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.projectId)
+					new Header(VERSION, userAdditionJob.correlationId.id),
+					new UserProjectRemovalRequest(userAdditionJob.userId, userAdditionJob.projectId)
 				)
 			);
 		}catch (AmqpConnectException e){
