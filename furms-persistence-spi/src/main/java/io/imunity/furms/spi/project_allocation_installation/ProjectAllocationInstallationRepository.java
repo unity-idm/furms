@@ -17,6 +17,8 @@ import java.util.Set;
 public interface ProjectAllocationInstallationRepository {
 	Set<ProjectAllocationInstallation> findAll(String projectId);
 
+	Set<ProjectDeallocation> findAllDeallocation(String projectId);
+
 	Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId id);
 
 	String create(ProjectAllocationInstallation projectAllocation);
@@ -27,7 +29,7 @@ public interface ProjectAllocationInstallationRepository {
 
 	String update(String correlationId, ProjectAllocationInstallationStatus status, String msg);
 
-	ProjectDeallocationStatus findDeallocationStatusByCorrelationId(String correlationId);
+	ProjectDeallocation findDeallocationByCorrelationId(String correlationId);
 
 	String update(String correlationId, ProjectDeallocationStatus status);
 

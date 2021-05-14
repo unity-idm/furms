@@ -7,8 +7,10 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ import static org.mockito.Mockito.when;
 class ProjectAllocationInstallationMessageResolverTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
+	@Mock
+	private ProjectAllocationRepository projectAllocationRepository;
+
 
 	private ProjectAllocationInstallationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -31,7 +36,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationMessageResolverImpl(repository);
+		service = new ProjectAllocationInstallationMessageResolverImpl(repository, projectAllocationRepository);
 		orderVerifier = inOrder(repository);
 	}
 
@@ -56,7 +61,9 @@ class ProjectAllocationInstallationMessageResolverTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
-		when(repository.findDeallocationStatusByCorrelationId(id.id)).thenReturn(ProjectDeallocationStatus.PENDING);
+		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(ProjectDeallocation.builder()
+			.status(ProjectDeallocationStatus.PENDING)
+			.build());
 		service.updateStatus(id, ProjectDeallocationStatus.PENDING);
 
 		//then

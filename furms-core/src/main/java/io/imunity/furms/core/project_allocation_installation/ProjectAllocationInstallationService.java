@@ -37,12 +37,12 @@ public class ProjectAllocationInstallationService {
 		this.siteAgentProjectAllocationInstallationService = siteAgentProjectAllocationInstallationService;
 	}
 
-	public Set<ProjectAllocationInstallation> findAll(String communityId, String projectId) {
+	public Set<ProjectAllocationInstallation> findAll(String projectId) {
 		return projectAllocationInstallationRepository.findAll(projectId);
 	}
 
-	public Set<ProjectAllocationInstallation> findAll(String projectId) {
-		return projectAllocationInstallationRepository.findAll(projectId);
+	public Set<ProjectDeallocation> findAllUninstallation(String projectId) {
+		return projectAllocationInstallationRepository.findAllDeallocation(projectId);
 	}
 
 	public void createAllocation(String projectAllocationId) {

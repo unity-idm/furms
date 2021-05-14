@@ -15,13 +15,15 @@ public class ProjectDeallocation {
 	public final String siteId;
 	public final String projectAllocationId;
 	public final ProjectDeallocationStatus status;
+	public final String message;
 
-	ProjectDeallocation(String id, CorrelationId correlationId, String siteId, String projectAllocationId, ProjectDeallocationStatus status) {
+	ProjectDeallocation(String id, CorrelationId correlationId, String siteId, String projectAllocationId, ProjectDeallocationStatus status, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
 		this.status = status;
+		this.message = message;
 	}
 
 	@Override
@@ -33,6 +35,7 @@ public class ProjectDeallocation {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
+			Objects.equals(message, that.message) &&
 			status == that.status;
 	}
 
@@ -49,6 +52,7 @@ public class ProjectDeallocation {
 			", siteId='" + siteId + '\'' +
 			", projectAllocationId='" + projectAllocationId + '\'' +
 			", status=" + status +
+			", message=" + status +
 			'}';
 	}
 
@@ -62,6 +66,7 @@ public class ProjectDeallocation {
 		public String siteId;
 		public String projectAllocationId;
 		public ProjectDeallocationStatus status;
+		public String message;
 
 		private ProjectAllocationInstallationBuilder() {
 		}
@@ -91,8 +96,13 @@ public class ProjectDeallocation {
 			return this;
 		}
 
+		public ProjectAllocationInstallationBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectDeallocation build() {
-			return new ProjectDeallocation(id, correlationId, siteId, projectAllocationId, status);
+			return new ProjectDeallocation(id, correlationId, siteId, projectAllocationId, status, message);
 		}
 	}
 }

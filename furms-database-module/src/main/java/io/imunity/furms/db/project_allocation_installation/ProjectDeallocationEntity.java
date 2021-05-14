@@ -6,7 +6,9 @@
 package io.imunity.furms.db.project_allocation_installation;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
@@ -18,13 +20,26 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectAllocationId;
 	public final int status;
+	public final String message;
 
-	ProjectDeallocationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, int status) {
+	ProjectDeallocationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, int status, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
 		this.status = status;
+		this.message = message;
+	}
+
+	ProjectDeallocation toProjectDeallocation(){
+		return ProjectDeallocation.builder()
+			.id(id.toString())
+			.correlationId(new CorrelationId(correlationId.toString()))
+			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId.toString())
+			.status(ProjectDeallocationStatus.valueOf(status))
+			.message(message)
+			.build();
 	}
 
 	@Override
@@ -36,12 +51,13 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
+			Objects.equals(message, that.message) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectAllocationId, status);
+		return Objects.hash(id, correlationId, siteId, projectAllocationId, status, message);
 	}
 
 	@Override
@@ -51,6 +67,7 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 			", correlationId=" + correlationId +
 			", siteId=" + siteId +
 			", projectAllocationId=" + projectAllocationId +
+			", message=" + message +
 			", status=" + status +
 			'}';
 	}
@@ -65,6 +82,7 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 		public UUID siteId;
 		public UUID projectAllocationId;
 		public int status;
+		public String message;
 
 		private ProjectAllocationInstallationEntityBuilder() {
 		}
@@ -94,8 +112,13 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectAllocationInstallationEntityBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectDeallocationEntity build() {
-			return new ProjectDeallocationEntity(id, correlationId, siteId, projectAllocationId, status);
+			return new ProjectDeallocationEntity(id, correlationId, siteId, projectAllocationId, status, message);
 		}
 	}
 }
