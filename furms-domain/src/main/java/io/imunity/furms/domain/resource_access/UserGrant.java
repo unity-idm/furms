@@ -6,18 +6,19 @@
 package io.imunity.furms.domain.resource_access;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class UserGrant {
 	public final String projectAllocationId;
 	public final String userId;
 	public final AccessStatus status;
-	public final String message;
+	public final Optional<ErrorMessage> errorMessage;
 
-	UserGrant(String projectAllocationId, String userId, AccessStatus status, String message) {
+	UserGrant(String projectAllocationId, String userId, AccessStatus status, Optional<ErrorMessage> errorMessage) {
 		this.projectAllocationId = projectAllocationId;
 		this.userId = userId;
 		this.status = status;
-		this.message = message;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -25,12 +26,15 @@ public class UserGrant {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserGrant userGrant = (UserGrant) o;
-		return Objects.equals(projectAllocationId, userGrant.projectAllocationId) && Objects.equals(userId, userGrant.userId) && status == userGrant.status && Objects.equals(message, userGrant.message);
+		return Objects.equals(projectAllocationId, userGrant.projectAllocationId) &&
+			Objects.equals(userId, userGrant.userId) &&
+			status == userGrant.status &&
+			Objects.equals(errorMessage, userGrant.errorMessage);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(projectAllocationId, userId, status, message);
+		return Objects.hash(projectAllocationId, userId, status, errorMessage);
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class UserGrant {
 			"projectAllocationId='" + projectAllocationId + '\'' +
 			", userId='" + userId + '\'' +
 			", status=" + status +
-			", message='" + message + '\'' +
+			", errorMessage='" + errorMessage + '\'' +
 			'}';
 	}
 
@@ -51,7 +55,7 @@ public class UserGrant {
 		public String projectAllocationId;
 		public String userId;
 		public AccessStatus status;
-		public String message;
+		public Optional<ErrorMessage> errorMessage = Optional.empty();
 
 		private UserGrantBuilder() {
 		}
@@ -72,12 +76,12 @@ public class UserGrant {
 		}
 
 		public UserGrantBuilder message(String message) {
-			this.message = message;
+			this.errorMessage = Optional.of(new ErrorMessage(message));
 			return this;
 		}
 
 		public UserGrant build() {
-			return new UserGrant(projectAllocationId, userId, status, message);
+			return new UserGrant(projectAllocationId, userId, status, errorMessage);
 		}
 	}
 }

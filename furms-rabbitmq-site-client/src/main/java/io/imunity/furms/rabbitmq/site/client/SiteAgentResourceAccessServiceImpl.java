@@ -10,7 +10,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.ResourceAccessMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserAllocationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -27,9 +27,9 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Service
 class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessService {
 	private final RabbitTemplate rabbitTemplate;
-	private final ResourceAccessMessageResolver messageResolver;
+	private final UserAllocationMessageResolver messageResolver;
 
-	SiteAgentResourceAccessServiceImpl(RabbitTemplate rabbitTemplate, ResourceAccessMessageResolver messageResolver) {
+	SiteAgentResourceAccessServiceImpl(RabbitTemplate rabbitTemplate, UserAllocationMessageResolver messageResolver) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.messageResolver = messageResolver;
 	}

@@ -7,6 +7,7 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -54,7 +55,10 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void grantAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		repository.create(correlationId, grantAccess);
+		if(repository.exists(grantAccess))
+			repository.update(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
+		else
+			repository.create(correlationId, grantAccess);
 		siteAgentResourceAccessService.grantAccess(correlationId, grantAccess);
 	}
 
@@ -63,7 +67,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void revokeAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		repository.update(correlationId, grantAccess);
+		repository.update(correlationId, grantAccess, AccessStatus.REVOKE_PENDING);
 		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
 	}
 }

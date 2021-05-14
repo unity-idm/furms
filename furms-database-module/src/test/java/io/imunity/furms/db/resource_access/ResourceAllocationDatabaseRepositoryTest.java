@@ -67,9 +67,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
-	private UserAllocationRepository userAllocationRepository;
+	private UserGrantEntityRepository userGrantEntityRepository;
 	@Autowired
-	private UserAllocationJobRepository userAllocationJobRepository;
+	private UserGrantJobEntityRepository userGrantJobEntityRepository;
 	@Autowired
 	private ResourceAccessDatabaseRepository resourceAccessDatabaseRepository;
 
@@ -156,15 +156,15 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldUpdateIfExists(){
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.REVOKED)
 			.correlationId(UUID.randomUUID())
@@ -180,7 +180,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.create(correlationId, grantAccess);
 
-		Optional<UserAllocationResolved> userAllocationResolved = userAllocationRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(GRANT_PENDING.getPersistentId());
@@ -189,15 +189,15 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldUpdate(){
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.REVOKED)
 			.correlationId(UUID.randomUUID())
@@ -213,7 +213,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.update(correlationId, grantAccess);
 
-		Optional<UserAllocationResolved> userAllocationResolved = userAllocationRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(REVOKE_PENDING.getPersistentId());
@@ -222,15 +222,15 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldDelete(){
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.REVOKED)
 			.correlationId(UUID.fromString(correlationId.id))
@@ -239,22 +239,22 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.delete(correlationId);
 
-		assertThat(userAllocationRepository.findAll()).isEmpty();
-		assertThat(userAllocationJobRepository.findAll()).isEmpty();
+		assertThat(userGrantEntityRepository.findAll()).isEmpty();
+		assertThat(userGrantJobEntityRepository.findAll()).isEmpty();
 	}
 
 	@Test
 	void shouldUpdateStatus(){
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.REVOKED)
 			.correlationId(UUID.fromString(correlationId.id))
@@ -263,7 +263,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.update(correlationId, GRANT_FAILED, "msg");
 
-		Optional<UserAllocationResolved> userAllocationResolved = userAllocationRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(GRANT_FAILED.getPersistentId());
@@ -282,7 +282,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.create(correlationId, grantAccess);
 
-		Optional<UserAllocationResolved> userAllocationResolved = userAllocationRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation.userId).isEqualTo("userId");
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(GRANT_PENDING.getPersistentId());
@@ -291,21 +291,21 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindUsersGrants(){
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		UserAllocationJobEntity userAllocationJobEntity = UserAllocationJobEntity.builder()
+		UserGrantJobEntity userGrantJobEntity = UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.GRANTED)
 			.correlationId(UUID.fromString(correlationId.id))
 			.message("text")
 			.build();
-		userAllocationJobRepository.save(userAllocationJobEntity);
+		userGrantJobEntityRepository.save(userGrantJobEntity);
 
 		Set<UserGrant> userGrants = resourceAccessDatabaseRepository.findUsersGrants(projectId.toString());
 		assertThat(userGrants.size()).isEqualTo(1);

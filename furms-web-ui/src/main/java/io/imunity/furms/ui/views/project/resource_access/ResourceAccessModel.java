@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.project.resource_access;
 
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
@@ -18,12 +19,12 @@ class ResourceAccessModel {
 	private String status;
 	private SiteId siteId;
 	private String allocationId;
-	private String fenixUserId;
+	private FenixUserId fenixUserId;
 	private boolean accessible;
 	private String message;
 
 	ResourceAccessModel(String firstName, String lastName, String email, String allocation, String access, String status,
-	                    boolean accessible, SiteId siteId, String allocationId, String fenixUserId, String message) {
+	                    boolean accessible, SiteId siteId, String allocationId, FenixUserId fenixUserId, String message) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
@@ -73,7 +74,7 @@ class ResourceAccessModel {
 		return allocationId;
 	}
 
-	String getFenixUserId() {
+	FenixUserId getFenixUserId() {
 		return fenixUserId;
 	}
 
@@ -134,7 +135,7 @@ class ResourceAccessModel {
 		private String status;
 		private SiteId siteId;
 		private String allocationId;
-		private String fenixUserId;
+		private FenixUserId fenixUserId;
 		private boolean accessible;
 		private String message;
 
@@ -186,7 +187,7 @@ class ResourceAccessModel {
 			return this;
 		}
 
-		public ResourceAccessModelBuilder fenixUserId(String fenixUserId) {
+		public ResourceAccessModelBuilder fenixUserId(FenixUserId fenixUserId) {
 			this.fenixUserId = fenixUserId;
 			return this;
 		}

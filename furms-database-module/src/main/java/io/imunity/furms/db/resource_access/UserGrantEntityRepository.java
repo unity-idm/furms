@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface UserAllocationRepository extends CrudRepository<UserAllocationEntity, UUID> {
+public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntity, UUID> {
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +
 		"ua.project_allocation_id as allocation_project_allocation_id, ua.user_id as allocation_user_id, " +
@@ -22,7 +22,7 @@ public interface UserAllocationRepository extends CrudRepository<UserAllocationE
 		"join user_allocation_job uaj on ua.id = uaj.user_allocation_id " +
 		"where ua.user_id = :user_id and ua.project_allocation_id = :project_allocation_id"
 	)
-	Optional<UserAllocationResolved> findByUserIdAndProjectAllocationId(@Param("user_id") String userId, @Param("project_allocation_id") UUID projectAllocationId);
+	Optional<UserGrantResolved> findByUserIdAndProjectAllocationId(@Param("user_id") String userId, @Param("project_allocation_id") UUID projectAllocationId);
 
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +
@@ -32,5 +32,5 @@ public interface UserAllocationRepository extends CrudRepository<UserAllocationE
 			"join user_allocation_job uaj on ua.id = uaj.user_allocation_id " +
 			"where ua.project_id = :project_id"
 	)
-	Set<UserAllocationResolved> findAll(@Param("project_id") UUID projectId);
+	Set<UserGrantResolved> findAll(@Param("project_id") UUID projectId);
 }

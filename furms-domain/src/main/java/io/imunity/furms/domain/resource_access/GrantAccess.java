@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.resource_access;
 
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
@@ -13,10 +14,10 @@ public class GrantAccess {
 	public final SiteId siteId;
 	public final String projectId;
 	public final String allocationId;
-	public final String fenixUserId;
+	public final FenixUserId fenixUserId;
 	public final AccessStatus status;
 
-	GrantAccess(SiteId siteId, String projectId, String allocationId, String fenixUserId, AccessStatus status) {
+	GrantAccess(SiteId siteId, String projectId, String allocationId, FenixUserId fenixUserId, AccessStatus status) {
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.allocationId = allocationId;
@@ -60,7 +61,7 @@ public class GrantAccess {
 		private SiteId siteId;
 		private String projectId;
 		private String allocationId;
-		private String fenixUserId;
+		private FenixUserId fenixUserId;
 		private AccessStatus status;
 
 		private RevokeAccessBuilder() {
@@ -81,7 +82,7 @@ public class GrantAccess {
 			return this;
 		}
 
-		public RevokeAccessBuilder fenixUserId(String fenixUserId) {
+		public RevokeAccessBuilder fenixUserId(FenixUserId fenixUserId) {
 			this.fenixUserId = fenixUserId;
 			return this;
 		}

@@ -41,7 +41,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class UserAllocationJobEntityRepositoryTest extends DBIntegrationTest {
+class UserGrantJobEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -60,10 +60,10 @@ class UserAllocationJobEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Autowired
-	private UserAllocationRepository userAllocationRepository;
+	private UserGrantEntityRepository userGrantEntityRepository;
 
 	@Autowired
-	private UserAllocationJobRepository userAllocationJobRepository;
+	private UserGrantJobEntityRepository userGrantJobEntityRepository;
 
 	private UUID userAllocationId;
 
@@ -142,8 +142,8 @@ class UserAllocationJobEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		));
 
-		userAllocationId = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		userAllocationId = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
@@ -154,45 +154,45 @@ class UserAllocationJobEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldCreate(){
-		UserAllocationJobEntity userAdditionSaveEntity = userAllocationJobRepository.save(
-			UserAllocationJobEntity.builder()
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(
+			UserGrantJobEntity.builder()
 				.userAllocationId(userAllocationId)
 				.status(AccessStatus.GRANTED)
 				.correlationId(UUID.randomUUID())
 				.build()
 		);
 
-		Optional<UserAllocationJobEntity> byId = userAllocationJobRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserGrantJobEntity> byId = userGrantJobEntityRepository.findById(userAdditionSaveEntity.getId());
 		assertThat(byId).isPresent();
 	}
 
 	@Test
 	void shouldDelete(){
-		UserAllocationJobEntity userAdditionSaveEntity = userAllocationJobRepository.save(
-			UserAllocationJobEntity.builder()
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(
+			UserGrantJobEntity.builder()
 				.userAllocationId(userAllocationId)
 				.status(AccessStatus.GRANTED)
 				.correlationId(UUID.randomUUID())
 				.build()
 		);
 
-		userAllocationJobRepository.deleteById(userAdditionSaveEntity.getId());
-		Optional<UserAllocationJobEntity> byId = userAllocationJobRepository.findById(userAdditionSaveEntity.getId());
+		userGrantJobEntityRepository.deleteById(userAdditionSaveEntity.getId());
+		Optional<UserGrantJobEntity> byId = userGrantJobEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isEmpty();
 	}
 
 	@Test
 	void shouldUpdate(){
-		UserAllocationJobEntity userAdditionSaveEntity = userAllocationJobRepository.save(
-			UserAllocationJobEntity.builder()
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(
+			UserGrantJobEntity.builder()
 				.userAllocationId(userAllocationId)
 				.status(AccessStatus.GRANTED)
 				.correlationId(UUID.randomUUID())
 				.build()
 		);
-		userAllocationJobRepository.save(
-			UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(
+			UserGrantJobEntity.builder()
 				.id(userAdditionSaveEntity.getId())
 				.userAllocationId(userAllocationId)
 				.correlationId(UUID.randomUUID())
@@ -200,7 +200,7 @@ class UserAllocationJobEntityRepositoryTest extends DBIntegrationTest {
 				.message("text")
 				.build()
 		);
-		Optional<UserAllocationJobEntity> byId = userAllocationJobRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserGrantJobEntity> byId = userGrantJobEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
 		assertThat(byId.get().status).isEqualTo(AccessStatus.REVOKED.getPersistentId());

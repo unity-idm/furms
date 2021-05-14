@@ -12,13 +12,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("user_allocation")
-class UserAllocationEntity extends UUIDIdentifiable {
+class UserGrantEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final String userId;
 
-	UserAllocationEntity(UUID id, UUID siteId, UUID projectId, UUID projectAllocationId, String userId) {
+	UserGrantEntity(UUID id, UUID siteId, UUID projectId, UUID projectAllocationId, String userId) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -30,7 +30,7 @@ class UserAllocationEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserAllocationEntity that = (UserAllocationEntity) o;
+		UserGrantEntity that = (UserGrantEntity) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
@@ -54,47 +54,47 @@ class UserAllocationEntity extends UUIDIdentifiable {
 			'}';
 	}
 
-	public static UserAllocationEntityBuilder builder() {
-		return new UserAllocationEntityBuilder();
+	public static UserGrantEntityBuilder builder() {
+		return new UserGrantEntityBuilder();
 	}
 
-	public static final class UserAllocationEntityBuilder {
+	public static final class UserGrantEntityBuilder {
 		private UUID id;
 		private UUID siteId;
 		private UUID projectId;
 		private UUID projectAllocationId;
 		private String userId;
 
-		private UserAllocationEntityBuilder() {
+		private UserGrantEntityBuilder() {
 		}
 
-		public UserAllocationEntityBuilder id(UUID id) {
+		public UserGrantEntityBuilder id(UUID id) {
 			this.id = id;
 			return this;
 		}
 
-		public UserAllocationEntityBuilder siteId(UUID siteId) {
+		public UserGrantEntityBuilder siteId(UUID siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public UserAllocationEntityBuilder projectId(UUID projectId) {
+		public UserGrantEntityBuilder projectId(UUID projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public UserAllocationEntityBuilder projectAllocationId(UUID projectAllocationId) {
+		public UserGrantEntityBuilder projectAllocationId(UUID projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public UserAllocationEntityBuilder userId(String userId) {
+		public UserGrantEntityBuilder userId(String userId) {
 			this.userId = userId;
 			return this;
 		}
 
-		public UserAllocationEntity build() {
-			return new UserAllocationEntity(id, siteId, projectId, projectAllocationId, userId);
+		public UserGrantEntity build() {
+			return new UserGrantEntity(id, siteId, projectId, projectAllocationId, userId);
 		}
 	}
 }

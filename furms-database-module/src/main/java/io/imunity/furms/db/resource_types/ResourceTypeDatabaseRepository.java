@@ -66,7 +66,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
-				.accessible(resourceType.accessible)
+				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 		);
 		return savedResourceType.getId().toString();
@@ -82,7 +82,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
-				.accessible(resourceType.accessible)
+				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 			)
 			.map(repository::save)

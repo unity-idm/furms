@@ -9,7 +9,6 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.sites.SiteId;
@@ -66,7 +65,7 @@ class ResourceAccessViewService {
 		return resourceAccessModel.getFirstName() == null &&
 			!resourceAccessModel.isAccessible() &&
 			addedUsersIds.contains(resourceAccessModel.getFenixUserId()) &&
-			Optional.ofNullable(userGrant).filter(x -> List.of(AccessStatus.GRANT_PENDING, AccessStatus.REVOKE_PENDING, AccessStatus.GRANT_ACKNOWLEDGED, AccessStatus.REVOKE_ACKNOWLEDGED).contains(x.status)).isEmpty();
+			Optional.ofNullable(userGrant).filter(x -> PENDING_AND_ACKNOWLEDGED_STATUES.contains(x.status)).isEmpty();
 	}
 
 	public boolean isRevokeAvailable(ResourceAccessModel resourceAccessModel) {
@@ -133,8 +132,8 @@ class ResourceAccessViewService {
 						.status(getStatusValue(u, allocation))
 						.siteId(new SiteId(allocation.site.getId(), allocation.site.getExternalId()))
 						.allocationId(allocation.id)
-						.accessible(allocation.resourceType.accessible)
-						.fenixUserId(u.fenixUserId.map(x -> x.id).orElse(null))
+						.accessible(allocation.resourceType.accessibleForAllProjectMembers)
+						.fenixUserId(u.fenixUserId.get())
 						.message(getMessage(u, allocation))
 						.build())
 					.collect(toList())
@@ -142,22 +141,24 @@ class ResourceAccessViewService {
 	}
 
 	private String getStatusValue(FURMSUser user, ProjectAllocationResolved allocation) {
-		if(allocation.resourceType.accessible)
+		if(allocation.resourceType.accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.status.applied");
 		UserGrant userGrant = usersGrants.get(Pair.of(user.fenixUserId.get().id, allocation.id));
-		if(userGrant != null && PENDING_STATUES.contains(userGrant.status))
+		if(userGrant == null)
+			return "-";
+		if(PENDING_STATUES.contains(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.status.pending");
-		if(userGrant != null && ACKNOWLEDGED_STATUES.contains(userGrant.status))
+		if(ACKNOWLEDGED_STATUES.contains(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.status.acknowledged");
-		if(userGrant != null && GRANTED.equals(userGrant.status))
+		if(GRANTED.equals(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.status.applied");
-		if(userGrant != null && FAILED_STATUES.contains(userGrant.status))
+		if(FAILED_STATUES.contains(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.status.failed");
 		return "-";
 	}
 
 	private String getEnabledValue(FURMSUser user, ProjectAllocationResolved allocation) {
-		if(allocation.resourceType.accessible)
+		if(allocation.resourceType.accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		UserGrant userGrant = usersGrants.get(Pair.of(user.fenixUserId.get().id, allocation.id));
 		if(userGrant != null && ENABLED_STATUES.contains(userGrant.status))
@@ -167,6 +168,9 @@ class ResourceAccessViewService {
 
 	private String getMessage(FURMSUser user, ProjectAllocationResolved allocation){
 		UserGrant userGrant = usersGrants.get(Pair.of(user.fenixUserId.get().id, allocation.id));
-		return Optional.ofNullable(userGrant).map(x -> x.message).orElse(null);
+		return Optional.ofNullable(userGrant)
+			.flatMap(x -> x.errorMessage)
+			.map(x -> x.message)
+			.orElse(null);
 	}
 }

@@ -23,5 +23,5 @@ class MockBeansConfig {
 	@MockBean
 	private UserOperationMessageResolver userOperationMessageResolver;
 	@MockBean
-	private ResourceAccessMessageResolver resourceAccessMessageResolver;
+	private UserAllocationMessageResolver userAllocationMessageResolver;
 }

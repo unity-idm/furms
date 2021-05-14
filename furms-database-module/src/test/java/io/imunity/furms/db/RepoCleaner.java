@@ -4,7 +4,7 @@
  */
 package io.imunity.furms.db;
 
-import io.imunity.furms.db.resource_access.UserAllocationRepository;
+import io.imunity.furms.db.resource_access.UserGrantEntityRepository;
 import io.imunity.furms.db.user_operation.UserAdditionEntityRepository;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -36,7 +36,7 @@ public class RepoCleaner {
 	@Autowired
 	private UserAdditionEntityRepository userAdditionEntityRepository;
 	@Autowired
-	private UserAllocationRepository userAllocationRepository;
+	private UserGrantEntityRepository userGrantEntityRepository;
 
 
 	public void cleanAll() {

@@ -7,11 +7,11 @@ package io.imunity.furms.db.resource_access;
 
 import java.util.Objects;
 
-class UserAllocationResolved {
-	public final UserAllocationEntity allocation;
-	public final UserAllocationJobEntity job;
+class UserGrantResolved {
+	public final UserGrantEntity allocation;
+	public final UserGrantJobEntity job;
 
-	UserAllocationResolved(UserAllocationEntity allocation, UserAllocationJobEntity job) {
+	UserGrantResolved(UserGrantEntity allocation, UserGrantJobEntity job) {
 		this.allocation = allocation;
 		this.job = job;
 	}
@@ -20,7 +20,7 @@ class UserAllocationResolved {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserAllocationResolved that = (UserAllocationResolved) o;
+		UserGrantResolved that = (UserGrantResolved) o;
 		return Objects.equals(allocation, that.allocation) && Objects.equals(job, that.job);
 	}
 

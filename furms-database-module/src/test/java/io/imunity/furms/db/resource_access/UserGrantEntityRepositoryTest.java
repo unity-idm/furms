@@ -42,7 +42,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
+class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -62,9 +62,9 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
-	private UserAllocationRepository userAllocationRepository;
+	private UserGrantEntityRepository userGrantEntityRepository;
 	@Autowired
-	private UserAllocationJobRepository userAllocationJobRepository;
+	private UserGrantJobEntityRepository userGrantJobEntityRepository;
 
 	private UUID siteId;
 	private UUID projectId;
@@ -148,22 +148,22 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldFindByUserIdAndProjectAllocationId(){
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		UserAllocationJobEntity userAllocationJobEntity = UserAllocationJobEntity.builder()
+		UserGrantJobEntity userGrantJobEntity = UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.GRANTED)
 			.correlationId(UUID.randomUUID())
 			.build();
-		UserAllocationJobEntity userAdditionSaveEntity = userAllocationJobRepository.save(userAllocationJobEntity);
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Optional<UserAllocationResolved> userAllocationResolved = userAllocationRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job).isEqualTo(userAdditionSaveEntity);
@@ -171,32 +171,32 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldFindAll(){
-		UserAllocationEntity userAllocation = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		UserAllocationJobEntity userAllocationJobEntity = UserAllocationJobEntity.builder()
+		UserGrantJobEntity userGrantJobEntity = UserGrantJobEntity.builder()
 			.userAllocationId(userAllocation.getId())
 			.status(AccessStatus.GRANTED)
 			.correlationId(UUID.randomUUID())
 			.build();
-		UserAllocationJobEntity userAdditionSaveEntity = userAllocationJobRepository.save(userAllocationJobEntity);
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Set<UserAllocationResolved> userAllocationsResolved = userAllocationRepository.findAll(projectId);
+		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId);
 		assertThat(userAllocationsResolved.size()).isEqualTo(1);
-		UserAllocationResolved userAllocationResolved = userAllocationsResolved.iterator().next();
-		assertThat(userAllocationResolved.allocation).isEqualTo(userAllocation);
-		assertThat(userAllocationResolved.job).isEqualTo(userAdditionSaveEntity);
+		UserGrantResolved userGrantResolved = userAllocationsResolved.iterator().next();
+		assertThat(userGrantResolved.allocation).isEqualTo(userAllocation);
+		assertThat(userGrantResolved.job).isEqualTo(userAdditionSaveEntity);
 	}
 
 	@Test
 	void shouldCreate(){
-		UserAllocationEntity userAdditionSaveEntity = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
@@ -204,14 +204,14 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Optional<UserAllocationEntity> byId = userAllocationRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserGrantEntity> byId = userGrantEntityRepository.findById(userAdditionSaveEntity.getId());
 		assertThat(byId).isPresent();
 	}
 
 	@Test
 	void shouldDelete(){
-		UserAllocationEntity userAdditionSaveEntity = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
@@ -219,24 +219,24 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		userAllocationRepository.deleteById(userAdditionSaveEntity.getId());
-		Optional<UserAllocationEntity> byId = userAllocationRepository.findById(userAdditionSaveEntity.getId());
+		userGrantEntityRepository.deleteById(userAdditionSaveEntity.getId());
+		Optional<UserGrantEntity> byId = userGrantEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isEmpty();
 	}
 
 	@Test
 	void shouldUpdate(){
-		UserAllocationEntity userAdditionSaveEntity = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(siteId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.userId("userId")
 				.build()
 		);
-		userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.id(userAdditionSaveEntity.getId())
 				.siteId(siteId)
 				.projectId(projectId)
@@ -244,7 +244,7 @@ class UserAllocationEntityRepositoryTest extends DBIntegrationTest {
 				.userId("userId2")
 				.build()
 		);
-		Optional<UserAllocationEntity> byId = userAllocationRepository.findById(userAdditionSaveEntity.getId());
+		Optional<UserGrantEntity> byId = userGrantEntityRepository.findById(userAdditionSaveEntity.getId());
 
 		assertThat(byId).isPresent();
 		assertThat(byId.get().userId).isEqualTo("userId2");

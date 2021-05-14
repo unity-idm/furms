@@ -16,17 +16,17 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.inOrder;
 
-class ResourceAccessMessageResolverTest {
+class UserAllocationMessageResolverTest {
 	@Mock
 	private ResourceAccessRepository repository;
 
-	private ResourceAccessMessageResolverImpl service;
+	private UserAllocationMessageResolverImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessMessageResolverImpl(repository);
+		service = new UserAllocationMessageResolverImpl(repository);
 		orderVerifier = inOrder(repository);
 	}
 

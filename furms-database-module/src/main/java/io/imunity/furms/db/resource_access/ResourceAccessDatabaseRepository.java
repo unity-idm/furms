@@ -13,7 +13,6 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,17 +20,17 @@ import java.util.stream.Collectors;
 @Repository
 class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 
-	private final UserAllocationRepository userAllocationRepository;
-	private final UserAllocationJobRepository userAllocationJobRepository;
+	private final UserGrantEntityRepository userGrantEntityRepository;
+	private final UserGrantJobEntityRepository userGrantJobEntityRepository;
 
-	ResourceAccessDatabaseRepository(UserAllocationRepository userAllocationRepository, UserAllocationJobRepository userAllocationJobRepository) {
-		this.userAllocationRepository = userAllocationRepository;
-		this.userAllocationJobRepository = userAllocationJobRepository;
+	ResourceAccessDatabaseRepository(UserGrantEntityRepository userGrantEntityRepository, UserGrantJobEntityRepository userGrantJobEntityRepository) {
+		this.userGrantEntityRepository = userGrantEntityRepository;
+		this.userGrantJobEntityRepository = userGrantJobEntityRepository;
 	}
 
 	@Override
 	public Set<UserGrant> findUsersGrants(String projectId) {
-		return userAllocationRepository.findAll(UUID.fromString(projectId)).stream()
+		return userGrantEntityRepository.findAll(UUID.fromString(projectId)).stream()
 			.map(userAllocationResolved -> UserGrant.builder()
 				.projectAllocationId(userAllocationResolved.allocation.projectAllocationId.toString())
 				.userId(userAllocationResolved.allocation.userId)
@@ -43,20 +42,15 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 
 	@Override
 	public void create(CorrelationId correlationId, GrantAccess grantAccess) {
-		Optional<UserAllocationResolved> userAllocation = userAllocationRepository.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId, UUID.fromString(grantAccess.allocationId));
-		if(userAllocation.isPresent()){
-			update(correlationId, userAllocation.get(), AccessStatus.GRANT_PENDING);
-			return;
-		}
-		UserAllocationEntity save = userAllocationRepository.save(
-			UserAllocationEntity.builder()
+		UserGrantEntity save = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
 				.siteId(UUID.fromString(grantAccess.siteId.id))
 				.projectId(UUID.fromString(grantAccess.projectId))
 				.projectAllocationId(UUID.fromString(grantAccess.allocationId))
-				.userId(grantAccess.fenixUserId)
+				.userId(grantAccess.fenixUserId.id)
 				.build()
 		);
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.correlationId(UUID.fromString(correlationId.id))
 			.userAllocationId(save.getId())
 			.status(AccessStatus.GRANT_PENDING)
@@ -64,17 +58,18 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 		);
 	}
 
-	@Override
-	public void update(CorrelationId correlationId, GrantAccess grantAccess) {
-		UserAllocationResolved userAllocation = userAllocationRepository
-			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId, UUID.fromString(grantAccess.allocationId))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-
-		update(correlationId, userAllocation, AccessStatus.REVOKE_PENDING);
+	public boolean exists(GrantAccess grantAccess) {
+		return userGrantEntityRepository.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
+			.isPresent();
 	}
 
-	private void update(CorrelationId correlationId, UserAllocationResolved userAllocation, AccessStatus status) {
-		userAllocationJobRepository.save(UserAllocationJobEntity.builder()
+	@Override
+	public void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status) {
+		UserGrantResolved userAllocation = userGrantEntityRepository
+			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+
+		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.id(userAllocation.job.getId())
 			.correlationId(UUID.fromString(correlationId.id))
 			.userAllocationId(userAllocation.job.userAllocationId)
@@ -85,9 +80,9 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 
 	@Override
 	public void update(CorrelationId correlationId, AccessStatus status, String msg) {
-		userAllocationJobRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+		userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(old ->
-					UserAllocationJobEntity.builder()
+					UserGrantJobEntity.builder()
 						.id(old.getId())
 						.userAllocationId(old.userAllocationId)
 						.correlationId(old.correlationId)
@@ -95,20 +90,20 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 						.message(msg)
 						.build()
 				)
-			.map(userAllocationJobRepository::save)
+			.map(userGrantJobEntityRepository::save)
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 
 	@Override
 	public void delete(CorrelationId correlationId){
-		UserAllocationJobEntity userAllocationJobEntity = userAllocationJobRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+		UserGrantJobEntity userGrantJobEntity = userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-		userAllocationRepository.deleteById(userAllocationJobEntity.userAllocationId);
+		userGrantEntityRepository.deleteById(userGrantJobEntity.userAllocationId);
 	}
 
 	@Override
 	public void deleteAll() {
-		userAllocationRepository.deleteAll();
+		userGrantEntityRepository.deleteAll();
 	}
 
 
