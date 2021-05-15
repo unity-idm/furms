@@ -22,4 +22,5 @@ public interface UserOperationRepository {
 	Set<String> findAddedUserIds(String projectId);
 	UserStatus findAdditionStatusByCorrelationId(String correlationId);
 	void deleteByCorrelationId(String correlationId);
+	void deleteAll();
 }

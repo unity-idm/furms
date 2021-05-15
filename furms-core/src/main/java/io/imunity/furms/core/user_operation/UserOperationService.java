@@ -9,8 +9,6 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserStatus;
-import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
@@ -20,6 +18,8 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
+
+import static io.imunity.furms.domain.user_operation.UserStatus.*;
 
 @Service
 public class UserOperationService {
@@ -50,7 +50,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(siteId)
 					.userId(user.fenixUserId.map(uId -> uId.id).orElse(null))
-					.status(UserStatus.ADDING_PENDING)
+					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -67,7 +67,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(new SiteId(site.getId(), site.getExternalId()))
 					.userId(user.fenixUserId.map(userId -> userId.id).orElse(null))
-					.status(UserStatus.ADDING_PENDING)
+					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -78,14 +78,19 @@ public class UserOperationService {
 		FURMSUser user = usersDAO.findById(userId).get();
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		repository.findAllUserAdditions(projectId, fenixUserId).stream()
-			.map(userAddition -> UserAdditionJob.builder()
+			.filter(userAddition -> userAddition.status.equals(ADDED))
+			.map(userAddition -> UserAddition.builder()
+				.id(userAddition.id)
+				.userId(userAddition.userId)
+				.projectId(userAddition.projectId)
+				.siteId(userAddition.siteId)
+				.uid(userAddition.uid)
 				.correlationId(CorrelationId.randomID())
-				.userAdditionId(userAddition.id)
-				.status(UserStatus.REMOVAL_PENDING)
+				.status(REMOVAL_PENDING)
 				.build())
-			.forEach(userAdditionJob -> {
-				repository.update(userAdditionJob);
-				siteAgentUserService.removeUser(userAdditionJob);
+			.forEach(userAddition -> {
+				repository.update(userAddition);
+				siteAgentUserService.removeUser(userAddition);
 			});
 	}
 }

@@ -37,20 +37,20 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 
 	@Override
 	@Transactional
-	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status) {
+	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, String message) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		if(job.status.equals(ProjectAllocationInstallationStatus.INSTALLED) || job.status.equals(ProjectAllocationInstallationStatus.FAILED)) {
 			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status, null);
+		projectAllocationInstallationRepository.update(correlationId.id, status, message);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
 	@Override
 	@Transactional
-	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status) {
+	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, String message) {
 		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id);
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
 			projectAllocationRepository.delete(projectDeallocation.projectAllocationId);
@@ -60,7 +60,7 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 			LOG.info("ProjectDeallocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status);
+		projectAllocationInstallationRepository.update(correlationId.id, status, message);
 		LOG.info("ProjectDeallocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 

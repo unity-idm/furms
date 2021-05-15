@@ -23,10 +23,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.ui.components.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -90,9 +87,9 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setComparator(comparing(c -> c.amount));
 		grid.addComponentColumn(c -> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.getAllocation(c.id);
-			ProjectDeallocation deallocation = groupedProjectAllocations.getDeallocation(c.id);
-			if(deallocation != null && deallocation.status.equals(ProjectDeallocationStatus.FAILED)) {
-				return getFailedLayout(getTranslation("view.community-admin.project-allocation.status.6"), deallocation.message);
+			Optional<ProjectDeallocation> deallocation = groupedProjectAllocations.getDeallocationStatus(c.id);
+			if(deallocation.isPresent() && deallocation.get().status.equals(ProjectDeallocationStatus.FAILED)) {
+				return getFailedLayout(getTranslation("view.community-admin.project-allocation.status.6"), deallocation.get().message);
 			}
 			return projectAllocationInstallations.stream()
 				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
@@ -127,12 +124,13 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return horizontalLayout;
 	}
 
-	private Component createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
-		if(groupedProjectAllocations.getDeallocation(projectAllocationGridModel.id).status.equals(ProjectDeallocationStatus.FAILED)){
+	private Component createLastColumnContent(ProjectAllocationGridModel model) {
+		Optional<ProjectDeallocation> deallocation = groupedProjectAllocations.getDeallocationStatus(model.id);
+		if(deallocation.isPresent() && !ProjectDeallocationStatus.FAILED.equals(deallocation.get().status)){
 			return new Div();
 		}
 		return new GridActionsButtonLayout(
-			createContextMenu(projectAllocationGridModel)
+			createContextMenu(model)
 		);
 	}
 
@@ -190,15 +188,15 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			this.groupedProjectAllocations = installations.stream()
 					.collect(groupingBy(installation -> installation.projectAllocationId));
 			this.groupedProjectDeallocations = uninstallations.stream()
-				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity()));
+				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity(), (x,y) -> x));
 		}
 		
 		List<ProjectAllocationInstallation> getAllocation(String projectAllocationId) {
 			return groupedProjectAllocations.getOrDefault(projectAllocationId, emptyList());
 		}
 
-		ProjectDeallocation getDeallocation(String projectAllocationId) {
-			return groupedProjectDeallocations.get(projectAllocationId);
+		Optional<ProjectDeallocation> getDeallocationStatus(String projectAllocationId) {
+			return Optional.ofNullable(groupedProjectDeallocations.get(projectAllocationId));
 		}
 	}
 }

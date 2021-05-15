@@ -148,6 +148,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		userOperationDatabaseRepository.update(
 			UserAddition.builder()
+				.id(userAdditionSaveEntity.getId().toString())
 				.correlationId(correlationId)
 				.status(UserStatus.ADDING_ACKNOWLEDGED)
 				.build()

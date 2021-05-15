@@ -65,7 +65,7 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED);
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
 		verify(projectAllocationInstallationMessageResolver, timeout(15000).times(2)).updateStatus(any());
 	}
 
@@ -92,6 +92,6 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED);
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, null);
 	}
 }

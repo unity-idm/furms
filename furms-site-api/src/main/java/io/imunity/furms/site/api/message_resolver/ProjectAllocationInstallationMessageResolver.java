@@ -11,7 +11,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
 public interface ProjectAllocationInstallationMessageResolver {
-	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status);
-	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status);
+	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, String message);
+	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, String message);
 	void updateStatus(ProjectAllocationInstallation result);
 }

@@ -69,7 +69,8 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
 	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess) {
-		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest = new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId, grantAccess.projectId);
+		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest =
+			new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
 		try {
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(grantAccess.siteId.externalId), new Payload<>(new Header(VERSION, correlationId.id), userAllocationGrantAccessRequest));
 		}catch (AmqpConnectException e){
@@ -80,7 +81,7 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
 	public void revokeAccess(CorrelationId correlationId, GrantAccess grantAccess) {
-		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId, grantAccess.projectId);
+		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
 		try {
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(grantAccess.siteId.externalId), new Payload<>(new Header(VERSION, correlationId.id), userAllocationBlockAccessRequest));
 		}catch (AmqpConnectException e){

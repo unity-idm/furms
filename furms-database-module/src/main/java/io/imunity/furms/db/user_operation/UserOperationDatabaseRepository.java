@@ -59,6 +59,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	@Override
 	public void update(UserAddition userAddition) {
 		userAdditionEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
+			.or(() -> userAdditionEntityRepository.findById(UUID.fromString(userAddition.id)))
 			.map(old -> UserAdditionSaveEntity.builder()
 				.siteId(old.siteId)
 				.projectId(old.projectId)
@@ -66,6 +67,15 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.uid(userAddition.uid)
 				.build()
 			).ifPresent(userAdditionEntityRepository::save);
+		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
+			.or(() -> userAdditionJobEntityRepository.findByUserAdditionId(UUID.fromString(userAddition.id)))
+			.map(old -> UserAdditionJobEntity.builder()
+				.id(old.getId())
+				.correlationId(fromString(userAddition.correlationId.id))
+				.userAdditionId(old.userAdditionId)
+				.status(userAddition.status)
+				.build()
+			).ifPresent(userAdditionJobEntityRepository::save);
 	}
 
 	@Override
@@ -79,6 +89,11 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public void deleteByCorrelationId(String correlationId) {
 		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.ifPresent(x -> userAdditionEntityRepository.deleteById(x.userAdditionId));
+	}
+
+	@Override
+	public void deleteAll() {
+		userAdditionEntityRepository.deleteAll();
 	}
 
 	@Override

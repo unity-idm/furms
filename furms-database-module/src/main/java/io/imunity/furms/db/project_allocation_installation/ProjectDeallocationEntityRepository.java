@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface ProjectDeallocationEntityRepository extends CrudRepository<ProjectDeallocationEntity, UUID> {
 	Optional<ProjectDeallocationEntity> findByCorrelationId(UUID correlationId);
 
-	@Query("select pai.* " +
+	@Query("select pd.* " +
 		"from project_deallocation pd " +
 		"join project_allocation pa on pa.id = pd.project_allocation_id " +
 		"where pa.project_id = :id")

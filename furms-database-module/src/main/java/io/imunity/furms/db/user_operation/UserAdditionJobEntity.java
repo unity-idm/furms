@@ -45,7 +45,7 @@ public class UserAdditionJobEntity extends UUIDIdentifiable {
 
 	@Override
 	public String toString() {
-		return "UserRemovalSaveEntity{" +
+		return "UserAdditionJobEntity{" +
 			"id=" + id +
 			", correlationId=" + correlationId +
 			", userAdditionalId=" + userAdditionId +

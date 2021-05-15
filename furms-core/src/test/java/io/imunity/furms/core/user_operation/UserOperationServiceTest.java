@@ -8,7 +8,7 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -78,7 +78,9 @@ class UserOperationServiceTest {
 	void shouldCreateUserRemoval() {
 		String projectId = "projectId";
 		PersistentId userId = new PersistentId("userId");
-		UserAddition userAddition = UserAddition.builder().build();
+		UserAddition userAddition = UserAddition.builder()
+			.status(UserStatus.ADDED)
+			.build();
 
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
 			.email("email")
@@ -88,7 +90,7 @@ class UserOperationServiceTest {
 		service.createUserRemovals(projectId, userId);
 
 		//then
-		orderVerifier.verify(repository).update(any(UserAdditionJob.class));
-		orderVerifier.verify(siteAgentUserService).removeUser(any(UserAdditionJob.class));
+		orderVerifier.verify(repository).update(any(UserAddition.class));
+		orderVerifier.verify(siteAgentUserService).removeUser(any(UserAddition.class));
 	}
 }

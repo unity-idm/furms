@@ -29,18 +29,18 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 	public void update(UserAddition userAddition){
 		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
 		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){
-			LOG.info("UserAddition with given correlation id {} cannot be modified", userAddition.correlationId.id);
+			LOG.info("UserAddition with correlation id {} cannot be modified", userAddition.correlationId.id);
 			return;
 		}
 		repository.update(userAddition);
-		LOG.info("UserAddition was update: {}", userAddition);
+		LOG.info("UserAddition was correlation id {} was added", userAddition.correlationId.id);
 	}
 
 	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, String message) {
 		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
 		if(userStatus.equals(UserStatus.REMOVED)){
 			repository.deleteByCorrelationId(correlationId.id);
-			LOG.info("UserAddition with given correlation id {} cannot be modified", correlationId.id);
+			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
 			return;
 		}
 		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){

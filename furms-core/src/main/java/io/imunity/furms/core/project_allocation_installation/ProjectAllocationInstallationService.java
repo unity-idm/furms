@@ -93,7 +93,7 @@ public class ProjectAllocationInstallationService {
 		ProjectDeallocation projectDeallocation = ProjectDeallocation.builder()
 			.siteId(projectAllocationResolved.site.getId())
 			.correlationId(correlationId)
-			.projectAllocationId(projectAllocationResolved.projectId)
+			.projectAllocationId(projectAllocationResolved.id)
 			.status(ProjectDeallocationStatus.PENDING)
 			.build();
 		projectAllocationInstallationRepository.create(projectDeallocation);

@@ -49,7 +49,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
+		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
 
 		//then
 		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
@@ -64,9 +64,9 @@ class ProjectAllocationInstallationMessageResolverTest {
 		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(ProjectDeallocation.builder()
 			.status(ProjectDeallocationStatus.PENDING)
 			.build());
-		service.updateStatus(id, ProjectDeallocationStatus.PENDING);
+		service.updateStatus(id, ProjectDeallocationStatus.PENDING, null);
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectDeallocationStatus.PENDING);
+		orderVerifier.verify(repository).update(id.id, ProjectDeallocationStatus.PENDING, null);
 	}
 }

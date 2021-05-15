@@ -119,7 +119,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectDeallocationStatus status) {
+	public String update(String correlationId, ProjectDeallocationStatus status, String message) {
 		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(oldProjectAllocation -> ProjectDeallocationEntity.builder()
 				.id(oldProjectAllocation.getId())
@@ -127,6 +127,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.siteId(oldProjectAllocation.siteId)
 				.projectAllocationId(oldProjectAllocation.projectAllocationId)
 				.status(status)
+				.message(message)
 				.build()
 			)
 			.map(deallocationRepository::save)

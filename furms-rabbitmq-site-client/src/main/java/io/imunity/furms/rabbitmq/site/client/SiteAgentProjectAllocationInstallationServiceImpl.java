@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.*;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
@@ -41,18 +42,18 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ACKNOWLEDGED);
+			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ACKNOWLEDGED, null);
 		else
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, FAILED);
+			projectAllocationInstallationMessageResolver.updateStatus(correlationId, FAILED, Optional.ofNullable(ack.header.error).map(x -> x.message).orElse(null));
 	}
 
 	@EventListener
 	void receiveProjectResourceDeallocationAck(Payload<AgentProjectDeallocationRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED);
+			projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED, null);
 		else
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ProjectDeallocationStatus.FAILED);
+			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ProjectDeallocationStatus.FAILED, Optional.ofNullable(ack.header.error).map(x -> x.message).orElse(null));
 	}
 
 	@EventListener

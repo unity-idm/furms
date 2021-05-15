@@ -14,6 +14,10 @@ public class FenixUserId {
 		this.id = id;
 	}
 
+	public static FenixUserId empty(){
+		return new FenixUserId(null);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
