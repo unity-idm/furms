@@ -20,6 +20,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.ui.InvocationContext;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -59,10 +60,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 		this.resolver =  new SiteComboBoxModelResolver(
 				siteService.findUserSites(authzService.getCurrentUserId()));
 		this.sshKeyComponent = new SSHKeyFormComponent(binder, resolver, sshKeysService);
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();
