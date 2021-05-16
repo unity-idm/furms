@@ -8,7 +8,9 @@ Additionally site can define policy documents which are need to be accepted in o
 
 Under site settings menu entry, site administrator can provide details about the site. It is advised to fill up the form, as initially site definition consists of a minimal set of attributes (like name) only.
 
-Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.  
+Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key. 
+
+What is more site administrator can require users not to reuse previously used SSH keys. 
 
 === Policy documents
 
@@ -16,19 +18,36 @@ Site administrator may set a requirement on SSH keys installed by FURMS, to alwa
 
 === Services
 
-{versionlimit} This functionality is not available yet.
+Services are used in FURMS to represent different offerings of a single site. The most important aspect of service is that it can have its own access policy agreement defined. Also each service creates a namespace for its resources.
+
+Computing cluster, data store system or an OpenStack VM service can be examples of services.
+
+{versionlimit} Defining service policy is not yet supported. Therefore service definition is simplistic and consists of name and description only.
 
 === Resource types
 
-{versionlimit} This functionality is not available yet.
+Resource type represents resource which have _independent allocations_ and has its usage accounted separately.
+
+Administrator has to decide type and a dependent unit of the resource type. Type defines generic treatment of resource and available units. FURMS supports two generic types _integer_ and _floating point_ as well as two more specific types: _time_ and _data_. 
+
+Units are different for each type. Note that FURMS does not scale the amounts of a given resource type, always the selected Unit is used.  
 
 === Resource credits
 
-{versionlimit} This functionality is not available yet.
+Resource credits are used to express site’s offering to the FURMS managed infrastructure. Credit is an offer of a particular amount of a given resource in a defined timeframe. Credits are further distributed by Fenix administrators to communities and eventually to projects.
+
+Each credit is always based on a single resource type (and therefore is also bound to  a particular service). 
+
+Credit has its lifetime, expired credits can not be allocated to communities or projects, even if were not completely consumed.
+
+Site can control whether credit can be allocated in multiple parts or just as a single one. In the later case it must be allocated to a single community and to a single project in this community.
+
+Finally credits can be marked as _granted to all project members_. Allocation derived from credits created with this flag will not have separate access authorization: each project member will be able to use it, without any further actions.
+
 
 === Site agent connection and requests
 
-{versionlimit} This functionality is not available yet.
+{versionlimit} This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.
 
 === Managing site administrators
 
