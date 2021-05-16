@@ -30,9 +30,6 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -47,7 +44,7 @@ import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -56,20 +53,21 @@ class UserServiceImpl implements UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UsersDAO usersDAO;
 	private final SSHKeyRepository sshKeyRepository;
-	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteRepository siteRepository;
+	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
 
 
 	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
-			SSHKeyRepository sshKeyRepository, SSHKeyOperationRepository sshKeyOperationRepository,  SiteRepository siteRepository) {
+			SSHKeyRepository sshKeyRepository,  SiteRepository siteRepository, 
+			 InstalledSSHKeyRepository installedSSHKeyRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
-		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.sshKeyRepository = sshKeyRepository;
 		this.siteRepository = siteRepository;
+		this.installedSSHKeyRepository = installedSSHKeyRepository;
 	}
 
 	@Override
@@ -164,20 +162,19 @@ class UserServiceImpl implements UserService {
 	}
 
 	private Set<SiteSSHKeys> getSitesSSHKeys(PersistentId userId) {
-
 		Map<String, Site> sites = siteRepository.findAll().stream()
 				.collect(Collectors.toMap(s -> s.getId(), s -> s));
 		Set<SSHKey> keys = sshKeyRepository.findAllByOwnerId(userId);
 		Map<String, Set<String>> siteKeys = new HashMap<>();
 
-		keys.forEach(key -> key.sites.forEach(site -> {
-			if (iskeyOnSite(site, key.id)) {
-				if (siteKeys.get(site) == null) {
-					siteKeys.put(site, new HashSet<>(Arrays.asList(key.value)));
-				} else {
-					siteKeys.get(site).add(key.value);
-				}
+		keys.forEach(key -> installedSSHKeyRepository.findBySSHKeyId(key.id).forEach(installedKey -> {
+
+			if (siteKeys.get(installedKey.siteId) == null) {
+				siteKeys.put(installedKey.siteId, new HashSet<>(Arrays.asList(installedKey.value)));
+			} else {
+				siteKeys.get(installedKey.siteId).add(installedKey.value);
 			}
+
 		}));
 
 		return siteKeys.entrySet().stream()
@@ -186,14 +183,6 @@ class UserServiceImpl implements UserService {
 						entry.getValue()))
 				.collect(Collectors.toSet());
 	}
-
-	private boolean iskeyOnSite(String siteId, String keyId) {
-		SSHKeyOperationJob keyJob = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(keyId, siteId);
-		if ((keyJob.operation.equals(SSHKeyOperation.ADD) || keyJob.operation.equals(SSHKeyOperation.UPDATE))
-				&& keyJob.status.equals(SSHKeyOperationStatus.DONE))
-			return true;
-		return false;
-	}	
 }
 
 

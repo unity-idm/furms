@@ -23,7 +23,7 @@ interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperat
 	void deleteBySshKeyIdAndSiteId(@Param("sshkey_id") UUID sshkeyId,
 			@Param("site_id") UUID siteId);
 
-	List<SSHKeyOperationJobEntity> findBySshkeyId(String sshkeyId);
+	List<SSHKeyOperationJobEntity> findBySshkeyId(UUID sshkeyId);
 
 	List<SSHKeyOperationJobEntity> findByStatus(String status);
 
