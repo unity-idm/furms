@@ -42,7 +42,8 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 	private final Comparator<ResourceAllocationsGridItem> defaultGridSort;
 
 	public ResourceAllocationsGrid(Consumer<ResourceAllocationsGridItem> allocateButtonAction,
-	                               Supplier<Stream<ResourceAllocationsGridItem>> fetchItems) {
+	                               Supplier<Stream<ResourceAllocationsGridItem>> fetchItems,
+	                               String columnPrefixes) {
 		super(ResourceAllocationsGridItem.class);
 
 		this.defaultGridSort = comparing(ResourceAllocationsGridItem::getSiteName);
@@ -55,46 +56,50 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 		addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
 		addColumn(ResourceAllocationsGridItem::getSiteName)
-				.setHeader(getTranslation("component.resource.credit.grid.column.site-name"))
+				.setHeader(columnName(columnPrefixes, "site-name"))
 				.setSortable(true)
 				.setComparator(defaultGridSort)
 				.setWidth("10%");
 		addColumn(ResourceAllocationsGridItem::getName)
-				.setHeader(getTranslation("component.resource.credit.grid.column.name"))
+				.setHeader(columnName(columnPrefixes, "name"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getName))
 				.setWidth("10%");
 		addColumn(item -> showResource(item.getCredit()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.credit"))
+				.setHeader(columnName(columnPrefixes, "credit"))
 				.setComparator(comparing(item -> item.getCredit().getAmount()))
 				.setWidth("10%");
 		addColumn(item -> showResource(item.getDistributed()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.distributed"))
+				.setHeader(columnName(columnPrefixes, "distributed"))
 				.setComparator(comparing(item -> item.getDistributed().getAmount()))
 				.setWidth("10%");
 		addColumn(item -> showResource(item.getRemaining()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.remaining"))
+				.setHeader(columnName(columnPrefixes, "remaining"))
 				.setComparator(comparing(item -> item.getRemaining().getAmount()))
 				.setWidth("10%");
 		addColumn(item -> extractLocalDate(item.getCreated()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.created"))
+				.setHeader(columnName(columnPrefixes, "created"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getCreated))
 				.setWidth("10%");
 		addColumn(item -> extractLocalDate(item.getValidFrom()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.valid-from"))
+				.setHeader(columnName(columnPrefixes, "valid-from"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getValidFrom))
 				.setWidth("10%");
 		addColumn(item -> extractLocalDate(item.getValidTo()))
-				.setHeader(getTranslation("component.resource.credit.grid.column.valid-to"))
+				.setHeader(columnName(columnPrefixes, "valid-to"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getValidTo))
 				.setWidth("10%");
 		addComponentColumn(this::showAvailability)
-				.setHeader(getTranslation("component.resource.credit.grid.column.availability"))
+				.setHeader(columnName(columnPrefixes, "availability"))
 				.setComparator(comparing(this::calcAvailability))
 				.setWidth("15%");
 		addComponentColumn(this::showAllocateButton)
 				.setWidth("3%");
 
 		reloadGrid();
+	}
+
+	private String columnName(String columnPrefix, String name) {
+		return getTranslation(columnPrefix+"."+name);
 	}
 
 	public void reloadGrid() {

@@ -5,14 +5,8 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
-import static java.util.Optional.ofNullable;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -40,6 +34,13 @@ import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGr
 import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
+import static com.vaadin.flow.component.ComponentUtil.getData;
+import static com.vaadin.flow.component.ComponentUtil.setData;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
+import static java.util.stream.Collectors.toSet;
+
 @Route(value = "fenix/admin/dashboard", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.page.title")
 public class DashboardView extends FurmsViewComponent {
@@ -58,12 +59,28 @@ public class DashboardView extends FurmsViewComponent {
 		this.resourceTypeService = resourceTypeService;
 		this.siteService = siteService;
 
-		this.filters = new DashboardViewFilters();
-		this.grid = new ResourceAllocationsGrid(this::allocateButtonAction, this::loadCredits);
+		this.filters = initializeFilters();
+		this.grid = new ResourceAllocationsGrid(
+				this::allocateButtonAction,
+				this::loadCredits,
+				"view.fenix-admin.dashboard.grid.column");
 
 		addTitle();
 		addFiltersAndSearch();
 		getContent().add(grid);
+	}
+
+	private DashboardViewFilters initializeFilters() {
+		final DashboardViewFilters filters = new DashboardViewFilters();
+		final DashboardViewFilters savedFilters = getData(UI.getCurrent(), DashboardViewFilters.class);
+		if (savedFilters != null) {
+			filters.setName(savedFilters.getName());
+			filters.setIncludeExpired(savedFilters.isIncludeExpired());
+			filters.setIncludeFullyDistributed(savedFilters.isIncludeFullyDistributed());
+			setData(UI.getCurrent(), DashboardViewFilters.class, null);
+		}
+
+		return filters;
 	}
 
 	private void addTitle() {
@@ -86,17 +103,25 @@ public class DashboardView extends FurmsViewComponent {
 	private CheckboxGroup<CheckboxModel<DashboardOptions>> createFiltersForm() {
 		final CheckboxGroup<CheckboxModel<DashboardOptions>> checkboxGroup = new CheckboxGroup<>();
 		checkboxGroup.setItemLabelGenerator(CheckboxModel::getLabel);
-		checkboxGroup.setItems(
+		final List<CheckboxModel<DashboardOptions>> values = List.of(
 				new CheckboxModel<>(INCLUDE_FULLY_DISTRIBUTED,
 						getTranslation("view.fenix-admin.dashboard.filters.fully-distributed")),
 				new CheckboxModel<>(INCLUDE_EXPIRED,
 						getTranslation("view.fenix-admin.dashboard.filters.expired")));
+		checkboxGroup.setItems(values);
 		checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		checkboxGroup.addValueChangeListener(event -> {
 			filters.setIncludeFullyDistributed(isSelectedCheckbox(INCLUDE_FULLY_DISTRIBUTED, event.getValue()));
 			filters.setIncludeExpired(isSelectedCheckbox(INCLUDE_EXPIRED, event.getValue()));
 			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 		});
+		checkboxGroup.setValue(
+			values.stream()
+				.filter(value ->
+						filters.isIncludeFullyDistributed() && INCLUDE_FULLY_DISTRIBUTED.equals(value.getOption())
+						|| filters.isIncludeExpired() && INCLUDE_EXPIRED.equals(value.getOption()))
+				.collect(toSet()));
+
 		return checkboxGroup;
 	}
 
@@ -117,12 +142,14 @@ public class DashboardView extends FurmsViewComponent {
 			UI.getCurrent().accessSynchronously(grid::reloadGrid);
 			textField.focus();
 		});
+		textField.setValue(filters.getName());
 
 		return textField;
 	}
 
 	private void allocateButtonAction(ResourceAllocationsGridItem item) {
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, item);
+		ComponentUtil.setData(UI.getCurrent(), DashboardViewFilters.class, filters);
 		UI.getCurrent().navigate(DashboardResourceAllocateFormView.class);
 	}
 
