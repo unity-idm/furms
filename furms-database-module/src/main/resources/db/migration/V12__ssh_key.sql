@@ -1,7 +1,7 @@
 CREATE TABLE sshkey (
     id UUID PRIMARY KEY NOT NULL,
     name VARCHAR(255) UNIQUE NOT NULL,
-    value VARCHAR(1000) NOT NULL,
+    value MEDIUMTEXT NOT NULL,
     create_time TIMESTAMP NOT NULL,
     update_time TIMESTAMP,
     owner_id VARCHAR(255) NOT NULL
