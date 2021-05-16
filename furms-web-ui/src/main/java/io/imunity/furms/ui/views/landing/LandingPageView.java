@@ -14,6 +14,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.ui.InvocationContext;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
@@ -97,6 +99,8 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 			UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
 			return;
 		}
+		InvocationContext.init();
+		
 		if (viewUserContexts.size() == 1 || (viewUserContexts.size() == 2 && data.containsKey(ViewMode.USER))) {
 			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, viewUserContexts.get(0));
 			UI.getCurrent().navigate(viewUserContexts.get(0).route);
