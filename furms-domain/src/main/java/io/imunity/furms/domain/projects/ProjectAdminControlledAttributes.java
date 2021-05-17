@@ -5,9 +5,9 @@
 
 package io.imunity.furms.domain.projects;
 
-import io.imunity.furms.domain.images.FurmsImage;
-
 import java.util.Objects;
+
+import io.imunity.furms.domain.images.FurmsImage;
 
 public class ProjectAdminControlledAttributes {
 	private final String id;
@@ -52,7 +52,7 @@ public class ProjectAdminControlledAttributes {
 		return "AdminControlledProjectAttributes{" +
 			"id='" + id + '\'' +
 			", description='" + description + '\'' +
-			", logo=" + logo +
+			", logo=" + logo == null ? "no image" : logo.getType() +
 			'}';
 	}
 }
