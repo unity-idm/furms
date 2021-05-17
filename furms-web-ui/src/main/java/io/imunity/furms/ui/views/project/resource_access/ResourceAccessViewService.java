@@ -70,7 +70,7 @@ class ResourceAccessViewService {
 
 	public boolean isRevokeAvailable(ResourceAccessModel resourceAccessModel) {
 		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
-		return userGrant != null && userGrant.status.equals(GRANTED);
+		return userGrant != null && TERMINAL_GRANTED.contains(userGrant.status);
 	}
 
 	public void grantAccess(ResourceAccessModel resourceAccessModel) {

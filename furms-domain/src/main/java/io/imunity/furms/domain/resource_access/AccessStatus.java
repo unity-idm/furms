@@ -25,6 +25,7 @@ public enum AccessStatus {
 	public static Set<AccessStatus> PENDING_AND_ACKNOWLEDGED_STATUES = Set.of(GRANT_PENDING, REVOKE_PENDING, GRANT_ACKNOWLEDGED, REVOKE_ACKNOWLEDGED);
 	public static Set<AccessStatus> FAILED_STATUES = Set.of(GRANT_FAILED, REVOKE_FAILED);
 	public static Set<AccessStatus> ENABLED_STATUES = Set.of(GRANT_PENDING, GRANT_ACKNOWLEDGED, GRANTED, REVOKE_FAILED);
+	public static Set<AccessStatus> TERMINAL_GRANTED = Set.of(GRANTED, GRANT_FAILED);
 
 	static {
 		GRANT_PENDING.predicate = status -> List.of(GRANT_ACKNOWLEDGED, GRANT_FAILED, GRANTED).contains(status);
