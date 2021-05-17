@@ -40,7 +40,7 @@ public class RepoCleaner {
 
 
 	public void cleanAll() {
-		userAdditionEntityRepository.deleteAll();
+		userGrantEntityRepository.deleteAll();
 		userAdditionEntityRepository.deleteAll();
 		projectOperationRepository.deleteAll();
 		projectAllocationRepository.deleteAll();
