@@ -80,9 +80,9 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			return;
 		}
 		if(!currentStatus.isTransitionalTo(REVOKE_PENDING))
-			throw new IllegalArgumentException(String.format("Transit between %s and %s states doesn't exist", currentStatus, REVOKE_PENDING));
+			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
 		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
-		LOG.info("UserAllocation status with correlation id {} is {}", correlationId.id, REVOKE_PENDING);
+		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}
 }

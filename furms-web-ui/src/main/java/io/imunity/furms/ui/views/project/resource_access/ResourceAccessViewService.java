@@ -13,6 +13,7 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -64,7 +65,7 @@ class ResourceAccessViewService {
 		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
 		return resourceAccessModel.getFirstName() == null &&
 			!resourceAccessModel.isAccessible() &&
-			addedUsersIds.contains(resourceAccessModel.getFenixUserId()) &&
+			addedUsersIds.contains(resourceAccessModel.getFenixUserId().id) &&
 			Optional.ofNullable(userGrant).filter(x -> PENDING_AND_ACKNOWLEDGED_STATUES.contains(x.status)).isEmpty();
 	}
 
@@ -133,7 +134,7 @@ class ResourceAccessViewService {
 						.siteId(new SiteId(allocation.site.getId(), allocation.site.getExternalId()))
 						.allocationId(allocation.id)
 						.accessible(allocation.resourceType.accessibleForAllProjectMembers)
-						.fenixUserId(u.fenixUserId.get())
+						.fenixUserId(u.fenixUserId.orElseGet(FenixUserId::empty))
 						.message(getMessage(u, allocation))
 						.build())
 					.collect(toList())
