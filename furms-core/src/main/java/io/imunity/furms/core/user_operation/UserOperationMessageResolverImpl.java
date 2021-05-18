@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 
+import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
+
 @Service
 class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -28,9 +30,8 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 
 	public void update(UserAddition userAddition){
 		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
-		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){
-			LOG.info("UserAddition with correlation id {} cannot be modified", userAddition.correlationId.id);
-			return;
+		if(!status.isTransitionalTo(userAddition.status)){
+			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", status, userAddition.status));
 		}
 		repository.update(userAddition);
 		LOG.info("UserAddition was correlation id {} was added", userAddition.correlationId.id);
@@ -38,13 +39,12 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 
 	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, String message) {
 		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
+		if(!status.isTransitionalTo(userStatus)){
+			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", status, userStatus));
+		}
 		if(userStatus.equals(UserStatus.REMOVED)){
 			repository.deleteByCorrelationId(correlationId.id);
 			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
-			return;
-		}
-		if(status.equals(UserStatus.ADDED) || status.equals(UserStatus.ADDING_FAILED)){
-			LOG.info("UserAddition with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
 		repository.updateStatus(correlationId, userStatus, message);

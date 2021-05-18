@@ -9,6 +9,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Repository;
 
@@ -92,8 +93,18 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId) {
+		return userAdditionEntityRepository.existsByProjectIdAndUserId(UUID.fromString(projectId), userId.id);
+	}
+
+	@Override
 	public void deleteAll() {
 		userAdditionEntityRepository.deleteAll();
+	}
+
+	@Override
+	public void delete(UserAddition userAddition) {
+		userAdditionEntityRepository.deleteById(UUID.fromString(userAddition.id));
 	}
 
 	@Override

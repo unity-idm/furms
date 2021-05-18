@@ -9,6 +9,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Set;
 
@@ -22,5 +23,7 @@ public interface UserOperationRepository {
 	Set<String> findAddedUserIds(String projectId);
 	UserStatus findAdditionStatusByCorrelationId(String correlationId);
 	void deleteByCorrelationId(String correlationId);
+	boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId);
 	void deleteAll();
+	void delete(UserAddition userAddition);
 }

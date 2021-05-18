@@ -10,6 +10,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -43,6 +44,8 @@ public class UserOperationService {
 
 	public void createUserAdditions(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
+		if(repository.existsByUserIdAndProjectId(user.fenixUserId.orElseGet(FenixUserId::empty), projectId))
+			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user.fenixUserId, projectId));
 		siteRepository.findByProjectId(projectId)
 			.forEach(siteId -> {
 				UserAddition userAddition = UserAddition.builder()
@@ -78,19 +81,23 @@ public class UserOperationService {
 		FURMSUser user = usersDAO.findById(userId).get();
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		repository.findAllUserAdditions(projectId, fenixUserId).stream()
-			.filter(userAddition -> userAddition.status.equals(ADDED))
-			.map(userAddition -> UserAddition.builder()
-				.id(userAddition.id)
-				.userId(userAddition.userId)
-				.projectId(userAddition.projectId)
-				.siteId(userAddition.siteId)
-				.uid(userAddition.uid)
-				.correlationId(CorrelationId.randomID())
-				.status(REMOVAL_PENDING)
-				.build())
+			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
 			.forEach(userAddition -> {
-				repository.update(userAddition);
-				siteAgentUserService.removeUser(userAddition);
+				if(userAddition.status.equals(ADDING_FAILED)) {
+					repository.delete(userAddition);
+					return;
+				}
+				UserAddition addition = UserAddition.builder()
+					.id(userAddition.id)
+					.userId(userAddition.userId)
+					.projectId(userAddition.projectId)
+					.siteId(userAddition.siteId)
+					.uid(userAddition.uid)
+					.correlationId(CorrelationId.randomID())
+					.status(REMOVAL_PENDING)
+					.build();
+				repository.update(addition);
+				siteAgentUserService.removeUser(addition);
 			});
 	}
 }

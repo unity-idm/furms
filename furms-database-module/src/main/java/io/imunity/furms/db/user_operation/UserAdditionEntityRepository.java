@@ -33,4 +33,5 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 
 	Set<UserAdditionSaveEntity> findAllByProjectId(UUID projectId);
 	boolean existsBySiteIdAndUserId(UUID siteId, String userId);
+	boolean existsByProjectIdAndUserId(UUID projectId, String userId);
 }

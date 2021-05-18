@@ -8,17 +8,28 @@ package io.imunity.furms.domain.user_operation;
 import java.util.Arrays;
 
 public enum UserStatus {
-	ADDING_PENDING(0), ADDING_ACKNOWLEDGED(1), ADDED(2), ADDING_FAILED(3),
-	REMOVAL_PENDING(4), REMOVAL_ACKNOWLEDGED(5), REMOVED(6), REMOVAL_FAILED(7);
+	ADDING_PENDING(0),
+	ADDING_ACKNOWLEDGED(1),
+	ADDED(2),
+	ADDING_FAILED(3),
+	REMOVAL_PENDING(4),
+	REMOVAL_ACKNOWLEDGED(5),
+	REMOVED(6),
+	REMOVAL_FAILED(7);
 
 	UserStatus(int persistentId) {
 		this.persistentId = persistentId;
 	}
 
 	private final int persistentId;
+	private static final TransitionManager transitionManager = new TransitionManager();
 
 	public int getPersistentId() {
 		return persistentId;
+	}
+
+	public boolean isTransitionalTo(UserStatus userStatus) {
+		return transitionManager.isTransitional(this, userStatus);
 	}
 
 	public static UserStatus valueOf(int status){
