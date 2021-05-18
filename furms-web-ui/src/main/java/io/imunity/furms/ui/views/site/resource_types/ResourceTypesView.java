@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.site.resource_types;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.components.support.IdGridUtils.showIdInGrid;
+import static io.imunity.furms.ui.components.support.GridUtils.showIdInGrid;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;

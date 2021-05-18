@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.site.resource_credits;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.components.support.IdGridUtils.showIdInGrid;
+import static io.imunity.furms.ui.components.support.GridUtils.showIdInGrid;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -24,9 +24,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
