@@ -7,8 +7,8 @@ package io.imunity.furms.ui.project;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.views.TimeConsts.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConsts.DEFAULT_START_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;

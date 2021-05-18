@@ -7,8 +7,8 @@ package io.imunity.furms.ui.views.site.resource_credits;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
-import static io.imunity.furms.ui.views.TimeConsts.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConsts.DEFAULT_START_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
 
 import java.time.ZoneId;

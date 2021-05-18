@@ -34,7 +34,7 @@ public class FurmsDateTimePicker
 		extends Div
 		implements HasValue<FurmsDateTimePicker, LocalDateTime>, HasValue.ValueChangeEvent<LocalDateTime>, HasValidation {
 
-	private static final Locale CLOCK_24_FORMAT_LOCALE = new Locale("PL");
+	private static final Locale CLOCK_24_FORMAT_LOCALE = new Locale("DE");
 
 	private final DatePicker datePicker;
 	private final TimePicker timePicker;
