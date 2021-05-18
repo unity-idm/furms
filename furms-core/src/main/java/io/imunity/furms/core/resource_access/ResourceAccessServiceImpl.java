@@ -72,7 +72,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void revokeAccess(GrantAccess grantAccess) {
-		CorrelationId correlationId = CorrelationId.randomID();
 		AccessStatus currentStatus = repository.findCurrentStatus(grantAccess.fenixUserId, grantAccess.allocationId);
 		if(currentStatus.equals(GRANT_FAILED)) {
 			repository.delete(grantAccess.fenixUserId, grantAccess.allocationId);
@@ -81,6 +80,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		}
 		if(!currentStatus.isTransitionalTo(REVOKE_PENDING))
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
+		CorrelationId correlationId = CorrelationId.randomID();
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
 		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);

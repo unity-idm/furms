@@ -86,7 +86,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	public void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status) {
 		UserGrantResolved userAllocation = userGrantEntityRepository
 			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+			.orElseThrow(() -> new IllegalArgumentException("GrantAccess not found: " + grantAccess));
 
 		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.id(userAllocation.job.getId())
@@ -122,7 +122,8 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 
 	@Override
 	public void delete(FenixUserId userId, String allocationId){
-		userGrantEntityRepository.deleteByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId));
+		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+			.ifPresent(x -> userGrantEntityRepository.deleteById(x.allocation.getId()));
 	}
 
 	@Override

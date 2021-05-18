@@ -62,15 +62,15 @@ class ResourceAccessViewService {
 	}
 
 	public boolean isGrantOrRevokeAvailable(ResourceAccessModel resourceAccessModel) {
-		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
-		return resourceAccessModel.getFirstName() == null &&
+		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId().id, resourceAccessModel.getAllocationId()));
+		return resourceAccessModel.getEmail() == null &&
 			!resourceAccessModel.isAccessible() &&
 			addedUsersIds.contains(resourceAccessModel.getFenixUserId().id) &&
 			Optional.ofNullable(userGrant).filter(x -> PENDING_AND_ACKNOWLEDGED_STATUES.contains(x.status)).isEmpty();
 	}
 
 	public boolean isRevokeAvailable(ResourceAccessModel resourceAccessModel) {
-		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
+		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId().id, resourceAccessModel.getAllocationId()));
 		return userGrant != null && TERMINAL_GRANTED.contains(userGrant.status);
 	}
 
@@ -125,6 +125,7 @@ class ResourceAccessViewService {
 						.firstName(u.firstName.orElse(""))
 						.lastName(u.lastName.orElse(""))
 						.email(u.email)
+						.fenixUserId(u.fenixUserId.orElseGet(FenixUserId::empty))
 						.build(),
 				u -> allocations.stream()
 					.map(allocation -> ResourceAccessModel.builder()

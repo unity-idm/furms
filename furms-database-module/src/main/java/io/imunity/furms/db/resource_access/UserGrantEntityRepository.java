@@ -33,6 +33,4 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 			"where ua.project_id = :project_id"
 	)
 	Set<UserGrantResolved> findAll(@Param("project_id") UUID projectId);
-
-	void deleteByUserIdAndProjectAllocationId(String userId, UUID projectAllocationId);
 }

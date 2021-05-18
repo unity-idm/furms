@@ -23,15 +23,14 @@ public enum AccessStatus {
 	public static final Set<AccessStatus> PENDING_AND_ACKNOWLEDGED_STATUES = Set.of(GRANT_PENDING, REVOKE_PENDING, GRANT_ACKNOWLEDGED, REVOKE_ACKNOWLEDGED);
 	public static final Set<AccessStatus> FAILED_STATUES = Set.of(GRANT_FAILED, REVOKE_FAILED);
 	public static final Set<AccessStatus> ENABLED_STATUES = Set.of(GRANT_PENDING, GRANT_ACKNOWLEDGED, GRANTED, REVOKE_FAILED);
-	public static final Set<AccessStatus> TERMINAL_GRANTED = Set.of(GRANTED, GRANT_FAILED);
+	public static final Set<AccessStatus> TERMINAL_GRANTED = Set.of(GRANTED, GRANT_FAILED, REVOKE_FAILED);
 
 	AccessStatus(int persistentId) {
 		this.persistentId = persistentId;
-		this.transitionManager = new TransitionManager();
 	}
 
 	private final int persistentId;
-	private final TransitionManager transitionManager;
+	private static final TransitionManager transitionManager = new TransitionManager();
 
 	public boolean isTransitionalTo(AccessStatus accessStatus) {
 		return transitionManager.isTransitional(this, accessStatus);
