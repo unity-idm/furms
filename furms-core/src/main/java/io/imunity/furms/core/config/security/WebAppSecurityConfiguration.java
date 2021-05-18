@@ -16,8 +16,6 @@ import java.lang.invoke.MethodHandles;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 
-import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
-import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtenderFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -28,12 +26,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
 import io.imunity.furms.core.config.security.oauth.FurmsOAuth2UserService;
+import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
+import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtenderFilter;
 import io.imunity.furms.spi.roles.RoleLoader;
 
 @EnableWebSecurity
@@ -66,6 +67,7 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+			.addFilterAfter(new UserContextSetterFilter(), SecurityContextPersistenceFilter.class)
 			.addFilterAfter(furmsOauthLogoutFilter, ConcurrentSessionFilter.class)
 			.addFilterAfter(furmsOauthTokenExtenderFilter, FurmsOauthLogoutFilter.class)
 

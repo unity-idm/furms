@@ -114,7 +114,7 @@ public class SitesAddView extends FurmsViewComponent {
 				name.setErrorMessage(getTranslation("view.sites.form.error.validation.field.name.unique"));
 				name.setInvalid(true);
 			} catch (RuntimeException exception) {
-				LOG.error("Could not create Site. ", exception);
+				LOG.warn("Could not create Site. ", exception);
 				showErrorNotification(getTranslation("view.sites.form.error.unexpected", "save"));
 			}
 		}

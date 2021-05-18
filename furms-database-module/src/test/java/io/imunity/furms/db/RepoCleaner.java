@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.db;
 
+import io.imunity.furms.db.resource_access.UserGrantEntityRepository;
 import io.imunity.furms.db.user_operation.UserAdditionEntityRepository;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -34,8 +35,12 @@ public class RepoCleaner {
 	private ProjectOperationRepository projectOperationRepository;
 	@Autowired
 	private UserAdditionEntityRepository userAdditionEntityRepository;
-	
+	@Autowired
+	private UserGrantEntityRepository userGrantEntityRepository;
+
+
 	public void cleanAll() {
+		userGrantEntityRepository.deleteAll();
 		userAdditionEntityRepository.deleteAll();
 		projectOperationRepository.deleteAll();
 		projectAllocationRepository.deleteAll();

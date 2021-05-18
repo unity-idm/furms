@@ -13,6 +13,7 @@ import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsView;
 import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsView;
+import io.imunity.furms.ui.views.project.resource_access.ResourceAccessView;
 import io.imunity.furms.ui.views.project.settings.SettingsView;
 import io.imunity.furms.ui.views.project.users.UsersView;
 

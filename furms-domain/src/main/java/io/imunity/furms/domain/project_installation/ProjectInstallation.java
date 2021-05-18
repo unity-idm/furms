@@ -5,10 +5,10 @@
 
 package io.imunity.furms.domain.project_installation;
 
-import io.imunity.furms.domain.users.FURMSUser;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import io.imunity.furms.domain.users.FURMSUser;
 
 public class ProjectInstallation {
 	public final String id;
@@ -24,7 +24,18 @@ public class ProjectInstallation {
 	public final LocalDateTime validityEnd;
 	public final FURMSUser leader;
 
-	ProjectInstallation(String id, String siteId, String siteExternalId, String name, String description, String communityId, String communityName, String acronym, String researchField, LocalDateTime validityStart, LocalDateTime validityEnd, FURMSUser leader) {
+	ProjectInstallation(String id,
+			String siteId,
+			String siteExternalId,
+			String name,
+			String description,
+			String communityId,
+			String communityName,
+			String acronym,
+			String researchField,
+			LocalDateTime validityStart,
+			LocalDateTime validityEnd,
+			FURMSUser leader) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteExternalId = siteExternalId;
@@ -60,7 +71,8 @@ public class ProjectInstallation {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
+		return Objects.hash(id, siteId, siteExternalId, name, description, communityId, communityName, acronym,
+				researchField, validityStart, validityEnd, leader);
 	}
 
 	@Override
@@ -163,7 +175,8 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallation build() {
-			return new ProjectInstallation(id, siteId, siteExternalId, name, description, communityId, communityName, acronym, researchField, validityStart, validityEnd, leader);
+			return new ProjectInstallation(id, siteId, siteExternalId, name, description, communityId, communityName,
+					acronym, researchField, validityStart, validityEnd, leader);
 		}
 	}
 }

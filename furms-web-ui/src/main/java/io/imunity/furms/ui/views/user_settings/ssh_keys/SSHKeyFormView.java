@@ -5,6 +5,19 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,6 +27,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
@@ -25,18 +39,6 @@ import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-import java.util.function.Function;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
@@ -115,19 +117,19 @@ class SSHKeyFormView extends FurmsViewComponent {
 				sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyUpdateModel));
 			}
 		} catch (UserWithoutFenixIdValidationError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			return;
 		} catch (SSHKeyHistoryException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("view.user-settings.ssh-keys.history.error.message", resolver.getName(e.siteId)));
 			return;	
 		} catch (UninstalledUserError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.not.installed"));
 			return;	
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 			return;
 		}
