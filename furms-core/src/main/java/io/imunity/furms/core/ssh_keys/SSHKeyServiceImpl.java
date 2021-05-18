@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Sets;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -45,7 +46,6 @@ import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -57,26 +57,28 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private final SSHKeyRepository sshKeysRepository;
 	private final SiteRepository siteRepository;
-	private final SSHKeyOperationRepository sshKeyOperationRepository;
+	private final SSHKeyOperationService sshKeyOperationService;
 	private final SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
+	private final SSHKeyCreator sshKeyCreator;
 
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
-			SSHKeyOperationRepository sshKeyOperationRepository,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
+			SSHKeyOperationService sshKeyOperationService,
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
+			SSHKeyCreator sshKeyCreator) {
 
 		this.userDao = userDao;
 		this.validator = validator;
 		this.authzService = authzService;
 		this.sshKeysRepository = sshKeysRepository;
 		this.siteRepository = siteRepository;
-		this.sshKeyOperationRepository = sshKeyOperationRepository;
+		this.sshKeyOperationService = sshKeyOperationService;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
-	
+		this.sshKeyCreator = sshKeyCreator;
 	}
 
 	@Override
@@ -103,14 +105,9 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
 	public String create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
-		String created = sshKeysRepository.create(sshKey);
-
-		SSHKey createdKey = sshKeysRepository.findById(created).orElseThrow(
-				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
-		LOG.info("Created SSHKey in repository: {}", createdKey);
-
+		SSHKey createdKey = sshKeyCreator.create(sshKey);
 		addKeyToSites(createdKey);
-		return created;
+		return createdKey.id;
 	}
 
 	@Transactional
@@ -173,8 +170,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		}
 		LOG.info("Updating SSH key {} on site {}", newKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
-		deleteOperationBySSHKeyIdAndSiteId(newKey.id, site.getId());
-		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
+		sshKeyOperationService.deleteOperationBySSHKeyIdAndSiteId(newKey.id, site.getId());
+		sshKeyOperationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
 		siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
@@ -197,7 +194,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		for (Site site : sites) {
 
-			SSHKeyOperationJob operation = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id,
+			SSHKeyOperationJob operation = sshKeyOperationService.findBySSHKeyIdAndSiteId(newKey.id,
 					site.getId());
 			if (operation == null || operation.status.equals(FAILED)) {
 				addKeyToSite(newKey, site, userId);
@@ -211,7 +208,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		Set<String> toAdd = Sets.newHashSet(newKey.sites);
 		toAdd.removeAll(actualKey.sites != null
 				? (actualKey.sites.stream()
-						.filter(s -> sshKeyOperationRepository
+						.filter(s -> sshKeyOperationService
 								.findBySSHKeyIdAndSiteId(newKey.id, s).status
 										.equals(DONE))
 						.collect(Collectors.toSet()))
@@ -258,13 +255,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		for (Site site : sites) {
 			SSHKeyOperationJob operation;
 			try {
-				operation = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshKey.id, site.getId());
+				operation = sshKeyOperationService.findBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 			} catch (Exception e) {
 				LOG.error("Can not get ssh key operation for key {0}", sshKey.id);
 				return;
 			}
 			if (operation.status.equals(FAILED)) {
-				deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
+				sshKeyOperationService.deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 
 			} else {
 				removeFromSite = true;
@@ -272,7 +269,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 			}
 		}
 
-		if (!removeFromSite && sshKeyOperationRepository.findBySSHKey(sshKey.id).isEmpty()) {
+		if (!removeFromSite && sshKeyOperationService.findBySSHKey(sshKey.id).isEmpty()) {
 			sshKeysRepository.delete(sshKey.id);
 		}
 
@@ -283,8 +280,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		validator.assertKeyWasNotUsedPreviously(site, sshKey);
 		LOG.info("Adding SSH key {} to site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
-		deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
+		sshKeyOperationService.deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
+		sshKeyOperationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
 
@@ -297,23 +294,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		LOG.info("Removing SSH key {} from site {}", sshKey, site.getName());
 		CorrelationId correlationId = CorrelationId.randomID();
-		deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
+		sshKeyOperationService.deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
+		sshKeyOperationService.create(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(REMOVE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
 		siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
-	}
-	
-	private void createOperation(SSHKeyOperationJob operationJob) {
-		sshKeyOperationRepository.create(operationJob);
-		LOG.info("SSHKeyOperationJob was created: {}", operationJob);
-
-	}
-	
-	private void deleteOperationBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);
-		LOG.info("SSHKeyOperationJob for key={} and site={} was deleted", sshkeyId, siteId);
 	}
 
 	private static class SiteDiff {

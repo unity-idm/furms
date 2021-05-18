@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
@@ -33,6 +34,7 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 
@@ -45,14 +47,17 @@ public class SSHKeyOperationServiceTest {
 	private SSHKeyRepository sshKeysRepository;
 	@Mock
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
-
+	@Mock
+	private InstalledSSHKeyRepository installedSSHKeyRepository;;
+	
+	
 	private SSHKeyOperationServiceImpl service;
 
 	@BeforeEach
 	void setUp() {
 
 		service = new SSHKeyOperationServiceImpl(sshKeyOperationRepository, sshKeysRepository,
-				sshKeyHistoryRepository);
+				sshKeyHistoryRepository, installedSSHKeyRepository);
 	}
 
 	@Test
@@ -64,14 +69,98 @@ public class SSHKeyOperationServiceTest {
 				.thenReturn(SSHKeyOperationJob.builder().id("id").correlationId(correlationId)
 						.status(SSHKeyOperationStatus.FAILED).build());
 
-		service.updateStatus(correlationId,
-				new SSHKeyOperationResult(SSHKeyOperationStatus.ACK, new SSHKeyOperationError(null, null)));
+		service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.ACK,
+				new SSHKeyOperationError(null, null)));
 
 		verify(sshKeyOperationRepository, times(0)).update(eq("id"), eq(SSHKeyOperationStatus.ACK),
 				eq(Optional.empty()), any());
 
 	}
 
+	@Test
+	void shouldUpdateAndAddInstalledKey() {
+
+		CorrelationId correlationId = CorrelationId.randomID();
+		SSHKey key = SSHKey.builder().id("key").value(
+				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
+						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
+						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
+						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
+						+ "mb9xUkdFjZk9bL demo@demo.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("site")).build();
+
+		when(sshKeyOperationRepository.findByCorrelationId(correlationId)).thenReturn(SSHKeyOperationJob
+				.builder().id("id").correlationId(correlationId).operation(SSHKeyOperation.ADD)
+				.status(SSHKeyOperationStatus.ACK).sshkeyId("key").siteId("site").build());
+		when(sshKeysRepository.findById("key")).thenReturn(Optional.of(key));
+
+		service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.DONE,
+				new SSHKeyOperationError(null, null)));
+
+		verify(sshKeyOperationRepository, times(1)).update(eq("id"), eq(SSHKeyOperationStatus.DONE),
+				eq(Optional.empty()), any());
+
+		ArgumentCaptor<InstalledSSHKey> installedKey = ArgumentCaptor.forClass(InstalledSSHKey.class);
+
+		verify(installedSSHKeyRepository, times(1)).create(installedKey.capture());
+		assertThat(installedKey.getValue().value).isEqualTo(key.value);
+		assertThat(installedKey.getValue().siteId).isEqualTo("site");
+	}
+
+	@Test
+	void shouldUpdateAndRemoveInstalledKey() {
+
+		CorrelationId correlationId = CorrelationId.randomID();
+		SSHKey key = SSHKey.builder().id("key").value(
+				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
+						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
+						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
+						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
+						+ "mb9xUkdFjZk9bL demo@demo.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("site")).build();
+
+		when(sshKeyOperationRepository.findByCorrelationId(correlationId)).thenReturn(SSHKeyOperationJob
+				.builder().id("id").correlationId(correlationId).operation(SSHKeyOperation.REMOVE)
+				.status(SSHKeyOperationStatus.ACK).sshkeyId("key").siteId("site").build());
+		when(sshKeysRepository.findById("key")).thenReturn(Optional.of(key));
+
+		service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.DONE,
+				new SSHKeyOperationError(null, null)));
+
+		verify(sshKeyOperationRepository, times(1)).update(eq("id"), eq(SSHKeyOperationStatus.DONE),
+				eq(Optional.empty()), any());
+
+		verify(installedSSHKeyRepository, times(1)).deleteBySSHKeyIdAndSiteId("key", "site");
+	}
+	
+	@Test
+	void shouldUpdateAndUpdateInstalledKey() {
+
+		CorrelationId correlationId = CorrelationId.randomID();
+		SSHKey key = SSHKey.builder().id("key").value(
+				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
+						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
+						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
+						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
+						+ "mb9xUkdFjZk9bL demo@demo.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("site")).build();
+
+		when(sshKeyOperationRepository.findByCorrelationId(correlationId)).thenReturn(SSHKeyOperationJob
+				.builder().id("id").correlationId(correlationId).operation(SSHKeyOperation.UPDATE)
+				.status(SSHKeyOperationStatus.ACK).sshkeyId("key").siteId("site").build());
+		when(sshKeysRepository.findById("key")).thenReturn(Optional.of(key));
+
+		service.updateStatus(correlationId,
+				new SSHKeyOperationResult(SSHKeyOperationStatus.DONE, new SSHKeyOperationError(null, null)));
+
+		verify(sshKeyOperationRepository, times(1)).update(eq("id"), eq(SSHKeyOperationStatus.DONE),
+				eq(Optional.empty()), any());
+
+		
+
+		verify(installedSSHKeyRepository, times(1)).update("site","key", key.value);	
+	}
+	
 	@Test
 	void shouldUpdateAndAddHistory() {
 
