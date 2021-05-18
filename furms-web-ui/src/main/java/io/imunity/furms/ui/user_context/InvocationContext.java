@@ -22,7 +22,7 @@ public class InvocationContext implements Serializable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InvocationContext.class);
 
-	private static final int ZONE_INIT_TIMEOUT = 30;
+	private static final int ZONE_INIT_TIMEOUT_S = 30;
 
 	private final Future<ZoneId> zone;
 
@@ -43,7 +43,7 @@ public class InvocationContext implements Serializable {
 
 	public ZoneId getZone() {
 		try {
-			return zone.get(ZONE_INIT_TIMEOUT, TimeUnit.SECONDS);
+			return zone.get(ZONE_INIT_TIMEOUT_S, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			LOG.error("Can not get user zone");
 		}

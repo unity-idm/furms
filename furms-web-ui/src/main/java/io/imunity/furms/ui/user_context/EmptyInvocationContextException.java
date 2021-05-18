@@ -5,9 +5,9 @@
 
 package io.imunity.furms.ui.user_context;
 
-public class EmptyInvocationContextException extends RuntimeException {
+class EmptyInvocationContextException extends RuntimeException {
 
-	public EmptyInvocationContextException(String msg) {
+	EmptyInvocationContextException(String msg) {
 		super(msg);
 	}
 }
