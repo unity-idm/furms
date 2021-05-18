@@ -77,7 +77,6 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 
-
 	private SSHKeyServiceImpl service;
 
 	private SSHKeyServiceValidator validator;
@@ -87,7 +86,7 @@ public class SSHKeyServiceImplTest {
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
 				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
-				sshKeyOperationService, siteAgentSSHKeyInstallationService, usersDAO);
+				sshKeyOperationService, siteAgentSSHKeyInstallationService, usersDAO, new SSHKeyCreator(repository));
 	}
 
 	@Test

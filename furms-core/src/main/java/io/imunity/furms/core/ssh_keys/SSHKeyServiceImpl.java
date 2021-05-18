@@ -62,12 +62,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
+	private final SSHKeyCreator sshKeyCreator;
 
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
 			SSHKeyOperationService sshKeyOperationService,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
+			SSHKeyCreator sshKeyCreator) {
 
 		this.userDao = userDao;
 		this.validator = validator;
@@ -76,7 +78,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationService = sshKeyOperationService;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
-	
+		this.sshKeyCreator = sshKeyCreator;
 	}
 
 	@Override
@@ -103,14 +105,9 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
 	public String create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
-		String created = sshKeysRepository.create(sshKey);
-
-		SSHKey createdKey = sshKeysRepository.findById(created).orElseThrow(
-				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
-		LOG.info("Created SSHKey in repository: {}", createdKey);
-
+		SSHKey createdKey = sshKeyCreator.create(sshKey);
 		addKeyToSites(createdKey);
-		return created;
+		return createdKey.id;
 	}
 
 	@Transactional
