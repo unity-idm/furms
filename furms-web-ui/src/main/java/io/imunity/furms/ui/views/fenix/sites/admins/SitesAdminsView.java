@@ -12,8 +12,6 @@ import static java.util.function.Function.identity;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +23,8 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
@@ -119,7 +119,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
-			LOG.error("Could not invite Site Administrator. ", e);
+			LOG.warn("Could not invite Site Administrator. ", e);
 		}
 	}
 

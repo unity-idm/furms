@@ -54,9 +54,6 @@ public class FurmsImage {
 
 	@Override
 	public String toString() {
-		return "FurmsImage{" +
-			"logoImage=" + Arrays.toString(image) +
-			", type=" + type +
-			'}';
+		return "FurmsImage{" + "type=" + type + '}';
 	}
 }

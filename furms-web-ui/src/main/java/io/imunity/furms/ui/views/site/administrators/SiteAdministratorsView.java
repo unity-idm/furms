@@ -5,7 +5,15 @@
 
 package io.imunity.furms.ui.views.site.administrators;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
@@ -16,12 +24,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.administrators.page.title")
@@ -64,7 +66,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.site-admin.administrators.invite.error.unexpected"));
-			LOG.error("Could not invite Site Administrator. ", e);
+			LOG.warn("Could not invite Site Administrator. ", e);
 		}
 	}
 

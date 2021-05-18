@@ -234,7 +234,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 				showSuccessNotification(getTranslation(
 						"view.user-settings.ssh-keys.grid.item.menu.delete.success", key.name));
 			} catch (RuntimeException e) {
-				LOG.error("Could not delete SSH key . ", e);
+				LOG.warn("Could not delete SSH key . ", e);
 				showErrorNotification(getTranslation(
 						"view.user-settings.ssh-keys.form.error.unexpected", "delete"));
 			} finally {
@@ -265,21 +265,21 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		try {
 			sshKeysService.assertIsEligibleToManageKeys();
 		} catch (UserWithoutFenixIdValidationError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			setVisible(false);
 			return;
 		}
 
 		catch (UserWithoutSitesError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
 			setVisible(false);
 			return;
 
 		} catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);
@@ -297,12 +297,12 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 					.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase()))
 					.collect(toList());
 		} catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 		}
 
