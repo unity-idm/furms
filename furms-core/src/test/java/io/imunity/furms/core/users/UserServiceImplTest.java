@@ -28,10 +28,8 @@ import com.google.common.collect.Sets;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
@@ -40,7 +38,7 @@ import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
@@ -61,7 +59,7 @@ class UserServiceImplTest {
 	@Mock
 	private SiteRepository siteRepository;
 	@Mock
-	private SSHKeyOperationRepository sshKeyOperationRepository;
+	private InstalledSSHKeyRepository installedSSHKeyRepository;
 
 	@Test
 	void shouldAllowToInviteUser() {
@@ -80,7 +78,7 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	void shouldGetSiteSSHKeysWithSitesWithCompletedStatus() {
+	void shouldGetSiteSSHKeysWithSitesWithSuccessInstalledStatus() {
 		// given
 		FenixUserId fid = new FenixUserId("id");
 		PersistentId pid = new PersistentId("id");
@@ -93,10 +91,8 @@ class UserServiceImplTest {
 				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
 						Site.builder().id("s2").name("site2").build())));
 
-		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s1")).thenReturn(SSHKeyOperationJob
-				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.DONE).build());
-		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s2")).thenReturn(SSHKeyOperationJob
-				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.ACK).build());
+		when(installedSSHKeyRepository.findBySSHKeyId("key"))
+				.thenReturn(Arrays.asList(InstalledSSHKey.builder().siteId("s1").value("v1").build()));
 
 		// when
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
@@ -126,10 +122,9 @@ class UserServiceImplTest {
 		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
 				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
 
-		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s1")).thenReturn(SSHKeyOperationJob
-				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.DONE).build());
-		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("key", "s2")).thenReturn(SSHKeyOperationJob
-				.builder().operation(SSHKeyOperation.ADD).status(SSHKeyOperationStatus.DONE).build());
+		when(installedSSHKeyRepository.findBySSHKeyId("key"))
+				.thenReturn(Arrays.asList(InstalledSSHKey.builder().siteId("s1").value("v1").build(),
+						InstalledSSHKey.builder().siteId("s2").value("v1").build()));
 
 		// when
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));

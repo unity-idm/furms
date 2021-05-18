@@ -9,6 +9,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Set;
 
@@ -18,6 +19,9 @@ public interface ResourceAccessRepository {
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
 	boolean exists(GrantAccess grantAccess);
+	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
+	AccessStatus findCurrentStatus(CorrelationId correlationId);
 	void delete(CorrelationId correlationId);
+	void delete(FenixUserId userId, String allocationId);
 	void deleteAll();
 }

@@ -10,6 +10,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.springframework.stereotype.Repository;
 
@@ -64,10 +65,28 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
+	public AccessStatus findCurrentStatus(FenixUserId userId, String allocationId) {
+		return userGrantEntityRepository
+			.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+			.map(userGrantResolved -> userGrantResolved.job.status)
+			.map(AccessStatus::valueOf)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("UserGant with user id %s and allocation id %s doesn't exist", userId, allocationId)));
+	}
+
+	@Override
+	public AccessStatus findCurrentStatus(CorrelationId correlationId) {
+		return userGrantJobEntityRepository
+			.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(userGrantJob -> userGrantJob.status)
+			.map(AccessStatus::valueOf)
+			.orElseThrow(() -> new IllegalArgumentException("Correlation id doesn't exist: " + correlationId.id));
+	}
+
+	@Override
 	public void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status) {
 		UserGrantResolved userAllocation = userGrantEntityRepository
 			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+			.orElseThrow(() -> new IllegalArgumentException("GrantAccess not found: " + grantAccess));
 
 		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.id(userAllocation.job.getId())
@@ -99,6 +118,12 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 		UserGrantJobEntity userGrantJobEntity = userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		userGrantEntityRepository.deleteById(userGrantJobEntity.userGrantId);
+	}
+
+	@Override
+	public void delete(FenixUserId userId, String allocationId){
+		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+			.ifPresent(x -> userGrantEntityRepository.deleteById(x.allocation.getId()));
 	}
 
 	@Override

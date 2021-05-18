@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
@@ -82,17 +84,13 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private ZoneId zoneId;
 
 	SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService,
-			SSHKeyOperationService sshKeyInstallationService) {
+			SSHKeyOperationService sshKeyInstallationService) throws InterruptedException, ExecutionException {
 		this.sshKeysService = sshKeysService;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.grid = createSSHKeysGrid();
 		this.resolver = new SiteComboBoxModelResolver(
 				siteService.findUserSites(authzService.getCurrentUserId()));
-
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button addButton = createAddButton();
 		getContent().add(createHeaderLayout(addButton), new HorizontalLayout(grid));
 	}
@@ -234,7 +232,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 				showSuccessNotification(getTranslation(
 						"view.user-settings.ssh-keys.grid.item.menu.delete.success", key.name));
 			} catch (RuntimeException e) {
-				LOG.error("Could not delete SSH key . ", e);
+				LOG.warn("Could not delete SSH key . ", e);
 				showErrorNotification(getTranslation(
 						"view.user-settings.ssh-keys.form.error.unexpected", "delete"));
 			} finally {
@@ -265,21 +263,21 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		try {
 			sshKeysService.assertIsEligibleToManageKeys();
 		} catch (UserWithoutFenixIdValidationError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			setVisible(false);
 			return;
 		}
 
 		catch (UserWithoutSitesError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
 			setVisible(false);
 			return;
 
 		} catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);
@@ -297,12 +295,12 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 					.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase()))
 					.collect(toList());
 		} catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 		}
 

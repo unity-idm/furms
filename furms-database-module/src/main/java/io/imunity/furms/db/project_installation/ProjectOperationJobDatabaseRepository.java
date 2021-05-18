@@ -5,16 +5,21 @@
 
 package io.imunity.furms.db.project_installation;
 
-import io.imunity.furms.domain.project_installation.*;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
+
+import org.springframework.stereotype.Repository;
+
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
 
 @Repository
 class ProjectOperationJobDatabaseRepository implements ProjectOperationRepository {
@@ -54,8 +59,13 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter){
-		ProjectInstallationEntity allocation = installationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId));
+	public ProjectInstallation findProjectInstallation(String projectAllocationId,
+			Function<PersistentId, Optional<FURMSUser>> userGetter) {
+		ProjectInstallationEntity allocation = installationRepository
+				.findByProjectAllocationId(UUID.fromString(projectAllocationId));
+		final FURMSUser leader = allocation.leaderId != null
+				? userGetter.apply(new PersistentId(allocation.leaderId)).orElse(null)
+				: null;
 		return ProjectInstallation.builder()
 			.id(allocation.id)
 			.siteId(allocation.siteId)
@@ -68,7 +78,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.researchField(allocation.researchField)
 			.validityStart(allocation.validityStart)
 			.validityEnd(allocation.validityEnd)
-			.leader(userGetter.apply(new PersistentId(allocation.leaderId)).orElse(null))
+			.leader(leader)
 			.build();
 	}
 

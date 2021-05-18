@@ -119,7 +119,7 @@ public class SettingsView extends FurmsViewComponent {
 				upload.getImage().setVisible(true);
 			} catch (IOException e) {
 				showErrorNotification(getTranslation("view.site-admin.settings.form.logo.error"));
-				LOG.error("Could not load Image", e);
+				LOG.debug("Could not load Image", e);
 			}
 		});
 
@@ -211,7 +211,7 @@ public class SettingsView extends FurmsViewComponent {
 				name.setErrorMessage(getTranslation("view.site-admin.settings.form.name.validation.unique"));
 				name.setInvalid(true);
 			} catch (RuntimeException e) {
-				LOG.error("Error during update Site settings.", e);
+				LOG.warn("Error during update Site settings.", e);
 				showErrorNotification(getTranslation("view.site-admin.settings.form.error.unexpected"));
 			}
 		}

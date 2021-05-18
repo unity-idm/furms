@@ -134,6 +134,7 @@ class ProjectServiceImpl implements ProjectService {
 			.researchField(project.getResearchField())
 			.utcStartTime(project.getUtcStartTime())
 			.utcEndTime(project.getUtcEndTime())
+			.leaderId(project.getLeaderId())
 			.description(attributes.getDescription())
 			.logo(attributes.getLogo())
 			.build();

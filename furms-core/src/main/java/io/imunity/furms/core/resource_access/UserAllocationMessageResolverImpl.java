@@ -27,12 +27,15 @@ class UserAllocationMessageResolverImpl implements UserAllocationMessageResolver
 
 	@Override
 	public void update(CorrelationId correlationId, AccessStatus status, String msg) {
+		AccessStatus currentStatus = repository.findCurrentStatus(correlationId);
+		if(!currentStatus.isTransitionalTo(status))
+			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, status));
 		if(status.equals(AccessStatus.REVOKED)) {
 			repository.delete(correlationId);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}
 		repository.update(correlationId, status, msg);
-		LOG.info("UserAllocation status with given correlation id {} was updated {}", correlationId.id, status);
+		LOG.info("UserAllocation status with correlation id {} was updated to {}", correlationId.id, status);
 	}
 }

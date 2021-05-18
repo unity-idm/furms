@@ -5,17 +5,22 @@
 
 package io.imunity.furms.ui.utils;
 
-import io.imunity.furms.api.validation.exceptions.*;
-import io.imunity.furms.domain.site_agent.SiteAgentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationHasProjectAllocationsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
+import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
+import io.imunity.furms.domain.site_agent.SiteAgentException;
 
 public class VaadinExceptionHandler {
 
@@ -25,36 +30,36 @@ public class VaadinExceptionHandler {
 		try {
 			return Optional.ofNullable(supplier.get());
 		}catch (DuplicatedNameValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("name.duplicated.error.message"));
 			return Optional.empty();
 		}catch (RemovingCommunityException e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("community.removing.error.message"));
 			return Optional.empty();
 		}
 		catch (InfraServiceHasIndirectlyResourceCreditsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("service.removing.error.message"));
 			return Optional.empty();
 		}
 		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("resource-type.removing.error.message"));
 			return Optional.empty();
 		}
 		catch (SiteAgentException e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("site-agent.error.message"));
 			return Optional.empty();
 		}
 		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("community-allocation.removing.error.message"));
 			return Optional.empty();
 		}
 		catch (Exception e){
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 			return Optional.empty();
 		}
@@ -71,26 +76,26 @@ public class VaadinExceptionHandler {
 		try {
 			return OptionalException.of(supplier.get());
 		}catch (DuplicatedNameValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			return OptionalException.of(new FrontException("name.duplicated.error.message", e));
 		}catch (RemovingCommunityException e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			return OptionalException.of(new FrontException("community.removing.error.message", e));
 		}
 		catch (InfraServiceHasIndirectlyResourceCreditsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			return OptionalException.of(new FrontException("service.removing.error.message", e));
 		}
 		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			return OptionalException.of(new FrontException("resource-type.removing.error.message", e));
 		}
 		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			return OptionalException.of(new FrontException("community-allocation.removing.error.message", e));
 		}
 		catch (Exception e){
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			return OptionalException.of(new FrontException("base.error.message", e));
 		}
 	}

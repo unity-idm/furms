@@ -5,11 +5,11 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
+
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.stereotype.Component;
-
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
 
 @Component
 public class SiteAgentListenerConnector {
@@ -19,13 +19,15 @@ public class SiteAgentListenerConnector {
 		this.endpointRegistry = endpointRegistry;
 	}
 
-	public void connectListenerToQueue(String queueName){
-		AbstractMessageListenerContainer furmsContainer = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer(FURMS_LISTENER);
+	public void connectListenerToQueue(String queueName) {
+		AbstractMessageListenerContainer furmsContainer = (AbstractMessageListenerContainer) endpointRegistry
+				.getListenerContainer(FURMS_LISTENER);
 		furmsContainer.addQueueNames(queueName);
 	}
 
-	public void disconnectListenerToQueue(String queueName){
-		AbstractMessageListenerContainer furmsContainer = (AbstractMessageListenerContainer)endpointRegistry.getListenerContainer(FURMS_LISTENER);
+	public void disconnectListenerToQueue(String queueName) {
+		AbstractMessageListenerContainer furmsContainer = (AbstractMessageListenerContainer) endpointRegistry
+				.getListenerContainer(FURMS_LISTENER);
 		furmsContainer.removeQueueNames(queueName);
 	}
 }
