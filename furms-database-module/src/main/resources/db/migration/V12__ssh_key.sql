@@ -8,17 +8,17 @@ CREATE TABLE sshkey (
 );
 
 CREATE TABLE sshkey_site (
-  sshkey_id UUID,
-  site_id UUID,
-  PRIMARY KEY (sshkey_id, site_id),
-  FOREIGN KEY (sshkey_id) REFERENCES sshkey(id) ON DELETE CASCADE,
-  FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
+	sshkey_id UUID,
+	site_id UUID,
+	PRIMARY KEY (sshkey_id, site_id),
+	FOREIGN KEY (sshkey_id) REFERENCES sshkey(id) ON DELETE CASCADE,
+	FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
 );
 
 CREATE TABLE installed_ssh_key (
     id UUID PRIMARY KEY NOT NULL,
-   	site_Id UUID NOT NULL,
-	sshkey_Id UUID NOT NULL,
+   	site_id UUID NOT NULL,
+	sshkey_id UUID NOT NULL,
   	value MEDIUMTEXT NOT NULL,
   	UNIQUE (sshkey_id, site_id),
   	FOREIGN KEY (sshkey_id) REFERENCES sshkey(id),
@@ -27,9 +27,9 @@ CREATE TABLE installed_ssh_key (
 
 CREATE TABLE ssh_key_operation_job (
 	id UUID PRIMARY KEY NOT NULL,
-	correlation_Id UUID NOT NULL,
-	site_Id UUID NOT NULL,
-	sshkey_Id UUID NOT NULL,
+	correlation_id UUID NOT NULL,
+	site_id UUID NOT NULL,
+	sshkey_id UUID NOT NULL,
 	status VARCHAR(255) NOT NULL,
 	operation VARCHAR(255) NOT NULL,
 	error VARCHAR(255),
@@ -39,12 +39,12 @@ CREATE TABLE ssh_key_operation_job (
 	FOREIGN KEY (site_id) REFERENCES site(id)
 );
 
-ALTER TABLE site ADD COLUMN SSH_KEY_HISTORY_LENGTH INT;
+ALTER TABLE site ADD COLUMN ssh_key_history_length INT;
 
 CREATE TABLE ssh_key_history (
 	id UUID PRIMARY KEY NOT NULL,
 	sshkey_owner_id VARCHAR(255) NOT NULL,
-	site_Id UUID NOT NULL,
+	site_id UUID NOT NULL,
 	sshkey_fingerprint VARCHAR(255) NOT NULL,
 	origination_time TIMESTAMP NOT NULL,
 	FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE

@@ -19,7 +19,7 @@ interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperat
 	SSHKeyOperationJobEntity findBySshkeyIdAndSiteId(UUID sshkeyId, UUID siteId);
 
 	@Modifying
-	@Query("delete from  ssh_key_operation_job where sshkey_Id = :sshkey_id and site_Id = :site_id")
+	@Query("delete from  ssh_key_operation_job where sshkey_id = :sshkey_id and site_id = :site_id")
 	void deleteBySshKeyIdAndSiteId(@Param("sshkey_id") UUID sshkeyId,
 			@Param("site_id") UUID siteId);
 
