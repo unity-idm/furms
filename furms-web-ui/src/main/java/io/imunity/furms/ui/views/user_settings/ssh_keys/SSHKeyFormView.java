@@ -38,6 +38,7 @@ import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
@@ -61,10 +62,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 		this.resolver =  new SiteComboBoxModelResolver(
 				siteService.findUserSites(authzService.getCurrentUserId()));
 		this.sshKeyComponent = new SSHKeyFormComponent(binder, resolver, sshKeysService);
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();

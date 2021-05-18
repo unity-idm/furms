@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
@@ -82,17 +84,13 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private ZoneId zoneId;
 
 	SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService,
-			SSHKeyOperationService sshKeyInstallationService) {
+			SSHKeyOperationService sshKeyInstallationService) throws InterruptedException, ExecutionException {
 		this.sshKeysService = sshKeysService;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.grid = createSSHKeysGrid();
 		this.resolver = new SiteComboBoxModelResolver(
 				siteService.findUserSites(authzService.getCurrentUserId()));
-
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button addButton = createAddButton();
 		getContent().add(createHeaderLayout(addButton), new HorizontalLayout(grid));
 	}

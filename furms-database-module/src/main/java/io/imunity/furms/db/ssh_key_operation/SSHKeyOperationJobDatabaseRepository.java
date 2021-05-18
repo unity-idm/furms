@@ -115,7 +115,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 
 	@Override
 	public List<SSHKeyOperationJob> findBySSHKey(String sshkeyId) {
-		return repository.findBySshkeyId(sshkeyId).stream()
+		return repository.findBySshkeyId(UUID.fromString(sshkeyId)).stream()
 				.map(job -> SSHKeyOperationJob.builder().id(job.getId().toString())
 						.correlationId(new CorrelationId(job.correlationId.toString()))
 						.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
