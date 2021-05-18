@@ -13,8 +13,6 @@ import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
@@ -118,7 +116,6 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void addSSHKey(CorrelationId correlationId, SSHKeyAddition installation) {
 
 		AgentSSHKeyAdditionRequest request = SSHKeyOperationMapper.map(installation);
@@ -131,7 +128,6 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void updateSSHKey(CorrelationId correlationId, SSHKeyUpdating updating) {
 
 		AgentSSHKeyUpdatingRequest request = SSHKeyOperationMapper.map(updating);
@@ -144,7 +140,6 @@ class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationSer
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void removeSSHKey(CorrelationId correlationId, SSHKeyRemoval deinstallation) {
 		AgentSSHKeyRemovalRequest request = SSHKeyOperationMapper.map(deinstallation);
 		try {

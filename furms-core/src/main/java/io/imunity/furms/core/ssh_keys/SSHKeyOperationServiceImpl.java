@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
@@ -62,6 +63,29 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	@Override
 	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
+	}
+	
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void create(SSHKeyOperationJob operationJob) {
+		sshKeyOperationRepository.create(operationJob);
+		LOG.info("SSHKeyOperationJob was created: {}", operationJob);
+	}
+	
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteOperationBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
+		sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);
+		LOG.info("SSHKeyOperationJob for key={} and site={} was deleted", sshkeyId, siteId);
+	}
+	
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	@Transactional
+	public List<SSHKeyOperationJob> findBySSHKey(String id) {
+		return sshKeyOperationRepository.findBySSHKey(id);
 	}
 
 	// FIXME To auth this method special user for queue message resolving is
@@ -128,5 +152,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 			LOG.info("Removed SSH key from repository with ID={}, {}", operationJob.sshkeyId, removed.orElse(null));
 		}
 	}
+
+	
 
 }
