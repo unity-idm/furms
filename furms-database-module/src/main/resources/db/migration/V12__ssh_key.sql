@@ -1,7 +1,7 @@
 CREATE TABLE sshkey (
     id UUID PRIMARY KEY NOT NULL,
     name VARCHAR(255) UNIQUE NOT NULL,
-    value MEDIUMTEXT NOT NULL,
+    value TEXT NOT NULL,
     create_time TIMESTAMP NOT NULL,
     update_time TIMESTAMP,
     owner_id VARCHAR(255) NOT NULL
@@ -19,7 +19,7 @@ CREATE TABLE installed_ssh_key (
     id UUID PRIMARY KEY NOT NULL,
    	site_id UUID NOT NULL,
 	sshkey_id UUID NOT NULL,
-  	value MEDIUMTEXT NOT NULL,
+  	value TEXT NOT NULL,
   	UNIQUE (sshkey_id, site_id),
   	FOREIGN KEY (sshkey_id) REFERENCES sshkey(id),
 	FOREIGN KEY (site_id) REFERENCES site(id)
