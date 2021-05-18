@@ -8,10 +8,10 @@ package io.imunity.furms.ui.views.site.services;
 import java.util.Objects;
 
 class InfraServiceViewModel {
-	public final String id;
-	public final String siteId;
-	public String name;
-	public String description;
+	private final String id;
+	private final String siteId;
+	private String name;
+	private String description;
 
 	private InfraServiceViewModel(String id, String siteId, String name, String description) {
 		this.id = id;
@@ -23,6 +23,14 @@ class InfraServiceViewModel {
 	InfraServiceViewModel(String siteId) {
 		this.id = null;
 		this.siteId = siteId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getSiteId() {
+		return siteId;
 	}
 
 	public String getName() {
@@ -72,10 +80,10 @@ class InfraServiceViewModel {
 	}
 
 	public static final class ServiceViewModelBuilder {
-		public String id;
-		public String siteId;
-		public String name;
-		public String description;
+		private String id;
+		private String siteId;
+		private String name;
+		private String description;
 
 		private ServiceViewModelBuilder() {
 		}

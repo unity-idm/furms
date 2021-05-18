@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.resource_credits;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.components.support.IdGridUtils.showIdInGrid;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -23,7 +24,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -50,7 +53,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 
 	public ResourceCreditsView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
-		this.grid = createCommunityGrid();
+		this.grid = createResourceCreditGrid();
 		this.resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
 		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
 			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
@@ -72,30 +75,34 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		return addButton;
 	}
 
-	private Grid<ResourceCreditViewModel> createCommunityGrid() {
+	private Grid<ResourceCreditViewModel> createResourceCreditGrid() {
 		Grid<ResourceCreditViewModel> grid = new SparseGrid<>(ResourceCreditViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, ResourceCreditFormView.class, c.id))
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.1"))
+		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceCreditFormView.class, c.getId()))
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.name"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(c -> resolver.getName(c.resourceTypeId))
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.2"))
+			.setComparator(x -> x.getName().toLowerCase());
+		grid.addColumn(c -> showIdInGrid(c.getId()))
+				.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.id"))
+				.setSortable(true)
+				.setComparator(x -> x.getName().toLowerCase());
+		grid.addColumn(c -> resolver.getName(c.getResourceTypeId()))
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.resourceType"))
 			.setSortable(true);
-		grid.addColumn(c -> c.amount.toPlainString() + " " + resolver.getResourceType(c.resourceTypeId).unit.getSuffix())
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.3"))
+		grid.addColumn(c -> c.getAmount().toPlainString() + " " + resolver.getResourceType(c.getResourceTypeId()).unit.getSuffix())
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.credit"))
 			.setSortable(true);
-		grid.addColumn(c -> c.createTime.toLocalDate())
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.4"))
+		grid.addColumn(c -> c.getCreateTime().toLocalDate())
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.created"))
 			.setSortable(true);
-		grid.addColumn(c -> c.startTime.toLocalDate())
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.5"))
+		grid.addColumn(c -> c.getStartTime().toLocalDate())
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.validFrom"))
 			.setSortable(true);
-		grid.addColumn(c -> c.endTime.toLocalDate())
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.6"))
+		grid.addColumn(c -> c.getEndTime().toLocalDate())
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.validTo"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.7"))
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.actions"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -103,7 +110,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ResourceCreditViewModel resourceTypeViewModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(resourceTypeViewModel.id, resourceTypeViewModel.name)
+			createContextMenu(resourceTypeViewModel.getId(), resourceTypeViewModel.getName())
 		);
 	}
 
@@ -144,7 +151,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
-			.sorted(comparing(resourceTypeViewModel -> resourceTypeViewModel.name.toLowerCase()))
+			.sorted(comparing(resourceTypeViewModel -> resourceTypeViewModel.getName().toLowerCase()))
 			.collect(toList());
 	}
 }

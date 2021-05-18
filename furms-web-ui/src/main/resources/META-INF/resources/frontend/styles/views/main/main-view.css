@@ -59,3 +59,7 @@
 .reload-disable:active {
 	pointer-events: none;
 }
+
+vaadin-form-item > div {
+	font-size: var(--lumo-font-size-m);
+}
