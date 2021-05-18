@@ -22,14 +22,17 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 	public final String name;
 	public final ResourceMeasureType type;
 	public final ResourceMeasureUnit unit;
+	public final boolean accessible;
 
-	public ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, ResourceMeasureType type, ResourceMeasureUnit unit) {
+	public ResourceTypeEntity(UUID id, String name, UUID siteId, UUID serviceId, ResourceMeasureType type,
+	                          ResourceMeasureUnit unit, boolean accessible) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
 		this.type = type;
 		this.unit = unit;
+		this.accessible = accessible;
 	}
 
 	public ResourceType toResourceType() {
@@ -40,6 +43,7 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 			.name(name)
 			.type(type)
 			.unit(unit)
+			.accessible(accessible)
 			.build();
 	}
 
@@ -52,12 +56,13 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(serviceId, that.serviceId) &&
 			type == that.type &&
-			Objects.equals(unit, that.unit);
+			Objects.equals(unit, that.unit) &&
+			Objects.equals(accessible, that.accessible);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, siteId, serviceId, type, unit);
+		return Objects.hash(name, siteId, serviceId, type, unit, accessible);
 	}
 
 	@Override
@@ -69,6 +74,7 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 			", type=" + type +
 			", unit=" + unit +
 			", id=" + id +
+			", accessible=" + accessible +
 			'}';
 	}
 
@@ -83,6 +89,7 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 		public ResourceMeasureUnit unit;
 		protected UUID id;
 		private String name;
+		private boolean accessible;
 
 		private ResourceTypeEntityBuilder() {
 		}
@@ -112,13 +119,18 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ResourceTypeEntityBuilder accessible(boolean accessible) {
+			this.accessible = accessible;
+			return this;
+		}
+
 		public ResourceTypeEntityBuilder id(UUID id) {
 			this.id = id;
 			return this;
 		}
 
 		public ResourceTypeEntity build() {
-			return new ResourceTypeEntity(id, name, siteId, serviceId, type, unit);
+			return new ResourceTypeEntity(id, name, siteId, serviceId, type, unit, accessible);
 		}
 	}
 }

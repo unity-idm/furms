@@ -3,38 +3,34 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.users;
+package io.imunity.furms.domain.resource_access;
 
 import java.util.Objects;
 
-public class FenixUserId {
-	public final String id;
+public class ErrorMessage {
+	public final String message;
 
-	public FenixUserId(String id) {
-		this.id = id;
-	}
-
-	public static FenixUserId empty(){
-		return new FenixUserId(null);
+	public ErrorMessage(String message) {
+		this.message = message;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		FenixUserId that = (FenixUserId) o;
-		return Objects.equals(id, that.id);
+		ErrorMessage that = (ErrorMessage) o;
+		return Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(message);
 	}
 
 	@Override
 	public String toString() {
-		return "FenixId{" +
-			"id='" + id + '\'' +
+		return "ErrorMessage{" +
+			"message='" + message + '\'' +
 			'}';
 	}
 }
