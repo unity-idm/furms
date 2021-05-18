@@ -7,7 +7,6 @@ package io.imunity.furms.domain.resource_access;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public enum AccessStatus {
 	GRANT_PENDING(0),
@@ -26,27 +25,16 @@ public enum AccessStatus {
 	public static final Set<AccessStatus> ENABLED_STATUES = Set.of(GRANT_PENDING, GRANT_ACKNOWLEDGED, GRANTED, REVOKE_FAILED);
 	public static final Set<AccessStatus> TERMINAL_GRANTED = Set.of(GRANTED, GRANT_FAILED);
 
-	static {
-		GRANT_PENDING.predicate = status -> Set.of(GRANT_ACKNOWLEDGED, GRANT_FAILED, GRANTED).contains(status);
-		REVOKE_PENDING.predicate = status -> Set.of(REVOKE_ACKNOWLEDGED, REVOKE_FAILED, REVOKED).contains(status);
-		GRANT_ACKNOWLEDGED.predicate = status -> Set.of(GRANT_FAILED, GRANTED).contains(status);
-		REVOKE_ACKNOWLEDGED.predicate = status -> Set.of(REVOKE_FAILED, REVOKED).contains(status);
-		GRANT_FAILED.predicate = status -> false;
-		REVOKE_FAILED.predicate = status -> status.equals(REVOKE_PENDING);
-		GRANTED.predicate = status -> status.equals(REVOKE_PENDING);
-		REVOKED.predicate = status -> false;
-	}
-
-
 	AccessStatus(int persistentId) {
 		this.persistentId = persistentId;
+		this.transitionManager = new TransitionManager();
 	}
 
 	private final int persistentId;
-	private Predicate<AccessStatus> predicate;
+	private final TransitionManager transitionManager;
 
 	public boolean isTransitionalTo(AccessStatus accessStatus) {
-		return predicate.test(accessStatus);
+		return transitionManager.isTransitional(this, accessStatus);
 	}
 
 	public int getPersistentId() {
