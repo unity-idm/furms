@@ -145,19 +145,19 @@ class SSHKeyFormView extends FurmsViewComponent {
 				sshKeyService.update(SSHKeyViewModelMapper.map(sshKeyUpdateModel));
 			}
 		} catch (UserWithoutFenixIdValidationError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			return;
 		} catch (SSHKeyHistoryException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("view.user-settings.ssh-keys.history.error.message", resolver.getName(e.siteId)));
 			return;	
 		} catch (UninstalledUserError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.not.installed"));
 			return;	
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			showErrorNotification(getTranslation("base.error.message"));
 			return;
 		}

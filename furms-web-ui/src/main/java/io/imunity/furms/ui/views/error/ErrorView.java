@@ -5,18 +5,21 @@
 
 package io.imunity.furms.ui.views.error;
 
+import static io.imunity.furms.ui.views.error.DefaultErrorViewsGenerator.generate;
+
+import java.lang.invoke.MethodHandles;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.InternalServerError;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.ui.components.PageTitle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletResponse;
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.ui.views.error.DefaultErrorViewsGenerator.generate;
 
 @Route(value = "/error/internal-server")
 @PageTitle(key = "view.error-page.internal-server-error.title")
@@ -32,7 +35,7 @@ public class ErrorView extends InternalServerError {
 
 	@Override
 	public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<Exception> parameter) {
-		LOG.error("Unexpected error: ", parameter.getException());
+		LOG.warn("Unexpected error: ", parameter.getException());
 		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 	}
 }

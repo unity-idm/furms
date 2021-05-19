@@ -25,4 +25,8 @@ Community name, description and logo can be modified at any time. It can be perf
 
 === Distributing resources to projects
 
-{versionlimit} This functionality is not available yet.
+Distribution of community resource allocations to projects can be performed in two different ways. 
+
+The typical path to distribute available resource allocations starts at the community administrator dashboard. Dashboard shows all resource allocations of the community. By default only the not-fully distributed and valid allocations are shown, though it is possible to show also the ones excluded by default. Community admin can use the (+) button on each community allocation to create a project allocation from it. When creating allocation this way, the target project has to be selected.
+
+The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its _Allocations_ tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected. 

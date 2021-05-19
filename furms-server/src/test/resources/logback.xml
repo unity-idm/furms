@@ -3,7 +3,7 @@
 	<appender name="CONSOLE"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%date [%13.13thread] %-5level %60.60logger - %msg%n</pattern>
+			<pattern>%date [%13.13thread] [%X{queueName}] [%X{userId}] %-5level %60.60logger - %msg%n</pattern>
 		</encoder>
 	</appender>
 

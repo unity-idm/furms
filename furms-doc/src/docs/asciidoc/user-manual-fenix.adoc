@@ -10,8 +10,6 @@ Fenix administrator is responsible for:
 
 Fenix admin can create sites providing only the basic information: site name. Additional site attributes are supposed to be setup by the site admin.
 
-{versionlimit} Sites can be removed freely at this point. In the next versions removing a site will be subject to many constraints.
-
 After creating a site, Fenix admin should provide at least a single administrator for the site. The appropriate view can be activated from the site's context menu "Administrators". From there the Fenix admin can freely add and remove site administrators. 
 
 NOTE: Site administrators can also themselves manage administrators of their site, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial site admin must be always performed by the Fenix admin.
@@ -21,8 +19,6 @@ NOTE: Site administrators can also themselves manage administrators of their sit
 === Managing communities
 
 Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.
-
-{versionlimit} Communities can be removed freely at this point. In the next versions removing a community will be subject to many constraints.
 
 After creating a community, Fenix admin should provide at least a single administrator for it. The appropriate view can be activated from the community's context menu "Administrators". From there the Fenix admin can freely add and remove community administrators. 
 
@@ -39,5 +35,9 @@ FURMS allows for having multiple users with the Fenix administrator role. Each F
 
 === Distributing resources to communities
 
-{versionlimit} This functionality is not available yet.
+Distribution of resource credits provided by sites can be performed from two parts of the FURMS user interface. 
+
+The typical way to distribute credits starts at the Fenix administrator dashboard. Dashboard shows all resource credits. By default only the not-fully distributed and valid credits are shown, though it is possible to show also all excluded ones. Fenix admin can use the (+) button on each credit to create an allocation from it. When creating allocation this way, the target community has to be selected.
+
+The other way to create allocations from credits is to start from a target community, in the Communities view. After selecting a community and navigating to its _Allocations_ tab, Fenix administrator can create an allocation for that community. When creating allocation this way, the resource credit needs to be selected. Interface allows for using multiple level of filters to easily find the desired credit.    
 
