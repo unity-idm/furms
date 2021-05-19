@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.views.landing;
 
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
-import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LANDING_PAGE_URL;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -30,6 +29,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
+
+import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
 
 @Route(LANDING_PAGE_URL)
 @PageTitle(key = "view.landing.title")
@@ -95,7 +96,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 				.flatMap(Collection::stream)
 				.collect(toList());
 		if (viewUserContexts.size() == 0) {
-			UI.getCurrent().getPage().setLocation(FRONT_LOGOUT_URL);
+			UI.getCurrent().getPage().setLocation(LOGOUT_TRIGGER_URL);
 			return;
 		}		
 		if (viewUserContexts.size() == 1 || (viewUserContexts.size() == 2 && data.containsKey(ViewMode.USER))) {

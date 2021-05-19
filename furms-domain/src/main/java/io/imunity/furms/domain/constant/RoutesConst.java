@@ -15,8 +15,8 @@ public final class RoutesConst {
 	public static final String LANDING_PAGE_URL = "start/" + ROLE_CHOOSER_URL;
 	public static final String LOGIN_SUCCESS_URL = FRONT + "/" + LANDING_PAGE_URL;
 
-	public static final String LOGOUT_URL = PUBLIC_URL + "/logout";
-	public static final String FRONT_LOGOUT_URL = FRONT + LOGOUT_URL;
+	public static final String POST_LOGOUT_PAGE_URL = PUBLIC_URL + "/logout";
+	public static final String LOGOUT_TRIGGER_URL = FRONT + "/logout";
 
 	public static final String OAUTH_START_URL = "/oauth2/authorization";
 	public static final String OAUTH_START_WITH_AUTOPROXY_URL = "/oauth2/authorization/param";

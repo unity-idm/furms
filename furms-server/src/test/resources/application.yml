@@ -20,10 +20,11 @@ furms:
       oAuth:
          clientId: oauth-client
          clientSecret: oauth-pass1
-         token:
-            refresh-interval: 60
    front:
       language: en
+      maxSessionInactivity: 31
+      secondsBeforeShowingSessionExpirationWarning: 20
+      
    url: https://localhost:${server.port}
    psk:
       centralIdPUser: cidp

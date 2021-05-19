@@ -44,11 +44,11 @@ class FurmsI18NProviderImpl implements FurmsI18NProvider {
 	}
 	
 	private Locale getUILocale() {
-        UI currentUi = UI.getCurrent();
-        Locale locale = currentUi == null ? null : currentUi.getLocale();
-        if (locale == null) {
-            locale = DEFAULT_LOCALE;
-        }
-        return locale;
-    }
+		UI currentUi = UI.getCurrent();
+		Locale locale = currentUi == null ? null : currentUi.getLocale();
+		if (locale == null) {
+			locale = DEFAULT_LOCALE;
+		}
+		return locale;
+	}
 }
