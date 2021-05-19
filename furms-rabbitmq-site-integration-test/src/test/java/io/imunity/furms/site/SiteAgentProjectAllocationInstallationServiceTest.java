@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
@@ -65,7 +66,7 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 		verify(projectAllocationInstallationMessageResolver, timeout(15000).times(2)).updateStatus(any());
 	}
 
@@ -92,6 +93,6 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, null);
+		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
 	}
 }

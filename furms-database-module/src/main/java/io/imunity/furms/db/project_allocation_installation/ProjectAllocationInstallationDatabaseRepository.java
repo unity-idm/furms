@@ -5,10 +5,7 @@
 
 package io.imunity.furms.db.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.springframework.stereotype.Repository;
@@ -43,7 +40,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public Set<ProjectDeallocation> findAllDeallocation(String projectId) {
 		if (isEmpty(projectId)) {
-			return Set.of();
+			throw new IllegalArgumentException("Project Id is empty");
 		}
 		return deallocationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectDeallocationEntity::toProjectDeallocation)
@@ -88,7 +85,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectAllocationInstallationStatus status, String msg) {
+	public String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(installationEntity -> ProjectAllocationInstallationEntity.builder()
 				.id(installationEntity.getId())
@@ -100,7 +97,8 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.validTo(installationEntity.validTo)
 				.receivedTime(installationEntity.receivedTime)
 				.status(status)
-				.message(msg)
+				.code(errorMessage.map(e -> e.code).orElse(null))
+				.message(errorMessage.map(e -> e.message).orElse(null))
 				.build())
 			.map(allocationRepository::save)
 			.map(ProjectAllocationInstallationEntity::getId)
@@ -119,7 +117,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectDeallocationStatus status, String message) {
+	public String update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(oldProjectAllocation -> ProjectDeallocationEntity.builder()
 				.id(oldProjectAllocation.getId())
@@ -127,7 +125,8 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.siteId(oldProjectAllocation.siteId)
 				.projectAllocationId(oldProjectAllocation.projectAllocationId)
 				.status(status)
-				.message(message)
+				.code(errorMessage.map(e -> e.code).orElse(null))
+				.message(errorMessage.map(e -> e.message).orElse(null))
 				.build()
 			)
 			.map(deallocationRepository::save)

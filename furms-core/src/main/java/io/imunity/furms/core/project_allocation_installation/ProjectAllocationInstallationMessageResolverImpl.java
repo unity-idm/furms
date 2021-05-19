@@ -5,10 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 
 @Service
 class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocationInstallationMessageResolver {
@@ -37,20 +35,20 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 
 	@Override
 	@Transactional
-	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, String message) {
+	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		if(job.status.equals(ProjectAllocationInstallationStatus.INSTALLED) || job.status.equals(ProjectAllocationInstallationStatus.FAILED)) {
 			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status, message);
+		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
 	@Override
 	@Transactional
-	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, String message) {
+	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id);
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
 			projectAllocationRepository.delete(projectDeallocation.projectAllocationId);
@@ -60,7 +58,7 @@ class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocat
 			LOG.info("ProjectDeallocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status, message);
+		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectDeallocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 

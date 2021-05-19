@@ -22,20 +22,20 @@ public enum UserStatus {
 	}
 
 	private final int persistentId;
-	private static final TransitionManager transitionManager = new TransitionManager();
+	private static final TransitionValidator TRANSITION_VALIDATOR = new TransitionValidator();
 
 	public int getPersistentId() {
 		return persistentId;
 	}
 
 	public boolean isTransitionalTo(UserStatus userStatus) {
-		return transitionManager.isTransitional(this, userStatus);
+		return TRANSITION_VALIDATOR.isTransitional(this, userStatus);
 	}
 
 	public static UserStatus valueOf(int status){
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
 	}
 }

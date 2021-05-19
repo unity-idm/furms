@@ -24,6 +24,6 @@ public enum ProjectDeallocationStatus {
 		return Arrays.stream(values())
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
 	}
 }

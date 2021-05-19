@@ -17,6 +17,8 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_ACKNOWLEDGED;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -127,8 +129,8 @@ class UserOperationMessageResolverTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(ADDING_PENDING);
-		service.updateStatus(correlationId, ADDING_ACKNOWLEDGED, "msg");
+		service.updateStatus(correlationId, ADDING_ACKNOWLEDGED, Optional.empty());
 
-		orderVerifier.verify(repository).updateStatus(correlationId, ADDING_ACKNOWLEDGED, "msg");
+		orderVerifier.verify(repository).updateStatus(correlationId, ADDING_ACKNOWLEDGED, Optional.empty());
 	}
 }

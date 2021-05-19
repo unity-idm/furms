@@ -14,7 +14,6 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -135,12 +134,13 @@ class ResourceAccessViewService {
 	public Map<ResourceAccessModel, List<ResourceAccessModel>> loadData() {
 		Set<ProjectAllocationResolved> allocations = projectAllocationService.findAllWithRelatedObjects(communityId, projectId);
 		return projectService.findAllUsers(communityId, projectId).stream()
+			.filter(u -> u.fenixUserId.isPresent())
 			.collect(Collectors.toMap(u ->
 					ResourceAccessModel.builder()
 						.firstName(u.firstName.orElse(""))
 						.lastName(u.lastName.orElse(""))
 						.email(u.email)
-						.fenixUserId(u.fenixUserId.orElseGet(FenixUserId::empty))
+						.fenixUserId(u.fenixUserId.get())
 						.build(),
 				u -> allocations.stream()
 					.map(allocation -> ResourceAccessModel.builder()
@@ -150,7 +150,7 @@ class ResourceAccessViewService {
 						.siteId(new SiteId(allocation.site.getId(), allocation.site.getExternalId()))
 						.allocationId(allocation.id)
 						.accessible(allocation.resourceType.accessibleForAllProjectMembers)
-						.fenixUserId(u.fenixUserId.orElseGet(FenixUserId::empty))
+						.fenixUserId(u.fenixUserId.get())
 						.message(getMessage(u, allocation))
 						.build())
 					.collect(toList())

@@ -6,10 +6,12 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
@@ -42,33 +44,56 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ACKNOWLEDGED, null);
+			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ACKNOWLEDGED, Optional.empty());
 		else
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, FAILED, Optional.ofNullable(ack.header.error).map(x -> x.message).orElse(null));
+			projectAllocationInstallationMessageResolver.updateStatus(
+				correlationId,
+				FAILED,
+				getErrorMessage(ack.header.error)
+			);
 	}
 
 	@EventListener
 	void receiveProjectResourceDeallocationAck(Payload<AgentProjectDeallocationRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED, null);
+			projectAllocationInstallationMessageResolver.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
 		else
-			projectAllocationInstallationMessageResolver.updateStatus(correlationId, ProjectDeallocationStatus.FAILED, Optional.ofNullable(ack.header.error).map(x -> x.message).orElse(null));
+			projectAllocationInstallationMessageResolver.updateStatus(
+				correlationId,
+				ProjectDeallocationStatus.FAILED,
+				getErrorMessage(ack.header.error)
+			);
 	}
 
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
-		ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
-			.correlationId(new CorrelationId(result.header.messageCorrelationId))
-			.projectAllocationId(result.body.allocationIdentifier)
-			.chunkId(result.body.allocationChunkIdentifier)
-			.amount(BigDecimal.valueOf(result.body.amount))
-			.validFrom(convertToUTCTime(result.body.validFrom))
-			.validTo(convertToUTCTime(result.body.validTo))
-			.receivedTime(convertToUTCTime(result.body.receivedTime))
-			.status(INSTALLED)
-			.build();
-		projectAllocationInstallationMessageResolver.updateStatus(installation);
+		if(result.header.status.equals(Status.OK)) {
+			ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
+				.correlationId(new CorrelationId(result.header.messageCorrelationId))
+				.projectAllocationId(result.body.allocationIdentifier)
+				.chunkId(result.body.allocationChunkIdentifier)
+				.amount(BigDecimal.valueOf(result.body.amount))
+				.validFrom(convertToUTCTime(result.body.validFrom))
+				.validTo(convertToUTCTime(result.body.validTo))
+				.receivedTime(convertToUTCTime(result.body.receivedTime))
+				.status(INSTALLED)
+				.errorMessage(Optional.empty())
+				.build();
+			projectAllocationInstallationMessageResolver.updateStatus(installation);
+		}
+		else {
+			ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
+				.correlationId(new CorrelationId(result.header.messageCorrelationId))
+				.status(FAILED)
+				.errorMessage(getErrorMessage(result.header.error))
+				.build();
+			projectAllocationInstallationMessageResolver.updateStatus(installation);
+		}
+	}
+
+	private Optional<ErrorMessage> getErrorMessage(Error error) {
+		return Optional.ofNullable(error).map(x -> new ErrorMessage(x.code, x.message));
 	}
 
 	@Override

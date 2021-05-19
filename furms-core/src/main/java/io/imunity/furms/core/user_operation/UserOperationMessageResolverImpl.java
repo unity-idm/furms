@@ -7,6 +7,7 @@ package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -15,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
+import java.util.Optional;
 
 @Service
 class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
@@ -31,13 +31,13 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 	public void update(UserAddition userAddition){
 		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id);
 		if(!status.isTransitionalTo(userAddition.status)){
-			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", status, userAddition.status));
+			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed, UserAddition is %s", status, userAddition.status, status));
 		}
 		repository.update(userAddition);
 		LOG.info("UserAddition was correlation id {} was added", userAddition.correlationId.id);
 	}
 
-	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, String message) {
+	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage) {
 		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id);
 		if(!status.isTransitionalTo(userStatus)){
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", status, userStatus));
@@ -47,7 +47,7 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
 			return;
 		}
-		repository.updateStatus(correlationId, userStatus, message);
+		repository.updateStatus(correlationId, userStatus, userErrorMessage);
 		LOG.info("UserAddition status with given correlation id {} was update to: {}", correlationId.id, userStatus);
 	}
 

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +56,7 @@ class SiteAgentUserServiceTest {
 			.build();
 		siteAgentUserService.addUser(userAddition, user);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, null);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		verify(userOperationMessageResolver, timeout(10000)).update(any());
 	}
 
@@ -71,7 +72,7 @@ class SiteAgentUserServiceTest {
 
 		siteAgentUserService.removeUser(userAdditionJob);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, null);
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVED, null);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, Optional.empty());
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVED, Optional.empty());
 	}
 }

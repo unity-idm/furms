@@ -9,6 +9,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class UserAddition {
 	public final String id;
@@ -18,8 +19,10 @@ public class UserAddition {
 	public final String uid;
 	public final String userId;
 	public final UserStatus status;
+	public final Optional<UserAdditionErrorMessage> errorMessage;
 
-	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId, UserStatus status) {
+	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId,
+	             UserStatus status, Optional<UserAdditionErrorMessage> errorMessage) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
@@ -27,6 +30,7 @@ public class UserAddition {
 		this.userId = userId;
 		this.uid = uid;
 		this.status = status;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -39,12 +43,13 @@ public class UserAddition {
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(uid, that.uid) &&
+			Objects.equals(errorMessage, that.errorMessage) &&
 			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, projectId, correlationId, uid, userId, status);
+		return Objects.hash(id, siteId, projectId, correlationId, uid, userId, status, errorMessage);
 	}
 
 	@Override
@@ -57,6 +62,7 @@ public class UserAddition {
 			", uid='" + uid + '\'' +
 			", userId='" + userId + '\'' +
 			", status=" + status +
+			", errorMessage=" + errorMessage +
 			'}';
 	}
 
@@ -72,6 +78,7 @@ public class UserAddition {
 		public String uid;
 		public String userId;
 		public UserStatus status;
+		public Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
 
 		private UserAdditionBuilder() {
 		}
@@ -111,8 +118,13 @@ public class UserAddition {
 			return this;
 		}
 
+		public UserAdditionBuilder errorMessage(Optional<UserAdditionErrorMessage> errorMessage) {
+			this.errorMessage = errorMessage;
+			return this;
+		}
+
 		public UserAddition build() {
-			return new UserAddition(id, siteId, projectId, correlationId, uid, userId, status);
+			return new UserAddition(id, siteId, projectId, correlationId, uid, userId, status, errorMessage);
 		}
 	}
 }

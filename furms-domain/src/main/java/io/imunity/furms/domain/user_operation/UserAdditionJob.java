@@ -15,14 +15,14 @@ public class UserAdditionJob {
 	public final String userAdditionId;
 	public final CorrelationId correlationId;
 	public final UserStatus status;
-	public final Optional<ErrorUserMessage> message;
+	public final Optional<UserAdditionErrorMessage> errorMessage;
 
-	UserAdditionJob(String id, String userAdditionId, CorrelationId correlationId, UserStatus status, Optional<ErrorUserMessage> message) {
+	UserAdditionJob(String id, String userAdditionId, CorrelationId correlationId, UserStatus status, Optional<UserAdditionErrorMessage> errorMessage) {
 		this.id = id;
 		this.userAdditionId = userAdditionId;
 		this.correlationId = correlationId;
 		this.status = status;
-		this.message = message;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -33,12 +33,12 @@ public class UserAdditionJob {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(userAdditionId, that.userAdditionId) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(message, that.message);
+			Objects.equals(errorMessage, that.errorMessage);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, status, userAdditionId, message);
+		return Objects.hash(id, correlationId, status, userAdditionId, errorMessage);
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class UserAdditionJob {
 			", userAdditionId='" + userAdditionId + '\'' +
 			", correlationId='" + correlationId + '\'' +
 			", status=" + status +
-			", message=" + message +
+			", message=" + errorMessage +
 			'}';
 	}
 
@@ -61,7 +61,7 @@ public class UserAdditionJob {
 		private String userAdditionId;
 		private CorrelationId correlationId;
 		private UserStatus status;
-		private Optional<ErrorUserMessage> message = Optional.empty();
+		private Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
 
 		private UserRemovalBuilder() {
 		}
@@ -71,8 +71,8 @@ public class UserAdditionJob {
 			return this;
 		}
 
-		public UserRemovalBuilder message(String message) {
-			this.message = Optional.ofNullable(message).map(ErrorUserMessage::new);
+		public UserRemovalBuilder errorMessage(Optional<UserAdditionErrorMessage> errorMessage) {
+			this.errorMessage = errorMessage;
 			return this;
 		}
 
@@ -92,7 +92,7 @@ public class UserAdditionJob {
 		}
 
 		public UserAdditionJob build() {
-			return new UserAdditionJob(id, userAdditionId, correlationId, status, message);
+			return new UserAdditionJob(id, userAdditionId, correlationId, status, errorMessage);
 		}
 	}
 }

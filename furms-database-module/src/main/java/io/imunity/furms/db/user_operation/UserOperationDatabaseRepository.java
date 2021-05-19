@@ -7,12 +7,14 @@ package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,6 +77,8 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.correlationId(fromString(userAddition.correlationId.id))
 				.userAdditionId(old.userAdditionId)
 				.status(userAddition.status)
+				.code(userAddition.errorMessage.map(e -> e.code).orElse(null))
+				.message(userAddition.errorMessage.map(e -> e.message).orElse(null))
 				.build()
 			).ifPresent(userAdditionJobEntityRepository::save);
 	}
@@ -115,20 +119,22 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.correlationId(fromString(userAdditionJob.correlationId.id))
 				.userAdditionId(fromString(userAdditionJob.userAdditionId))
 				.status(userAdditionJob.status)
-				.message(null)
+				.code(userAdditionJob.errorMessage.map(e -> e.code).orElse(null))
+				.message(userAdditionJob.errorMessage.map(e -> e.message).orElse(null))
 				.build())
 			.ifPresent(userAdditionJobEntityRepository::save);
 	}
 
 	@Override
-	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, String message) {
+	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage) {
 		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(oldEntity -> UserAdditionJobEntity.builder()
 				.id(oldEntity.getId())
 				.correlationId(oldEntity.correlationId)
 				.userAdditionId(oldEntity.userAdditionId)
 				.status(userStatus)
-				.message(message)
+				.code(userErrorMessage.map(e -> e.code).orElse(null))
+				.message(userErrorMessage.map(e -> e.message).orElse(null))
 				.build())
 			.ifPresent(userAdditionJobEntityRepository::save);
 	}
@@ -139,7 +145,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public Set<String> findAddedUserIds(String projectId) {
+	public Set<String> findUserIds(String projectId) {
 		return userAdditionEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(x -> x.userId)
 			.collect(Collectors.toSet());

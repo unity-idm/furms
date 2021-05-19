@@ -43,8 +43,11 @@ public class UserOperationService {
 	}
 
 	public void createUserAdditions(String projectId, PersistentId userId) {
-		FURMSUser user = usersDAO.findById(userId).get();
-		if(repository.existsByUserIdAndProjectId(user.fenixUserId.orElseGet(FenixUserId::empty), projectId))
+		FURMSUser user = usersDAO.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("User with id %s doesn't exist", userId)));
+		FenixUserId fenixUserId = user.fenixUserId
+			.orElseThrow(() -> new IllegalArgumentException(String.format("FenixId for user with id %s is not present", userId)));
+		if(repository.existsByUserIdAndProjectId(fenixUserId, projectId))
 			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user.fenixUserId, projectId));
 		siteRepository.findByProjectId(projectId)
 			.forEach(siteId -> {

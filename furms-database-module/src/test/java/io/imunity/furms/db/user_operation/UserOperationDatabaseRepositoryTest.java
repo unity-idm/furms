@@ -180,11 +180,11 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		userOperationDatabaseRepository.updateStatus(correlationId, UserStatus.ADDED, "msg");
+		userOperationDatabaseRepository.updateStatus(correlationId, UserStatus.ADDED, Optional.empty());
 
 		Optional<UserAdditionJobEntity> byId = userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().status).isEqualTo(UserStatus.ADDED.getPersistentId());
-		assertThat(byId.get().message).isEqualTo("msg");
+		assertThat(byId.get().message).isEqualTo(null);
 	}
 }

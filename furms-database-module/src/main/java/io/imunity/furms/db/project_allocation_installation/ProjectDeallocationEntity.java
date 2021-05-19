@@ -20,14 +20,16 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectAllocationId;
 	public final int status;
+	public final String code;
 	public final String message;
 
-	ProjectDeallocationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, int status, String message) {
+	ProjectDeallocationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, int status, String code, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
 		this.status = status;
+		this.code = code;
 		this.message = message;
 	}
 
@@ -38,7 +40,7 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 			.projectAllocationId(projectAllocationId.toString())
 			.siteId(siteId.toString())
 			.status(ProjectDeallocationStatus.valueOf(status))
-			.message(message)
+			.message(code, message)
 			.build();
 	}
 
@@ -82,6 +84,7 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 		public UUID siteId;
 		public UUID projectAllocationId;
 		public int status;
+		public String code;
 		public String message;
 
 		private ProjectAllocationInstallationEntityBuilder() {
@@ -112,13 +115,18 @@ class ProjectDeallocationEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectAllocationInstallationEntityBuilder code(String code) {
+			this.code = code;
+			return this;
+		}
+
 		public ProjectAllocationInstallationEntityBuilder message(String message) {
 			this.message = message;
 			return this;
 		}
 
 		public ProjectDeallocationEntity build() {
-			return new ProjectDeallocationEntity(id, correlationId, siteId, projectAllocationId, status, message);
+			return new ProjectDeallocationEntity(id, correlationId, siteId, projectAllocationId, status, code, message);
 		}
 	}
 }

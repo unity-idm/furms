@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.user_operation.UserStatus.*;
 
-class TransitionManager {
+class TransitionValidator {
 	private final Map<UserStatus, Set<UserStatus>> userStatusAllowedTransitions = Map.of(
 		ADDING_PENDING, Set.of(ADDING_ACKNOWLEDGED, ADDING_FAILED, ADDED),
 		REMOVAL_PENDING, Set.of(REMOVAL_ACKNOWLEDGED, REMOVAL_FAILED, REMOVED),

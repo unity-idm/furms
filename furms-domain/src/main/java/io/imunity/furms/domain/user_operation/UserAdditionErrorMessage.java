@@ -7,10 +7,12 @@ package io.imunity.furms.domain.user_operation;
 
 import java.util.Objects;
 
-public class ErrorUserMessage {
+public class UserAdditionErrorMessage {
+	public final String code;
 	public final String message;
 
-	public ErrorUserMessage(String message) {
+	public UserAdditionErrorMessage(String code, String message) {
+		this.code = code;
 		this.message = message;
 	}
 
@@ -18,19 +20,20 @@ public class ErrorUserMessage {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ErrorUserMessage that = (ErrorUserMessage) o;
-		return Objects.equals(message, that.message);
+		UserAdditionErrorMessage that = (UserAdditionErrorMessage) o;
+		return code == that.code && Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(message);
+		return Objects.hash(code, message);
 	}
 
 	@Override
 	public String toString() {
-		return "ErrorMessage{" +
-			"message='" + message + '\'' +
+		return "ErrorStatus{" +
+			"code=" + code +
+			", message='" + message + '\'' +
 			'}';
 	}
 }

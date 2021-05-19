@@ -39,7 +39,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final ProjectAllocationService service;
 	private final String communityId;
 	private final String projectId;
-	private GroupedProjectAllocationsSnapshot groupedProjectAllocations;
+	private ProjectDataSnapshot projectDataSnapshot;
 
 	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
 		this.communityId = getCurrentResourceId();
@@ -86,14 +86,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
 		grid.addComponentColumn(c -> {
-			List<ProjectAllocationInstallation> projectAllocationInstallations = groupedProjectAllocations.getAllocation(c.id);
-			Optional<ProjectDeallocation> deallocation = groupedProjectAllocations.getDeallocationStatus(c.id);
+			List<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
+			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
 			if(deallocation.isPresent() && deallocation.get().status.equals(ProjectDeallocationStatus.FAILED)) {
-				return getFailedLayout(getTranslation("view.community-admin.project-allocation.status.6"), deallocation.get().message);
+				return getFailedLayout(getTranslation("view.community-admin.project-allocation.status.6"), deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null));
 			}
 			return projectAllocationInstallations.stream()
 				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
-				.map(installation -> getFailedLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.message))
+				.map(installation -> getFailedLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.errorMessage.map(x -> x.message).orElse(null)))
 				.orElseGet(HorizontalLayout::new);
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
@@ -103,7 +103,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setTextAlign(ColumnTextAlign.END);
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(x -> ProjectAllocationDetailsComponentFactory
-			.create(groupedProjectAllocations.getAllocation(x.id))));
+			.create(projectDataSnapshot.getAllocation(x.id))));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
@@ -125,7 +125,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	}
 
 	private Component createLastColumnContent(ProjectAllocationGridModel model) {
-		Optional<ProjectDeallocation> deallocation = groupedProjectAllocations.getDeallocationStatus(model.id);
+		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
 		if(deallocation.isPresent() && !ProjectDeallocationStatus.FAILED.equals(deallocation.get().status)){
 			return new Div();
 		}
@@ -164,7 +164,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private void loadGridContent() {
 		handleExceptions(() -> {
-			groupedProjectAllocations = new GroupedProjectAllocationsSnapshot(
+			projectDataSnapshot = new ProjectDataSnapshot(
 				service.findAllInstallations(communityId, projectId),
 				service.findAllUninstallations(communityId, projectId));
 			grid.setItems(loadServicesViewsModels());
@@ -180,14 +180,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.collect(toList());
 	}
 	
-	private static class GroupedProjectAllocationsSnapshot {
+	private static class ProjectDataSnapshot {
 		private final Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
-		private final Map<String, ProjectDeallocation> groupedProjectDeallocations;
+		private final Map<String, ProjectDeallocation> deallocationsByProjectAllocationId;
 
-		GroupedProjectAllocationsSnapshot(Set<ProjectAllocationInstallation> installations, Set<ProjectDeallocation> uninstallations) {
+		ProjectDataSnapshot(Set<ProjectAllocationInstallation> installations, Set<ProjectDeallocation> uninstallations) {
 			this.groupedProjectAllocations = installations.stream()
 					.collect(groupingBy(installation -> installation.projectAllocationId));
-			this.groupedProjectDeallocations = uninstallations.stream()
+			this.deallocationsByProjectAllocationId = uninstallations.stream()
 				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity(), (x,y) -> x));
 		}
 		
@@ -196,7 +196,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		}
 
 		Optional<ProjectDeallocation> getDeallocationStatus(String projectAllocationId) {
-			return Optional.ofNullable(groupedProjectDeallocations.get(projectAllocationId));
+			return Optional.ofNullable(deallocationsByProjectAllocationId.get(projectAllocationId));
 		}
 	}
 }

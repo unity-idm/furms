@@ -6,10 +6,7 @@
 package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -19,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 import java.util.Set;
+
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED;
 
 @Service
 public class ProjectAllocationInstallationService {
@@ -74,17 +74,22 @@ public class ProjectAllocationInstallationService {
 
 	public void startWaitingAllocations(String projectId) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
-			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, null);
-			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId).get();
+			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
+			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
+				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
 			siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId, projectAllocationResolved);
 			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
 		});
 	}
 
-	public void cancelWaitingAllocations(String projectId, String msg) {
+	public void cancelWaitingAllocations(String projectId, ErrorMessage errorMessage) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
-			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED, msg);
-			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED);
+			projectAllocationInstallationRepository.update(
+				allocation.correlationId.id,
+				PROJECT_INSTALLATION_FAILED,
+				Optional.of(errorMessage)
+			);
+			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, PROJECT_INSTALLATION_FAILED);
 		});
 	}
 

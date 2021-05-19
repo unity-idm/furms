@@ -68,6 +68,7 @@ class UserOperationServiceTest {
 		PersistentId userId = new PersistentId("userId");
 		FURMSUser user = FURMSUser.builder()
 			.id(userId)
+			.fenixUserId(new FenixUserId("id"))
 			.email("email")
 			.build();
 		//when
