@@ -138,10 +138,10 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			if (request.getDispatcherType() == DispatcherType.REQUEST) {
-				LOG.info("Checking if request is not Vaadin XHR: {}", request.getParameter("v-r") == null);
+				LOG.trace("Checking if request is not Vaadin XHR: {}", request.getParameter("v-r") == null);
 				return request.getParameter("v-r") == null;
 			}
-			LOG.info("Checking if request is not Vaadin XHR: FALSEEE");
+			LOG.trace("Checking if request is not Vaadin XHR: false");
 			return false;
 		}
 	}

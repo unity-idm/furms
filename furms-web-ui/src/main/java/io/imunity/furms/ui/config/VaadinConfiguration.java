@@ -26,6 +26,7 @@ import com.vaadin.flow.server.UIInitEvent;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedHttpSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.spring.SpringServlet;
 import com.vaadin.flow.spring.annotation.EnableVaadin;
@@ -75,16 +76,20 @@ class VaadinConfiguration {
 			idleNotification.setMessage(warning);
 			idleNotification.addExtendSessionButton(i18nProvider.getTranslation("sessionExpiration.extend"));
 			idleNotification.addRedirectButton(i18nProvider.getTranslation("sessionExpiration.logoutNow"), 
-					RoutesConst.POST_LOGOUT_PAGE_URL);
-			idleNotification.setRedirectAtTimeoutUrl(RoutesConst.POST_LOGOUT_PAGE_URL);
+					RoutesConst.LOGOUT_TRIGGER_URL);
+			idleNotification.setRedirectAtTimeoutUrl(RoutesConst.LOGOUT_TRIGGER_URL);
 			idleNotification.addCloseButton();
 			idleNotification.setExtendSessionOnOutsideClick(false);
 			initEvent.getUI().add(idleNotification);
 			
-			String sessionId = VaadinSession.getCurrent().getSession().getId();
+			WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+			String sessionId = wrappedSession.getId();
 			initEvent.getUI().addDetachListener(event -> {
 				LOG.debug("Closing UI of session {}", sessionId);
 			});
+			
+			UIInSessionHolder.addUIToSession(initEvent.getUI(), (WrappedHttpSession) wrappedSession);
+			LOG.debug("Saved UI in session {}", sessionId);
 		}
 		
 		private void sessionDestroy(SessionDestroyEvent event) {
