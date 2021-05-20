@@ -151,7 +151,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	private void allocateProject(ProjectAllocation projectAllocation, String id) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(id);
-		if(!projectInstallationService.existsByProjectId(projectInstallation.siteId, projectAllocation.projectId)) {
+		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
 			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
 			projectAllocationInstallationService.createAllocation(id);
 		}

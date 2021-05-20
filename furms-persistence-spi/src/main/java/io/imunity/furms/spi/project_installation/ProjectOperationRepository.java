@@ -10,7 +10,9 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 public interface ProjectOperationRepository {
@@ -28,7 +30,15 @@ public interface ProjectOperationRepository {
 
 	String update(String id, ProjectUpdateStatus status);
 
-	boolean existsByProjectId(String siteId, String projectId);
+	boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId);
+
+	boolean areAllProjectOperationInTerminateState(String projectId);
+
+	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
+
+	Map<String, Set<ProjectUpdateStatus>> findProjectUpdateStatues(String projectId);
+
+	void delete(String id);
 
 	void deleteAll();
 }

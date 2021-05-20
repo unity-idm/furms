@@ -59,7 +59,7 @@ public class ProjectView extends FurmsViewComponent {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new ProjectAllocationComponent(projectAllocationService, projectId).getContent();
+		page2 = new ProjectAllocationComponent(projectService, projectAllocationService, projectId).getContent();
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.community-admin.project.tab.1"), ProjectView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));
 		Tab administratorsTab = new Tab(adminsRouterLink);

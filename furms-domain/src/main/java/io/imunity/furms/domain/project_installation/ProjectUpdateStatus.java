@@ -6,9 +6,13 @@
 package io.imunity.furms.domain.project_installation;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public enum ProjectUpdateStatus {
 	PENDING(0), ACKNOWLEDGED(1), UPDATED(2), FAILED(3);
+
+	public static final Set<ProjectUpdateStatus> NOT_TERMINAL_STATES = Set.of(PENDING, ACKNOWLEDGED);
+
 
 	ProjectUpdateStatus(int persistentId) {
 		this.persistentId = persistentId;

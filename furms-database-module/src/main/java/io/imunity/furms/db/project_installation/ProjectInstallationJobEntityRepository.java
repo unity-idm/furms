@@ -10,12 +10,15 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ProjectInstallationJobEntityRepository extends CrudRepository<ProjectInstallationJobEntity, UUID> {
 	Optional<ProjectInstallationJobEntity> findByCorrelationId(UUID correlationId);
+	Set<ProjectInstallationJobEntity> findByProjectId(UUID projectId);
 
-	boolean existsBySiteIdAndProjectId(UUID siteId, UUID projectId);
+	boolean existsBySiteIdAndProjectIdAndStatus(UUID siteId, UUID projectId, int status);
+	boolean existsByProjectIdAndStatusOrStatus(UUID projectId, int pendingStatus, int ackStatus);
 
 	@Query(
 		"select p.id as id, s.id as site_id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +
