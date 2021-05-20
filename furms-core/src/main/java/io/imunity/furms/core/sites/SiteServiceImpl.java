@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -107,6 +108,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	public Set<Site> findUserSites(PersistentId userId) {
 		LOG.debug("Getting all Sites for user");
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(userId);
+		if (fenixUserId == null) {
+			throw new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP");
+		}	
 		return siteRepository.findAll().stream()
 				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
 				.collect(Collectors.toSet());
