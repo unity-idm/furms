@@ -30,16 +30,20 @@ import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
 	private final FurmsSelectService furmsSelectService;
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private Registration broadcasterRegistration;
+	private AuthzService authzService;
 
 	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService, VaadinBroadcaster vaadinBroadcaster) {
 		this.furmsSelectService = new FurmsSelectService(roleTranslator, authzService.getCurrentUserId());
 		this.vaadinBroadcaster = vaadinBroadcaster;
+		this.authzService = authzService;
 		final List<FurmsSelectText> items = furmsSelectService.loadItems();
 
 		addItems(items);
@@ -50,7 +54,9 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
 	}
 
-	void reloadComponent(){
+	void reloadComponent() {
+		SecurityContextHolder.setContext(UI.getCurrent().getSession().getAttribute(SecurityContext.class));
+		System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		String currentSelectedContextId = furmsSelectService.loadSelectedItem()
 				.orElseThrow(() -> new IllegalStateException("No context found for current user"))
 				.id;

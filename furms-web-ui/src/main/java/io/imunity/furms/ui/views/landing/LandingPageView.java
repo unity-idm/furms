@@ -29,6 +29,8 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
 
@@ -40,6 +42,8 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 	private final Map<ViewMode, List<FurmsViewUserContext>> data;
 
 	LandingPageView(RoleTranslator roleTranslator) {
+		UI.getCurrent().getSession().setAttribute(SecurityContext.class, SecurityContextHolder.getContext());
+
 		this.data = roleTranslator.translateRolesToUserViewContexts();
 
 		final VerticalLayout[] linksBlocks = data.keySet().stream()
