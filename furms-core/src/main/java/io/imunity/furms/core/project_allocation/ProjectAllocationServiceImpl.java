@@ -12,6 +12,7 @@ import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -100,7 +101,20 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId) {
 		validator.validateCommunityIdAndProjectId(communityId, projectId);
-		return projectAllocationInstallationService.findAll(communityId, projectId);
+		return projectAllocationInstallationService.findAll(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<ProjectDeallocation> findAllUninstallations(String communityId, String projectId) {
+		validator.validateCommunityIdAndProjectId(communityId, projectId);
+		return projectAllocationInstallationService.findAllUninstallation(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ProjectDeallocation> findAllUninstallations(String projectId) {
+		return projectAllocationInstallationService.findAllUninstallation(projectId);
 	}
 
 	@Override
@@ -162,7 +176,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void delete(String communityId, String id) {
 		validator.validateDelete(communityId, id);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
-		projectAllocationRepository.delete(id);
 		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
 		publisher.publishEvent(new RemoveProjectAllocationEvent(id));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);

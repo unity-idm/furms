@@ -9,9 +9,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
@@ -22,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -57,23 +56,23 @@ class SiteAgentUserServiceTest {
 			.build();
 		siteAgentUserService.addUser(userAddition, user);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		verify(userOperationMessageResolver, timeout(10000)).update(any());
 	}
 
 	@Test
 	void shouldRemoveUser() throws ExecutionException, InterruptedException {
 		CorrelationId correlationId = CorrelationId.randomID();
-		UserRemoval userRemoval = UserRemoval.builder()
+		UserAddition userAdditionJob = UserAddition.builder()
 			.id("id")
+			.correlationId(correlationId)
 			.siteId(new SiteId("id", new SiteExternalId("mock")))
 			.projectId("projectId")
-			.correlationId(correlationId)
 			.build();
 
-		siteAgentUserService.removeUser(userRemoval);
+		siteAgentUserService.removeUser(userAdditionJob);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.ACKNOWLEDGED);
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserRemovalStatus.REMOVED);
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, Optional.empty());
+		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVED, Optional.empty());
 	}
 }

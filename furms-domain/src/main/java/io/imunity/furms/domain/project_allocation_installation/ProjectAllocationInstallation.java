@@ -10,6 +10,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ProjectAllocationInstallation {
 	public final String id;
@@ -22,11 +23,11 @@ public class ProjectAllocationInstallation {
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
 	public final ProjectAllocationInstallationStatus status;
-	public final String message;
+	public final Optional<ErrorMessage> errorMessage;
 
 	ProjectAllocationInstallation(String id, CorrelationId correlationId, String siteId, String projectAllocationId,
 	                              String chunkId, BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
-	                              LocalDateTime receivedTime, ProjectAllocationInstallationStatus status, String message) {
+	                              LocalDateTime receivedTime, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -37,7 +38,7 @@ public class ProjectAllocationInstallation {
 		this.validTo = validTo;
 		this.receivedTime = receivedTime;
 		this.status = status;
-		this.message = message;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -54,12 +55,13 @@ public class ProjectAllocationInstallation {
 			Objects.equals(validFrom, that.validFrom) &&
 			Objects.equals(validTo, that.validTo) &&
 			Objects.equals(receivedTime, that.receivedTime) &&
+			Objects.equals(errorMessage, that.errorMessage) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status);
+		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, errorMessage);
 	}
 
 	@Override
@@ -75,6 +77,7 @@ public class ProjectAllocationInstallation {
 			", validTo=" + validTo +
 			", receivedTime=" + receivedTime +
 			", status=" + status +
+			", errorMessage=" + errorMessage +
 			'}';
 	}
 
@@ -93,7 +96,7 @@ public class ProjectAllocationInstallation {
 		public LocalDateTime validTo;
 		public LocalDateTime receivedTime;
 		public ProjectAllocationInstallationStatus status;
-		public String message;
+		public Optional<ErrorMessage> errorMessage = Optional.empty();
 
 		private ProjectAllocationInstallationBuilder() {
 		}
@@ -148,13 +151,20 @@ public class ProjectAllocationInstallation {
 			return this;
 		}
 
-		public ProjectAllocationInstallationBuilder message(String message) {
-			this.message = message;
+		public ProjectAllocationInstallationBuilder errorMessage(String code, String message) {
+			if(code == null && message == null)
+				return this;
+			this.errorMessage = Optional.of(new ErrorMessage(code, message));
+			return this;
+		}
+
+		public ProjectAllocationInstallationBuilder errorMessage(Optional<ErrorMessage> errorMessage) {
+			this.errorMessage = errorMessage;
 			return this;
 		}
 
 		public ProjectAllocationInstallation build() {
-			return new ProjectAllocationInstallation(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, message);
+			return new ProjectAllocationInstallation(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, errorMessage);
 		}
 	}
 }

@@ -60,7 +60,7 @@ class ProjectAllocationServiceImplTest {
 			communityAllocationRepository, validator,
 			projectAllocationInstallationService, publisher
 		);
-		orderVerifier = inOrder(projectAllocationRepository, publisher);
+		orderVerifier = inOrder(projectAllocationRepository, projectAllocationInstallationService, publisher);
 	}
 
 	@Test
@@ -156,12 +156,13 @@ class ProjectAllocationServiceImplTest {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
-		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(ProjectAllocationResolved.builder().build()));
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder().build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 
 		//when
 		service.delete("projectId", id);
 
-		orderVerifier.verify(projectAllocationRepository).delete(eq(id));
+		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));
 	}
 }

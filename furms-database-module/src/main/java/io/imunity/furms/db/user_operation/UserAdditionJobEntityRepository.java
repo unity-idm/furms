@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRemovalEntityRepository extends CrudRepository<UserRemovalSaveEntity, UUID> {
-	Optional<UserRemovalSaveEntity> findByCorrelationId(UUID correlationId);
+public interface UserAdditionJobEntityRepository extends CrudRepository<UserAdditionJobEntity, UUID> {
+	Optional<UserAdditionJobEntity> findByCorrelationId(UUID correlationId);
+	Optional<UserAdditionJobEntity> findByUserAdditionId(UUID correlationId);
 }

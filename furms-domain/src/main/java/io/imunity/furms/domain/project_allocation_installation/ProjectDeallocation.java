@@ -8,6 +8,7 @@ package io.imunity.furms.domain.project_allocation_installation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ProjectDeallocation {
 	public final String id;
@@ -15,13 +16,15 @@ public class ProjectDeallocation {
 	public final String siteId;
 	public final String projectAllocationId;
 	public final ProjectDeallocationStatus status;
+	public final Optional<ErrorMessage> errorMessage;
 
-	ProjectDeallocation(String id, CorrelationId correlationId, String siteId, String projectAllocationId, ProjectDeallocationStatus status) {
+	ProjectDeallocation(String id, CorrelationId correlationId, String siteId, String projectAllocationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
 		this.status = status;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -33,6 +36,7 @@ public class ProjectDeallocation {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
+			Objects.equals(errorMessage, that.errorMessage) &&
 			status == that.status;
 	}
 
@@ -49,6 +53,7 @@ public class ProjectDeallocation {
 			", siteId='" + siteId + '\'' +
 			", projectAllocationId='" + projectAllocationId + '\'' +
 			", status=" + status +
+			", errorStatus=" + errorMessage +
 			'}';
 	}
 
@@ -62,6 +67,7 @@ public class ProjectDeallocation {
 		public String siteId;
 		public String projectAllocationId;
 		public ProjectDeallocationStatus status;
+		public Optional<ErrorMessage> errorStatus = Optional.empty();
 
 		private ProjectAllocationInstallationBuilder() {
 		}
@@ -91,8 +97,15 @@ public class ProjectDeallocation {
 			return this;
 		}
 
+		public ProjectAllocationInstallationBuilder message(String code, String message) {
+			if (code == null && message == null)
+				return this;
+			this.errorStatus = Optional.of(new ErrorMessage(code, message));
+			return this;
+		}
+
 		public ProjectDeallocation build() {
-			return new ProjectDeallocation(id, correlationId, siteId, projectAllocationId, status);
+			return new ProjectDeallocation(id, correlationId, siteId, projectAllocationId, status, errorStatus);
 		}
 	}
 }

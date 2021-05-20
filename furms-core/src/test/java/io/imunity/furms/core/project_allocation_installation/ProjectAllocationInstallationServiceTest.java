@@ -80,7 +80,7 @@ class ProjectAllocationInstallationServiceTest {
 		service.startWaitingAllocations("projectId");
 
 		//then
-		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING, null);
+		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(eq(correlationId), any());
 	}
 

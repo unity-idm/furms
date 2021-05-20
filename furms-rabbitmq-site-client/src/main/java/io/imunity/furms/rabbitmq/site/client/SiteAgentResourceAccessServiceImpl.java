@@ -69,7 +69,8 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
 	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess) {
-		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest = new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
+		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest =
+			new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
 		try {
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(grantAccess.siteId.externalId), new Payload<>(new Header(VERSION, correlationId.id), userAllocationGrantAccessRequest));
 		}catch (AmqpConnectException e){

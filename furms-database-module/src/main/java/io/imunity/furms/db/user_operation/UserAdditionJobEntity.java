@@ -6,59 +6,56 @@
 package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("user_removal")
-public class UserRemovalSaveEntity extends UUIDIdentifiable {
+@Table("user_addition_job")
+public class UserAdditionJobEntity extends UUIDIdentifiable {
 
-	public final UUID siteId;
-	public final UUID projectId;
-	public final UUID correlationId;
 	public final UUID userAdditionId;
-	public final String userId;
+	public final UUID correlationId;
 	public final int status;
+	public final String code;
+	public final String message;
 
-	UserRemovalSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, UUID userAdditionId, String userId, int status) {
+	UserAdditionJobEntity(UUID id, UUID correlationId, UUID userAdditionId, int status, String code, String message) {
 		this.id = id;
-		this.siteId = siteId;
-		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.userAdditionId = userAdditionId;
-		this.userId = userId;
 		this.status = status;
+		this.code = code;
+		this.message = message;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserRemovalSaveEntity that = (UserRemovalSaveEntity) o;
-		return Objects.equals(projectId, that.projectId) &&
-			Objects.equals(siteId, that.siteId) &&
-			Objects.equals(correlationId, that.correlationId) &&
+		UserAdditionJobEntity that = (UserAdditionJobEntity) o;
+		return Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(userAdditionId, that.userAdditionId) &&
-			Objects.equals(userId, that.userId);
+			Objects.equals(status, that.status) &&
+			Objects.equals(code, that.code) &&
+			Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, siteId, correlationId, userAdditionId, userId, status);
+		return Objects.hash(id, message, correlationId, userAdditionId, status, code);
 	}
 
 	@Override
 	public String toString() {
-		return "UserRemovalSaveEntity{" +
+		return "UserAdditionJobEntity{" +
 			"id=" + id +
-			", siteId=" + siteId +
-			", projectId=" + projectId +
 			", correlationId=" + correlationId +
 			", userAdditionalId=" + userAdditionId +
-			", userId='" + userId + '\'' +
 			", status=" + status +
+			", code=" + code +
+			", message=" + message +
 			'}';
 	}
 
@@ -67,30 +64,18 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 	}
 
 	public static final class UserAdditionEntityBuilder {
-		public UUID siteId;
-		public UUID projectId;
+		protected UUID id;
 		public UUID correlationId;
 		public UUID userAdditionId;
-		public String userId;
-		public String  uid;
 		public int status;
-		protected UUID id;
+		public String code;
+		public String message;
 
 		private UserAdditionEntityBuilder() {
 		}
 
 		public UserAdditionEntityBuilder id(UUID id) {
 			this.id = id;
-			return this;
-		}
-
-		public UserAdditionEntityBuilder siteId(UUID siteId) {
-			this.siteId = siteId;
-			return this;
-		}
-
-		public UserAdditionEntityBuilder projectId(UUID projectId) {
-			this.projectId = projectId;
 			return this;
 		}
 
@@ -104,23 +89,23 @@ public class UserRemovalSaveEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public UserAdditionEntityBuilder userId(String userId) {
-			this.userId = userId;
+		public UserAdditionEntityBuilder message(String message) {
+			this.message = message;
 			return this;
 		}
 
-		public UserAdditionEntityBuilder uid(String uid) {
-			this.uid = uid;
+		public UserAdditionEntityBuilder code(String code) {
+			this.code = code;
 			return this;
 		}
 
-		public UserAdditionEntityBuilder status(UserRemovalStatus status) {
+		public UserAdditionEntityBuilder status(UserStatus status) {
 			this.status = status.getPersistentId();
 			return this;
 		}
 
-		public UserRemovalSaveEntity build() {
-			return new UserRemovalSaveEntity(id, siteId, projectId, correlationId, userAdditionId, userId, status);
+		public UserAdditionJobEntity build() {
+			return new UserAdditionJobEntity(id, correlationId, userAdditionId, status, code, message);
 		}
 	}
 }

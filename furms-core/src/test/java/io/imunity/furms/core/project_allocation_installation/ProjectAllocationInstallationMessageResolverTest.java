@@ -7,8 +7,10 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ import static org.mockito.Mockito.when;
 class ProjectAllocationInstallationMessageResolverTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
+	@Mock
+	private ProjectAllocationRepository projectAllocationRepository;
+
 
 	private ProjectAllocationInstallationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -31,7 +36,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationMessageResolverImpl(repository);
+		service = new ProjectAllocationInstallationMessageResolverImpl(repository, projectAllocationRepository);
 		orderVerifier = inOrder(repository);
 	}
 
@@ -44,7 +49,7 @@ class ProjectAllocationInstallationMessageResolverTest {
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT);
+		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
 
 		//then
 		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
@@ -56,10 +61,12 @@ class ProjectAllocationInstallationMessageResolverTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
-		when(repository.findDeallocationStatusByCorrelationId(id.id)).thenReturn(ProjectDeallocationStatus.PENDING);
-		service.updateStatus(id, ProjectDeallocationStatus.PENDING);
+		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(ProjectDeallocation.builder()
+			.status(ProjectDeallocationStatus.PENDING)
+			.build());
+		service.updateStatus(id, ProjectDeallocationStatus.PENDING, null);
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectDeallocationStatus.PENDING);
+		orderVerifier.verify(repository).update(id.id, ProjectDeallocationStatus.PENDING, null);
 	}
 }

@@ -6,7 +6,6 @@
 package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
@@ -17,19 +16,15 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 
 	public final UUID siteId;
 	public final UUID projectId;
-	public final UUID correlationId;
 	public final String uid;
 	public final String userId;
-	public final int status;
 
-	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, UUID correlationId, String uid, String userId, int status) {
+	UserAdditionSaveEntity(UUID id, UUID siteId, UUID projectId, String uid, String userId) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
-		this.correlationId = correlationId;
 		this.uid = uid;
 		this.userId = userId;
-		this.status = status;
 	}
 
 	@Override
@@ -39,14 +34,13 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		UserAdditionSaveEntity that = (UserAdditionSaveEntity) o;
 		return Objects.equals(projectId, that.projectId) &&
 			Objects.equals(siteId, that.siteId) &&
-			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(uid, that.uid) &&
 			Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, siteId, correlationId, userId, status);
+		return Objects.hash(id, projectId, siteId, userId);
 	}
 
 	@Override
@@ -55,10 +49,8 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 			"id=" + id +
 			", siteId=" + siteId +
 			", projectId=" + projectId +
-			", correlationId=" + correlationId +
 			", uid=" + uid +
 			", userId='" + userId + '\'' +
-			", status=" + status +
 			'}';
 	}
 
@@ -70,10 +62,8 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 		protected UUID id;
 		public UUID siteId;
 		public UUID projectId;
-		public UUID correlationId;
 		public String uid;
 		public String userId;
-		public int status;
 
 		private UserAdditionEntityBuilder() {
 		}
@@ -93,11 +83,6 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public UserAdditionEntityBuilder correlationId(UUID correlationId) {
-			this.correlationId = correlationId;
-			return this;
-		}
-
 		public UserAdditionEntityBuilder userId(String userId) {
 			this.userId = userId;
 			return this;
@@ -108,13 +93,8 @@ public class UserAdditionSaveEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public UserAdditionEntityBuilder status(UserAdditionStatus status) {
-			this.status = status.getPersistentId();
-			return this;
-		}
-
 		public UserAdditionSaveEntity build() {
-			return new UserAdditionSaveEntity(id, siteId, projectId, correlationId, uid, userId, status);
+			return new UserAdditionSaveEntity(id, siteId, projectId, uid, userId);
 		}
 	}
 }
