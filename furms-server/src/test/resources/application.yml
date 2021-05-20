@@ -22,8 +22,8 @@ furms:
          clientSecret: oauth-pass1
    front:
       language: en
-      maxSessionInactivity: 31
-      secondsBeforeShowingSessionExpirationWarning: 20
+      maxSessionInactivity: 600
+      secondsBeforeShowingSessionExpirationWarning: 60
       
    url: https://localhost:${server.port}
    psk:
