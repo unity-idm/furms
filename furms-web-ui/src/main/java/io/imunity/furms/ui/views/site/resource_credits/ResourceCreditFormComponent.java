@@ -16,7 +16,6 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -28,6 +27,7 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
 class ResourceCreditFormComponent extends Composite<Div> {
@@ -40,9 +40,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
+		zoneId = InvocationContext.getCurrent().getZone();
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();

@@ -5,12 +5,23 @@
 
 package io.imunity.furms.ui.views.project.settings;
 
-import com.vaadin.flow.component.UI;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.function.Function.identity;
+
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
@@ -22,18 +33,8 @@ import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.function.Function.identity;
 
 @Route(value = "project/admin/settings", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.settings.page.title")
@@ -53,9 +54,7 @@ public class SettingsView extends FurmsViewComponent {
 		this.resolver = resolver;
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
 		this.projectFormComponent = new ProjectFormComponent(binder, false, users);
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
+		zoneId = InvocationContext.getCurrent().getZone();
 
 		projectFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
 		projectFormComponent.getUpload().addFileRemovedListener(x -> enableEditorMode());

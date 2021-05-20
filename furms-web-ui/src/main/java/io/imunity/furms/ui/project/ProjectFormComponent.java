@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -34,6 +33,7 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import io.imunity.furms.ui.user_context.InvocationContext;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
@@ -49,10 +49,7 @@ public class ProjectFormComponent extends Composite<Div> {
 	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean disable, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
 		this.userModels = userModels;
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();

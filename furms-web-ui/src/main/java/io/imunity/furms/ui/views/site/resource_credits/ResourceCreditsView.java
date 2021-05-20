@@ -37,6 +37,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 @Route(value = "site/admin/resource/credits", layout = SiteAdminMenu.class)
@@ -52,9 +53,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		this.resourceCreditService = resourceCreditService;
 		this.grid = createCommunityGrid();
 		this.resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
+		zoneId = InvocationContext.getCurrent().getZone();
 
 		Button addButton = createAddButton();
 		loadGridContent();
