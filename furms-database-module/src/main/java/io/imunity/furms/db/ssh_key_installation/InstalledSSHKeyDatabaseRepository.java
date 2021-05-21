@@ -62,7 +62,13 @@ class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
 
 	@Override
 	public void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		repository.deleteBySshKeyIdAndSiteId(UUID.fromString(sshkeyId), UUID.fromString(siteId));
+		repository.deleteBySshkeyIdAndSiteId(UUID.fromString(sshkeyId), UUID.fromString(siteId));
+
+	}
+	
+	@Override
+	public void deleteBySSHKey(String sshkeyId) {
+		repository.deleteBySshkeyId(UUID.fromString(sshkeyId));
 
 	}
 

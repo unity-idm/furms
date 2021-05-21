@@ -64,6 +64,13 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
 	}
 	
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	public List<SSHKeyOperationJob> findBySSHKeyId(String sshkeyId) {
+		return sshKeyOperationRepository.findBySSHKey(sshkeyId);
+	}
+	
+	
 	// FIXME To auth this method special user for queue message resolving is
 	// needed
 	@Override
@@ -95,6 +102,12 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 
 	}
 
+	private void addToInstalledKeys(String siteId, SSHKey key) {
+		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);
+		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
+				.value(key.value).sshkeyId(key.id).build());
+	}
+	
 	private void updateInstalledKeys(String siteId, SSHKey key) {
 		installedSSHKeyRepository.update(siteId, key.id, key.value);
 		
@@ -111,10 +124,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		sshKeyHistoryRepository.deleteOldestLeaveOnly(siteId, key.ownerId.id, MAX_HISTORY_SIZE);
 	}
 
-	private void addToInstalledKeys(String siteId, SSHKey key) {
-		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
-				.value(key.value).sshkeyId(key.id).build());
-	}
+	
 
 	private void removeSSHKeyIfRemovedFromLastSite(SSHKeyOperationJob operationJob) {
 		List<SSHKeyOperationJob> keysOperations = sshKeyOperationRepository.findBySSHKey(operationJob.sshkeyId);
@@ -124,7 +134,9 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 				sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(job.sshkeyId, job.siteId);
 			}
 			Optional<SSHKey> removed = sshKeysRepository.findById(operationJob.sshkeyId);
+			installedSSHKeyRepository.deleteBySSHKey(operationJob.sshkeyId);
 			sshKeysRepository.delete(operationJob.sshkeyId);
+			
 			LOG.info("Removed SSH key from repository with ID={}, {}", operationJob.sshkeyId, removed.orElse(null));
 		}
 	}

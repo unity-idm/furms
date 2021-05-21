@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -156,7 +158,7 @@ public class SSHKeyServiceImplTest {
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.FAILED).build());
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
 		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
 
@@ -230,7 +232,7 @@ public class SSHKeyServiceImplTest {
 		when(repository.update(expectedKey)).thenReturn(request.id);
 		when(repository.findById(request.id)).thenReturn(Optional.of(expectedKey));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.DONE).build());
 
 		// when
 		service.update(request);
@@ -239,9 +241,10 @@ public class SSHKeyServiceImplTest {
 		verify(repository, times(1)).update(expectedKey);
 
 	}
-
+	
+	
 	@Test
-	void shouldCreateOnSitesIfStatusIsNotTerminedWhenUpdateKey() {
+	void shouldCreateOnSitesIfStatusAddIsNotTerminedWhenUpdateKey() {
 		// given
 		final SSHKey oldKey = getKey("name", Set.of("s1"));
 
@@ -263,7 +266,7 @@ public class SSHKeyServiceImplTest {
 		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
 		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.FAILED).build());
 		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(true);
 		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
 
@@ -277,6 +280,46 @@ public class SSHKeyServiceImplTest {
 		// then
 		verify(sshKeyOperationRepository).deleteBySSHKeyIdAndSiteId("id", "s2");
 		verify(siteAgentSSHKeyInstallationService, times(2)).addSSHKey(any(), any());
+	}
+	
+	@Test
+	void shouldUpdateOnSitesIfStatusUpdateIsNotTerminedWhenUpdateKey() {
+		// given
+		final SSHKey oldKey = getKey("name", Set.of("s1"));
+
+		final SSHKey request = getKey("brandNewName", Set.of("s1", "s2"));
+
+		final SSHKey expectedKey = getKey(request.name, Set.of("s1", "s2"));
+
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		when(repository.exists(request.id)).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(request.name, request.id)).thenReturn(false);
+		when(repository.update(expectedKey)).thenReturn(request.id);
+		when(repository.findById(request.id)).thenReturn(Optional.of(oldKey));
+		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists("s2")).thenReturn(true);
+		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
+		when(siteRepository.findById("s2")).thenReturn(Optional.of(Site.builder().id("s2").build()));
+		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
+		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
+				.thenReturn(SSHKeyOperationJob.builder().operation(UPDATE).status(SSHKeyOperationStatus.FAILED).build());
+		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
+			.thenReturn(SSHKeyOperationJob.builder().operation(UPDATE).status(SSHKeyOperationStatus.FAILED).build());
+		when(userOperationRepository.isUserAdded("s2", "id")).thenReturn(true);
+
+		// when
+		service.update(request);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+				.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
+
+		// then
+		verify(sshKeyOperationRepository).deleteBySSHKeyIdAndSiteId("id", "s2");
+		verify(siteAgentSSHKeyInstallationService, times(1)).updateSSHKey(any(), any());
+		verify(siteAgentSSHKeyInstallationService, times(1)).addSSHKey(any(), any());
 	}
 
 	@Test
@@ -295,7 +338,7 @@ public class SSHKeyServiceImplTest {
 		when(siteRepository.exists("s1")).thenReturn(true);
 		
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-			.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+			.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.FAILED).build());
 		when(userOperationRepository.isUserAdded("s1", "id")).thenReturn(false);
 		
 		// when + then
@@ -303,7 +346,7 @@ public class SSHKeyServiceImplTest {
 	}
 
 	@Test
-	void shouldOnlyCleanStatusWhenDeleteKeyWitNotTerminedOperation() {
+	void shouldOnlyCleanStatusWhenDeleteKeyWihtNotTerminedOperation() {
 		// given
 
 		final SSHKey key = getKey("key", Set.of("s1"));
@@ -315,7 +358,7 @@ public class SSHKeyServiceImplTest {
 		when(repository.findById(key.id)).thenReturn(Optional.of(key));
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.FAILED).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.FAILED).build());
 		// when
 		service.delete("id");
 
@@ -337,7 +380,7 @@ public class SSHKeyServiceImplTest {
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		when(siteRepository.findById("s1")).thenReturn(Optional.of(Site.builder().id("s1").build()));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.DONE).build());
 
 		// when
 		service.delete(id);
@@ -388,7 +431,7 @@ public class SSHKeyServiceImplTest {
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.DONE).build());
 		when(siteRepository.findById("s1"))
 				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
 
@@ -418,7 +461,7 @@ public class SSHKeyServiceImplTest {
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		when(sshKeyOperationRepository.findBySSHKeyIdAndSiteId("id", "s1"))
-				.thenReturn(SSHKeyOperationJob.builder().status(SSHKeyOperationStatus.DONE).build());
+				.thenReturn(SSHKeyOperationJob.builder().operation(ADD).status(SSHKeyOperationStatus.DONE).build());
 		when(siteRepository.findById("s1"))
 				.thenReturn(Optional.of(Site.builder().id("s1").sshKeyHistoryLength(10).build()));
 

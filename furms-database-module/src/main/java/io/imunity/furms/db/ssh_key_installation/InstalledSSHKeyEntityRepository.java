@@ -20,8 +20,12 @@ interface InstalledSSHKeyEntityRepository extends CrudRepository<InstalledSSHKey
 
 	@Modifying
 	@Query("delete from installed_ssh_key where sshkey_Id = :sshkey_id and site_Id = :site_id")
-	void deleteBySshKeyIdAndSiteId(@Param("sshkey_id") UUID sshkeyId, @Param("site_id") UUID siteId);
+	void deleteBySshkeyIdAndSiteId(@Param("sshkey_id") UUID sshkeyId, @Param("site_id") UUID siteId);
 
+	@Modifying
+	@Query("delete from installed_ssh_key where sshkey_Id = :sshkey_id")
+	void deleteBySshkeyId(@Param("sshkey_id") UUID sshkeyId);
+	
 	List<InstalledSSHKeyEntity> findBySshkeyId(UUID sshkeyId);
 
 }

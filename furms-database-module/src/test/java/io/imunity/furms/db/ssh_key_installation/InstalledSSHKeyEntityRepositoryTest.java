@@ -206,7 +206,21 @@ public class InstalledSSHKeyEntityRepositoryTest {
 				.value("x").build();
 		entityRepository.save(request);
 		// when
-		entityRepository.deleteBySshKeyIdAndSiteId(sshkeyId, siteId);
+		entityRepository.deleteBySshkeyIdAndSiteId(sshkeyId, siteId);
+
+		// then
+		assertThat(entityRepository.findAll()).hasSize(0);
+	}
+	
+	@Test
+	void shouldDeleteByKeySSHInstalledKeys() {
+		// given
+
+		InstalledSSHKeyEntity request = InstalledSSHKeyEntity.builder().siteId(siteId).sshkeyId(sshkeyId)
+				.value("x").build();
+		entityRepository.save(request);
+		// when
+		entityRepository.deleteBySshkeyId(sshkeyId);
 
 		// then
 		assertThat(entityRepository.findAll()).hasSize(0);
