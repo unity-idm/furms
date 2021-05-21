@@ -43,8 +43,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
+		this.formLayout = new FurmsFormLayout();
 		zoneId = InvocationContext.getCurrent().getZone();
-		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);

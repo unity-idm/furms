@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.site.services;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.components.support.GridUtils.showIdInGrid;
+import static io.imunity.furms.ui.components.support.GridUtils.getsLeadingPartOfUUID;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
@@ -74,7 +74,7 @@ public class InfraServicesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.site-admin.service.grid.column.name"))
 			.setSortable(true)
 			.setComparator(item -> item.getName().toLowerCase());
-		grid.addColumn(c -> showIdInGrid(c.getId()))
+		grid.addColumn(c -> getsLeadingPartOfUUID(c.getId()))
 			.setHeader(getTranslation("view.site-admin.service.grid.column.id"))
 			.setSortable(true);
 		grid.addColumn(InfraServiceViewModel::getDescription)

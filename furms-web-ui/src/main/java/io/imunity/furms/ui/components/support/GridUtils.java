@@ -13,7 +13,7 @@ public class GridUtils {
 
 	private static final int ID_MAX_LENGTH = 8;
 
-	public static String showIdInGrid(String id) {
+	public static String getsLeadingPartOfUUID(String id) {
 		if (id == null) {
 			return Strings.EMPTY;
 		}

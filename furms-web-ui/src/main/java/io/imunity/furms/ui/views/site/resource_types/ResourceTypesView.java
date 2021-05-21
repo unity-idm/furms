@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.site.resource_types;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.components.support.GridUtils.showIdInGrid;
+import static io.imunity.furms.ui.components.support.GridUtils.getsLeadingPartOfUUID;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
@@ -77,7 +77,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.name"))
 			.setSortable(true)
 			.setComparator(x -> x.getName().toLowerCase());
-		grid.addColumn(c -> showIdInGrid(c.getId()))
+		grid.addColumn(c -> getsLeadingPartOfUUID(c.getId()))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.id"))
 			.setSortable(true);
 		grid.addColumn(c -> resolver.getName(c.getServiceId()))
