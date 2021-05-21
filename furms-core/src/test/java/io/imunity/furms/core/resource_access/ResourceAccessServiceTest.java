@@ -117,7 +117,7 @@ class ResourceAccessServiceTest {
 		service.revokeAccess(grantAccess);
 
 		//then
-		verify(repository).delete(userId, "id");
+		verify(repository).deleteByUserAndAllocationId(userId, "id");
 		verify(repository, times(0)).update(any(), eq(grantAccess), eq(AccessStatus.REVOKE_PENDING));
 		verify(siteAgentResourceAccessService, times(0)).revokeAccess(any(), eq(grantAccess));	}
 }

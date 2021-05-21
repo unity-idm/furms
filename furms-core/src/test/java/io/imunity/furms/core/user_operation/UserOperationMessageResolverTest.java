@@ -8,6 +8,7 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 class UserOperationMessageResolverTest {
 	@Mock
 	private UserOperationRepository repository;
+	@Mock
+	private ResourceAccessRepository resourceAccessRepository;
 
 	private UserOperationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -37,7 +40,7 @@ class UserOperationMessageResolverTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationMessageResolverImpl(repository);
+		service = new UserOperationMessageResolverImpl(repository, resourceAccessRepository);
 		orderVerifier = inOrder(repository);
 	}
 

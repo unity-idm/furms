@@ -24,6 +24,8 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 	)
 	Optional<UserGrantResolved> findByUserIdAndProjectAllocationId(@Param("user_id") String userId, @Param("project_allocation_id") UUID projectAllocationId);
 
+	Set<UserGrantEntity> findByUserIdAndProjectId(String userId, UUID projectId);
+
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +
 			"ua.project_allocation_id as allocation_project_allocation_id, ua.user_id as allocation_user_id, " +
