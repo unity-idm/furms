@@ -9,6 +9,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -41,9 +42,15 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditionsInSite(String siteId, String userId) {
-		return userAdditionEntityRepository.findAllBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
-				.map(UserAdditionReadEntity::toUserAddition)
+	public Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId) {
+		return userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
+				.map(userAddition -> UserAdditionWithProject.builder()
+						.siteName(userAddition.siteName)
+						.projectName(userAddition.projectName)
+						.userId(userAddition.userId)
+						.status(UserStatus.valueOf(userAddition.status))
+						.errorMessage(new UserAdditionErrorMessage(userAddition.code, userAddition.message))
+						.build())
 				.collect(toSet());
 	}
 

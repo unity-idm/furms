@@ -20,10 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
-import io.imunity.furms.domain.sites.UserSitesInstallationInfoData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -71,7 +67,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
 	private final SiteAgentStatusService siteAgentStatusService;
-	private final ProjectService projectService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -81,8 +76,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
 	                SiteAgentStatusService siteAgentStatusService,
-	                UserOperationRepository userOperationRepository,
-	                ProjectService projectService) {
+	                UserOperationRepository userOperationRepository) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -92,7 +86,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.siteAgentService = siteAgentService;
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.userOperationRepository = userOperationRepository;
-		this.projectService = projectService;
 	}
 
 	@Override
@@ -126,33 +119,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		}	
 		return siteRepository.findAll().stream()
 				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
-				.collect(toSet());
-	}
-
-	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
-	public Set<UserSitesInstallationInfoData> findCurrentUserSitesInstallationInfo() {
-		final PersistentId currentUserId = authzService.getCurrentUserId();
-		final String fenixUserId = Optional.ofNullable(usersDAO.getFenixUserId(currentUserId))
-				.map(fenixUser -> fenixUser.id)
-				.orElse(null);
-
-		return findUserSites(currentUserId).stream()
-				.map(site -> UserSitesInstallationInfoData.builder()
-								.siteName(site.getName())
-								.connectionInfo(site.getConnectionInfo())
-								.projects(userOperationRepository.findAllUserAdditionsInSite(site.getId(), fenixUserId)
-											.stream()
-											.map(userAddition -> UserProjectsInstallationInfoData.builder()
-													.name(projectService.findById(userAddition.projectId)
-															.map(Project::getName)
-															.orElse(null))
-													.remoteAccountName(userAddition.userId)
-													.status(userAddition.status)
-													.errorMessage(userAddition.errorMessage.orElse(null))
-													.build()
-											).collect(toSet()))
-								.build())
 				.collect(toSet());
 	}
 

@@ -15,7 +15,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -40,15 +40,15 @@ import static java.util.stream.Collectors.toList;
 @CssImport("./styles/views/user/sites/user-sites.css")
 public class SitesView extends FurmsViewComponent {
 
-	private final SiteService siteService;
+	private final UserAllocationsService userAllocationsService;
 
 	private Div connectionInfo;
 	private H4 connectionInfoLabel;
 
 	private final SparseGrid<UserSitesGridModel> grid;
 
-	SitesView(SiteService siteService) {
-		this.siteService = siteService;
+	SitesView(UserAllocationsService userAllocationsService) {
+		this.userAllocationsService = userAllocationsService;
 		this.grid = new SparseGrid<>(UserSitesGridModel.class);
 
 		addTitle();
@@ -131,7 +131,7 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private List<UserSitesGridModel> loadItems() {
-		return siteService.findCurrentUserSitesInstallationInfo().stream()
+		return userAllocationsService.findCurrentUserSitesInstallations().stream()
 				.map(info -> info.getProjects().stream()
 						.map(project -> UserSitesGridModel.builder()
 								.siteName(info.getSiteName())
