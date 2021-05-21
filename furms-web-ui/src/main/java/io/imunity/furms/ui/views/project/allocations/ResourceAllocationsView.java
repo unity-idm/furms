@@ -20,7 +20,6 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
@@ -79,15 +78,16 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		grid.addComponentColumn(c -> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
-			if(deallocation.isPresent() && deallocation.get().status.equals(ProjectDeallocationStatus.FAILED)) {
-				return getFailedLayout(
-					getTranslation("view.community-admin.project-allocation.status.6"),
+			if(deallocation.isPresent()) {
+				int statusId = deallocation.get().status.getPersistentId();
+				return getStatusLayout(
+					getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
 					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
 				);
 			}
 			return projectAllocationInstallations.stream()
 				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
-				.map(installation -> getFailedLayout(
+				.map(installation -> getStatusLayout(
 					getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()),
 					installation.errorMessage.map(x -> x.message).orElse(null)))
 				.orElseGet(HorizontalLayout::new);
@@ -106,7 +106,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		return grid;
 	}
 
-	private HorizontalLayout getFailedLayout(String status, String message) {
+	private HorizontalLayout getStatusLayout(String status, String message) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		Text text = new Text(status);
 		horizontalLayout.add(text);
