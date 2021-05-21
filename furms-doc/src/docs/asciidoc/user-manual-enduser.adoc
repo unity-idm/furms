@@ -5,10 +5,22 @@ Every user that signs into FURMS has access to her/his FURMS profile & settings 
 User settings allows every FURMS user to check:
 
 * personal information which is exposed to FURMS by the Fenix infrastructure,
-* user's projects list,
+* user's sites and projects,
 * SSH keys management.
 
-{versionlimit} User settings will provide more functionality in subsequent FURMS releases, including site access details.
+=== Sites
+
+Sites view shows all sites to which access is granted. Note that if access to a site is granted through several projects, then multiple entries will show up, for each project. 
+
+Table shows the local user identifier at the site as well as the site-provided information on connection and other special access rules.
+
+=== Projects
+
+The projects view provides a list of projects. By default only the projects where the user is a member are shown. 
+
+{versionlimit} It is also possible to see all projects, as in future FURMS will support project applications.
+
+For each project of the user, it is possible to drill down and check available allocations in that project.
 
 === SSH keys management
 

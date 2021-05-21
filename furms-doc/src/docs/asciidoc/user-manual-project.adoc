@@ -23,11 +23,19 @@ Under the Settings menu entry, project administrator can control project details
 
 === Resource access
 
-{versionlimit} This functionality is not available yet.
+Users of a project do not access to each allocation automatically. Instead, the project administrator is responsible for granting (or removing) access to each individual allocation. This is controlled on the Resource access view. 
+
+Note that there is one exception to that rule. Site sometimes define resources which are available to all users at the site. Such resources are available to all users at the site, and control of resource access is not possible for them as it is always enabled.
 
 === Resource allocations
 
-{versionlimit} This functionality is not available yet.
+Resource allocations view shows a table with all allocations that were assigned to the project by its community. Each allocation is specific to a site and a single resource offered by this site.
+
+It is important to know that community assigned allocation needs to be acknowledged and installed by the site. In effect of this process, the site may decide to allocate less (or even more) resources than the community requested for the project. What is more site can allocate the resources in several portions, e.g. distributing a bigger allocation into several monthly or quarterly parts.
+
+To see the resources which were actually assigned by the site, a row with community assigned allocation needs to be expanded. This is presented on the example below, where a single community allocation for 64 hours was assigned in two chunks, of 32 and 16 hours. It is possible that the TOPSITE will provide in future additional chunk, with remaining 16 hours.
+
+image::allocation.png[scaledwidth=75%]  
 
 === Defining alarms
 
