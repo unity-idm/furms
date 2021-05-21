@@ -5,12 +5,28 @@
 
 package io.imunity.furms.domain.authz.roles;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.PROFILE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_MEMBER_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
+import static java.util.Collections.emptyList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static java.util.Collections.emptyList;
 
 public enum Role {
 	CENTRAL_IDP(
@@ -43,7 +59,7 @@ public enum Role {
 		"furmsSiteRole",
 		"ADMIN",
 		List.of(
-			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT
+			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, OWNED_SSH_KEY_MANAGMENT
 		),
 		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ)
 	),
@@ -52,7 +68,7 @@ public enum Role {
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE, PROJECT_LIMITED_WRITE,
-			COMMUNITY_ADMINS_MANAGEMENT, PROJECT_LEAVE, OWNED_SSH_KEY_MANAGMENT
+			PROJECT_LEAVE, PROJECT_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT
 		),
 		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ)
 	),
