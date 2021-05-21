@@ -164,12 +164,15 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
 		layout.setSpacing(false);
-		HorizontalLayout formLayout = new HorizontalLayout();
+		VerticalLayout formLayout = new VerticalLayout();
 		formLayout.setSpacing(false);
 		formLayout.setMargin(false);
 		layout.add(new BoldLabel(getTranslation("view.user-settings.ssh-keys.grid.details.status")));
 		layout.add(formLayout);
-		sshKey.sites.stream().sorted((s1, s2) -> resolver.getName(s1.id).compareTo(resolver.getName(s2.id)))
+		sshKey.sites.stream()
+				.filter(s -> !(s.keyOperation.equals(SSHKeyOperation.REMOVE)
+						&& s.keyOperationStatus.equals(SSHKeyOperationStatus.DONE)))
+				.sorted((s1, s2) -> resolver.getName(s1.id).compareTo(resolver.getName(s2.id)))
 				.forEach(s -> formLayout.add(new NoWrapLabel(resolver.getName(s.id) + ": "
 						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error))));
 		VerticalLayout wrap = new VerticalLayout(layout);
@@ -179,26 +182,26 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		return wrap;
 	}
 
-	private SSHKeyOperationJob getKeyStatus(String sshKey, String site) {
+	private List<SSHKeyOperationJob> getKeyStatus(String sshKey) {
 		try {
-			return sshKeyInstallationService.findBySSHKeyIdAndSiteId(sshKey, site);
+			return sshKeyInstallationService.findBySSHKeyId(sshKey);
 
 		} catch (Exception e) {
-			LOG.error("Can not get key opertation for key {} and site {}", sshKey, site);
+			LOG.error("Can not get key opertation for key {}", sshKey);
 			return null;
 		}
 	}
 
 	private String mapToStatus(SSHKeyOperation operation, SSHKeyOperationStatus status, Optional<String> error) {
 		if (operation.equals(ADD)) {
-			return toStatusMessage(status, "added", "adding", "error", error);
+			return toStatusMessage(status, "added", "adding", "add.error", error);
 
 		} else if (operation.equals(REMOVE)) {
 
-			return toStatusMessage(status, "removed", "removing", "error", error);
+			return toStatusMessage(status, "removed", "removing", "remove.error", error);
 
 		} else {
-			return toStatusMessage(status, "updated", "updating", "error", error);
+			return toStatusMessage(status, "updated", "updating", "update.error", error);
 
 		}
 	}
@@ -300,7 +303,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		try {
 			setVisible(true);
 			return sshKeysService.findOwned().stream().map(
-					key -> SSHKeyViewModelMapper.map(key, zoneId, (k, s) -> getKeyStatus(k, s)))
+					key -> SSHKeyViewModelMapper.map(key, zoneId, (k) -> getKeyStatus(k)))
 					.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase()))
 					.collect(toList());
 		} catch (AccessDeniedException e) {

@@ -5,22 +5,23 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 class SSHKeyViewModelMapper {
 
 	static SSHKeyViewModel map(SSHKey key, ZoneId zoneId,
-			BiFunction<String, String, SSHKeyOperationJob> statusSupplier) {
+			Function<String, List<SSHKeyOperationJob>> statusSupplier) {
 
 		return SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
 				.sites(getKeyStatus(key, statusSupplier)).value(key.value)
@@ -28,15 +29,16 @@ class SSHKeyViewModelMapper {
 	}
 
 	private static Set<SiteWithKeyStatus> getKeyStatus(SSHKey sshKey,
-			BiFunction<String, String, SSHKeyOperationJob> statusSupplier) {
+			Function<String, List<SSHKeyOperationJob>> statusSupplier) {
 		Set<SiteWithKeyStatus> sitesWithKeyStatus = new HashSet<>();
-		for (String site : sshKey.sites) {
-			SSHKeyOperationJob findBySSHKeyIdAndSiteId = statusSupplier.apply(sshKey.id, site);
+		for (SSHKeyOperationJob findBySSHKeyIdAndSiteId : statusSupplier.apply(sshKey.id)) {
 			if (findBySSHKeyIdAndSiteId != null) {
-				sitesWithKeyStatus.add(new SiteWithKeyStatus(site, findBySSHKeyIdAndSiteId.operation,
-						findBySSHKeyIdAndSiteId.status, findBySSHKeyIdAndSiteId.error));
+				sitesWithKeyStatus.add(new SiteWithKeyStatus(findBySSHKeyIdAndSiteId.siteId,
+						findBySSHKeyIdAndSiteId.operation, findBySSHKeyIdAndSiteId.status,
+						findBySSHKeyIdAndSiteId.error));
 			}
 		}
+
 		return sitesWithKeyStatus;
 	}
 

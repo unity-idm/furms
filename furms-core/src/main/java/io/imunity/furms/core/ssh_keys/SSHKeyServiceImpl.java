@@ -18,6 +18,7 @@ import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -52,6 +53,7 @@ import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 
+@SuppressWarnings("unused")
 @Service
 class SSHKeyServiceImpl implements SSHKeyService {
 
@@ -204,7 +206,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 			SSHKeyOperationJob operation = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id,
 					site.getId());
-			if (operation == null || operation.status.equals(FAILED)) {
+			if (operation == null || (operation.operation.equals(ADD) && operation.status.equals(FAILED))) {
 				addKeyToSite(newKey, site, userId);
 			} else {
 				updateKeyOnSite(oldKey, newKey, site, userId);
@@ -214,22 +216,30 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private SiteDiff getSiteDiff(SSHKey actualKey, SSHKey newKey) {
 		Set<String> toAdd = Sets.newHashSet(newKey.sites);
-		toAdd.removeAll(actualKey.sites != null
-				? (actualKey.sites.stream()
-						.filter(s -> sshKeyOperationRepository
-								.findBySSHKeyIdAndSiteId(newKey.id, s).status
-										.equals(DONE))
-						.collect(Collectors.toSet()))
-				: null);
+		toAdd.removeAll(actualKey.sites != null ? (actualKey.sites.stream().filter(s -> {
+			SSHKeyOperationJob job = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id, s);
+			return (job.operation.equals(ADD) && job.status.equals(DONE))
+					|| (job.operation.equals(UPDATE))
+					|| (job.operation.equals(REMOVE));
+		}).collect(Collectors.toSet())) : null);
 
 		Set<String> toRemove = Sets.newHashSet(actualKey.sites);
 		toRemove.removeAll(newKey.sites);
+		toRemove.addAll(sshKeyOperationRepository.findBySSHKey(newKey.id).stream()
+				.filter(o -> o.operation.equals(REMOVE) && o.status.equals(FAILED)).map(o -> o.siteId)
+				.collect(Collectors.toSet()));
 
 		Set<String> toUpdate = Sets.newHashSet();
-		if (actualKey.value != newKey.value) {
+		if (!actualKey.value.equals(newKey.value)) {
 			toUpdate.addAll(actualKey.sites);
 			toUpdate.retainAll(newKey.sites);
 			toUpdate.removeAll(toAdd);
+		} else if (actualKey.sites != null) {
+			toUpdate.addAll(actualKey.sites.stream().filter(s -> {
+				SSHKeyOperationJob job = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id,
+						s);
+				return job.operation.equals(UPDATE) && job.status.equals(FAILED);
+			}).collect(Collectors.toSet()));
 		}
 
 		return new SiteDiff(toAdd, toRemove, toUpdate);
@@ -268,7 +278,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				LOG.error("Can not get ssh key operation for key {0}", sshKey.id);
 				return;
 			}
-			if (operation.status.equals(FAILED)) {
+			if (operation.operation.equals(ADD) && operation.status.equals(FAILED)) {
 				deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 
 			} else {
@@ -279,6 +289,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 		if (!removeFromSite && sshKeyOperationRepository.findBySSHKey(sshKey.id).isEmpty()) {
 			sshKeysRepository.delete(sshKey.id);
+			
 		}
 
 	}
@@ -331,7 +342,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		LOG.info("SSHKeyOperationJob for key={} and site={} was deleted", sshkeyId, siteId);
 	}
 
-	private static class SiteDiff {
+	static class SiteDiff {
 		public final Set<String> toAdd;
 		public final Set<String> toRemove;
 		public final Set<String> toUpdate;
