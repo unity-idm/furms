@@ -8,6 +8,7 @@ package io.imunity.furms.api.sites;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.UserSitesInstallationInfoData;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -22,6 +23,8 @@ public interface SiteService {
 	Set<Site> findAll();
 	
 	Set<Site> findUserSites(PersistentId userId);
+
+	Set<UserSitesInstallationInfoData> findCurrentUserSitesInstallationInfo();
 
 	void create(Site site);
 

@@ -6,6 +6,7 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -64,11 +65,14 @@ class SiteServiceImplTest {
 	private AuthzService authzService;
 	@Mock
 	private UserOperationRepository userOperationRepository;
+	@Mock
+	private ProjectService projectService;
 	
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
-		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService, siteAgentService, siteAgentStatusService, userOperationRepository);
+		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
+				siteAgentService, siteAgentStatusService, userOperationRepository, projectService);
 	}
 
 	@Test
@@ -397,10 +401,9 @@ class SiteServiceImplTest {
 		Method[] declaredMethods = SiteServiceImpl.class.getDeclaredMethods();
 		Stream.of(declaredMethods)
 				.filter(method -> Modifier.isPublic(method.getModifiers()))
-				.filter(method -> !method.getName().equals("findAllIds") && !method.getName().equals("findUserSites"))
+				.filter(method -> !method.getName().equals("findAllIds"))
 				.forEach(method -> {
 					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
-					assertThat(method.getAnnotation(FurmsAuthorize.class).resourceType()).isEqualTo(SITE);
 				});
 	}
 

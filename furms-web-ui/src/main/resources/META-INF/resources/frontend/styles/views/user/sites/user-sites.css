@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.user-sites-connection-info {
+    min-height: 40em;
+    border: 1px solid #e7ebef;
+    border-radius: 1em;
+    padding: 1em;
+}

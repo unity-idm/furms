@@ -41,6 +41,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public Set<UserAddition> findAllUserAdditionsInSite(String siteId, String userId) {
+		return userAdditionEntityRepository.findAllBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
+				.map(UserAdditionReadEntity::toUserAddition)
+				.collect(toSet());
+	}
+
+	@Override
 	public String create(UserAddition userAddition) {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()

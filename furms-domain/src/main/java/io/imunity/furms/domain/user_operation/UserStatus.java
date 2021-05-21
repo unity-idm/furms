@@ -38,4 +38,8 @@ public enum UserStatus {
 			.findAny()
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
 	}
+
+	public boolean isErrorStatus() {
+		return this == ADDING_FAILED || this == REMOVAL_FAILED;
+	}
 }

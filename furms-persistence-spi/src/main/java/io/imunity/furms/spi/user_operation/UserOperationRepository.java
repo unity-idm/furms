@@ -17,6 +17,7 @@ import java.util.Set;
 
 public interface UserOperationRepository {
 	Set<UserAddition> findAllUserAdditions(String projectId, String userId);
+	Set<UserAddition> findAllUserAdditionsInSite(String siteId, String userId);
 	String create(UserAddition userAddition);
 	void update(UserAddition userAddition);
 	void update(UserAdditionJob userAdditionJob);
