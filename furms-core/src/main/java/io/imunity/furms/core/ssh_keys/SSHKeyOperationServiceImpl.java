@@ -87,15 +87,15 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, result.status);
 
 		if (result.status.equals(DONE)) {
+			SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
 			if (job.operation.equals(ADD)) {
-				SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
 				addKeyHistory(job.siteId, key);
 				addToInstalledKeys(job.siteId, key);
 			} else if (job.operation.equals(REMOVE)) {
-				removeFromInstalledKeys(job.siteId, job.sshkeyId);
+				removeFromInstalledKeys(job.siteId, key);
 				removeSSHKeyIfRemovedFromLastSite(job);
 			}else if (job.operation.equals(UPDATE)) {
-				SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
+				
 				updateInstalledKeys(job.siteId, key);
 			}
 		}
@@ -103,21 +103,25 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	}
 
 	private void addToInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Add SSH key {} to installed keys", key);
 		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);
 		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
 				.value(key.value).sshkeyId(key.id).build());
 	}
 	
 	private void updateInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Update SSH key {} in installed keys", key);
 		installedSSHKeyRepository.update(siteId, key.id, key.value);
 		
 	}
 
-	private void removeFromInstalledKeys(String siteId, String sshkeyId) {
-		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);	
+	private void removeFromInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Remove SSH key {} from installed keys", key);
+		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);	
 	}
 
 	private void addKeyHistory(String siteId, SSHKey key) {
+		LOG.debug("Add SSH key {} to history for site {} and owner {}", key.getFingerprint(), siteId,  key.ownerId.id);
 		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId)
 				.originationTime(LocalDateTime.now(ZoneOffset.UTC))
 				.sshkeyFingerprint(key.getFingerprint()).sshkeyOwnerId(key.ownerId).build());

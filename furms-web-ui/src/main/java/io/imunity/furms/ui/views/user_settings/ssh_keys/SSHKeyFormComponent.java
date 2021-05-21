@@ -121,7 +121,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 				return ValidationResult.error(getTranslation("view.user-settings.ssh-keys.form.error.validation.field.sites"));
 				
 			if(keyValueField.getValue() == null
-					|| keyValueField.getValue().isEmpty())
+					|| keyValueField.getValue().isEmpty() || !validateKey(keyValueField.getValue()))
 				return ValidationResult.ok();
 
 			if (!SSHKey.getKeyOptions(keyValueField.getValue()).containsKey("from")) {

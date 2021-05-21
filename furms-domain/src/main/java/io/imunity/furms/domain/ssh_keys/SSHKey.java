@@ -90,13 +90,13 @@ public class SSHKey {
 			return KeyUtils.getFingerPrint(BuiltinDigests.md5, AuthorizedKeyEntry
 					.parseAuthorizedKeyEntry(publicSSHKey).resolvePublicKey(null, null));
 		} catch (Exception e) {
-			throw new RuntimeException("Invalid SSH key", e);
+			throw new InvalidSSHKeyValueException("Invalid SSH key value", e);
 		}
 	}
 
 	public static void validate(String publicSSHKey) {
 		if (publicSSHKey == null || publicSSHKey.isEmpty())
-			throw new IllegalArgumentException("Invalid SSH Key value: SSH Key value is empty.");
+			throw new InvalidSSHKeyValueException("Invalid SSH Key value: SSH Key value is empty.");
 		AuthorizedKeyEntry.parseAuthorizedKeyEntry(publicSSHKey);
 		getKeyFingerprint(publicSSHKey);
 	}
