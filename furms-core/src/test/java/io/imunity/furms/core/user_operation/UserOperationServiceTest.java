@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.user_operation;
 
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -51,6 +53,10 @@ class UserOperationServiceTest {
 	private ProjectGroupsDAO projectGroupsDAO;
 	@Mock
 	private ProjectRepository projectRepository;
+	@Mock
+	private AuthzService authzService;
+	@Mock
+	private SiteService siteService;
 
 	private UserOperationService service;
 	private InOrder orderVerifier;
@@ -58,7 +64,8 @@ class UserOperationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationService(repository, siteAgentUserService, siteRepository, projectGroupsDAO, usersDAO, projectRepository);
+		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, siteRepository,
+				projectGroupsDAO, usersDAO, projectRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 

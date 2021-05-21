@@ -8,20 +8,22 @@ package io.imunity.furms.domain.user_operation;
 import java.util.Arrays;
 
 public enum UserStatus {
-	ADDING_PENDING(0),
-	ADDING_ACKNOWLEDGED(1),
-	ADDED(2),
-	ADDING_FAILED(3),
-	REMOVAL_PENDING(4),
-	REMOVAL_ACKNOWLEDGED(5),
-	REMOVED(6),
-	REMOVAL_FAILED(7);
+	ADDING_PENDING(0, false),
+	ADDING_ACKNOWLEDGED(1, false),
+	ADDED(2, false),
+	ADDING_FAILED(3, true),
+	REMOVAL_PENDING(4, false),
+	REMOVAL_ACKNOWLEDGED(5, false),
+	REMOVED(6, false),
+	REMOVAL_FAILED(7, true);
 
-	UserStatus(int persistentId) {
+	UserStatus(int persistentId, boolean errorStatus) {
 		this.persistentId = persistentId;
+		this.errorStatus = errorStatus;
 	}
 
 	private final int persistentId;
+	private final boolean errorStatus;
 	private static final TransitionValidator TRANSITION_VALIDATOR = new TransitionValidator();
 
 	public int getPersistentId() {
@@ -37,5 +39,9 @@ public enum UserStatus {
 			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
+	}
+
+	public boolean isErrorStatus() {
+		return errorStatus;
 	}
 }
