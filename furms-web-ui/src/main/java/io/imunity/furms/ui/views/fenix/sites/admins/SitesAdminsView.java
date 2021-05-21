@@ -119,7 +119,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
-			LOG.warn("Could not invite Site Administrator. ", e);
+			LOG.error("Could not invite Site Administrator. ", e);
 		}
 	}
 
