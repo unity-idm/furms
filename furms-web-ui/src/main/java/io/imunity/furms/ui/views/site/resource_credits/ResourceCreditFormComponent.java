@@ -10,6 +10,7 @@ import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -35,13 +36,15 @@ class ResourceCreditFormComponent extends Composite<Div> {
 
 	private final Binder<ResourceCreditViewModel> binder;
 	private final ResourceTypeComboBoxModelResolver resolver;
+
+	private final FormLayout formLayout;
 	private ZoneId zoneId;
 
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
+		this.formLayout = new FurmsFormLayout();
 		zoneId = InvocationContext.getCurrent().getZone();
-		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -51,7 +54,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItems(resolver.getResourceTypes());
 		resourceTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		formLayout.addFormItem(resourceTypeComboBox, getTranslation("view.site-admin.resource-credits.form.combo-box.resource-types"));
+		formLayout.addFormItem(resourceTypeComboBox,
+				getTranslation("view.site-admin.resource-credits.form.combo-box.resource-types"));
 
 		Checkbox splitCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.split"));
 		formLayout.addFormItem(splitCheckbox, "");
@@ -71,7 +75,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		FurmsDateTimePicker endTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.site-admin.resource-credits.form.field.end-time"));
 
-		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox, amountField, startTimePicker, endTimePicker);
+		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox,
+				amountField, startTimePicker, endTimePicker);
 
 		getContent().add(formLayout);
 	}
@@ -95,7 +100,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-credits.form.error.validation.combo-box.resource-type")
 			)
 			.bind(
-				resourceType -> resolver.getResourceType(resourceType.resourceTypeId),
+				resourceType -> resolver.getResourceType(resourceType.getResourceTypeId()),
 				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeId(resourceType.id)
 			);
 		binder.forField(splitCheckbox)
@@ -107,24 +112,40 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				value -> Objects.nonNull(value) && isBigDecimal(value),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.amount")
 			)
-			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.amount),
+			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.getAmount()),
 				(resourceCredit, value) -> resourceCredit.setAmount(BigDecimalUtils.toBigDecimal(value))
 			);
 		binder.forField(startTimePicker)
 			.withValidator(
-				time -> Objects.nonNull(time) && ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
+				time -> Objects.nonNull(time)
+						&& ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
-			.bind(credit -> ofNullable(credit.startTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, startTime) -> credit.setStartTime(startTime.atZone(zoneId)));
+			.bind(credit -> ofNullable(credit.getStartTime()).map(ZonedDateTime::toLocalDateTime).orElse(null),
+					(credit, startTime) -> credit.setStartTime(startTime.atZone(zoneId)));
 		binder.forField(endTimePicker)
 			.withValidator(
-				time -> Objects.nonNull(time) && ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
+				time -> Objects.nonNull(time)
+						&& ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
-			.bind(credit -> ofNullable(credit.endTime).map(ZonedDateTime::toLocalDateTime).orElse(null), (credit, endTime) -> credit.setEndTime(endTime.atZone(zoneId)));
+			.bind(credit -> ofNullable(credit.getEndTime()).map(ZonedDateTime::toLocalDateTime).orElse(null),
+					(credit, endTime) -> credit.setEndTime(endTime.atZone(zoneId)));
 	}
 
-	public void setFormPools(ResourceCreditViewModel serviceViewModel) {
-		binder.setBean(serviceViewModel);
+	public void setFormPools(ResourceCreditViewModel resourceCreditViewModel) {
+		binder.setBean(resourceCreditViewModel);
+
+		addIdFieldForEditForm(resourceCreditViewModel);
+	}
+
+	private void addIdFieldForEditForm(ResourceCreditViewModel resourceCreditViewModel) {
+		if (resourceCreditViewModel != null && isNotEmpty(resourceCreditViewModel.getId())) {
+			Div id = new Div();
+			id.setText(resourceCreditViewModel.getId());
+			Label idLabel = new Label(getTranslation("view.site-admin.resource-credits.form.field.id"));
+
+			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
+		}
 	}
 }

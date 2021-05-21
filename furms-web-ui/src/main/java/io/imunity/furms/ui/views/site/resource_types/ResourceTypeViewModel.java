@@ -11,15 +11,21 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import java.util.Objects;
 
 class ResourceTypeViewModel {
-	public final String id;
-	public final String siteId;
-	public String serviceId;
-	public String name;
-	public ResourceMeasureType type;
-	public ResourceMeasureUnit unit;
-	public boolean accessible;
+	private final String id;
+	private final String siteId;
+	private String serviceId;
+	private String name;
+	private ResourceMeasureType type;
+	private ResourceMeasureUnit unit;
+	private boolean accessible;
 
-	private ResourceTypeViewModel(String id, String siteId, String serviceId, String name, ResourceMeasureType type, ResourceMeasureUnit unit, boolean accessible) {
+	private ResourceTypeViewModel(String id,
+	                              String siteId,
+	                              String serviceId,
+	                              String name,
+	                              ResourceMeasureType type,
+	                              ResourceMeasureUnit unit,
+	                              boolean accessible) {
 		this.id = id;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
@@ -33,6 +39,14 @@ class ResourceTypeViewModel {
 		this.id = null;
 		this.serviceId = null;
 		this.siteId = siteId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getSiteId() {
+		return siteId;
 	}
 
 	public String getName() {
@@ -106,13 +120,13 @@ class ResourceTypeViewModel {
 	}
 
 	public static final class ResourceTypeViewModelBuilder {
-		public String id;
-		public String siteId;
-		public String serviceId;
-		public String name;
-		public ResourceMeasureType type;
-		public ResourceMeasureUnit unit;
-		public boolean accessible;
+		private String id;
+		private String siteId;
+		private String serviceId;
+		private String name;
+		private ResourceMeasureType type;
+		private ResourceMeasureUnit unit;
+		private boolean accessible;
 
 		private ResourceTypeViewModelBuilder() {
 		}

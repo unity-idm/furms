@@ -22,13 +22,13 @@ class ResourceTypeViewModelMapper {
 
 	static ResourceType map(ResourceTypeViewModel resourceTypeViewModel){
 		return ResourceType.builder()
-			.id(resourceTypeViewModel.id)
-			.siteId(resourceTypeViewModel.siteId)
-			.serviceId(resourceTypeViewModel.serviceId)
-			.name(resourceTypeViewModel.name)
-			.type(resourceTypeViewModel.type)
-			.unit(resourceTypeViewModel.unit)
-			.accessibleForAllProjectMembers(resourceTypeViewModel.accessible)
+			.id(resourceTypeViewModel.getId())
+			.siteId(resourceTypeViewModel.getSiteId())
+			.serviceId(resourceTypeViewModel.getServiceId())
+			.name(resourceTypeViewModel.getName())
+			.type(resourceTypeViewModel.getType())
+			.unit(resourceTypeViewModel.getUnit())
+			.accessibleForAllProjectMembers(resourceTypeViewModel.isAccessible())
 			.build();
 	}
 }

@@ -19,10 +19,10 @@ class InfraServiceViewModelMapper {
 
 	public static InfraService map(InfraServiceViewModel serviceViewModel){
 		return InfraService.builder()
-			.id(serviceViewModel.id)
-			.siteId(serviceViewModel.siteId)
-			.name(serviceViewModel.name)
-			.description(serviceViewModel.description)
+			.id(serviceViewModel.getId())
+			.siteId(serviceViewModel.getSiteId())
+			.name(serviceViewModel.getName())
+			.description(serviceViewModel.getDescription())
 			.build();
 	}
 }
