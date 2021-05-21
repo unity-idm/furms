@@ -4,12 +4,15 @@
  */
 package io.imunity.furms.ui.mvc;
 
-import io.imunity.furms.ui.config.FurmsI18NProvider;
+import static io.imunity.furms.domain.constant.RoutesConst.POST_LOGOUT_PAGE_URL;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_URL;
+import io.imunity.furms.ui.config.FurmsI18NProvider;
 
 @Controller
 public class LogoutView {
@@ -20,8 +23,8 @@ public class LogoutView {
 		this.i18nProvider = i18nProvider;
 	}
 
-	@RequestMapping(LOGOUT_URL)
-	public String logout(Model model) {
+	@RequestMapping(POST_LOGOUT_PAGE_URL)
+	public String logout(Model model, HttpServletRequest request) {		
 		model.addAttribute("title", i18nProvider.getTranslation("view.logout-page.title"));
 		model.addAttribute("message", i18nProvider.getTranslation("view.logout-page.message"));
 		model.addAttribute("login", i18nProvider.getTranslation("view.logout-page.login"));

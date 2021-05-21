@@ -10,5 +10,5 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 
 public interface SSHKeyOperationMessageResolver {
 
-	void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result);	
+	void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result);
 }

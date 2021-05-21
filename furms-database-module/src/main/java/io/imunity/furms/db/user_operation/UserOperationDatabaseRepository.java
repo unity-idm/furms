@@ -7,14 +7,17 @@ package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
@@ -23,11 +26,11 @@ import static java.util.stream.Collectors.toSet;
 class UserOperationDatabaseRepository implements UserOperationRepository {
 
 	private final UserAdditionEntityRepository userAdditionEntityRepository;
-	private final UserRemovalEntityRepository userRemovalEntityRepository;
+	private final UserAdditionJobEntityRepository userAdditionJobEntityRepository;
 
-	UserOperationDatabaseRepository(UserAdditionEntityRepository userAdditionEntityRepository, UserRemovalEntityRepository userRemovalEntityRepository) {
+	UserOperationDatabaseRepository(UserAdditionEntityRepository userAdditionEntityRepository, UserAdditionJobEntityRepository userAdditionJobEntityRepository) {
 		this.userAdditionEntityRepository = userAdditionEntityRepository;
-		this.userRemovalEntityRepository = userRemovalEntityRepository;
+		this.userAdditionJobEntityRepository = userAdditionJobEntityRepository;
 	}
 
 	@Override
@@ -41,10 +44,15 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public String create(UserAddition userAddition) {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.correlationId(fromString(userAddition.correlationId.id))
 				.siteId(fromString(userAddition.siteId.id))
 				.projectId(fromString(userAddition.projectId))
 				.userId(userAddition.userId)
+				.build()
+		);
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
+				.correlationId(fromString(userAddition.correlationId.id))
+				.userAdditionId(userAdditionSaveEntity.getId())
 				.status(userAddition.status)
 				.build()
 		);
@@ -52,90 +60,94 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public UserAdditionStatus findAdditionStatusByCorrelationId(String correlationId) {
-		return userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(x -> UserAdditionStatus.valueOf(x.status))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-	}
-
-	@Override
-	public UserRemovalStatus findRemovalStatusByCorrelationId(String correlationId) {
-		return userRemovalEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(x -> UserRemovalStatus.valueOf(x.status))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-	}
-
-	@Override
-	public String create(UserRemoval userRemoval) {
-		UserRemovalSaveEntity userRemovalSaveEntity = userRemovalEntityRepository.save(
-			UserRemovalSaveEntity.builder()
-				.correlationId(fromString(userRemoval.correlationId.id))
-				.siteId(fromString(userRemoval.siteId.id))
-				.projectId(fromString(userRemoval.projectId))
-				.userAdditionId(fromString(userRemoval.userAdditionId))
-				.userId(userRemoval.userId)
-				.status(userRemoval.status)
-				.build()
-		);
-		return userRemovalSaveEntity.getId().toString();
-	}
-
-	@Override
 	public void update(UserAddition userAddition) {
 		userAdditionEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
-			.map(oldEntity -> UserAdditionSaveEntity.builder()
-				.id(oldEntity.getId())
-				.correlationId(oldEntity.correlationId)
-				.siteId(oldEntity.siteId)
-				.userId(oldEntity.userId)
-				.projectId(oldEntity.projectId)
+			.or(() -> userAdditionEntityRepository.findById(UUID.fromString(userAddition.id)))
+			.map(old -> UserAdditionSaveEntity.builder()
+				.siteId(old.siteId)
+				.projectId(old.projectId)
+				.userId(old.userId)
 				.uid(userAddition.uid)
+				.build()
+			).ifPresent(userAdditionEntityRepository::save);
+		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
+			.or(() -> userAdditionJobEntityRepository.findByUserAdditionId(UUID.fromString(userAddition.id)))
+			.map(old -> UserAdditionJobEntity.builder()
+				.id(old.getId())
+				.correlationId(fromString(userAddition.correlationId.id))
+				.userAdditionId(old.userAdditionId)
 				.status(userAddition.status)
-				.build())
-			.ifPresent(userAdditionEntityRepository::save);
+				.code(userAddition.errorMessage.map(e -> e.code).orElse(null))
+				.message(userAddition.errorMessage.map(e -> e.message).orElse(null))
+				.build()
+			).ifPresent(userAdditionJobEntityRepository::save);
 	}
 
 	@Override
-	public void updateStatus(CorrelationId correlationId, UserRemovalStatus userRemovalStatus) {
-		userRemovalEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.map(oldEntity -> UserRemovalSaveEntity.builder()
+	public UserStatus findAdditionStatusByCorrelationId(String correlationId) {
+		return userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+			.map(x -> UserStatus.valueOf(x.status))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+	}
+
+	@Override
+	public void deleteByCorrelationId(String correlationId) {
+		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+			.ifPresent(x -> userAdditionEntityRepository.deleteById(x.userAdditionId));
+	}
+
+	@Override
+	public boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId) {
+		return userAdditionEntityRepository.existsByProjectIdAndUserId(UUID.fromString(projectId), userId.id);
+	}
+
+	@Override
+	public void deleteAll() {
+		userAdditionEntityRepository.deleteAll();
+	}
+
+	@Override
+	public void delete(UserAddition userAddition) {
+		userAdditionEntityRepository.deleteById(UUID.fromString(userAddition.id));
+	}
+
+	@Override
+	public void update(UserAdditionJob userAdditionJob) {
+		userAdditionJobEntityRepository.findByUserAdditionId(UUID.fromString(userAdditionJob.userAdditionId))
+			.map(x -> UserAdditionJobEntity.builder()
+				.id(x.getId())
+				.correlationId(fromString(userAdditionJob.correlationId.id))
+				.userAdditionId(fromString(userAdditionJob.userAdditionId))
+				.status(userAdditionJob.status)
+				.code(userAdditionJob.errorMessage.map(e -> e.code).orElse(null))
+				.message(userAdditionJob.errorMessage.map(e -> e.message).orElse(null))
+				.build())
+			.ifPresent(userAdditionJobEntityRepository::save);
+	}
+
+	@Override
+	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage) {
+		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(oldEntity -> UserAdditionJobEntity.builder()
 				.id(oldEntity.getId())
 				.correlationId(oldEntity.correlationId)
-				.siteId(oldEntity.siteId)
-				.projectId(oldEntity.projectId)
-				.userId(oldEntity.userId)
 				.userAdditionId(oldEntity.userAdditionId)
-				.status(userRemovalStatus)
+				.status(userStatus)
+				.code(userErrorMessage.map(e -> e.code).orElse(null))
+				.message(userErrorMessage.map(e -> e.message).orElse(null))
 				.build())
-			.ifPresent(userRemovalEntityRepository::save);
+			.ifPresent(userAdditionJobEntityRepository::save);
 	}
 
 	@Override
-	public void updateStatus(CorrelationId correlationId, UserAdditionStatus userAdditionStatus) {
-		userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.map(oldEntity -> UserAdditionSaveEntity.builder()
-				.id(oldEntity.getId())
-				.correlationId(oldEntity.correlationId)
-				.siteId(oldEntity.siteId)
-				.userId(oldEntity.userId)
-				.projectId(oldEntity.projectId)
-				.status(userAdditionStatus)
-				.build())
-			.ifPresent(userAdditionEntityRepository::save);
-	}
-
 	public boolean isUserAdded(String siteId, String userId) {
-		return userAdditionEntityRepository.isUserAdded(
-			UUID.fromString(siteId), userId,
-			UserAdditionStatus.ADDED.getPersistentId(),
-			UserRemovalStatus.REMOVED.getPersistentId()
-		);
+		return userAdditionEntityRepository.existsBySiteIdAndUserId(UUID.fromString(siteId), userId);
 	}
 
 	@Override
-	public Set<String> findAddedUserIds(String projectId) {
-		return userAdditionEntityRepository.findAddedUserIds(UUID.fromString(projectId),
-			UserAdditionStatus.ADDED.getPersistentId(),
-			UserRemovalStatus.REMOVED.getPersistentId());
+	public Set<String> findUserIds(String projectId) {
+		return userAdditionEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(x -> x.userId)
+			.collect(Collectors.toSet());
 	}
 }

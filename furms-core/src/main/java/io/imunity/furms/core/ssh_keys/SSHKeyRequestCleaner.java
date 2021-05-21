@@ -47,7 +47,7 @@ class SSHKeyRequestCleaner {
 
 	@Transactional
 	private void cleanStaleRequest() {
-		LOG.debug("Cleaning ssh key operation stale requests");
+		LOG.trace("Cleaning ssh key operation stale requests");
 		List<SSHKeyOperationJob> findByStatus = sshKeyOperationRepository
 				.findByStatus(SSHKeyOperationStatus.SEND);
 

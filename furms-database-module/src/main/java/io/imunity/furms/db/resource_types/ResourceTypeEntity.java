@@ -43,7 +43,7 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 			.name(name)
 			.type(type)
 			.unit(unit)
-			.accessible(accessible)
+			.accessibleForAllProjectMembers(accessible)
 			.build();
 	}
 

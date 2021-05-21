@@ -27,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
+import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -66,6 +69,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
@@ -80,19 +84,21 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private final Grid<SSHKeyViewModel> grid;
 	private final SiteComboBoxModelResolver resolver;
 	private ZoneId zoneId;
+	private boolean userWithoutSites = false;
 
 	SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService,
-			SSHKeyOperationService sshKeyInstallationService) {
+			SSHKeyOperationService sshKeyInstallationService) throws InterruptedException, ExecutionException {
 		this.sshKeysService = sshKeysService;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.grid = createSSHKeysGrid();
-		this.resolver = new SiteComboBoxModelResolver(
-				siteService.findUserSites(authzService.getCurrentUserId()));
-
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		Set<Site> sites = Collections.emptySet();
+		try {
+			sites = siteService.findUserSites(authzService.getCurrentUserId());
+		} catch (UserWithoutFenixIdValidationError e) {
+			//ok
+		}
+		this.resolver = new SiteComboBoxModelResolver(sites);
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button addButton = createAddButton();
 		getContent().add(createHeaderLayout(addButton), new HorizontalLayout(grid));
 	}
@@ -104,7 +110,16 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	private Button createAddButton() {
 		Button addButton = new Button(getTranslation("view.user-settings.ssh-keys.button.add"),
 				PLUS_CIRCLE.create());
-		addButton.addClickListener(x -> UI.getCurrent().navigate(SSHKeyFormView.class));
+		addButton.addClickListener(x -> {
+			if (userWithoutSites) {
+				showErrorNotification(getTranslation(
+						"view.user-settings.ssh-keys.user.without.sites.error.message"));
+				return;
+			}
+
+			UI.getCurrent().navigate(SSHKeyFormView.class);
+
+		});
 		return addButton;
 	}
 
@@ -269,15 +284,8 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			setVisible(false);
 			return;
-		}
-
-		catch (UserWithoutSitesError e) {
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(
-					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
-			setVisible(false);
-			return;
-
+		} catch (UserWithoutSitesError e) {
+			userWithoutSites = true;
 		} catch (AccessDeniedException e) {
 			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
@@ -285,7 +293,6 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			setVisible(false);
 			return;
 		}
-
 		loadGridContent();
 	}
 

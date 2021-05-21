@@ -7,6 +7,8 @@ package io.imunity.furms.ui.views.site.resource_credits;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -15,10 +17,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -26,7 +26,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
 class ResourceCreditFormComponent extends Composite<Div> {
@@ -41,10 +43,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
-		this.formLayout = new FurmsFormLayout();
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
+		zoneId = InvocationContext.getCurrent().getZone();
+		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -69,10 +69,10 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));
 
-		DateTimePicker startTimePicker = new DateTimePicker();
+		FurmsDateTimePicker startTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
 		formLayout.addFormItem(startTimePicker, getTranslation("view.site-admin.resource-credits.form.field.start-time"));
 
-		DateTimePicker endTimePicker = new DateTimePicker();
+		FurmsDateTimePicker endTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.site-admin.resource-credits.form.field.end-time"));
 
 		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox,
@@ -87,7 +87,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 
 	private void prepareValidator(TextField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
 	                              Checkbox splitCheckbox, Checkbox accessCheckbox, TextField amountField,
-	                              DateTimePicker startTimePicker, DateTimePicker endTimePicker) {
+	                              FurmsDateTimePicker startTimePicker, FurmsDateTimePicker endTimePicker) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),

@@ -9,5 +9,8 @@ CREATE TABLE project_deallocation (
     site_Id UUID,
     project_allocation_Id UUID NOT NULL,
     status INT NOT NULL,
+    code VARCHAR(255),
+    message VARCHAR(255),
+    FOREIGN KEY (project_allocation_Id) REFERENCES project_allocation(id) ON DELETE CASCADE,
     FOREIGN KEY (site_id) REFERENCES site(id)
 );

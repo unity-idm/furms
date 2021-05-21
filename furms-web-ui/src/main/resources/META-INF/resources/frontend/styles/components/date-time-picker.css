@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.date-time-picker-content {
+    padding: 0;
+}
+
+.date-time-picker-content vcf-toggle-button {
+    color: var(--lumo-secondary-text-color);
+    margin-top: 0.1em;
+    margin-bottom: 0.5em;
+}

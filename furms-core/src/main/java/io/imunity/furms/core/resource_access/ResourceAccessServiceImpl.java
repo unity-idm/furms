@@ -53,7 +53,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<String> findAddedUser(String projectId) {
-		return userRepository.findAddedUserIds(projectId);
+		return userRepository.findUserIds(projectId);
 	}
 
 	@Override

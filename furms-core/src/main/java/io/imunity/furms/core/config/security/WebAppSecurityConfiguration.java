@@ -5,10 +5,10 @@
 package io.imunity.furms.core.config.security;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
-import static io.imunity.furms.domain.constant.RoutesConst.FRONT_LOGOUT_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_SUCCESS_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.PUBLIC_URL;
 
 import java.lang.invoke.MethodHandles;
@@ -27,14 +27,10 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.session.ConcurrentSessionFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
 import io.imunity.furms.core.config.security.oauth.FurmsOAuth2UserService;
-import io.imunity.furms.core.config.security.oauth.FurmsOauthLogoutFilter;
-import io.imunity.furms.core.config.security.oauth.FurmsOauthTokenExtenderFilter;
 import io.imunity.furms.spi.roles.RoleLoader;
 
 @EnableWebSecurity
@@ -47,29 +43,21 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
 	private final RoleLoader roleLoader;
-	private final FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter;
-	private final FurmsOauthLogoutFilter furmsOauthLogoutFilter;
 
 	WebAppSecurityConfiguration(RestTemplate unityRestTemplate,
 	                            ClientRegistrationRepository clientRegistrationRepo,
 	                            TokenRevokerHandler tokenRevokerHandler,
-	                            RoleLoader roleLoader,
-	                            FurmsOauthTokenExtenderFilter furmsOauthTokenExtenderFilter,
-	                            FurmsOauthLogoutFilter furmsOauthLogoutFilter) {
+	                            RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
 		this.roleLoader = roleLoader;
-		this.furmsOauthTokenExtenderFilter = furmsOauthTokenExtenderFilter;
-		this.furmsOauthLogoutFilter = furmsOauthLogoutFilter;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.addFilterAfter(new UserContextSetterFilter(), SecurityContextPersistenceFilter.class)
-			.addFilterAfter(furmsOauthLogoutFilter, ConcurrentSessionFilter.class)
-			.addFilterAfter(furmsOauthTokenExtenderFilter, FurmsOauthLogoutFilter.class)
 
 			// Allow access to /public.
 			.authorizeRequests().requestMatchers(r -> r.getRequestURI().startsWith(PUBLIC_URL)).permitAll()
@@ -83,11 +71,12 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 			// Configure logout
 			.logout()
-				.logoutRequestMatcher(new AntPathRequestMatcher(FRONT_LOGOUT_URL, "GET"))
+				.logoutUrl(LOGOUT_TRIGGER_URL)
 				.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
-			.and().exceptionHandling().authenticationEntryPoint(new FurmsEntryPoint(LOGIN_URL))
+			.and().exceptionHandling().defaultAuthenticationEntryPointFor(new FurmsEntryPoint(LOGIN_URL), 
+					new NonVaadinXHRRequestMatcher())
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL)
@@ -140,4 +129,21 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			return true;
 		}
 	}
+	
+	/**
+	 * Basic recognition of Vaadin XHR request. For those we do not want to have a redirect to login page, just a 
+	 * http error when we are unauthorized. 
+	 */
+	private static class NonVaadinXHRRequestMatcher implements RequestMatcher {
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			if (request.getDispatcherType() == DispatcherType.REQUEST) {
+				LOG.trace("Checking if request is not Vaadin XHR: {}", request.getParameter("v-r") == null);
+				return request.getParameter("v-r") == null;
+			}
+			LOG.trace("Checking if request is not Vaadin XHR: false");
+			return false;
+		}
+	}
+
 }

@@ -30,10 +30,10 @@ public enum AccessStatus {
 	}
 
 	private final int persistentId;
-	private static final TransitionManager transitionManager = new TransitionManager();
+	private static final TransitionValidator TRANSITION_VALIDATOR = new TransitionValidator();
 
 	public boolean isTransitionalTo(AccessStatus accessStatus) {
-		return transitionManager.isTransitional(this, accessStatus);
+		return TRANSITION_VALIDATOR.isTransitional(this, accessStatus);
 	}
 
 	public int getPersistentId() {
@@ -44,6 +44,6 @@ public enum AccessStatus {
 		return Arrays.stream(values())
 			.filter(revokeAccessStatus -> revokeAccessStatus.getPersistentId() == status)
 			.findAny()
-			.orElseThrow(() -> new IllegalArgumentException("Bad status code, it shouldn't happen"));
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
 	}
 }

@@ -70,7 +70,7 @@ public class ResourceType {
 		public String serviceId;
 		public ResourceMeasureType type;
 		public ResourceMeasureUnit unit;
-		public boolean accessible;
+		public boolean accessibleForAllProjectMembers;
 
 		private ResourceTypeBuilder() {
 		}
@@ -105,13 +105,13 @@ public class ResourceType {
 			return this;
 		}
 
-		public ResourceTypeBuilder accessible(boolean accessible) {
-			this.accessible = accessible;
+		public ResourceTypeBuilder accessibleForAllProjectMembers(boolean accessible) {
+			this.accessibleForAllProjectMembers = accessible;
 			return this;
 		}
 
 		public ResourceType build() {
-			return new ResourceType(id, name, siteId, serviceId, type, unit, accessible);
+			return new ResourceType(id, name, siteId, serviceId, type, unit, accessibleForAllProjectMembers);
 		}
 	}
 }

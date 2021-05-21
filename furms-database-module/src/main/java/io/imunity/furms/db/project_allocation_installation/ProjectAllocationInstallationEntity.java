@@ -28,11 +28,12 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
 	public final int status;
+	public final String code;
 	public final String message;
 
 	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, String chunkId,
 	                                    BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
-	                                    LocalDateTime receivedTime, int status, String message) {
+	                                    LocalDateTime receivedTime, int status, String code, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -43,6 +44,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		this.validTo = validTo;
 		this.receivedTime = receivedTime;
 		this.status = status;
+		this.code = code;
 		this.message = message;
 	}
 
@@ -58,7 +60,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			.validTo(validTo)
 			.receivedTime(receivedTime)
 			.status(ProjectAllocationInstallationStatus.valueOf(status))
-			.message(message)
+			.errorMessage(code, message)
 			.build();
 	}
 
@@ -76,13 +78,14 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			Objects.equals(validFrom, that.validFrom) &&
 			Objects.equals(validTo, that.validTo) &&
 			Objects.equals(receivedTime, that.receivedTime) &&
+			Objects.equals(code, that.code) &&
 			Objects.equals(message, that.message) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, message, status);
+		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, code, message, status);
 	}
 
 	@Override
@@ -97,6 +100,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			", validFrom=" + validFrom +
 			", validTo=" + validTo +
 			", receivedTime=" + receivedTime +
+			", code=" + code +
 			", message=" + message +
 			", status=" + status +
 			'}';
@@ -117,6 +121,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		public LocalDateTime validTo;
 		public LocalDateTime receivedTime;
 		public int status;
+		public String code;
 		public String message;
 
 		private ProjectAllocationInstallationEntityBuilder() {
@@ -172,13 +177,18 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectAllocationInstallationEntityBuilder code(String code) {
+			this.code = code;
+			return this;
+		}
+
 		public ProjectAllocationInstallationEntityBuilder message(String message) {
 			this.message = message;
 			return this;
 		}
 
 		public ProjectAllocationInstallationEntity build() {
-			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, message);
+			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, code, message);
 		}
 	}
 }

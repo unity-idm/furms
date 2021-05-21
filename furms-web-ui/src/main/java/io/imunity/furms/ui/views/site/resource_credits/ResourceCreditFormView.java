@@ -31,6 +31,7 @@ import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
@@ -49,9 +50,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		this.resourceCreditService = resourceCreditService;
 		ResourceTypeComboBoxModelResolver resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
 		this.resourceCreditFormComponent = new ResourceCreditFormComponent(binder, resolver);
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
+		zoneId = InvocationContext.getCurrent().getZone();
 
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));

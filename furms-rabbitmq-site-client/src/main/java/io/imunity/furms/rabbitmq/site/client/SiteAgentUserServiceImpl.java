@@ -8,11 +8,11 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
+import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
+import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import org.springframework.amqp.AmqpConnectException;
@@ -22,9 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 @Service
 class SiteAgentUserServiceImpl implements SiteAgentUserService {
@@ -40,23 +44,28 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectAddRequestAck(Payload<UserProjectAddRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.ACKNOWLEDGED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserAdditionStatus.FAILED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_FAILED, getErrorMessage(ack.header.error));
+	}
+
+	private Optional<UserAdditionErrorMessage> getErrorMessage(Error error) {
+		return ofNullable(error).map(x -> new UserAdditionErrorMessage(x.code, x.message));
 	}
 
 	@EventListener
 	void receiveUserProjectAddResult(Payload<UserProjectAddResult> result) {
-		UserAdditionStatus status;
+		UserStatus status;
 		if(result.header.status.equals(Status.OK))
-			status = UserAdditionStatus.ADDED;
+			status = UserStatus.ADDED;
 		else
-			status = UserAdditionStatus.FAILED;
+			status = UserStatus.ADDING_FAILED;
 		userOperationMessageResolver.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
 				.uid(result.body.uid)
 				.status(status)
+				.errorMessage(getErrorMessage(result.header.error))
 				.build()
 		);
 	}
@@ -65,18 +74,18 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectRemovalRequestAck(Payload<UserProjectRemovalRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.ACKNOWLEDGED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.FAILED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(ack.header.error));
 	}
 
 	@EventListener
 	void receiveUserProjectRemovalResult(Payload<UserProjectRemovalResult> result) {
 		CorrelationId correlationId = new CorrelationId(result.header.messageCorrelationId);
 		if(result.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.REMOVED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVED, empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserRemovalStatus.FAILED);
+			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(result.header.error));
 	}
 
 	@Override
@@ -96,13 +105,13 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 
 	@Override
 	@Transactional(propagation = Propagation.NESTED)
-	public void removeUser(UserRemoval userRemoval) {
+	public void removeUser(UserAddition userAddition) {
 		try {
 			rabbitTemplate.convertAndSend(
-				getFurmsPublishQueueName(userRemoval.siteId.externalId),
+				getFurmsPublishQueueName(userAddition.siteId.externalId),
 				new Payload<>(
-					new Header(VERSION, userRemoval.correlationId.id),
-					new UserProjectRemovalRequest(userRemoval.userId, userRemoval.projectId)
+					new Header(VERSION, userAddition.correlationId.id),
+					new UserProjectRemovalRequest(userAddition.userId, userAddition.projectId)
 				)
 			);
 		}catch (AmqpConnectException e){

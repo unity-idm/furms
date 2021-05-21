@@ -41,6 +41,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
@@ -216,7 +217,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, INSTALLED, null);
+		entityDatabaseRepository.update(correlationId.id, INSTALLED, Optional.empty());
 
 		//then
 		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
@@ -239,7 +240,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, ProjectDeallocationStatus.ACKNOWLEDGED);
+		entityDatabaseRepository.update(correlationId.id, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
 		ProjectDeallocationEntity projectDeallocationEntity = deallocationRepository.findAll().iterator().next();

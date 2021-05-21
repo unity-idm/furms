@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.google.common.collect.Sets;
 
@@ -76,7 +78,6 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
-	
 	}
 
 	@Override
@@ -104,13 +105,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	public String create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
 		String created = sshKeysRepository.create(sshKey);
-
 		SSHKey createdKey = sshKeysRepository.findById(created).orElseThrow(
 				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
 		LOG.info("Created SSHKey in repository: {}", createdKey);
-
 		addKeyToSites(createdKey);
-		return created;
+		return createdKey.id;
 	}
 
 	@Transactional
@@ -177,10 +176,16 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
-				SSHKeyUpdating.builder().siteExternalId(site.getExternalId()).oldPublicKey(oldKey.value)
-						.newPublicKey(newKey.value).user(userId).build());
-
+		
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
+						SSHKeyUpdating.builder().siteExternalId(site.getExternalId())
+								.oldPublicKey(oldKey.value).newPublicKey(newKey.value)
+								.user(userId).build());
+			}
+		});
 	}
 
 	private void updateKeyOnSites(SiteDiff siteDiff, SSHKey oldKey, SSHKey merged) {
@@ -287,9 +292,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-
-		siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
-				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
+						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
+			}
+		});
+		
 
 	}
 
@@ -301,14 +311,19 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(REMOVE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
-				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
+						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
+			}
+		});
+		
 	}
 	
 	private void createOperation(SSHKeyOperationJob operationJob) {
 		sshKeyOperationRepository.create(operationJob);
 		LOG.info("SSHKeyOperationJob was created: {}", operationJob);
-
 	}
 	
 	private void deleteOperationBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {

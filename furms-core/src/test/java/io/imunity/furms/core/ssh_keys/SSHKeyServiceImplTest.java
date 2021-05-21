@@ -19,11 +19,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.google.common.collect.Sets;
 
@@ -73,17 +76,23 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 
-
 	private SSHKeyServiceImpl service;
 
 	private SSHKeyServiceValidator validator;
-
+	
 	@BeforeEach
 	void setUp() {
+		TransactionSynchronizationManager.initSynchronization();
+
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
 				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
 				sshKeyOperationRepository, siteAgentSSHKeyInstallationService, usersDAO);
+	}
+	
+	@AfterEach
+	void clear() {
+		TransactionSynchronizationManager.clear();
 	}
 
 	@Test
@@ -260,6 +269,10 @@ public class SSHKeyServiceImplTest {
 
 		// when
 		service.update(request);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+				.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		// then
 		verify(sshKeyOperationRepository).deleteBySSHKeyIdAndSiteId("id", "s2");
@@ -328,7 +341,11 @@ public class SSHKeyServiceImplTest {
 
 		// when
 		service.delete(id);
-
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+				.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
+		
 		verify(siteAgentSSHKeyInstallationService, times(1)).removeSSHKey(any(), any());
 	}
 

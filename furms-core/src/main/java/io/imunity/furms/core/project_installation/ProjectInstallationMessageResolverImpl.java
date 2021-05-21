@@ -7,6 +7,7 @@ package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
@@ -14,6 +15,7 @@ import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
@@ -35,6 +37,7 @@ class ProjectInstallationMessageResolverImpl implements ProjectInstallationMessa
 	}
 
 	@Override
+	@Transactional
 	public void update(CorrelationId correlationId, ProjectInstallationResult result) {
 		ProjectInstallationJob job = projectOperationRepository.findInstallationJobByCorrelationId(correlationId);
 		if(job.status.equals(ProjectInstallationStatus.INSTALLED) || job.status.equals(ProjectInstallationStatus.FAILED)){
@@ -47,12 +50,13 @@ class ProjectInstallationMessageResolverImpl implements ProjectInstallationMessa
 			userOperationService.createUserAdditions(job.siteId, job.projectId);
 		}
 		if(result.status.equals(ProjectInstallationStatus.FAILED)){
-			projectAllocationInstallationService.cancelWaitingAllocations(job.projectId, result.error.message);
+			projectAllocationInstallationService.cancelWaitingAllocations(job.projectId, new ErrorMessage(result.error.code, result.error.message));
 		}
 		LOG.info("ProjectInstallation status with given id {} was updated to {}", job.id, result.status);
 	}
 
 	@Override
+	@Transactional
 	public void update(CorrelationId correlationId, ProjectUpdateResult result) {
 		ProjectUpdateJob job = projectOperationRepository.findUpdateJobByCorrelationId(correlationId);
 		if(job.status.equals(ProjectUpdateStatus.UPDATED) || job.status.equals(ProjectUpdateStatus.FAILED)){

@@ -12,9 +12,9 @@ public class UserGrant {
 	public final String projectAllocationId;
 	public final String userId;
 	public final AccessStatus status;
-	public final Optional<ErrorMessage> errorMessage;
+	public final Optional<ErrorAccessMessage> errorMessage;
 
-	UserGrant(String projectAllocationId, String userId, AccessStatus status, Optional<ErrorMessage> errorMessage) {
+	UserGrant(String projectAllocationId, String userId, AccessStatus status, Optional<ErrorAccessMessage> errorMessage) {
 		this.projectAllocationId = projectAllocationId;
 		this.userId = userId;
 		this.status = status;
@@ -55,7 +55,7 @@ public class UserGrant {
 		public String projectAllocationId;
 		public String userId;
 		public AccessStatus status;
-		public Optional<ErrorMessage> errorMessage = Optional.empty();
+		public Optional<ErrorAccessMessage> errorMessage = Optional.empty();
 
 		private UserGrantBuilder() {
 		}
@@ -76,7 +76,7 @@ public class UserGrant {
 		}
 
 		public UserGrantBuilder message(String message) {
-			this.errorMessage = Optional.of(new ErrorMessage(message));
+			this.errorMessage = Optional.ofNullable(message).map(ErrorAccessMessage::new);
 			return this;
 		}
 

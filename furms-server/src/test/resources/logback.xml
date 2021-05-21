@@ -13,4 +13,8 @@
 	
 	
 	<logger name="org.springframework" level="INFO"/>
+	<logger name="org.springframework.web.filter" level="DEBUG"/>
+	<logger name="org.springframework.security" level="INFO"/>
+	<logger name="io.imunity.furms" level="DEBUG"/>
+		
 </configuration>

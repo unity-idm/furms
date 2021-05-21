@@ -13,12 +13,27 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 public class FrontProperties {
 
 	private final String language;
+	private final int maxSessionInactivity;
+	private final int secondsBeforeShowingSessionExpirationWarning;
 
-	FrontProperties(String language) {
+
+	public FrontProperties(String language, int maxSessionInactivity,
+			int secondsBeforeShowingSessionExpirationWarning) {
+		
 		this.language = language;
+		this.maxSessionInactivity = maxSessionInactivity;
+		this.secondsBeforeShowingSessionExpirationWarning = secondsBeforeShowingSessionExpirationWarning;
 	}
 
 	public String getLanguage() {
 		return language;
+	}
+
+	public int getMaxSessionInactivity() {
+		return maxSessionInactivity;
+	}
+
+	public int getSecondsBeforeShowingSessionExpirationWarning() {
+		return secondsBeforeShowingSessionExpirationWarning;
 	}
 }

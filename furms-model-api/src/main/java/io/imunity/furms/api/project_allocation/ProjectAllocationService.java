@@ -9,6 +9,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -30,6 +31,10 @@ public interface ProjectAllocationService {
 	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId, String projectId);
 
 	Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId);
+
+	Set<ProjectDeallocation> findAllUninstallations(String communityId, String projectId);
+
+	Set<ProjectDeallocation> findAllUninstallations(String projectId);
 
 	Set<ProjectAllocationInstallation> findAllInstallations(String projectId);
 

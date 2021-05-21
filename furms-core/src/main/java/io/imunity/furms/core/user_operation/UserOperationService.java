@@ -9,10 +9,8 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionStatus;
-import io.imunity.furms.domain.user_operation.UserRemoval;
-import io.imunity.furms.domain.user_operation.UserRemovalStatus;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -21,6 +19,8 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
+
+import static io.imunity.furms.domain.user_operation.UserStatus.*;
 
 @Service
 public class UserOperationService {
@@ -43,7 +43,12 @@ public class UserOperationService {
 	}
 
 	public void createUserAdditions(String projectId, PersistentId userId) {
-		FURMSUser user = usersDAO.findById(userId).get();
+		FURMSUser user = usersDAO.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("User with id %s doesn't exist", userId)));
+		FenixUserId fenixUserId = user.fenixUserId
+			.orElseThrow(() -> new IllegalArgumentException(String.format("FenixId for user with id %s is not present", userId)));
+		if(repository.existsByUserIdAndProjectId(fenixUserId, projectId))
+			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user.fenixUserId, projectId));
 		siteRepository.findByProjectId(projectId)
 			.forEach(siteId -> {
 				UserAddition userAddition = UserAddition.builder()
@@ -51,7 +56,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(siteId)
 					.userId(user.fenixUserId.map(uId -> uId.id).orElse(null))
-					.status(UserAdditionStatus.PENDING)
+					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -68,7 +73,7 @@ public class UserOperationService {
 					.projectId(projectId)
 					.siteId(new SiteId(site.getId(), site.getExternalId()))
 					.userId(user.fenixUserId.map(userId -> userId.id).orElse(null))
-					.status(UserAdditionStatus.PENDING)
+					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
 				siteAgentUserService.addUser(userAddition, user);
@@ -79,17 +84,23 @@ public class UserOperationService {
 		FURMSUser user = usersDAO.findById(userId).get();
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		repository.findAllUserAdditions(projectId, fenixUserId).stream()
-			.map(userAddition -> UserRemoval.builder()
-				.correlationId(CorrelationId.randomID())
-				.siteId(userAddition.siteId)
-				.projectId(userAddition.projectId)
-				.userAdditionId(userAddition.id)
-				.userId(fenixUserId)
-				.status(UserRemovalStatus.PENDING)
-				.build())
-			.forEach(userRemoval -> {
-				repository.create(userRemoval);
-				siteAgentUserService.removeUser(userRemoval);
+			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
+			.forEach(userAddition -> {
+				if(userAddition.status.equals(ADDING_FAILED)) {
+					repository.delete(userAddition);
+					return;
+				}
+				UserAddition addition = UserAddition.builder()
+					.id(userAddition.id)
+					.userId(userAddition.userId)
+					.projectId(userAddition.projectId)
+					.siteId(userAddition.siteId)
+					.uid(userAddition.uid)
+					.correlationId(CorrelationId.randomID())
+					.status(REMOVAL_PENDING)
+					.build();
+				repository.update(addition);
+				siteAgentUserService.removeUser(addition);
 			});
 	}
 }

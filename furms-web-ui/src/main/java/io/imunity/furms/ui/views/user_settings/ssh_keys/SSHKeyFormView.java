@@ -12,11 +12,14 @@ import static java.util.Optional.ofNullable;
 import java.lang.invoke.MethodHandles;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -34,10 +37,13 @@ import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
+import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
@@ -56,15 +62,17 @@ class SSHKeyFormView extends FurmsViewComponent {
 	
 	SSHKeyFormView(SSHKeyService sshKeysService, SiteService siteService, AuthzService authzService) {
 
-		this.sshKeyService = sshKeysService;
+		this.sshKeyService = sshKeysService;		
 		this.authzService = authzService;
-		this.resolver =  new SiteComboBoxModelResolver(
-				siteService.findUserSites(authzService.getCurrentUserId()));
+		Set<Site> sites = Collections.emptySet();
+		try {
+			sites = siteService.findUserSites(authzService.getCurrentUserId());
+		} catch (UserWithoutFenixIdValidationError e) {
+			//ok
+		}
+		this.resolver = new SiteComboBoxModelResolver(sites);	
 		this.sshKeyComponent = new SSHKeyFormComponent(binder, resolver, sshKeysService);
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(extendedClientDetails -> {
-			zoneId = ZoneId.of(extendedClientDetails.getTimeZoneId());
-		});
-
+		zoneId = InvocationContext.getCurrent().getZone();
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();
@@ -94,6 +102,26 @@ class SSHKeyFormView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		try {
+			sshKeyService.assertIsEligibleToManageKeys();
+		} catch (UserWithoutFenixIdValidationError e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+			setVisible(false);
+			return;
+		} catch (UserWithoutSitesError e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(
+					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
+			return;
+
+		} catch (AccessDeniedException e) {
+			LOG.error(e.getMessage(), e);
+			showErrorNotification(
+					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
+			setVisible(false);
+			return;
+		}
 
 		SSHKeyUpdateModel serviceViewModel = ofNullable(parameter)
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
