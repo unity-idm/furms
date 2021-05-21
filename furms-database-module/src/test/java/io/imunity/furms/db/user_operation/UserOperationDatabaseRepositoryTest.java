@@ -172,7 +172,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.userId("id")
 				.build()
 		);
-		UserAdditionJobEntity save = userAdditionJobEntityRepository.save(
+		userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
 				.correlationId(UUID.fromString(correlationId.id))
 				.userAdditionId(userAdditionSaveEntity.getId())

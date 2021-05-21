@@ -144,7 +144,8 @@ public class FurmsImageUpload extends HorizontalLayout
 
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super FurmsImageUpload> listener) {
-		ComponentEventListener componentListener = event -> listener.valueChanged(this);
+		@SuppressWarnings("rawtypes")
+		ComponentEventListener<AbstractField.ComponentValueChangeEvent> componentListener = event -> listener.valueChanged(this);
 		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
 	}
 

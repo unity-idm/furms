@@ -11,8 +11,6 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
