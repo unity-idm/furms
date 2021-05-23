@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -186,7 +187,6 @@ class ResourceCreditServiceImplValidatorTest {
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.exists(service.id)).thenReturn(true);
 		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(service));
 
 		//when+then
@@ -206,7 +206,7 @@ class ResourceCreditServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(resourceCreditRepository.exists(community.id)).thenReturn(false);
+		when(resourceCreditRepository.findById(community.id)).thenReturn(Optional.empty());
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
@@ -235,7 +235,6 @@ class ResourceCreditServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(resourceCreditRepository.exists(any())).thenReturn(true);
 		when(siteRepository.exists(any())).thenReturn(true);
 		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(resourceCredit2));
 		when(resourceTypeRepository.exists(any())).thenReturn(true);
@@ -250,7 +249,7 @@ class ResourceCreditServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(resourceCreditRepository.exists(id)).thenReturn(true);
+		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock(ResourceCredit.class)));
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -261,7 +260,7 @@ class ResourceCreditServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(resourceCreditRepository.exists(id)).thenReturn(true);
+		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock(ResourceCredit.class)));
 		when(communityAllocationRepository.existsByResourceCreditId(id)).thenReturn(true);
 
 		//when+then
@@ -273,7 +272,7 @@ class ResourceCreditServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(resourceCreditRepository.exists(id)).thenReturn(false);
+		when(resourceCreditRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
