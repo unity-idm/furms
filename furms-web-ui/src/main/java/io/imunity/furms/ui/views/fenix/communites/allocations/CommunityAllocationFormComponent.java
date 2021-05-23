@@ -81,7 +81,12 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				x -> {
 					availableAmount = resolver.getAvailableAmount(x.id);
-					availableAmountLabel.setText(getTranslation("view.fenix-admin.resource-credits-allocation.form.label.available") + availableAmount);
+					availableAmountLabel.setText(getTranslation(x.split ? 
+						"view.fenix-admin.resource-credits-allocation.form.label.available" : 
+						"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit", 
+						availableAmount));
+					amountField.setReadOnly(!x.split);
+					amountField.setValue(availableAmount);
 				},
 				() -> availableAmountLabel.setText("")
 			)

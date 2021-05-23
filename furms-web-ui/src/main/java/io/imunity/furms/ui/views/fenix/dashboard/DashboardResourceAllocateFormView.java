@@ -107,7 +107,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		formLayout.addFormItem(resourceTypeField(),
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_type"));
 		formLayout.addFormItem(resourceCreditField(availableAmountLabel),
-				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_type"));
+				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit"));
 		formLayout.addFormItem(amountField(),
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));
 		formLayout.addFormItem(availableAmountLabel, "");
@@ -163,7 +163,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	private ComboBox<ComboBoxModel> siteField() {
 		final ComboBox<ComboBoxModel> siteComboBox = new ComboBox<>();
 		siteComboBox.setItemLabelGenerator(ComboBoxModel::getName);
-		siteComboBox.setEnabled(false);
+		siteComboBox.setReadOnly(true);
 		siteComboBox.setItems(binder.getBean().getSite());
 
 		binder.forField(siteComboBox)
@@ -205,7 +205,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeField() {
 		final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		resourceTypeComboBox.setEnabled(false);
+		resourceTypeComboBox.setReadOnly(true);
 		resourceTypeComboBox.setItems(binder.getBean().getResourceType());
 
 		binder.forField(resourceTypeComboBox)
@@ -217,11 +217,12 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditField(Label availableAmountLabel) {
 		final ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox = new ComboBox<>();
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		resourceCreditComboBox.setEnabled(false);
-		resourceCreditComboBox.setItems(binder.getBean().getResourceCredit());
+		resourceCreditComboBox.setReadOnly(true);
+		ResourceCreditComboBoxModel resourceCredit = binder.getBean().getResourceCredit();
+		resourceCreditComboBox.setItems(resourceCredit);
 
-		availableAmount = communityAllocationService.getAvailableAmount(binder.getBean().getResourceCredit().id);
-		availableAmountLabel.setText(createAvailableLabelContent());
+		availableAmount = communityAllocationService.getAvailableAmount(resourceCredit.id);
+		availableAmountLabel.setText(createAvailableLabelContent(resourceCredit.split));
 
 		binder.forField(resourceCreditComboBox)
 				.bind(CommunityAllocationViewModel::getResourceCredit, CommunityAllocationViewModel::setResourceCredit);
@@ -229,14 +230,15 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		return resourceCreditComboBox;
 	}
 
-	private String createAvailableLabelContent() {
-		return getTranslation("view.fenix-admin.resource-credits-allocation.form.label.available") + availableAmount;
+	private String createAvailableLabelContent(boolean splittable) {
+		return getTranslation(splittable ? "view.fenix-admin.resource-credits-allocation.form.label.available" : 
+			"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit", availableAmount);
 	}
 
 	private BigDecimalField amountField() {
 		final BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
-
+		amountField.setReadOnly(!binder.getBean().getResourceCredit().split);
 		createUnitLabel(amountField, binder.getBean().getResourceType().unit);
 
 		binder.forField(amountField)
@@ -249,6 +251,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 						getTranslation("view.fenix-admin.resource-credits-allocation.form.error.validation.field.amount.range")
 				)
 				.bind(CommunityAllocationViewModel::getAmount, CommunityAllocationViewModel::setAmount);
+		amountField.setValue(availableAmount);
 
 		return amountField;
 	}
