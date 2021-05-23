@@ -38,7 +38,7 @@ public class SSHKey {
 
 	@Override
 	public String toString() {
-		return "SSHKey" + "id=" + id + ", name='" + name + '\'' + ", value='" + value + '\'' + ", createTime='"
+		return "SSHKey" + "id=" + id + ", name='" + name + ", createTime='"
 				+ createTime + '\'' + ", updateTime='" + updateTime + '\'' + ", ownerId='" + ownerId
 				+ '\'' + ", sites=" + sites + '}';
 	}
