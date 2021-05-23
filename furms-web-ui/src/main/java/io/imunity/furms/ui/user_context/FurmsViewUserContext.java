@@ -8,6 +8,8 @@ package io.imunity.furms.ui.user_context;
 import java.util.Objects;
 
 import com.google.common.base.Preconditions;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 
 public class FurmsViewUserContext {
 	public final String id;
@@ -38,6 +40,17 @@ public class FurmsViewUserContext {
 				furmsViewUserContext.viewMode, redirectable);
 	}
 
+	public void setAsCurrent() {
+		UI ui = UI.getCurrent();
+		ComponentUtil.setData(ui, FurmsViewUserContext.class, this);
+	}
+
+	public static FurmsViewUserContext getCurrent() {
+		UI ui = UI.getCurrent();
+		return ComponentUtil.getData(ui, FurmsViewUserContext.class);
+	}
+
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

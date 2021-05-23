@@ -81,7 +81,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 		link.setClassName("button-link");
 
 		link.addClickListener(event -> {
-			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, userContext);
+			userContext.setAsCurrent();
 			if(userContext.redirectable){
 				UI.getCurrent().navigate(userContext.route);
 			}
@@ -100,7 +100,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 			return;
 		}		
 		if (viewUserContexts.size() == 1 || (viewUserContexts.size() == 2 && data.containsKey(ViewMode.USER))) {
-			UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, viewUserContexts.get(0));
+			viewUserContexts.get(0).setAsCurrent();
 			UI.getCurrent().navigate(viewUserContexts.get(0).route);
 		}
 	}

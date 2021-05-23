@@ -62,18 +62,14 @@ public class FurmsSelectService {
 
 	void manageSelectedItemRedirects(FurmsSelectText value){
 		ofNullable(value)
-			.ifPresent(furmsSelectText -> setSelectedItem(furmsSelectText.furmsViewUserContext));
+			.ifPresent(furmsSelectText -> furmsSelectText.furmsViewUserContext.setAsCurrent());
 		if(value != null && value.furmsViewUserContext.redirectable){
 			UI.getCurrent().navigate(value.furmsViewUserContext.route);
 		}
 	}
 
 	Optional<FurmsViewUserContext> loadSelectedItem(){
-		return ofNullable(UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class));
-	}
-
-	private void setSelectedItem(FurmsViewUserContext furmsViewUserContext) {
-		UI.getCurrent().getSession().setAttribute(FurmsViewUserContext.class, furmsViewUserContext);
+		return ofNullable(FurmsViewUserContext.getCurrent());
 	}
 
 	private String loadSelectedItemId() {

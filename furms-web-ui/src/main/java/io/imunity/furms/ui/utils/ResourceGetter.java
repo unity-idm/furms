@@ -5,11 +5,10 @@
 
 package io.imunity.furms.ui.utils;
 
-import com.vaadin.flow.component.UI;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
 public class ResourceGetter {
 	public static String getCurrentResourceId(){
-		return UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class).id;
+		return FurmsViewUserContext.getCurrent().id;
 	}
 }
