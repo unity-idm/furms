@@ -47,6 +47,7 @@ public class CommunityAllocationComboBoxesModelsResolver {
 		if (resourceTypeId == null)
 			return Set.of();
 		return functionResourceCredit.apply(resourceTypeId).stream()
+				.filter(r -> getAvailableAmount(r.id).compareTo(BigDecimal.ZERO) > 0)
 				.map(r -> new ResourceCreditComboBoxModel(r.id, r.name, r.amount, r.split))
 				.collect(toSet());
 	}

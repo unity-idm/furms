@@ -50,7 +50,11 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	CommunityAllocationFormView(SiteService siteService, ResourceTypeService resourceTypeService, ResourceCreditService resourceCreditService, CommunityAllocationService communityAllocationService) {
+	CommunityAllocationFormView(SiteService siteService, 
+			ResourceTypeService resourceTypeService, 
+			ResourceCreditService resourceCreditService, 
+			CommunityAllocationService communityAllocationService) {
+
 		this.communityAllocationService = communityAllocationService;
 		CommunityAllocationComboBoxesModelsResolver resolver = new CommunityAllocationComboBoxesModelsResolver(
 			siteService.findAll(),
