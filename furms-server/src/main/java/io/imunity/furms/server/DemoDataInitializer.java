@@ -305,7 +305,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("First Cineca pool")
 				.amount(new BigDecimal(100))
 				.utcStartTime(LocalDateTime.of(2021, 2, 11, 16, 11))
-				.utcEndTime(LocalDateTime.of(2021, 4, 11, 16, 11))
+				.utcEndTime(LocalDateTime.of(2025, 4, 11, 16, 11))
 				.build();
 			ResourceCredit resourceCreditCineca1 = ResourceCredit.builder()
 				.siteId(cinecaId)
@@ -313,7 +313,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("Second Cineca pool")
 				.amount(new BigDecimal(546))
 				.utcStartTime(LocalDateTime.of(2021, 3, 9, 1, 22))
-				.utcEndTime(LocalDateTime.of(2021, 5, 3, 6, 32))
+				.utcEndTime(LocalDateTime.of(2024, 5, 3, 6, 32))
 				.build();
 			ResourceCredit resourceCreditFzj = ResourceCredit.builder()
 				.siteId(fzjId)
@@ -329,7 +329,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("Second Fzj pool")
 				.amount(new BigDecimal(754))
 				.utcStartTime(LocalDateTime.of(2021, 4, 23, 3, 22))
-				.utcEndTime(LocalDateTime.of(2021, 8, 12, 5, 32))
+				.utcEndTime(LocalDateTime.of(2024, 8, 12, 5, 32))
 				.build();
 			ResourceCredit resourceCreditBsc = ResourceCredit.builder()
 				.siteId(bscId)
@@ -337,7 +337,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("First Bsc pool")
 				.amount(new BigDecimal(112))
 				.utcStartTime(LocalDateTime.of(2021, 3, 11, 6, 22))
-				.utcEndTime(LocalDateTime.of(2021, 6, 22, 7, 32))
+				.utcEndTime(LocalDateTime.of(2024, 6, 22, 7, 32))
 				.build();
 			ResourceCredit resourceCreditBsc1 = ResourceCredit.builder()
 				.siteId(bscId)
@@ -345,7 +345,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("Second Bsc pool")
 				.amount(new BigDecimal(9875))
 				.utcStartTime(LocalDateTime.of(2021, 10, 22, 11, 22))
-				.utcEndTime(LocalDateTime.of(2021, 12, 8, 17, 32))
+				.utcEndTime(LocalDateTime.of(2024, 12, 8, 17, 32))
 				.build();
 
 			resourceCreditRepository.create(resourceCreditCineca);
