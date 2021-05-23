@@ -119,12 +119,13 @@ class SSHKeyFormComponent extends Composite<Div> {
 		public ValidationResult apply(Set<SiteComboBoxModel> value, ValueContext context) {
 			if (value == null || value.isEmpty())
 				return ValidationResult.error(getTranslation("view.user-settings.ssh-keys.form.error.validation.field.sites"));
-				
-			if(keyValueField.getValue() == null
-					|| keyValueField.getValue().isEmpty())
+			
+			String keyValue = keyValueField.getValue();
+			if(keyValue == null
+					|| keyValue.isEmpty() || !validateKey(keyValue))
 				return ValidationResult.ok();
 
-			if (!SSHKey.getKeyOptions(keyValueField.getValue()).containsKey("from")) {
+			if (!SSHKey.getKeyOptions(keyValue).containsKey("from")) {
 				Set<SiteComboBoxModel> siteWithMandatoryFromOption = value.stream()
 						.filter(s -> s.sshKeyFromOptionMandatory).collect(Collectors.toSet());
 				if (!siteWithMandatoryFromOption.isEmpty()) {
