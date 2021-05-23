@@ -149,8 +149,8 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
-			.split(true)
-			.access(true)
+			.splittable(true)
+			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
@@ -194,8 +194,8 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(entity.get().resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.get().resourceType.unit).isEqualTo(ResourceMeasureUnit.SiUnit.tera);
 		assertThat(entity.get().resourceCredit.name).isEqualTo("name");
-		assertThat(entity.get().resourceCredit.split).isEqualTo(true);
-		assertThat(entity.get().resourceCredit.access).isEqualTo(true);
+		assertThat(entity.get().resourceCredit.splittable).isEqualTo(true);
+		assertThat(entity.get().resourceCredit.accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(entity.get().resourceCredit.amount).isEqualTo(new BigDecimal(100));
 	}
 
@@ -219,8 +219,8 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(entity.resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.resourceType.unit).isEqualTo(ResourceMeasureUnit.SiUnit.tera);
 		assertThat(entity.resourceCredit.name).isEqualTo("name");
-		assertThat(entity.resourceCredit.split).isEqualTo(true);
-		assertThat(entity.resourceCredit.access).isEqualTo(true);
+		assertThat(entity.resourceCredit.splittable).isEqualTo(true);
+		assertThat(entity.resourceCredit.accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(entity.resourceCredit.amount).isEqualTo(new BigDecimal(100));
 	}
 

@@ -17,20 +17,22 @@ public class ResourceCredit {
 	public final String name;
 	public final String siteId;
 	public final String resourceTypeId;
-	public final Boolean split;
-	public final Boolean access;
+	public final boolean splittable;
+	public final boolean accessibleForAllProjectMembers;
 	public final BigDecimal amount;
 	public final LocalDateTime utcCreateTime;
 	public final LocalDateTime utcStartTime;
 	public final LocalDateTime utcEndTime;
 
-	private ResourceCredit(String id, String name, String siteId, String resourceTypeId, Boolean split, Boolean access, BigDecimal amount, LocalDateTime utcCreateTime, LocalDateTime utcStartTime, LocalDateTime utcEndTime) {
+	private ResourceCredit(String id, String name, String siteId, String resourceTypeId, boolean splittable, 
+			boolean accessibleForAllProjectMembers, BigDecimal amount, LocalDateTime utcCreateTime, 
+			LocalDateTime utcStartTime, LocalDateTime utcEndTime) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
 		this.resourceTypeId = resourceTypeId;
-		this.split = ofNullable(split).orElse(true);
-		this.access = ofNullable(access).orElse(false);
+		this.splittable = splittable;
+		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 		this.amount = amount;
 		this.utcCreateTime = ofNullable(utcCreateTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
 		this.utcStartTime = utcStartTime;
@@ -38,41 +40,37 @@ public class ResourceCredit {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ResourceCredit that = (ResourceCredit) o;
-		return Objects.equals(id, that.id) &&
-			Objects.equals(name, that.name) &&
-			Objects.equals(siteId, that.siteId) &&
-			Objects.equals(resourceTypeId, that.resourceTypeId) &&
-			Objects.equals(split, that.split) &&
-			Objects.equals(access, that.access) &&
-			Objects.equals(amount, that.amount) &&
-			Objects.equals(utcCreateTime, that.utcCreateTime) &&
-			Objects.equals(utcStartTime, that.utcStartTime) &&
-			Objects.equals(utcEndTime, that.utcEndTime);
+	public int hashCode() {
+		return Objects.hash(accessibleForAllProjectMembers, amount, id, name, resourceTypeId, siteId,
+				splittable, utcCreateTime, utcEndTime, utcStartTime);
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(id, name, siteId, resourceTypeId, split, access, amount, utcCreateTime, utcStartTime, utcEndTime);
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ResourceCredit other = (ResourceCredit) obj;
+		return accessibleForAllProjectMembers == other.accessibleForAllProjectMembers
+				&& Objects.equals(amount, other.amount) && Objects.equals(id, other.id)
+				&& Objects.equals(name, other.name)
+				&& Objects.equals(resourceTypeId, other.resourceTypeId)
+				&& Objects.equals(siteId, other.siteId) && splittable == other.splittable
+				&& Objects.equals(utcCreateTime, other.utcCreateTime)
+				&& Objects.equals(utcEndTime, other.utcEndTime)
+				&& Objects.equals(utcStartTime, other.utcStartTime);
 	}
 
 	@Override
 	public String toString() {
-		return "ResourceCredit{" +
-			"id='" + id + '\'' +
-			", name='" + name + '\'' +
-			", siteId='" + siteId + '\'' +
-			", resourceTypeId='" + resourceTypeId + '\'' +
-			", split=" + split +
-			", access=" + access +
-			", amount=" + amount +
-			", createTime=" + utcCreateTime +
-			", startTime=" + utcStartTime +
-			", endTime=" + utcEndTime +
-			'}';
+		return String.format(
+				"ResourceCredit [id=%s, name=%s, siteId=%s, resourceTypeId=%s, splittable=%s, "
+				+ "accessibleForAllProjectMembers=%s, amount=%s, utcCreateTime=%s, utcStartTime=%s, utcEndTime=%s]",
+				id, name, siteId, resourceTypeId, splittable, accessibleForAllProjectMembers, amount,
+				utcCreateTime, utcStartTime, utcEndTime);
 	}
 
 	public static ResourceCreditBuilder builder() {
@@ -84,8 +82,8 @@ public class ResourceCredit {
 		private String name;
 		private String siteId;
 		private String resourceTypeId;
-		private Boolean split;
-		private Boolean access;
+		private boolean splittable = true;
+		private boolean accessibleForAllProjectMembers;
 		private BigDecimal amount;
 		private LocalDateTime utcCreateTime;
 		private LocalDateTime utcStartTime;
@@ -114,13 +112,13 @@ public class ResourceCredit {
 			return this;
 		}
 
-		public ResourceCreditBuilder split(Boolean split) {
-			this.split = split;
+		public ResourceCreditBuilder splittable(boolean splittable) {
+			this.splittable = splittable;
 			return this;
 		}
 
-		public ResourceCreditBuilder access(Boolean access) {
-			this.access = access;
+		public ResourceCreditBuilder accessibleForAllProjectMembers(boolean accessibleForAllProjectMembers) {
+			this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 			return this;
 		}
 
@@ -145,7 +143,8 @@ public class ResourceCredit {
 		}
 
 		public ResourceCredit build() {
-			return new ResourceCredit(id, name, siteId, resourceTypeId, split, access, amount, utcCreateTime, utcStartTime, utcEndTime);
+			return new ResourceCredit(id, name, siteId, resourceTypeId, splittable, accessibleForAllProjectMembers, amount, 
+					utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}
 }

@@ -125,7 +125,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-types.dialog.text", resourceTypeName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> resourceTypeService.delete(serviceId, getCurrentResourceId()))
-				.getThrowable()
+				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), resourceTypeName)));
 			loadGridContent();
 		});

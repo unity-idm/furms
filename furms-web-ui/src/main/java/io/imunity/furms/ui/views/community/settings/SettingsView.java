@@ -103,7 +103,7 @@ public class SettingsView extends FurmsViewComponent {
 				CommunityViewModel communityViewModel = new CommunityViewModel(binder.getBean());
 				Community community = CommunityViewModelMapper.map(communityViewModel);
 				getResultOrException(() -> communityService.update(community))
-					.getThrowable()
+					.getException()
 					.ifPresentOrElse(
 						e -> showErrorNotification(getTranslation("name.duplicated.error.message")),
 						() -> {

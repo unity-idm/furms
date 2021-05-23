@@ -92,7 +92,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> projectAllocationService.update(communityId, projectAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ProjectView.class, projectId)
 		);

@@ -11,6 +11,7 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -26,6 +27,7 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
@@ -45,6 +47,9 @@ class ResourceCreditFormView extends FurmsViewComponent {
 	private ZoneId zoneId;
 
 	private BreadCrumbParameter breadCrumbParameter;
+	private static final Map<Class<? extends Exception>, String> KNOWN_EXCEPTIONS = Map.of(
+			ResourceCreditHasAllocationException.class, "view.site-admin.resource-credits.form.creditHasAllocation"
+			);
 
 	ResourceCreditFormView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
@@ -86,9 +91,10 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		if(resourceCredit.id == null)
 			optionalException = getResultOrException(() -> resourceCreditService.create(resourceCredit));
 		else
-			optionalException = getResultOrException(() -> resourceCreditService.update(resourceCredit));
+			optionalException = getResultOrException(() -> resourceCreditService.update(resourceCredit), 
+					KNOWN_EXCEPTIONS);
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ResourceCreditsView.class)
 		);

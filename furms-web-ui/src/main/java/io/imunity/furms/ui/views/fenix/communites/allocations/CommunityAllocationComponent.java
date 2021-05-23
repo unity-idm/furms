@@ -115,7 +115,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.resource-credits-allocation.dialog.text", communityAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> service.delete(CommunityAllocationId))
-				.getThrowable().ifPresent(t -> showErrorNotification(getTranslation(t.getMessage(), communityAllocationName)));
+				.getException().ifPresent(t -> showErrorNotification(getTranslation(t.getMessage(), communityAllocationName)));
 			loadGridContent();
 		});
 		return furmsDialog;

@@ -138,7 +138,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		final OptionalException<Void> optionalException =
 				getResultOrException(() -> projectAllocationService.create(viewModel.getCommunityId(), projectAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 				throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 				() -> UI.getCurrent().navigate(DashboardView.class)
 		);

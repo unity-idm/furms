@@ -100,7 +100,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(CommunityView.class, communityId)
 		);

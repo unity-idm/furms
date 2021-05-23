@@ -83,7 +83,7 @@ class ResourceTypeFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> resourceTypeService.update(resourceType));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(ResourceTypesView.class)
 		);

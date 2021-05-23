@@ -121,7 +121,7 @@ public class SettingsView extends FurmsViewComponent {
 				ProjectViewModel projectViewModel = new ProjectViewModel(binder.getBean());
 				ProjectAdminControlledAttributes project = new ProjectAdminControlledAttributes(projectViewModel.id, projectViewModel.description, projectViewModel.logo);
 				getResultOrException(() -> projectService.update(project))
-					.getThrowable()
+					.getException()
 					.ifPresentOrElse(
 						e -> showErrorNotification(getTranslation("base.error.message")),
 						() -> {

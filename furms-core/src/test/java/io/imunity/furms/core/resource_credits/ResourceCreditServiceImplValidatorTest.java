@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.resource_credits;
 
-import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocationsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -265,7 +265,7 @@ class ResourceCreditServiceImplValidatorTest {
 		when(communityAllocationRepository.existsByResourceCreditId(id)).thenReturn(true);
 
 		//when+then
-		assertThrows(ResourceTypeCreditHasAllocationsRemoveValidationError.class, () -> validator.validateDelete(id));
+		assertThrows(ResourceCreditHasAllocationException.class, () -> validator.validateDelete(id));
 	}
 
 	@Test

@@ -116,7 +116,7 @@ public class InfraServicesView extends FurmsViewComponent {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.service.dialog.text", serviceName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> infraServiceService.delete(serviceId, getCurrentResourceId()))
-				.getThrowable()
+				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), serviceName)));
 			loadGridContent();
 		});

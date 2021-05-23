@@ -177,7 +177,7 @@ public class UsersGridComponent extends VerticalLayout {
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval()) {
 				getResultOrException(() -> removeUserAction.accept(currentUserId))
-					.getThrowable().ifPresentOrElse(
+					.getException().ifPresentOrElse(
 						e -> showErrorNotification(getTranslation(e.getMessage())),
 					this::refreshUserRoles
 				);

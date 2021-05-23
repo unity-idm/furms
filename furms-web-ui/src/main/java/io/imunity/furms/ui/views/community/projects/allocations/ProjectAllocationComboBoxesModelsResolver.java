@@ -42,7 +42,7 @@ class ProjectAllocationComboBoxesModelsResolver {
 				mapping(allocation -> new AllocationCommunityComboBoxModel(
 					allocation.id,
 					allocation.name,
-					allocation.resourceCredit.split,
+					allocation.resourceCredit.splittable,
 					allocation.resourceType.unit),
 					toSet()))
 			);

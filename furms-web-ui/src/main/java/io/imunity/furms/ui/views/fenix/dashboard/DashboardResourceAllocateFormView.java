@@ -141,7 +141,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		final OptionalException<Void> optionalException =
 				getResultOrException(() -> communityAllocationService.create(communityAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 				throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 				() -> UI.getCurrent().navigate(DashboardView.class)
 		);

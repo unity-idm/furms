@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class ResourceTypeCreditHasAllocationsRemoveValidationError extends IllegalArgumentException {
+public class ResourceCreditHasAllocationException extends IllegalArgumentException {
 
-	public ResourceTypeCreditHasAllocationsRemoveValidationError(String message) {
+	public ResourceCreditHasAllocationException(String message) {
 		super(message);
 	}
 }

@@ -81,7 +81,7 @@ class CommunityFormView extends FurmsViewComponent {
 			optionalException = getResultOrException(() -> communityService.create(community));
 		else
 			optionalException = getResultOrException(() -> communityService.update(community));
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(CommunitiesView.class)
 		);

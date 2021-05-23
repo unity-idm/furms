@@ -119,7 +119,7 @@ public class CommunitiesView extends FurmsViewComponent {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.community.dialog.text", communityName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> communityService.delete(communityId))
-				.getThrowable()
+				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), communityName)));
 			loadGridContent();
 		});

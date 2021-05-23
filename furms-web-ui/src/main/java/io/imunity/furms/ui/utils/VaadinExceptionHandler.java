@@ -7,8 +7,10 @@ package io.imunity.furms.ui.utils;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static java.util.Collections.emptyMap;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -26,41 +28,21 @@ public class VaadinExceptionHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+	private static final Map<Class<? extends Exception>, String> GENERIC_KNOWN_EXCEPTIONS = Map.of(
+			DuplicatedNameValidationError.class, "name.duplicated.error.message",
+			RemovingCommunityException.class, "community.removing.error.message",
+			InfraServiceHasIndirectlyResourceCreditsRemoveValidationError.class, "service.removing.error.message",
+			ResourceTypeHasResourceCreditsRemoveValidationError.class, "resource-type.removing.error.message",
+			SiteAgentException.class, "site-agent.error.message",
+			CommunityAllocationHasProjectAllocationsRemoveValidationError.class, "community-allocation.removing.error.message"
+			); 
+	
 	public static <T> Optional<T> handleExceptions(Supplier<T> supplier){
 		try {
 			return Optional.ofNullable(supplier.get());
-		}catch (DuplicatedNameValidationError e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("name.duplicated.error.message"));
-			return Optional.empty();
-		}catch (RemovingCommunityException e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("community.removing.error.message"));
-			return Optional.empty();
-		}
-		catch (InfraServiceHasIndirectlyResourceCreditsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("service.removing.error.message"));
-			return Optional.empty();
-		}
-		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("resource-type.removing.error.message"));
-			return Optional.empty();
-		}
-		catch (SiteAgentException e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("site-agent.error.message"));
-			return Optional.empty();
-		}
-		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			showErrorNotification(getTranslation("community-allocation.removing.error.message"));
-			return Optional.empty();
-		}
-		catch (Exception e){
-			LOG.warn(e.getMessage(), e);
-			showErrorNotification(getTranslation("base.error.message"));
+		} catch (Exception e) {
+			OptionalException<Object> frontError = mapExceptionToFrontError(e, emptyMap());
+			showErrorNotification(getTranslation(frontError.getException().get().getMessage()));
 			return Optional.empty();
 		}
 	}
@@ -73,38 +55,43 @@ public class VaadinExceptionHandler {
 	}
 
 	public static <T> OptionalException<T> getResultOrException(Supplier<T> supplier){
-		try {
-			return OptionalException.of(supplier.get());
-		}catch (DuplicatedNameValidationError e){
-			LOG.debug(e.getMessage(), e);
-			return OptionalException.of(new FrontException("name.duplicated.error.message", e));
-		}catch (RemovingCommunityException e){
-			LOG.debug(e.getMessage(), e);
-			return OptionalException.of(new FrontException("community.removing.error.message", e));
-		}
-		catch (InfraServiceHasIndirectlyResourceCreditsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			return OptionalException.of(new FrontException("service.removing.error.message", e));
-		}
-		catch (ResourceTypeHasResourceCreditsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			return OptionalException.of(new FrontException("resource-type.removing.error.message", e));
-		}
-		catch (CommunityAllocationHasProjectAllocationsRemoveValidationError e){
-			LOG.debug(e.getMessage(), e);
-			return OptionalException.of(new FrontException("community-allocation.removing.error.message", e));
-		}
-		catch (Exception e){
-			LOG.warn(e.getMessage(), e);
-			return OptionalException.of(new FrontException("base.error.message", e));
-		}
+		return getResultOrException(supplier, emptyMap());
 	}
 
+	public static <T> OptionalException<T> getResultOrException(Supplier<T> supplier, 
+			Map<Class<? extends Exception>, String> extraMappings){
+		try {
+			return OptionalException.of(supplier.get());
+		} catch (Exception e){
+			return mapExceptionToFrontError(e, extraMappings);
+		}
+	}
+	
 	public static OptionalException<Void> getResultOrException(Runnable runnable){
 		return getResultOrException(() -> {
 			runnable.run();
 			return null;
 		});
 	}
-	
+
+	public static OptionalException<Void> getResultOrException(Runnable runnable, 
+			Map<Class<? extends Exception>, String> extraMappings){
+		return getResultOrException(() -> {
+			runnable.run();
+			return null;
+		}, extraMappings);
+	}
+
+	private static <T> OptionalException<T> mapExceptionToFrontError(Exception e, 
+			Map<Class<? extends Exception>, String> extraMappings){
+		
+		String knownErrorMsg = extraMappings.getOrDefault(e.getClass(), GENERIC_KNOWN_EXCEPTIONS.get(e.getClass()));
+		if (knownErrorMsg != null) { 
+			LOG.debug(e.getMessage(), e);
+			return OptionalException.of(new FrontException(knownErrorMsg, e));
+		} else {
+			LOG.warn(e.getMessage(), e);
+			return OptionalException.of(new FrontException("base.error.message", e));
+		}
+	}
 }

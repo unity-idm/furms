@@ -5,8 +5,8 @@
 
 package io.imunity.furms.ui.utils;
 
-class FrontException extends RuntimeException{
-	FrontException(String message, Throwable cause) {
+public class FrontException extends RuntimeException{
+	public FrontException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }
