@@ -139,6 +139,8 @@ channels:
                      type: string
                   researchField:
                      type: string
+                  acronym:
+                     type: string
                   validityStart:
                      type: string
                      format: dateTime
