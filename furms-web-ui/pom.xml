@@ -110,14 +110,9 @@
 			<groupId>com.vaadin.componentfactory</groupId>
 			<artifactId>idle-notification</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>flow-server-production-mode</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin.componentfactory</groupId>
-			<artifactId>tooltip</artifactId>
 		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
