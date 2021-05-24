@@ -101,6 +101,12 @@ public class ProjectAllocationInstallationService {
 			.projectAllocationId(projectAllocationResolved.id)
 			.status(ProjectDeallocationStatus.PENDING)
 			.build();
+		ProjectAllocationInstallation projectAllocationInstallation =
+			projectAllocationInstallationRepository.findBySiteIdAndProjectAllocationId(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
+		if(projectAllocationInstallation.status.isFailed()){
+			projectAllocationInstallationRepository.deleteBy(projectAllocationInstallation.id);
+			return;
+		}
 		projectAllocationInstallationRepository.create(projectDeallocation);
 		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
 		LOG.info("ProjectDeallocation was created: {}", projectDeallocation);
