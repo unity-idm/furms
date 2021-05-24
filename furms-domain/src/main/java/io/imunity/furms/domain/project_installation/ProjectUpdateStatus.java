@@ -6,22 +6,24 @@
 package io.imunity.furms.domain.project_installation;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public enum ProjectUpdateStatus {
-	PENDING(0), ACKNOWLEDGED(1), UPDATED(2), FAILED(3);
+	PENDING(0, false), ACKNOWLEDGED(1, false), UPDATED(2, true), FAILED(3, true);
 
-	public static final Set<ProjectUpdateStatus> NOT_TERMINAL_STATES = Set.of(PENDING, ACKNOWLEDGED);
-
-
-	ProjectUpdateStatus(int persistentId) {
+	ProjectUpdateStatus(int persistentId, boolean terminal) {
 		this.persistentId = persistentId;
+		this.terminal = terminal;
 	}
 
 	private final int persistentId;
+	private final boolean terminal;
 
 	public int getPersistentId() {
 		return persistentId;
+	}
+
+	public boolean isTerminal() {
+		return terminal;
 	}
 
 	public static ProjectUpdateStatus valueOf(int status){

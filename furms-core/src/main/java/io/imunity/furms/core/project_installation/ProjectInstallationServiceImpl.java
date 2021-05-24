@@ -74,7 +74,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.build();
 		projectOperationRepository.create(projectInstallationJob);
 		siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation);
-		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
+		LOG.info("ProjectInstallation was created: {}", projectInstallationJob);
 	}
 
 	private void create(SiteId siteId, Project project) {
@@ -145,8 +145,8 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	private boolean hasProjectNotTerminalStateInAnySite(Map<String, Set<ProjectUpdateStatus>> siteIdToUpdateStatues, SiteId siteId, ProjectInstallationJob job) {
-		return ProjectInstallationStatus.NOT_TERMINAL_STATES.contains(job.status) ||
-			siteIdToUpdateStatues.getOrDefault(siteId.id, Set.of()).stream().anyMatch(ProjectUpdateStatus.NOT_TERMINAL_STATES::contains);
+		return !job.status.isTerminal() ||
+			siteIdToUpdateStatues.getOrDefault(siteId.id, Set.of()).stream().noneMatch(ProjectUpdateStatus::isTerminal);
 	}
 
 	@Override
