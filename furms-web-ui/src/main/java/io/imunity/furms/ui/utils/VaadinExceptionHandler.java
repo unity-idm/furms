@@ -98,7 +98,7 @@ public class VaadinExceptionHandler {
 		String knownErrorMsg = extraMappings.getOrDefault(e.getClass(), GENERIC_KNOWN_EXCEPTIONS.get(e.getClass()));
 		if (knownErrorMsg != null) { 
 			LOG.debug("Handled user error: {} {}", e.getClass().getName(), e.getMessage());
-			LOG.trace("Exeption caouse", e);
+			LOG.trace("Exeption cause", e);
 			return OptionalException.of(new FrontException(knownErrorMsg, e));
 		} else {
 			LOG.warn(e.getMessage(), e);
