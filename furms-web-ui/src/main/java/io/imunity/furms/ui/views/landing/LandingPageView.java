@@ -40,7 +40,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 	private final Map<ViewMode, List<FurmsViewUserContext>> data;
 
 	LandingPageView(RoleTranslator roleTranslator) {
-		this.data = roleTranslator.translateRolesToUserViewContexts();
+		this.data = roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts();
 
 		final VerticalLayout[] linksBlocks = data.keySet().stream()
 				.sorted()

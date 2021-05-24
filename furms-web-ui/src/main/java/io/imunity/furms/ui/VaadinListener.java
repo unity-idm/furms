@@ -56,11 +56,8 @@ public class VaadinListener {
 
 	@Override
 	public String toString() {
-		return "VaadinListener{" +
-				"securityContext=" + securityContext +
-				", consumer=" + consumer +
-				", predicate=" + predicate +
-				'}';
+		return String.format("VaadinListener [principal=%s, handler=%s]", 
+				securityContext.getAuthentication().getPrincipal(), consumer);
 	}
 
 	public static VaadinListenerBuilder builder() {
@@ -68,16 +65,10 @@ public class VaadinListener {
 	}
 
 	public static final class VaadinListenerBuilder {
-		private SecurityContext securityContext;
 		private Consumer<FurmsEvent> consumer;
 		private Predicate<FurmsEvent> predicate = event -> true;
 
 		private VaadinListenerBuilder() {
-		}
-
-		public VaadinListenerBuilder securityContext(SecurityContext securityContext) {
-			this.securityContext = securityContext;
-			return this;
 		}
 
 		public VaadinListenerBuilder consumer(Consumer<FurmsEvent> runnable) {
@@ -101,10 +92,7 @@ public class VaadinListener {
 		}
 
 		public VaadinListener build() {
-			if (securityContext == null) {
-				throw new IllegalArgumentException("Security Context has to be specific in Vaadin Listener scope.");
-			}
-			return new VaadinListener(securityContext, consumer, predicate);
+			return new VaadinListener(SecurityContextHolder.getContext(), consumer, predicate);
 		}
 	}
 }

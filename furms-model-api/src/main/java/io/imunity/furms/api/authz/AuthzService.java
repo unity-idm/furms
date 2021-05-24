@@ -17,7 +17,6 @@ public interface AuthzService {
 	FURMSUser getCurrentAuthNUser();
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
-	Map<ResourceId, Set<Role>> getRoles(PersistentId id);
 	PersistentId getCurrentUserId();
 	boolean isResourceMember(String resourceId, Role role);
 }

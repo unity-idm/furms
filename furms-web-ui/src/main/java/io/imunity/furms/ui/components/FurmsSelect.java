@@ -8,8 +8,12 @@ package io.imunity.furms.ui.components;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -21,7 +25,6 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
 
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.communities.CommunityEvent;
 import io.imunity.furms.domain.projects.ProjectEvent;
 import io.imunity.furms.domain.sites.SiteEvent;
@@ -30,16 +33,17 @@ import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 	private final FurmsSelectService furmsSelectService;
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private Registration broadcasterRegistration;
 
-	public FurmsSelect(RoleTranslator roleTranslator, AuthzService authzService, VaadinBroadcaster vaadinBroadcaster) {
-		this.furmsSelectService = new FurmsSelectService(roleTranslator, authzService.getCurrentUserId());
+	public FurmsSelect(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+		this.furmsSelectService = new FurmsSelectService(roleTranslator);
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		final List<FurmsSelectText> items = furmsSelectService.loadItems();
 
@@ -52,15 +56,20 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	}
 
 	void reloadComponent(){
-		String currentSelectedContextId = furmsSelectService.loadSelectedItem()
-				.orElseThrow(() -> new IllegalStateException("No context found for current user"))
-				.id;
-		List<FurmsSelectText> items = furmsSelectService.reloadItems();
-		addItems(items);
-		items.stream()
-			.filter(selectText -> selectText.furmsViewUserContext.id.equals(currentSelectedContextId))
-			.findFirst()
-			.ifPresent(this::setValue);
+		try {
+			String currentSelectedContextId = furmsSelectService.loadSelectedItem()
+					.orElseThrow(() -> new IllegalStateException("No context found for current user"))
+					.id;
+			List<FurmsSelectText> items = furmsSelectService.reloadItems();
+			addItems(items);
+			items.stream()
+				.filter(selectText -> selectText.furmsViewUserContext.id.equals(currentSelectedContextId))
+				.findFirst()
+				.ifPresent(this::setValue);
+		} catch (Exception e) {
+			LOG.error("Unable to refresh role-view selector", e);
+		}
+		
 	}
 
 	@Override
@@ -69,7 +78,6 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
 			VaadinListener.builder()
-				.securityContext(SecurityContextHolder.getContext())
 				.consumer(event -> ui.access(this::reloadComponent))
 				.predicate(event -> event instanceof UserEvent)
 				.orPredicate(event -> event instanceof SiteEvent)
