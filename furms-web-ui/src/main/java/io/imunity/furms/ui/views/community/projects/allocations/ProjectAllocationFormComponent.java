@@ -56,7 +56,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		communityAllocationComboBox = new ComboBox<>();
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		formLayout.addFormItem(communityAllocationComboBox, getTranslation("view.community-admin.project-allocation.form.field.community_allocation"));
-
+		
 		BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		resourceTypeComboBox.addValueChangeListener(event -> {
@@ -71,8 +71,13 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				allocation -> {
 					availableAmount = resolver.getAvailableAmount(getCurrentResourceId(), allocation.id);
-					availableAmountLabel.setText(getTranslation("view.community-admin.project-allocation.form.label.available") + availableAmount);
+					availableAmountLabel.setText(getTranslation(allocation.split ? 
+							"view.community-admin.project-allocation.form.label.available" :
+							"view.community-admin.project-allocation.form.label.availableNotSplit", 
+							availableAmount));
 					createUnitLabel(amountField, allocation.unit);
+					amountField.setReadOnly(!allocation.split);
+					amountField.setValue(availableAmount);
 				},
 				() -> availableAmountLabel.setText("")
 			)

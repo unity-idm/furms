@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.resource_credits;
 
-import io.imunity.furms.api.validation.exceptions.ResourceTypeCreditHasAllocationsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
@@ -13,6 +13,8 @@ import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.utils.ValidationUtils;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -54,7 +56,8 @@ class ResourceCreditServiceValidator {
 
 	void validateUpdate(ResourceCredit resourceCredit) {
 		notNull(resourceCredit, "ResourceCredit object cannot be null.");
-		validateId(resourceCredit.id);
+		ResourceCredit existing = assertCreditWithIdExists(resourceCredit.id);
+		validateSplitChange(resourceCredit, existing);
 		validateUpdateSiteId(resourceCredit);
 		validateResourceTypeId(resourceCredit.resourceTypeId);
 		validateName(resourceCredit);
@@ -64,9 +67,9 @@ class ResourceCreditServiceValidator {
 	}
 
 	void validateDelete(String id) {
-		validateId(id);
+		assertCreditWithIdExists(id);
 		if(communityAllocationRepository.existsByResourceCreditId(id)){
-			throw new ResourceTypeCreditHasAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
+			throw new ResourceCreditHasAllocationException("ResourceTypeCredit can not be removed when community allocation exists");
 		}
 	}
 
@@ -91,9 +94,11 @@ class ResourceCreditServiceValidator {
 		}
 	}
 
-	private void validateId(String id) {
+	private ResourceCredit assertCreditWithIdExists(String id) {
 		notNull(id, "Resource Credit ID has to be declared.");
-		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID is not exists."));
+		Optional<ResourceCredit> existing = resourceCreditRepository.findById(id);
+		assertTrue(existing.isPresent(), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist."));
+		return existing.get();
 	}
 
 	private void validateSiteId(String id) {
@@ -103,7 +108,8 @@ class ResourceCreditServiceValidator {
 
 	private void validateResourceTypeId(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
-		assertTrue(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
+		assertTrue(resourceTypeRepository.exists(id), 
+				() -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
 	private void validateUpdateSiteId(ResourceCredit resourceCredit) {
@@ -113,6 +119,13 @@ class ResourceCreditServiceValidator {
 			.filter(id -> id.equals(resourceCredit.siteId))
 			.orElseThrow(() -> new IllegalArgumentException("Site ID change is forbidden"));
 	}
+
+	private void validateSplitChange(ResourceCredit updated, ResourceCredit existing) {
+		if (!updated.splittable && existing.splittable)
+			ValidationUtils.assertFalse(communityAllocationRepository.existsByResourceCreditId(existing.id),
+					() -> new ResourceCreditHasAllocationException("Can not set credit to non-splittable if it already was allocated"));
+	}
+
 
 	private void validateCreateTime(LocalDateTime createTime) {
 		notNull(createTime, "ResourceCredit create time cannot be null");

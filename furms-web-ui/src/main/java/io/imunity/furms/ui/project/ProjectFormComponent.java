@@ -46,7 +46,7 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final FormLayout formLayout = new FurmsFormLayout();;
 	private ZoneId zoneId;
 
-	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean disable, List<FurmsViewUserModel> userModels) {
+	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean restrictedEditing, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
 		this.userModels = userModels;
 		zoneId = InvocationContext.getCurrent().getZone();
@@ -54,7 +54,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
-		nameField.setEnabled(disable);
+		nameField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
 		TextArea descriptionField = new TextArea();
@@ -66,7 +66,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField acronymField = new TextField();
 		acronymField.setValueChangeMode(EAGER);
 		acronymField.setMaxLength(MAX_ACRONYM_LENGTH);
-		acronymField.setEnabled(disable);
+		acronymField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
 		FurmsDateTimePicker startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
@@ -78,11 +78,11 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField researchField = new TextField();
 		researchField.setValueChangeMode(EAGER);
 		researchField.setMaxLength(MAX_NAME_LENGTH);
-		researchField.setEnabled(disable);
+		researchField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
-		furmsUserComboBox.setEnabled(disable);
+		furmsUserComboBox.setEnabled(restrictedEditing);
 		furmsUserComboBox.setClassName("furms-leader-combo-box");
 		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 

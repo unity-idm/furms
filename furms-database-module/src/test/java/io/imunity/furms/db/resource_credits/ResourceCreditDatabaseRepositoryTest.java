@@ -130,8 +130,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		ResourceCredit project = byId.get();
 		assertThat(project.id).isEqualTo(entity.getId().toString());
 		assertThat(project.name).isEqualTo(entity.name);
-		assertThat(byId.get().split).isEqualTo(true);
-		assertThat(byId.get().access).isEqualTo(true);
+		assertThat(byId.get().splittable).isEqualTo(true);
+		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
@@ -248,8 +248,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
-			.split(true)
-			.access(true)
+			.splittable(true)
+			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(createTime)
 			.utcStartTime(startTime)
@@ -264,8 +264,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().id).isNotNull();
 		assertThat(byId.get().name).isEqualTo("name");
-		assertThat(byId.get().split).isEqualTo(true);
-		assertThat(byId.get().access).isEqualTo(true);
+		assertThat(byId.get().splittable).isEqualTo(true);
+		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
@@ -292,8 +292,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("new_name")
-			.split(true)
-			.access(false)
+			.splittable(true)
+			.accessibleForAllProjectMembers(false)
 			.amount(new BigDecimal(434))
 			.utcCreateTime(createTime2)
 			.utcStartTime(newStartTime)
@@ -307,8 +307,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		Optional<ResourceCredit> byId = repository.findById(old.getId().toString());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().name).isEqualTo("new_name");
-		assertThat(byId.get().split).isEqualTo(true);
-		assertThat(byId.get().access).isEqualTo(false);
+		assertThat(byId.get().splittable).isEqualTo(true);
+		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(false);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(434));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime2);
 		assertThat(byId.get().utcStartTime).isEqualTo(newStartTime);

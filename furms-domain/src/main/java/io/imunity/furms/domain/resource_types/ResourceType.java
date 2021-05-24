@@ -14,17 +14,15 @@ public class ResourceType {
 	public final String serviceId;
 	public final ResourceMeasureType type;
 	public final ResourceMeasureUnit unit;
-	public final boolean accessibleForAllProjectMembers;
 
 	public ResourceType(String id, String name, String siteId, String serviceId, ResourceMeasureType type,
-	                    ResourceMeasureUnit unit, boolean accessibleForAllProjectMembers) {
+	                    ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
 		this.type = type;
 		this.unit = unit;
-		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 
 	@Override
@@ -37,13 +35,12 @@ public class ResourceType {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(serviceId, that.serviceId) &&
 			type == that.type &&
-			Objects.equals(unit, that.unit) &&
-			Objects.equals(accessibleForAllProjectMembers, that.accessibleForAllProjectMembers);
+			Objects.equals(unit, that.unit);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, siteId, serviceId, type, unit, accessibleForAllProjectMembers);
+		return Objects.hash(id, name, siteId, serviceId, type, unit);
 	}
 
 	@Override
@@ -55,7 +52,6 @@ public class ResourceType {
 			", serviceId='" + serviceId + '\'' +
 			", type=" + type +
 			", unit=" + unit +
-			", accessible=" + accessibleForAllProjectMembers +
 			'}';
 	}
 
@@ -70,7 +66,6 @@ public class ResourceType {
 		public String serviceId;
 		public ResourceMeasureType type;
 		public ResourceMeasureUnit unit;
-		public boolean accessibleForAllProjectMembers;
 
 		private ResourceTypeBuilder() {
 		}
@@ -105,13 +100,8 @@ public class ResourceType {
 			return this;
 		}
 
-		public ResourceTypeBuilder accessibleForAllProjectMembers(boolean accessible) {
-			this.accessibleForAllProjectMembers = accessible;
-			return this;
-		}
-
 		public ResourceType build() {
-			return new ResourceType(id, name, siteId, serviceId, type, unit, accessibleForAllProjectMembers);
+			return new ResourceType(id, name, siteId, serviceId, type, unit);
 		}
 	}
 }

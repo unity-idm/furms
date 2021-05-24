@@ -25,7 +25,7 @@ public class SiteAgentMock {
 	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
-
+	private static final long OP_SLEEP_MS = 0; 
 
 	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
 		this.rabbitTemplate = rabbitTemplate;
@@ -40,7 +40,7 @@ public class SiteAgentMock {
 
 	@EventListener
 	public void receiveAgentPingRequest(Payload<AgentPingRequest> message) throws InterruptedException {
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 		Header header = getHeader(message.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentPingAck()));
 	}
@@ -50,7 +50,7 @@ public class SiteAgentMock {
 		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectInstallationRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentProjectInstallationResult result = new AgentProjectInstallationResult(Map.of("gid", "1"));
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -61,7 +61,7 @@ public class SiteAgentMock {
 		Header header = getHeader(projectUpdateRequest.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectUpdateRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentProjectUpdateResult result = new AgentProjectUpdateResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -72,7 +72,7 @@ public class SiteAgentMock {
 		Header header = getHeader(projectRemovalRequest.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectRemovalRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentProjectRemovalResult result = new AgentProjectRemovalResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -86,7 +86,7 @@ public class SiteAgentMock {
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentSSHKeyAdditionAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
@@ -98,7 +98,7 @@ public class SiteAgentMock {
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentSSHKeyUpdatingAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentSSHKeyUpdatingResult result = new AgentSSHKeyUpdatingResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
@@ -110,7 +110,7 @@ public class SiteAgentMock {
 		Header header = new Header(VERSION, correlationId, Status.OK, null);
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, new AgentSSHKeyRemovalAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentSSHKeyRemovalResult result = new AgentSSHKeyRemovalResult();
 		rabbitTemplate.convertAndSend("mock-site-pub", new Payload<>(header, result));
@@ -121,7 +121,7 @@ public class SiteAgentMock {
 		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectAllocationInstallationAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentProjectAllocationInstallationResult result = AgentProjectAllocationInstallationResult.builder()
 			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
@@ -134,7 +134,7 @@ public class SiteAgentMock {
 			.build();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		AgentProjectAllocationInstallationResult result1 = AgentProjectAllocationInstallationResult.builder()
 			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
@@ -153,7 +153,7 @@ public class SiteAgentMock {
 		Header header = getHeader(payload.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserProjectAddRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -164,7 +164,7 @@ public class SiteAgentMock {
 		Header header = getHeader(payload.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserProjectRemovalRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		UserProjectRemovalResult result = new UserProjectRemovalResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -181,7 +181,7 @@ public class SiteAgentMock {
 		Header header = getHeader(payload.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserAllocationGrantAccessRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		UserAllocationGrantAccessResult result = new UserAllocationGrantAccessResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
@@ -192,7 +192,7 @@ public class SiteAgentMock {
 		Header header = getHeader(payload.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new UserAllocationBlockAccessRequestAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		UserAllocationBlockAccessResult result = new UserAllocationBlockAccessResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));

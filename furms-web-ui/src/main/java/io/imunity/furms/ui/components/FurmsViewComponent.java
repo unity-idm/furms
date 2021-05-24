@@ -4,19 +4,19 @@
  */
 package io.imunity.furms.ui.components;
 
+import java.util.Optional;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
-import java.util.Optional;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
 
 public abstract class FurmsViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle {
@@ -46,10 +46,6 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 	}
 
 	protected FurmsViewUserContext getActualViewUserContext() {
-		Object attribute = UI.getCurrent().getSession().getAttribute(FurmsViewUserContext.class.getName());
-		if (!(attribute instanceof FurmsViewUserContext)) {
-			throw new IllegalArgumentException("Incorrect Furms View User Context instance.");
-		}
-		return (FurmsViewUserContext) attribute;
+		return FurmsViewUserContext.getCurrent();
 	}
 }

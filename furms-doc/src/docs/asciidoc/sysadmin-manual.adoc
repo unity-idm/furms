@@ -368,6 +368,18 @@ NOTE: The redirect URL configured at Central IdP OAuth client side should be set
 |string
 |RabbitMQ virtual host name to which to connect.
 
+|furmsServer.ui
+2+|Configuration of user interface related features. 
+
+|furmsServer.ui.maxSessionInactivityInSeconds
+|integer (default 1800)
+|Optional value, that defines number of seconds where users inactivity cases the automatic logout operation from FURMS UI.  
+
+|furmsServer.ui.secondsBeforeShowingLogoutWarning
+|integer (default 120)
+|Optional value that, defines number of seconds before the user is shown the warning message about automatic logout from FURMS UI.
+
+
 |===
 
 

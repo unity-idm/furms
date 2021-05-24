@@ -10,8 +10,7 @@ import java.util.function.Supplier;
 public class ValidationUtils {
 
 	public static void assertTrue(boolean condition, Supplier<? extends RuntimeException> errorSupplier) {
-		if (!condition)
-			throw errorSupplier.get();
+		assertFalse(!condition, errorSupplier);
 	}
 
 	public static void assertFalse(boolean condition, Supplier<? extends RuntimeException> errorSupplier) {

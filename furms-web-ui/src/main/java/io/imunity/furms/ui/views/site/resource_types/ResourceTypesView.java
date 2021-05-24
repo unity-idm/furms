@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.resource_types;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.components.support.GridUtils.getsLeadingPartOfUUID;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
@@ -50,7 +51,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 
 	public ResourceTypesView(ResourceTypeService resourceTypeService, InfraServiceService serviceService) {
 		this.resourceTypeService = resourceTypeService;
-		this.grid = createCommunityGrid();
+		this.grid = createResourceTypesGrid();
 		this.resolver = new ServiceComboBoxModelResolver(serviceService.findAll(getCurrentResourceId()));
 
 		Button addButton = createAddButton();
@@ -69,24 +70,27 @@ public class ResourceTypesView extends FurmsViewComponent {
 		return addButton;
 	}
 
-	private Grid<ResourceTypeViewModel> createCommunityGrid() {
+	private Grid<ResourceTypeViewModel> createResourceTypesGrid() {
 		Grid<ResourceTypeViewModel> grid = new SparseGrid<>(ResourceTypeViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, ResourceTypeFormView.class, c.id))
-			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.1"))
+		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceTypeFormView.class, c.getId()))
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.name"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(c -> resolver.getName(c.serviceId))
-			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.2"))
+			.setComparator(x -> x.getName().toLowerCase());
+		grid.addColumn(c -> getsLeadingPartOfUUID(c.getId()))
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.id"))
 			.setSortable(true);
-		grid.addColumn(c -> getTranslation("enum.ResourceMeasureType." + c.type.name()))
-			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.3"))
+		grid.addColumn(c -> resolver.getName(c.getServiceId()))
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.service"))
 			.setSortable(true);
-		grid.addColumn(c -> c.unit)
-			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.4"))
+		grid.addColumn(c -> getTranslation("enum.ResourceMeasureType." + c.getType().name()))
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.type"))
+			.setSortable(true);
+		grid.addColumn(ResourceTypeViewModel::getUnit)
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.unit"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.5"))
+			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.actions"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -94,7 +98,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ResourceTypeViewModel serviceViewModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(serviceViewModel.id, serviceViewModel.name)
+			createContextMenu(serviceViewModel.getId(), serviceViewModel.getId())
 		);
 	}
 
@@ -121,7 +125,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-types.dialog.text", resourceTypeName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> resourceTypeService.delete(serviceId, getCurrentResourceId()))
-				.getThrowable()
+				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), resourceTypeName)));
 			loadGridContent();
 		});
@@ -137,7 +141,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(ResourceTypeViewModelMapper::map)
-			.sorted(comparing(serviceViewModel -> serviceViewModel.name.toLowerCase()))
+			.sorted(comparing(serviceViewModel -> serviceViewModel.getName().toLowerCase()))
 			.collect(toList());
 	}
 }

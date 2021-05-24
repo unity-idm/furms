@@ -197,6 +197,14 @@ public class SSHKeyOperationServiceTest {
 
 		CorrelationId correlationId = CorrelationId.randomID();
 
+		SSHKey key = SSHKey.builder().id("key").value(
+				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
+						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
+						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
+						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
+						+ "mb9xUkdFjZk9bL demo@demo.pl")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("site")).build();
+		when(sshKeysRepository.findById("key")).thenReturn(Optional.of(key));
 		when(sshKeyOperationRepository.findByCorrelationId(correlationId)).thenReturn(SSHKeyOperationJob
 				.builder().id("id").correlationId(correlationId).operation(SSHKeyOperation.REMOVE)
 				.status(SSHKeyOperationStatus.ACK).sshkeyId("key").siteId("site").build());

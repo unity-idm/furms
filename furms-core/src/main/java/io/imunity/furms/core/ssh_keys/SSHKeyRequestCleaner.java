@@ -50,8 +50,6 @@ class SSHKeyRequestCleaner {
 		LOG.trace("Cleaning ssh key operation stale requests");
 		List<SSHKeyOperationJob> findByStatus = sshKeyOperationRepository
 				.findByStatus(SSHKeyOperationStatus.SEND);
-
-				
 		for (SSHKeyOperationJob job : findByStatus) {
 			if (Duration.between(job.originationTime, LocalDateTime.now())
 					.compareTo(configuration.cleanStaleRequestsAfter) >= 0) {

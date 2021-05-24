@@ -22,6 +22,8 @@ public interface InstalledSSHKeyRepository {
 	void deleteAll();
 
 	void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
+	
+	void deleteBySSHKey(String sshkeyId);
 
 	void update(String siteId, String id, String value);
 }

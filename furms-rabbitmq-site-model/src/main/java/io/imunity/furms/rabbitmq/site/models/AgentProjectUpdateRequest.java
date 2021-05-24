@@ -17,12 +17,14 @@ public class AgentProjectUpdateRequest implements Body {
 	public final String name;
 	public final String description;
 	public final String researchField;
+	public final String acronym;
 	public final OffsetDateTime validityStart;
 	public final OffsetDateTime validityEnd;
 	public final AgentUser projectLeader;
 
 	@JsonCreator
-	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, OffsetDateTime validityStart, OffsetDateTime validityEnd, AgentUser projectLeader) {
+	AgentProjectUpdateRequest(String identifier, String name, String description, String researchField, 
+			OffsetDateTime validityStart, OffsetDateTime validityEnd, AgentUser projectLeader, String acronym) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
@@ -30,38 +32,42 @@ public class AgentProjectUpdateRequest implements Body {
 		this.validityStart = validityStart;
 		this.validityEnd = validityEnd;
 		this.projectLeader = projectLeader;
+		this.acronym = acronym;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		AgentProjectUpdateRequest that = (AgentProjectUpdateRequest) o;
-		return Objects.equals(identifier, that.identifier) &&
-			Objects.equals(name, that.name) &&
-			Objects.equals(description, that.description) &&
-			Objects.equals(researchField, that.researchField) &&
-			Objects.equals(validityStart, that.validityStart) &&
-			Objects.equals(validityEnd, that.validityEnd) &&
-			Objects.equals(projectLeader, that.projectLeader);
+	public int hashCode()
+	{
+		return Objects.hash(acronym, description, identifier, name, projectLeader, researchField, validityEnd,
+				validityStart);
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(identifier, name, description, researchField, validityStart, validityEnd, projectLeader);
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AgentProjectUpdateRequest other = (AgentProjectUpdateRequest) obj;
+		return Objects.equals(acronym, other.acronym) && Objects.equals(description, other.description)
+				&& Objects.equals(identifier, other.identifier) && Objects.equals(name, other.name)
+				&& Objects.equals(projectLeader, other.projectLeader)
+				&& Objects.equals(researchField, other.researchField)
+				&& Objects.equals(validityEnd, other.validityEnd)
+				&& Objects.equals(validityStart, other.validityStart);
 	}
 
 	@Override
-	public String toString() {
-		return "AgentProjectUpdateRequest{" +
-			"identifier='" + identifier + '\'' +
-			", name='" + name + '\'' +
-			", description='" + description + '\'' +
-			", researchField='" + researchField + '\'' +
-			", validityStart=" + validityStart +
-			", validityEnd=" + validityEnd +
-			", projectLeader=" + projectLeader +
-			'}';
+	public String toString()
+	{
+		return String.format(
+				"AgentProjectUpdateRequest [identifier=%s, name=%s, description=%s, researchField=%s, "
+				+ "acronym=%s, validityStart=%s, validityEnd=%s, projectLeader=%s]",
+				identifier, name, description, researchField, acronym, validityStart, validityEnd,
+				projectLeader);
 	}
 
 	public static AgentProjectUpdateRequestBuilder builder() {
@@ -76,6 +82,7 @@ public class AgentProjectUpdateRequest implements Body {
 		private OffsetDateTime validityStart;
 		private OffsetDateTime validityEnd;
 		private AgentUser projectLeader;
+		private String acronym;
 
 		private AgentProjectUpdateRequestBuilder() {
 		}
@@ -100,6 +107,11 @@ public class AgentProjectUpdateRequest implements Body {
 			return this;
 		}
 
+		public AgentProjectUpdateRequestBuilder acronym(String acronym) {
+			this.acronym = acronym;
+			return this;
+		}
+		
 		public AgentProjectUpdateRequestBuilder validityStart(OffsetDateTime validityStart) {
 			this.validityStart = validityStart;
 			return this;
@@ -116,7 +128,8 @@ public class AgentProjectUpdateRequest implements Body {
 		}
 
 		public AgentProjectUpdateRequest build() {
-			return new AgentProjectUpdateRequest(identifier, name, description, researchField, validityStart, validityEnd, projectLeader);
+			return new AgentProjectUpdateRequest(identifier, name, description, researchField, 
+					validityStart, validityEnd, projectLeader, acronym);
 		}
 	}
 }

@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.services;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.components.support.GridUtils.getsLeadingPartOfUUID;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
@@ -69,15 +70,18 @@ public class InfraServicesView extends FurmsViewComponent {
 	private Grid<InfraServiceViewModel> createCommunityGrid() {
 		Grid<InfraServiceViewModel> grid = new SparseGrid<>(InfraServiceViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.name, InfraServiceFormView.class, c.id))
-			.setHeader(getTranslation("view.site-admin.service.grid.column.1"))
+		grid.addComponentColumn(item -> new RouterLink(item.getName(), InfraServiceFormView.class, item.getId()))
+			.setHeader(getTranslation("view.site-admin.service.grid.column.name"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(c -> c.description)
-			.setHeader(getTranslation("view.site-admin.service.grid.column.2"))
+			.setComparator(item -> item.getName().toLowerCase());
+		grid.addColumn(c -> getsLeadingPartOfUUID(c.getId()))
+			.setHeader(getTranslation("view.site-admin.service.grid.column.id"))
+			.setSortable(true);
+		grid.addColumn(InfraServiceViewModel::getDescription)
+			.setHeader(getTranslation("view.site-admin.service.grid.column.description"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.site-admin.service.grid.column.3"))
+			.setHeader(getTranslation("view.site-admin.service.grid.column.actions"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -85,7 +89,7 @@ public class InfraServicesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(InfraServiceViewModel serviceViewModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(serviceViewModel.id, serviceViewModel.name)
+			createContextMenu(serviceViewModel.getId(), serviceViewModel.getName())
 		);
 	}
 
@@ -112,7 +116,7 @@ public class InfraServicesView extends FurmsViewComponent {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.service.dialog.text", serviceName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> infraServiceService.delete(serviceId, getCurrentResourceId()))
-				.getThrowable()
+				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), serviceName)));
 			loadGridContent();
 		});
@@ -128,7 +132,7 @@ public class InfraServicesView extends FurmsViewComponent {
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(InfraServiceViewModelMapper::map)
-			.sorted(comparing(serviceViewModel -> serviceViewModel.name.toLowerCase()))
+			.sorted(comparing(serviceViewModel -> serviceViewModel.getName().toLowerCase()))
 			.collect(toList());
 	}
 }

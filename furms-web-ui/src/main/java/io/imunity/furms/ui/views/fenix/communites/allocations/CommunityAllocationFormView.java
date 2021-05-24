@@ -50,7 +50,11 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	CommunityAllocationFormView(SiteService siteService, ResourceTypeService resourceTypeService, ResourceCreditService resourceCreditService, CommunityAllocationService communityAllocationService) {
+	CommunityAllocationFormView(SiteService siteService, 
+			ResourceTypeService resourceTypeService, 
+			ResourceCreditService resourceCreditService, 
+			CommunityAllocationService communityAllocationService) {
+
 		this.communityAllocationService = communityAllocationService;
 		CommunityAllocationComboBoxesModelsResolver resolver = new CommunityAllocationComboBoxesModelsResolver(
 			siteService.findAll(),
@@ -96,7 +100,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(CommunityView.class, communityId)
 		);

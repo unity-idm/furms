@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.user_context;
 
-import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -16,13 +15,14 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 
-public class InvocationContext implements Serializable {
+public class InvocationContext {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InvocationContext.class);
 
-	private static final int ZONE_INIT_TIMEOUT_S = 30;
+	private static final int ZONE_INIT_TIMEOUT_S = 20;
 
 	private final Future<ZoneId> zone;
 
@@ -30,12 +30,14 @@ public class InvocationContext implements Serializable {
 		this.zone = zone;
 	}
 
-	public static void setCurrent(InvocationContext context) {
-		UI.getCurrent().getSession().setAttribute(InvocationContext.class, context);
+	public void setAsCurrent() {
+		UI ui = UI.getCurrent();
+		ComponentUtil.setData(ui, InvocationContext.class, this);
 	}
 
 	public static InvocationContext getCurrent() {
-		InvocationContext ret = UI.getCurrent().getSession().getAttribute(InvocationContext.class);
+		UI ui = UI.getCurrent();
+		InvocationContext ret = ComponentUtil.getData(ui, InvocationContext.class);
 		if (ret == null)
 			throw new EmptyInvocationContextException("The current call has no invocation context set");
 		return ret;
@@ -56,6 +58,6 @@ public class InvocationContext implements Serializable {
 			zone.complete(ZoneId.of(cd.getTimeZoneId()));
 		});
 
-		setCurrent(new InvocationContext(zone));
+		new InvocationContext(zone).setAsCurrent();
 	}
 }

@@ -105,18 +105,18 @@ class SSHKeyFormView extends FurmsViewComponent {
 		try {
 			sshKeyService.assertIsEligibleToManageKeys();
 		} catch (UserWithoutFenixIdValidationError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
 			setVisible(false);
 			return;
 		} catch (UserWithoutSitesError e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.user.without.sites.error.message"));
 			return;
 
 		} catch (AccessDeniedException e) {
-			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
 			showErrorNotification(
 					getTranslation("view.user-settings.ssh-keys.access.denied.error.message"));
 			setVisible(false);

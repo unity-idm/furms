@@ -10,16 +10,16 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 class ResourceCreditViewModel {
-	public final String id;
-	public final String siteId;
-	public String resourceTypeId;
-	public String name;
-	public Boolean split = true;
-	public Boolean access = false;
-	public BigDecimal amount;
-	public ZonedDateTime createTime;
-	public ZonedDateTime startTime;
-	public ZonedDateTime endTime;
+	private final String id;
+	private final String siteId;
+	private String resourceTypeId;
+	private String name;
+	private Boolean split = true;
+	private Boolean access = false;
+	private BigDecimal amount;
+	private ZonedDateTime createTime;
+	private ZonedDateTime startTime;
+	private ZonedDateTime endTime;
 
 	public ResourceCreditViewModel(String id, String siteId, String resourceTypeId, String name, Boolean split,
 	                               Boolean access, BigDecimal amount, ZonedDateTime createTime, ZonedDateTime startTime, ZonedDateTime endTime) {
@@ -39,6 +39,14 @@ class ResourceCreditViewModel {
 		this.id = null;
 		this.resourceTypeId = null;
 		this.siteId = siteId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getSiteId() {
+		return siteId;
 	}
 
 	public String getResourceTypeId() {
@@ -138,16 +146,16 @@ class ResourceCreditViewModel {
 	}
 
 	public static final class ResourceCreditViewModelBuilder {
-		public String id;
-		public String siteId;
-		public String resourceTypeId;
-		public String name;
-		public Boolean split;
-		public Boolean access;
-		public BigDecimal amount;
-		public ZonedDateTime createTime;
-		public ZonedDateTime startTime;
-		public ZonedDateTime endTime;
+		private  String id;
+		private String siteId;
+		private String resourceTypeId;
+		private String name;
+		private Boolean split;
+		private Boolean access;
+		private BigDecimal amount;
+		private ZonedDateTime createTime;
+		private ZonedDateTime startTime;
+		private ZonedDateTime endTime;
 
 		private ResourceCreditViewModelBuilder() {
 		}

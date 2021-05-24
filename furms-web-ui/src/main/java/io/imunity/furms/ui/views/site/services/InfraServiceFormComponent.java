@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.site.services;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -16,17 +17,18 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import java.util.Objects;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class InfraServiceFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 	private static final int MAX_DESCRIPTION_LENGTH = 510;
 
 	private final Binder<InfraServiceViewModel> binder;
+	private final FormLayout formLayout;
 
 	InfraServiceFormComponent(Binder<InfraServiceViewModel> binder) {
 		this.binder = binder;
-
-		FormLayout formLayout = new FurmsFormLayout();
+		this.formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -57,5 +59,17 @@ class InfraServiceFormComponent extends Composite<Div> {
 
 	public void setFormPools(InfraServiceViewModel serviceViewModel) {
 		binder.setBean(serviceViewModel);
+
+		addIdFieldForEditForm(serviceViewModel);
+	}
+
+	private void addIdFieldForEditForm(InfraServiceViewModel serviceViewModel) {
+		if (serviceViewModel!= null && isNotEmpty(serviceViewModel.getId())) {
+			Div id = new Div();
+			id.setText(serviceViewModel.getId());
+			Label idLabel = new Label(getTranslation("view.site-admin.service.form.field.id"));
+
+			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
+		}
 	}
 }

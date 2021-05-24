@@ -5,8 +5,23 @@
 
 package io.imunity.furms.site;
 
-import io.imunity.furms.domain.project_installation.*;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -15,19 +30,10 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class SiteAgentProjectOperationServiceTest {
+
 	@Autowired
 	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Autowired
@@ -54,7 +60,6 @@ class SiteAgentProjectOperationServiceTest {
 				.build())
 			.build();
 		siteAgentProjectOperationService.installProject(correlationId, projectInstallation);
-
 		verify(projectInstallationService, timeout(10000)).update(
 			correlationId,
 			new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, new Error(null, null))

@@ -5,34 +5,45 @@
 
 package io.imunity.furms.ui.views.site.resource_types;
 
+import java.util.Objects;
+
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
-import java.util.Objects;
-
 class ResourceTypeViewModel {
-	public final String id;
-	public final String siteId;
-	public String serviceId;
-	public String name;
-	public ResourceMeasureType type;
-	public ResourceMeasureUnit unit;
-	public boolean accessible;
+	private final String id;
+	private final String siteId;
+	private String serviceId;
+	private String name;
+	private ResourceMeasureType type;
+	private ResourceMeasureUnit unit;
 
-	private ResourceTypeViewModel(String id, String siteId, String serviceId, String name, ResourceMeasureType type, ResourceMeasureUnit unit, boolean accessible) {
+	private ResourceTypeViewModel(String id,
+	                              String siteId,
+	                              String serviceId,
+	                              String name,
+	                              ResourceMeasureType type,
+	                              ResourceMeasureUnit unit) {
 		this.id = id;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
 		this.name = name;
 		this.type = type;
 		this.unit = unit;
-		this.accessible = accessible;
 	}
 
 	public ResourceTypeViewModel(String siteId) {
 		this.id = null;
 		this.serviceId = null;
 		this.siteId = siteId;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getSiteId() {
+		return siteId;
 	}
 
 	public String getName() {
@@ -67,14 +78,6 @@ class ResourceTypeViewModel {
 		this.serviceId = serviceId;
 	}
 
-	boolean isAccessible() {
-		return accessible;
-	}
-
-	void setAccessible(boolean accessible) {
-		this.accessible = accessible;
-	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -97,7 +100,6 @@ class ResourceTypeViewModel {
 			", name='" + name + '\'' +
 			", type=" + type +
 			", unit=" + unit +
-			", accessible=" + accessible +
 			'}';
 	}
 
@@ -106,13 +108,12 @@ class ResourceTypeViewModel {
 	}
 
 	public static final class ResourceTypeViewModelBuilder {
-		public String id;
-		public String siteId;
-		public String serviceId;
-		public String name;
-		public ResourceMeasureType type;
-		public ResourceMeasureUnit unit;
-		public boolean accessible;
+		private String id;
+		private String siteId;
+		private String serviceId;
+		private String name;
+		private ResourceMeasureType type;
+		private ResourceMeasureUnit unit;
 
 		private ResourceTypeViewModelBuilder() {
 		}
@@ -147,13 +148,8 @@ class ResourceTypeViewModel {
 			return this;
 		}
 
-		public ResourceTypeViewModelBuilder accessible(boolean accessible) {
-			this.accessible = accessible;
-			return this;
-		}
-
 		public ResourceTypeViewModel build() {
-			return new ResourceTypeViewModel(id, siteId, serviceId, name, type, unit, accessible);
+			return new ResourceTypeViewModel(id, siteId, serviceId, name, type, unit);
 		}
 	}
 }

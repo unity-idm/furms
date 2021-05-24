@@ -5,24 +5,22 @@
 
 package io.imunity.furms.ui;
 
-import io.imunity.furms.api.authz.AuthzService;
+import org.springframework.stereotype.Component;
+
 import io.imunity.furms.ui.components.FurmsSelect;
 import io.imunity.furms.ui.user_context.RoleTranslator;
-import org.springframework.stereotype.Component;
 
 @Component
 public class FurmsSelectFactory {
 	private final RoleTranslator roleTranslator;
-	private final AuthzService authzService;
 	private final VaadinBroadcaster vaadinBroadcaster;
 
-	public FurmsSelectFactory(RoleTranslator roleTranslator, AuthzService authzService, VaadinBroadcaster vaadinBroadcaster) {
+	public FurmsSelectFactory(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
 		this.roleTranslator = roleTranslator;
-		this.authzService = authzService;
 		this.vaadinBroadcaster = vaadinBroadcaster;
 	}
 
 	public FurmsSelect create(){
-		return new FurmsSelect(roleTranslator, authzService, vaadinBroadcaster);
+		return new FurmsSelect(roleTranslator, vaadinBroadcaster);
 	}
 }

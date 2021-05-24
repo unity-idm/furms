@@ -109,6 +109,7 @@ public class FurmsDateTimePicker
 				ofNullable(timePicker.getValue()).orElse(defaultTimeProvider.get()));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super FurmsDateTimePicker> listener) {
 		ComponentEventListener componentListener = event -> listener.valueChanged(this);

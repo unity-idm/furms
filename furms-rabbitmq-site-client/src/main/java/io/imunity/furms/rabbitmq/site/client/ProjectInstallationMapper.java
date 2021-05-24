@@ -41,6 +41,7 @@ class ProjectInstallationMapper {
 			.validityStart(convertToZoneTime(project.getUtcStartTime(), ZoneOffset.UTC).toOffsetDateTime())
 			.validityEnd(convertToZoneTime(project.getUtcEndTime(), ZoneOffset.UTC).toOffsetDateTime())
 			.projectLeader(UserMapper.map(user))
+			.acronym(project.getAcronym())
 			.build();
 	}
 }

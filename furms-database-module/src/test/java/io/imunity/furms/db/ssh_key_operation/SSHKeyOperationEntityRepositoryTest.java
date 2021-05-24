@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.db.ssh_key_operation.SSHKeyOperationJobEntity;
-import io.imunity.furms.db.ssh_key_operation.SSHKeyOperationJobEntityRepository;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;

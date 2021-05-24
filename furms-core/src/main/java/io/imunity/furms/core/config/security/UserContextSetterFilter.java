@@ -35,8 +35,19 @@ public class UserContextSetterFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		String userId = "";
 		SecurityContext context = SecurityContextHolder.getContext();
+		String userId = getUserMDC(context);
+
+		MDC.put(MDCKey.USER_ID.key, userId);
+		try {
+			filterChain.doFilter(request, response);
+		} finally {
+			MDC.remove(MDCKey.USER_ID.key);
+		}
+	}
+
+	private String getUserMDC(SecurityContext context) {
+		String userId = "";
 		if (context != null && context.getAuthentication() != null
 				&& context.getAuthentication().getPrincipal() != null) {
 			try {
@@ -47,13 +58,6 @@ public class UserContextSetterFilter extends OncePerRequestFilter {
 				LOG.error("Failed to retrieve user id from security context", ex);
 			}
 		}
-
-		MDC.put(MDCKey.USER_ID.key, userId);
-		try {
-			filterChain.doFilter(request, response);
-		} finally {
-			MDC.remove(MDCKey.USER_ID.key);
-		}
+		return userId;
 	}
-
 }

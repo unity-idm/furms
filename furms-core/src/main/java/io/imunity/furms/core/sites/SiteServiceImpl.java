@@ -19,7 +19,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +101,16 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		LOG.debug("Getting all Sites");
 		return siteRepository.findAll();
 	}
-	
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+
 	@Override
+	public Set<SiteExternalId> findAllIds() {
+		return siteRepository.findAll().stream()
+				.map(Site::getExternalId)
+				.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<Site> findUserSites(PersistentId userId) {
 		LOG.debug("Getting all Sites for user");
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(userId);
@@ -113,7 +119,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		}	
 		return siteRepository.findAll().stream()
 				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
-				.collect(Collectors.toSet());
+				.collect(toSet());
 	}
 
 	@Override
@@ -297,12 +303,5 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		assertFalse(isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing User ID"));
 
-	}
-
-	@Override
-	public Set<SiteExternalId> findAllIds() {
-		return siteRepository.findAll().stream()
-			.map(Site::getExternalId)
-			.collect(toSet());
 	}
 }

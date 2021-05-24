@@ -138,7 +138,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		final OptionalException<Void> optionalException =
 				getResultOrException(() -> projectAllocationService.create(viewModel.getCommunityId(), projectAllocation));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 				throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 				() -> UI.getCurrent().navigate(DashboardView.class)
 		);
@@ -190,7 +190,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeField() {
 		final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		resourceTypeComboBox.setEnabled(false);
+		resourceTypeComboBox.setReadOnly(true);
 		resourceTypeComboBox.setItems(binder.getBean().getResourceType());
 
 		binder.forField(resourceTypeComboBox)
@@ -202,12 +202,12 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	private ComboBox<AllocationCommunityComboBoxModel> communityAllocation(Label availableAmountLabel) {
 		final ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox = new ComboBox<>();
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		communityAllocationComboBox.setEnabled(false);
+		communityAllocationComboBox.setReadOnly(true);
 		communityAllocationComboBox.setItems(binder.getBean().getAllocationCommunity());
-
+		AllocationCommunityComboBoxModel allocationCommunity = binder.getBean().getAllocationCommunity();
 		availableAmount = projectAllocationService.getAvailableAmount(binder.getBean().getCommunityId(),
-				binder.getBean().getAllocationCommunity().id);
-		availableAmountLabel.setText(createAvailableLabelContent());
+				allocationCommunity.id);
+		availableAmountLabel.setText(createAvailableLabelContent(allocationCommunity.split));
 
 		binder.forField(communityAllocationComboBox)
 				.bind(ProjectAllocationViewModel::getAllocationCommunity, ProjectAllocationViewModel::setAllocationCommunity);
@@ -215,14 +215,16 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		return communityAllocationComboBox;
 	}
 
-	private String createAvailableLabelContent() {
-		return getTranslation("view.community-admin.project-allocation.form.label.available") + availableAmount;
+	private String createAvailableLabelContent(boolean splittable) {
+		return getTranslation(splittable ? "view.community-admin.project-allocation.form.label.available" :
+			"view.community-admin.project-allocation.form.label.availableNotSplit", availableAmount);
 	}
 
 	private BigDecimalField amountField() {
 		final BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
-
+		Optional<AllocationCommunityComboBoxModel> communityAlloc = Optional.ofNullable(binder.getBean().getAllocationCommunity());
+		amountField.setReadOnly(!communityAlloc.map(alloc -> alloc.split).orElse(true));
 		createUnitLabel(amountField, binder.getBean().getResourceType().unit);
 
 		binder.forField(amountField)
@@ -235,6 +237,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 						getTranslation("view.community-admin.project-allocation.form.error.validation.field.amount.range")
 				)
 				.bind(ProjectAllocationViewModel::getAmount, ProjectAllocationViewModel::setAmount);
+		amountField.setValue(availableAmount);
 
 		return amountField;
 	}

@@ -19,7 +19,7 @@ public class CommunityAllocationModelsMapper {
 			.communityId(CommunityAllocation.communityId)
 			.site(new ComboBoxModel(CommunityAllocation.site.getId(), CommunityAllocation.site.getName()))
 			.resourceType(new ResourceTypeComboBoxModel(CommunityAllocation.resourceType.id, CommunityAllocation.resourceType.name, CommunityAllocation.resourceType.unit))
-			.resourceCredit(new ResourceCreditComboBoxModel(CommunityAllocation.resourceCredit.id, CommunityAllocation.resourceCredit.name, CommunityAllocation.resourceCredit.amount, CommunityAllocation.resourceCredit.split))
+			.resourceCredit(new ResourceCreditComboBoxModel(CommunityAllocation.resourceCredit.id, CommunityAllocation.resourceCredit.name, CommunityAllocation.resourceCredit.amount, CommunityAllocation.resourceCredit.splittable))
 			.name(CommunityAllocation.name)
 			.amount(CommunityAllocation.amount)
 			.build();

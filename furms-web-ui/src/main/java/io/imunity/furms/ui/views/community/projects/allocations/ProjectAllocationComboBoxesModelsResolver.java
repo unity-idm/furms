@@ -25,7 +25,9 @@ class ProjectAllocationComboBoxesModelsResolver {
 	private final BiFunction<String, String, BigDecimal> functionAvailableAmount;
 	private final ResourceTypeComboBoxModel defaultResourceType;
 
-	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations, BiFunction<String, String, BigDecimal> functionAvailableAmount) {
+	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations, 
+			BiFunction<String, String, BigDecimal> functionAvailableAmount) {
+		
 		this.resourceTypeComboBoxModels = communityAllocations.stream()
 			.map(allocation -> new ResourceTypeComboBoxModel(allocation.resourceType.id, allocation.resourceType.name))
 			.collect(toSet());
@@ -33,12 +35,14 @@ class ProjectAllocationComboBoxesModelsResolver {
 		this.resourceTypeComboBoxModels.add(defaultResourceType);
 
 		this.resourceTypeIdToCommunityAllocation = communityAllocations.stream()
+			.filter(allocation -> functionAvailableAmount.apply(allocation.communityId, allocation.id)
+						.compareTo(BigDecimal.ZERO) > 0)
 			.collect(groupingBy(
 				allocation -> allocation.resourceType.id,
 				mapping(allocation -> new AllocationCommunityComboBoxModel(
 					allocation.id,
 					allocation.name,
-					allocation.resourceCredit.split,
+					allocation.resourceCredit.splittable,
 					allocation.resourceType.unit),
 					toSet()))
 			);

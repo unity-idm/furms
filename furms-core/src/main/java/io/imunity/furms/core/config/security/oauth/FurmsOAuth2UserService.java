@@ -36,7 +36,7 @@ public class FurmsOAuth2UserService extends DefaultOAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		LOG.debug("Will get OAuth user from Unity for {}");
+		LOG.debug("Will get OAuth user from Unity");
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 
 		String key = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()

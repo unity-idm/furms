@@ -6,8 +6,20 @@
 package io.imunity.furms.db.sites;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.db.project_allocation.ProjectAllocationEntityRepository;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -25,18 +37,6 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
@@ -63,9 +63,6 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 
 	@Autowired
-	private ProjectAllocationEntityRepository entityRepository;
-
-	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	private String siteId;
@@ -89,7 +86,7 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.build();
 		siteId2 = siteRepository.save(site2).getId().toString();
 
-		SiteEntity site3 = SiteEntity.builder()
+		SiteEntity.builder()
 			.name("name3")
 			.externalId("id4")
 			.connectionInfo("alala")
@@ -148,8 +145,8 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId)
 			.resourceTypeId(resourceTypeId)
 			.name("name")
-			.split(true)
-			.access(true)
+			.splittable(true)
+			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
@@ -160,8 +157,8 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.siteId(siteId2)
 			.resourceTypeId(resourceTypeId)
 			.name("name2")
-			.split(true)
-			.access(true)
+			.splittable(true)
+			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))

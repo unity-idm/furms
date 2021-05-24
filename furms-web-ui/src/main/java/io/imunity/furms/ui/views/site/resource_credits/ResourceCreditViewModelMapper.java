@@ -20,8 +20,8 @@ class ResourceCreditViewModelMapper {
 			.siteId(resourceCredit.siteId)
 			.resourceTypeId(resourceCredit.resourceTypeId)
 			.name(resourceCredit.name)
-			.split(resourceCredit.split)
-			.access(resourceCredit.access)
+			.split(resourceCredit.splittable)
+			.access(resourceCredit.accessibleForAllProjectMembers)
 			.amount(resourceCredit.amount)
 			.createTime(convertToZoneTime(resourceCredit.utcCreateTime, zoneId))
 			.startTime(convertToZoneTime(resourceCredit.utcStartTime, zoneId))
@@ -31,16 +31,16 @@ class ResourceCreditViewModelMapper {
 
 	static ResourceCredit map(ResourceCreditViewModel resourceCreditViewModel){
 		return ResourceCredit.builder()
-			.id(resourceCreditViewModel.id)
-			.siteId(resourceCreditViewModel.siteId)
-			.resourceTypeId(resourceCreditViewModel.resourceTypeId)
-			.name(resourceCreditViewModel.name)
-			.split(resourceCreditViewModel.split)
-			.access(resourceCreditViewModel.access)
-			.amount(resourceCreditViewModel.amount)
-			.utcCreateTime(convertToUTCTime(resourceCreditViewModel.createTime))
-			.utcStartTime(convertToUTCTime(resourceCreditViewModel.startTime))
-			.utcEndTime(convertToUTCTime(resourceCreditViewModel.endTime))
+			.id(resourceCreditViewModel.getId())
+			.siteId(resourceCreditViewModel.getSiteId())
+			.resourceTypeId(resourceCreditViewModel.getResourceTypeId())
+			.name(resourceCreditViewModel.getName())
+			.splittable(resourceCreditViewModel.getSplit())
+			.accessibleForAllProjectMembers(resourceCreditViewModel.getAccess())
+			.amount(resourceCreditViewModel.getAmount())
+			.utcCreateTime(convertToUTCTime(resourceCreditViewModel.getCreateTime()))
+			.utcStartTime(convertToUTCTime(resourceCreditViewModel.getStartTime()))
+			.utcEndTime(convertToUTCTime(resourceCreditViewModel.getEndTime()))
 			.build();
 	}
 }

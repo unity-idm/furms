@@ -299,7 +299,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnFalseForNonUniqueNameInCommunityScope() {
 		//given
-		ProjectEntity existedProject = entityRepository.save(ProjectEntity.builder()
+		entityRepository.save(ProjectEntity.builder()
 			.communityId(communityId)
 			.name("name")
 			.description("new_description")

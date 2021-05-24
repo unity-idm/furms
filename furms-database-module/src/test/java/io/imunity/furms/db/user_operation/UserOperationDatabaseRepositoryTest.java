@@ -16,6 +16,7 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +98,25 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().siteId.toString()).isEqualTo(userAddition.siteId.id);
 		assertThat(byId.get().projectId.toString()).isEqualTo(userAddition.projectId);
 		assertThat(byIdJob.get().status).isEqualTo(UserStatus.ADDING_ACKNOWLEDGED.getPersistentId());
+	}
+
+	@Test
+	void shouldFindAllWithRelatedSiteAndProjectBySiteIdAndUserId() {
+		CorrelationId correlationId = CorrelationId.randomID();
+		UserAddition userAddition = UserAddition.builder()
+				.siteId(new SiteId(siteId.toString(), new SiteExternalId("id")))
+				.projectId(projectId.toString())
+				.correlationId(correlationId)
+				.userId("userId")
+				.status(UserStatus.ADDING_ACKNOWLEDGED)
+				.build();
+
+		userOperationDatabaseRepository.create(userAddition);
+
+		final Set<UserAdditionWithProject> userAdditions = userOperationDatabaseRepository
+				.findAllUserAdditionsWithSiteAndProjectBySiteId("userId", userAddition.siteId.id);
+		assertThat(userAdditions).hasSize(1);
+		assertThat(userAdditions.stream().findFirst().get().getStatus()).isEqualTo(UserStatus.ADDING_ACKNOWLEDGED);
 	}
 
 	@Test
@@ -172,7 +193,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 				.userId("id")
 				.build()
 		);
-		UserAdditionJobEntity save = userAdditionJobEntityRepository.save(
+		userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
 				.correlationId(UUID.fromString(correlationId.id))
 				.userAdditionId(userAdditionSaveEntity.getId())

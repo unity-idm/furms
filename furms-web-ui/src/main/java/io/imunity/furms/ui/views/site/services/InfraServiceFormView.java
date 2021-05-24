@@ -81,7 +81,7 @@ class InfraServiceFormView extends FurmsViewComponent {
 		else
 			optionalException = getResultOrException(() -> infraServiceService.update(infraService));
 
-		optionalException.getThrowable().ifPresentOrElse(
+		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
 			() -> UI.getCurrent().navigate(InfraServicesView.class)
 		);

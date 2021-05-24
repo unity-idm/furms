@@ -64,6 +64,13 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
 	}
 	
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	public List<SSHKeyOperationJob> findBySSHKeyId(String sshkeyId) {
+		return sshKeyOperationRepository.findBySSHKey(sshkeyId);
+	}
+	
+	
 	// FIXME To auth this method special user for queue message resolving is
 	// needed
 	@Override
@@ -80,41 +87,48 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		LOG.info("SSHKeyOperationJob status with given id {} was update to {}", job.id, result.status);
 
 		if (result.status.equals(DONE)) {
+			SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
 			if (job.operation.equals(ADD)) {
-				SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
 				addKeyHistory(job.siteId, key);
 				addToInstalledKeys(job.siteId, key);
 			} else if (job.operation.equals(REMOVE)) {
-				removeFromInstalledKeys(job.siteId, job.sshkeyId);
+				removeFromInstalledKeys(job.siteId, key);
 				removeSSHKeyIfRemovedFromLastSite(job);
 			}else if (job.operation.equals(UPDATE)) {
-				SSHKey key = sshKeysRepository.findById(job.sshkeyId).get();
+				
 				updateInstalledKeys(job.siteId, key);
 			}
 		}
 
 	}
 
+	private void addToInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Add SSH key {} to installed keys", key);
+		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);
+		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
+				.value(key.value).sshkeyId(key.id).build());
+	}
+	
 	private void updateInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Update SSH key {} in installed keys", key);
 		installedSSHKeyRepository.update(siteId, key.id, key.value);
 		
 	}
 
-	private void removeFromInstalledKeys(String siteId, String sshkeyId) {
-		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);	
+	private void removeFromInstalledKeys(String siteId, SSHKey key) {
+		LOG.debug("Remove SSH key {} from installed keys", key);
+		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);	
 	}
 
 	private void addKeyHistory(String siteId, SSHKey key) {
+		LOG.debug("Add SSH key {} to history for site {} and owner {}", key.getFingerprint(), siteId,  key.ownerId.id);
 		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId)
 				.originationTime(LocalDateTime.now(ZoneOffset.UTC))
 				.sshkeyFingerprint(key.getFingerprint()).sshkeyOwnerId(key.ownerId).build());
 		sshKeyHistoryRepository.deleteOldestLeaveOnly(siteId, key.ownerId.id, MAX_HISTORY_SIZE);
 	}
 
-	private void addToInstalledKeys(String siteId, SSHKey key) {
-		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
-				.value(key.value).sshkeyId(key.id).build());
-	}
+	
 
 	private void removeSSHKeyIfRemovedFromLastSite(SSHKeyOperationJob operationJob) {
 		List<SSHKeyOperationJob> keysOperations = sshKeyOperationRepository.findBySSHKey(operationJob.sshkeyId);
@@ -124,7 +138,9 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 				sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(job.sshkeyId, job.siteId);
 			}
 			Optional<SSHKey> removed = sshKeysRepository.findById(operationJob.sshkeyId);
+			installedSSHKeyRepository.deleteBySSHKey(operationJob.sshkeyId);
 			sshKeysRepository.delete(operationJob.sshkeyId);
+			
 			LOG.info("Removed SSH key from repository with ID={}, {}", operationJob.sshkeyId, removed.orElse(null));
 		}
 	}

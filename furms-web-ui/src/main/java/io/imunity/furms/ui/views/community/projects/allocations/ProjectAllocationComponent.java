@@ -93,12 +93,16 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		grid.addComponentColumn(c -> {
 			List<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
-			if(deallocation.isPresent() && deallocation.get().status.equals(ProjectDeallocationStatus.FAILED)) {
-				return getFailedLayout(getTranslation("view.community-admin.project-allocation.status.6"), deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null));
+			if(deallocation.isPresent()) {
+				int statusId = deallocation.get().status.getPersistentId();
+				return getStatusLayout(
+					getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
+					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
+				);
 			}
 			return projectAllocationInstallations.stream()
 				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
-				.map(installation -> getFailedLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.errorMessage.map(x -> x.message).orElse(null)))
+				.map(installation -> getStatusLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.errorMessage.map(x -> x.message).orElse(null)))
 				.orElseGet(HorizontalLayout::new);
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
@@ -114,7 +118,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return grid;
 	}
 
-	private HorizontalLayout getFailedLayout(String status, String message) {
+	private HorizontalLayout getStatusLayout(String status, String message) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		Text text = new Text(status);
 		horizontalLayout.add(text);
@@ -132,7 +136,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Component createLastColumnContent(ProjectAllocationGridModel model) {
 		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
 		if(deallocation.isPresent() && !ProjectDeallocationStatus.FAILED.equals(deallocation.get().status)){
-			return new Div();
+			return getRefreshMenuItem(new GridActionMenu());
 		}
 		return new GridActionsButtonLayout(
 			createContextMenu(model)
@@ -149,12 +153,17 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			event -> confirmDialog.open()
 		);
 
+		getRefreshMenuItem(contextMenu);
+
+		getContent().add(contextMenu);
+		return contextMenu.getTarget();
+	}
+
+	private Component getRefreshMenuItem(GridActionMenu contextMenu) {
 		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
 			REFRESH), e -> {
 			loadGridContent();
 		});
-
-		getContent().add(contextMenu);
 		return contextMenu.getTarget();
 	}
 

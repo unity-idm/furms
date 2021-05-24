@@ -62,7 +62,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			grid.reloadGrid();
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
-			LOG.warn("Could not invite user. ", e);
+			LOG.error("Could not invite user. ", e);
 		}
 	}
 
