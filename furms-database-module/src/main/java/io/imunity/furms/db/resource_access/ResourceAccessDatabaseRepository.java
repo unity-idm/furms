@@ -114,16 +114,22 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void delete(CorrelationId correlationId){
+	public void deleteByCorrelationId(CorrelationId correlationId){
 		UserGrantJobEntity userGrantJobEntity = userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		userGrantEntityRepository.deleteById(userGrantJobEntity.userGrantId);
 	}
 
 	@Override
-	public void delete(FenixUserId userId, String allocationId){
+	public void deleteByUserAndAllocationId(FenixUserId userId, String allocationId){
 		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
 			.ifPresent(x -> userGrantEntityRepository.deleteById(x.allocation.getId()));
+	}
+
+	@Override
+	public void deleteByUserAndProjectId(FenixUserId userId, String projectId) {
+		Set<UserGrantEntity> userGrants = userGrantEntityRepository.findByUserIdAndProjectId(userId.id, UUID.fromString(projectId));
+		userGrantEntityRepository.deleteAll(userGrants);
 	}
 
 	@Override

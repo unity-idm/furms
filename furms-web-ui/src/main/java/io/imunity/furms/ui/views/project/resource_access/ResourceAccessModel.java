@@ -93,19 +93,16 @@ class ResourceAccessModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ResourceAccessModel that = (ResourceAccessModel) o;
-		return accessible == that.accessible &&
-			Objects.equals(firstName, that.firstName) &&
-			Objects.equals(lastName, that.lastName) &&
-			Objects.equals(email, that.email) &&
-			Objects.equals(allocation, that.allocation) &&
-			Objects.equals(access, that.access) &&
-			Objects.equals(message, that.message) &&
-			Objects.equals(status, that.status);
+		return Objects.equals(allocationId, that.allocationId) &&
+			Objects.equals(siteId, that.siteId) &&
+			Objects.equals(fenixUserId, that.fenixUserId) &&
+			Objects.equals(email, that.email);
+
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(firstName, lastName, email, allocation, access, status, accessible, message);
+		return Objects.hash(allocationId, siteId, fenixUserId, email);
 	}
 
 	@Override

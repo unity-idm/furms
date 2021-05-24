@@ -26,6 +26,7 @@ public interface UserOperationRepository {
 	boolean isUserAdded(String siteId, String userId);
 	Set<String> findUserIds(String projectId);
 	UserStatus findAdditionStatusByCorrelationId(String correlationId);
+	UserAddition findAdditionByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(String correlationId);
 	boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId);
 	void deleteAll();
