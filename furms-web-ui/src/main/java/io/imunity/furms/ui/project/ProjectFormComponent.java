@@ -43,7 +43,9 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final Binder<ProjectViewModel> binder;
 	private final List<FurmsViewUserModel> userModels;
 	private final FurmsImageUpload uploadComponent = createUploadComponent();
-	private final FormLayout formLayout = new FurmsFormLayout();;
+	private final TextArea descriptionField = new TextArea();
+	private final FurmsDateTimePicker startDateTimePicker;
+	private final FurmsDateTimePicker endDateTimePicker;
 	private ZoneId zoneId;
 
 	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean restrictedEditing, List<FurmsViewUserModel> userModels) {
@@ -55,9 +57,9 @@ public class ProjectFormComponent extends Composite<Div> {
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		nameField.setEnabled(restrictedEditing);
+		FormLayout formLayout = new FurmsFormLayout();
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
-		TextArea descriptionField = new TextArea();
 		descriptionField.setClassName("description-text-area");
 		descriptionField.setValueChangeMode(EAGER);
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);
@@ -69,10 +71,10 @@ public class ProjectFormComponent extends Composite<Div> {
 		acronymField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
-		FurmsDateTimePicker startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
+		startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
 		formLayout.addFormItem(startDateTimePicker, getTranslation("view.community-admin.project.form.field.start-time"));
 
-		FurmsDateTimePicker endDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
+		endDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endDateTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
 		TextField researchField = new TextField();
@@ -95,7 +97,9 @@ public class ProjectFormComponent extends Composite<Div> {
 	}
 
 	public void disableAll(){
-		formLayout.setEnabled(true);
+		descriptionField.setEnabled(false);
+		startDateTimePicker.setEnabled(false);
+		endDateTimePicker.setEnabled(false);
 	}
 
 	private void prepareValidator(TextField nameField, TextArea descriptionField, TextField acronymField,

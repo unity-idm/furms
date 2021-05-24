@@ -130,6 +130,7 @@ public class SettingsView extends FurmsViewComponent {
 							oldProject = projectViewModel;
 							disableEditorMode();
 							showSuccessNotification(getTranslation("view.project-admin.settings.update.success"));
+							projectFormComponent.disableAll();
 						}
 					);
 			}

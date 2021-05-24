@@ -117,7 +117,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private Component createContextMenu(String projectId, String projectName, String communityId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
-		if(!projectService.isProjectInTerminalState(projectId)){
+		if(projectService.isProjectInTerminalState(communityId, projectId)){
 			contextMenu.addItem(new MenuButton(
 					getTranslation("view.community-admin.projects.menu.edit"), EDIT),
 				event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
