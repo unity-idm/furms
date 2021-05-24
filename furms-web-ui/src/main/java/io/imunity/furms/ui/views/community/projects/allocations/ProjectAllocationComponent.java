@@ -52,7 +52,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
 		button.setClassName("reload-disable");
 
-		if(!projectService.isProjectInTerminalState(projectId)){
+		if(!projectService.isProjectInTerminalState(communityId, projectId)){
 			button.setEnabled(false);
 		}
 

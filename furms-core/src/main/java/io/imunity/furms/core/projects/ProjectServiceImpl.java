@@ -91,6 +91,13 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public boolean isProjectInTerminalState(String communityId, String projectId) {
+		return projectInstallationService.isProjectInTerminalState(projectId);
+	}
+
+	@Override
+	@Transactional
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "project.communityId")
 	public void create(Project project) {
 		validator.validateCreate(project);

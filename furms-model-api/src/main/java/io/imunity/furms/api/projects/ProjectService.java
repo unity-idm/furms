@@ -23,6 +23,8 @@ public interface ProjectService {
 
 	boolean isProjectInTerminalState(String projectId);
 
+	boolean isProjectInTerminalState(String communityId, String projectId);
+
 	void create(Project project);
 
 	void update(Project project);

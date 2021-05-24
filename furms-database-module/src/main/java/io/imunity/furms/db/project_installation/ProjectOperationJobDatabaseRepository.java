@@ -12,14 +12,11 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
 
 @Repository
 class ProjectOperationJobDatabaseRepository implements ProjectOperationRepository {
@@ -145,14 +142,16 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public boolean areAllProjectOperationInTerminateState(String projectId) {
-		return !(installationRepository.existsByProjectIdAndStatusOrStatus(
+		return !(installationRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
 			UUID.fromString(projectId),
 			ProjectInstallationStatus.PENDING.getPersistentId(),
+			UUID.fromString(projectId),
 			ProjectInstallationStatus.ACKNOWLEDGED.getPersistentId()
 		) ||
-		updateRepository.existsByProjectIdAndStatusOrStatus(
+		updateRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
 			UUID.fromString(projectId),
 			ProjectUpdateStatus.PENDING.getPersistentId(),
+			UUID.fromString(projectId),
 			ProjectUpdateStatus.ACKNOWLEDGED.getPersistentId()
 		));
 	}
@@ -165,18 +164,20 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.projectId(installation.projectId.toString())
 				.siteId(installation.siteId.toString())
 				.correlationId(new CorrelationId(installation.correlationId.toString()))
+				.status(ProjectInstallationStatus.valueOf(installation.status))
 				.build()
 			).collect(Collectors.toSet());
 	}
 
 	@Override
-	public Map<String, Set<ProjectUpdateStatus>> findProjectUpdateStatues(String projectId) {
+	public Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId) {
 		return updateRepository.findByProjectId(UUID.fromString(projectId)).stream()
-			.collect(groupingBy(x -> x.siteId.toString(), mapping(x -> ProjectUpdateStatus.valueOf(x.status), toSet())));
+			.map(x -> ProjectUpdateStatus.valueOf(x.status))
+			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public void delete(String id) {
+	public void deleteById(String id) {
 		installationRepository.deleteById(UUID.fromString(id));
 	}
 

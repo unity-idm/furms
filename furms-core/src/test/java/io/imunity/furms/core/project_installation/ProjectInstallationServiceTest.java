@@ -23,7 +23,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,7 +90,7 @@ class ProjectInstallationServiceTest {
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build()
 		));
-		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Map.of());
+		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Set.of());
 		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 
 		service.update(project);
@@ -158,7 +157,7 @@ class ProjectInstallationServiceTest {
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build()
 		));
-		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Map.of("siteId", Set.of(ProjectUpdateStatus.ACKNOWLEDGED)));
+		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Set.of(ProjectUpdateStatus.ACKNOWLEDGED));
 		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 
 		assertThrows(IllegalStateException.class, () -> service.update(project));

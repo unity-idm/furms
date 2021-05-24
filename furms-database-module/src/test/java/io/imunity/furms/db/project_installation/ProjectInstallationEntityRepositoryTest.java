@@ -119,6 +119,42 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldExistsIfAcknowledged() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(ACKNOWLEDGED)
+			.build();
+
+		//when
+		entityRepository.save(entityToSave);
+
+		//then
+		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId, 0, projectId,1)).isTrue();
+	}
+
+	@Test
+	void shouldExistsIfPending() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(PENDING)
+			.build();
+
+		//when
+		entityRepository.save(entityToSave);
+
+		//then
+		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId, 0, projectId, 1)).isTrue();
+	}
+
+	@Test
 	void shouldUpdateProjectInstallationJob() {
 		//given
 		UUID correlationId = UUID.randomUUID();

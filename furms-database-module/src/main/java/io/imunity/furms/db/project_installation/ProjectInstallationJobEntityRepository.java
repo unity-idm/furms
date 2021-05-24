@@ -18,7 +18,7 @@ public interface ProjectInstallationJobEntityRepository extends CrudRepository<P
 	Set<ProjectInstallationJobEntity> findByProjectId(UUID projectId);
 
 	boolean existsBySiteIdAndProjectIdAndStatus(UUID siteId, UUID projectId, int status);
-	boolean existsByProjectIdAndStatusOrStatus(UUID projectId, int pendingStatus, int ackStatus);
+	boolean existsByProjectIdAndStatusOrProjectIdAndStatus(UUID projectId, int pendingStatus, UUID projectId1, int ackStatus);
 
 	@Query(
 		"select p.id as id, s.id as site_id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +

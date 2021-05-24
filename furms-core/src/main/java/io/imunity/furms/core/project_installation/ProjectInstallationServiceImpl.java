@@ -78,14 +78,6 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	private void create(SiteId siteId, Project project) {
-		CorrelationId correlationId = CorrelationId.randomID();
-		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
-			.correlationId(correlationId)
-			.siteId(siteId.id)
-			.projectId(project.getId())
-			.status(ProjectInstallationStatus.PENDING)
-			.build();
-
 		FURMSUser leader = project.getLeaderId() != null
 			? usersDAO.findById(project.getLeaderId()).orElse(null)
 			: null;
@@ -105,27 +97,26 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.validityEnd(project.getUtcEndTime())
 			.leader(leader)
 			.build();
-		projectOperationRepository.create(projectInstallationJob);
-		siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation);
-		LOG.info("ProjectInstallation was updated: {}", projectInstallationJob);
+		create(project.getId(), projectInstallation);
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void update(Project project) {
-		Map<String, Set<ProjectUpdateStatus>> siteIdToUpdateStatues = projectOperationRepository.findProjectUpdateStatues(project.getId());
 		Map<String, ProjectInstallationJob> siteIdToInstallationJob = projectOperationRepository.findProjectInstallation(project.getId()).stream()
 			.collect(Collectors.toMap(x -> x.siteId, x -> x));
+		Set<ProjectUpdateStatus> updateStatues = projectOperationRepository.findProjectUpdateStatues(project.getId());
+
+		if(hasProjectNotTerminalStateInAnySite(updateStatues, siteIdToInstallationJob))
+			throw new IllegalStateException("Project updating while project installing is not supported");
 
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId.id);
 			if(job.status.equals(ProjectInstallationStatus.FAILED)){
 				create(siteId, project);
-				projectOperationRepository.delete(job.id);
+				projectOperationRepository.deleteById(job.id);
 				return;
 			}
-			if(hasProjectNotTerminalStateInAnySite(siteIdToUpdateStatues, siteId, job))
-				throw new IllegalStateException("Project updating while project installing is not supported");
 
 			ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
 				.correlationId(CorrelationId.randomID())
@@ -144,9 +135,10 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 		});
 	}
 
-	private boolean hasProjectNotTerminalStateInAnySite(Map<String, Set<ProjectUpdateStatus>> siteIdToUpdateStatues, SiteId siteId, ProjectInstallationJob job) {
-		return !job.status.isTerminal() ||
-			siteIdToUpdateStatues.getOrDefault(siteId.id, Set.of()).stream().noneMatch(ProjectUpdateStatus::isTerminal);
+	private boolean hasProjectNotTerminalStateInAnySite(Set<ProjectUpdateStatus> updateStatuses,
+	                                                    Map<String, ProjectInstallationJob> siteIdToInstallStatues) {
+		return siteIdToInstallStatues.values().stream().noneMatch(job -> job.status.isTerminal()) ||
+			(!updateStatuses.isEmpty() && updateStatuses.stream().noneMatch(ProjectUpdateStatus::isTerminal));
 	}
 
 	@Override

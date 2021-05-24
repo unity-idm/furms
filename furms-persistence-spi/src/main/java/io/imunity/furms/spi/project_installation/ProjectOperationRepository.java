@@ -10,7 +10,6 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -36,9 +35,9 @@ public interface ProjectOperationRepository {
 
 	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
 
-	Map<String, Set<ProjectUpdateStatus>> findProjectUpdateStatues(String projectId);
+	Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId);
 
-	void delete(String id);
+	void deleteById(String id);
 
 	void deleteAll();
 }
