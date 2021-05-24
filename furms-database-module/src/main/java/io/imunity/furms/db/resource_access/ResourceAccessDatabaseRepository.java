@@ -114,7 +114,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void deleteByUserAndAllocationId(CorrelationId correlationId){
+	public void deleteByCorrelationId(CorrelationId correlationId){
 		UserGrantJobEntity userGrantJobEntity = userGrantJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 		userGrantEntityRepository.deleteById(userGrantJobEntity.userGrantId);

@@ -52,13 +52,13 @@ class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
 		if(userStatus.equals(UserStatus.REMOVED)){
 			UserAddition userAddition = repository.findAdditionByCorrelationId(correlationId);
 			repository.deleteByCorrelationId(correlationId.id);
-			resourceAccessRepository.deleteByUserAndProjectId(new FenixUserId(userAddition.userId), userAddition.projectId);
 			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
+			resourceAccessRepository.deleteByUserAndProjectId(new FenixUserId(userAddition.userId), userAddition.projectId);
 			LOG.info("User {} grants in project {} were deleted", userAddition.userId, userAddition.projectId);
 			return;
 		}
 		repository.updateStatus(correlationId, userStatus, userErrorMessage);
-		LOG.info("UserAddition status with given correlation id {} was update to: {}", correlationId.id, userStatus);
+		LOG.info("UserAddition status with given correlation id {} was updated: {}", correlationId.id, userStatus);
 	}
 
 }

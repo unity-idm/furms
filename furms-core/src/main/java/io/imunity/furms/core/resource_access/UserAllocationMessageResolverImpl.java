@@ -31,7 +31,7 @@ class UserAllocationMessageResolverImpl implements UserAllocationMessageResolver
 		if(!currentStatus.isTransitionalTo(status))
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, status));
 		if(status.equals(AccessStatus.REVOKED)) {
-			repository.deleteByUserAndAllocationId(correlationId);
+			repository.deleteByCorrelationId(correlationId);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}

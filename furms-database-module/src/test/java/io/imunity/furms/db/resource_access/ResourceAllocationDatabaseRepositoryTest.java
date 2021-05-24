@@ -205,7 +205,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 
-		resourceAccessDatabaseRepository.deleteByUserAndAllocationId(correlationId);
+		resourceAccessDatabaseRepository.deleteByCorrelationId(correlationId);
 
 		assertThat(userGrantEntityRepository.findAll()).isEmpty();
 		assertThat(userGrantJobEntityRepository.findAll()).isEmpty();
