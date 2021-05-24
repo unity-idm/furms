@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -30,6 +31,7 @@ import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -133,7 +135,8 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String resourceTypeId, String resourceCreditName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-credits.dialog.text", resourceCreditName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> resourceCreditService.delete(resourceTypeId, getCurrentResourceId()));
+			handleExceptions(() -> resourceCreditService.delete(resourceTypeId, getCurrentResourceId()),
+					Map.of(ResourceCreditHasAllocationException.class, "view.site-admin.resource-credits.form.error.resourceCreditHasAllocations"));
 			loadGridContent();
 		});
 		return furmsDialog;
