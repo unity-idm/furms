@@ -23,7 +23,7 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
@@ -36,7 +36,7 @@ class SiteAgentSSHKeyOperationServiceTest {
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
-	private SSHKeyOperationMessageResolver sshKeyOperationService;
+	private SSHKeyOperationStatusUpdater sshKeyOperationService;
 
 	@BeforeEach
 	void init() {

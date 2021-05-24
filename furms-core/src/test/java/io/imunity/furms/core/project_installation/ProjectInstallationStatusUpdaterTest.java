@@ -20,7 +20,7 @@ import static io.imunity.furms.domain.project_installation.ProjectInstallationSt
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-class ProjectInstallationMessageResolverTest {
+class ProjectInstallationStatusUpdaterTest {
 	@Mock
 	private ProjectOperationRepository repository;
 	@Mock
@@ -28,13 +28,13 @@ class ProjectInstallationMessageResolverTest {
 	@Mock
 	private UserOperationService userOperationService;
 
-	private ProjectInstallationMessageResolverImpl service;
+	private ProjectInstallationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectInstallationMessageResolverImpl(repository, projectAllocationInstallationService, userOperationService);
+		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService, userOperationService);
 		orderVerifier = inOrder(repository, projectAllocationInstallationService);
 	}
 

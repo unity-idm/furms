@@ -19,13 +19,14 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService {
@@ -63,7 +64,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void create(String projectId, ProjectInstallation projectInstallation) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
@@ -73,7 +74,9 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.status(ProjectInstallationStatus.PENDING)
 			.build();
 		projectOperationRepository.create(projectInstallationJob);
-		siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation);
+		runAfterCommit(() ->
+			siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation)
+		);
 		LOG.info("ProjectInstallation was created: {}", projectInstallationJob);
 	}
 
@@ -101,7 +104,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void update(Project project) {
 		Map<String, ProjectInstallationJob> siteIdToInstallationJob = projectOperationRepository.findProjectInstallation(project.getId()).stream()
 			.collect(Collectors.toMap(x -> x.siteId, x -> x));
@@ -125,12 +128,12 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 				.status(ProjectUpdateStatus.PENDING)
 				.build();
 			projectOperationRepository.create(projectUpdateJob);
-			siteAgentProjectOperationService.updateProject(
+			runAfterCommit(() -> siteAgentProjectOperationService.updateProject(
 				projectUpdateJob.correlationId,
 				siteId.externalId,
 				project,
 				usersDAO.findById(project.getLeaderId()).get()
-			);
+			));
 			LOG.info("ProjectUpdateJob was created: {}", projectUpdateJob);
 		});
 	}
@@ -142,7 +145,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void remove(String projectId) {
 		siteRepository.findByProjectId(projectId).forEach(siteId -> {
 			CorrelationId correlationId = CorrelationId.randomID();

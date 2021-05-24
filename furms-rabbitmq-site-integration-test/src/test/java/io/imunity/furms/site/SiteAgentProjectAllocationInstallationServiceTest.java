@@ -14,7 +14,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
-	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
+	private ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
 
 	@BeforeEach
 	void init(){
@@ -66,8 +66,8 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
-		verify(projectAllocationInstallationMessageResolver, timeout(15000).times(2)).updateStatus(any());
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).updateStatus(any());
 	}
 
 	@Test
@@ -93,6 +93,6 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 			.build();
 		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationMessageResolver, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
 	}
 }

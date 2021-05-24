@@ -12,6 +12,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,6 +42,16 @@ class ResourceAccessServiceTest {
 	private InOrder orderVerifier;
 
 	@BeforeEach
+	void setUp() {
+		TransactionSynchronizationManager.initSynchronization();
+	}
+
+	@AfterEach
+	void clear() {
+		TransactionSynchronizationManager.clear();
+	}
+
+	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository);
@@ -52,6 +65,10 @@ class ResourceAccessServiceTest {
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
 		service.grantAccess(grantAccess);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess));
@@ -82,6 +99,10 @@ class ResourceAccessServiceTest {
 		//when
 		when(repository.findCurrentStatus(userId, "id")).thenReturn(status);
 		service.revokeAccess(grantAccess);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).update(any(), eq(grantAccess), eq(AccessStatus.REVOKE_PENDING));

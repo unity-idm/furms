@@ -22,6 +22,7 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +30,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +65,16 @@ class UserOperationServiceTest {
 	private InOrder orderVerifier;
 
 	@BeforeEach
+	void setUp() {
+		TransactionSynchronizationManager.initSynchronization();
+	}
+
+	@AfterEach
+	void clear() {
+		TransactionSynchronizationManager.clear();
+	}
+
+	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, siteRepository,
@@ -82,6 +95,10 @@ class UserOperationServiceTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 		service.createUserAdditions(projectId, userId);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).create(any(UserAddition.class));
@@ -108,6 +125,10 @@ class UserOperationServiceTest {
 			.build()));
 		when(projectGroupsDAO.getAllUsers(communityId, projectId)).thenReturn(List.of(user));
 		service.createUserAdditions(siteId, projectId);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).create(any(UserAddition.class));
@@ -148,6 +169,10 @@ class UserOperationServiceTest {
 			.build()));
 		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
 		service.createUserRemovals(projectId, userId);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).update(any(UserAddition.class));

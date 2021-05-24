@@ -5,46 +5,34 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
-import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
-import static java.util.Optional.ofNullable;
-
-import org.springframework.amqp.AmqpConnectException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalResult;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
-import io.imunity.furms.rabbitmq.site.models.Header;
-import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.rabbitmq.site.models.Status;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
+import io.imunity.furms.rabbitmq.site.models.*;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
+import org.springframework.amqp.AmqpConnectException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+
+import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
+import static java.util.Optional.ofNullable;
 
 @Service
 class SiteAgentSSHKeyOperationServiceImpl implements SiteAgentSSHKeyOperationService {
 
 	private final RabbitTemplate rabbitTemplate;
-	private final SSHKeyOperationMessageResolver sshKeyOperationService;
+	private final SSHKeyOperationStatusUpdater sshKeyOperationService;
 
 	SiteAgentSSHKeyOperationServiceImpl(RabbitTemplate rabbitTemplate,
-			SSHKeyOperationMessageResolver sshKeyInstallationService) {
+			SSHKeyOperationStatusUpdater sshKeyInstallationService) {
 
 		this.rabbitTemplate = rabbitTemplate;
 		this.sshKeyOperationService = sshKeyInstallationService;

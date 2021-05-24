@@ -10,7 +10,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 
 @Service
-class ProjectInstallationMessageResolverImpl implements ProjectInstallationMessageResolver  {
+class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectOperationRepository projectOperationRepository;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
 	private final UserOperationService userOperationService;
 
-	ProjectInstallationMessageResolverImpl(
+	ProjectInstallationStatusUpdaterImpl(
 		ProjectOperationRepository projectOperationRepository,
 		ProjectAllocationInstallationService projectAllocationInstallationService,
 		UserOperationService userOperationService) {

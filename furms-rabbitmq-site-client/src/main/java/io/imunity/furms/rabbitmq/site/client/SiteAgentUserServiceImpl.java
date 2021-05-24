@@ -11,16 +11,14 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.rabbitmq.site.models.Error;
-import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
+import io.imunity.furms.rabbitmq.site.models.*;
+import io.imunity.furms.site.api.message_resolver.UserOperationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -33,20 +31,20 @@ import static java.util.Optional.ofNullable;
 @Service
 class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	private final RabbitTemplate rabbitTemplate;
-	private final UserOperationMessageResolver userOperationMessageResolver;
+	private final UserOperationStatusUpdater userOperationStatusUpdater;
 
-	SiteAgentUserServiceImpl(RabbitTemplate rabbitTemplate, UserOperationMessageResolver userOperationMessageResolver) {
+	SiteAgentUserServiceImpl(RabbitTemplate rabbitTemplate, UserOperationStatusUpdater userOperationStatusUpdater) {
 		this.rabbitTemplate = rabbitTemplate;
-		this.userOperationMessageResolver = userOperationMessageResolver;
+		this.userOperationStatusUpdater = userOperationStatusUpdater;
 	}
 
 	@EventListener
 	void receiveUserProjectAddRequestAck(Payload<UserProjectAddRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.ADDING_FAILED, getErrorMessage(ack.header.error));
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.ADDING_FAILED, getErrorMessage(ack.header.error));
 	}
 
 	private Optional<UserAdditionErrorMessage> getErrorMessage(Error error) {
@@ -60,7 +58,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 			status = UserStatus.ADDED;
 		else
 			status = UserStatus.ADDING_FAILED;
-		userOperationMessageResolver.update(
+		userOperationStatusUpdater.update(
 			UserAddition.builder()
 				.correlationId(new CorrelationId(result.header.messageCorrelationId))
 				.uid(result.body.uid)
@@ -74,22 +72,21 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	void receiveUserProjectRemovalRequestAck(Payload<UserProjectRemovalRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, empty());
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(ack.header.error));
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(ack.header.error));
 	}
 
 	@EventListener
 	void receiveUserProjectRemovalResult(Payload<UserProjectRemovalResult> result) {
 		CorrelationId correlationId = new CorrelationId(result.header.messageCorrelationId);
 		if(result.header.status.equals(Status.OK))
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVED, empty());
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.REMOVED, empty());
 		else
-			userOperationMessageResolver.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(result.header.error));
+			userOperationStatusUpdater.updateStatus(correlationId, UserStatus.REMOVAL_FAILED, getErrorMessage(result.header.error));
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void addUser(UserAddition userAddition, FURMSUser user) {
 		AgentUser agentUser = UserMapper.map(user);
 		try {
@@ -104,7 +101,6 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void removeUser(UserAddition userAddition) {
 		try {
 			rabbitTemplate.convertAndSend(

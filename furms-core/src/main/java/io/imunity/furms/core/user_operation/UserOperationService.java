@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.user_operation.UserStatus.*;
@@ -98,7 +99,9 @@ public class UserOperationService implements UserAllocationsService {
 					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
-				siteAgentUserService.addUser(userAddition, user);
+				runAfterCommit(() ->
+					siteAgentUserService.addUser(userAddition, user)
+				);
 			});
 	}
 
@@ -115,7 +118,9 @@ public class UserOperationService implements UserAllocationsService {
 					.status(ADDING_PENDING)
 					.build();
 				repository.create(userAddition);
-				siteAgentUserService.addUser(userAddition, user);
+				runAfterCommit(() ->
+					siteAgentUserService.addUser(userAddition, user)
+				);
 		});
 	}
 
@@ -139,7 +144,9 @@ public class UserOperationService implements UserAllocationsService {
 					.status(REMOVAL_PENDING)
 					.build();
 				repository.update(addition);
-				siteAgentUserService.removeUser(addition);
+				runAfterCommit(() ->
+					siteAgentUserService.removeUser(addition)
+				);
 			});
 	}
 
