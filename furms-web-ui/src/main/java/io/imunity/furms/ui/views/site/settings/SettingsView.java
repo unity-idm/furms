@@ -25,6 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -58,14 +59,14 @@ public class SettingsView extends FurmsViewComponent {
 
 	private final TextField name;
 
-	private final TextField externalId;
+	private final Div externalId;
 
 	private SiteSettingsDto bufferedSettings;
 
 	SettingsView(SiteService siteService) {
 		this.siteService = siteService;
 		this.name = new TextField();
-		this.externalId = new TextField();
+		this.externalId = new Div();
 
 		addForm();
 	}
@@ -87,9 +88,8 @@ public class SettingsView extends FurmsViewComponent {
 		getContent().add(formLayout);
 	}
 
-	private TextField externalIdRow(Binder<SiteSettingsDto> binder) {
-		externalId.setValue(binder.getBean().getExternalId().id);
-		externalId.setEnabled(false);
+	private Component externalIdRow(Binder<SiteSettingsDto> binder) {
+		externalId.setText(binder.getBean().getExternalId().id);
 		return externalId;
 	}
 
