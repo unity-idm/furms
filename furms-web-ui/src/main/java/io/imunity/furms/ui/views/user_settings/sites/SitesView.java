@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.user_settings.sites;
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.componentfactory.TooltipAlignment;
 import com.vaadin.componentfactory.TooltipPosition;
+import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -40,6 +41,8 @@ import static java.util.stream.Collectors.toList;
 @CssImport("./styles/views/user/sites/user-sites.css")
 public class SitesView extends FurmsViewComponent {
 
+	private final static int DOUBLECLICK = 2;
+
 	private final UserAllocationsService userAllocationsService;
 
 	private Div connectionInfo;
@@ -66,24 +69,28 @@ public class SitesView extends FurmsViewComponent {
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.siteName"))
 				.setTextAlign(ColumnTextAlign.START)
 				.setComparator(comparing(UserSitesGridModel::getSiteName))
-				.setSortable(true);
+				.setSortable(true)
+				.setWidth("20%");
 		grid.addColumn(UserSitesGridModel::getProjectName)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.projectName"))
 				.setTextAlign(ColumnTextAlign.START)
 				.setComparator(comparing(UserSitesGridModel::getProjectName))
-				.setSortable(true);
+				.setSortable(true)
+				.setWidth("20%");
 		grid.addColumn(UserSitesGridModel::getRemoteAccountName)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.siteAccountName"))
 				.setComparator(comparing(UserSitesGridModel::getRemoteAccountName))
 				.setSortable(true)
-				.setAutoWidth(true);
+				.setWidth("30%");
 		grid.addComponentColumn(this::showStatus)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.status"))
 				.setComparator(comparing(item -> item.getStatus().name()))
-				.setSortable(true);
+				.setSortable(true)
+				.setWidth("15%");
 		grid.addComponentColumn(this::showConnectionInfoButton)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.connectionInfo"))
-				.setTextAlign(ColumnTextAlign.END);
+				.setTextAlign(ColumnTextAlign.END)
+				.setWidth("15%");
 
 		grid.setItems(loadItems());
 
@@ -93,12 +100,23 @@ public class SitesView extends FurmsViewComponent {
 	private void addConnectionInfoPanel() {
 		connectionInfo = new Div();
 		connectionInfo.setVisible(false);
-		connectionInfo.addClassName("user-sites-connection-info");
+		connectionInfo.addClassName("user-sites-connection-info-content");
 
 		connectionInfoLabel = new H4("");
+		connectionInfoLabel.setVisible(false);
 
 		final FurmsFormLayout formLayout = new FurmsFormLayout();
+		formLayout.addClassName("user-sites-connection-info");
 		formLayout.addFormItem(connectionInfo, connectionInfoLabel);
+
+		connectionInfo.addClickListener(event -> {
+			if (event.getClickCount() == DOUBLECLICK) {
+				connectionInfoLabel.setText("");
+				connectionInfo.setText("");
+				connectionInfo.setVisible(false);
+				connectionInfoLabel.setVisible(false);
+			}
+		});
 
 		getContent().add(formLayout);
 	}
@@ -109,6 +127,7 @@ public class SitesView extends FurmsViewComponent {
 		button.addClickListener(event -> {
 			connectionInfoLabel.setText(getTranslation("view.user-settings.sites.connectionInfo.label", item.getSiteName()));
 			connectionInfo.setText(item.getConnectionInfo());
+			connectionInfoLabel.setVisible(true);
 			connectionInfo.setVisible(true);
 		});
 

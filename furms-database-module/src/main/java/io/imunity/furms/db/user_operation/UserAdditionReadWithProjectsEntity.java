@@ -13,15 +13,20 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 
 	public final String siteName;
 	public final String projectName;
-	public final String userId;
+	public final String uid;
 	public final int status;
 	public final String code;
 	public final String message;
 
-	public UserAdditionReadWithProjectsEntity(String siteName, String projectName, String userId, int status, String code, String message) {
+	public UserAdditionReadWithProjectsEntity(String siteName,
+	                                          String projectName,
+	                                          String uid,
+	                                          int status,
+	                                          String code,
+	                                          String message) {
 		this.siteName = siteName;
 		this.projectName = projectName;
-		this.userId = userId;
+		this.uid = uid;
 		this.status = status;
 		this.code = code;
 		this.message = message;
@@ -35,14 +40,14 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 		return status == that.status &&
 				Objects.equals(siteName, that.siteName) &&
 				Objects.equals(projectName, that.projectName) &&
-				Objects.equals(userId, that.userId) &&
+				Objects.equals(uid, that.uid) &&
 				Objects.equals(code, that.code) &&
 				Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteName, projectName, userId, status, code, message);
+		return Objects.hash(siteName, projectName, uid, status, code, message);
 	}
 
 	@Override
@@ -50,7 +55,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 		return "UserAdditionReadWithProjectsEntity{" +
 				"siteName='" + siteName + '\'' +
 				", projectName='" + projectName + '\'' +
-				", userId='" + userId + '\'' +
+				", uid='" + uid + '\'' +
 				", status=" + status +
 				", code=" + code +
 				", message='" + message + '\'' +

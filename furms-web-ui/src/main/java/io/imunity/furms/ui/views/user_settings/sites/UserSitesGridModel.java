@@ -78,7 +78,6 @@ public class UserSitesGridModel {
 	public String toString() {
 		return "UserSitesGridModel{" +
 				"siteName='" + siteName + '\'' +
-				", connectionInfo='" + connectionInfo + '\'' +
 				", projectName='" + projectName + '\'' +
 				", remoteAccountName='" + remoteAccountName + '\'' +
 				", status=" + status +

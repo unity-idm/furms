@@ -47,7 +47,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.map(userAddition -> UserAdditionWithProject.builder()
 						.siteName(userAddition.siteName)
 						.projectName(userAddition.projectName)
-						.userId(userAddition.userId)
+						.userId(userAddition.uid)
 						.status(UserStatus.valueOf(userAddition.status))
 						.errorMessage(new UserAdditionErrorMessage(userAddition.code, userAddition.message))
 						.build())
