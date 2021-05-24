@@ -18,6 +18,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
@@ -41,7 +42,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final String projectId;
 	private ProjectDataSnapshot projectDataSnapshot;
 
-	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
+	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
 		this.communityId = getCurrentResourceId();
 		this.service = service;
 		this.projectId = projectId;
@@ -50,6 +51,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 		Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
 		button.setClassName("reload-disable");
+
+		if(!projectService.isProjectInTerminalState(communityId, projectId)){
+			button.setEnabled(false);
+		}
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project-allocation.page.header"),

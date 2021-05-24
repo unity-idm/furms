@@ -5,18 +5,6 @@
 
 package io.imunity.furms.ui.project;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
-import static java.util.Optional.ofNullable;
-
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Objects;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -25,7 +13,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
@@ -34,6 +21,18 @@ import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.InvocationContext;
+
+import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Objects;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
+import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
@@ -44,21 +43,23 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final Binder<ProjectViewModel> binder;
 	private final List<FurmsViewUserModel> userModels;
 	private final FurmsImageUpload uploadComponent = createUploadComponent();
+	private final TextArea descriptionField = new TextArea();
+	private final FurmsDateTimePicker startDateTimePicker;
+	private final FurmsDateTimePicker endDateTimePicker;
 	private ZoneId zoneId;
 
 	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean restrictedEditing, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
 		this.userModels = userModels;
 		zoneId = InvocationContext.getCurrent().getZone();
-		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		nameField.setEnabled(restrictedEditing);
+		FormLayout formLayout = new FurmsFormLayout();
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
-		TextArea descriptionField = new TextArea();
 		descriptionField.setClassName("description-text-area");
 		descriptionField.setValueChangeMode(EAGER);
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);
@@ -70,10 +71,10 @@ public class ProjectFormComponent extends Composite<Div> {
 		acronymField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
-		FurmsDateTimePicker startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
+		startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
 		formLayout.addFormItem(startDateTimePicker, getTranslation("view.community-admin.project.form.field.start-time"));
 
-		FurmsDateTimePicker endDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
+		endDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endDateTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
 		TextField researchField = new TextField();
@@ -93,6 +94,12 @@ public class ProjectFormComponent extends Composite<Div> {
 				endDateTimePicker, researchField, furmsUserComboBox);
 
 		getContent().add(formLayout);
+	}
+
+	public void disableAll(){
+		descriptionField.setEnabled(false);
+		startDateTimePicker.setEnabled(false);
+		endDateTimePicker.setEnabled(false);
 	}
 
 	private void prepareValidator(TextField nameField, TextArea descriptionField, TextField acronymField,

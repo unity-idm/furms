@@ -21,6 +21,10 @@ public interface ProjectService {
 
 	Set<Project> findAll();
 
+	boolean isProjectInTerminalState(String projectId);
+
+	boolean isProjectInTerminalState(String communityId, String projectId);
+
 	void create(Project project);
 
 	void update(Project project);
