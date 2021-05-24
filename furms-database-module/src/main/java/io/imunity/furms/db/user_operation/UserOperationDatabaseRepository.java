@@ -78,6 +78,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 		userAdditionEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
 			.or(() -> userAdditionEntityRepository.findById(UUID.fromString(userAddition.id)))
 			.map(old -> UserAdditionSaveEntity.builder()
+				.id(old.getId())
 				.siteId(old.siteId)
 				.projectId(old.projectId)
 				.userId(old.userId)
@@ -101,6 +102,16 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public UserStatus findAdditionStatusByCorrelationId(String correlationId) {
 		return userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(x -> UserStatus.valueOf(x.status))
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+	}
+
+	@Override
+	public UserAddition findAdditionByCorrelationId(CorrelationId correlationId) {
+		return 	userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(userAddition -> UserAddition.builder()
+				.userId(userAddition.userId)
+				.projectId(userAddition.projectId.toString())
+				.build())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 

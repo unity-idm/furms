@@ -8,6 +8,8 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,17 +21,17 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_ACKNOWLEDGED;
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
+import static io.imunity.furms.domain.user_operation.UserStatus.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class UserOperationMessageResolverTest {
 	@Mock
 	private UserOperationRepository repository;
+	@Mock
+	private ResourceAccessRepository resourceAccessRepository;
 
 	private UserOperationMessageResolverImpl service;
 	private InOrder orderVerifier;
@@ -37,8 +39,8 @@ class UserOperationMessageResolverTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationMessageResolverImpl(repository);
-		orderVerifier = inOrder(repository);
+		service = new UserOperationMessageResolverImpl(repository, resourceAccessRepository);
+		orderVerifier = inOrder(repository, resourceAccessRepository);
 	}
 
 	@ParameterizedTest
@@ -108,6 +110,40 @@ class UserOperationMessageResolverTest {
 			.build());
 
 		orderVerifier.verify(repository).update(any(UserAddition.class));
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = UserStatus.class, names = {"REMOVAL_PENDING", "REMOVAL_ACKNOWLEDGED"})
+	void shouldRemoveUserAddition(UserStatus userStatus) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(UserAddition.builder()
+			.correlationId(correlationId)
+			.userId("id")
+			.projectId("projectId")
+			.status(userStatus)
+			.build());
+
+		service.updateStatus(correlationId, REMOVED, Optional.empty());
+
+		orderVerifier.verify(repository).deleteByCorrelationId(correlationId.id);
+		orderVerifier.verify(resourceAccessRepository).deleteByUserAndProjectId(new FenixUserId("id"), "projectId");
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = UserStatus.class, names = {"REMOVAL_PENDING", "REMOVAL_ACKNOWLEDGED"}, mode = EXCLUDE)
+	void shouldNotRemoveUserAddition(UserStatus userStatus) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+
+		UserAddition userAddition = UserAddition.builder()
+			.correlationId(correlationId)
+			.userId("id")
+			.projectId("projectId")
+			.status(REMOVED)
+			.build();
+
+		assertThrows(IllegalArgumentException.class, () -> service.updateStatus(correlationId, REMOVED, Optional.empty()));
 	}
 
 	@ParameterizedTest

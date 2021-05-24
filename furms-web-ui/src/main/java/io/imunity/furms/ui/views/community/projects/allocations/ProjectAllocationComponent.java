@@ -5,6 +5,26 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
@@ -17,21 +37,20 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
-import io.imunity.furms.ui.components.*;
-
-import java.util.*;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Collections.emptyList;
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.*;
-import static java.util.stream.Collectors.*;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 
 public class ProjectAllocationComponent extends Composite<Div> {
 
@@ -41,25 +60,30 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final String projectId;
 	private ProjectDataSnapshot projectDataSnapshot;
 
-	public ProjectAllocationComponent(ProjectAllocationService service, String projectId) {
+	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
 		this.communityId = getCurrentResourceId();
 		this.service = service;
 		this.projectId = projectId;
 		this.grid = createCommunityGrid();
 		loadGridContent();
 
+		Component actionComponent = null;
 		Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
 		button.setClassName("reload-disable");
-
+		if (projectService.isProjectInTerminalState(communityId, projectId)) {
+			actionComponent = new RouterGridLink(
+					button,
+					null,
+					ProjectAllocationFormView.class,
+					"projectId",
+					projectId);
+		} else {
+			button.setEnabled(false);
+			actionComponent = button;
+		}
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project-allocation.page.header"),
-			new RouterGridLink(
-				button,
-				null,
-				ProjectAllocationFormView.class,
-				"projectId",
-				projectId
-			)
+			actionComponent
 		);
 
 		getContent().add(headerLayout, grid);

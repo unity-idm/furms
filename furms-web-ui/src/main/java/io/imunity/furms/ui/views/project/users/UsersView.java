@@ -8,6 +8,9 @@ package io.imunity.furms.ui.views.project.users;
 import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 
@@ -15,6 +18,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -27,6 +31,8 @@ import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
 public class UsersView extends FurmsLandingViewComponent {
+	
+	private static final Predicate<FURMSUser> IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP = user -> user.fenixUserId.isPresent();
 	private final ProjectService projectService;
 	private final AuthzService authzService;
 	private final UserService userService;
@@ -46,7 +52,9 @@ public class UsersView extends FurmsLandingViewComponent {
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
+			() -> userService.getAllUsers().stream()
+				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
+				.collect(Collectors.toList()),
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
 		);
 		
@@ -55,6 +63,11 @@ public class UsersView extends FurmsLandingViewComponent {
 				getTranslation("view.project-admin.users.button.demit"),
 				() -> projectService.isUser(project.getId())
 		);
+		
+		userService.findById(currentUserId).ifPresent(user -> {
+			membershipLayout.setEnabled(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP.test(user));
+		});
+		
 		UsersGridComponent grid = UsersGridComponent.builder()
 			.withCurrentUserId(currentUserId)
 			.allowRemovalOfLastUser()

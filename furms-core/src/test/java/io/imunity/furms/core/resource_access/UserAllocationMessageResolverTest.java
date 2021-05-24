@@ -146,7 +146,7 @@ class UserAllocationMessageResolverTest {
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, REVOKED, "msg");
 
-		orderVerifier.verify(repository).delete(correlationId);
+		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
 		verify(repository, times(0)).update(correlationId, REVOKED, "msg");
 	}
 

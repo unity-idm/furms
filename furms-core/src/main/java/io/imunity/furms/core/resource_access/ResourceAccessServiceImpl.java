@@ -22,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
@@ -58,7 +57,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void grantAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		if(repository.exists(grantAccess))
@@ -70,11 +69,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void revokeAccess(GrantAccess grantAccess) {
 		AccessStatus currentStatus = repository.findCurrentStatus(grantAccess.fenixUserId, grantAccess.allocationId);
 		if(currentStatus.equals(GRANT_FAILED)) {
-			repository.delete(grantAccess.fenixUserId, grantAccess.allocationId);
+			repository.deleteByUserAndAllocationId(grantAccess.fenixUserId, grantAccess.allocationId);
 			LOG.info("UserAllocation with user id {} and project allocation id {} was removed", grantAccess.fenixUserId, grantAccess.allocationId);
 			return;
 		}

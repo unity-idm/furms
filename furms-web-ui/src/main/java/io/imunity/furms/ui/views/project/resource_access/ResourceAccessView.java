@@ -6,7 +6,9 @@
 package io.imunity.furms.ui.views.project.resource_access;
 
 import com.vaadin.componentfactory.Tooltip;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -90,10 +93,15 @@ public class ResourceAccessView extends FurmsViewComponent {
 	}
 
 	private void reloadGrid() {
+		Set<ResourceAccessModel> currentExpandedItems = resourceAccessViewService.loadDataWithFilters(searchTextField.getValue().toLowerCase(), multiselectComboBox.getValue())
+			.keySet().stream()
+			.filter(treeGrid::isExpanded)
+			.collect(Collectors.toSet());
 		resourceAccessViewService.reloadUserGrants();
 		Map<ResourceAccessModel, List<ResourceAccessModel>> filteredUsers =
 			resourceAccessViewService.loadDataWithFilters(searchTextField.getValue().toLowerCase(), multiselectComboBox.getValue());
 		treeGrid.setItems(filteredUsers.keySet(), x -> filteredUsers.getOrDefault(x, emptyList()));
+		treeGrid.expand(currentExpandedItems);
 	}
 
 	private void fillTreeGrid() {
@@ -125,13 +133,27 @@ public class ResourceAccessView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.6"))
 			.setSortable(true);
 		treeGrid.addComponentColumn(resourceAccessModel -> {
-			if(resourceAccessViewService.isGrantOrRevokeAvailable(resourceAccessModel)) {
+			if(isRootNode(resourceAccessModel))
+				return new Div();
+			if(resourceAccessViewService.isGrantOrRevokeAvailable(resourceAccessModel))
 				return getGridActionsButtonLayout(resourceAccessModel);
-			}
-			return new Div();
+			return getGridRefreshButtonLayout();
 		})
 			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.7"));
 		treeGrid.setItems(resourceAccessViewService.getData().keySet(), key -> resourceAccessViewService.getData().getOrDefault(key, emptyList()));
+		treeGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+	}
+
+	private boolean isRootNode(ResourceAccessModel resourceAccessModel) {
+		return resourceAccessModel.getEmail() != null;
+	}
+
+	private Component getGridRefreshButtonLayout() {
+		GridActionMenu contextMenu = new GridActionMenu();
+		contextMenu.addItem(new MenuButton(getTranslation("view.project-admin.resource-access.grid.context-menu.refresh"),
+			REFRESH), e -> reloadGrid()
+		);
+		return new GridActionsButtonLayout(contextMenu.getTarget());
 	}
 
 	private HorizontalLayout getStatusLayout(ResourceAccessModel resourceAccessModel) {

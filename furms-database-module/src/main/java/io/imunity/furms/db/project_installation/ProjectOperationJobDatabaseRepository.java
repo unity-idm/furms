@@ -5,21 +5,18 @@
 
 package io.imunity.furms.db.project_installation;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
-import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 class ProjectOperationJobDatabaseRepository implements ProjectOperationRepository {
@@ -135,8 +132,53 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public boolean existsByProjectId(String siteId, String projectId) {
-		return installationRepository.existsBySiteIdAndProjectId(UUID.fromString(siteId), UUID.fromString(projectId));
+	public boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId) {
+		return installationRepository.existsBySiteIdAndProjectIdAndStatus(
+			UUID.fromString(siteId),
+			UUID.fromString(projectId),
+			ProjectInstallationStatus.INSTALLED.getPersistentId()
+		);
+	}
+
+	@Override
+	public boolean areAllProjectOperationInTerminateState(String projectId) {
+		return !(installationRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
+			UUID.fromString(projectId),
+			ProjectInstallationStatus.PENDING.getPersistentId(),
+			UUID.fromString(projectId),
+			ProjectInstallationStatus.ACKNOWLEDGED.getPersistentId()
+		) ||
+		updateRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
+			UUID.fromString(projectId),
+			ProjectUpdateStatus.PENDING.getPersistentId(),
+			UUID.fromString(projectId),
+			ProjectUpdateStatus.ACKNOWLEDGED.getPersistentId()
+		));
+	}
+
+	@Override
+	public Set<ProjectInstallationJob> findProjectInstallation(String projectId) {
+		return installationRepository.findByProjectId(UUID.fromString(projectId)).stream()
+			.map(installation -> ProjectInstallationJob.builder()
+				.id(installation.getId().toString())
+				.projectId(installation.projectId.toString())
+				.siteId(installation.siteId.toString())
+				.correlationId(new CorrelationId(installation.correlationId.toString()))
+				.status(ProjectInstallationStatus.valueOf(installation.status))
+				.build()
+			).collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId) {
+		return updateRepository.findByProjectId(UUID.fromString(projectId)).stream()
+			.map(x -> ProjectUpdateStatus.valueOf(x.status))
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public void deleteById(String id) {
+		installationRepository.deleteById(UUID.fromString(id));
 	}
 
 	@Override

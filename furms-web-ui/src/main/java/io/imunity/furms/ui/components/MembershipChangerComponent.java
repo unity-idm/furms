@@ -5,12 +5,12 @@
 
 package io.imunity.furms.ui.components;
 
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-
-import java.util.function.Supplier;
 
 public class MembershipChangerComponent extends HorizontalLayout {
 	private final Button joinButton;
@@ -51,5 +51,11 @@ public class MembershipChangerComponent extends HorizontalLayout {
 
 	public void addDemitButtonListener(ComponentEventListener<ClickEvent<Button>> listener){
 		demitButton.addClickListener(listener);
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		joinButton.setEnabled(enabled);
+		demitButton.setEnabled(enabled);
 	}
 }
