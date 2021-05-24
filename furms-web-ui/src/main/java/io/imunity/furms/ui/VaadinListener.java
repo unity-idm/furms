@@ -6,16 +6,22 @@
 package io.imunity.furms.ui;
 
 import io.imunity.furms.domain.FurmsEvent;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class VaadinListener {
+	private final SecurityContext securityContext;
 	private final Consumer<FurmsEvent> consumer;
 	private final Predicate<FurmsEvent> predicate;
 
-	public VaadinListener(Consumer<FurmsEvent> consumer, Predicate<FurmsEvent> predicate) {
+	public VaadinListener(SecurityContext securityContext,
+	                      Consumer<FurmsEvent> consumer,
+	                      Predicate<FurmsEvent> predicate) {
+		this.securityContext = securityContext;
 		this.consumer = consumer;
 		this.predicate = predicate;
 	}
@@ -25,7 +31,12 @@ public class VaadinListener {
 	}
 
 	public void run(FurmsEvent event){
-		consumer.accept(event);
+		try {
+			SecurityContextHolder.setContext(securityContext);
+			consumer.accept(event);
+		} finally {
+			SecurityContextHolder.clearContext();
+		}
 	}
 
 	@Override
@@ -33,21 +44,23 @@ public class VaadinListener {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		VaadinListener that = (VaadinListener) o;
-		return Objects.equals(consumer, that.consumer) &&
-			Objects.equals(predicate, that.predicate);
+		return Objects.equals(securityContext, that.securityContext) &&
+				Objects.equals(consumer, that.consumer) &&
+				Objects.equals(predicate, that.predicate);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(consumer, predicate);
+		return Objects.hash(securityContext, consumer, predicate);
 	}
 
 	@Override
 	public String toString() {
 		return "VaadinListener{" +
-			"runnable=" + consumer +
-			", predicate=" + predicate +
-			'}';
+				"securityContext=" + securityContext +
+				", consumer=" + consumer +
+				", predicate=" + predicate +
+				'}';
 	}
 
 	public static VaadinListenerBuilder builder() {
@@ -55,10 +68,16 @@ public class VaadinListener {
 	}
 
 	public static final class VaadinListenerBuilder {
+		private SecurityContext securityContext;
 		private Consumer<FurmsEvent> consumer;
 		private Predicate<FurmsEvent> predicate = event -> true;
 
 		private VaadinListenerBuilder() {
+		}
+
+		public VaadinListenerBuilder securityContext(SecurityContext securityContext) {
+			this.securityContext = securityContext;
+			return this;
 		}
 
 		public VaadinListenerBuilder consumer(Consumer<FurmsEvent> runnable) {
@@ -82,7 +101,10 @@ public class VaadinListener {
 		}
 
 		public VaadinListener build() {
-			return new VaadinListener(consumer, predicate);
+			if (securityContext == null) {
+				throw new IllegalArgumentException("Security Context has to be specific in Vaadin Listener scope.");
+			}
+			return new VaadinListener(securityContext, consumer, predicate);
 		}
 	}
 }
