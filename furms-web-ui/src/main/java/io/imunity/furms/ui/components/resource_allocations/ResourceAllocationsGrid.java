@@ -5,28 +5,6 @@
 
 package io.imunity.furms.ui.components.resource_allocations;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
-import io.imunity.furms.ui.components.FurmsProgressBar;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.user_context.InvocationContext;
-import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static java.lang.String.format;
@@ -35,6 +13,26 @@ import static java.math.RoundingMode.HALF_UP;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+
+import io.imunity.furms.ui.components.FurmsProgressBar;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 @CssImport("./styles/components/resource-allocation-grid.css")
 public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridItem>{
@@ -129,7 +127,7 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 	private Component showAllocateButton(ResourceAllocationsGridItem item) {
 		if (item.getRemaining() == null
 				|| (ZERO.compareTo(item.getRemaining().getAmount())!=0)
-					&& !Instant.now().isAfter(item.getValidTo().toInstant(ZoneOffset.UTC))) {
+					&& !ZonedDateTime.now(zoneId).isAfter(item.getValidTo())) {
 			final Button plus = new Button(new Icon(PLUS_CIRCLE));
 			plus.addClickListener(event -> allocateButtonAction.accept(item));
 			plus.addThemeVariants(LUMO_TERTIARY);
@@ -142,9 +140,8 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 		return format("%s %s", item.getAmount(), item.getUnit().getSuffix());
 	}
 
-	private LocalDate extractLocalDate(LocalDateTime dateTime) {
+	private LocalDate extractLocalDate(ZonedDateTime dateTime) {
 		return ofNullable(dateTime)
-				.map(date -> ZonedDateTime.of(date, zoneId))
 				.map(ZonedDateTime::toLocalDate)
 				.orElse(null);
 	}

@@ -5,10 +5,10 @@
 
 package io.imunity.furms.ui.components.resource_allocations;
 
-import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
-
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+
+import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 public class ResourceAllocationsGridItem {
 
@@ -22,9 +22,9 @@ public class ResourceAllocationsGridItem {
 	private final DashboardGridResource credit;
 	private final DashboardGridResource distributed;
 	private final DashboardGridResource remaining;
-	private final LocalDateTime created;
-	private final LocalDateTime validFrom;
-	private final LocalDateTime validTo;
+	private final ZonedDateTime created;
+	private final ZonedDateTime validFrom;
+	private final ZonedDateTime validTo;
 
 	ResourceAllocationsGridItem(String id,
 	                            String siteId,
@@ -36,9 +36,9 @@ public class ResourceAllocationsGridItem {
 	                            DashboardGridResource credit,
 	                            DashboardGridResource distributed,
 	                            DashboardGridResource remaining,
-	                            LocalDateTime created,
-	                            LocalDateTime validFrom,
-	                            LocalDateTime validTo) {
+	                            ZonedDateTime created,
+	                            ZonedDateTime validFrom,
+	                            ZonedDateTime validTo) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteName = siteName;
@@ -94,15 +94,15 @@ public class ResourceAllocationsGridItem {
 		return remaining;
 	}
 
-	public LocalDateTime getCreated() {
+	public ZonedDateTime getCreated() {
 		return created;
 	}
 
-	public LocalDateTime getValidFrom() {
+	public ZonedDateTime getValidFrom() {
 		return validFrom;
 	}
 
-	public LocalDateTime getValidTo() {
+	public ZonedDateTime getValidTo() {
 		return validTo;
 	}
 
@@ -153,9 +153,9 @@ public class ResourceAllocationsGridItem {
 		private DashboardGridResource credit;
 		private DashboardGridResource distributed;
 		private DashboardGridResource remaining;
-		private LocalDateTime created;
-		private LocalDateTime validFrom;
-		private LocalDateTime validTo;
+		private ZonedDateTime created;
+		private ZonedDateTime validFrom;
+		private ZonedDateTime validTo;
 
 		private DashboardGridItemBuilder() {
 		}
@@ -210,17 +210,17 @@ public class ResourceAllocationsGridItem {
 			return this;
 		}
 
-		public DashboardGridItemBuilder created(LocalDateTime created) {
+		public DashboardGridItemBuilder created(ZonedDateTime created) {
 			this.created = created;
 			return this;
 		}
 
-		public DashboardGridItemBuilder validFrom(LocalDateTime validFrom) {
+		public DashboardGridItemBuilder validFrom(ZonedDateTime validFrom) {
 			this.validFrom = validFrom;
 			return this;
 		}
 
-		public DashboardGridItemBuilder validTo(LocalDateTime validTo) {
+		public DashboardGridItemBuilder validTo(ZonedDateTime validTo) {
 			this.validTo = validTo;
 			return this;
 		}

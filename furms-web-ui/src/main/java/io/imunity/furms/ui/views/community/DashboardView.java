@@ -5,29 +5,6 @@
 
 package io.imunity.furms.ui.views.community;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
-import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
-import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationDashboardFormView;
-import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import static com.vaadin.flow.component.ComponentUtil.getData;
 import static com.vaadin.flow.component.ComponentUtil.setData;
 import static com.vaadin.flow.component.checkbox.CheckboxGroupVariant.LUMO_VERTICAL;
@@ -36,7 +13,34 @@ import static io.imunity.furms.domain.constant.RoutesConst.COMMUNITY_BASE_LANDIN
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_EXPIRED;
 import static io.imunity.furms.ui.views.community.DashboardViewFilters.Checkboxes.Options.INCLUDED_FULLY_DISTRIBUTED;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 import static java.util.stream.Collectors.toSet;
+
+import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
+import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
+import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationDashboardFormView;
+import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 @Route(value = COMMUNITY_BASE_LANDING_PAGE, layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.dashboard.page.title")
@@ -46,10 +50,11 @@ public class DashboardView extends FurmsViewComponent {
 
 	private final DashboardViewFilters filters;
 	private final ResourceAllocationsGrid grid;
+	private final ZoneId browserZoneId;
 
 	DashboardView(CommunityAllocationService allocationService) {
 		this.allocationService = allocationService;
-
+		this.browserZoneId = InvocationContext.getCurrent().getZone();
 		this.filters = initializeFilters();
 		this.grid = new ResourceAllocationsGrid(
 				this::allocateButtonAction,
@@ -167,9 +172,9 @@ public class DashboardView extends FurmsViewComponent {
 				.credit(createResource(communityAllocation.amount, communityAllocation.resourceType.unit))
 				.distributed(createResource(calcDistributed(communityAllocation), communityAllocation.resourceType.unit))
 				.remaining(createResource(communityAllocation.remaining, communityAllocation.resourceType.unit))
-				.created(communityAllocation.resourceCredit.utcCreateTime)
-				.validFrom(communityAllocation.resourceCredit.utcStartTime)
-				.validTo(communityAllocation.resourceCredit.utcEndTime)
+				.created(convertToZoneTime(communityAllocation.resourceCredit.utcCreateTime, browserZoneId))
+				.validFrom(convertToZoneTime(communityAllocation.resourceCredit.utcStartTime, browserZoneId))
+				.validTo(convertToZoneTime(communityAllocation.resourceCredit.utcEndTime, browserZoneId))
 				.build();
 	}
 

@@ -5,7 +5,16 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
+import static com.vaadin.flow.component.ComponentUtil.getData;
+import static com.vaadin.flow.component.ComponentUtil.setData;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import static java.util.stream.Collectors.toSet;
+
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -32,14 +41,8 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.components.support.models.CheckboxModel;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-
-import static com.vaadin.flow.component.ComponentUtil.getData;
-import static com.vaadin.flow.component.ComponentUtil.setData;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/dashboard", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.page.title")
@@ -51,6 +54,7 @@ public class DashboardView extends FurmsViewComponent {
 
 	private final DashboardViewFilters filters;
 	private final ResourceAllocationsGrid grid;
+	private final ZoneId browserZoneId;
 
 	DashboardView(ResourceCreditService creditService,
 	              ResourceTypeService resourceTypeService,
@@ -58,6 +62,7 @@ public class DashboardView extends FurmsViewComponent {
 		this.creditService = creditService;
 		this.resourceTypeService = resourceTypeService;
 		this.siteService = siteService;
+		this.browserZoneId = InvocationContext.getCurrent().getZone();
 
 		this.filters = initializeFilters();
 		this.grid = new ResourceAllocationsGrid(
@@ -177,9 +182,9 @@ public class DashboardView extends FurmsViewComponent {
 				.credit(createResource(credit.getAmount(), unit))
 				.distributed(createResource(calcDistributed(credit), unit))
 				.remaining(createResource(credit.getRemaining(), unit))
-				.created(credit.getUtcCreateTime())
-				.validFrom(credit.getUtcStartTime())
-				.validTo(credit.getUtcEndTime())
+				.created(convertToZoneTime(credit.getUtcCreateTime(), browserZoneId))
+				.validFrom(convertToZoneTime(credit.getUtcStartTime(), browserZoneId))
+				.validTo(convertToZoneTime(credit.getUtcEndTime(), browserZoneId))
 				.build();
 	}
 

@@ -5,6 +5,16 @@
 
 package io.imunity.furms.ui.project;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
+import static java.util.Optional.ofNullable;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -13,6 +23,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
@@ -20,19 +31,6 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
-import io.imunity.furms.ui.user_context.InvocationContext;
-
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
-import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
@@ -46,12 +44,10 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final TextArea descriptionField = new TextArea();
 	private final FurmsDateTimePicker startDateTimePicker;
 	private final FurmsDateTimePicker endDateTimePicker;
-	private ZoneId zoneId;
 
 	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean restrictedEditing, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
 		this.userModels = userModels;
-		zoneId = InvocationContext.getCurrent().getZone();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -71,10 +67,10 @@ public class ProjectFormComponent extends Composite<Div> {
 		acronymField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
-		startDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
+		startDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
 		formLayout.addFormItem(startDateTimePicker, getTranslation("view.community-admin.project.form.field.start-time"));
 
-		endDateTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
+		endDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endDateTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
 		TextField researchField = new TextField();
@@ -130,19 +126,15 @@ public class ProjectFormComponent extends Composite<Div> {
 				time -> Objects.nonNull(time) && ofNullable(endDateTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.community-admin.project.form.error.validation.field.start-time")
 			)
-			.bind(project -> ofNullable(project.startTime)
-								.map(ZonedDateTime::toLocalDateTime)
-								.orElse(null),
-					(project, startTime) -> project.setStartTime(startTime.atZone(zoneId)));
+			.bind(project -> ofNullable(project.startTime).orElse(null),
+					(project, startTime) -> project.setStartTime(startTime));
 		binder.forField(endDateTimePicker)
 			.withValidator(
 					time -> Objects.nonNull(time) && ofNullable(startDateTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 					getTranslation("view.community-admin.project.form.error.validation.field.end-time")
 			)
-			.bind(project -> ofNullable(project.endTime)
-								.map(ZonedDateTime::toLocalDateTime)
-								.orElse(null),
-				(project, endTime) -> project.setEndTime(endTime.atZone(zoneId)));
+			.bind(project -> ofNullable(project.endTime).orElse(null),
+				(project, endTime) -> project.setEndTime(endTime));
 		binder.forField(leaderComboBox)
 			.withValidator(
 				Objects::nonNull,
