@@ -34,10 +34,8 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
 import io.imunity.furms.ui.components.FormButtons;
@@ -60,18 +58,15 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 
 	private final CommunityAllocationService communityAllocationService;
 	private final CommunityService communityService;
-	private final ResourceTypeService resourceTypeService;
 
 	private final Binder<CommunityAllocationViewModel> binder;
 
 	private BigDecimal availableAmount;
 
 	DashboardResourceAllocateFormView(CommunityAllocationService communityAllocationService,
-	                                         CommunityService communityService,
-	                                         ResourceTypeService resourceTypeService) {
+	                                         CommunityService communityService) {
 		this.communityAllocationService = communityAllocationService;
 		this.communityService = communityService;
-		this.resourceTypeService = resourceTypeService;
 		this.binder = new BeanValidationBinder<>(CommunityAllocationViewModel.class);
 
 		binder.setBean(createViewModel());
@@ -82,12 +77,11 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 
 	private CommunityAllocationViewModel createViewModel() {
 		final ResourceAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceAllocationsGridItem.class);
-		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId(), item.getSiteId())
-				.orElseThrow();
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, null);
 		return CommunityAllocationViewModel.builder()
 				.site(new ComboBoxModel(item.getSiteId(), item.getSiteName()))
-				.resourceType(new ResourceTypeComboBoxModel(type.id, type.name, type.unit))
+				.resourceType(new ResourceTypeComboBoxModel(item.getResourceType().id, item.getResourceType().name,
+						item.getResourceType().unit))
 				.resourceCredit(new ResourceCreditComboBoxModel(item.getId(), item.getName(),
 						item.getCredit().getAmount(), item.isSplit()))
 				.build();

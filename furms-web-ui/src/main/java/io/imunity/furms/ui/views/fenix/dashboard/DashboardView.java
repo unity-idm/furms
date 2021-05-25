@@ -168,7 +168,7 @@ public class DashboardView extends FurmsViewComponent {
 	}
 
 	private ResourceAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
-		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceTypeId(), credit.getSiteId())
+		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceType().id, credit.getSiteId())
 				.map(type -> type.unit)
 				.orElse(ResourceMeasureUnit.SiUnit.none);
 
@@ -178,7 +178,7 @@ public class DashboardView extends FurmsViewComponent {
 				.siteName(findSiteName(credit.getSiteId()))
 				.name(credit.getName())
 				.split(credit.getSplit())
-				.resourceTypeId(credit.getResourceTypeId())
+				.resourceType(credit.getResourceType())
 				.credit(createResource(credit.getAmount(), unit))
 				.distributed(createResource(calcDistributed(credit), unit))
 				.remaining(createResource(credit.getRemaining(), unit))

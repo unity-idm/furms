@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
+import io.imunity.furms.api.resource_types.ResourceTypeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -53,6 +54,8 @@ class ResourceCreditServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private AuthzService authzService;
+	@Mock
+	private ResourceTypeService resourceTypeService;
 
 	private ResourceCreditServiceImpl service;
 	private InOrder orderVerifier;
@@ -63,7 +66,7 @@ class ResourceCreditServiceImplTest {
 		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
 				resourceCreditRepository, resourceTypeRepository, siteRepository);
 		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, 
-				communityAllocationService, authzService);
+				communityAllocationService, authzService, resourceTypeService);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -210,6 +213,7 @@ class ResourceCreditServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
+		when(communityAllocationRepository.getAvailableAmount(request.id)).thenReturn(BigDecimal.ZERO);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.exists(request.id)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
