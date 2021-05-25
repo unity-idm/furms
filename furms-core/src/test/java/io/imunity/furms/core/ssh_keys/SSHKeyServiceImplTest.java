@@ -89,7 +89,7 @@ public class SSHKeyServiceImplTest {
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
 				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
-				sshKeyOperationRepository, siteAgentSSHKeyInstallationService, usersDAO);
+				sshKeyOperationRepository, siteAgentSSHKeyInstallationService, usersDAO, new SSHKeyFromSiteRemover(repository, siteRepository, sshKeyOperationRepository, siteAgentSSHKeyInstallationService));
 	}
 	
 	@AfterEach
