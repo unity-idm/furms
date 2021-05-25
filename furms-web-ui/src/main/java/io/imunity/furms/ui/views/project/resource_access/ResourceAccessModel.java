@@ -5,10 +5,10 @@
 
 package io.imunity.furms.ui.views.project.resource_access;
 
+import java.util.Objects;
+
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
-
-import java.util.Objects;
 
 class ResourceAccessModel {
 	private String firstName;
@@ -38,6 +38,10 @@ class ResourceAccessModel {
 		this.message = message;
 	}
 
+	String getFullName() {
+		return (firstName == null ? "" : firstName + " ") + (lastName == null ? "" : lastName); 
+	}
+	
 	String getFirstName() {
 		return firstName;
 	}
