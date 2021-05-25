@@ -15,6 +15,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
+import io.imunity.furms.api.resource_types.ResourceTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,17 +41,20 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	private final ApplicationEventPublisher publisher;
 	private final CommunityAllocationService communityAllocationService;
 	private final AuthzService authzService;
+	private final ResourceTypeService resourceTypeService;
 
 	public ResourceCreditServiceImpl(ResourceCreditRepository resourceCreditRepository,
 	                                 ResourceCreditServiceValidator validator,
 	                                 ApplicationEventPublisher publisher,
 	                                 CommunityAllocationService communityAllocationService,
-	                                 AuthzService authzService) {
+	                                 AuthzService authzService,
+	                                 ResourceTypeService resourceTypeService) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.communityAllocationService = communityAllocationService;
 		this.authzService = authzService;
+		this.resourceTypeService = resourceTypeService;
 	}
 
 	@Override
@@ -89,7 +93,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					.id(credit.id)
 					.name(credit.name)
 					.siteId(credit.siteId)
-					.resourceTypeId(credit.resourceTypeId)
+					.resourceType(resourceTypeService.findById(credit.resourceTypeId, credit.siteId)
+							.orElse(null))
 					.split(credit.splittable)
 					.access(credit.accessibleForAllProjectMembers)
 					.amount(credit.amount)

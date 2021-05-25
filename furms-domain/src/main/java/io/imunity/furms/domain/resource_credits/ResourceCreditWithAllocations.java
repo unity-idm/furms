@@ -5,6 +5,8 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import io.imunity.furms.domain.resource_types.ResourceType;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -13,7 +15,7 @@ public class ResourceCreditWithAllocations {
 	private final String id;
 	private final String name;
 	private final String siteId;
-	private final String resourceTypeId;
+	private final ResourceType resourceType;
 	private final Boolean split;
 	private final Boolean access;
 	private final BigDecimal amount;
@@ -25,7 +27,7 @@ public class ResourceCreditWithAllocations {
 	public ResourceCreditWithAllocations(String id,
 	                                     String name,
 	                                     String siteId,
-	                                     String resourceTypeId,
+	                                     ResourceType resourceType,
 	                                     Boolean split,
 	                                     Boolean access,
 	                                     BigDecimal amount,
@@ -36,7 +38,7 @@ public class ResourceCreditWithAllocations {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
-		this.resourceTypeId = resourceTypeId;
+		this.resourceType = resourceType;
 		this.split = split;
 		this.access = access;
 		this.amount = amount;
@@ -58,8 +60,8 @@ public class ResourceCreditWithAllocations {
 		return siteId;
 	}
 
-	public String getResourceTypeId() {
-		return resourceTypeId;
+	public ResourceType getResourceType() {
+		return resourceType;
 	}
 
 	public Boolean getSplit() {
@@ -98,7 +100,7 @@ public class ResourceCreditWithAllocations {
 		return Objects.equals(id, that.id) &&
 				Objects.equals(name, that.name) &&
 				Objects.equals(siteId, that.siteId) &&
-				Objects.equals(resourceTypeId, that.resourceTypeId) &&
+				Objects.equals(resourceType, that.resourceType) &&
 				Objects.equals(split, that.split) &&
 				Objects.equals(access, that.access) &&
 				Objects.equals(amount, that.amount) &&
@@ -110,7 +112,7 @@ public class ResourceCreditWithAllocations {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, siteId, resourceTypeId, split, access, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
+		return Objects.hash(id, name, siteId, resourceType, split, access, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
 	}
 
 	@Override
@@ -119,7 +121,7 @@ public class ResourceCreditWithAllocations {
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
 				", siteId='" + siteId + '\'' +
-				", resourceTypeId='" + resourceTypeId + '\'' +
+				", resourceType='" + resourceType + '\'' +
 				", split=" + split +
 				", access=" + access +
 				", amount=" + amount +
@@ -138,7 +140,7 @@ public class ResourceCreditWithAllocations {
 		public String id;
 		public String name;
 		public String siteId;
-		public String resourceTypeId;
+		public ResourceType resourceType;
 		public Boolean split;
 		public Boolean access;
 		public BigDecimal amount;
@@ -165,8 +167,8 @@ public class ResourceCreditWithAllocations {
 			return this;
 		}
 
-		public ResourceCreditWithAllocationsBuilder resourceTypeId(String resourceTypeId) {
-			this.resourceTypeId = resourceTypeId;
+		public ResourceCreditWithAllocationsBuilder resourceType(ResourceType resourceType) {
+			this.resourceType = resourceType;
 			return this;
 		}
 
@@ -206,7 +208,8 @@ public class ResourceCreditWithAllocations {
 		}
 
 		public ResourceCreditWithAllocations build() {
-			return new ResourceCreditWithAllocations(id, name, siteId, resourceTypeId, split, access, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
+			return new ResourceCreditWithAllocations(id, name, siteId, resourceType, split, access, amount, remaining,
+					utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}
 }
