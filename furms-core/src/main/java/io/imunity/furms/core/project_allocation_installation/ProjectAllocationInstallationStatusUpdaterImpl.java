@@ -69,12 +69,13 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			LOG.info("ProjectInstallationAllocation with given correlation id {} failed. It's not supported", result.correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.findByCorrelationId(result.correlationId).ifPresentOrElse(job -> {
+		Optional<ProjectAllocationInstallation> projectInstallation = projectAllocationInstallationRepository.findByCorrelationId(result.correlationId);
+		if(projectInstallation.isPresent() && projectInstallation.get().status.isInstalling()){
 			projectAllocationInstallationRepository.update(result);
-			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", job.id, result.status);
-		}, () -> {
-			projectAllocationInstallationRepository.create(result);
-			LOG.info("ProjectAllocationInstallation was updated: {}", result);
-		});
+			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", projectInstallation.get().id, result.status);
+			return;
+		}
+		projectAllocationInstallationRepository.create(result);
+		LOG.info("ProjectAllocationInstallation was updated: {}", result);
 	}
 }
