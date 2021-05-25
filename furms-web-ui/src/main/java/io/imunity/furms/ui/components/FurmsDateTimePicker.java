@@ -85,6 +85,8 @@ public class FurmsDateTimePicker
 		} else {
 			timePicker.setValue(defaultTimeProvider.get());
 		}
+
+		showTimePickerIfWasAdjusted();
 	}
 
 	@Override
@@ -164,5 +166,12 @@ public class FurmsDateTimePicker
 	@Override
 	public boolean isInvalid() {
 		return this.datePicker.isInvalid() && this.datePicker.isInvalid();
+	}
+
+	private void showTimePickerIfWasAdjusted() {
+		if (!timePicker.getValue().equals(defaultTimeProvider.get())) {
+			enableTimeButton.setValue(true);
+			timePicker.setVisible(true);
+		}
 	}
 }

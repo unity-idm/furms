@@ -13,12 +13,15 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import io.imunity.furms.ui.components.FurmsProgressBar;
 import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -41,6 +44,8 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 
 	private final Comparator<ResourceAllocationsGridItem> defaultGridSort;
 
+	private final ZoneId zoneId;
+
 	public ResourceAllocationsGrid(Consumer<ResourceAllocationsGridItem> allocateButtonAction,
 	                               Supplier<Stream<ResourceAllocationsGridItem>> fetchItems,
 	                               String columnPrefixes) {
@@ -50,6 +55,8 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 
 		this.allocateButtonAction = allocateButtonAction;
 		this.fetchItems = fetchItems;
+
+		this.zoneId = InvocationContext.getCurrent().getZone();
 
 		addClassName("resource-allocation-grid");
 
@@ -137,7 +144,8 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 
 	private LocalDate extractLocalDate(LocalDateTime dateTime) {
 		return ofNullable(dateTime)
-				.map(LocalDateTime::toLocalDate)
+				.map(date -> ZonedDateTime.of(date, zoneId))
+				.map(ZonedDateTime::toLocalDate)
 				.orElse(null);
 	}
 }
