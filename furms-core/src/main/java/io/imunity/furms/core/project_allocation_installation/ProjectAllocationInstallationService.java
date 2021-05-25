@@ -14,6 +14,7 @@ import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationIns
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
@@ -46,6 +47,7 @@ public class ProjectAllocationInstallationService {
 		return projectAllocationInstallationRepository.findAllDeallocation(projectId);
 	}
 
+	@Transactional
 	public void createAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
@@ -111,6 +113,7 @@ public class ProjectAllocationInstallationService {
 			projectAllocationInstallationRepository.findBySiteIdAndProjectAllocationId(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
 		if(projectAllocationInstallation.status.isFailed()){
 			projectAllocationInstallationRepository.deleteBy(projectAllocationInstallation.id);
+			LOG.info("Deallocation was not created, because project allocation {} process failed", projectAllocationInstallation.id);
 			return;
 		}
 		projectAllocationInstallationRepository.create(projectDeallocation);
