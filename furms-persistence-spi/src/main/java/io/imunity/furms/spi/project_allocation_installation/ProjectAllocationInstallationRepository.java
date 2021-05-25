@@ -14,6 +14,8 @@ import java.util.Set;
 public interface ProjectAllocationInstallationRepository {
 	Set<ProjectAllocationInstallation> findAll(String projectId);
 
+	ProjectAllocationInstallation findBySiteIdAndProjectAllocationId(String siteId, String projectAllocationId);
+
 	Set<ProjectDeallocation> findAllDeallocation(String projectId);
 
 	Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId id);
@@ -32,7 +34,7 @@ public interface ProjectAllocationInstallationRepository {
 
 	boolean exists(String id);
 
-	void delete(String id);
+	void deleteBy(String id);
 
 	void deleteAll();
 }

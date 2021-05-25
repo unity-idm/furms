@@ -73,6 +73,11 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.projectId(projectId)
 			.status(ProjectInstallationStatus.PENDING)
 			.build();
+
+		projectOperationRepository.findProjectInstallation(projectId).stream()
+			.filter(job -> job.siteId.equals(projectInstallationJob.siteId))
+			.forEach(job -> projectOperationRepository.deleteById(job.id));
+
 		projectOperationRepository.create(projectInstallationJob);
 		runAfterCommit(() ->
 			siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation)

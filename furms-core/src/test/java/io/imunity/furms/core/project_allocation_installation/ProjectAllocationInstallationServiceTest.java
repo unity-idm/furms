@@ -105,10 +105,16 @@ class ProjectAllocationInstallationServiceTest {
 	void shouldCreateProjectDeallocation() {
 		//given
 		ProjectAllocationResolved projectAllocationInstallation = ProjectAllocationResolved.builder()
-			.site(Site.builder().build())
+			.id("id")
+			.site(Site.builder()
+				.id("id")
+				.build())
 			.build();
 
 		//when
+		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.INSTALLED)
+			.build());
 		service.createDeallocation(projectAllocationInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
@@ -117,5 +123,26 @@ class ProjectAllocationInstallationServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(ProjectDeallocation.class));
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).deallocateProject(any(), any());
+	}
+
+	@Test
+	void shouldDeleteProjectAllocationIfFailed() {
+		//given
+		ProjectAllocationResolved projectAllocationInstallation = ProjectAllocationResolved.builder()
+			.id("id")
+			.site(Site.builder()
+				.id("id")
+				.build())
+			.build();
+
+		//when
+		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
+			.id("id")
+			.status(ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED)
+			.build());
+		service.createDeallocation(projectAllocationInstallation);
+
+		//then
+		orderVerifier.verify(repository).deleteBy("id");
 	}
 }

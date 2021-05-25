@@ -38,6 +38,13 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public ProjectAllocationInstallation findBySiteIdAndProjectAllocationId(String siteId, String projectAllocationId) {
+		return allocationRepository.findBySiteIdAndProjectAllocationId(UUID.fromString(siteId), UUID.fromString(projectAllocationId))
+			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Project allocation installation: %s for site %s doesn't exist", projectAllocationId, siteId)));
+	}
+
+	@Override
 	public Set<ProjectDeallocation> findAllDeallocation(String projectId) {
 		if (isEmpty(projectId)) {
 			throw new IllegalArgumentException("Project Id is empty");
@@ -167,7 +174,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 
 
 	@Override
-	public void delete(String id) {
+	public void deleteBy(String id) {
 		allocationRepository.deleteById(UUID.fromString(id));
 	}
 

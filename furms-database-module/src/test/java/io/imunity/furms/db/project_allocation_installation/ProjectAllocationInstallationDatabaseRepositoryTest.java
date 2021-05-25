@@ -262,7 +262,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.delete(id);
+		entityDatabaseRepository.deleteBy(id);
 
 		//then
 		assertThat(allocationRepository.findAll(projectId.toString())).isEmpty();
