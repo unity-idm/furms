@@ -119,19 +119,19 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectDeallocation> findAllUninstallations(String projectId) {
 		return projectAllocationInstallationService.findAllUninstallation(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationInstallation> findAllInstallations(String projectId) {
 		return projectAllocationInstallationService.findAll(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
