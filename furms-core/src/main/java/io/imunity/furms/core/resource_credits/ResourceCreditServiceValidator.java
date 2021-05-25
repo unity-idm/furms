@@ -6,6 +6,7 @@
 package io.imunity.furms.core.resource_credits;
 
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
+import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
@@ -17,6 +18,7 @@ import io.imunity.furms.utils.ValidationUtils;
 
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,7 +50,7 @@ class ResourceCreditServiceValidator {
 		notNull(resourceCredit, "ResourceCredit object cannot be null.");
 		validateSiteId(resourceCredit.siteId);
 		validateResourceTypeId(resourceCredit.resourceTypeId);
-		validateName(resourceCredit);
+		validateName(resourceCredit, Optional.empty());
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
 		validateCreateTime(resourceCredit.utcCreateTime);
 		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
@@ -60,10 +62,18 @@ class ResourceCreditServiceValidator {
 		validateSplitChange(resourceCredit, existing);
 		validateUpdateSiteId(resourceCredit);
 		validateResourceTypeId(resourceCredit.resourceTypeId);
-		validateName(resourceCredit);
+		validateName(resourceCredit, Optional.of(existing));
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
 		validateCreateTime(resourceCredit.utcCreateTime);
 		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
+		assertAmountAboveAlreadyDistributed(resourceCredit, existing);
+	}
+
+	private void assertAmountAboveAlreadyDistributed(ResourceCredit updated, ResourceCredit existing) {
+		BigDecimal remaining = communityAllocationRepository.getAvailableAmount(existing.id);
+		BigDecimal distributed = existing.amount.subtract(remaining);
+		assertTrue(updated.amount.compareTo(distributed) >= 0, 
+				() -> new CreditUpdateBelowDistributedAmountException());
 	}
 
 	void validateDelete(String id) {
@@ -73,16 +83,15 @@ class ResourceCreditServiceValidator {
 		}
 	}
 
-	private void validateName(ResourceCredit resourceCredit) {
+	private void validateName(ResourceCredit resourceCredit, Optional<ResourceCredit> existingCredit) {
 		notNull(resourceCredit.name, "ResourceCredit name has to be declared.");
 		validateLength("name", resourceCredit.name, MAX_NAME_LENGTH);
-		if (isNameOccupied(resourceCredit)) {
+		if (isNameOccupied(resourceCredit, existingCredit)) {
 			throw new DuplicatedNameValidationError("ResourceCredit name has to be unique.");
 		}
 	}
 
-	private boolean isNameOccupied(ResourceCredit resourceCredit) {
-		Optional<ResourceCredit> existingCredit = resourceCreditRepository.findById(resourceCredit.id);
+	private boolean isNameOccupied(ResourceCredit resourceCredit, Optional<ResourceCredit> existingCredit) {
 		if (existingCredit.isPresent() && existingCredit.get().name.equals(resourceCredit.name))
 			return false;
 		return resourceCreditRepository.isNamePresent(resourceCredit.name, resourceCredit.siteId);
@@ -136,7 +145,7 @@ class ResourceCreditServiceValidator {
 
 	private void validateTime(LocalDateTime startTime, LocalDateTime endTime) {
 		notNull(startTime, "ResourceCredit start time cannot be null");
-		notNull(endTime, "ResourceCredit start time cannot be null");
+		notNull(endTime, "ResourceCredit end time cannot be null");
 		if(startTime.isAfter(endTime)){
 			throw new IllegalArgumentException("ResourceCredit start time must be earlier than end time");
 		}

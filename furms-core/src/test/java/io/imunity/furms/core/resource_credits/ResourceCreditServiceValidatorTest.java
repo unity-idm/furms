@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.resource_credits;
 
+import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ResourceCreditServiceImplValidatorTest {
+class ResourceCreditServiceValidatorTest {
 	@Mock
 	private ResourceTypeRepository resourceTypeRepository;
 	@Mock
@@ -175,7 +176,7 @@ class ResourceCreditServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final ResourceCredit service = ResourceCredit.builder()
+		final ResourceCredit credit = ResourceCredit.builder()
 			.id("id")
 			.siteId("id")
 			.resourceTypeId("id")
@@ -185,12 +186,13 @@ class ResourceCreditServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(service));
+		when(siteRepository.exists(credit.siteId)).thenReturn(true);
+		when(resourceTypeRepository.exists(credit.resourceTypeId)).thenReturn(true);
+		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(credit));
+		when(communityAllocationRepository.getAvailableAmount(credit.id)).thenReturn(BigDecimal.valueOf(1));
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate(service));
+		assertDoesNotThrow(() -> validator.validateUpdate(credit));
 	}
 
 	@Test
@@ -212,6 +214,37 @@ class ResourceCreditServiceImplValidatorTest {
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(community));
 	}
 
+	@Test
+	void shouldForbidToDecreaseAmountBelowAlreadyDistributed() {
+		//given
+		ResourceCredit original = ResourceCredit.builder()
+				.id("id")
+				.siteId("sid")
+				.resourceTypeId("rid")
+				.name("name")
+				.amount(new BigDecimal(10))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now())
+				.build();
+		ResourceCredit updated = ResourceCredit.builder()
+				.id("id")
+				.siteId("sid")
+				.resourceTypeId("rid")
+				.name("name")
+				.amount(new BigDecimal(5))
+				.utcStartTime(LocalDateTime.now())
+				.utcEndTime(LocalDateTime.now())
+				.build();
+
+		when(communityAllocationRepository.getAvailableAmount(original.id)).thenReturn(BigDecimal.valueOf(4));
+		when(siteRepository.exists(any())).thenReturn(true);
+		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(original));
+		when(resourceTypeRepository.exists(any())).thenReturn(true);
+
+		//when+then
+		assertThrows(CreditUpdateBelowDistributedAmountException.class, () -> validator.validateUpdate(updated));
+	}
+	
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given

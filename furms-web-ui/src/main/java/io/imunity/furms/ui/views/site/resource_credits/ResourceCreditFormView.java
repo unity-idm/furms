@@ -27,6 +27,7 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -48,7 +49,8 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 	private static final Map<Class<? extends Exception>, String> KNOWN_EXCEPTIONS = Map.of(
-			ResourceCreditHasAllocationException.class, "view.site-admin.resource-credits.form.creditHasAllocation"
+			ResourceCreditHasAllocationException.class, "view.site-admin.resource-credits.form.creditHasAllocation",
+			CreditUpdateBelowDistributedAmountException.class, "view.site-admin.resource-credits.form.creditUpdateBelowAllocated"
 			);
 
 	ResourceCreditFormView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
