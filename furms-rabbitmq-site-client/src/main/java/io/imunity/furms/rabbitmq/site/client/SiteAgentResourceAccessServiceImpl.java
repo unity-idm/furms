@@ -5,19 +5,17 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.UserAllocationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -27,9 +25,9 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Service
 class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessService {
 	private final RabbitTemplate rabbitTemplate;
-	private final UserAllocationMessageResolver messageResolver;
+	private final UserAllocationStatusUpdater messageResolver;
 
-	SiteAgentResourceAccessServiceImpl(RabbitTemplate rabbitTemplate, UserAllocationMessageResolver messageResolver) {
+	SiteAgentResourceAccessServiceImpl(RabbitTemplate rabbitTemplate, UserAllocationStatusUpdater messageResolver) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.messageResolver = messageResolver;
 	}
@@ -67,7 +65,6 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess) {
 		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest =
 			new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
@@ -79,7 +76,6 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void revokeAccess(CorrelationId correlationId, GrantAccess grantAccess) {
 		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
 		try {

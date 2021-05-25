@@ -27,19 +27,19 @@ import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class UserOperationMessageResolverTest {
+class UserOperationStatusUpdaterTest {
 	@Mock
 	private UserOperationRepository repository;
 	@Mock
 	private ResourceAccessRepository resourceAccessRepository;
 
-	private UserOperationMessageResolverImpl service;
+	private UserOperationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationMessageResolverImpl(repository, resourceAccessRepository);
+		service = new UserOperationStatusUpdaterImpl(repository, resourceAccessRepository);
 		orderVerifier = inOrder(repository, resourceAccessRepository);
 	}
 

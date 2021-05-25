@@ -13,15 +13,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class MockBeansConfig {
 	@MockBean
-	private ProjectInstallationMessageResolver projectInstallationService;
+	private ProjectInstallationStatusUpdater projectInstallationService;
 	@MockBean
-	private ProjectAllocationInstallationMessageResolver projectAllocationInstallationMessageResolver;
+	private ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
 	@MockBean
 	private SiteExternalIdsResolver siteExternalIdsResolver;
 	@MockBean
-	private SSHKeyOperationMessageResolver sshKeyOperationService;
+	private SSHKeyOperationStatusUpdater sshKeyOperationService;
 	@MockBean
-	private UserOperationMessageResolver userOperationMessageResolver;
+	private UserOperationStatusUpdater userOperationStatusUpdater;
 	@MockBean
-	private UserAllocationMessageResolver userAllocationMessageResolver;
+	private UserAllocationStatusUpdater userAllocationStatusUpdater;
 }

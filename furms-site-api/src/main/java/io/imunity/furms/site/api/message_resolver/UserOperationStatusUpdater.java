@@ -12,7 +12,7 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 
 import java.util.Optional;
 
-public interface UserOperationMessageResolver {
+public interface UserOperationStatusUpdater {
 	void update(UserAddition userAddition);
 	void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage);
 }

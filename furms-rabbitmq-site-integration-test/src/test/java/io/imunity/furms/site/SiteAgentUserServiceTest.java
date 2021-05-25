@@ -13,7 +13,7 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserOperationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class SiteAgentUserServiceTest {
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
-	private UserOperationMessageResolver userOperationMessageResolver;
+	private UserOperationStatusUpdater userOperationStatusUpdater;
 
 	@BeforeEach
 	void init(){
@@ -56,8 +56,8 @@ class SiteAgentUserServiceTest {
 			.build();
 		siteAgentUserService.addUser(userAddition, user);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
-		verify(userOperationMessageResolver, timeout(10000)).update(any());
+		verify(userOperationStatusUpdater, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
+		verify(userOperationStatusUpdater, timeout(10000)).update(any());
 	}
 
 	@Test
@@ -72,7 +72,7 @@ class SiteAgentUserServiceTest {
 
 		siteAgentUserService.removeUser(userAdditionJob);
 
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, Optional.empty());
-		verify(userOperationMessageResolver, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVED, Optional.empty());
+		verify(userOperationStatusUpdater, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVAL_ACKNOWLEDGED, Optional.empty());
+		verify(userOperationStatusUpdater, timeout(10000)).updateStatus(correlationId, UserStatus.REMOVED, Optional.empty());
 	}
 }

@@ -9,7 +9,7 @@ import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
-public interface ProjectInstallationMessageResolver {
+public interface ProjectInstallationStatusUpdater {
 	void update(CorrelationId correlationId, ProjectInstallationResult result);
 	void update(CorrelationId correlationId, ProjectUpdateResult result);
 }

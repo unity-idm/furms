@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
 
 @Service
-public class MockSSHKeyOperationMessageResolver implements SSHKeyOperationMessageResolver {
+public class MockSSHKeyOperationStatusUpdater implements SSHKeyOperationStatusUpdater {
 
 	@Override
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result) {

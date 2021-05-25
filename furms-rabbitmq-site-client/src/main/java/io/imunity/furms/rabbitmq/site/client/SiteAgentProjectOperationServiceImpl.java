@@ -13,7 +13,7 @@ import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,6 @@ import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
@@ -36,9 +34,9 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 
 
 	private final RabbitTemplate rabbitTemplate;
-	private final ProjectInstallationMessageResolver projectInstallationService;
+	private final ProjectInstallationStatusUpdater projectInstallationService;
 
-	SiteAgentProjectOperationServiceImpl(RabbitTemplate rabbitTemplate, ProjectInstallationMessageResolver projectInstallationService) {
+	SiteAgentProjectOperationServiceImpl(RabbitTemplate rabbitTemplate, ProjectInstallationStatusUpdater projectInstallationService) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.projectInstallationService = projectInstallationService;
 	}
@@ -94,7 +92,6 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void installProject(CorrelationId correlationId, ProjectInstallation installation) {
 		AgentProjectInstallationRequest request = ProjectInstallationMapper.map(installation);
 		try {
@@ -105,7 +102,6 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void updateProject(CorrelationId correlationId, SiteExternalId siteExternalId, Project project, FURMSUser user) {
 		AgentProjectUpdateRequest request = ProjectInstallationMapper.map(project, user);
 		try {
@@ -116,7 +112,6 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.NESTED)
 	public void removeProject(CorrelationId correlationId, SiteExternalId siteId, String projectId) {
 		AgentProjectRemovalRequest request = new AgentProjectRemovalRequest(projectId);
 		try {
