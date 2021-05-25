@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
@@ -63,7 +64,9 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		if(repository.exists(grantAccess))
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 		repository.create(correlationId, grantAccess);
-		siteAgentResourceAccessService.grantAccess(correlationId, grantAccess);
+		runAfterCommit(() ->
+			siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
+		);
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 	}
 
@@ -81,7 +84,9 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
 		CorrelationId correlationId = CorrelationId.randomID();
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
-		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
+		runAfterCommit(() ->
+			siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess)
+		);
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}
 }

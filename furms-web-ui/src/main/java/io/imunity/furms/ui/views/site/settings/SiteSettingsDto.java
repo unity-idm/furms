@@ -123,7 +123,6 @@ public class SiteSettingsDto implements Cloneable {
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
 				", logo=" + logo +
-				", connectionInfo='" + connectionInfo + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				", prohibitOldsshKeys=" + prohibitOldsshKeys +
 				", externalId=" + externalId +

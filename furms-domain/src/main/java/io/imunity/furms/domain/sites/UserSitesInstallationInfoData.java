@@ -53,7 +53,6 @@ public class UserSitesInstallationInfoData {
 	public String toString() {
 		return "UserSitesInstallationInfoData{" +
 				"siteName='" + siteName + '\'' +
-				", connectionInfo='" + connectionInfo + '\'' +
 				", projects=" + projects +
 				'}';
 	}

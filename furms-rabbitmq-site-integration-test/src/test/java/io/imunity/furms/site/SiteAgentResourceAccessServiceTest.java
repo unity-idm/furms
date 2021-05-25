@@ -11,7 +11,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.UserAllocationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class SiteAgentResourceAccessServiceTest {
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
-	private UserAllocationMessageResolver userAllocationMessageResolver;
+	private UserAllocationStatusUpdater userAllocationStatusUpdater;
 
 	@BeforeEach
 	void init(){
@@ -44,12 +44,12 @@ class SiteAgentResourceAccessServiceTest {
 			.build();
 		siteAgentResourceAccessService.grantAccess(correlationId, grantAccess);
 
-		verify(userAllocationMessageResolver, timeout(10000)).update(
+		verify(userAllocationStatusUpdater, timeout(10000)).update(
 			correlationId,
 			AccessStatus.GRANT_ACKNOWLEDGED,
 			null
 		);
-		verify(userAllocationMessageResolver, timeout(10000)).update(
+		verify(userAllocationStatusUpdater, timeout(10000)).update(
 			correlationId,
 			AccessStatus.GRANTED,
 			null
@@ -65,12 +65,12 @@ class SiteAgentResourceAccessServiceTest {
 			.build();
 		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
 
-		verify(userAllocationMessageResolver, timeout(10000)).update(
+		verify(userAllocationStatusUpdater, timeout(10000)).update(
 			correlationId,
 			AccessStatus.REVOKE_ACKNOWLEDGED,
 			null
 		);
-		verify(userAllocationMessageResolver, timeout(10000)).update(
+		verify(userAllocationStatusUpdater, timeout(10000)).update(
 			correlationId,
 			AccessStatus.REVOKED,
 			null

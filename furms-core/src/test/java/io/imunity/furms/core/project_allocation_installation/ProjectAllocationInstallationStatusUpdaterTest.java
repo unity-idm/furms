@@ -23,20 +23,20 @@ import java.util.Optional;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-class ProjectAllocationInstallationMessageResolverTest {
+class ProjectAllocationInstallationStatusUpdaterTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
 
 
-	private ProjectAllocationInstallationMessageResolverImpl service;
+	private ProjectAllocationInstallationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationMessageResolverImpl(repository, projectAllocationRepository);
+		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository);
 		orderVerifier = inOrder(repository);
 	}
 

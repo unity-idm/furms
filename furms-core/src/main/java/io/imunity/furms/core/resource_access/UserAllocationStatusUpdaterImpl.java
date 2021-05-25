@@ -7,25 +7,27 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.UserAllocationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 
 @Service
-class UserAllocationMessageResolverImpl implements UserAllocationMessageResolver {
+class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ResourceAccessRepository repository;
 
-	UserAllocationMessageResolverImpl(ResourceAccessRepository repository) {
+	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository) {
 		this.repository = repository;
 	}
 
 	@Override
+	@Transactional
 	public void update(CorrelationId correlationId, AccessStatus status, String msg) {
 		AccessStatus currentStatus = repository.findCurrentStatus(correlationId);
 		if(!currentStatus.isTransitionalTo(status))

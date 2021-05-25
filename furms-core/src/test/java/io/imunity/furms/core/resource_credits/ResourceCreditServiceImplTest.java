@@ -123,9 +123,9 @@ class ResourceCreditServiceImplTest {
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationService.getAvailableAmount("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationService.getAvailableAmount("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
 
 		//when
 		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", true, false);
@@ -141,9 +141,9 @@ class ResourceCreditServiceImplTest {
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationService.getAvailableAmount("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationService.getAvailableAmount("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationService.getAvailableAmount("id3")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
 
 		//when
 		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", false, false);

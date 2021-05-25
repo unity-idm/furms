@@ -12,8 +12,6 @@ import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import com.vaadin.flow.component.Composite;
@@ -28,7 +26,6 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
 class ResourceCreditFormComponent extends Composite<Div> {
@@ -39,13 +36,11 @@ class ResourceCreditFormComponent extends Composite<Div> {
 
 	private final FormLayout formLayout;
 	private final Checkbox accessCheckbox;
-	private ZoneId zoneId;
 
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
 		this.formLayout = new FurmsFormLayout();
-		zoneId = InvocationContext.getCurrent().getZone();
 
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
@@ -70,10 +65,10 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));
 
-		FurmsDateTimePicker startTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_START_TIME);
+		FurmsDateTimePicker startTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
 		formLayout.addFormItem(startTimePicker, getTranslation("view.site-admin.resource-credits.form.field.start-time"));
 
-		FurmsDateTimePicker endTimePicker = new FurmsDateTimePicker(zoneId, () -> DEFAULT_END_TIME);
+		FurmsDateTimePicker endTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.site-admin.resource-credits.form.field.end-time"));
 
 		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox,
@@ -122,16 +117,16 @@ class ResourceCreditFormComponent extends Composite<Div> {
 						&& ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
-			.bind(credit -> ofNullable(credit.getStartTime()).map(ZonedDateTime::toLocalDateTime).orElse(null),
-					(credit, startTime) -> credit.setStartTime(startTime.atZone(zoneId)));
+			.bind(credit -> ofNullable(credit.getStartTime()).orElse(null),
+					(credit, startTime) -> credit.setStartTime(startTime));
 		binder.forField(endTimePicker)
 			.withValidator(
 				time -> Objects.nonNull(time)
 						&& ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
-			.bind(credit -> ofNullable(credit.getEndTime()).map(ZonedDateTime::toLocalDateTime).orElse(null),
-					(credit, endTime) -> credit.setEndTime(endTime.atZone(zoneId)));
+			.bind(credit -> ofNullable(credit.getEndTime()).orElse(null),
+					(credit, endTime) -> credit.setEndTime(endTime));
 	}
 
 	void setFormPools(ResourceCreditViewModel resourceCreditViewModel) {

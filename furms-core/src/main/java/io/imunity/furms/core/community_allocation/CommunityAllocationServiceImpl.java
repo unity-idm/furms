@@ -101,10 +101,19 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public BigDecimal getAvailableAmount(String resourceCreditId) {
+	public BigDecimal getAvailableAmountForNew(String resourceCreditId) {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);
 	}
 
+	@Override
+	@Transactional
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
+	public BigDecimal getAvailableAmountForUpdate(String resourceCreditId, String communityAllocationId) {
+		BigDecimal free = communityAllocationRepository.getAvailableAmount(resourceCreditId);
+		BigDecimal currentlyAllocated = communityAllocationRepository.findById(communityAllocationId).get().amount;
+		return free.add(currentlyAllocated);
+	}
+	
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)

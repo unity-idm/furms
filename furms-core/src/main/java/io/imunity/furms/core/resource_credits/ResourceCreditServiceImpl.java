@@ -93,7 +93,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					.split(credit.splittable)
 					.access(credit.accessibleForAllProjectMembers)
 					.amount(credit.amount)
-					.remaining(communityAllocationService.getAvailableAmount(credit.id))
+					.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
 					.utcCreateTime(credit.utcCreateTime)
 					.utcStartTime(credit.utcStartTime)
 					.utcEndTime(credit.utcEndTime)

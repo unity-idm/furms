@@ -28,7 +28,7 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 
 @SpringBootTest
@@ -39,7 +39,7 @@ class SiteAgentProjectOperationServiceTest {
 	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
-	private ProjectInstallationMessageResolver projectInstallationService;
+	private ProjectInstallationStatusUpdater projectInstallationService;
 
 	@BeforeEach
 	void init(){

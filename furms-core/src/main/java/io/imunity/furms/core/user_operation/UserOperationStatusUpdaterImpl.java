@@ -10,7 +10,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.site.api.message_resolver.UserOperationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserOperationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
@@ -22,13 +22,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 @Service
-class UserOperationMessageResolverImpl implements UserOperationMessageResolver {
+class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final UserOperationRepository repository;
 	private final ResourceAccessRepository resourceAccessRepository;
 
-	UserOperationMessageResolverImpl(UserOperationRepository repository, ResourceAccessRepository resourceAccessRepository) {
+	UserOperationStatusUpdaterImpl(UserOperationRepository repository, ResourceAccessRepository resourceAccessRepository) {
 		this.repository = repository;
 		this.resourceAccessRepository = resourceAccessRepository;
 	}

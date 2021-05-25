@@ -7,7 +7,7 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.slf4j.Logger;
@@ -19,13 +19,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 @Service
-class ProjectAllocationInstallationMessageResolverImpl implements ProjectAllocationInstallationMessageResolver {
+class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocationInstallationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
 
-	ProjectAllocationInstallationMessageResolverImpl(
+	ProjectAllocationInstallationStatusUpdaterImpl(
 		ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
 		ProjectAllocationRepository projectAllocationRepository
 	) {

@@ -14,11 +14,14 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
 import java.util.Set;
@@ -38,6 +41,16 @@ class ProjectAllocationInstallationServiceTest {
 
 	private ProjectAllocationInstallationService service;
 	private InOrder orderVerifier;
+
+	@BeforeEach
+	void setUp() {
+		TransactionSynchronizationManager.initSynchronization();
+	}
+
+	@AfterEach
+	void clear() {
+		TransactionSynchronizationManager.clear();
+	}
 
 	@BeforeEach
 	void init() {
@@ -78,6 +91,10 @@ class ProjectAllocationInstallationServiceTest {
 
 		//when
 		service.startWaitingAllocations("projectId");
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 
 		//then
 		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
@@ -99,7 +116,10 @@ class ProjectAllocationInstallationServiceTest {
 			.status(ProjectAllocationInstallationStatus.INSTALLED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
-
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
 		//then
 		orderVerifier.verify(repository).create(any(ProjectDeallocation.class));
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).deallocateProject(any(), any());

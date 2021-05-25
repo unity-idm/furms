@@ -5,6 +5,15 @@
 
 package io.imunity.furms.ui.components;
 
+import static java.util.Optional.ofNullable;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
+import java.util.function.Supplier;
+
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -19,20 +28,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.shared.Registration;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Locale;
-import java.util.function.Supplier;
+import io.imunity.furms.ui.user_context.InvocationContext;
 
-import static java.util.Optional.ofNullable;
-
+/**
+ * Works on dates aligned to browser's zone.
+ */
 @CssImport("./styles/components/date-time-picker.css")
 public class FurmsDateTimePicker
 		extends Div
-		implements HasValue<FurmsDateTimePicker, LocalDateTime>, HasValue.ValueChangeEvent<LocalDateTime>, HasValidation {
+		implements HasValue<FurmsDateTimePicker, ZonedDateTime>, HasValue.ValueChangeEvent<ZonedDateTime>, HasValidation {
 
 	private static final Locale CLOCK_24_FORMAT_LOCALE = new Locale("DE");
 
@@ -40,13 +44,11 @@ public class FurmsDateTimePicker
 	private final TimePicker timePicker;
 	private final ToggleButton enableTimeButton;
 
-	private LocalDateTime oldValue;
+	private ZonedDateTime oldValue;
 
-	private final ZoneId zoneId;
 	private final Supplier<LocalTime> defaultTimeProvider;
 
-	public FurmsDateTimePicker(ZoneId zoneId, Supplier<LocalTime> defaultTimeValueProvider) {
-		this.zoneId = zoneId;
+	public FurmsDateTimePicker(Supplier<LocalTime> defaultTimeValueProvider) {
 		this.defaultTimeProvider = defaultTimeValueProvider;
 
 		this.datePicker = new DatePicker();
@@ -70,25 +72,27 @@ public class FurmsDateTimePicker
 	}
 
 	private void setValueAndFireEventChange() {
-		LocalDateTime oldValueBuffered = getValue();
+		ZonedDateTime oldValueBuffered = getValue();
 		ComponentUtil.fireEvent(this,
 				new AbstractField.ComponentValueChangeEvent<>(this, this, oldValueBuffered, true));
 	}
 
 	@Override
-	public void setValue(LocalDateTime value) {
+	public void setValue(ZonedDateTime value) {
 		if (value != null) {
 			this.oldValue = getValue();
-
 			datePicker.setValue(value.toLocalDate());
-			timePicker.setValue(ZonedDateTime.of(value, zoneId).toLocalTime());
+			timePicker.setValue(value.toLocalTime());
 		} else {
+			datePicker.setValue(nowWithBrowserZone());
 			timePicker.setValue(defaultTimeProvider.get());
 		}
+
+		showTimePickerIfWasAdjusted();
 	}
 
 	@Override
-	public HasValue<?, LocalDateTime> getHasValue() {
+	public HasValue<?, ZonedDateTime> getHasValue() {
 		return this;
 	}
 
@@ -98,15 +102,26 @@ public class FurmsDateTimePicker
 	}
 
 	@Override
-	public LocalDateTime getOldValue() {
+	public ZonedDateTime getOldValue() {
 		return oldValue;
 	}
 
 	@Override
-	public LocalDateTime getValue() {
-		return LocalDateTime.of(
-				ofNullable(datePicker.getValue()).orElse(LocalDate.now()),
-				ofNullable(timePicker.getValue()).orElse(defaultTimeProvider.get()));
+	public ZonedDateTime getValue() {
+		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		return ZonedDateTime.of(
+				ofNullable(datePicker.getValue()).orElse(now(browserZoneId)),
+				ofNullable(timePicker.getValue()).orElse(defaultTimeProvider.get()),
+				browserZoneId);
+	}
+	
+	private LocalDate nowWithBrowserZone() {
+		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		return now(browserZoneId);
+	}
+	
+	private LocalDate now(ZoneId browserZoneId) {
+		return ZonedDateTime.now(browserZoneId).toLocalDate();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -164,5 +179,12 @@ public class FurmsDateTimePicker
 	@Override
 	public boolean isInvalid() {
 		return this.datePicker.isInvalid() && this.datePicker.isInvalid();
+	}
+
+	private void showTimePickerIfWasAdjusted() {
+		if (!timePicker.getValue().equals(defaultTimeProvider.get())) {
+			enableTimeButton.setValue(true);
+			timePicker.setVisible(true);
+		}
 	}
 }

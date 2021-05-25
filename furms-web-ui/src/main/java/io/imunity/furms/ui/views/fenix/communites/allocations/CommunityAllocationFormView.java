@@ -18,6 +18,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
@@ -39,6 +40,9 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 @Route(value = "fenix/admin/communities/resource/credit/allocation/form", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.resource-credits-allocation.form.page.title")
 class CommunityAllocationFormView extends FurmsViewComponent {
@@ -46,6 +50,9 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 	private final CommunityAllocationFormComponent communityAllocationFormComponent;
 	private final CommunityAllocationService communityAllocationService;
 
+	private static final Map<Class<? extends Exception>, String> KNOWN_ERRORS = 
+			Map.of(CommunityAllocationUpdateBelowDistributedAmountException.class, 
+					"view.fenix-admin.resource-credits-allocation.form.error.updateBelowAlreadyDistributed");
 	private String communityId;
 
 	private BreadCrumbParameter breadCrumbParameter;
@@ -60,7 +67,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 			siteService.findAll(),
 			resourceTypeService::findAll,
 			resourceCreditService::findAllByResourceTypeId,
-			communityAllocationService::getAvailableAmount
+			this::getAvailableAmount
 		);
 		this.communityAllocationFormComponent = new CommunityAllocationFormComponent(binder, resolver);
 
@@ -72,6 +79,15 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		getContent().add(communityAllocationFormComponent, buttons);
 	}
 
+	private BigDecimal getAvailableAmount(String resourceCreditId) {
+		CommunityAllocationViewModel allocationViewModel = binder.getBean();
+		return allocationViewModel.getId() == null ? 
+				communityAllocationService.getAvailableAmountForNew(resourceCreditId) :
+				communityAllocationService.getAvailableAmountForUpdate(resourceCreditId, 
+						allocationViewModel.getId());
+	}
+	
+	
 	private Button createCloseButton() {
 		Button closeButton = new Button(getTranslation("view.fenix-admin.resource-credits-allocation.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -98,7 +114,8 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		if(communityAllocation.id == null)
 			optionalException = getResultOrException(() -> communityAllocationService.create(communityAllocation));
 		else
-			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation));
+			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation),
+					KNOWN_ERRORS);
 
 		optionalException.getException().ifPresentOrElse(
 			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
@@ -127,7 +144,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 			? "view.fenix-admin.resource-credits-allocation.form.parameter.new"
 			: "view.fenix-admin.resource-credits-allocation.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		communityAllocationFormComponent.setFormPools(serviceViewModel);
+		communityAllocationFormComponent.setModelObject(serviceViewModel);
 	}
 
 	@Override

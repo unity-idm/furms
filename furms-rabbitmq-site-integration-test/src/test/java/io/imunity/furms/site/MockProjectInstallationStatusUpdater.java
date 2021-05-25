@@ -9,10 +9,10 @@ import io.imunity.furms.domain.project_installation.*;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationMessageResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
 
 @Service
-public class MockProjectInstallationMessageResolver implements ProjectInstallationMessageResolver {
+public class MockProjectInstallationStatusUpdater implements ProjectInstallationStatusUpdater {
 
 
 	@Override

@@ -5,14 +5,19 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.constant.SSHKeysConst.MAX_HISTORY_SIZE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
+import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.ssh_keys.*;
+import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
+import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
+import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
@@ -20,27 +25,15 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationMessageResolver;
-import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
-import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
-import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.constant.SSHKeysConst.MAX_HISTORY_SIZE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
 
 @Service
-class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperationMessageResolver {
+class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperationStatusUpdater {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

@@ -7,6 +7,7 @@ package io.imunity.furms.core.project_allocation;
 
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
@@ -119,19 +120,19 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectDeallocation> findAllUninstallations(String projectId) {
 		return projectAllocationInstallationService.findAllUninstallation(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationInstallation> findAllInstallations(String projectId) {
 		return projectAllocationInstallationService.findAll(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}

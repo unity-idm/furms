@@ -90,7 +90,6 @@ public class SiteEntity extends UUIDIdentifiable {
 		return "SiteEntity{" +
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
-				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + Arrays.toString(logo) +
 				", logoType='" + logoType + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +

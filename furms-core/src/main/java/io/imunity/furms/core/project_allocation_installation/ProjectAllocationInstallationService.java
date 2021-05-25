@@ -19,6 +19,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED;
 
 @Service
@@ -54,6 +55,7 @@ public class ProjectAllocationInstallationService {
 			.projectAllocationId(projectAllocationId)
 			.status(ProjectAllocationInstallationStatus.PROVISIONING_PROJECT)
 			.build();
+
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
@@ -68,7 +70,9 @@ public class ProjectAllocationInstallationService {
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build();
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
-		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
+		runAfterCommit(() ->
+			siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved)
+		);
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
@@ -77,7 +81,9 @@ public class ProjectAllocationInstallationService {
 			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
-			siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId, projectAllocationResolved);
+			runAfterCommit(() ->
+				siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId, projectAllocationResolved)
+			);
 			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
 		});
 	}
@@ -108,7 +114,9 @@ public class ProjectAllocationInstallationService {
 			return;
 		}
 		projectAllocationInstallationRepository.create(projectDeallocation);
-		siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved);
+		runAfterCommit(() ->
+			siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved)
+		);
 		LOG.info("ProjectDeallocation was created: {}", projectDeallocation);
 	}
 }

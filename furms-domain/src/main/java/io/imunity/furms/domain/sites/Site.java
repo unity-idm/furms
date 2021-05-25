@@ -91,7 +91,6 @@ public class Site {
 		return "Site{" +
 				"id=" + id +
 				", name='" + name + '\'' +
-				", connectionInfo='" + connectionInfo + '\'' +
 				", logo=" + logo +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				", sshKeyHistoryLength=" + sshKeyHistoryLength +

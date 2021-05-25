@@ -13,7 +13,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 
 import java.util.Optional;
 
-public interface ProjectAllocationInstallationMessageResolver {
+public interface ProjectAllocationInstallationStatusUpdater {
 	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 	void updateStatus(ProjectAllocationInstallation result);

@@ -21,17 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.Mockito.*;
 
-class UserAllocationMessageResolverTest {
+class UserAllocationStatusUpdaterTest {
 	@Mock
 	private ResourceAccessRepository repository;
 
-	private UserAllocationMessageResolverImpl service;
+	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationMessageResolverImpl(repository);
+		service = new UserAllocationStatusUpdaterImpl(repository);
 		orderVerifier = inOrder(repository);
 	}
 

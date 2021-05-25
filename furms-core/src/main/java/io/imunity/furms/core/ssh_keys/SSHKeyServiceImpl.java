@@ -6,33 +6,7 @@
 package io.imunity.furms.core.ssh_keys;
 
 
-import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -51,6 +25,24 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.*;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
 
 
 @SuppressWarnings("unused")
@@ -178,16 +170,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
-				siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
-						SSHKeyUpdating.builder().siteExternalId(site.getExternalId())
-								.oldPublicKey(oldKey.value).newPublicKey(newKey.value)
-								.user(userId).build());
-			}
-		});
+
+		runAfterCommit(() ->
+			siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
+				SSHKeyUpdating.builder().siteExternalId(site.getExternalId())
+					.oldPublicKey(oldKey.value).newPublicKey(newKey.value)
+					.user(userId).build())
+		);
 	}
 
 	private void updateKeyOnSites(SiteDiff siteDiff, SSHKey oldKey, SSHKey merged) {
@@ -303,15 +292,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
-				siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
-						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
-			}
-		});
-		
+		runAfterCommit(() ->
+			siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
+				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
 
+		);
 	}
 
 	private void removeKeyFromSite(SSHKey sshKey, Site site, FenixUserId userId) {
@@ -322,13 +307,10 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(REMOVE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
+		runAfterCommit(() ->
 				siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
-						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build());
-			}
-		});
+						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
+		);
 		
 	}
 	
