@@ -5,24 +5,33 @@
 
 package io.imunity.furms.core.community_allocation;
 
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
-import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAmountException;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAvailableAmountException;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityAllocationServiceImplValidatorTest {
@@ -37,6 +46,9 @@ class CommunityAllocationServiceImplValidatorTest {
 
 	@InjectMocks
 	private CommunityAllocationServiceValidator validator;
+	private static final ResourceCredit CREDIT_OF_TEN = ResourceCredit.builder()
+			.amount(BigDecimal.TEN)
+			.build();;
 
 	@Test
 	void shouldPassCreateForUniqueName() {
@@ -122,7 +134,7 @@ class CommunityAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
-		final CommunityAllocation communityAllocation = CommunityAllocation.builder()
+		CommunityAllocation communityAllocation = CommunityAllocation.builder()
 			.id("id")
 			.communityId("id")
 			.resourceCreditId("id")
@@ -130,9 +142,9 @@ class CommunityAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
-		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
-		when(communityAllocationRepository.exists(communityAllocation.id)).thenReturn(true);
+		when(projectAllocationRepository.getAvailableAmount(communityAllocation.id)).thenReturn(BigDecimal.valueOf(1));
+		when(communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId)).thenReturn(BigDecimal.valueOf(2));
+		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId)).thenReturn(Optional.of(CREDIT_OF_TEN));
 		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
 		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(communityAllocation));
 
@@ -140,6 +152,89 @@ class CommunityAllocationServiceImplValidatorTest {
 		assertDoesNotThrow(() -> validator.validateUpdate(communityAllocation));
 	}
 
+	@Test
+	void shouldForbidToUpdateBelowDistributedAmount() {
+		CommunityAllocation originalAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(10))
+				.build();
+
+		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(4))
+				.build();
+
+		when(projectAllocationRepository.getAvailableAmount(updatedAllocation.id)).thenReturn(BigDecimal.valueOf(5));
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(originalAllocation));
+
+		Throwable error = catchThrowable(() -> validator.validateUpdate(updatedAllocation));
+		
+		assertThat(error).isInstanceOf(CommunityAllocationUpdateBelowDistributedAmountException.class);
+	}
+	
+	@Test
+	void shouldForbidToUpdateAboveCreditAmount() {
+		CommunityAllocation originalAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(10))
+				.build();
+
+		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(11))
+				.build();
+		
+		when(projectAllocationRepository.getAvailableAmount(updatedAllocation.id)).thenReturn(BigDecimal.valueOf(10));
+		when(resourceCreditRepository.findById(updatedAllocation.resourceCreditId)).thenReturn(Optional.of(CREDIT_OF_TEN));
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(originalAllocation));
+
+
+		Throwable error = catchThrowable(() -> validator.validateUpdate(updatedAllocation));
+		
+		assertThat(error).isInstanceOf(CommunityAllocationUpdateAboveCreditAmountException.class);
+	}
+
+	@Test
+	void shouldForbidToUpdateAboveCreditAvailableAmount() {
+		CommunityAllocation originalAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(3))
+				.build();
+
+		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
+				.id("id")
+				.communityId("cid")
+				.resourceCreditId("rid")
+				.name("name")
+				.amount(new BigDecimal(6))
+				.build();
+		
+		when(projectAllocationRepository.getAvailableAmount(updatedAllocation.id)).thenReturn(BigDecimal.valueOf(10));
+		when(communityAllocationRepository.getAvailableAmount(updatedAllocation.resourceCreditId)).thenReturn(BigDecimal.valueOf(2));
+		when(resourceCreditRepository.findById(updatedAllocation.resourceCreditId)).thenReturn(Optional.of(CREDIT_OF_TEN));
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(originalAllocation));
+
+
+		Throwable error = catchThrowable(() -> validator.validateUpdate(updatedAllocation));
+		
+		assertThat(error).isInstanceOf(CommunityAllocationUpdateAboveCreditAvailableAmountException.class);
+	}
+	
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
@@ -151,12 +246,13 @@ class CommunityAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(communityAllocationRepository.exists(communityAllocation.id)).thenReturn(false);
+		when(communityAllocationRepository.findById(communityAllocation.id)).thenReturn(Optional.empty());
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(communityAllocation));
 	}
 
+	//FIXME this test is completely broken
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
@@ -176,14 +272,14 @@ class CommunityAllocationServiceImplValidatorTest {
 			.amount(new BigDecimal(2))
 			.build();
 
-		when(communityAllocationRepository.exists(any())).thenReturn(true);
-		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(communityAllocation1));
-		when(communityRepository.exists(any())).thenReturn(true);
-		when(resourceCreditRepository.exists(any())).thenReturn(true);
-		when(communityAllocationRepository.isUniqueName(any())).thenReturn(false);
+		when(projectAllocationRepository.getAvailableAmount(communityAllocation.id)).thenReturn(BigDecimal.valueOf(2));
+		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId)).thenReturn(Optional.of(CREDIT_OF_TEN));
+		when(communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId)).thenReturn(BigDecimal.valueOf(2));
+		when(communityAllocationRepository.findById(communityAllocation.id)).thenReturn(Optional.of(communityAllocation1));
+		
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(communityAllocation));
+		assertThrows(DuplicatedNameValidationError.class, () -> validator.validateUpdate(communityAllocation));
 	}
 
 	@Test
@@ -191,7 +287,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(communityAllocationRepository.exists(id)).thenReturn(true);
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(mock(CommunityAllocation.class)));
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(id));
@@ -202,7 +298,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		//given
 		String id = "id";
 
-		when(communityAllocationRepository.exists(id)).thenReturn(false);
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));

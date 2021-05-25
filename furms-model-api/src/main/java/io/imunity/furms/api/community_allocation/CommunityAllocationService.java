@@ -26,7 +26,9 @@ public interface CommunityAllocationService {
 	                                                           boolean includedFullyDistributed,
 	                                                           boolean includedExpired);
 
-	BigDecimal getAvailableAmount(String resourceCreditId);
+	BigDecimal getAvailableAmountForNew(String resourceCreditId);
+
+	BigDecimal getAvailableAmountForUpdate(String resourceCreditId, String communityAllocationId);
 
 	void create(CommunityAllocation resourceType);
 

@@ -45,7 +45,7 @@ class CommunityAllocationServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new CommunityAllocationServiceImpl(communityAllocationRepository, validator,
-														publisher, projectAllocationService);
+				publisher, projectAllocationService);
 		orderVerifier = inOrder(communityAllocationRepository, publisher);
 	}
 

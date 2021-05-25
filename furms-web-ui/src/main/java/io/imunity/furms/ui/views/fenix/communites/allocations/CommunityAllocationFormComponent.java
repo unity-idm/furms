@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.fenix.communites.allocations;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
 	private Label availableAmountLabel;
 	private BigDecimal availableAmount;
-	private BigDecimal lastAmount = new BigDecimal("0");
+	private boolean editMode;
 
 	CommunityAllocationFormComponent(Binder<CommunityAllocationViewModel> binder, CommunityAllocationComboBoxesModelsResolver resolver) {
 		this.binder = binder;
@@ -69,10 +70,14 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		resourceTypeComboBox.addValueChangeListener(event -> {
-			String id = Optional.ofNullable(event.getValue()).map(x -> x.id).orElse(null);
-			ResourceMeasureUnit unit = Optional.ofNullable(event.getValue()).map(x -> x.unit).orElse(null);
-			resourceCreditComboBox.setItems(resolver.getResourceCredits(id));
-			createUnitLabel(amountField, unit);
+			if (event.getValue() == null) {
+				resourceCreditComboBox.setItems(Collections.emptyList());
+				createUnitLabel(amountField, ResourceMeasureUnit.SiUnit.none);
+				return;
+			}
+			String resourceTypeId = event.getValue().id;
+			resourceCreditComboBox.setItems(resolver.getResourceCredits(resourceTypeId));
+			createUnitLabel(amountField, event.getValue().unit);
 		});
 		formLayout.addFormItem(amountField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));
 
@@ -86,7 +91,8 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 						"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit", 
 						availableAmount));
 					amountField.setReadOnly(!x.split);
-					amountField.setValue(availableAmount);
+					if (!editMode)
+						amountField.setValue(availableAmount);
 				},
 				() -> availableAmountLabel.setText("")
 			)
@@ -155,31 +161,29 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 
 	private boolean isAmountCorrect(ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox, BigDecimal current) {
 		Optional<ResourceCreditComboBoxModel> value = Optional.ofNullable(resourceCreditComboBox.getValue());
-		if(value.isEmpty())
+		if (value.isEmpty())
 			return false;
 		if (BigDecimal.ZERO.equals(current))
 			return false;
-		if(!value.get().split)
+		if (!value.get().split)
 			return value.get().amount.compareTo(current) == 0;
-		return availableAmount.compareTo(current.subtract(lastAmount)) >= 0;
+		return availableAmount.compareTo(current) >= 0;
 	}
 
-	public void setFormPools(CommunityAllocationViewModel model) {
+	public void setModelObject(CommunityAllocationViewModel model) {
 		if(model.getSite() != null) {
-			siteComboBox.setEnabled(false);
+			siteComboBox.setReadOnly(true);
 			siteComboBox.setItems(model.getSite());
 		}
 		if(model.getResourceType() != null){
-			resourceTypeComboBox.setEnabled(false);
+			resourceTypeComboBox.setReadOnly(true);
 			resourceTypeComboBox.setItems(model.getResourceType());
 		}
 		if(model.getResourceCredit() != null) {
-			resourceCreditComboBox.setEnabled(false);
+			resourceCreditComboBox.setReadOnly(true);
 			resourceCreditComboBox.setItems(model.getResourceCredit());
 		}
-		if(model.getAmount() != null) {
-			lastAmount = model.getAmount();
-		}
+		editMode = model.getId() != null;
 		binder.setBean(model);
 	}
 }

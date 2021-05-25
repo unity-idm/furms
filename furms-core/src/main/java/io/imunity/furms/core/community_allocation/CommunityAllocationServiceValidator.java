@@ -5,22 +5,29 @@
 
 package io.imunity.furms.core.community_allocation;
 
+import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static org.springframework.util.Assert.notNull;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationHasProjectAllocationsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAmountException;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAvailableAmountException;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import org.springframework.stereotype.Component;
-
-import java.util.Objects;
-import java.util.Optional;
-
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static org.springframework.util.Assert.notNull;
 
 @Component
 class CommunityAllocationServiceValidator {
@@ -41,23 +48,48 @@ class CommunityAllocationServiceValidator {
 
 	void validateCreate(CommunityAllocation communityAllocation) {
 		notNull(communityAllocation, "CommunityAllocation object cannot be null.");
-		validateCommunityId(communityAllocation.communityId);
-		validateResourceCreditId(communityAllocation.resourceCreditId);
+		assertCommunityExists(communityAllocation.communityId);
+		assertResourceCreditExists(communityAllocation.resourceCreditId);
 		validateName(communityAllocation);
 		notNull(communityAllocation.amount, "CommunityAllocation amount cannot be null.");
 	}
 
-	void validateUpdate(CommunityAllocation communityAllocation) {
-		notNull(communityAllocation, "CommunityAllocation object cannot be null.");
-		validateId(communityAllocation.id);
-		validateUpdateCommunityId(communityAllocation);
-		validateUpdateResourceCreditId(communityAllocation);
-		validateName(communityAllocation);
-		notNull(communityAllocation.amount, "CommunityAllocation amount cannot be null.");
+	void validateUpdate(CommunityAllocation updatedAllocation) {
+		notNull(updatedAllocation, "CommunityAllocation object cannot be null.");
+		CommunityAllocation existingAllocation = assertAllocationExists(updatedAllocation.id);
+		assertCommunityIsNotChanged(updatedAllocation, existingAllocation);
+		assertResourceCreditIsNotChanged(updatedAllocation, existingAllocation);
+		assertNotUpdatedBelowDistributed(updatedAllocation, existingAllocation);
+		assertNotUpdatedAboveCredit(updatedAllocation, existingAllocation);
+		assertNotUpdatedAboveCreditAvailableAmount(updatedAllocation, existingAllocation);
+		validateName(updatedAllocation);
+		notNull(updatedAllocation.amount, "CommunityAllocation amount cannot be null.");
+	}
+
+	private void assertNotUpdatedAboveCreditAvailableAmount(CommunityAllocation updatedAllocation,
+			CommunityAllocation existingAllocation) {
+		BigDecimal remainingAmount = communityAllocationRepository.getAvailableAmount(updatedAllocation.resourceCreditId);
+		BigDecimal maxAllowedAmount = remainingAmount.add(existingAllocation.amount);
+		assertTrue(updatedAllocation.amount.compareTo(maxAllowedAmount) <= 0, 
+				() -> new CommunityAllocationUpdateAboveCreditAvailableAmountException());
+	}
+
+	private void assertNotUpdatedAboveCredit(CommunityAllocation updatedAllocation,
+			CommunityAllocation existingAllocation) {
+		ResourceCredit credit = resourceCreditRepository.findById(updatedAllocation.resourceCreditId).get();
+		assertFalse(updatedAllocation.amount.compareTo(credit.amount) > 0, 
+				() -> new CommunityAllocationUpdateAboveCreditAmountException());
+	}
+
+	private void assertNotUpdatedBelowDistributed(CommunityAllocation updatedAllocation, CommunityAllocation existingAllocation) {
+		BigDecimal availableAmount = projectAllocationRepository.getAvailableAmount(updatedAllocation.id);
+		BigDecimal distributedAmount = existingAllocation.amount.subtract(availableAmount);
+		assertFalse(distributedAmount.compareTo(updatedAllocation.amount) > 0, 
+				() -> new CommunityAllocationUpdateBelowDistributedAmountException());
 	}
 
 	void validateDelete(String id) {
-		validateId(id);
+		assertAllocationExists(id);
 		if(projectAllocationRepository.existsByCommunityAllocationId(id)){
 			throw new CommunityAllocationHasProjectAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
 		}
@@ -72,9 +104,9 @@ class CommunityAllocationServiceValidator {
 	}
 
 	private boolean isNameUnique(CommunityAllocation communityAllocation) {
-		Optional<CommunityAllocation> optionalProject = communityAllocationRepository.findById(communityAllocation.id);
+		Optional<CommunityAllocation> optionalAllocation = communityAllocationRepository.findById(communityAllocation.id);
 		return !communityAllocationRepository.isUniqueName(communityAllocation.name) &&
-			(optionalProject.isEmpty() || !optionalProject.get().name.equals(communityAllocation.name));
+			(optionalAllocation.isEmpty() || !optionalAllocation.get().name.equals(communityAllocation.name));
 	}
 
 	private void validateLength(String fieldName, String fieldVale, int length) {
@@ -83,34 +115,32 @@ class CommunityAllocationServiceValidator {
 		}
 	}
 
-	private void validateId(String id) {
+	private CommunityAllocation assertAllocationExists(String id) {
 		notNull(id, "Resource CreditAllocation ID has to be declared.");
-		assertTrue(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID is not exists."));
+		Optional<CommunityAllocation> existing = communityAllocationRepository.findById(id);
+		assertTrue(existing.isPresent(), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist"));
+		return existing.get();
 	}
 
-	private void validateCommunityId(String id) {
+	private void assertCommunityExists(String id) {
 		notNull(id, "Community ID has to be declared.");
-		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
+		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID does not exist"));
 	}
 
-	private void validateResourceCreditId(String id) {
+	private void assertResourceCreditExists(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
-		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist."));
+		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist"));
 	}
 
-	private void validateUpdateCommunityId(CommunityAllocation communityAllocation) {
-		validateCommunityId(communityAllocation.communityId);
-		communityAllocationRepository.findById(communityAllocation.id)
-			.map(s -> s.communityId)
-			.filter(id -> id.equals(communityAllocation.communityId))
-			.orElseThrow(() -> new IllegalArgumentException("Community ID change is forbidden"));
+	private void assertCommunityIsNotChanged(CommunityAllocation updatedCommunityAllocation, 
+			CommunityAllocation existing) {
+		assertTrue(existing.communityId.equals(updatedCommunityAllocation.communityId), 
+				() -> new IllegalArgumentException("Community ID change is forbidden"));
 	}
 
-	private void validateUpdateResourceCreditId(CommunityAllocation communityAllocation) {
-		validateResourceCreditId(communityAllocation.resourceCreditId);
-		communityAllocationRepository.findById(communityAllocation.id)
-			.map(s -> s.resourceCreditId)
-			.filter(id -> id.equals(communityAllocation.resourceCreditId))
-			.orElseThrow(() -> new IllegalArgumentException("Resource Credit ID change is forbidden"));
+	private void assertResourceCreditIsNotChanged(CommunityAllocation updatedCommunityAllocation, 
+			CommunityAllocation existing) {
+		assertTrue(existing.resourceCreditId.equals(updatedCommunityAllocation.resourceCreditId), 
+				() -> new IllegalArgumentException("Resource Credit ID change is forbidden"));
 	}
 }

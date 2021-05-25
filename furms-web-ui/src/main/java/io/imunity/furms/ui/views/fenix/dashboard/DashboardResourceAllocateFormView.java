@@ -221,7 +221,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		ResourceCreditComboBoxModel resourceCredit = binder.getBean().getResourceCredit();
 		resourceCreditComboBox.setItems(resourceCredit);
 
-		availableAmount = communityAllocationService.getAvailableAmount(resourceCredit.id);
+		availableAmount = communityAllocationService.getAvailableAmountForNew(resourceCredit.id);
 		availableAmountLabel.setText(createAvailableLabelContent(resourceCredit.split));
 
 		binder.forField(resourceCreditComboBox)
