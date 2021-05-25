@@ -47,6 +47,8 @@ public class FurmsViewUserContext {
 
 	public static FurmsViewUserContext getCurrent() {
 		UI ui = UI.getCurrent();
+		if (ui == null)
+			throw new IllegalStateException("No UI set when trying to obtain FurmsViewUserContext");
 		return ComponentUtil.getData(ui, FurmsViewUserContext.class);
 	}
 

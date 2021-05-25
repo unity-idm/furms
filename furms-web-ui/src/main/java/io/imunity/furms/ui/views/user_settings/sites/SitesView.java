@@ -5,10 +5,20 @@
 
 package io.imunity.furms.ui.views.user_settings.sites;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.INFO_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collection;
+import java.util.List;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.componentfactory.TooltipAlignment;
 import com.vaadin.componentfactory.TooltipPosition;
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -16,6 +26,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -24,17 +35,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-
-import java.util.Collection;
-import java.util.List;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.INFO_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
-import static java.lang.String.format;
-import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 @Route(value = "users/settings/sites", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.sites.page.title")

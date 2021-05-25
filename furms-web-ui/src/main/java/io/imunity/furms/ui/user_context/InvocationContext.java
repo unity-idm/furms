@@ -38,8 +38,11 @@ public class InvocationContext {
 	public static InvocationContext getCurrent() {
 		UI ui = UI.getCurrent();
 		InvocationContext ret = ComponentUtil.getData(ui, InvocationContext.class);
-		if (ret == null)
-			throw new EmptyInvocationContextException("The current call has no invocation context set");
+		if (ret == null) {
+			LOG.debug("Recreate invocation context");
+			init(ui);
+			ret = ComponentUtil.getData(ui, InvocationContext.class);
+		}
 		return ret;
 	}
 
