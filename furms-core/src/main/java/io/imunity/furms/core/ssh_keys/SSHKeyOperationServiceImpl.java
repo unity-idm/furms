@@ -70,6 +70,11 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result) {
 		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
+		if (job == null) {
+			LOG.info("SSHKeyOperation with given correlation id {} does not exists", correlationId.id);
+			return;
+		}
+		
 		if (job.status.equals(FAILED) || job.status.equals(DONE)) {
 			LOG.info("SSHKeyOperation with given correlation id {} cannot be modified", correlationId.id);
 			return;

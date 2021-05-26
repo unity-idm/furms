@@ -40,6 +40,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
+	
+	@Override
+	public Set<UserAddition> findAllUserAdditions(String userId) {
+		return userAdditionEntityRepository.findAllByUserId(userId).stream()
+			.map(UserAdditionReadEntity::toUserAddition)
+			.collect(toSet());
+	}
 
 	@Override
 	public Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId) {

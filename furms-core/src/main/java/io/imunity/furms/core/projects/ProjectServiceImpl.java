@@ -169,10 +169,11 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String projectId, String communityId) {
 		validator.validateDelete(projectId);
+		List<FURMSUser> allProjectUsers = projectGroupsDAO.getAllUsers(communityId, projectId);
 		removeFromAgent(projectId);
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
-		publisher.publishEvent(new RemoveProjectEvent(projectId));
+		publisher.publishEvent(new RemoveProjectEvent(projectId, allProjectUsers));
 		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 
