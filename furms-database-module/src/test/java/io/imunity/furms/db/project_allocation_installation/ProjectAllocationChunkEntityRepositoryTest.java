@@ -6,22 +6,6 @@
 package io.imunity.furms.db.project_allocation_installation;
 
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -43,9 +27,23 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTest {
+class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -65,12 +63,13 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
-	private ProjectAllocationInstallationEntityRepository entityRepository;
+	private ProjectAllocationChunkEntityRepository entityRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
 
 	private UUID projectId;
+	private UUID projectId2;
 
 	private UUID projectAllocationId;
 	private UUID projectAllocationId2;
@@ -119,7 +118,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.build();
 
 		projectId = UUID.fromString(projectRepository.create(project));
-		UUID projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId2 = UUID.fromString(projectRepository.create(project2));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
@@ -189,168 +188,151 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldCreateProjectAllocationInstallation() {
+	void shouldCreateProjectAllocationChunk() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity entityToSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
+		ProjectAllocationChunkEntity entityToSave = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
 
 		//when
-		ProjectAllocationInstallationEntity saved = entityRepository.save(entityToSave);
+		ProjectAllocationChunkEntity saved = entityRepository.save(entityToSave);
 
 		//then
 		assertThat(entityRepository.findAll()).hasSize(1);
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(saved.getId());
+		Optional<ProjectAllocationChunkEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().status).isEqualTo(PROVISIONING_PROJECT.getPersistentId());
-		assertThat(byId.get().correlationId).isEqualTo(correlationId);
+		assertThat(byId.get().amount).isEqualTo(saved.amount);
+		assertThat(byId.get().chunkId).isEqualTo(saved.chunkId);
 	}
 
 	@Test
-	void shouldUpdateProjectAllocationInstallation() {
+	void shouldUpdateProjectAllocationChunk() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity entityToSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
+		ProjectAllocationChunkEntity entityToSave = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.chunkId("1")
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
 
 		//when
-		ProjectAllocationInstallationEntity save = entityRepository.save(entityToSave);
+		ProjectAllocationChunkEntity save = entityRepository.save(entityToSave);
 
-		ProjectAllocationInstallationEntity entityToUpdate = ProjectAllocationInstallationEntity.builder()
+		ProjectAllocationChunkEntity entityToUpdate = ProjectAllocationChunkEntity.builder()
 			.id(save.getId())
-			.correlationId(save.correlationId)
-			.siteId(save.siteId)
-			.projectAllocationId(save.projectAllocationId)
-			.status(ACKNOWLEDGED)
+			.chunkId("1")
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.ONE)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
 			.build();
 
 		entityRepository.save(entityToUpdate);
 
 		//then
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(entityToSave.getId());
+		Optional<ProjectAllocationChunkEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
-		assertThat(byId.get().correlationId).isEqualTo(correlationId);
+		assertThat(byId.get().amount).isEqualTo(entityToUpdate.amount);
+		assertThat(byId.get().chunkId).isEqualTo(entityToUpdate.chunkId);
 	}
 
 	@Test
-	void shouldFindCreatedProjectAllocationInstallation() {
+	void shouldFindCreatedProjectAllocationChunk() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
+		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
 
 		entityRepository.save(toSave);
 
 		//when
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(toSave.getId());
+		Optional<ProjectAllocationChunkEntity> byId = entityRepository.findById(toSave.getId());
 
 		//then
 		assertThat(byId).isPresent();
 	}
 
 	@Test
-	void shouldFindCreatedProjectAllocationInstallationByCorrelationId() {
+	void shouldFindAllProjectAllocationChunksByProjectId() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toFind = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
+		ProjectAllocationChunkEntity toNotFind = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId2)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
 
-		entityRepository.save(toFind);
-		ProjectAllocationInstallationEntity findById = entityRepository.findByCorrelationId(correlationId).get();
+		ProjectAllocationChunkEntity toFind = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
+
+		entityRepository.save(toNotFind);
+		ProjectAllocationChunkEntity save = entityRepository.save(toFind);
 
 		//when
-		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(findById.getId());
+		Set<ProjectAllocationChunkEntity> chunks = entityRepository.findAllByProjectId(projectId);
 
 		//then
-		assertThat(byId).isPresent();
+		assertThat(chunks.size()).isEqualTo(1);
+		assertThat(chunks.iterator().next().getId()).isEqualTo(save.getId());
 	}
 
 	@Test
-	void shouldFindAllAvailableProjectAllocationInstallation() {
+	void shouldFindAllAvailableProjectAllocationChunk() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
-		UUID correlationId1 = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
-			.correlationId(correlationId1)
-			.siteId(siteId2)
+		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
+		ProjectAllocationChunkEntity toSave1 = ProjectAllocationChunkEntity.builder()
 			.projectAllocationId(projectAllocationId2)
-			.status(ACKNOWLEDGED)
+			.amount(BigDecimal.ZERO)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
 			.build();
 
 		entityRepository.save(toSave);
 		entityRepository.save(toSave1);
 
 		//when
-		Iterable<ProjectAllocationInstallationEntity> all = entityRepository.findAll();
+		Iterable<ProjectAllocationChunkEntity> all = entityRepository.findAll();
 
 		//then
 		assertThat(all).hasSize(2);
 	}
 
 	@Test
-	void shouldFindAllAvailableProjectAllocationInstallationForProjectAndSite() {
+	void shouldDeleteProjectAllocationChunk() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
-			.correlationId(correlationId)
-			.siteId(siteId)
-			.projectAllocationId(projectAllocationId)
-			.status(PROVISIONING_PROJECT)
-			.build();
-		UUID correlationId1 = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
-			.correlationId(correlationId1)
-			.siteId(siteId2)
+		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
 			.projectAllocationId(projectAllocationId2)
-			.status(ACKNOWLEDGED)
+			.amount(BigDecimal.ZERO)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
 			.build();
-
-		entityRepository.save(toSave);
-		entityRepository.save(toSave1);
-
-		//when
-		Iterable<ProjectAllocationInstallationEntity> all = entityRepository.findAllByProjectIdAndSiteId(projectId, siteId);
-
-		//then
-		assertThat(all).hasSize(1);
-		assertThat(all.iterator().next()).isEqualTo(toSave);
-	}
-
-	@Test
-	void shouldDeleteProjectAllocationInstallation() {
-		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId2)
-				.projectAllocationId(projectAllocationId2)
-				.status(PROVISIONING_PROJECT)
-				.build();
 
 		//when
 		entityRepository.save(toSave);
@@ -361,21 +343,21 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	}
 
 	@Test
-	void shouldDeleteAllProjectAllocationInstallations() {
+	void shouldDeleteAllProjectAllocationChunks() {
 		//given
-		UUID correlationId = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
-				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectAllocationId(projectAllocationId)
-				.status(PROVISIONING_PROJECT)
-				.build();
-		UUID correlationId1 = UUID.randomUUID();
-		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
-			.correlationId(correlationId1)
-			.siteId(siteId2)
+		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.amount(BigDecimal.TEN)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
+			.build();
+		ProjectAllocationChunkEntity toSave1 = ProjectAllocationChunkEntity.builder()
 			.projectAllocationId(projectAllocationId2)
-			.status(ACKNOWLEDGED)
+			.amount(BigDecimal.ZERO)
+			.receivedTime(LocalDateTime.now())
+			.validFrom(LocalDateTime.now())
+			.validTo(LocalDateTime.now())
 			.build();
 
 		//when

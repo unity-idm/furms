@@ -20,17 +20,21 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Repository
 class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocationInstallationRepository {
 	private final ProjectAllocationInstallationEntityRepository allocationRepository;
+	private final ProjectAllocationChunkEntityRepository chunkRepository;
 	private final ProjectDeallocationEntityRepository deallocationRepository;
 
-	ProjectAllocationInstallationDatabaseRepository(ProjectAllocationInstallationEntityRepository allocationRepository, ProjectDeallocationEntityRepository deallocationRepository) {
+	ProjectAllocationInstallationDatabaseRepository(ProjectAllocationInstallationEntityRepository allocationRepository,
+	                                                ProjectAllocationChunkEntityRepository chunkRepository,
+	                                                ProjectDeallocationEntityRepository deallocationRepository) {
 		this.allocationRepository = allocationRepository;
+		this.chunkRepository = chunkRepository;
 		this.deallocationRepository = deallocationRepository;
 	}
 
 	@Override
 	public Set<ProjectAllocationInstallation> findAll(String projectId) {
 		if (isEmpty(projectId)) {
-			return Set.of();
+			throw new IllegalArgumentException("Project Id is empty");
 		}
 		return allocationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
@@ -38,10 +42,20 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public ProjectAllocationInstallation findBySiteIdAndProjectAllocationId(String siteId, String projectAllocationId) {
-		return allocationRepository.findBySiteIdAndProjectAllocationId(UUID.fromString(siteId), UUID.fromString(projectAllocationId))
+	public Set<ProjectAllocationInstallation> findAll(String projectId, String siteId) {
+		if (isEmpty(projectId)) {
+			throw new IllegalArgumentException("Project Id is empty");
+		}
+		return allocationRepository.findAllByProjectIdAndSiteId(UUID.fromString(projectId), UUID.fromString(siteId)).stream()
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Project allocation installation: %s for site %s doesn't exist", projectAllocationId, siteId)));
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId) {
+		return allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Project allocation installation: %s doesn't exist", projectAllocationId)));
 	}
 
 	@Override
@@ -55,24 +69,29 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public Set<ProjectAllocationChunk> findAllChunks(String projectId) {
+		if (isEmpty(projectId)) {
+			throw new IllegalArgumentException("Project Id is empty");
+		}
+		return chunkRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(ProjectAllocationChunkEntity::toProjectAllocationChunk)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId correlationId) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation);
 	}
 
 	@Override
-	public String create(ProjectAllocationInstallation projectAllocation) {
+	public String create(ProjectAllocationInstallation projectAllocationInstallation) {
 		ProjectAllocationInstallationEntity savedProjectAllocation = allocationRepository.save(
 			ProjectAllocationInstallationEntity.builder()
-				.correlationId(UUID.fromString(projectAllocation.correlationId.id))
-				.siteId(Optional.ofNullable(projectAllocation.siteId).map(UUID::fromString).orElse(null))
-				.projectAllocationId(UUID.fromString(projectAllocation.projectAllocationId))
-				.chunkId(projectAllocation.chunkId)
-				.amount(projectAllocation.amount)
-				.validFrom(projectAllocation.validFrom)
-				.validTo(projectAllocation.validTo)
-				.receivedTime(projectAllocation.receivedTime)
-				.status(projectAllocation.status)
+				.correlationId(UUID.fromString(projectAllocationInstallation.correlationId.id))
+				.siteId(UUID.fromString(projectAllocationInstallation.siteId))
+				.projectAllocationId(UUID.fromString(projectAllocationInstallation.projectAllocationId))
+				.status(projectAllocationInstallation.status)
 				.build()
 		);
 		return savedProjectAllocation.getId().toString();
@@ -94,15 +113,11 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(installationEntity -> ProjectAllocationInstallationEntity.builder()
-				.id(installationEntity.getId())
-				.correlationId(installationEntity.correlationId)
-				.siteId(installationEntity.siteId)
-				.projectAllocationId(installationEntity.projectAllocationId)
-				.amount(installationEntity.amount)
-				.validFrom(installationEntity.validFrom)
-				.validTo(installationEntity.validTo)
-				.receivedTime(installationEntity.receivedTime)
+			.map(old -> ProjectAllocationInstallationEntity.builder()
+				.id(old.getId())
+				.correlationId(old.correlationId)
+				.siteId(old.siteId)
+				.projectAllocationId(old.projectAllocationId)
 				.status(status)
 				.code(errorMessage.map(e -> e.code).orElse(null))
 				.message(errorMessage.map(e -> e.message).orElse(null))
@@ -143,25 +158,16 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(ProjectAllocationInstallation projectAllocation) {
-		return allocationRepository.findByCorrelationId(UUID.fromString(projectAllocation.correlationId.id))
-			.map(oldProjectAllocation -> ProjectAllocationInstallationEntity.builder()
-				.id(oldProjectAllocation.getId())
-				.correlationId(oldProjectAllocation.correlationId)
-				.siteId(oldProjectAllocation.siteId)
-				.projectAllocationId(oldProjectAllocation.projectAllocationId)
-				.chunkId(projectAllocation.chunkId)
-				.amount(projectAllocation.amount)
-				.validFrom(projectAllocation.validFrom)
-				.validTo(projectAllocation.validTo)
-				.receivedTime(projectAllocation.receivedTime)
-				.status(projectAllocation.status)
-				.build()
-			)
-			.map(allocationRepository::save)
-			.map(ProjectAllocationInstallationEntity::getId)
-			.map(UUID::toString)
-			.get();
+	public String create(ProjectAllocationChunk projectAllocationChunk) {
+		ProjectAllocationChunkEntity chunk = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(UUID.fromString(projectAllocationChunk.projectAllocationId))
+			.chunkId(projectAllocationChunk.chunkId)
+			.amount(projectAllocationChunk.amount)
+			.validFrom(projectAllocationChunk.validFrom)
+			.validTo(projectAllocationChunk.validTo)
+			.receivedTime(projectAllocationChunk.receivedTime)
+			.build();
+		return chunkRepository.save(chunk).getId().toString();
 	}
 
 	@Override

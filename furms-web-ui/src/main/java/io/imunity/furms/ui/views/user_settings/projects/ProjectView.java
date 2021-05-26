@@ -25,16 +25,18 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "users/settings/project", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
@@ -43,7 +45,7 @@ class ProjectView extends FurmsViewComponent {
 	private final ProjectAllocationService service;
 	private final Grid<ProjectAllocationGridModel> grid;
 	private String projectId;
-	private ProjectDataSnapshot projectDataSnapshot;
+	private ProjectAllocationDataSnapshot projectDataSnapshot;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	public ProjectView(ProjectService projectService, ProjectAllocationService projectAllocationService) {
@@ -80,7 +82,7 @@ class ProjectView extends FurmsViewComponent {
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
 		grid.addComponentColumn(c -> {
-			List<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
+			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
 			if(deallocation.isPresent()) {
 				int statusId = deallocation.get().status.getPersistentId();
@@ -89,12 +91,11 @@ class ProjectView extends FurmsViewComponent {
 					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
 				);
 			}
-			return projectAllocationInstallations.stream()
-				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
-				.map(installation -> getStatusLayout(
-					getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()),
-					installation.errorMessage.map(x -> x.message).orElse(null)))
-				.orElseGet(HorizontalLayout::new);
+			return projectAllocationInstallations
+				.map(installation ->
+					getStatusLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()),
+						installation.errorMessage.map(x -> x.message).orElse(null))
+				).orElseGet(HorizontalLayout::new);
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
 			.setSortable(true);
@@ -104,7 +105,7 @@ class ProjectView extends FurmsViewComponent {
 
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getAllocation(c.id))));
+			.create(projectDataSnapshot.getChunks(c.id))));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
@@ -144,9 +145,10 @@ class ProjectView extends FurmsViewComponent {
 
 	private void loadGridContent() {
 		handleExceptions(() -> {
-			projectDataSnapshot = new ProjectDataSnapshot(
+			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
-				service.findAllUninstallations(projectId)
+				service.findAllUninstallations(projectId),
+				service.findAllChunks(projectId)
 			);
 			grid.setItems(loadServicesViewsModels());
 		});
@@ -186,25 +188,5 @@ class ProjectView extends FurmsViewComponent {
 	@Override
 	public Optional<BreadCrumbParameter> getParameter() {
 		return Optional.ofNullable(breadCrumbParameter);
-	}
-
-	private static class ProjectDataSnapshot {
-		private final Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
-		private final Map<String, ProjectDeallocation> deallocationsByProjectAllocationId;
-
-		ProjectDataSnapshot(Set<ProjectAllocationInstallation> installations, Set<ProjectDeallocation> uninstallations) {
-			this.groupedProjectAllocations = installations.stream()
-				.collect(groupingBy(installation -> installation.projectAllocationId));
-			this.deallocationsByProjectAllocationId = uninstallations.stream()
-				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity(), (x,y) -> x));
-		}
-
-		List<ProjectAllocationInstallation> getAllocation(String projectAllocationId) {
-			return groupedProjectAllocations.getOrDefault(projectAllocationId, emptyList());
-		}
-
-		Optional<ProjectDeallocation> getDeallocationStatus(String projectAllocationId) {
-			return Optional.ofNullable(deallocationsByProjectAllocationId.get(projectAllocationId));
-		}
 	}
 }

@@ -79,9 +79,10 @@ class ProjectAllocationInstallationServiceTest {
 		//given
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findAll("projectId"))
+		when(repository.findAll("projectId", "siteId"))
 			.thenReturn(Set.of(ProjectAllocationInstallation.builder()
 				.correlationId(correlationId)
+				.siteId("siteId")
 				.projectAllocationId("projectAllocationId")
 				.build()));
 		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
@@ -90,7 +91,7 @@ class ProjectAllocationInstallationServiceTest {
 				.build()));
 
 		//when
-		service.startWaitingAllocations("projectId");
+		service.startWaitingAllocations("projectId", "siteId");
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -112,8 +113,8 @@ class ProjectAllocationInstallationServiceTest {
 			.build();
 
 		//when
-		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.INSTALLED)
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
@@ -136,7 +137,7 @@ class ProjectAllocationInstallationServiceTest {
 			.build();
 
 		//when
-		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
 			.id("id")
 			.projectAllocationId("id")
 			.status(ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED)

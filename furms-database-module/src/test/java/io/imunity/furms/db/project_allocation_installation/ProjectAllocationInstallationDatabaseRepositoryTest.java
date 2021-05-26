@@ -6,22 +6,6 @@
 package io.imunity.furms.db.project_allocation_installation;
 
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -48,6 +32,21 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -217,13 +216,13 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, INSTALLED, Optional.empty());
+		entityDatabaseRepository.update(correlationId.id, ACKNOWLEDGED, Optional.empty());
 
 		//then
 		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
-		assertThat(allocationInstallation.status).isEqualTo(INSTALLED);
+		assertThat(allocationInstallation.status).isEqualTo(ACKNOWLEDGED);
 	}
 
 	@Test

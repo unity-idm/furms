@@ -47,6 +47,10 @@ public class ProjectAllocationInstallationService {
 		return projectAllocationInstallationRepository.findAllDeallocation(projectId);
 	}
 
+	public Set<ProjectAllocationChunk> findAllChunks(String projectId) {
+		return projectAllocationInstallationRepository.findAllChunks(projectId);
+	}
+
 	@Transactional
 	public void createAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
@@ -78,8 +82,8 @@ public class ProjectAllocationInstallationService {
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
-	public void startWaitingAllocations(String projectId) {
-		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
+	public void startWaitingAllocations(String projectId, String siteId) {
+		projectAllocationInstallationRepository.findAll(projectId, siteId).forEach(allocation -> {
 			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
@@ -110,7 +114,7 @@ public class ProjectAllocationInstallationService {
 			.status(ProjectDeallocationStatus.PENDING)
 			.build();
 		ProjectAllocationInstallation projectAllocationInstallation =
-			projectAllocationInstallationRepository.findBySiteIdAndProjectAllocationId(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
+			projectAllocationInstallationRepository.findByProjectAllocationId(projectDeallocation.projectAllocationId);
 		if(projectAllocationInstallation.status.isFailed()){
 			projectAllocationRepository.deleteById(projectAllocationInstallation.projectAllocationId);
 			LOG.info("Deallocation was not created, because project allocation {} process failed", projectAllocationInstallation.id);
