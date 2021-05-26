@@ -75,6 +75,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
+		furmsSelectService.saveOrRestoreUserContext();
 		UI ui = attachEvent.getUI();
 		broadcasterRegistration = vaadinBroadcaster.register(
 			VaadinListener.builder()

@@ -35,7 +35,11 @@ public class CustomSessionListener implements HttpSessionListener {
 		List<UI> uis = UIInSessionHolder.getUIsFromSession(se.getSession());
 		LOG.debug("Disabling push in {} UIs", uis.size());
 		for (UI ui: uis) {
-			ui.getPushConfiguration().setPushMode(PushMode.DISABLED);
+			try {
+				ui.getPushConfiguration().setPushMode(PushMode.DISABLED);
+			} catch (Exception e) {
+				LOG.info("Unable to disable push for UI", e);
+			}
 			ui.getInternals().setPushConnection(null);
 		}
 	}

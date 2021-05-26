@@ -8,10 +8,14 @@ package io.imunity.furms.ui.components;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
@@ -19,8 +23,11 @@ import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 
 public class FurmsSelectService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final RoleTranslator roleTranslator;
-
+	private FurmsViewUserContext savedUserContext;
+	
 	FurmsSelectService(RoleTranslator roleTranslator) {
 		this.roleTranslator = roleTranslator;
 	}
@@ -59,13 +66,32 @@ public class FurmsSelectService {
 	}
 
 	void manageSelectedItemRedirects(FurmsSelectText value){
-		ofNullable(value)
-			.ifPresent(furmsSelectText -> furmsSelectText.furmsViewUserContext.setAsCurrent());
-		if(value != null && value.furmsViewUserContext.redirectable){
+		LOG.debug("Manage selected item redirects: {}", value);
+		if (value != null) {
+			value.furmsViewUserContext.setAsCurrent();
+			savedUserContext = value.furmsViewUserContext;
+		}
+		if (value != null && value.furmsViewUserContext.redirectable){
+			LOG.debug("Redirecting to {}", value.furmsViewUserContext.route);
 			UI.getCurrent().navigate(value.furmsViewUserContext.route);
 		}
 	}
 
+	
+	void saveOrRestoreUserContext() {
+		if (FurmsViewUserContext.getCurrent() == null) {
+			if (savedUserContext == null) {
+				LOG.warn("No saved user view context and nothing set in UI, troubles can be expected");
+				return;
+			}
+			LOG.debug("Recreate furms user context from saved state {}", savedUserContext);
+			savedUserContext.setAsCurrent();
+		} else {
+			savedUserContext = FurmsViewUserContext.getCurrent();
+			LOG.debug("Updating saved UI state {}", savedUserContext);
+		}
+	}
+	
 	Optional<FurmsViewUserContext> loadSelectedItem(){
 		return ofNullable(FurmsViewUserContext.getCurrent());
 	}

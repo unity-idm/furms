@@ -23,12 +23,13 @@ import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.administrators.page.title")
 public class SiteAdministratorsView extends FurmsViewComponent {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
@@ -39,7 +40,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
-		this.siteId = getActualViewUserContext().id;
+		this.siteId = FurmsViewUserContext.getCurrent().id;
 		this.currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
 			userService::getAllUsers,
