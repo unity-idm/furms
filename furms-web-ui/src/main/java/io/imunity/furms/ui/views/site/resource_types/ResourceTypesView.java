@@ -98,7 +98,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ResourceTypeViewModel serviceViewModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(serviceViewModel.getId(), serviceViewModel.getId())
+			createContextMenu(serviceViewModel.getId(), serviceViewModel.getName())
 		);
 	}
 
