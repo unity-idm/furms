@@ -112,7 +112,7 @@ public class ProjectAllocationInstallationService {
 		ProjectAllocationInstallation projectAllocationInstallation =
 			projectAllocationInstallationRepository.findBySiteIdAndProjectAllocationId(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
 		if(projectAllocationInstallation.status.isFailed()){
-			projectAllocationInstallationRepository.deleteBy(projectAllocationInstallation.id);
+			projectAllocationRepository.deleteById(projectAllocationInstallation.projectAllocationId);
 			LOG.info("Deallocation was not created, because project allocation {} process failed", projectAllocationInstallation.id);
 			return;
 		}
