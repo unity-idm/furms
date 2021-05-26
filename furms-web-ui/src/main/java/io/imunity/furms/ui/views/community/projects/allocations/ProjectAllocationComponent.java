@@ -5,27 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Collections.emptyList;
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
@@ -45,6 +24,17 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 
 public class ProjectAllocationComponent extends Composite<Div> {
@@ -195,5 +185,39 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.map(ProjectAllocationModelsMapper::gridMap)
 			.sorted(comparing(resourceTypeViewModel -> resourceTypeViewModel.name.toLowerCase()))
 			.collect(toList());
+	}
+
+	private static class ActionComponent extends Div {
+
+		private final String projectId;
+		private final Supplier<Boolean> isProjectInTerminalState;
+
+		ActionComponent(String projectId, Supplier<Boolean> isProjectInTerminalState) {
+			this.projectId = projectId;
+			this.isProjectInTerminalState = isProjectInTerminalState;
+			reload();
+		}
+
+		void reload() {
+			removeAll();
+			if (isProjectInTerminalState.get()) {
+				add(new RouterGridLink(
+					button(),
+					null,
+					ProjectAllocationFormView.class,
+					"projectId",
+					projectId));
+			} else {
+				Button button = button();
+				button.setEnabled(false);
+				add(button);
+			}
+		}
+
+		private Button button() {
+			Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
+			button.setClassName("reload-disable");
+			return button;
+		}
 	}
 }
