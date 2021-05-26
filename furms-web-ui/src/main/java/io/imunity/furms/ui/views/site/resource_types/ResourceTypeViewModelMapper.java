@@ -16,6 +16,7 @@ class ResourceTypeViewModelMapper {
 			.name(resourceType.name)
 			.type(resourceType.type)
 			.unit(resourceType.unit)
+			.accessible(resourceType.accessibleForAllProjectMembers)
 			.build();
 	}
 
@@ -27,6 +28,7 @@ class ResourceTypeViewModelMapper {
 			.name(resourceTypeViewModel.getName())
 			.type(resourceTypeViewModel.getType())
 			.unit(resourceTypeViewModel.getUnit())
+			.accessibleForAllProjectMembers(resourceTypeViewModel.isAccessible())
 			.build();
 	}
 }

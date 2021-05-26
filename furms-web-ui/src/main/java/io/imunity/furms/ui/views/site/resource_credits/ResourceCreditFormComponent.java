@@ -35,7 +35,6 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	private final ResourceTypeComboBoxModelResolver resolver;
 
 	private final FormLayout formLayout;
-	private final Checkbox accessCheckbox;
 
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
@@ -56,7 +55,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		Checkbox splitCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.split"));
 		formLayout.addFormItem(splitCheckbox, "");
 
-		accessCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.access"));
+		Checkbox accessCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.access"));
 		formLayout.addFormItem(accessCheckbox, "");
 
 		TextField amountField = new TextField();
@@ -129,7 +128,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 					(credit, endTime) -> credit.setEndTime(endTime));
 	}
 
-	void setFormPools(ResourceCreditViewModel resourceCreditViewModel) {
+	public void setFormPools(ResourceCreditViewModel resourceCreditViewModel) {
 		binder.setBean(resourceCreditViewModel);
 
 		addIdFieldForEditForm(resourceCreditViewModel);
@@ -142,8 +141,6 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			Label idLabel = new Label(getTranslation("view.site-admin.resource-credits.form.field.id"));
 
 			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
-			
-			accessCheckbox.setEnabled(false);
 		}
 	}
 }
