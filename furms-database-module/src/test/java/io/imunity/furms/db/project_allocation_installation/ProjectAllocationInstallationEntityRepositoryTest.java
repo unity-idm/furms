@@ -69,6 +69,8 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 	private UUID siteId;
 	private UUID siteId2;
 
+	private UUID projectId;
+
 	private UUID projectAllocationId;
 	private UUID projectAllocationId2;
 
@@ -115,7 +117,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		UUID projectId = UUID.fromString(projectRepository.create(project));
+		projectId = UUID.fromString(projectRepository.create(project));
 		UUID projectId2 = UUID.fromString(projectRepository.create(project2));
 
 		InfraService service = InfraService.builder()
@@ -308,6 +310,35 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 
 		//then
 		assertThat(all).hasSize(2);
+	}
+
+	@Test
+	void shouldFindAllAvailableProjectAllocationInstallationForProjectAndSite() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectAllocationInstallationEntity toSave = ProjectAllocationInstallationEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
+			.status(PROVISIONING_PROJECT)
+			.build();
+		UUID correlationId1 = UUID.randomUUID();
+		ProjectAllocationInstallationEntity toSave1 = ProjectAllocationInstallationEntity.builder()
+			.correlationId(correlationId1)
+			.siteId(siteId2)
+			.projectAllocationId(projectAllocationId2)
+			.status(ACKNOWLEDGED)
+			.build();
+
+		entityRepository.save(toSave);
+		entityRepository.save(toSave1);
+
+		//when
+		Iterable<ProjectAllocationInstallationEntity> all = entityRepository.findAllByProjectIdAndSiteId(projectId, siteId);
+
+		//then
+		assertThat(all).hasSize(1);
+		assertThat(all.iterator().next()).isEqualTo(toSave);
 	}
 
 	@Test

@@ -46,7 +46,7 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 		}
 		projectOperationRepository.update(job.id, result.status);
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
-			projectAllocationInstallationService.startWaitingAllocations(job.projectId);
+			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
 			userOperationService.createUserAdditions(job.siteId, job.projectId);
 		}
 		if(result.status.equals(ProjectInstallationStatus.FAILED)){

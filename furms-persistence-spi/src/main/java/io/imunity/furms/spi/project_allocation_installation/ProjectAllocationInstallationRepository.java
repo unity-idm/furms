@@ -14,6 +14,8 @@ import java.util.Set;
 public interface ProjectAllocationInstallationRepository {
 	Set<ProjectAllocationInstallation> findAll(String projectId);
 
+	Set<ProjectAllocationInstallation> findAll(String projectId, String siteId);
+
 	ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId);
 
 	Set<ProjectDeallocation> findAllDeallocation(String projectId);

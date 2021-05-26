@@ -79,9 +79,10 @@ class ProjectAllocationInstallationServiceTest {
 		//given
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findAll("projectId"))
+		when(repository.findAll("projectId", "siteId"))
 			.thenReturn(Set.of(ProjectAllocationInstallation.builder()
 				.correlationId(correlationId)
+				.siteId("siteId")
 				.projectAllocationId("projectAllocationId")
 				.build()));
 		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
@@ -90,7 +91,7 @@ class ProjectAllocationInstallationServiceTest {
 				.build()));
 
 		//when
-		service.startWaitingAllocations("projectId");
+		service.startWaitingAllocations("projectId", "siteId");
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();

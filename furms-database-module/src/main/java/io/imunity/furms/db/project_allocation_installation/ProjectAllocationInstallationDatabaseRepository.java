@@ -42,6 +42,16 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public Set<ProjectAllocationInstallation> findAll(String projectId, String siteId) {
+		if (isEmpty(projectId)) {
+			return Set.of();
+		}
+		return allocationRepository.findAllByProjectIdAndSiteId(UUID.fromString(projectId), UUID.fromString(siteId)).stream()
+			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	public ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId) {
 		return allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)

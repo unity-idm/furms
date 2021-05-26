@@ -63,6 +63,7 @@ class ProjectInstallationStatusUpdaterTest {
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.id("id")
 			.projectId("projectId")
+			.siteId("siteId")
 			.correlationId(id)
 			.status(PENDING)
 			.build();
@@ -73,7 +74,7 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//then
 		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED);
-		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId");
+		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId", "siteId");
 	}
 
 	@Test

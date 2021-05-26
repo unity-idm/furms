@@ -82,8 +82,8 @@ public class ProjectAllocationInstallationService {
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
-	public void startWaitingAllocations(String projectId) {
-		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
+	public void startWaitingAllocations(String projectId, String siteId) {
+		projectAllocationInstallationRepository.findAll(projectId, siteId).forEach(allocation -> {
 			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
