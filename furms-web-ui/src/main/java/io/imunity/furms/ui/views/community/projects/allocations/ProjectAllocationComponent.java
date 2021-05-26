@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
@@ -58,6 +59,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final ProjectAllocationService service;
 	private final String communityId;
 	private final String projectId;
+	private final ActionComponent actionComponent;
 	private ProjectDataSnapshot projectDataSnapshot;
 
 	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
@@ -65,22 +67,9 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		this.service = service;
 		this.projectId = projectId;
 		this.grid = createCommunityGrid();
-		loadGridContent();
+		this.actionComponent = new ActionComponent(projectId, () -> projectService.isProjectInTerminalState(communityId, projectId));
 
-		Component actionComponent = null;
-		Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
-		button.setClassName("reload-disable");
-		if (projectService.isProjectInTerminalState(communityId, projectId)) {
-			actionComponent = new RouterGridLink(
-					button,
-					null,
-					ProjectAllocationFormView.class,
-					"projectId",
-					projectId);
-		} else {
-			button.setEnabled(false);
-			actionComponent = button;
-		}
+		loadGridContent();
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project-allocation.page.header"),
 			actionComponent
@@ -201,6 +190,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 				service.findAllInstallations(communityId, projectId),
 				service.findAllUninstallations(communityId, projectId));
 			grid.setItems(loadServicesViewsModels());
+			actionComponent.reload();
 		});
 	}
 
@@ -230,6 +220,40 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 		Optional<ProjectDeallocation> getDeallocationStatus(String projectAllocationId) {
 			return Optional.ofNullable(deallocationsByProjectAllocationId.get(projectAllocationId));
+		}
+	}
+	
+	private static class ActionComponent extends Div {
+		
+		private final String projectId;
+		private final Supplier<Boolean> isProjectInTerminalState;
+		
+		ActionComponent(String projectId, Supplier<Boolean> isProjectInTerminalState) {
+			this.projectId = projectId;
+			this.isProjectInTerminalState = isProjectInTerminalState;
+			reload();
+		}
+		
+		void reload() {
+			removeAll();
+			if (isProjectInTerminalState.get()) {
+				add(new RouterGridLink(
+						button(),
+						null,
+						ProjectAllocationFormView.class,
+						"projectId",
+						projectId));
+			} else {
+				Button button = button();
+				button.setEnabled(false);
+				add(button);
+			}
+		}
+		
+		private Button button() {
+			Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
+			button.setClassName("reload-disable");
+			return button;
 		}
 	}
 }

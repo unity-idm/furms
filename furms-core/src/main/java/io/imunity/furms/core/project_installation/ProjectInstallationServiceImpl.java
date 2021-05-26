@@ -5,8 +5,24 @@
 
 package io.imunity.furms.core.project_installation;
 
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -16,17 +32,6 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService {
@@ -145,8 +150,9 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	private boolean hasProjectNotTerminalStateInAnySite(Set<ProjectUpdateStatus> updateStatuses,
 	                                                    Map<String, ProjectInstallationJob> siteIdToInstallStatues) {
-		return siteIdToInstallStatues.values().stream().noneMatch(job -> job.status.isTerminal()) ||
-			(!updateStatuses.isEmpty() && updateStatuses.stream().noneMatch(ProjectUpdateStatus::isTerminal));
+		return 
+			(!siteIdToInstallStatues.isEmpty() && siteIdToInstallStatues.values().stream().noneMatch(job -> job.status.isTerminal()))
+			|| (!updateStatuses.isEmpty() && updateStatuses.stream().noneMatch(ProjectUpdateStatus::isTerminal));
 	}
 
 	@Override
