@@ -51,7 +51,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id);
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
-			projectAllocationRepository.delete(projectDeallocation.projectAllocationId);
+			projectAllocationRepository.deleteById(projectDeallocation.projectAllocationId);
 			return;
 		}
 		if(projectDeallocation.status.equals(ProjectDeallocationStatus.FAILED)) {
