@@ -11,8 +11,6 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,27 +20,16 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 	public final UUID correlationId;
 	public final UUID siteId;
 	public final UUID projectAllocationId;
-	public final String chunkId;
-	public final BigDecimal amount;
-	public final LocalDateTime validFrom;
-	public final LocalDateTime validTo;
-	public final LocalDateTime receivedTime;
 	public final int status;
 	public final String code;
 	public final String message;
 
-	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, String chunkId,
-	                                    BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo,
-	                                    LocalDateTime receivedTime, int status, String code, String message) {
+	ProjectAllocationInstallationEntity(UUID id, UUID correlationId, UUID siteId, UUID projectAllocationId, int status,
+	                                    String code, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectAllocationId = projectAllocationId;
-		this.chunkId = chunkId;
-		this.amount = amount;
-		this.validFrom = validFrom;
-		this.validTo = validTo;
-		this.receivedTime = receivedTime;
 		this.status = status;
 		this.code = code;
 		this.message = message;
@@ -54,11 +41,6 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.siteId(Optional.ofNullable(siteId).map(UUID::toString).orElse(null))
 			.projectAllocationId(projectAllocationId.toString())
-			.chunkId(chunkId)
-			.amount(amount)
-			.validFrom(validFrom)
-			.validTo(validTo)
-			.receivedTime(receivedTime)
 			.status(ProjectAllocationInstallationStatus.valueOf(status))
 			.errorMessage(code, message)
 			.build();
@@ -73,11 +55,6 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
-			Objects.equals(chunkId, that.chunkId) &&
-			Objects.equals(amount, that.amount) &&
-			Objects.equals(validFrom, that.validFrom) &&
-			Objects.equals(validTo, that.validTo) &&
-			Objects.equals(receivedTime, that.receivedTime) &&
 			Objects.equals(code, that.code) &&
 			Objects.equals(message, that.message) &&
 			status == that.status;
@@ -85,7 +62,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, code, message, status);
+		return Objects.hash(id, correlationId, siteId, projectAllocationId, code, message, status);
 	}
 
 	@Override
@@ -95,11 +72,6 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			", correlationId=" + correlationId +
 			", siteId=" + siteId +
 			", projectAllocationId=" + projectAllocationId +
-			", chunkId='" + chunkId + '\'' +
-			", amount=" + amount +
-			", validFrom=" + validFrom +
-			", validTo=" + validTo +
-			", receivedTime=" + receivedTime +
 			", code=" + code +
 			", message=" + message +
 			", status=" + status +
@@ -115,11 +87,6 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		public UUID correlationId;
 		public UUID siteId;
 		public UUID projectAllocationId;
-		public String chunkId;
-		public BigDecimal amount;
-		public LocalDateTime validFrom;
-		public LocalDateTime validTo;
-		public LocalDateTime receivedTime;
 		public int status;
 		public String code;
 		public String message;
@@ -147,31 +114,6 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ProjectAllocationInstallationEntityBuilder chunkId(String chunkId) {
-			this.chunkId = chunkId;
-			return this;
-		}
-
-		public ProjectAllocationInstallationEntityBuilder amount(BigDecimal amount) {
-			this.amount = amount;
-			return this;
-		}
-
-		public ProjectAllocationInstallationEntityBuilder validFrom(LocalDateTime validFrom) {
-			this.validFrom = validFrom;
-			return this;
-		}
-
-		public ProjectAllocationInstallationEntityBuilder validTo(LocalDateTime validTo) {
-			this.validTo = validTo;
-			return this;
-		}
-
-		public ProjectAllocationInstallationEntityBuilder receivedTime(LocalDateTime receivedTime) {
-			this.receivedTime = receivedTime;
-			return this;
-		}
-
 		public ProjectAllocationInstallationEntityBuilder status(ProjectAllocationInstallationStatus status) {
 			this.status = status.getPersistentId();
 			return this;
@@ -188,7 +130,7 @@ class ProjectAllocationInstallationEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectAllocationInstallationEntity build() {
-			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime, status, code, message);
+			return new ProjectAllocationInstallationEntity(id, correlationId, siteId, projectAllocationId, status, code, message);
 		}
 	}
 }

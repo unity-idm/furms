@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+
 @Service
 class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocationInstallationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -38,7 +40,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-		if(job.status.equals(ProjectAllocationInstallationStatus.INSTALLED) || job.status.equals(ProjectAllocationInstallationStatus.FAILED)) {
+		if(job.status.isTerminal()) {
 			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
@@ -64,18 +66,15 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	@Override
 	@Transactional
-	public void updateStatus(ProjectAllocationInstallation result) {
-		if(result.status.equals(ProjectAllocationInstallationStatus.FAILED)){
-			LOG.info("ProjectInstallationAllocation with given correlation id {} failed. It's not supported", result.correlationId.id);
-			return;
-		}
-		Optional<ProjectAllocationInstallation> projectInstallation = projectAllocationInstallationRepository.findByCorrelationId(result.correlationId);
-		if(projectInstallation.isPresent() && projectInstallation.get().status.isInstalling()){
-			projectAllocationInstallationRepository.update(result);
-			LOG.info("ProjectAllocationInstallation status with given id {} was updated to {}", projectInstallation.get().id, result.status);
-			return;
-		}
+	public void createChunk(ProjectAllocationChunk result) {
+		ProjectAllocationInstallation allocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(result.projectAllocationId);
+		if(!allocationInstallation.status.equals(ACKNOWLEDGED))
+			throw new IllegalArgumentException(String.format(
+				"Protocol error, only acknowledged allocation get add chunk - project allocation %s status is %s",
+				allocationInstallation.projectAllocationId,
+				allocationInstallation.status)
+			);
 		projectAllocationInstallationRepository.create(result);
-		LOG.info("ProjectAllocationInstallation was updated: {}", result);
+		LOG.info("ProjectAllocationChunk was created: {}", result);
 	}
 }

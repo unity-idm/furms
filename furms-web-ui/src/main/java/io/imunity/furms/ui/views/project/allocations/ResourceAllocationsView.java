@@ -21,17 +21,18 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "project/admin/resource/allocations", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.resource-allocations.page.title")
@@ -39,7 +40,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
 	private final String projectId;
-	private ProjectDataSnapshot projectDataSnapshot;
+	private ProjectAllocationDataSnapshot projectDataSnapshot;
 
 
 	ResourceAllocationsView(ProjectAllocationService service) {
@@ -76,7 +77,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amount));
 		grid.addComponentColumn(c -> {
-			List<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
+			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
 			if(deallocation.isPresent()) {
 				int statusId = deallocation.get().status.getPersistentId();
@@ -85,12 +86,11 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
 				);
 			}
-			return projectAllocationInstallations.stream()
-				.max(comparing(projectAllocationInstallationStatus -> projectAllocationInstallationStatus.status.getPersistentId()))
+			return projectAllocationInstallations
 				.map(installation -> getStatusLayout(
 					getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()),
-					installation.errorMessage.map(x -> x.message).orElse(null)))
-				.orElseGet(HorizontalLayout::new);
+					installation.errorMessage.map(x -> x.message).orElse(null))
+				).orElseGet(HorizontalLayout::new);
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
 			.setSortable(true);
@@ -100,7 +100,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getAllocation(c.id))));
+			.create(projectDataSnapshot.getChunks(c.id))));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
@@ -140,9 +140,10 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 
 	private void loadGridContent() {
 		handleExceptions(() -> {
-			projectDataSnapshot = new ProjectDataSnapshot(
+			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
-				service.findAllUninstallations(projectId)
+				service.findAllUninstallations(projectId),
+				service.findAllChunks(projectId)
 		);
 			grid.setItems(loadServicesViewsModels());
 		});
@@ -167,25 +168,5 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
 			.build();
-	}
-
-	private static class ProjectDataSnapshot {
-		private final Map<String, List<ProjectAllocationInstallation>> groupedProjectAllocations;
-		private final Map<String, ProjectDeallocation> deallocationsByProjectAllocationId;
-
-		ProjectDataSnapshot(Set<ProjectAllocationInstallation> installations, Set<ProjectDeallocation> uninstallations) {
-			this.groupedProjectAllocations = installations.stream()
-				.collect(groupingBy(installation -> installation.projectAllocationId));
-			this.deallocationsByProjectAllocationId = uninstallations.stream()
-				.collect(toMap(uninstallation -> uninstallation.projectAllocationId, identity(), (x,y) -> x));
-		}
-
-		List<ProjectAllocationInstallation> getAllocation(String projectAllocationId) {
-			return groupedProjectAllocations.getOrDefault(projectAllocationId, emptyList());
-		}
-
-		Optional<ProjectDeallocation> getDeallocationStatus(String projectAllocationId) {
-			return Optional.ofNullable(deallocationsByProjectAllocationId.get(projectAllocationId));
-		}
 	}
 }

@@ -8,22 +8,21 @@ package io.imunity.furms.domain.project_allocation_installation;
 import java.util.Arrays;
 
 public enum ProjectAllocationInstallationStatus {
-	PROVISIONING_PROJECT(0, false, false),
-	PENDING(1, true, false),
+	PROVISIONING_PROJECT(0,  false, false),
+	PENDING(1,  false, false),
 	ACKNOWLEDGED(2,  true,false),
-	INSTALLED(3, false,false),
-	FAILED(4, false,true),
-	PROJECT_INSTALLATION_FAILED(5, false,true);
+	FAILED(3, true,true),
+	PROJECT_INSTALLATION_FAILED(4, true,true);
 
-	ProjectAllocationInstallationStatus(int persistentId, boolean installing, boolean failed) {
+	ProjectAllocationInstallationStatus(int persistentId, boolean terminal, boolean failed) {
 		this.persistentId = persistentId;
-		this.installing = installing;
+		this.terminal = terminal;
 		this.failed = failed;
 	}
 
 	private final int persistentId;
+	private final boolean terminal;
 	private final boolean failed;
-	private final boolean installing;
 
 	public int getPersistentId() {
 		return persistentId;
@@ -33,8 +32,8 @@ public enum ProjectAllocationInstallationStatus {
 		return failed;
 	}
 
-	public boolean isInstalling() {
-		return installing;
+	public boolean isTerminal() {
+		return terminal;
 	}
 
 	public static ProjectAllocationInstallationStatus valueOf(int status){

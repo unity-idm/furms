@@ -112,8 +112,8 @@ class ProjectAllocationInstallationServiceTest {
 			.build();
 
 		//when
-		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.INSTALLED)
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
@@ -136,7 +136,7 @@ class ProjectAllocationInstallationServiceTest {
 			.build();
 
 		//when
-		when(repository.findBySiteIdAndProjectAllocationId("id", "id")).thenReturn(ProjectAllocationInstallation.builder()
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
 			.id("id")
 			.status(ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED)
 			.build());

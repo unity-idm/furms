@@ -5,10 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
-
-import java.lang.invoke.MethodHandles;
-
+import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.utils.MDCKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -18,8 +16,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.utils.MDCKey;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
 
 @Component
 @RabbitListener(id = FURMS_LISTENER)
@@ -35,15 +34,16 @@ class SiteAgentListenerRouter {
 	}
 
 	@RabbitHandler
-	public void receive(Payload<?> payload, @Header("amqp_receivedRoutingKey") String receivedRoutingKey) {
+	public void receive(Payload<?> payload,
+	                    @Header("amqp_receivedRoutingKey") String receivedRoutingKey,
+						@Header("amqp_consumerQueue") String queueName) {
 		MDC.put(MDCKey.QUEUE_NAME.key, receivedRoutingKey);
 		try {
 			publisher.publishEvent(payload);
 			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
 			LOG.error("This error occurred while processing payload: {}", payload, e);
-		} finally
-		{
+		} finally {
 			MDC.remove(MDCKey.QUEUE_NAME.key);
 		}
 	}

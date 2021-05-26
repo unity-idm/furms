@@ -7,7 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
@@ -66,28 +66,15 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
-		if(result.header.status.equals(Status.OK)) {
-			ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
-				.correlationId(new CorrelationId(result.header.messageCorrelationId))
-				.projectAllocationId(result.body.allocationIdentifier)
-				.chunkId(result.body.allocationChunkIdentifier)
-				.amount(BigDecimal.valueOf(result.body.amount))
-				.validFrom(convertToUTCTime(result.body.validFrom))
-				.validTo(convertToUTCTime(result.body.validTo))
-				.receivedTime(convertToUTCTime(result.body.receivedTime))
-				.status(INSTALLED)
-				.errorMessage(Optional.empty())
-				.build();
-			projectAllocationInstallationStatusUpdater.updateStatus(installation);
-		}
-		else {
-			ProjectAllocationInstallation installation = ProjectAllocationInstallation.builder()
-				.correlationId(new CorrelationId(result.header.messageCorrelationId))
-				.status(FAILED)
-				.errorMessage(getErrorMessage(result.header.error))
-				.build();
-			projectAllocationInstallationStatusUpdater.updateStatus(installation);
-		}
+		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
+			.projectAllocationId(result.body.allocationIdentifier)
+			.chunkId(result.body.allocationChunkIdentifier)
+			.amount(BigDecimal.valueOf(result.body.amount))
+			.validFrom(convertToUTCTime(result.body.validFrom))
+			.validTo(convertToUTCTime(result.body.validTo))
+			.receivedTime(convertToUTCTime(result.body.receivedTime))
+			.build();
+		projectAllocationInstallationStatusUpdater.createChunk(chunk);
 	}
 
 	private Optional<ErrorMessage> getErrorMessage(Error error) {

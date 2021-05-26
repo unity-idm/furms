@@ -8,6 +8,7 @@ package io.imunity.furms.api.project_allocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 
@@ -34,7 +35,11 @@ public interface ProjectAllocationService {
 
 	Set<ProjectDeallocation> findAllUninstallations(String communityId, String projectId);
 
+	Set<ProjectAllocationChunk> findAllChunks(String communityId, String projectId);
+
 	Set<ProjectDeallocation> findAllUninstallations(String projectId);
+
+	Set<ProjectAllocationChunk> findAllChunks(String projectId);
 
 	Set<ProjectAllocationInstallation> findAllInstallations(String projectId);
 

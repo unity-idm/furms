@@ -20,7 +20,7 @@ public interface ProjectAllocationInstallationEntityRepository extends CrudRepos
 		"where pa.project_id = :id")
 	Set<ProjectAllocationInstallationEntity> findAllByProjectId(@Param("id") UUID projectId);
 
-	Optional<ProjectAllocationInstallationEntity> findBySiteIdAndProjectAllocationId(UUID siteId, UUID projectAllocationId);
+	Optional<ProjectAllocationInstallationEntity> findByProjectAllocationId(UUID projectAllocationId);
 
 	Optional<ProjectAllocationInstallationEntity> findByCorrelationId(UUID correlationId);
 }

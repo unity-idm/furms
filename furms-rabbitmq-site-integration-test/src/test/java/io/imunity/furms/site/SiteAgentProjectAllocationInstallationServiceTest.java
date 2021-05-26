@@ -67,7 +67,7 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
-		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).updateStatus(any());
+		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).createChunk(any());
 	}
 
 	@Test

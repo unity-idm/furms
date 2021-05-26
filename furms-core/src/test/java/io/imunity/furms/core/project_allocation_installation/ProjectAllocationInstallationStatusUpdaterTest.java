@@ -5,10 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
-import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -20,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
@@ -49,10 +47,42 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
+		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.PROVISIONING_PROJECT, null);
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+	}
+
+	@Test
+	void shouldCreateProjectAllocationChunk() {
+		//given
+		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
+			.projectAllocationId("id")
+			.build();
+
+		//when
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+			.build());
+		service.createChunk(chunk);
+
+		//then
+		orderVerifier.verify(repository).create(chunk);
+	}
+
+	@Test
+	void shouldNotCreateProjectAllocationChunk() {
+		//given
+		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
+			.projectAllocationId("id")
+			.build();
+
+		//when
+		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+			.status(ProjectAllocationInstallationStatus.PENDING)
+			.build());
+
+		assertThrows(IllegalArgumentException.class, () -> service.createChunk(chunk));
 	}
 
 	@Test

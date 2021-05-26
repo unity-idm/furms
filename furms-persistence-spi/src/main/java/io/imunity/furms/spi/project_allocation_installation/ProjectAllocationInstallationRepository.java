@@ -14,9 +14,11 @@ import java.util.Set;
 public interface ProjectAllocationInstallationRepository {
 	Set<ProjectAllocationInstallation> findAll(String projectId);
 
-	ProjectAllocationInstallation findBySiteIdAndProjectAllocationId(String siteId, String projectAllocationId);
+	ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId);
 
 	Set<ProjectDeallocation> findAllDeallocation(String projectId);
+
+	Set<ProjectAllocationChunk> findAllChunks(String projectId);
 
 	Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId id);
 
@@ -24,7 +26,7 @@ public interface ProjectAllocationInstallationRepository {
 
 	String create(ProjectDeallocation projectDeallocation);
 
-	String update(ProjectAllocationInstallation projectAllocation);
+	String create(ProjectAllocationChunk projectAllocationChunk);
 
 	String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 
