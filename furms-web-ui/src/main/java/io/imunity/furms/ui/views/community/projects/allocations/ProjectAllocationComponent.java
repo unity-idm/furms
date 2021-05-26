@@ -180,9 +180,9 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private void loadGridContent() {
 		handleExceptions(() -> {
 			projectDataSnapshot = new ProjectAllocationDataSnapshot(
-				service.findAllInstallations(communityId, projectId),
-				service.findAllUninstallations(communityId, projectId),
-				service.findAllChunks(communityId, projectId));
+				service.findAllInstallations(projectId),
+				service.findAllUninstallations(projectId),
+				service.findAllChunks(projectId));
 			grid.setItems(loadServicesViewsModels());
 		});
 	}

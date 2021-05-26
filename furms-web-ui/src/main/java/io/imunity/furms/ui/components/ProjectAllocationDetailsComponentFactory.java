@@ -9,17 +9,21 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.dom.Element;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.ui.user_context.InvocationContext;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 public class ProjectAllocationDetailsComponentFactory {
 	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public static Component create(Set<ProjectAllocationChunk> allocationChunks) {
+		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
 		Element tableElement = new Element("table");
 		tableElement.getStyle().set("width", "90%");
 		tableElement.getStyle().set("text-align", "left");
@@ -43,11 +47,20 @@ public class ProjectAllocationDetailsComponentFactory {
 			Element amountField = new Element("td");
 			amountField.setText(Optional.ofNullable(chunk.amount).map(Object::toString).orElse(""));
 			Element receivedField = new Element("td");
-			receivedField.setText(Optional.ofNullable(chunk.receivedTime).map(t -> t.format(dateTimeFormatter)).orElse(""));
+			receivedField.setText(Optional.ofNullable(chunk.receivedTime)
+				.map(t -> convertToZoneTime(t, browserZoneId))
+				.map(t -> t.format(dateTimeFormatter))
+				.orElse(""));
 			Element validFrom = new Element("td");
-			validFrom.setText(Optional.ofNullable(chunk.validFrom).map(t -> t.format(dateTimeFormatter)).orElse(""));
+			validFrom.setText(Optional.ofNullable(chunk.validFrom)
+				.map(t -> convertToZoneTime(t, browserZoneId))
+				.map(t -> t.format(dateTimeFormatter))
+				.orElse(""));
 			Element validTo = new Element("td");
-			validTo.setText(Optional.ofNullable(chunk.validTo).map(t -> t.format(dateTimeFormatter)).orElse(""));
+			validTo.setText(Optional.ofNullable(chunk.validTo)
+				.map(t -> convertToZoneTime(t, browserZoneId))
+				.map(t -> t.format(dateTimeFormatter))
+				.orElse(""));
 			row.appendChild(amountField, receivedField, validFrom, validTo);
 			tbody.appendChild(row);
 		}

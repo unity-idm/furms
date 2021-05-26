@@ -82,6 +82,24 @@ class AuthTest {
 	}
 
 	@Test
+	void authShouldPassUserHasAccessToProjectLimitedOperations(){
+		UUID uuid = UUID.randomUUID();
+		Map<ResourceId, Set<Role>> roles = Map.of();
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(new PersistentId("id"))
+			.firstName("Ala")
+			.lastName("Kot")
+			.email("a@a.pl")
+			.roles(roles)
+			.build();
+
+		when(provider.getFURMSUser()).thenReturn(furmsUser);
+
+		Throwable throwable = catchThrowable(() -> mockService.getLimitedProject(uuid.toString()));
+		assertThat(throwable).isNull();
+	}
+
+	@Test
 	void authShouldPassFenixAdminHasAccessToResource(){
 		UUID uuid = UUID.randomUUID();
 		Map<ResourceId, Set<Role>> roles = Map.of(

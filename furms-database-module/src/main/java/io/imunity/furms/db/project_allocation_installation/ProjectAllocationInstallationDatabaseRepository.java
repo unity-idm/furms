@@ -34,7 +34,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public Set<ProjectAllocationInstallation> findAll(String projectId) {
 		if (isEmpty(projectId)) {
-			return Set.of();
+			throw new IllegalArgumentException("Project Id is empty");
 		}
 		return allocationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)
@@ -44,7 +44,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public Set<ProjectAllocationInstallation> findAll(String projectId, String siteId) {
 		if (isEmpty(projectId)) {
-			return Set.of();
+			throw new IllegalArgumentException("Project Id is empty");
 		}
 		return allocationRepository.findAllByProjectIdAndSiteId(UUID.fromString(projectId), UUID.fromString(siteId)).stream()
 			.map(ProjectAllocationInstallationEntity::toProjectAllocationInstallation)

@@ -31,12 +31,6 @@ public interface ProjectAllocationService {
 
 	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId, String projectId);
 
-	Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId);
-
-	Set<ProjectDeallocation> findAllUninstallations(String communityId, String projectId);
-
-	Set<ProjectAllocationChunk> findAllChunks(String communityId, String projectId);
-
 	Set<ProjectDeallocation> findAllUninstallations(String projectId);
 
 	Set<ProjectAllocationChunk> findAllChunks(String projectId);

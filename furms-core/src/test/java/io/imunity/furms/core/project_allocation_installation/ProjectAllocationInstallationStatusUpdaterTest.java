@@ -71,7 +71,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	}
 
 	@Test
-	void shouldNotCreateProjectAllocationChunk() {
+	void shouldNotCreateProjectAllocationChunkWhenAllocationInstallationIsNotTerminal() {
 		//given
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId("id")

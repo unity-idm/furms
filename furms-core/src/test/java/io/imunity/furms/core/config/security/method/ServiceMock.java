@@ -38,6 +38,11 @@ public class ServiceMock{
 		return Optional.empty();
 	}
 
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "id")
+	public Optional<Object> getLimitedProject(String id) {
+		return Optional.empty();
+	}
+
 	public Set<Object> findAllWithClassScopeAuthorization() {
 		return Collections.emptySet();
 	}

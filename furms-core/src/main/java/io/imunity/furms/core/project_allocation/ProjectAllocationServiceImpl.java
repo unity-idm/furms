@@ -99,27 +99,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<ProjectAllocationInstallation> findAllInstallations(String communityId, String projectId) {
-		validator.validateCommunityIdAndProjectId(communityId, projectId);
-		return projectAllocationInstallationService.findAll(projectId);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<ProjectDeallocation> findAllUninstallations(String communityId, String projectId) {
-		validator.validateCommunityIdAndProjectId(communityId, projectId);
-		return projectAllocationInstallationService.findAllUninstallation(projectId);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<ProjectAllocationChunk> findAllChunks(String communityId, String projectId) {
-		validator.validateCommunityIdAndProjectId(communityId, projectId);
-		return projectAllocationInstallationService.findAllChunks(projectId);
-	}
-
-	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectDeallocation> findAllUninstallations(String projectId) {
 		return projectAllocationInstallationService.findAllUninstallation(projectId);

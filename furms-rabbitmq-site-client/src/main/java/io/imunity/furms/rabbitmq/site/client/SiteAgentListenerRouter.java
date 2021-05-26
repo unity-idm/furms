@@ -34,9 +34,7 @@ class SiteAgentListenerRouter {
 	}
 
 	@RabbitHandler
-	public void receive(Payload<?> payload,
-	                    @Header("amqp_receivedRoutingKey") String receivedRoutingKey,
-						@Header("amqp_consumerQueue") String queueName) {
+	public void receive(Payload<?> payload, @Header("amqp_receivedRoutingKey") String receivedRoutingKey) {
 		MDC.put(MDCKey.QUEUE_NAME.key, receivedRoutingKey);
 		try {
 			publisher.publishEvent(payload);
