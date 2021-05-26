@@ -30,7 +30,7 @@ class ProjectAndUserRemoveListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectAndUserRemoveListener.class);
 
-	private UsersDAO usersDAO;
+	private final UsersDAO usersDAO;
 	private final UserOperationRepository userOperationRepository;
 	private final SSHKeyRepository sshKeyRepository;
 	private final SSHKeyFromSiteRemover sshKeyRemover;
@@ -45,14 +45,21 @@ class ProjectAndUserRemoveListener {
 	}
 
 	@EventListener
+	@Transactional
 	void onProjectRemove(RemoveProjectEvent removeProjectEvent) {
 		LOG.debug("RemoveProjectEvent received: {}", removeProjectEvent);
 		for (FURMSUser user : removeProjectEvent.projectUsers) {
-			processUser(user.id.get(), user.fenixUserId.get(), removeProjectEvent.id);
+			try {
+				processUser(user.id.get(), user.fenixUserId.get(), removeProjectEvent.id);
+			} catch (Exception e) {
+				LOG.error("Can not remove sites from ssh keys owned by user {} after project {} remove",
+						user, removeProjectEvent.id);
+			}
 		}
 	}
 
 	@EventListener
+	@Transactional
 	void onUserRoleRemove(RemoveUserRoleEvent removeUserRoleEvent) {
 		LOG.debug("RemoveUserRoleEvent received: {}", removeUserRoleEvent);
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(removeUserRoleEvent.id);
@@ -60,13 +67,16 @@ class ProjectAndUserRemoveListener {
 			LOG.error("Can not get user sites, user {} without fenix id", removeUserRoleEvent.id);
 			return;
 		}
-
-		processUser(removeUserRoleEvent.id, fenixUserId, removeUserRoleEvent.resourceId.id.toString());
+		try {
+			processUser(removeUserRoleEvent.id, fenixUserId, removeUserRoleEvent.resourceId.id.toString());
+		} catch (Exception e) {
+			LOG.error("Can not remove sites from ssh keys owned by user {} after project {} remove",
+					removeUserRoleEvent.id, removeUserRoleEvent.resourceId.id.toString());
+		}
 	}
 
-	@Transactional
 	private void processUser(PersistentId userId, FenixUserId fenixId, String projectId) {
-		Set<String> userSites = findUserSites(fenixId, projectId);	
+		Set<String> userSites = findUserSites(fenixId, projectId);
 		Set<SSHKey> userKeys = sshKeyRepository.findAllByOwnerId(userId);
 
 		for (SSHKey sshKey : userKeys) {
