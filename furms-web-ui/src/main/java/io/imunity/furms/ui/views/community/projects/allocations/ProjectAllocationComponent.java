@@ -5,6 +5,27 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
@@ -41,6 +62,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final ProjectAllocationService service;
 	private final String communityId;
 	private final String projectId;
+	private final ActionComponent actionComponent;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
 
 	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
@@ -48,22 +70,9 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		this.service = service;
 		this.projectId = projectId;
 		this.grid = createCommunityGrid();
-		loadGridContent();
+		this.actionComponent = new ActionComponent(projectId, () -> projectService.isProjectInTerminalState(communityId, projectId));
 
-		Component actionComponent = null;
-		Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
-		button.setClassName("reload-disable");
-		if (projectService.isProjectInTerminalState(communityId, projectId)) {
-			actionComponent = new RouterGridLink(
-					button,
-					null,
-					ProjectAllocationFormView.class,
-					"projectId",
-					projectId);
-		} else {
-			button.setEnabled(false);
-			actionComponent = button;
-		}
+		loadGridContent();
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project-allocation.page.header"),
 			actionComponent
@@ -184,6 +193,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 				service.findAllUninstallations(projectId),
 				service.findAllChunks(projectId));
 			grid.setItems(loadServicesViewsModels());
+			actionComponent.reload();
 		});
 	}
 

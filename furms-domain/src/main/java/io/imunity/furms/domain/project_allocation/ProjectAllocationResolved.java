@@ -5,13 +5,13 @@
 
 package io.imunity.furms.domain.project_allocation;
 
-import java.math.BigDecimal;
-import java.util.Objects;
-
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 public class ProjectAllocationResolved {
 

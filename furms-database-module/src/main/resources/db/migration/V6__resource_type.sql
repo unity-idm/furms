@@ -10,6 +10,7 @@ CREATE TABLE resource_type (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     unit VARCHAR(255) NOT NULL,
+    accessible BOOLEAN NOT NULL,
     CONSTRAINT resource_type_name_unique UNIQUE (name, site_id),
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
     FOREIGN KEY (service_id) REFERENCES service(id) ON DELETE CASCADE

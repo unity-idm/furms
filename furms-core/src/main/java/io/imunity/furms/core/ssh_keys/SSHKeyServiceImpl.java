@@ -58,12 +58,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyServiceValidator validator;
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
+	private final SSHKeyFromSiteRemover sshKeyRemover;
 
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
 			AuthzService authzService, SiteRepository siteRepository,
 			SSHKeyOperationRepository sshKeyOperationRepository,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
+			SSHKeyFromSiteRemover sshKeyRemover) {
 
 		this.userDao = userDao;
 		this.validator = validator;
@@ -72,6 +74,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
+		this.sshKeyRemover = sshKeyRemover;
 	}
 
 	@Override
@@ -182,7 +185,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private void updateKeyOnSites(SiteDiff siteDiff, SSHKey oldKey, SSHKey merged) {
 		Optional<FURMSUser> user = userDao.findById(oldKey.ownerId);
 		FenixUserId fenixUserId = user.get().fenixUserId.get();
-		removeKeyFromSites(oldKey, siteDiff.toRemove, fenixUserId);
+		sshKeyRemover.removeKeyFromSites(oldKey, siteDiff.toRemove, fenixUserId);
 		addKeyToSites(merged, siteDiff.toAdd, fenixUserId);
 		updateKeyOnSites(oldKey, merged, siteDiff.toUpdate, fenixUserId);
 	}
@@ -241,7 +244,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void removeKeyFromSites(SSHKey removedKey) {
 		Optional<FURMSUser> user = userDao.findById(removedKey.ownerId);
-		removeKeyFromSites(removedKey, removedKey.sites, user.get().fenixUserId.get());
+		sshKeyRemover.removeKeyFromSites(removedKey, removedKey.sites, user.get().fenixUserId.get());
 	}
 
 	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
@@ -253,34 +256,6 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
 		}
-	}
-
-	private void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
-		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-				.collect(Collectors.toSet());
-		boolean removeFromSite = false;
-		for (Site site : sites) {
-			SSHKeyOperationJob operation;
-			try {
-				operation = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-			} catch (Exception e) {
-				LOG.error("Can not get ssh key operation for key {0}", sshKey.id);
-				return;
-			}
-			if (operation.operation.equals(ADD) && operation.status.equals(FAILED)) {
-				deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-
-			} else {
-				removeFromSite = true;
-				removeKeyFromSite(sshKey, site, userId);
-			}
-		}
-
-		if (!removeFromSite && sshKeyOperationRepository.findBySSHKey(sshKey.id).isEmpty()) {
-			sshKeysRepository.delete(sshKey.id);
-			
-		}
-
 	}
 
 	private void addKeyToSite(SSHKey sshKey, Site site, FenixUserId userId) {
@@ -297,21 +272,6 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
 
 		);
-	}
-
-	private void removeKeyFromSite(SSHKey sshKey, Site site, FenixUserId userId) {
-
-		LOG.info("Removing SSH key {} from site {}", sshKey, site.getName());
-		CorrelationId correlationId = CorrelationId.randomID();
-		deleteOperationBySSHKeyIdAndSiteId(sshKey.id, site.getId());
-		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
-				.siteId(site.getId()).sshkeyId(sshKey.id).operation(REMOVE).status(SEND)
-				.originationTime(LocalDateTime.now()).build());
-		runAfterCommit(() ->
-				siteAgentSSHKeyInstallationService.removeSSHKey(correlationId, SSHKeyRemoval.builder()
-						.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
-		);
-		
 	}
 	
 	private void createOperation(SSHKeyOperationJob operationJob) {

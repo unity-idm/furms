@@ -9,7 +9,6 @@ CREATE TABLE resource_credit (
     resource_type_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
     split BOOLEAN NOT NULL,
-    access BOOLEAN NOT NULL,
     amount DECIMAL NOT NULL,
     create_time TIMESTAMP NOT NULL,
     start_time TIMESTAMP NOT NULL,

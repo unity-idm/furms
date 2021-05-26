@@ -6,12 +6,12 @@
 package io.imunity.furms.ui.views.site.resource_credits;
 
 
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.time.ZoneId;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
 
 class ResourceCreditViewModelMapper {
 	static ResourceCreditViewModel map(ResourceCredit resourceCredit, ZoneId zoneId) {
@@ -21,7 +21,6 @@ class ResourceCreditViewModelMapper {
 			.resourceTypeId(resourceCredit.resourceTypeId)
 			.name(resourceCredit.name)
 			.split(resourceCredit.splittable)
-			.access(resourceCredit.accessibleForAllProjectMembers)
 			.amount(resourceCredit.amount)
 			.createTime(convertToZoneTime(resourceCredit.utcCreateTime, zoneId))
 			.startTime(convertToZoneTime(resourceCredit.utcStartTime, zoneId))
@@ -36,7 +35,6 @@ class ResourceCreditViewModelMapper {
 			.resourceTypeId(resourceCreditViewModel.getResourceTypeId())
 			.name(resourceCreditViewModel.getName())
 			.splittable(resourceCreditViewModel.getSplit())
-			.accessibleForAllProjectMembers(resourceCreditViewModel.getAccess())
 			.amount(resourceCreditViewModel.getAmount())
 			.utcCreateTime(convertToUTCTime(resourceCreditViewModel.getCreateTime()))
 			.utcStartTime(convertToUTCTime(resourceCreditViewModel.getStartTime()))

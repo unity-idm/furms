@@ -31,11 +31,9 @@ public interface ProjectAllocationRepository {
 
 	boolean existsByCommunityAllocationId(String id);
 
-	boolean isFirstAllocation(String id);
-
 	boolean isNamePresent(String communityId, String name);
 
-	void delete(String id);
+	void deleteById(String id);
 
 	void deleteAll();
 }

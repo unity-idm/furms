@@ -5,13 +5,19 @@
 
 package io.imunity.furms.ui.user_context;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 
 public class FurmsViewUserContext {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	public final String id;
 	public final String name;
 	public final String route;
@@ -43,10 +49,13 @@ public class FurmsViewUserContext {
 	public void setAsCurrent() {
 		UI ui = UI.getCurrent();
 		ComponentUtil.setData(ui, FurmsViewUserContext.class, this);
+		LOG.debug("Set current furms user context: {}", this);
 	}
 
 	public static FurmsViewUserContext getCurrent() {
 		UI ui = UI.getCurrent();
+		if (ui == null)
+			throw new IllegalStateException("No UI set when trying to obtain FurmsViewUserContext");
 		return ComponentUtil.getData(ui, FurmsViewUserContext.class);
 	}
 

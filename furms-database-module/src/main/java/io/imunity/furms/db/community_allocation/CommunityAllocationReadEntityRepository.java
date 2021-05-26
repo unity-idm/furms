@@ -17,8 +17,8 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 	@Override
 	@Query("select a.*, " +
 		"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
-		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, " +
-		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.access as resourceCredit_access, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time " +
+		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
+		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time " +
 		"from community_allocation a " +
 		"join resource_credit rc on a.resource_credit_id = rc.id " +
 		"join site s on rc.site_id = s.id " +
@@ -28,8 +28,8 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 
 	@Query("select a.*, " +
 		"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
-		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, " +
-		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.access as resourceCredit_access, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time " +
+		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
+		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time " +
 		"from community_allocation a " +
 		"join resource_credit rc on a.resource_credit_id = rc.id " +
 		"join site s on rc.site_id = s.id " +
@@ -41,9 +41,9 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 			"   s.id AS site_id, s.name AS site_name, s.connection_info AS site_connection_info, s.logo AS site_logo, " +
 			"   s.logo_type AS site_logo_type, rt.id AS resourceType_id, rt.name AS resourceType_name, " +
 			"   rt.site_id AS resourceType_site_id, rt.service_id AS resourceType_service_id, rt.type AS resourceType_type, " +
-			"   rt.unit AS resourceType_unit, rc.id AS resourceCredit_id, rc.name AS resourceCredit_name, " +
+			"   rt.unit AS resourceType_unit, rc.id AS resourceCredit_id, rc.name AS resourceCredit_name, rt.accessible as resourceType_accessible, " +
 			"   rc.site_id AS resourceCredit_site_id, rc.resource_type_id AS resourceCredit_resource_type_id, " +
-			"   rc.split AS resourceCredit_split, rc.access AS resourceCredit_access, rc.amount AS resourceCredit_amount, " +
+			"   rc.split AS resourceCredit_split, rc.amount AS resourceCredit_amount, " +
 			"   rc.create_time AS resourceCredit_create_time, rc.start_time AS resourceCredit_start_time, " +
 			"   rc.end_time AS resourceCredit_end_time " +
 			"FROM community_allocation a " +
@@ -59,10 +59,10 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 	@Query("SELECT a.*, " +
 			"   s.id AS site_id, s.name AS site_name, s.connection_info AS site_connection_info, s.logo AS site_logo, " +
 			"   s.logo_type AS site_logo_type, rt.id AS resourceType_id, rt.name AS resourceType_name, " +
-			"   rt.site_id AS resourceType_site_id, rt.service_id AS resourceType_service_id, rt.type AS resourceType_type, " +
+			"   rt.site_id AS resourceType_site_id, rt.service_id AS resourceType_service_id, rt.type AS resourceType_type, rt.accessible AS resourceType_accessible, " +
 			"   rt.unit AS resourceType_unit, rc.id AS resourceCredit_id, rc.name AS resourceCredit_name, " +
 			"   rc.site_id AS resourceCredit_site_id, rc.resource_type_id AS resourceCredit_resource_type_id, " +
-			"   rc.split AS resourceCredit_split, rc.access AS resourceCredit_access, rc.amount AS resourceCredit_amount, " +
+			"   rc.split AS resourceCredit_split, rc.amount AS resourceCredit_amount, " +
 			"   rc.create_time AS resourceCredit_create_time, rc.start_time AS resourceCredit_start_time, " +
 			"   rc.end_time AS resourceCredit_end_time " +
 			"FROM community_allocation a " +

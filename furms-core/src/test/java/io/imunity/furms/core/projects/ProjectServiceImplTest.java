@@ -11,6 +11,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.*;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -26,6 +27,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -239,13 +242,15 @@ class ProjectServiceImplTest {
 		String id = "id";
 		String id2 = "id";
 		when(projectRepository.exists(id)).thenReturn(true);
-
+		List<FURMSUser> users = Arrays.asList(FURMSUser.builder().id(new PersistentId("id")).email("email@test.com").build());
+		when(projectGroupsDAO.getAllUsers("id", "id")).thenReturn(users);
+		
 		//when
 		service.delete(id, id2);
 
 		orderVerifier.verify(projectRepository).delete(eq(id));
 		orderVerifier.verify(projectGroupsDAO).delete(eq(id), eq(id2));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectEvent("id", users)));
 	}
 
 	@Test

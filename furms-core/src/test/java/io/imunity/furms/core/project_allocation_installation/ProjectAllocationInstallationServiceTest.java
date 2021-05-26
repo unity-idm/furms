@@ -139,11 +139,12 @@ class ProjectAllocationInstallationServiceTest {
 		//when
 		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
 			.id("id")
+			.projectAllocationId("id")
 			.status(ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
 
 		//then
-		orderVerifier.verify(repository).deleteBy("id");
+		orderVerifier.verify(projectAllocationRepository).deleteById("id");
 	}
 }

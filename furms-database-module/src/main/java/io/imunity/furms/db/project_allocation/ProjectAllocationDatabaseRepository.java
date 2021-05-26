@@ -49,11 +49,6 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public boolean isFirstAllocation(String id) {
-		return repository.countByProjectId(UUID.fromString(id)) == 1;
-	}
-
-	@Override
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
 		return readRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(ProjectAllocationReadEntity::toProjectAllocationResolved)
@@ -124,7 +119,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public void delete(String id) {
+	public void deleteById(String id) {
 		repository.deleteById(UUID.fromString(id));
 	}
 

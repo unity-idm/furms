@@ -16,8 +16,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-
 
 public abstract class FurmsViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle {
 
@@ -43,9 +41,5 @@ public abstract class FurmsViewComponent extends Composite<Div> implements HasUr
 
 	protected void addPreventionForMultiEnterClick() {
 		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
-	}
-
-	protected FurmsViewUserContext getActualViewUserContext() {
-		return FurmsViewUserContext.getCurrent();
 	}
 }

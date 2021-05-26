@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import java.util.Objects;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -30,6 +31,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 	private final FormLayout formLayout;
 	private final ComboBox<ServiceComboBoxModel> servicesComboBox;
+	private final Checkbox accessibleCheckbox;
 
 	ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder, ServiceComboBoxModelResolver resolver) {
 		this.binder = binder;
@@ -59,16 +61,17 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		});
 		formLayout.addFormItem(unitComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.unit"));
 
-		prepareValidator(nameField, servicesComboBox, typeComboBox, unitComboBox);
+		accessibleCheckbox = new Checkbox(getTranslation("view.site-admin.resource-types.form.checkbox.accessible"));
+		formLayout.addFormItem(accessibleCheckbox, "");
+
+		prepareValidator(nameField, servicesComboBox, typeComboBox, unitComboBox, accessibleCheckbox);
 
 		getContent().add(formLayout);
 	}
 
-	private void prepareValidator(TextField nameField,
-			ComboBox<ServiceComboBoxModel> servicesComboBox,
-			ComboBox<ResourceMeasureType> typeComboBox,
-			ComboBox<ResourceMeasureUnit> unitComboBox) {
-		
+	private void prepareValidator(TextField nameField, ComboBox<ServiceComboBoxModel> servicesComboBox,
+	                              ComboBox<ResourceMeasureType> typeComboBox, ComboBox<ResourceMeasureUnit> unitComboBox,
+	                              Checkbox accessibleCheckbox) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
@@ -96,6 +99,8 @@ class ResourceTypeFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-types.form.error.validation.combo-box.unit")
 			)
 			.bind(ResourceTypeViewModel::getUnit, ResourceTypeViewModel::setUnit);
+		binder.forField(accessibleCheckbox)
+			.bind(ResourceTypeViewModel::isAccessible, ResourceTypeViewModel::setAccessible);
 	}
 
 	public void setFormPools(ResourceTypeViewModel resourceTypeViewModel) {
@@ -113,6 +118,8 @@ class ResourceTypeFormComponent extends Composite<Div> {
 			Label idLabel = new Label(getTranslation("view.site-admin.resource-types.form.field.id"));
 
 			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
+			
+			accessibleCheckbox.setEnabled(false);
 		}
 	}
 }

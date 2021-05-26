@@ -6,19 +6,18 @@
 package io.imunity.furms.db.resource_types;
 
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
@@ -67,6 +66,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
+				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 		);
 		return savedResourceType.getId().toString();
@@ -82,6 +82,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
+				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 			)
 			.map(repository::save)

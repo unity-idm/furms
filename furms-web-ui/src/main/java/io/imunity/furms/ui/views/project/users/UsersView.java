@@ -8,8 +8,12 @@ package io.imunity.furms.ui.views.project.users;
 import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
+import java.lang.invoke.MethodHandles;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -32,6 +36,7 @@ import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 @PageTitle(key = "view.project-admin.users.page.title")
 public class UsersView extends FurmsLandingViewComponent {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final Predicate<FURMSUser> IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP = user -> user.fenixUserId.isPresent();
 	private final ProjectService projectService;
 	private final AuthzService authzService;
@@ -103,6 +108,7 @@ public class UsersView extends FurmsLandingViewComponent {
 
 	@Override
 	public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+		LOG.debug("After navigation on project users view {}", getCurrentResourceId());
 		getContent().removeAll();
 		loadPageContent();
 	}

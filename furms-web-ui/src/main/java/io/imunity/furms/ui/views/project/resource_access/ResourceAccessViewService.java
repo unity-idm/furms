@@ -156,7 +156,7 @@ class ResourceAccessViewService {
 						.status(getStatusValue(u, allocation))
 						.siteId(new SiteId(allocation.site.getId(), allocation.site.getExternalId()))
 						.allocationId(allocation.id)
-						.accessible(allocation.resourceCredit.accessibleForAllProjectMembers)
+						.accessible(allocation.resourceType.accessibleForAllProjectMembers)
 						.fenixUserId(u.fenixUserId.get())
 						.message(getMessage(u, allocation))
 						.build())
@@ -165,7 +165,7 @@ class ResourceAccessViewService {
 	}
 
 	private String getStatusValue(FURMSUser user, ProjectAllocationResolved allocation) {
-		if(allocation.resourceCredit.accessibleForAllProjectMembers)
+		if(allocation.resourceType.accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.status.applied");
 		UserGrant userGrant = usersGrants.get(Pair.of(user.fenixUserId.get().id, allocation.id));
 		if(userGrant == null)
@@ -182,7 +182,7 @@ class ResourceAccessViewService {
 	}
 
 	private String getEnabledValue(FURMSUser user, ProjectAllocationResolved allocation) {
-		if(allocation.resourceCredit.accessibleForAllProjectMembers)
+		if(allocation.resourceType.accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		UserGrant userGrant = usersGrants.get(Pair.of(user.fenixUserId.get().id, allocation.id));
 		if(userGrant != null && ENABLED_STATUES.contains(userGrant.status))

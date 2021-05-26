@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.components.resource_allocations;
 
+import io.imunity.furms.domain.resource_types.ResourceType;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class ResourceAllocationsGridItem {
 	private final String name;
 	private final String communityId;
 	private final boolean split;
-	private final String resourceTypeId;
+	private final ResourceType resourceType;
 	private final DashboardGridResource credit;
 	private final DashboardGridResource distributed;
 	private final DashboardGridResource remaining;
@@ -32,7 +33,7 @@ public class ResourceAllocationsGridItem {
 	                            String name,
 	                            String communityId,
 	                            boolean split,
-	                            String resourceTypeId,
+	                            ResourceType resourceType,
 	                            DashboardGridResource credit,
 	                            DashboardGridResource distributed,
 	                            DashboardGridResource remaining,
@@ -45,7 +46,7 @@ public class ResourceAllocationsGridItem {
 		this.name = name;
 		this.communityId = communityId;
 		this.split = split;
-		this.resourceTypeId = resourceTypeId;
+		this.resourceType = resourceType;
 		this.credit = credit;
 		this.distributed = distributed;
 		this.remaining = remaining;
@@ -78,8 +79,8 @@ public class ResourceAllocationsGridItem {
 		return split;
 	}
 
-	public String getResourceTypeId() {
-		return resourceTypeId;
+	public ResourceType getResourceType() {
+		return resourceType;
 	}
 
 	public DashboardGridResource getCredit() {
@@ -128,7 +129,7 @@ public class ResourceAllocationsGridItem {
 				", name='" + name + '\'' +
 				", communityId='" + communityId + '\'' +
 				", split='" + split + '\'' +
-				", resourceTypeId='" + resourceTypeId + '\'' +
+				", resourceType='" + resourceType + '\'' +
 				", credit=" + credit +
 				", distributed=" + distributed +
 				", remaining=" + remaining +
@@ -149,7 +150,7 @@ public class ResourceAllocationsGridItem {
 		private String name;
 		private String communityId;
 		private boolean split;
-		private String resourceTypeId;
+		private ResourceType resourceType;
 		private DashboardGridResource credit;
 		private DashboardGridResource distributed;
 		private DashboardGridResource remaining;
@@ -190,8 +191,8 @@ public class ResourceAllocationsGridItem {
 			return this;
 		}
 
-		public DashboardGridItemBuilder resourceTypeId(String resourceTypeId) {
-			this.resourceTypeId = resourceTypeId;
+		public DashboardGridItemBuilder resourceType(ResourceType resourceType) {
+			this.resourceType = resourceType;
 			return this;
 		}
 
@@ -226,7 +227,7 @@ public class ResourceAllocationsGridItem {
 		}
 
 		public ResourceAllocationsGridItem build() {
-			return new ResourceAllocationsGridItem(id, siteId, siteName, name, communityId, split, resourceTypeId, credit,
+			return new ResourceAllocationsGridItem(id, siteId, siteName, name, communityId, split, resourceType, credit,
 					distributed, remaining, created, validFrom, validTo);
 		}
 	}

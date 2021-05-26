@@ -19,5 +19,4 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @PreserveOnRefresh
 @Push
 public class FurmsAppLayout extends AppLayout {
-
 }

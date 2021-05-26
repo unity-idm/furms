@@ -168,7 +168,7 @@ public class DashboardView extends FurmsViewComponent {
 				.communityId(communityAllocation.communityId)
 				.name(communityAllocation.name)
 				.split(communityAllocation.resourceCredit.splittable)
-				.resourceTypeId(communityAllocation.resourceType.id)
+				.resourceType(communityAllocation.resourceType)
 				.credit(createResource(communityAllocation.amount, communityAllocation.resourceType.unit))
 				.distributed(createResource(calcDistributed(communityAllocation), communityAllocation.resourceType.unit))
 				.remaining(createResource(communityAllocation.remaining, communityAllocation.resourceType.unit))

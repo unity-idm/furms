@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
+import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
@@ -40,17 +41,20 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	private final ApplicationEventPublisher publisher;
 	private final CommunityAllocationService communityAllocationService;
 	private final AuthzService authzService;
+	private final ResourceTypeService resourceTypeService;
 
 	public ResourceCreditServiceImpl(ResourceCreditRepository resourceCreditRepository,
 	                                 ResourceCreditServiceValidator validator,
 	                                 ApplicationEventPublisher publisher,
 	                                 CommunityAllocationService communityAllocationService,
-	                                 AuthzService authzService) {
+	                                 AuthzService authzService,
+	                                 ResourceTypeService resourceTypeService) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.communityAllocationService = communityAllocationService;
 		this.authzService = authzService;
+		this.resourceTypeService = resourceTypeService;
 	}
 
 	@Override
@@ -89,9 +93,9 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					.id(credit.id)
 					.name(credit.name)
 					.siteId(credit.siteId)
-					.resourceTypeId(credit.resourceTypeId)
+					.resourceType(resourceTypeService.findById(credit.resourceTypeId, credit.siteId)
+							.orElse(null))
 					.split(credit.splittable)
-					.access(credit.accessibleForAllProjectMembers)
 					.amount(credit.amount)
 					.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
 					.utcCreateTime(credit.utcCreateTime)

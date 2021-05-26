@@ -5,14 +5,15 @@
 
 package io.imunity.furms.db.resource_credits;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+
+import org.springframework.data.relational.core.mapping.Table;
+
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
 
 @Table("resource_credit")
 public class ResourceCreditEntity extends UUIDIdentifiable {
@@ -21,19 +22,25 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 	public final UUID resourceTypeId;
 	public final String name;
 	public final Boolean split;
-	public final Boolean access;
 	public final BigDecimal amount;
 	public final LocalDateTime createTime;
 	public final LocalDateTime startTime;
 	public final LocalDateTime endTime;
 
-	ResourceCreditEntity(UUID id, UUID siteId, UUID resourceTypeId, String name, Boolean split, Boolean access, BigDecimal amount, LocalDateTime createTime, LocalDateTime startTime, LocalDateTime endTime) {
+	ResourceCreditEntity(UUID id,
+			UUID siteId,
+			UUID resourceTypeId,
+			String name,
+			Boolean split,
+			BigDecimal amount,
+			LocalDateTime createTime,
+			LocalDateTime startTime,
+			LocalDateTime endTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.resourceTypeId = resourceTypeId;
 		this.name = name;
 		this.split = split;
-		this.access = access;
 		this.amount = amount;
 		this.createTime = createTime;
 		this.startTime = startTime;
@@ -47,7 +54,6 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 			.resourceTypeId(resourceTypeId.toString())
 			.name(name)
 			.splittable(split)
-			.accessibleForAllProjectMembers(access)
 			.amount(amount)
 			.utcCreateTime(createTime)
 			.utcStartTime(startTime)
@@ -65,7 +71,6 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 			Objects.equals(resourceTypeId, that.resourceTypeId) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(split, that.split) &&
-			Objects.equals(access, that.access) &&
 			Objects.equals(amount, that.amount) &&
 			Objects.equals(createTime, that.createTime) &&
 			Objects.equals(startTime, that.startTime) &&
@@ -74,7 +79,7 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, resourceTypeId, name, split, access, amount, createTime, startTime, endTime);
+		return Objects.hash(id, siteId, resourceTypeId, name, split, amount, createTime, startTime, endTime);
 	}
 
 	@Override
@@ -84,7 +89,6 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 			", resourceTypeId=" + resourceTypeId +
 			", name='" + name + '\'' +
 			", split=" + split +
-			", access=" + access +
 			", amount=" + amount +
 			", createTime=" + createTime +
 			", startTime=" + startTime +
@@ -102,7 +106,6 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 		public UUID resourceTypeId;
 		public String name;
 		public Boolean split;
-		public Boolean access;
 		public BigDecimal amount;
 		public LocalDateTime createTime;
 		public LocalDateTime startTime;
@@ -132,11 +135,6 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public ResourceCreditEntityBuilder access(Boolean access) {
-			this.access = access;
-			return this;
-		}
-
 		public ResourceCreditEntityBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
@@ -163,7 +161,7 @@ public class ResourceCreditEntity extends UUIDIdentifiable {
 		}
 
 		public ResourceCreditEntity build() {
-			return new ResourceCreditEntity(id, siteId, resourceTypeId, name, split, access, amount, createTime, startTime, endTime);
+			return new ResourceCreditEntity(id, siteId, resourceTypeId, name, split, amount, createTime, startTime, endTime);
 		}
 	}
 }

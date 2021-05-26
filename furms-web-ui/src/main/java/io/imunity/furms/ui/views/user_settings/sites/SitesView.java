@@ -5,18 +5,37 @@
 
 package io.imunity.furms.ui.views.user_settings.sites;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.icon.VaadinIcon.INFO_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.componentfactory.TooltipAlignment;
 import com.vaadin.componentfactory.TooltipPosition;
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -25,22 +44,12 @@ import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
-import java.util.Collection;
-import java.util.List;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.INFO_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
-import static java.lang.String.format;
-import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
 @Route(value = "users/settings/sites", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.sites.page.title")
 @CssImport("./styles/views/user/sites/user-sites.css")
-public class SitesView extends FurmsViewComponent {
+public class SitesView extends FurmsViewComponent implements AfterNavigationObserver {
 
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final static int DOUBLECLICK = 2;
 
 	private final UserAllocationsService userAllocationsService;
@@ -91,9 +100,7 @@ public class SitesView extends FurmsViewComponent {
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.connectionInfo"))
 				.setTextAlign(ColumnTextAlign.END)
 				.setWidth("15%");
-
-		grid.setItems(loadItems());
-
+		grid.addItemClickListener(item -> showConnectionInfo(item.getItem()));
 		getContent().add(grid);
 	}
 
@@ -124,14 +131,15 @@ public class SitesView extends FurmsViewComponent {
 	private Button showConnectionInfoButton(UserSitesGridModel item) {
 		final Button button = new Button(INFO_CIRCLE.create());
 		button.addThemeVariants(LUMO_TERTIARY);
-		button.addClickListener(event -> {
-			connectionInfoLabel.setText(getTranslation("view.user-settings.sites.connectionInfo.label", item.getSiteName()));
-			connectionInfo.setText(item.getConnectionInfo());
-			connectionInfoLabel.setVisible(true);
-			connectionInfo.setVisible(true);
-		});
-
+		button.addClickListener(event -> showConnectionInfo(item));
 		return button;
+	}
+	
+	private void showConnectionInfo(UserSitesGridModel item) {
+		connectionInfoLabel.setText(getTranslation("view.user-settings.sites.connectionInfo.label", item.getSiteName()));
+		connectionInfo.setText(item.getConnectionInfo());
+		connectionInfoLabel.setVisible(true);
+		connectionInfo.setVisible(true);
 	}
 
 	private Div showStatus(UserSitesGridModel item) {
@@ -147,6 +155,10 @@ public class SitesView extends FurmsViewComponent {
 			return new Div(label, button);
 		}
 		return new Div(label);
+	}
+	
+	private void loadGridContent() {
+		grid.setItems(loadItems());
 	}
 
 	private List<UserSitesGridModel> loadItems() {
@@ -174,6 +186,19 @@ public class SitesView extends FurmsViewComponent {
 				.orElse(getTranslation("view.user-settings.sites.grid.status.error-message.content.unavailable"));
 
 		return getTranslation("view.user-settings.sites.grid.status.error-message.content", errorMessage);
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
+		
+		try {
+			loadGridContent();
+		} catch (UserWithoutFenixIdValidationError e) {
+			LOG.debug(e.getMessage(), e);
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+			setVisible(false);
+			return;
+		} 
 	}
 
 }

@@ -34,10 +34,8 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -48,10 +46,10 @@ import io.imunity.furms.ui.components.support.models.allocation.AllocationCommun
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
+import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
-import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
-@Route(value = "community/admin/dashboard/allocation", layout = FenixAdminMenu.class)
+@Route(value = "community/admin/dashboard/allocation", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
 public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 
@@ -59,18 +57,15 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectService projectService;
-	private final ResourceTypeService resourceTypeService;
 
 	private final Binder<ProjectAllocationViewModel> binder;
 
 	private BigDecimal availableAmount;
 
 	public ProjectAllocationDashboardFormView(ProjectAllocationService projectAllocationService,
-	                                          ProjectService projectService,
-	                                          ResourceTypeService resourceTypeService) {
+	                                          ProjectService projectService) {
 		this.projectAllocationService = projectAllocationService;
 		this.projectService = projectService;
-		this.resourceTypeService = resourceTypeService;
 		this.binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
 
 		binder.setBean(createViewModel());
@@ -81,12 +76,11 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 
 	private ProjectAllocationViewModel createViewModel() {
 		final ResourceAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceAllocationsGridItem.class);
-		final ResourceType type = resourceTypeService.findById(item.getResourceTypeId(), item.getSiteId())
-				.orElseThrow();
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, null);
 		return ProjectAllocationViewModel.builder()
 				.communityId(item.getCommunityId())
-				.resourceType(new ResourceTypeComboBoxModel(type.id, type.name, type.unit))
+				.resourceType(new ResourceTypeComboBoxModel(item.getResourceType().id, item.getResourceType().name,
+						item.getResourceType().unit))
 				.allocationCommunity(new AllocationCommunityComboBoxModel(item.getId(), item.getName(),
 						item.isSplit(), item.getCredit().getUnit()))
 				.build();

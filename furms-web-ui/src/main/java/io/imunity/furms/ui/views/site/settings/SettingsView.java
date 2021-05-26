@@ -219,7 +219,7 @@ public class SettingsView extends FurmsViewComponent {
 
 	private SiteSettingsDto loadSite() {
 		try {
-			FurmsViewUserContext context = getActualViewUserContext();
+			FurmsViewUserContext context = FurmsViewUserContext.getCurrent();
 			bufferedSettings = siteService.findById(context.id)
 					.map(SiteSettingsDto::new)
 					.orElseThrow(IllegalArgumentException::new);
