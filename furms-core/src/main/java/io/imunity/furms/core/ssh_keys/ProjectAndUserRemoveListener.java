@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +21,13 @@ import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @Component
-class ProjectAndUserRemoveListener {
+public class ProjectAndUserRemoveListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectAndUserRemoveListener.class);
 
@@ -44,9 +45,10 @@ class ProjectAndUserRemoveListener {
 		this.sshKeyRemover = sshKeyRemover;
 	}
 
+	@Async
 	@EventListener
 	@Transactional
-	void onProjectRemove(RemoveProjectEvent removeProjectEvent) {
+	public void onProjectRemove(RemoveProjectEvent removeProjectEvent) {
 		LOG.debug("RemoveProjectEvent received: {}", removeProjectEvent);
 		for (FURMSUser user : removeProjectEvent.projectUsers) {
 			try {
@@ -58,9 +60,10 @@ class ProjectAndUserRemoveListener {
 		}
 	}
 
+	@Async
 	@EventListener
 	@Transactional
-	void onUserRoleRemove(RemoveUserRoleEvent removeUserRoleEvent) {
+	public void onUserRoleRemove(RemoveUserProjectMembershipEvent removeUserRoleEvent) {
 		LOG.debug("RemoveUserRoleEvent received: {}", removeUserRoleEvent);
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(removeUserRoleEvent.id);
 		if (fenixUserId == null) {
