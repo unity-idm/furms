@@ -15,20 +15,25 @@ class ResourceCreditViewModel {
 	private String resourceTypeId;
 	private String name;
 	private Boolean split = true;
-	private Boolean access = false;
 	private BigDecimal amount;
 	private ZonedDateTime createTime;
 	private ZonedDateTime startTime;
 	private ZonedDateTime endTime;
 
-	public ResourceCreditViewModel(String id, String siteId, String resourceTypeId, String name, Boolean split,
-	                               Boolean access, BigDecimal amount, ZonedDateTime createTime, ZonedDateTime startTime, ZonedDateTime endTime) {
+	public ResourceCreditViewModel(String id,
+			String siteId,
+			String resourceTypeId,
+			String name,
+			Boolean split,
+			BigDecimal amount,
+			ZonedDateTime createTime,
+			ZonedDateTime startTime,
+			ZonedDateTime endTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.resourceTypeId = resourceTypeId;
 		this.name = name;
 		this.split = split;
-		this.access = access;
 		this.amount = amount;
 		this.createTime = createTime;
 		this.startTime = startTime;
@@ -71,14 +76,6 @@ class ResourceCreditViewModel {
 
 	public void setSplit(Boolean split) {
 		this.split = split;
-	}
-
-	public Boolean getAccess() {
-		return access;
-	}
-
-	public void setAccess(Boolean access) {
-		this.access = access;
 	}
 
 	public BigDecimal getAmount() {
@@ -134,7 +131,6 @@ class ResourceCreditViewModel {
 			", resourceTypeId='" + resourceTypeId + '\'' +
 			", name='" + name + '\'' +
 			", split=" + split +
-			", access=" + access +
 			", amount=" + amount +
 			", startTime=" + startTime +
 			", endTime=" + endTime +
@@ -151,7 +147,6 @@ class ResourceCreditViewModel {
 		private String resourceTypeId;
 		private String name;
 		private Boolean split;
-		private Boolean access;
 		private BigDecimal amount;
 		private ZonedDateTime createTime;
 		private ZonedDateTime startTime;
@@ -185,11 +180,6 @@ class ResourceCreditViewModel {
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder access(Boolean access) {
-			this.access = access;
-			return this;
-		}
-
 		public ResourceCreditViewModelBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
@@ -211,7 +201,8 @@ class ResourceCreditViewModel {
 		}
 
 		public ResourceCreditViewModel build() {
-			return new ResourceCreditViewModel(id, siteId, resourceTypeId, name, split, access, amount, createTime, startTime, endTime);
+			return new ResourceCreditViewModel(id, siteId, resourceTypeId, name, split, amount, createTime, startTime,
+					endTime);
 		}
 	}
 }

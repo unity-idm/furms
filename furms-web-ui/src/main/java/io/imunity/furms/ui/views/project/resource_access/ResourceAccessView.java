@@ -148,7 +148,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 			.setSortable(true)
 			.setFlexGrow(13);
 		treeGrid.addComponentColumn(resourceAccessModel -> {
-				if(isRootNode(resourceAccessModel))
+				if(isRootNode(resourceAccessModel) || resourceAccessModel.isAccessible())
 					return new Div();
 				if(resourceAccessViewService.isGrantOrRevokeAvailable(resourceAccessModel))
 					return getGridActionsButtonLayout(resourceAccessModel);

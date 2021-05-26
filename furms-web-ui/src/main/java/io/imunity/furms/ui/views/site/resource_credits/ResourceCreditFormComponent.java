@@ -55,9 +55,6 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		Checkbox splitCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.split"));
 		formLayout.addFormItem(splitCheckbox, "");
 
-		Checkbox accessCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.access"));
-		formLayout.addFormItem(accessCheckbox, "");
-
 		TextField amountField = new TextField();
 		amountField.setValueChangeMode(EAGER);
 		amountField.setMaxLength(MAX_NAME_LENGTH);
@@ -70,8 +67,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		FurmsDateTimePicker endTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.site-admin.resource-credits.form.field.end-time"));
 
-		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, accessCheckbox,
-				amountField, startTimePicker, endTimePicker);
+		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, amountField, startTimePicker, endTimePicker);
 
 		getContent().add(formLayout);
 	}
@@ -81,7 +77,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	}
 
 	private void prepareValidator(TextField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
-	                              Checkbox splitCheckbox, Checkbox accessCheckbox, TextField amountField,
+	                              Checkbox splitCheckbox, TextField amountField,
 	                              FurmsDateTimePicker startTimePicker, FurmsDateTimePicker endTimePicker) {
 		binder.forField(nameField)
 			.withValidator(
@@ -100,8 +96,6 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			);
 		binder.forField(splitCheckbox)
 			.bind(ResourceCreditViewModel::getSplit, ResourceCreditViewModel::setSplit);
-		binder.forField(accessCheckbox)
-			.bind(ResourceCreditViewModel::getAccess, ResourceCreditViewModel::setAccess);
 		binder.forField(amountField)
 			.withValidator(
 				value -> Objects.nonNull(value) && isBigDecimal(value),

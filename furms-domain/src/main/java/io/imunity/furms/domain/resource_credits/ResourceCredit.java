@@ -5,12 +5,12 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import static java.time.Clock.systemUTC;
+import static java.util.Optional.ofNullable;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-import static java.time.Clock.systemUTC;
-import static java.util.Optional.ofNullable;
 
 public class ResourceCredit {
 	public final String id;
@@ -18,21 +18,25 @@ public class ResourceCredit {
 	public final String siteId;
 	public final String resourceTypeId;
 	public final boolean splittable;
-	public final boolean accessibleForAllProjectMembers;
 	public final BigDecimal amount;
 	public final LocalDateTime utcCreateTime;
 	public final LocalDateTime utcStartTime;
 	public final LocalDateTime utcEndTime;
 
-	private ResourceCredit(String id, String name, String siteId, String resourceTypeId, boolean splittable, 
-			boolean accessibleForAllProjectMembers, BigDecimal amount, LocalDateTime utcCreateTime, 
-			LocalDateTime utcStartTime, LocalDateTime utcEndTime) {
+	private ResourceCredit(String id,
+			String name,
+			String siteId,
+			String resourceTypeId,
+			boolean splittable,
+			BigDecimal amount,
+			LocalDateTime utcCreateTime,
+			LocalDateTime utcStartTime,
+			LocalDateTime utcEndTime) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
 		this.resourceTypeId = resourceTypeId;
 		this.splittable = splittable;
-		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 		this.amount = amount;
 		this.utcCreateTime = ofNullable(utcCreateTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
 		this.utcStartTime = utcStartTime;
@@ -41,7 +45,7 @@ public class ResourceCredit {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(accessibleForAllProjectMembers, amount, id, name, resourceTypeId, siteId,
+		return Objects.hash(amount, id, name, resourceTypeId, siteId,
 				splittable, utcCreateTime, utcEndTime, utcStartTime);
 	}
 
@@ -54,8 +58,7 @@ public class ResourceCredit {
 		if (getClass() != obj.getClass())
 			return false;
 		ResourceCredit other = (ResourceCredit) obj;
-		return accessibleForAllProjectMembers == other.accessibleForAllProjectMembers
-				&& Objects.equals(amount, other.amount) && Objects.equals(id, other.id)
+		return Objects.equals(amount, other.amount) && Objects.equals(id, other.id)
 				&& Objects.equals(name, other.name)
 				&& Objects.equals(resourceTypeId, other.resourceTypeId)
 				&& Objects.equals(siteId, other.siteId) && splittable == other.splittable
@@ -68,8 +71,8 @@ public class ResourceCredit {
 	public String toString() {
 		return String.format(
 				"ResourceCredit [id=%s, name=%s, siteId=%s, resourceTypeId=%s, splittable=%s, "
-				+ "accessibleForAllProjectMembers=%s, amount=%s, utcCreateTime=%s, utcStartTime=%s, utcEndTime=%s]",
-				id, name, siteId, resourceTypeId, splittable, accessibleForAllProjectMembers, amount,
+				+ "amount=%s, utcCreateTime=%s, utcStartTime=%s, utcEndTime=%s]",
+				id, name, siteId, resourceTypeId, splittable, amount,
 				utcCreateTime, utcStartTime, utcEndTime);
 	}
 
@@ -83,7 +86,6 @@ public class ResourceCredit {
 		private String siteId;
 		private String resourceTypeId;
 		private boolean splittable = true;
-		private boolean accessibleForAllProjectMembers;
 		private BigDecimal amount;
 		private LocalDateTime utcCreateTime;
 		private LocalDateTime utcStartTime;
@@ -117,11 +119,6 @@ public class ResourceCredit {
 			return this;
 		}
 
-		public ResourceCreditBuilder accessibleForAllProjectMembers(boolean accessibleForAllProjectMembers) {
-			this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
-			return this;
-		}
-
 		public ResourceCreditBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
@@ -143,7 +140,7 @@ public class ResourceCredit {
 		}
 
 		public ResourceCredit build() {
-			return new ResourceCredit(id, name, siteId, resourceTypeId, splittable, accessibleForAllProjectMembers, amount, 
+			return new ResourceCredit(id, name, siteId, resourceTypeId, splittable, amount, 
 					utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}

@@ -6,21 +6,8 @@
 package io.imunity.furms.db.resource_credits;
 
 
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.domain.resource_types.ResourceMeasureType;
-import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,8 +16,22 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 
 @SpringBootTest
 class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
@@ -114,7 +115,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.split(true)
-			.access(true)
 			.amount(new BigDecimal(100))
 			.createTime(createTime)
 			.startTime(startTime)
@@ -131,7 +131,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(project.id).isEqualTo(entity.getId().toString());
 		assertThat(project.name).isEqualTo(entity.name);
 		assertThat(byId.get().splittable).isEqualTo(true);
-		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
@@ -147,7 +146,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.split(true)
-			.access(true)
 			.amount(new BigDecimal(100))
 			.createTime(createTime)
 			.startTime(startTime)
@@ -170,7 +168,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.split(true)
-			.access(true)
 			.amount(new BigDecimal(100))
 			.createTime(createTime)
 			.startTime(startTime)
@@ -182,7 +179,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("name2")
 			.split(false)
-			.access(false)
 			.amount(new BigDecimal(455))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -205,7 +201,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.resourceTypeId(resourceTypeId)
 				.name("test")
 				.split(true)
-				.access(true)
 				.amount(new BigDecimal(100))
 				.createTime(createTime)
 				.startTime(LocalDateTime.now().minusDays(1))
@@ -216,7 +211,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.resourceTypeId(resourceTypeId)
 				.name("testAsPreffix")
 				.split(false)
-				.access(false)
 				.amount(new BigDecimal(455))
 				.createTime(createTime2)
 				.startTime(LocalDateTime.now().minusDays(1))
@@ -227,7 +221,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.resourceTypeId(resourceTypeId)
 				.name("insideTextTestIs")
 				.split(false)
-				.access(false)
 				.amount(new BigDecimal(455))
 				.createTime(createTime2)
 				.startTime(LocalDateTime.now().minusDays(1))
@@ -249,7 +242,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
 			.splittable(true)
-			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(createTime)
 			.utcStartTime(startTime)
@@ -265,7 +257,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().id).isNotNull();
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().splittable).isEqualTo(true);
-		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
@@ -280,7 +271,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.split(true)
-			.access(true)
 			.amount(new BigDecimal(100))
 			.createTime(createTime)
 			.startTime(startTime)
@@ -293,7 +283,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId.toString())
 			.name("new_name")
 			.splittable(true)
-			.accessibleForAllProjectMembers(false)
 			.amount(new BigDecimal(434))
 			.utcCreateTime(createTime2)
 			.utcStartTime(newStartTime)
@@ -308,7 +297,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId).isPresent();
 		assertThat(byId.get().name).isEqualTo("new_name");
 		assertThat(byId.get().splittable).isEqualTo(true);
-		assertThat(byId.get().accessibleForAllProjectMembers).isEqualTo(false);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(434));
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime2);
 		assertThat(byId.get().utcStartTime).isEqualTo(newStartTime);
@@ -323,7 +311,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -354,7 +341,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -375,7 +361,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -396,7 +381,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -415,7 +399,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -434,7 +417,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -453,7 +435,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)
@@ -472,7 +453,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.split(true)
-			.access(false)
 			.amount(new BigDecimal(434))
 			.createTime(createTime2)
 			.startTime(newStartTime)

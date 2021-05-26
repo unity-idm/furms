@@ -5,6 +5,29 @@
 
 package io.imunity.furms.ui.views.project.resource_access;
 
+import static io.imunity.furms.domain.resource_access.AccessStatus.ACKNOWLEDGED_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.ENABLED_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.FAILED_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED;
+import static io.imunity.furms.domain.resource_access.AccessStatus.PENDING_AND_ACKNOWLEDGED_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.PENDING_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.TERMINAL_GRANTED;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
@@ -14,22 +37,6 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.imunity.furms.domain.resource_access.AccessStatus.*;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 class ResourceAccessViewService {
 	public final String projectId;

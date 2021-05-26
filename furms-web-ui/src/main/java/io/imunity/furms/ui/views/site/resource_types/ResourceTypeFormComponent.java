@@ -5,6 +5,11 @@
 
 package io.imunity.furms.ui.views.site.resource_types;
 
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
+import java.util.Objects;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,14 +18,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
-
-import java.util.Objects;
-
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class ResourceTypeFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -30,6 +31,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 	private final FormLayout formLayout;
 	private final ComboBox<ServiceComboBoxModel> servicesComboBox;
+	private final Checkbox accessibleCheckbox;
 
 	ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder, ServiceComboBoxModelResolver resolver) {
 		this.binder = binder;
@@ -59,8 +61,8 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		});
 		formLayout.addFormItem(unitComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.unit"));
 
-		Checkbox accessibleCheckbox = new Checkbox();
-		formLayout.addFormItem(accessibleCheckbox, getTranslation("view.site-admin.resource-types.form.checkbox.accessible"));
+		accessibleCheckbox = new Checkbox(getTranslation("view.site-admin.resource-types.form.checkbox.accessible"));
+		formLayout.addFormItem(accessibleCheckbox, "");
 
 		prepareValidator(nameField, servicesComboBox, typeComboBox, unitComboBox, accessibleCheckbox);
 
@@ -116,6 +118,8 @@ class ResourceTypeFormComponent extends Composite<Div> {
 			Label idLabel = new Label(getTranslation("view.site-admin.resource-types.form.field.id"));
 
 			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
+			
+			accessibleCheckbox.setEnabled(false);
 		}
 	}
 }
