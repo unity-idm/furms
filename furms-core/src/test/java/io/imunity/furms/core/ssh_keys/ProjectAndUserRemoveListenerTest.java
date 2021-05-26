@@ -28,7 +28,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -74,7 +74,7 @@ public class ProjectAndUserRemoveListenerTest {
 						.siteId(new SiteId("s1", "id")).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
-		listener.onUserRoleRemove(new RemoveUserRoleEvent(new PersistentId("id"),
+		listener.onUserRoleRemove(new RemoveUserProjectMembershipEvent(new PersistentId("id"),
 				new ResourceId(projectUUID, ResourceType.PROJECT)));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
