@@ -51,7 +51,7 @@ class SSHKeyFromSiteRemover {
 	}
 	
 	@Transactional
-	void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
+	public void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
 				.collect(Collectors.toSet());
 		LOG.debug("Removing SSHKey {} from sites {}", sshKey, sites);

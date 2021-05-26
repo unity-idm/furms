@@ -44,6 +44,7 @@ import io.imunity.furms.domain.projects.UpdateProjectEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -276,6 +277,6 @@ class ProjectServiceImpl implements ProjectService {
 	private void removeUserFromProject(String communityId, String projectId, PersistentId userId) {
 		userOperationService.createUserRemovals(projectId, userId);
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
-		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
+		publisher.publishEvent(new RemoveUserProjectMembershipEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 }
