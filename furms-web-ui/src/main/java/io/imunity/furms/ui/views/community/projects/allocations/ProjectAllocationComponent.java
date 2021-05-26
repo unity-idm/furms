@@ -46,15 +46,6 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 public class ProjectAllocationComponent extends Composite<Div> {
 

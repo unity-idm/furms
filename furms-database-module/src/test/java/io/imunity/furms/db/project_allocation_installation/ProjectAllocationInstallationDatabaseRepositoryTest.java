@@ -6,22 +6,6 @@
 package io.imunity.furms.db.project_allocation_installation;
 
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;

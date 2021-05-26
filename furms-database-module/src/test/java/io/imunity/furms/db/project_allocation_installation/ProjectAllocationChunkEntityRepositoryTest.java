@@ -141,7 +141,6 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
 			.splittable(true)
-			.accessibleForAllProjectMembers(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
