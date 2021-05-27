@@ -47,7 +47,7 @@ public class FurmsSelectService {
 			FurmsSelectText furmsSelectText = items.get(idx);
 			if (equalsIds(id, furmsSelectText.furmsViewUserContext.id)) {
 				FurmsViewUserContext furmsViewUserContext = 
-						new FurmsViewUserContext(furmsSelectText.furmsViewUserContext, false);
+						new FurmsViewUserContext(furmsSelectText.furmsViewUserContext, true);
 				FurmsSelectText selectText = new FurmsSelectText(furmsViewUserContext);
 				items.set(idx, selectText);
 			}
@@ -65,9 +65,13 @@ public class FurmsSelectService {
 
 	void manageSelectedItemRedirects(FurmsSelectText value){
 		LOG.debug("Manage selected item redirects: {}", value);
+		String id = loadSelectedItemId();
 		if (value != null) {
 			value.furmsViewUserContext.setAsCurrent();
 			savedUserContext = value.furmsViewUserContext;
+		}
+		if (value != null && equalsIds(id, value.furmsViewUserContext.id)){
+			return;
 		}
 		if (value != null && value.furmsViewUserContext.redirectable){
 			LOG.debug("Redirecting to {}", value.furmsViewUserContext.route);
