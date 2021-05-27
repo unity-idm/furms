@@ -16,6 +16,8 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Map;
+
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
@@ -50,10 +52,10 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, null));
+		service.update(id, new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.ACKNOWLEDGED, null));
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED);
+		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED, null);
 	}
 
 	@Test
@@ -70,10 +72,10 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectInstallationResult(null, ProjectInstallationStatus.INSTALLED, null));
+		service.update(id, new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.INSTALLED, null));
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED);
+		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED, null);
 		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId", "siteId");
 	}
 

@@ -115,7 +115,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, INSTALLED);
+		entityDatabaseRepository.update(id, INSTALLED, null);
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = installationRepository.findById(UUID.fromString(id));
