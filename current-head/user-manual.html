@@ -487,6 +487,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#end-user-support">End User support</a>
 <ul class="sectlevel2">
+<li><a href="#sites">Sites</a></li>
+<li><a href="#projects">Projects</a></li>
 <li><a href="#ssh-keys-management">SSH keys management</a></li>
 </ul>
 </li>
@@ -652,9 +654,6 @@ All such marked limitations will be removed in the final release.
 <p>Fenix admin can create sites providing only the basic information: site name. Additional site attributes are supposed to be setup by the site admin.</p>
 </div>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Sites can be removed freely at this point. In the next versions removing a site will be subject to many constraints.</p>
-</div>
-<div class="paragraph">
 <p>After creating a site, Fenix admin should provide at least a single administrator for the site. The appropriate view can be activated from the site&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove site administrators.</p>
 </div>
 <div class="admonitionblock note">
@@ -677,9 +676,6 @@ Site administrators can also themselves manage administrators of their site, so 
 <h3 id="managing-communities"><a class="anchor" href="#managing-communities"></a>Managing communities</h3>
 <div class="paragraph">
 <p>Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.</p>
-</div>
-<div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Communities can be removed freely at this point. In the next versions removing a community will be subject to many constraints.</p>
 </div>
 <div class="paragraph">
 <p>After creating a community, Fenix admin should provide at least a single administrator for it. The appropriate view can be activated from the community&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove community administrators.</p>
@@ -712,7 +708,13 @@ Community administrators can also themselves manage administrators of their comm
 <div class="sect2">
 <h3 id="distributing-resources-to-communities"><a class="anchor" href="#distributing-resources-to-communities"></a>Distributing resources to communities</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Distribution of resource credits provided by sites can be performed from two parts of the FURMS user interface.</p>
+</div>
+<div class="paragraph">
+<p>The typical way to distribute credits starts at the Fenix administrator dashboard. Dashboard shows all resource credits. By default only the not-fully distributed and valid credits are shown, though it is possible to show also all excluded ones. Fenix admin can use the (+) button on each credit to create an allocation from it. When creating allocation this way, the target community has to be selected.</p>
+</div>
+<div class="paragraph">
+<p>The other way to create allocations from credits is to start from a target community, in the Communities view. After selecting a community and navigating to its <em>Allocations</em> tab, Fenix administrator can create an allocation for that community. When creating allocation this way, the resource credit needs to be selected. Interface allows for using multiple level of filters to easily find the desired credit.</p>
 </div>
 </div>
 </div>
@@ -734,6 +736,9 @@ Community administrators can also themselves manage administrators of their comm
 <div class="paragraph">
 <p>Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.</p>
 </div>
+<div class="paragraph">
+<p>What is more site administrator can require users not to reuse previously used SSH keys.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="policy-documents"><a class="anchor" href="#policy-documents"></a>Policy documents</h3>
@@ -744,25 +749,49 @@ Community administrators can also themselves manage administrators of their comm
 <div class="sect2">
 <h3 id="services"><a class="anchor" href="#services"></a>Services</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Services are used in FURMS to represent different offerings of a single site. The most important aspect of service is that it can have its own access policy agreement defined. Also each service creates a namespace for its resources.</p>
+</div>
+<div class="paragraph">
+<p>Computing cluster, data store system or an OpenStack VM service can be examples of services.</p>
+</div>
+<div class="paragraph">
+<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> Defining service policy is not yet supported. Therefore service definition is simplistic and consists of name and description only.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="resource-types"><a class="anchor" href="#resource-types"></a>Resource types</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Resource type represents resource which have <em>independent allocations</em> and has its usage accounted separately.</p>
+</div>
+<div class="paragraph">
+<p>Administrator has to decide type and a dependent unit of the resource type. Type defines generic treatment of resource and available units. FURMS supports two generic types <em>integer</em> and <em>floating point</em> as well as two more specific types: <em>time</em> and <em>data</em>.</p>
+</div>
+<div class="paragraph">
+<p>Units are different for each type. Note that FURMS does not scale the amounts of a given resource type, always the selected Unit is used.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="resource-credits"><a class="anchor" href="#resource-credits"></a>Resource credits</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Resource credits are used to express site’s offering to the FURMS managed infrastructure. Credit is an offer of a particular amount of a given resource in a defined timeframe. Credits are further distributed by Fenix administrators to communities and eventually to projects.</p>
+</div>
+<div class="paragraph">
+<p>Each credit is always based on a single resource type (and therefore is also bound to  a particular service).</p>
+</div>
+<div class="paragraph">
+<p>Credit has its lifetime, expired credits can not be allocated to communities or projects, even if were not completely consumed.</p>
+</div>
+<div class="paragraph">
+<p>Site can control whether credit can be allocated in multiple parts or just as a single one. In the later case it must be allocated to a single community and to a single project in this community.</p>
+</div>
+<div class="paragraph">
+<p>Finally credits can be marked as <em>granted to all project members</em>. Allocation derived from credits created with this flag will not have separate access authorization: each project member will be able to use it, without any further actions.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="site-agent-connection-and-requests"><a class="anchor" href="#site-agent-connection-and-requests"></a>Site agent connection and requests</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.</p>
 </div>
 </div>
 <div class="sect2">
@@ -824,7 +853,13 @@ Project administrators can also themselves manage administrators of their projec
 <div class="sect2">
 <h3 id="distributing-resources-to-projects"><a class="anchor" href="#distributing-resources-to-projects"></a>Distributing resources to projects</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Distribution of community resource allocations to projects can be performed in two different ways.</p>
+</div>
+<div class="paragraph">
+<p>The typical path to distribute available resource allocations starts at the community administrator dashboard. Dashboard shows all resource allocations of the community. By default only the not-fully distributed and valid allocations are shown, though it is possible to show also the ones excluded by default. Community admin can use the (+) button on each community allocation to create a project allocation from it. When creating allocation this way, the target project has to be selected.</p>
+</div>
+<div class="paragraph">
+<p>The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its <em>Allocations</em> tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected.</p>
 </div>
 </div>
 </div>
@@ -869,13 +904,27 @@ Project administrators can also themselves manage administrators of their projec
 <div class="sect2">
 <h3 id="resource-access"><a class="anchor" href="#resource-access"></a>Resource access</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Users of a project do not access to each allocation automatically. Instead, the project administrator is responsible for granting (or removing) access to each individual allocation. This is controlled on the Resource access view.</p>
+</div>
+<div class="paragraph">
+<p>Note that there is one exception to that rule. Site sometimes define resources which are available to all users at the site. Such resources are available to all users at the site, and control of resource access is not possible for them as it is always enabled.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="resource-allocations"><a class="anchor" href="#resource-allocations"></a>Resource allocations</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Resource allocations view shows a table with all allocations that were assigned to the project by its community. Each allocation is specific to a site and a single resource offered by this site.</p>
+</div>
+<div class="paragraph">
+<p>It is important to know that community assigned allocation needs to be acknowledged and installed by the site. In effect of this process, the site may decide to allocate less (or even more) resources than the community requested for the project. What is more site can allocate the resources in several portions, e.g. distributing a bigger allocation into several monthly or quarterly parts.</p>
+</div>
+<div class="paragraph">
+<p>To see the resources which were actually assigned by the site, a row with community assigned allocation needs to be expanded. This is presented on the example below, where a single community allocation for 64 hours was assigned in two chunks, of 32 and 16 hours. It is possible that the TOPSITE will provide in future additional chunk, with remaining 16 hours.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/allocation.png" alt="allocation">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -922,15 +971,33 @@ Project must have a single <em>project leader</em> defined. Typically this is on
 <p>personal information which is exposed to FURMS by the Fenix infrastructure,</p>
 </li>
 <li>
-<p>user&#8217;s projects list,</p>
+<p>user&#8217;s sites and projects,</p>
 </li>
 <li>
 <p>SSH keys management.</p>
 </li>
 </ul>
 </div>
+<div class="sect2">
+<h3 id="sites"><a class="anchor" href="#sites"></a>Sites</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> User settings will provide more functionality in subsequent FURMS releases, including site access details.</p>
+<p>Sites view shows all sites to which access is granted. Note that if access to a site is granted through several projects, then multiple entries will show up, for each project.</p>
+</div>
+<div class="paragraph">
+<p>Table shows the local user identifier at the site as well as the site-provided information on connection and other special access rules.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="projects"><a class="anchor" href="#projects"></a>Projects</h3>
+<div class="paragraph">
+<p>The projects view provides a list of projects. By default only the projects where the user is a member are shown.</p>
+</div>
+<div class="paragraph">
+<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> It is also possible to see all projects, as in future FURMS will support project applications.</p>
+</div>
+<div class="paragraph">
+<p>For each project of the user, it is possible to drill down and check available allocations in that project.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="ssh-keys-management"><a class="anchor" href="#ssh-keys-management"></a>SSH keys management</h3>
@@ -964,7 +1031,7 @@ Some sites may require to set the 'from' option in the SSH key. Keys without tha
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-12 06:59:05 UTC
+Last updated 2021-05-28 11:16:42 UTC
 </div>
 </div>
 </body>

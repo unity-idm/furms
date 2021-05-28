@@ -474,6 +474,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>Site administrator may set a requirement on SSH keys installed by FURMS, to always include the 'from' option (specifying allowed client addresses for the key). If this option is set after some keys without the 'from' option were already installed, FURMS will not auto-remove the offending keys. However, user will be forced to either remove the key from the site or to add the 'from' option upon the next editing of the key.</p>
 </div>
+<div class="paragraph">
+<p>What is more site administrator can require users not to reuse previously used SSH keys.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="policy-documents"><a class="anchor" href="#policy-documents"></a>Policy documents</h3>
@@ -484,25 +487,49 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="services"><a class="anchor" href="#services"></a>Services</h3>
 <div class="paragraph">
-<p>{versionlimit} This functionality is not available yet.</p>
+<p>Services are used in FURMS to represent different offerings of a single site. The most important aspect of service is that it can have its own access policy agreement defined. Also each service creates a namespace for its resources.</p>
+</div>
+<div class="paragraph">
+<p>Computing cluster, data store system or an OpenStack VM service can be examples of services.</p>
+</div>
+<div class="paragraph">
+<p>{versionlimit} Defining service policy is not yet supported. Therefore service definition is simplistic and consists of name and description only.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="resource-types"><a class="anchor" href="#resource-types"></a>Resource types</h3>
 <div class="paragraph">
-<p>{versionlimit} This functionality is not available yet.</p>
+<p>Resource type represents resource which have <em>independent allocations</em> and has its usage accounted separately.</p>
+</div>
+<div class="paragraph">
+<p>Administrator has to decide type and a dependent unit of the resource type. Type defines generic treatment of resource and available units. FURMS supports two generic types <em>integer</em> and <em>floating point</em> as well as two more specific types: <em>time</em> and <em>data</em>.</p>
+</div>
+<div class="paragraph">
+<p>Units are different for each type. Note that FURMS does not scale the amounts of a given resource type, always the selected Unit is used.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="resource-credits"><a class="anchor" href="#resource-credits"></a>Resource credits</h3>
 <div class="paragraph">
-<p>{versionlimit} This functionality is not available yet.</p>
+<p>Resource credits are used to express site’s offering to the FURMS managed infrastructure. Credit is an offer of a particular amount of a given resource in a defined timeframe. Credits are further distributed by Fenix administrators to communities and eventually to projects.</p>
+</div>
+<div class="paragraph">
+<p>Each credit is always based on a single resource type (and therefore is also bound to  a particular service).</p>
+</div>
+<div class="paragraph">
+<p>Credit has its lifetime, expired credits can not be allocated to communities or projects, even if were not completely consumed.</p>
+</div>
+<div class="paragraph">
+<p>Site can control whether credit can be allocated in multiple parts or just as a single one. In the later case it must be allocated to a single community and to a single project in this community.</p>
+</div>
+<div class="paragraph">
+<p>Finally credits can be marked as <em>granted to all project members</em>. Allocation derived from credits created with this flag will not have separate access authorization: each project member will be able to use it, without any further actions.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="site-agent-connection-and-requests"><a class="anchor" href="#site-agent-connection-and-requests"></a>Site agent connection and requests</h3>
 <div class="paragraph">
-<p>{versionlimit} This functionality is not available yet.</p>
+<p>{versionlimit} This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.</p>
 </div>
 </div>
 <div class="sect2">
@@ -519,7 +546,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-12 06:59:05 UTC
+Last updated 2021-05-28 11:16:56 UTC
 </div>
 </div>
 </body>

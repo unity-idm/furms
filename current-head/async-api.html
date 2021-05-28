@@ -2250,6 +2250,42 @@ pre > * { white-space: pre-wrap;
           
             <li>
               
+                <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#operation-publish-site/site_id/resource_usage/cumulative">
+                  <span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded" style="height: 21px;font-size: 11px;" title="Publish">
+                    Pub
+                  </span>
+                  
+                    <span style="padding-top: 2px;">
+                      Cumulative allocation usage record
+                    </span>
+                  
+                </a>
+              
+
+              
+              </a>
+            </li>
+          
+            <li>
+              
+                <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#operation-publish-site/site_id/resource_usage/user">
+                  <span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded" style="height: 21px;font-size: 11px;" title="Publish">
+                    Pub
+                  </span>
+                  
+                    <span style="padding-top: 2px;">
+                      Per-user allocation usage record
+                    </span>
+                  
+                </a>
+              
+
+              
+              </a>
+            </li>
+          
+            <li>
+              
 
               
                 <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#operation-subscribe-site/site_id/ping/req">
@@ -2280,6 +2316,42 @@ pre > * { white-space: pre-wrap;
                 </a>
               
 
+              
+              </a>
+            </li>
+          
+            <li>
+              
+
+              
+                <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#operation-subscribe-site/site_id/policy/acceptance_update">
+                  <span class="bg-green-600 font-bold no-underline text-white uppercase p-1 mr-2 rounded" style="height: 21px;font-size: 11px;" title="Subscribe">
+                    Sub
+                  </span>
+                  
+                    <span style="padding-top: 2px;">
+                      Policy acceptance update
+                    </span>
+                  
+                </a>
+              
+              </a>
+            </li>
+          
+            <li>
+              
+
+              
+                <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#operation-subscribe-site/site_id/policy/update">
+                  <span class="bg-green-600 font-bold no-underline text-white uppercase p-1 mr-2 rounded" style="height: 21px;font-size: 11px;" title="Subscribe">
+                    Sub
+                  </span>
+                  
+                    <span style="padding-top: 2px;">
+                      Policy document update
+                    </span>
+                  
+                </a>
               
               </a>
             </li>
@@ -2594,6 +2666,22 @@ pre > * { white-space: pre-wrap;
             </div>
           </a>
         
+          <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#message-CumulativeResourceUsageRecord">
+            <div style="display:inline-block;">
+              
+<span class="string-chunk" style="padding-top: 2px;">CumulativeResourceUsageRecord</span>
+
+            </div>
+          </a>
+        
+          <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#message-UserResourceUsageRecord">
+            <div style="display:inline-block;">
+              
+<span class="string-chunk" style="padding-top: 2px;">UserResourceUsageRecord</span>
+
+            </div>
+          </a>
+        
           <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#message-AgentPingRequest">
             <div style="display:inline-block;">
               
@@ -2606,6 +2694,22 @@ pre > * { white-space: pre-wrap;
             <div style="display:inline-block;">
               
 <span class="string-chunk" style="padding-top: 2px;">AgentPingRequestAck</span>
+
+            </div>
+          </a>
+        
+          <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#message-UserPolicyAcceptanceUpdate">
+            <div style="display:inline-block;">
+              
+<span class="string-chunk" style="padding-top: 2px;">UserPolicyAcceptanceUpdate</span>
+
+            </div>
+          </a>
+        
+          <a class="js-menu-item flex break-words no-underline text-gray-700 mt-8 sm:mt-8 md:mt-3" href="#message-PolicyUpdate">
+            <div style="display:inline-block;">
+              
+<span class="string-chunk" style="padding-top: 2px;">PolicyUpdate</span>
 
             </div>
           </a>
@@ -7447,6 +7551,45 @@ string
         <span
           class="text-sm"
           style="word-break: break-word"
+          >acronym</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
           >validityStart</span
         >
             
@@ -8541,6 +8684,7 @@ string
   "name": "string",
   "description": "string",
   "researchField": "string",
+  "acronym": "string",
   "validityStart": "string",
   "validityEnd": "string",
   "projectLeader": {
@@ -24528,6 +24672,362 @@ string
   </div>
 </div>
 
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policiesAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policiesAcceptance</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+array&lt;object&gt;   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-200 py-4 rounded"
+    >
+         
+
+ 
+
+
+        
+
+<div
+  class="bg-gray-200 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policyAcceptanceContent</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >processedVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >acceptance</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+   
+        <div class="text-xs">
+          Enum: 
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"REJECTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"ACCEPTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"UNKNOWN"</span
+          >
+          
+        </div>
+         
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional items are allowed.
+      </p>
+         
+       
+    </div>
+    
+  </div>
+</div>
+
     
 
  
@@ -24758,7 +25258,18 @@ string
         <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
   "allocationIdentifier": "string",
   "fenixUserId": "string",
-  "projectIdentifier": "string"
+  "projectIdentifier": "string",
+  "policiesAcceptance": [
+    {
+      "policyAcceptance": {
+        "policyIdentifier": "string",
+        "currentVersion": 0,
+        "serviceIdentifier": "string",
+        "processedVersion": 0,
+        "acceptance": "REJECTED"
+      }
+    }
+  ]
 }</code></pre>
         <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
         
@@ -27709,6 +28220,1115 @@ string
 
   <div class="responsive-container">
     
+      
+
+<a name="operation-publish-site/site_id/resource_usage/cumulative"></a>
+<div class="center-block p-8">
+  <div class="operation pt-8 pb-8">
+    <h3 class="font-mono text-base">
+      
+      <span class="font-mono border border-blue-500 text-blue-500 uppercase p-1 rounded" title="Publish">Pub</span>
+      
+      
+      
+<span class="string-chunk" >site/site_id/resource_usage/cumulative</span>
+
+    </h3>
+
+    <div class="mt-4 mb-4 markdown"></div>
+
+    <p class="text-gray-500 text-sm">Cumulative allocation usage record</p>
+    <div class="mt-4 mb-4 markdown"><p>Sent from the site agent to FURMS to report per-project and allocation resource consumption.</p>
+</div>
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+    
+
+
+
+    
+    <p>Accepts the following message:</p>
+    
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">CumulativeResourceUsageRecord</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >projectIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >projectIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a project.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >allocationIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >allocationIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a particular project allocation. Single resource credit can have many allocations.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >cumulativeConsumption</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+number   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >double</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >probedAt</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >dateTime</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+    
+
+    
+
+<div class="mt-4">
+  
+</div>
+
+
+
+  </div>
+</div>
+
+<div class="right-block p-8">
+  <h4 class="text-lg text-white mb-4">Examples</h4>
+
+  
+  
+
+<form>
+  <h5 class="examples-uid text-orange-600 mt-4">CumulativeResourceUsageRecord</h5>
+  
+    <div class="payload-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Payload</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children payload-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "projectIdentifier": "string",
+  "allocationIdentifier": "string",
+  "cumulativeConsumption": 0,
+  "probedAt": "string"
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+
+  
+    <div class="headers-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Headers</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children headers-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "version": 1
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+</form>
+
+
+  
+</div>
+
+
+
+    
+  </div>
+  <div class="responsive-container">
+    
+  </div>
+
+  <div class="responsive-container">
+    
+      
+
+<a name="operation-publish-site/site_id/resource_usage/user"></a>
+<div class="center-block p-8">
+  <div class="operation pt-8 pb-8">
+    <h3 class="font-mono text-base">
+      
+      <span class="font-mono border border-blue-500 text-blue-500 uppercase p-1 rounded" title="Publish">Pub</span>
+      
+      
+      
+<span class="string-chunk" >site/site_id/resource_usage/user</span>
+
+    </h3>
+
+    <div class="mt-4 mb-4 markdown"></div>
+
+    <p class="text-gray-500 text-sm">Per-user allocation usage record</p>
+    <div class="mt-4 mb-4 markdown"><p>Sent from the site agent to FURMS to report per-project, user and allocation resource consumption.</p>
+</div>
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+    
+
+
+
+    
+    <p>Accepts the following message:</p>
+    
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">UserResourceUsageRecord</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >projectIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >projectIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a project.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >allocationIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >allocationIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a particular project allocation. Single resource credit can have many allocations.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >fenixUserId</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >fenixUserId</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>Fenix-wide identifier of a person, managed by Fenix Central IdP</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >cumulativeConsumption</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+number   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >double</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >consumedUntil</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >dateTime</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+    
+
+    
+
+<div class="mt-4">
+  
+</div>
+
+
+
+  </div>
+</div>
+
+<div class="right-block p-8">
+  <h4 class="text-lg text-white mb-4">Examples</h4>
+
+  
+  
+
+<form>
+  <h5 class="examples-uid text-orange-600 mt-4">UserResourceUsageRecord</h5>
+  
+    <div class="payload-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Payload</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children payload-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "projectIdentifier": "string",
+  "allocationIdentifier": "string",
+  "fenixUserId": "string",
+  "cumulativeConsumption": 0,
+  "consumedUntil": "string"
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+
+  
+    <div class="headers-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Headers</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children headers-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "version": 1
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+</form>
+
+
+  
+</div>
+
+
+
+    
+  </div>
+  <div class="responsive-container">
+    
+  </div>
+
+  <div class="responsive-container">
+    
   </div>
   <div class="responsive-container">
     
@@ -27793,7 +29413,11 @@ string
           style="word-break: break-word"
           >Payload</span
         >
-          
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >emptyObject</span
+        >
+         
         <svg
           class="expand inline align-baseline"
           version="1.1"
@@ -28689,6 +30313,1281 @@ string
     
   </div>
   <div class="responsive-container">
+    
+  </div>
+
+  <div class="responsive-container">
+    
+  </div>
+  <div class="responsive-container">
+    
+      
+
+<a name="operation-subscribe-site/site_id/policy/acceptance_update"></a>
+<div class="center-block p-8">
+  <div class="operation pt-8 pb-8">
+    <h3 class="font-mono text-base">
+      
+      
+      <span class="font-mono border border-green-600 text-green-600 uppercase p-1 rounded"
+        title="Subscribe">Sub</span>
+      
+      
+<span class="string-chunk" >site/site_id/policy/acceptance_update</span>
+
+    </h3>
+
+    <div class="mt-4 mb-4 markdown"></div>
+
+    <p class="text-gray-500 text-sm">Policy acceptance update</p>
+    <div class="mt-4 mb-4 markdown"><p>Used by FURMS to inform site agent that user's policies acceptance status has been changed.</p>
+</div>
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+    
+
+
+
+    
+    <p>Accepts the following message:</p>
+    
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">UserPolicyAcceptanceUpdate</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >fenixUserId</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >fenixUserId</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>Fenix-wide identifier of a person, managed by Fenix Central IdP</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policiesAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policiesAcceptance</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+array&lt;object&gt;   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-200 py-4 rounded"
+    >
+         
+
+ 
+
+
+        
+
+<div
+  class="bg-gray-200 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policyAcceptanceContent</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >processedVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >acceptance</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+   
+        <div class="text-xs">
+          Enum: 
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"REJECTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"ACCEPTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"UNKNOWN"</span
+          >
+          
+        </div>
+         
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional items are allowed.
+      </p>
+         
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+    
+
+    
+
+<div class="mt-4">
+  
+</div>
+
+
+
+  </div>
+</div>
+
+<div class="right-block p-8">
+  <h4 class="text-lg text-white mb-4">Examples</h4>
+
+  
+  
+
+<form>
+  <h5 class="examples-uid text-orange-600 mt-4">UserPolicyAcceptanceUpdate</h5>
+  
+    <div class="payload-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Payload</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children payload-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "fenixUserId": "string",
+  "policiesAcceptance": [
+    {
+      "policyAcceptance": {
+        "policyIdentifier": "string",
+        "currentVersion": 0,
+        "serviceIdentifier": "string",
+        "processedVersion": 0,
+        "acceptance": "REJECTED"
+      }
+    }
+  ]
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+
+  
+    <div class="headers-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Headers</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children headers-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "version": 1
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+</form>
+
+
+  
+</div>
+
+
+
+    
+  </div>
+
+  <div class="responsive-container">
+    
+  </div>
+  <div class="responsive-container">
+    
+      
+
+<a name="operation-subscribe-site/site_id/policy/update"></a>
+<div class="center-block p-8">
+  <div class="operation pt-8 pb-8">
+    <h3 class="font-mono text-base">
+      
+      
+      <span class="font-mono border border-green-600 text-green-600 uppercase p-1 rounded"
+        title="Subscribe">Sub</span>
+      
+      
+<span class="string-chunk" >site/site_id/policy/update</span>
+
+    </h3>
+
+    <div class="mt-4 mb-4 markdown"></div>
+
+    <p class="text-gray-500 text-sm">Policy document update</p>
+    <div class="mt-4 mb-4 markdown"><p>Used by FURMS to inform site agent that a policy has been updated</p>
+</div>
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+    
+
+
+
+    
+    <p>Accepts the following message:</p>
+    
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">PolicyUpdate</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyName</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="is-open">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+    
+
+    
+
+<div class="mt-4">
+  
+</div>
+
+
+
+  </div>
+</div>
+
+<div class="right-block p-8">
+  <h4 class="text-lg text-white mb-4">Examples</h4>
+
+  
+  
+
+<form>
+  <h5 class="examples-uid text-orange-600 mt-4">PolicyUpdate</h5>
+  
+    <div class="payload-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Payload</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children payload-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "policyIdentifier": "string",
+  "policyName": "string",
+  "currentVersion": 0,
+  "serviceIdentifier": "string"
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+
+  
+    <div class="headers-examples mb-4 ">
+      <div class="js-prop cursor-pointer  flex property">
+        <span class="px-2 mr-2 text-gray-200 text-sm border rounded focus:outline-none cursor-pointer">Headers</span>
+        
+          <svg class="expand inline align-baseline" version="1.1" viewBox="0 0 24 24" x="0"
+            xmlns="http://www.w3.org/2000/svg" y="0">
+            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+          </svg>
+        
+      </div>
+      <div class="children headers-examples mt-4">
+        
+        <pre class="hljs mb-4 border border-gray-800 rounded"><code>{
+  "version": 1
+}</code></pre>
+        <h6 class="text-xs font-bold text-gray-700 italic">This example has been generated automatically.</h6>
+        
+      </div>
+    </div>
+  
+</form>
+
+
+  
+</div>
+
+
+
     
   </div>
 
@@ -32676,6 +35575,45 @@ string
           class="text-sm"
           style="word-break: break-word"
           >researchField</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >acronym</span
         >
             
       </div>
@@ -46680,6 +49618,362 @@ string
   </div>
 </div>
 
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policiesAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policiesAcceptance</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+array&lt;object&gt;   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-200 py-4 rounded"
+    >
+         
+
+ 
+
+
+        
+
+<div
+  class="bg-gray-200 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policyAcceptanceContent</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >processedVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >acceptance</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+   
+        <div class="text-xs">
+          Enum: 
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"REJECTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"ACCEPTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"UNKNOWN"</span
+          >
+          
+        </div>
+         
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional items are allowed.
+      </p>
+         
+       
+    </div>
+    
+  </div>
+</div>
+
     
 
  
@@ -49194,13 +52488,887 @@ string
 
 
       
-      <a name="message-AgentPingRequest"></a>
+      <a name="message-CumulativeResourceUsageRecord"></a>
       
 
 <div class="bg-gray-200 rounded p-4 mt-2">
   <div class="text-sm text-gray-700 mb-2">
     
     <span class="text-gray-700 font-bold mr-2">#39</span>
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">CumulativeResourceUsageRecord</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >projectIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >projectIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a project.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >allocationIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >allocationIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a particular project allocation. Single resource credit can have many allocations.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >cumulativeConsumption</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+number   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >double</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >probedAt</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >dateTime</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+      
+      <a name="message-UserResourceUsageRecord"></a>
+      
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    <span class="text-gray-700 font-bold mr-2">#40</span>
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">UserResourceUsageRecord</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >projectIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >projectIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a project.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >allocationIdentifier</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >allocationIdentifier</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>FURMS assigned, unique identifier of a particular project allocation. Single resource credit can have many allocations.</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >fenixUserId</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >fenixUserId</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>Fenix-wide identifier of a person, managed by Fenix Central IdP</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >cumulativeConsumption</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+number   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >double</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >consumedUntil</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+            
+            <span
+              class="bg-yellow-600 font-bold no-underline text-black rounded lowercase ml-2"
+              style="height: 20px; font-size: 11px; padding: 3px"
+              >dateTime</span
+            >
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+      
+      <a name="message-AgentPingRequest"></a>
+      
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    <span class="text-gray-700 font-bold mr-2">#41</span>
     
     
       <span class="border text-orange-600 rounded text-s py-0 px-2">AgentPingRequest</span>
@@ -49239,7 +53407,11 @@ string
           style="word-break: break-word"
           >Payload</span
         >
-          
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >emptyObject</span
+        >
+         
         <svg
           class="expand inline align-baseline"
           version="1.1"
@@ -49476,7 +53648,7 @@ string
 <div class="bg-gray-200 rounded p-4 mt-2">
   <div class="text-sm text-gray-700 mb-2">
     
-    <span class="text-gray-700 font-bold mr-2">#40</span>
+    <span class="text-gray-700 font-bold mr-2">#42</span>
     
     
       <span class="border text-orange-600 rounded text-s py-0 px-2">AgentPingRequestAck</span>
@@ -49948,13 +54120,1044 @@ string
 
 
       
+      <a name="message-UserPolicyAcceptanceUpdate"></a>
+      
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    <span class="text-gray-700 font-bold mr-2">#43</span>
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">UserPolicyAcceptanceUpdate</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >fenixUserId</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >fenixUserId</span
+        >
+           
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>Fenix-wide identifier of a person, managed by Fenix Central IdP</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policiesAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policiesAcceptance</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+array&lt;object&gt;   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-200 py-4 rounded"
+    >
+         
+
+ 
+
+
+        
+
+<div
+  class="bg-gray-200 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyAcceptance</span
+        >
+         
+        <span class="border text-orange-600 rounded text-xs ml-3 py-0 px-2"
+          >policyAcceptanceContent</span
+        >
+         
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >processedVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >acceptance</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+   
+        <div class="text-xs">
+          Enum: 
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"REJECTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"ACCEPTED"</span
+          >
+          
+          <span class="border text-orange-600 rounded ml-1 py-0 px-2"
+            >"UNKNOWN"</span
+          >
+          
+        </div>
+         
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional items are allowed.
+      </p>
+         
+       
+    </div>
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+      
+      <a name="message-PolicyUpdate"></a>
+      
+
+<div class="bg-gray-200 rounded p-4 mt-2">
+  <div class="text-sm text-gray-700 mb-2">
+    
+    <span class="text-gray-700 font-bold mr-2">#44</span>
+    
+    
+      <span class="border text-orange-600 rounded text-s py-0 px-2">PolicyUpdate</span>
+    
+  </div>
+  <p class="text-gray-600 text-sm"></p>
+  
+  
+
+<div class="mt-4">
+  
+</div>
+
+
+
+
+  
+  
+
+  <div class="mt-4 mb-4 markdown"></div>
+  
+    
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Payload</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >policyName</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >currentVersion</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+      
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >serviceIdentifier</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+string   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"><p>only used for service policies</p>
+</div>
+
+    
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+  
+  
+    <div class="mt-4">
+      
+<div>
+  
+
+<div
+  class="bg-gray-200  rounded"
+>
+  <div class="">
+    <div
+      class="js-prop cursor-pointer py-2 flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >Headers</span
+        >
+          
+        <svg
+          class="expand inline align-baseline"
+          version="1.1"
+          viewBox="0 0 24 24"
+          x="0"
+          xmlns="http://www.w3.org/2000/svg"
+          y="0"
+        >
+          <polygon
+            points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "
+          ></polygon>
+        </svg>
+          
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+object   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+    
+      </div>
+    </div>
+
+    
+    <div
+      class="children bg-gray-100 py-4 rounded"
+    >
+           
+
+<div
+  class="bg-gray-100 pl-8 pr-8 rounded"
+>
+  <div class="">
+    <div
+      class=" flex property"
+    >
+      <div class="pr-4" style="margin-top: -2px; min-width: 25%">
+        <span
+          class="text-sm"
+          style="word-break: break-word"
+          >version</span
+        >
+            
+      </div>
+
+      <div>
+        <div class="capitalize text-sm text-teal-500 font-bold">
+          
+integer   
+          <div class="inline-block">
+                      
+          </div>
+        </div>
+
+        
+
+<div class="text-sm markdown"></div>
+
+ 
+        <div class="text-xs">Default: 1</div>
+           
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    
+
+ 
+
+
+   
+      <p class="pl-6 mb-2 mt-4 text-xs text-gray-700">
+        Additional properties are <strong>NOT</strong> allowed.
+      </p>
+        
+       
+    </div>
+    
+  </div>
+</div>
+
+
+</div>
+
+    </div>
+  
+
+  
+
+    
+
+
+  
+
+ 
+
+
+
+
+</div>
+
+
+      
       <a name="message-requestAck"></a>
       
 
 <div class="bg-gray-200 rounded p-4 mt-2">
   <div class="text-sm text-gray-700 mb-2">
     
-    <span class="text-gray-700 font-bold mr-2">#41</span>
+    <span class="text-gray-700 font-bold mr-2">#45</span>
     
     
       <span class="border text-orange-600 rounded text-s py-0 px-2">requestAck</span>

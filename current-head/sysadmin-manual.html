@@ -460,6 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#furms-system-minor-update-procedure">FURMS system minor update procedure</a></li>
+<li><a href="#upgrade-from-1-0-to-2-0-release">Upgrade from 1.0 to 2.0 release</a></li>
 <li><a href="#operating-the-system">Operating the system</a>
 <ul class="sectlevel2">
 <li><a href="#starting-furms-stack">Starting FURMS stack</a></li>
@@ -1115,6 +1116,20 @@ The redirect URL configured at Central IdP OAuth client side should be set to ht
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RabbitMQ virtual host name to which to connect.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.ui</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Configuration of user interface related features.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.ui.maxSessionInactivityInSeconds</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer (default 1800)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value, that defines number of seconds where users inactivity cases the automatic logout operation from FURMS UI.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.ui.secondsBeforeShowingLogoutWarning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer (default 120)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value that, defines number of seconds before the user is shown the warning message about automatic logout from FURMS UI.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -1177,6 +1192,52 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </li>
 <li>
 <p><a href="#Start FURMS stack">[Start FURMS stack]</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-from-1-0-to-2-0-release"><a class="anchor" href="#upgrade-from-1-0-to-2-0-release"></a>Upgrade from 1.0 to 2.0 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 2.0 release installation steps basing on 1.0 release configuration. Note that it is required to drop the databases for FURMS service as well as for Unity-IdM, however all of the Ansible related configuration shall be reused.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install and configure RabbitMQ broker according to <a href="#broker">guidelines from this section</a>.</p>
+</li>
+<li>
+<p>Drop PostgreSQL database used by Unity-IdM instance.</p>
+</li>
+<li>
+<p>Drop PostgreSQL database used by FURMS service instance.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p>Update the trustStore file: add the public CA certificate which is at the top of the certificates chain used to sign Broker credential.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file, add the following configuration:</p>
+<div class="literalblock">
+<div class="content">
+<pre>broker:
+    host:                -- set -- me --
+    port:                -- set -- me --
+    username:            -- set -- me --
+    password:            -- set -- me --
+    virtualHost:         -- set -- me --
+ui:
+    maxSessionInactivityInSeconds:     -- set -- me -- #optional: default 1800
+    secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120</pre>
+</div>
+</div>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a></p>
 </li>
 </ul>
 </div>
@@ -1263,7 +1324,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-12 06:59:19 UTC
+Last updated 2021-05-28 11:16:56 UTC
 </div>
 </div>
 <style>
