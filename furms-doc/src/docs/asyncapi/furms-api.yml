@@ -593,6 +593,9 @@ channels:
                      $ref: "#/components/schemas/fenixUserId"
                   projectIdentifier:
                      $ref: "#/components/schemas/projectIdentifier"
+                  policiesAcceptance:
+                     $ref: "#/components/schemas/policiesAcceptance"
+                  
 
    site/site_id/allocation/user_add/ack:
       publish:
@@ -671,7 +674,7 @@ channels:
          message:
             name: CumulativeResourceUsageRecord
             traits:
-               - $ref: "#/components/messageTraits/sitePush"
+               - $ref: "#/components/messageTraits/oneWay"
             payload:
                type: object
                additionalProperties: false
@@ -695,7 +698,7 @@ channels:
          message:
             name: UserResourceUsageRecord
             traits:
-               - $ref: "#/components/messageTraits/sitePush"
+               - $ref: "#/components/messageTraits/oneWay"
             payload:
                type: object
                additionalProperties: false
@@ -724,8 +727,7 @@ channels:
             traits:
                - $ref: "#/components/messageTraits/request"
             payload:
-               type: object
-               additionalProperties: false
+               $ref: "#/components/schemas/emptyObject"
 
    site/site_id/ping/ack:
       publish:
@@ -739,6 +741,47 @@ channels:
                $ref: "#/components/schemas/emptyObject"
 
 
+   site/site_id/policy/acceptance_update:
+      subscribe:
+         summary: Policy acceptance update
+         description: Used by FURMS to inform site agent that user's policies acceptance status has been changed.
+         operationId: UserPolicyAcceptanceUpdate
+         message:
+            name: UserPolicyAcceptanceUpdate
+            traits:
+               - $ref: "#/components/messageTraits/oneWay"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  fenixUserId:
+                     $ref: "#/components/schemas/fenixUserId"
+                  policiesAcceptance:
+                     $ref: "#/components/schemas/policiesAcceptance"
+
+   site/site_id/policy/update:
+      subscribe:
+         summary: Policy document update
+         description: Used by FURMS to inform site agent that a policy has been updated
+         operationId: PolicyUpdate
+         message:
+            name: PolicyUpdate
+            traits:
+               - $ref: "#/components/messageTraits/oneWay"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  policyIdentifier:
+                     type: string
+                  policyName:
+                     type: string
+                  currentVersion:
+                     type: integer
+                  serviceIdentifier:
+                     type: string
+                     description: only used for service policies
+                  
 
 components:
    messageTraits:
@@ -759,7 +802,8 @@ components:
       requestAck:
          headers:
             $ref: "#/components/schemas/responseMeta"
-      sitePush:
+
+      oneWay:
          headers:
             type: object
             additionalProperties: false
@@ -861,8 +905,40 @@ components:
                type: string
             homeCountry:
                type: string
+      
+      policyAcceptanceContent:
+         type: object
+         additionalProperties: false
+         properties:
+            policyIdentifier:
+               type: string
+            currentVersion:
+               type: integer
+            serviceIdentifier:
+               type: string
+               description: only used for service policies
+            processedVersion:
+               type: integer
+            acceptance:
+               type: string
+               enum:
+                  - REJECTED
+                  - ACCEPTED
+                  - UNKNOWN
+        
+      policyAcceptance:
+         type: object
+         additionalProperties: false
+         properties:
+            policyAcceptance:
+                 $ref: "#/components/schemas/policyAcceptanceContent"
+                 
+      policiesAcceptance:
+         type: array
+         items:
+            $ref: "#/components/schemas/policyAcceptance"
+                 
 
-               
 externalDocs:  
    description: Introduction to the Async API is available here
    url: https://unity-idm.github.io/furms/current-head/messaging-api-intro.html
