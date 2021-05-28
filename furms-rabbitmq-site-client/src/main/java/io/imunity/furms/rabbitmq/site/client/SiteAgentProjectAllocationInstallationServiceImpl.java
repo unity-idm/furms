@@ -13,7 +13,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

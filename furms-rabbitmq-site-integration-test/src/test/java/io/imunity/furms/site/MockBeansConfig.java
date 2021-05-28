@@ -6,7 +6,7 @@
 package io.imunity.furms.site;
 
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.*;
+import io.imunity.furms.site.api.status_updater.*;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 

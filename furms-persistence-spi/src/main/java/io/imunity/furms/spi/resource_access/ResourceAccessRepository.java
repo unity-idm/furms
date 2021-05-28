@@ -21,6 +21,7 @@ public interface ResourceAccessRepository {
 	boolean exists(GrantAccess grantAccess);
 	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
 	AccessStatus findCurrentStatus(CorrelationId correlationId);
+	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);
 	void deleteByUserAndAllocationId(FenixUserId userId, String allocationId);
 	void deleteByUserAndProjectId(FenixUserId userId, String projectId);

@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site.api.message_resolver;
+package io.imunity.furms.site.api.status_updater;
 
 import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;

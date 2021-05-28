@@ -6,9 +6,8 @@
 package io.imunity.furms.site.api.message_resolver;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
+import io.imunity.furms.domain.sites.SiteExternalId;
 
-public interface SSHKeyOperationStatusUpdater {
-
-	void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result);
+public interface UserAllocationGrantMessageResolver {
+	boolean isMessageCorrelated(CorrelationId id, SiteExternalId siteExternalId);
 }
