@@ -39,41 +39,14 @@ public class FurmsSelectService {
 			.collect(toList());
 	}
 
-	List<FurmsSelectText> reloadItems(){
-		List<FurmsSelectText> items = loadItems();
-		String id = loadSelectedItemId();
-		
-		for (int idx = 0; idx < items.size(); idx++) {
-			FurmsSelectText furmsSelectText = items.get(idx);
-			if (equalsIds(id, furmsSelectText.furmsViewUserContext.id)) {
-				FurmsViewUserContext furmsViewUserContext = 
-						new FurmsViewUserContext(furmsSelectText.furmsViewUserContext, true);
-				FurmsSelectText selectText = new FurmsSelectText(furmsViewUserContext);
-				items.set(idx, selectText);
-			}
-		}
-		return items;
-	}
-
-	private boolean equalsIds(String lastId, String currentId) {
-		if(lastId == null && currentId == null)
-			return true;
-		return Optional.ofNullable(currentId)
-			.map(id -> id.equals(lastId))
-			.orElse(false);
-	}
-
 	void manageSelectedItemRedirects(FurmsSelectText value){
 		LOG.debug("Manage selected item redirects: {}", value);
-		String id = loadSelectedItemId();
-		if (value != null) {
-			value.furmsViewUserContext.setAsCurrent();
-			savedUserContext = value.furmsViewUserContext;
-		}
-		if (value != null && equalsIds(id, value.furmsViewUserContext.id)){
+		if(value == null)
 			return;
-		}
-		if (value != null && value.furmsViewUserContext.redirectable){
+		String id = loadSelectedItemId();
+		value.furmsViewUserContext.setAsCurrent();
+		savedUserContext = value.furmsViewUserContext;
+		if (!value.furmsViewUserContext.id.equals(id)){
 			LOG.debug("Redirecting to {}", value.furmsViewUserContext.route);
 			UI.getCurrent().getInternals().setLastHandledNavigation(null);
 			UI.getCurrent().navigate(value.furmsViewUserContext.route);
