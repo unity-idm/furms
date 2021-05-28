@@ -115,7 +115,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, INSTALLED, null);
+		entityDatabaseRepository.update(id, INSTALLED, "gid");
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = installationRepository.findById(UUID.fromString(id));
@@ -123,6 +123,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
 		assertThat(byId.get().status).isEqualTo(INSTALLED.getPersistentId());
+		assertThat(byId.get().gid).isEqualTo("gid");
 	}
 
 	@Test

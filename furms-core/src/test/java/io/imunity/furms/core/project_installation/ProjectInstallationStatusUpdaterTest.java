@@ -72,10 +72,10 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.INSTALLED, null));
+		service.update(id, new ProjectInstallationResult(Map.of("gid", "gid"), ProjectInstallationStatus.INSTALLED, null));
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED, null);
+		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED, "gid");
 		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId", "siteId");
 	}
 
