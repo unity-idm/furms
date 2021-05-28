@@ -16,8 +16,11 @@ class ProjectAllocationGridModel {
 	public String resourceTypeUnit;
 	public String name;
 	public BigDecimal amount;
+	public boolean accessibleForAllProjectMembers;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, String resourceTypeUnit, String name, BigDecimal amount) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
+	                           String resourceTypeUnit, String name, BigDecimal amount, boolean accessibleForAllProjectMembers
+	) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
@@ -25,6 +28,7 @@ class ProjectAllocationGridModel {
 		this.resourceTypeUnit = resourceTypeUnit;
 		this.name = name;
 		this.amount = amount;
+		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 
 	String getSiteName() {
@@ -62,6 +66,7 @@ class ProjectAllocationGridModel {
 			", resourceTypeUnit='" + resourceTypeUnit + '\'' +
 			", name='" + name + '\'' +
 			", amount=" + amount +
+			", accessibleForAllProjectMembers=" + accessibleForAllProjectMembers +
 			'}';
 	}
 
@@ -70,13 +75,14 @@ class ProjectAllocationGridModel {
 	}
 
 	public static final class ProjectAllocationGridModelBuilder {
-		public String id;
-		public String projectId;
-		public String siteName;
-		public String resourceTypeName;
-		public String resourceTypeUnit;
-		public String name;
-		public BigDecimal amount;
+		private String id;
+		private String projectId;
+		private String siteName;
+		private String resourceTypeName;
+		private String resourceTypeUnit;
+		private String name;
+		private BigDecimal amount;
+		private boolean accessibleForAllProjectMembers;
 
 		private ProjectAllocationGridModelBuilder() {
 		}
@@ -88,6 +94,11 @@ class ProjectAllocationGridModel {
 
 		public ProjectAllocationGridModelBuilder projectId(String projectId) {
 			this.projectId = projectId;
+			return this;
+		}
+
+		public ProjectAllocationGridModelBuilder accessibleForAllProjectMembers(boolean accessibleForAllProjectMembers) {
+			this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 			return this;
 		}
 
@@ -117,7 +128,7 @@ class ProjectAllocationGridModel {
 		}
 
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, accessibleForAllProjectMembers);
 		}
 	}
 }

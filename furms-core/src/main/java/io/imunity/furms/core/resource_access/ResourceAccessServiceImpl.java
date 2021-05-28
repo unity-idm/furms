@@ -11,6 +11,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -48,6 +49,12 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserGrant> findUsersGrants(String projectId) {
 		return repository.findUsersGrants(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	public Set<UserGrant> findUsersGrants(String projectId, FenixUserId fenixUserId) {
+		return repository.findUsersGrants(projectId, fenixUserId);
 	}
 
 	@Override

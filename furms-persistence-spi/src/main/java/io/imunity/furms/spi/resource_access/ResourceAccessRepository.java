@@ -15,6 +15,7 @@ import java.util.Set;
 
 public interface ResourceAccessRepository {
 	Set<UserGrant> findUsersGrants(String projectId);
+	Set<UserGrant> findUsersGrants(String projectId, FenixUserId fenixUserId);
 	void create(CorrelationId correlationId, GrantAccess grantAccess);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
