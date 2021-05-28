@@ -663,6 +663,56 @@ channels:
                $ref: "#/components/schemas/emptyObject"
 
 
+   site/site_id/resource_usage/cumulative:
+      publish:
+         summary: Cumulative allocation usage record
+         description: Sent from the site agent to FURMS to report per-project and allocation resource consumption.
+         operationId: CumulativeResourceUsageRecord
+         message:
+            name: CumulativeResourceUsageRecord
+            traits:
+               - $ref: "#/components/messageTraits/sitePush"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  projectIdentifier:
+                     $ref: "#/components/schemas/projectIdentifier"
+                  allocationIdentifier:
+                     $ref: "#/components/schemas/allocationIdentifier"
+                  cumulativeConsumption:
+                     type: number
+                     format: double
+                  probedAt:
+                     type: string
+                     format: dateTime
+
+   site/site_id/resource_usage/user:
+      publish:
+         summary: Per-user allocation usage record
+         description: Sent from the site agent to FURMS to report per-project, user and allocation resource consumption.
+         operationId: UserResourceUsageRecord
+         message:
+            name: UserResourceUsageRecord
+            traits:
+               - $ref: "#/components/messageTraits/sitePush"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  projectIdentifier:
+                     $ref: "#/components/schemas/projectIdentifier"
+                  allocationIdentifier:
+                     $ref: "#/components/schemas/allocationIdentifier"
+                  fenixUserId:
+                     $ref: "#/components/schemas/fenixUserId"
+                  cumulativeConsumption:
+                     type: number
+                     format: double
+                  consumedUntil:
+                     type: string
+                     format: dateTime
+
 
    site/site_id/ping/req:
       subscribe:
@@ -709,7 +759,14 @@ components:
       requestAck:
          headers:
             $ref: "#/components/schemas/responseMeta"
-
+      sitePush:
+         headers:
+            type: object
+            additionalProperties: false
+            properties:
+               version:
+                  type: integer
+                  default: 1
             
    messages:
       requestAck:
