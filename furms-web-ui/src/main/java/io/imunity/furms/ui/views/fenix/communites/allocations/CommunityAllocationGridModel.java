@@ -5,6 +5,9 @@
 
 package io.imunity.furms.ui.views.fenix.communites.allocations;
 
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -12,19 +15,17 @@ class CommunityAllocationGridModel {
 	public String id;
 	public String siteName;
 	public String resourceTypeName;
-	public String resourceTypeUnit;
 	public String resourceCreditName;
 	public String name;
-	public BigDecimal amount;
+	public AmountWithUnit amountWithUnit;
 
-	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName, String resourceTypeUnit, String resourceCreditName, String name, BigDecimal amount) {
+	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String resourceCreditName, String name, BigDecimal amount) {
 		this.id = id;
 		this.siteName = siteName;
 		this.resourceTypeName = resourceTypeName;
-		this.resourceTypeUnit = resourceTypeUnit;
 		this.resourceCreditName = resourceCreditName;
 		this.name = name;
-		this.amount = amount;
+		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 	}
 
 	String getSiteName() {
@@ -39,8 +40,8 @@ class CommunityAllocationGridModel {
 		return resourceCreditName;
 	}
 
-	String getResourceTypeUnit() {
-		return resourceTypeUnit;
+	AmountWithUnit getAmountWithUnit() {
+		return amountWithUnit;
 	}
 
 	@Override
@@ -62,10 +63,9 @@ class CommunityAllocationGridModel {
 			"id='" + id + '\'' +
 			", siteName='" + siteName + '\'' +
 			", resourceTypeName='" + resourceTypeName + '\'' +
-			", resourceTypeUnit='" + resourceTypeUnit + '\'' +
 			", resourceCreditName='" + resourceCreditName + '\'' +
 			", name='" + name + '\'' +
-			", amount=" + amount +
+			", amountWithUnit=" + amountWithUnit +
 			'}';
 	}
 
@@ -77,7 +77,7 @@ class CommunityAllocationGridModel {
 		public String id;
 		public String siteName;
 		public String resourceTypeName;
-		public String resourceTypeUnit;
+		public ResourceMeasureUnit resourceTypeUnit;
 		public String resourceCreditName;
 		public String name;
 		public BigDecimal amount;
@@ -100,7 +100,7 @@ class CommunityAllocationGridModel {
 			return this;
 		}
 
-		public CommunityAllocationGridModelBuilder resourceTypeUnit(String resourceTypeUnit) {
+		public CommunityAllocationGridModelBuilder resourceTypeUnit(ResourceMeasureUnit resourceTypeUnit) {
 			this.resourceTypeUnit = resourceTypeUnit;
 			return this;
 		}

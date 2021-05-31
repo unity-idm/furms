@@ -5,6 +5,9 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -13,18 +16,16 @@ class ProjectAllocationGridModel {
 	public String projectId;
 	public String siteName;
 	public String resourceTypeName;
-	public String resourceTypeUnit;
 	public String name;
-	public BigDecimal amount;
+	public AmountWithUnit amountWithUnit;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, String resourceTypeUnit, String name, BigDecimal amount) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
-		this.resourceTypeName = resourceTypeName;
-		this.resourceTypeUnit = resourceTypeUnit;
 		this.name = name;
-		this.amount = amount;
+		this.resourceTypeName = resourceTypeName;
+		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 	}
 
 	String getSiteName() {
@@ -35,8 +36,8 @@ class ProjectAllocationGridModel {
 		return resourceTypeName;
 	}
 
-	String getResourceTypeUnit() {
-		return resourceTypeUnit;
+	AmountWithUnit getAmountWithUnit() {
+		return amountWithUnit;
 	}
 
 	@Override
@@ -59,9 +60,8 @@ class ProjectAllocationGridModel {
 			", projectId='" + projectId + '\'' +
 			", siteName='" + siteName + '\'' +
 			", resourceTypeName='" + resourceTypeName + '\'' +
-			", resourceTypeUnit='" + resourceTypeUnit + '\'' +
 			", name='" + name + '\'' +
-			", amount=" + amount +
+			", amountWithUnit=" + amountWithUnit +
 			'}';
 	}
 
@@ -74,7 +74,7 @@ class ProjectAllocationGridModel {
 		public String projectId;
 		public String siteName;
 		public String resourceTypeName;
-		public String resourceTypeUnit;
+		public ResourceMeasureUnit resourceTypeUnit;
 		public String name;
 		public BigDecimal amount;
 
@@ -101,7 +101,7 @@ class ProjectAllocationGridModel {
 			return this;
 		}
 
-		public ProjectAllocationGridModelBuilder resourceTypeUnit(String resourceTypeUnit) {
+		public ProjectAllocationGridModelBuilder resourceTypeUnit(ResourceMeasureUnit resourceTypeUnit) {
 			this.resourceTypeUnit = resourceTypeUnit;
 			return this;
 		}

@@ -73,7 +73,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.unit(ResourceMeasureUnit.GIGA)
 			.build();
 
 		//when
@@ -87,7 +87,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().serviceId).isEqualTo(serviceId);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
-		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.SiUnit.giga);
+		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.GIGA);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.unit(ResourceMeasureUnit.GIGA)
 			.build();
 		resourceTypeRepository.save(old);
 		ResourceTypeEntity toUpdate = ResourceTypeEntity.builder()
@@ -106,7 +106,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId2)
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		//when
@@ -119,7 +119,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().serviceId).isEqualTo(serviceId2);
 		assertThat(byId.get().name).isEqualTo("name2");
 		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.DATA);
-		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.DataUnit.GB);
+		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.GB);
 	}
 
 	@Test
@@ -130,7 +130,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.unit(ResourceMeasureUnit.GIGA)
 			.build();
 		resourceTypeRepository.save(toFind);
 
@@ -149,7 +149,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.unit(ResourceMeasureUnit.GIGA)
 			.build()
 		);
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
@@ -157,7 +157,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name1")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build()
 		);
 
@@ -176,7 +176,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when + then
@@ -192,7 +192,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when
@@ -210,7 +210,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when
@@ -228,7 +228,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when
@@ -246,14 +246,14 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build());
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
 			.siteId(siteId)
 			.serviceId(serviceId)
 			.name("name1")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.giga)
+			.unit(ResourceMeasureUnit.GIGA)
 			.build());
 
 		//when

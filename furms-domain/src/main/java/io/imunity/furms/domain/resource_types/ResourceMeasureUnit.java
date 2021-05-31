@@ -6,79 +6,37 @@
 package io.imunity.furms.domain.resource_types;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.EnumSet;
 
-public interface ResourceMeasureUnit {
+public enum ResourceMeasureUnit {
+	S("s", 0), MIN("min", 1), H("h", 2), DAY("day", 3),
+	NONE("", 4), KILO("kilo", 5), MEGA("mega", 6), GIGA("giga", 7), TERA("tera", 8), PETA("peta", 9),
+	KB("kB", 10), MB("MB", 11), GB("GB", 12), TB("TB", 13), PB("PB", 14);
 
-	String getSuffix();
-	String getName();
+	static final EnumSet<ResourceMeasureUnit> SI_UNIT = EnumSet.of(S, MIN, H, DAY);
+	static final EnumSet<ResourceMeasureUnit> TIME_UNIT = EnumSet.of(NONE, KILO, MEGA, GIGA, TERA, PETA);
+	static final EnumSet<ResourceMeasureUnit> DATA_UNIT = EnumSet.of(KB, MB, GB, TB, PB);
 
-	enum TimeUnit implements ResourceMeasureUnit {
-		s("s"), min("min"), h("h"), day("day");
-		
-		private final String suffix;
+	private final String suffix;
+	private final int persistentId;
 
-		private TimeUnit(String suffix) {
-			this.suffix = suffix;
-		}
-
-		@Override
-		public String getSuffix() {
-			return suffix;
-		}
-
-		@Override
-		public String getName()	{
-			return name();
-		}
+	ResourceMeasureUnit(String suffix, int persistentId) {
+		this.suffix = suffix;
+		this.persistentId = persistentId;
 	}
 
-	enum SiUnit implements ResourceMeasureUnit {
-		none(""), kilo("kilo"), mega("mega"), giga("giga"), tera("tera"), peta("peta");
-
-		private final String suffix;
-
-		private SiUnit(String suffix) {
-			this.suffix = suffix;
-		}
-
-		@Override
-		public String getSuffix() {
-			return suffix;
-		}
-
-		@Override
-		public String getName()	{
-			return name();
-		}
+	public String getSuffix() {
+		return suffix;
 	}
 
-	enum DataUnit implements ResourceMeasureUnit {
-		kB("kB"), MB("MB"), GB("GB"), TB("TB"), PB("PB");
-
-		private final String suffix;
-
-		private DataUnit(String suffix) {
-			this.suffix = suffix;
-		}
-
-		@Override
-		public String getSuffix() {
-			return suffix;
-		}
-
-		@Override
-		public String getName()	{
-			return name();
-		}
+	public int getPersistentId() {
+		return persistentId;
 	}
 
-	static ResourceMeasureUnit valueOf(String s){
-		return Stream.of(DataUnit.class, SiUnit.class, TimeUnit.class)
-			.map(Class::getEnumConstants)
-			.flatMap(Arrays::stream)
-			.filter(e -> e.name().equals(s))
+	public static ResourceMeasureUnit valueOf(int status){
+		return Arrays.stream(values())
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
 			.findAny()
-			.orElse(null);
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
 	}
 }
