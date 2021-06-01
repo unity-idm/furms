@@ -9,12 +9,12 @@ public enum CommonAttribute{
 
 	FIRSTNAME("firstname"),
 	SURNAME("surname"),
-	EMAIL("email");
+	EMAIL("email"),
+	FENIX_USER_ID("fenixUserId");
 
 	public final String name;
 
-	private CommonAttribute(String name)
-	{
+	CommonAttribute(String name) {
 		this.name = name;
 	}
 }

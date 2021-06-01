@@ -27,6 +27,7 @@ class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUser
 				.firstName(getAttribute(CommonAttribute.FIRSTNAME.name))
 				.lastName(getAttribute(CommonAttribute.SURNAME.name))
 				.email(getAttribute(CommonAttribute.EMAIL.name))
+				.fenixUserId((String)getAttribute(CommonAttribute.FENIX_USER_ID.name))
 				.roles(roles)
 				.build();
 	}
