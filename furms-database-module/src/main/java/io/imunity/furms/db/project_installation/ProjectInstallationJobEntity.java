@@ -18,14 +18,15 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;
 	public final int status;
+	public final String gid;
 
-
-	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status) {
+	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status, String gid) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.status = status;
+		this.gid = gid;
 	}
 
 	@Override
@@ -37,12 +38,13 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
+			Objects.equals(gid, that.gid) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectId, status);
+		return Objects.hash(id, correlationId, siteId, projectId, status, gid);
 	}
 
 	@Override
@@ -52,6 +54,7 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			", correlationId=" + correlationId +
 			", siteId=" + siteId +
 			", projectId=" + projectId +
+			", gid=" + gid +
 			", status=" + status +
 			'}';
 	}
@@ -66,6 +69,7 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 		private UUID siteId;
 		private UUID projectId;
 		private int status;
+		private String gid;
 
 		private ProjectInstallationJobEntityBuilder() {
 		}
@@ -95,8 +99,13 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectInstallationJobEntityBuilder gid(String gid) {
+			this.gid = gid;
+			return this;
+		}
+
 		public ProjectInstallationJobEntity build() {
-			return new ProjectInstallationJobEntity(id, correlationId, siteId, projectId, status);
+			return new ProjectInstallationJobEntity(id, correlationId, siteId, projectId, status, gid);
 		}
 	}
 }

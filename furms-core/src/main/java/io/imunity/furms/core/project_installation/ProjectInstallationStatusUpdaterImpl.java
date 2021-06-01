@@ -44,7 +44,7 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 			LOG.info("ProjectInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectOperationRepository.update(job.id, result.status);
+		projectOperationRepository.update(job.id, result.status, result.attributes.get("gid"));
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
 			userOperationService.createUserAdditions(job.siteId, job.projectId);

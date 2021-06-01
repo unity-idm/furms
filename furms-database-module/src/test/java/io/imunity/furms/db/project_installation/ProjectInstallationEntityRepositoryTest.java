@@ -104,6 +104,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.siteId(siteId)
 				.projectId(projectId)
 				.status(PENDING)
+				.gid("gid")
 				.build();
 
 		//when
@@ -116,6 +117,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
 		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
+		assertThat(byId.get().gid).isEqualTo("gid");
 	}
 
 	@Test
