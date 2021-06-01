@@ -27,6 +27,11 @@
 			<groupId>io.imunity.furms</groupId>
 			<artifactId>furms-rabbitmq-site-model</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>

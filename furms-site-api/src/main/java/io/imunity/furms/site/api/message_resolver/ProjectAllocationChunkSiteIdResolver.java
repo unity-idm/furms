@@ -7,6 +7,6 @@ package io.imunity.furms.site.api.message_resolver;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
 
-public interface ProjectAllocationChunkMessageResolver {
-	boolean isMessageCorrelated(String projectAllocationId, SiteExternalId siteExternalId);
+public interface ProjectAllocationChunkSiteIdResolver {
+	SiteExternalId getSiteId(String projectAllocationId);
 }

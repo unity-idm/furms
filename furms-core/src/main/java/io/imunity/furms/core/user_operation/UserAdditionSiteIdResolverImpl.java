@@ -7,27 +7,26 @@ package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.site.api.message_resolver.UserAdditionMessageResolver;
+import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class UserAdditionMessageResolverImpl implements UserAdditionMessageResolver {
+class UserAdditionSiteIdResolverImpl implements UserAdditionSiteIdResolver {
 	private final UserOperationRepository repository;
 	private final SiteRepository siteRepository;
 
-	UserAdditionMessageResolverImpl(UserOperationRepository repository, SiteRepository siteRepository) {
+	UserAdditionSiteIdResolverImpl(UserOperationRepository repository, SiteRepository siteRepository) {
 		this.repository = repository;
 		this.siteRepository = siteRepository;
 	}
 
 	@Override
 	@Transactional
-	public boolean isMessageCorrelated(CorrelationId id, SiteExternalId siteExternalId) {
+	public SiteExternalId getSiteId(CorrelationId id) {
 		String siteId = repository.findSiteIdByCorrelationId(id);
-		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
-		return externalId.equals(siteExternalId);
+		return siteRepository.findByIdExternalId(siteId);
 	}
 }

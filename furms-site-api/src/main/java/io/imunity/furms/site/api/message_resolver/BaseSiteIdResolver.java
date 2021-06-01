@@ -8,6 +8,6 @@ package io.imunity.furms.site.api.message_resolver;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 
-public interface SSHKeyMessageResolver {
-	boolean isMessageCorrelated(CorrelationId id, SiteExternalId siteExternalId);
+public interface BaseSiteIdResolver {
+	SiteExternalId getSiteId(CorrelationId id);
 }
