@@ -9,18 +9,18 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 public enum ResourceMeasureUnit {
-	S("s", 0), MIN("min", 1), H("h", 2), DAY("day", 3),
-	NONE("", 4), KILO("kilo", 5), MEGA("mega", 6), GIGA("giga", 7), TERA("tera", 8), PETA("peta", 9),
-	KB("kB", 10), MB("MB", 11), GB("GB", 12), TB("TB", 13), PB("PB", 14);
+	S("s", "s"), MIN("min", "min"), H("h", "h"), DAY("day", "day"),
+	NONE("", "none"), KILO("kilo", "kilo"), MEGA("mega", "mega"), GIGA("giga", "giga"), TERA("tera", "tera"), PETA("peta", "peta"),
+	KB("kB", "kB"), MB("MB", "MB"), GB("GB", "GB"), TB("TB", "TB"), PB("PB", "PB");
 
-	static final EnumSet<ResourceMeasureUnit> SI_UNIT = EnumSet.of(S, MIN, H, DAY);
-	static final EnumSet<ResourceMeasureUnit> TIME_UNIT = EnumSet.of(NONE, KILO, MEGA, GIGA, TERA, PETA);
+	static final EnumSet<ResourceMeasureUnit> TIME_UNIT = EnumSet.of(S, MIN, H, DAY);
+	static final EnumSet<ResourceMeasureUnit> SI_UNIT = EnumSet.of(NONE, KILO, MEGA, GIGA, TERA, PETA);
 	static final EnumSet<ResourceMeasureUnit> DATA_UNIT = EnumSet.of(KB, MB, GB, TB, PB);
 
 	private final String suffix;
-	private final int persistentId;
+	private final String persistentId;
 
-	ResourceMeasureUnit(String suffix, int persistentId) {
+	ResourceMeasureUnit(String suffix, String persistentId) {
 		this.suffix = suffix;
 		this.persistentId = persistentId;
 	}
@@ -29,14 +29,14 @@ public enum ResourceMeasureUnit {
 		return suffix;
 	}
 
-	public int getPersistentId() {
+	public String getPersistentId() {
 		return persistentId;
 	}
 
-	public static ResourceMeasureUnit valueOf(int status){
+	public static ResourceMeasureUnit fromCode(String code){
 		return Arrays.stream(values())
-			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId() == status)
+			.filter(userRemovalStatus -> userRemovalStatus.getPersistentId().equals(code))
 			.findAny()
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad status code - %s, it shouldn't happen", status)));
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Bad code - %s, it shouldn't happen", code)));
 	}
 }

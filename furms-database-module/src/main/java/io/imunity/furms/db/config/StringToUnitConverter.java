@@ -13,6 +13,6 @@ import org.springframework.data.convert.ReadingConverter;
 class StringToUnitConverter implements Converter<String, ResourceMeasureUnit> {
 	@Override
 	public ResourceMeasureUnit convert(String s) {
-		return ResourceMeasureUnit.valueOf(s);
+		return ResourceMeasureUnit.fromCode(s);
 	}
 }
