@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.domain.resource_access.AccessStatus.ENABLED_STATUES;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED_STATUES;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -130,7 +130,7 @@ class ProjectView extends FurmsViewComponent {
 		if(accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		UserGrant userGrant =  projectDataSnapshot.getUserGrant(allocationId);
-		if(userGrant != null && ENABLED_STATUES.contains(userGrant.status))
+		if(userGrant != null && GRANTED_STATUES.contains(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		return getTranslation("view.project-admin.resource-access.grid.access.disabled");
 	}
