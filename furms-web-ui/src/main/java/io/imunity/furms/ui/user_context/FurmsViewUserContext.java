@@ -5,15 +5,14 @@
 
 package io.imunity.furms.ui.user_context;
 
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Preconditions;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 public class FurmsViewUserContext {
 	
@@ -22,28 +21,21 @@ public class FurmsViewUserContext {
 	public final String name;
 	public final String route;
 	public final ViewMode viewMode;
-	public final boolean redirectable;
-	
-	private FurmsViewUserContext(String id, String name, String route, ViewMode viewMode, boolean redirectable) {
+
+	private FurmsViewUserContext(String id, String name, String route, ViewMode viewMode) {
 		Preconditions.checkNotNull(id);
 		this.id = id;
 		this.name = name;
 		this.route = route;
 		this.viewMode = viewMode;
-		this.redirectable = redirectable;
 	}
 
-	public FurmsViewUserContext(String id, String name, ViewMode viewMode) {
-		this(id, name, viewMode.route, viewMode, true);
+	FurmsViewUserContext(String id, String name, ViewMode viewMode) {
+		this(id, name, viewMode.route, viewMode);
 	}
 
-	public FurmsViewUserContext(String id, String name, ViewMode viewMode, String route) {
-		this(id, name, route, viewMode, true);
-	}
-
-	public FurmsViewUserContext(FurmsViewUserContext furmsViewUserContext, boolean redirectable) {
-		this(furmsViewUserContext.id, furmsViewUserContext.name, furmsViewUserContext.route,
-				furmsViewUserContext.viewMode, redirectable);
+	FurmsViewUserContext(String id, String name, ViewMode viewMode, String route) {
+		this(id, name, route, viewMode);
 	}
 
 	public void setAsCurrent() {
