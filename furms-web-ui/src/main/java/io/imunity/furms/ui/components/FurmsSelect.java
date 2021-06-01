@@ -5,26 +5,11 @@
 
 package io.imunity.furms.ui.components;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
-
 import io.imunity.furms.domain.communities.CommunityEvent;
 import io.imunity.furms.domain.projects.ProjectEvent;
 import io.imunity.furms.domain.sites.SiteEvent;
@@ -33,6 +18,15 @@ import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
 
 @CssImport("./styles/components/furms-select.css")
 public class FurmsSelect extends Select<FurmsSelectText> {
@@ -60,7 +54,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			String currentSelectedContextId = furmsSelectService.loadSelectedItem()
 					.orElseThrow(() -> new IllegalStateException("No context found for current user"))
 					.id;
-			List<FurmsSelectText> items = furmsSelectService.reloadItems();
+			List<FurmsSelectText> items = furmsSelectService.loadItems();
 			addItems(items);
 			items.stream()
 				.filter(selectText -> selectText.furmsViewUserContext.id.equals(currentSelectedContextId))
