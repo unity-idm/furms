@@ -75,10 +75,10 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		grid.addColumn(CommunityAllocationGridModel::getResourceTypeName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.4"))
 			.setSortable(true);
-		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
+		grid.addColumn(CommunityAllocationGridModel::getAmountWithUnit)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.amount));
+			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.6"))
 			.setTextAlign(ColumnTextAlign.END);

@@ -254,42 +254,42 @@ class DemoDataInitializer implements CommandLineRunner {
 				.serviceId(serviceCinecaId)
 				.name("Cineca Vector CPU Time")
 				.type(ResourceMeasureType.TIME)
-				.unit(ResourceMeasureUnit.TimeUnit.h)
+				.unit(ResourceMeasureUnit.H)
 				.build();
 			ResourceType resourceTypeCineca1 = ResourceType.builder()
 				.siteId(cinecaId)
 				.serviceId(serviceCinecaId1)
 				.name("Cineca Disk Space")
 				.type(ResourceMeasureType.DATA)
-				.unit(ResourceMeasureUnit.DataUnit.GB)
+				.unit(ResourceMeasureUnit.GB)
 				.build();
 			ResourceType resourceTypeFzj = ResourceType.builder()
 				.siteId(fzjId)
 				.serviceId(serviceFzjId)
 				.name("Fzj Vector GPU Time")
 				.type(ResourceMeasureType.TIME)
-				.unit(ResourceMeasureUnit.TimeUnit.min)
+				.unit(ResourceMeasureUnit.MIN)
 				.build();
 			ResourceType resourceTypeFzj1 = ResourceType.builder()
 				.siteId(fzjId)
 				.serviceId(serviceFzjId1)
 				.name("Fzj Storage")
 				.type(ResourceMeasureType.DATA)
-				.unit(ResourceMeasureUnit.DataUnit.PB)
+				.unit(ResourceMeasureUnit.PB)
 				.build();
 			ResourceType resourceTypeBsc = ResourceType.builder()
 				.siteId(bscId)
 				.serviceId(serviceBscId)
 				.name("BSC Vector CPU Time")
 				.type(ResourceMeasureType.TIME)
-				.unit(ResourceMeasureUnit.TimeUnit.day)
+				.unit(ResourceMeasureUnit.DAY)
 				.build();
 			ResourceType resourceTypeBsc1 = ResourceType.builder()
 				.siteId(bscId)
 				.serviceId(serviceBscId1)
 				.name("BSC Disk")
 				.type(ResourceMeasureType.DATA)
-				.unit(ResourceMeasureUnit.DataUnit.kB)
+				.unit(ResourceMeasureUnit.KB)
 				.build();
 
 			String resourceTypeCinecaId = resourceTypeRepository.create(resourceTypeCineca);

@@ -5,20 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.dashboard;
 
-import static com.vaadin.flow.component.ComponentUtil.getData;
-import static com.vaadin.flow.component.ComponentUtil.setData;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
-import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-import static java.util.stream.Collectors.toSet;
-
-import java.math.BigDecimal;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -28,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
@@ -43,6 +28,20 @@ import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGr
 import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+
+import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static com.vaadin.flow.component.ComponentUtil.getData;
+import static com.vaadin.flow.component.ComponentUtil.setData;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_EXPIRED;
+import static io.imunity.furms.ui.views.fenix.dashboard.DashboardOptions.INCLUDE_FULLY_DISTRIBUTED;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import static java.util.stream.Collectors.toSet;
 
 @Route(value = "fenix/admin/dashboard", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.page.title")
@@ -170,7 +169,7 @@ public class DashboardView extends FurmsViewComponent {
 	private ResourceAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
 		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceType().id, credit.getSiteId())
 				.map(type -> type.unit)
-				.orElse(ResourceMeasureUnit.SiUnit.none);
+				.orElse(ResourceMeasureUnit.NONE);
 
 		return ResourceAllocationsGridItem.builder()
 				.id(credit.getId())

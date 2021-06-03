@@ -78,10 +78,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		grid.addColumn(ProjectAllocationGridModel::getResourceTypeName)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.4"))
 			.setSortable(true);
-		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
+		grid.addColumn(ProjectAllocationGridModel::getAmountWithUnit)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.amount));
+			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
 		grid.addComponentColumn(c -> {
 			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);

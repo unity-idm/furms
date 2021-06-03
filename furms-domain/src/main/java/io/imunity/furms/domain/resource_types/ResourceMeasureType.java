@@ -5,24 +5,20 @@
 
 package io.imunity.furms.domain.resource_types;
 
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit.SiUnit;
-
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
-import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.DataUnit;
-import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.TimeUnit;
-import static java.util.Arrays.asList;
+import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.*;
 import static java.util.Collections.unmodifiableSet;
 
 public enum ResourceMeasureType {
-	INTEGER(toOrderedUnmodifiableSet(SiUnit.values())),
-	FLOATING_POINT(toOrderedUnmodifiableSet(SiUnit.values())),
-	TIME(toOrderedUnmodifiableSet(TimeUnit.values())),
-	DATA(toOrderedUnmodifiableSet(DataUnit.values()));
+	INTEGER(toOrderedUnmodifiableSet(SI_UNIT)),
+	FLOATING_POINT(toOrderedUnmodifiableSet(SI_UNIT)),
+	TIME(toOrderedUnmodifiableSet(TIME_UNIT)),
+	DATA(toOrderedUnmodifiableSet(DATA_UNIT));
 
-	private static Set<ResourceMeasureUnit> toOrderedUnmodifiableSet(ResourceMeasureUnit[] array) {
-		return unmodifiableSet(new LinkedHashSet<>(asList(array)));
+	private static Set<ResourceMeasureUnit> toOrderedUnmodifiableSet(EnumSet<ResourceMeasureUnit> enumSet) {
+		return unmodifiableSet(enumSet);
 	}
 
 	public final Set<ResourceMeasureUnit> units;

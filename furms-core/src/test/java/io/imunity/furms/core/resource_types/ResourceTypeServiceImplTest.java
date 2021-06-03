@@ -5,16 +5,11 @@
 
 package io.imunity.furms.core.resource_types;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.Set;
-
+import io.imunity.furms.domain.resource_types.*;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -22,16 +17,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import io.imunity.furms.domain.resource_types.CreateResourceTypeEvent;
-import io.imunity.furms.domain.resource_types.RemoveResourceTypeEvent;
-import io.imunity.furms.domain.resource_types.ResourceMeasureType;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.UpdateResourceTypeEvent;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class ResourceTypeServiceImplTest {
 	@Mock
@@ -114,7 +106,7 @@ class ResourceTypeServiceImplTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
@@ -153,7 +145,7 @@ class ResourceTypeServiceImplTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
