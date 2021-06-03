@@ -67,6 +67,7 @@ public class ProjectAllocationDetailsComponentFactory {
 		tableElement.appendChild(thead, tbody);
 		Div div = new Div();
 		div.getElement().appendChild(tableElement);
+		div.setMinHeight("6em");
 		return div;
 	}
 }
