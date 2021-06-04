@@ -41,7 +41,7 @@ class SiteAgentListenerRouter {
 		try {
 			validator.validate(payload, queueName);
 			publisher.publishEvent(payload);
-			LOG.info("Received payload {} from {}", payload, queueName);
+			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
 			LOG.error("This error occurred while processing payload: {} from queue {}", payload, queueName, e);
 		} finally {
