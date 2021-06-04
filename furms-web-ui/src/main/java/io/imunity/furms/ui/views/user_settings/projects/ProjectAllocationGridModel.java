@@ -16,31 +16,19 @@ class ProjectAllocationGridModel {
 	public String projectId;
 	public String siteName;
 	public String resourceTypeName;
-	public String resourceTypeUnit;
 	public String name;
 	public AmountWithUnit amountWithUnit;
+	public final boolean accessibleForAllProjectMembers;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, String resourceTypeUnit, String name, BigDecimal amount) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
 		this.name = name;
 		this.resourceTypeName = resourceTypeName;
-		this.resourceTypeUnit = resourceTypeUnit;
 		this.name = name;
-		this.amount = amount;
-	}
-
-	String getSiteName() {
-		return siteName;
-	}
-
-	String getResourceTypeName() {
-		return resourceTypeName;
-	}
-
-	AmountWithUnit getAmountWithUnit() {
-		return amountWithUnit;
+		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
+		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 
 	@Override
@@ -78,7 +66,7 @@ class ProjectAllocationGridModel {
 		private String projectId;
 		private String siteName;
 		private String resourceTypeName;
-		private String resourceTypeUnit;
+		private ResourceMeasureUnit resourceTypeUnit;
 		private String name;
 		private BigDecimal amount;
 		private boolean accessibleForAllProjectMembers;

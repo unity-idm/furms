@@ -6,6 +6,9 @@
 package io.imunity.furms.api.validation.exceptions;
 
 public class UserWithoutFenixIdValidationError extends IllegalArgumentException {
+	public UserWithoutFenixIdValidationError() {
+	}
+
 	public UserWithoutFenixIdValidationError(String message) {
 		super(message);
 	}

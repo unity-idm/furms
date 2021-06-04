@@ -5,13 +5,14 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -36,25 +37,27 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final SiteAgentResourceAccessService siteAgentResourceAccessService;
 	private final ResourceAccessRepository repository;
 	private final UserOperationRepository userRepository;
+	private final AuthzService authzService;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                          ResourceAccessRepository repository,
-	                          UserOperationRepository userRepository) {
+	                          UserOperationRepository userRepository, AuthzService authzService) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
+		this.authzService = authzService;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserGrant> findUsersGrants(String projectId) {
-		return repository.findUsersGrants(projectId);
+		return repository.findUsersGrantsByProjectId(projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<UserGrant> findUsersGrants(String projectId, FenixUserId fenixUserId) {
-		return repository.findUsersGrants(projectId, fenixUserId);
+	public Set<UserGrant> findCurrentUserGrants(String projectId) {
+		return repository.findUserGrantsByProjectIdAndFenixUserId(projectId, authzService.getCurrentAuthNUser().fenixUserId.orElseThrow(UserWithoutFenixIdValidationError::new));
 	}
 
 	@Override

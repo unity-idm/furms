@@ -18,16 +18,15 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.UserGrant;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
@@ -53,18 +52,16 @@ class ProjectView extends FurmsViewComponent {
 	private final ProjectAllocationService service;
 	private final ResourceAccessService resourceAccessService;
 
-	private final Optional<FenixUserId> fenixUserId;
 	private final Grid<ProjectAllocationGridModel> grid;
 	private String projectId;
 	private UsersProjectAllocationDataSnapshot projectDataSnapshot;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	public ProjectView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService, AuthzService authzService) {
+	public ProjectView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {
 		this.projectService = projectService;
 		this.service = projectAllocationService;
 		this.resourceAccessService = resourceAccessService;
 		this.grid = createCommunityGrid();
-		this.fenixUserId = authzService.getCurrentAuthNUser().fenixUserId;
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.project-admin.resource-allocations.page.header")
@@ -78,7 +75,7 @@ class ProjectView extends FurmsViewComponent {
 
 		grid.addComponentColumn(allocation -> {
 			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-			return new Div(icon, new Label(allocation.getSiteName()));
+			return new Div(icon, new Label(allocation.siteName));
 		})
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.1"))
 			.setSortable(true);
@@ -86,13 +83,13 @@ class ProjectView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.2"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(ProjectAllocationGridModel::getResourceTypeName)
+		grid.addColumn(c -> c.resourceTypeName)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.3"))
 			.setSortable(true);
-		grid.addColumn(ProjectAllocationGridModel::getAmountWithUnit)
+		grid.addColumn(c -> c.amountWithUnit)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
+			.setComparator(comparing(c -> c.amountWithUnit.amount));
 		grid.addComponentColumn(c -> {
 			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getParent().getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getParent().getDeallocationStatus(c.id);
@@ -160,24 +157,29 @@ class ProjectView extends FurmsViewComponent {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
-			REFRESH), e -> loadGridContent(fenixUserId.get()));
+			REFRESH), e -> loadGridContent());
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
 	}
 
-	private void loadGridContent(FenixUserId fenixUserId) {
-		handleExceptions(() -> {
+	private void loadGridContent() {
+		try {
 			projectDataSnapshot = new UsersProjectAllocationDataSnapshot(
 				new ProjectAllocationDataSnapshot(
 					service.findAllInstallations(projectId),
 					service.findAllUninstallations(projectId),
 					service.findAllChunks(projectId)
 			),
-				resourceAccessService.findUsersGrants(projectId, fenixUserId).stream()
+				resourceAccessService.findCurrentUserGrants(projectId).stream()
 					.collect(toMap(grant -> grant.projectAllocationId, identity())));
 			grid.setItems(loadServicesViewsModels());
-		});
+		} catch (UserWithoutFenixIdValidationError e){
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+		}
+		catch (Exception e){
+			showErrorNotification(getTranslation("base.error.message"));
+		}
 	}
 
 	private List<ProjectAllocationGridModel> loadServicesViewsModels() {
@@ -227,10 +229,8 @@ class ProjectView extends FurmsViewComponent {
 			.orElseThrow(IllegalStateException::new);
 		this.projectId = projectId;
 		breadCrumbParameter = new BreadCrumbParameter(project.getId(), project.getName(), "ALLOCATION");
-		if (fenixUserId.isPresent())
-			loadGridContent(fenixUserId.get());
-		else
-			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+		loadGridContent();
+
 
 	}
 
