@@ -20,30 +20,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-class MessageValidatorTest {
+class MessageAuthorizerTest {
 
 	@Test
 	void shouldValidatePayload(){
 		Body body = Mockito.mock(Body.class);
 		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageValidator messageValidator = new MessageValidator(Map.of(body.getClass(), resolversConnector));
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector));
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
 		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx"));
 
-		messageValidator.validate(payload, getSitePublishQueueName("fzx"));
+		messageAuthorizer.validate(payload, getSitePublishQueueName("fzx"));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenPayloadIsNotCorrelatedWithParentSite(){
 		Body body = Mockito.mock(Body.class);
 		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageValidator messageValidator = new MessageValidator(Map.of(body.getClass(), resolversConnector));
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector));
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
 		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx1"));
 
-		String message = assertThrows(IllegalArgumentException.class, () -> messageValidator.validate(payload, getSitePublishQueueName("fzx")))
+		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
 			.getMessage();
 		assertEquals(String.format("Error correlation id %s doesn't belong to fzx", payload.header.messageCorrelationId), message);
 	}
@@ -52,12 +52,12 @@ class MessageValidatorTest {
 	void shouldThrowExceptionWhenResolverIsNotProvided(){
 		Body body = Mockito.mock(Body.class);
 		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageValidator messageValidator = new MessageValidator(Map.of(Body.class, resolversConnector));
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(Body.class, resolversConnector));
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
 		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx"));
 
-		String message = assertThrows(IllegalArgumentException.class, () -> messageValidator.validate(payload, getSitePublishQueueName("fzx")))
+		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
 			.getMessage();
 		assertEquals("This shouldn't happened - no MessageAuthorizer fit to payload", message);
 	}

@@ -16,10 +16,10 @@ import java.util.Map;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSiteId;
 
 @Component
-class MessageValidator {
+public class MessageAuthorizer {
 	private final Map<Class<? extends Body>, SiteIdResolversConnector> messageAuthorizers;
 
-	MessageValidator(Map<Class<? extends Body>, SiteIdResolversConnector> messageAuthorizers) {
+	MessageAuthorizer(Map<Class<? extends Body>, SiteIdResolversConnector> messageAuthorizers) {
 		this.messageAuthorizers = messageAuthorizers;
 	}
 

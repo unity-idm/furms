@@ -28,11 +28,11 @@ class SiteAgentListenerRouter {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ApplicationEventPublisher publisher;
-	private final MessageValidator validator;
+	private final MessageAuthorizer validator;
 
-	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageValidator messageValidator) {
+	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer messageAuthorizer) {
 		this.publisher = publisher;
-		this.validator = messageValidator;
+		this.validator = messageAuthorizer;
 	}
 
 	@RabbitHandler

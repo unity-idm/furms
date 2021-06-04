@@ -8,14 +8,14 @@ package io.imunity.furms.core.ssh_keys;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
-import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class SSHKeySiteIdResolverImpl implements UserAllocationGrantSiteIdResolver {
+class SSHKeySiteIdResolverImpl implements SSHKeySiteIdResolver {
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteRepository siteRepository;
 
