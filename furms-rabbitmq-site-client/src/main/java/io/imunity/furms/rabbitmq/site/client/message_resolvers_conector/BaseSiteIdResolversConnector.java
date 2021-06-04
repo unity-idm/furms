@@ -43,13 +43,13 @@ class BaseSiteIdResolversConnector implements SiteIdResolversConnector {
 
 			Map.entry(UserProjectAddRequestAck.class, userAdditionSiteIdResolver),
 			Map.entry(UserProjectAddResult.class, userAdditionSiteIdResolver),
-			Map.entry(UserAllocationBlockAccessRequestAck.class, userAdditionSiteIdResolver),
-			Map.entry(UserAllocationBlockAccessResult.class, userAdditionSiteIdResolver),
+			Map.entry(UserProjectRemovalRequestAck.class, userAdditionSiteIdResolver),
+			Map.entry(UserProjectRemovalResult.class, userAdditionSiteIdResolver),
 
 			Map.entry(UserAllocationGrantAccessRequestAck.class, userAllocationGrantSiteIdResolver),
 			Map.entry(UserAllocationGrantAccessResult.class, userAllocationGrantSiteIdResolver),
-			Map.entry(UserProjectRemovalRequestAck.class, userAllocationGrantSiteIdResolver),
-			Map.entry(UserProjectRemovalResult.class, userAllocationGrantSiteIdResolver)
+			Map.entry(UserAllocationBlockAccessRequestAck.class, userAllocationGrantSiteIdResolver),
+			Map.entry(UserAllocationBlockAccessResult.class, userAllocationGrantSiteIdResolver)
 		);
 	}
 
