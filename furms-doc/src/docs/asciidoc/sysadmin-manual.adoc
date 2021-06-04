@@ -415,17 +415,23 @@ This section describes the FURMS 2.0 release installation steps basing on 1.0 re
 * Drop PostgreSQL database used by FURMS service instance.
 * Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
 * Update the trustStore file: add the public CA certificate which is at the top of the certificates chain used to sign Broker credential.
-* Update your existing `groups_var/all.yml` Ansible configuration file, add the following configuration:
+* Update your existing `groups_var/all.yml` Ansible configuration file:
 
-    broker:
-        host:                -- set -- me --
-        port:                -- set -- me --
-        username:            -- set -- me --
-        password:            -- set -- me --
-        virtualHost:         -- set -- me --
-    ui:
-        maxSessionInactivityInSeconds:     -- set -- me -- #optional: default 1800
-        secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120
+** change the version of furmsVersion to `2.0.0`
+
+** add the following configuration under the furmsServer:
+
+	furmsServer: 
+		...
+	    broker:
+	        host:                -- set -- me --
+	        port:                -- set -- me --
+	        username:            -- set -- me --
+	        password:            -- set -- me --
+	        virtualHost:         -- set -- me --
+	    ui:
+	        maxSessionInactivityInSeconds:     -- set -- me -- #optional: default 1800
+	        secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120
 
 * <<Install FURMS stack>>
 

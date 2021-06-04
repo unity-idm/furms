@@ -39,6 +39,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.siteId(job.siteId.toString())
 			.projectId(job.projectId.toString())
 			.status(ProjectInstallationStatus.valueOf(job.status))
+			.gid(job.gid)
 			.build();
 	}
 
@@ -104,7 +105,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String update(String id, ProjectInstallationStatus status) {
+	public String update(String id, ProjectInstallationStatus status, String gid) {
 		installationRepository.findById(UUID.fromString(id))
 			.map(job -> ProjectInstallationJobEntity.builder()
 				.id(job.getId())
@@ -112,6 +113,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.siteId(job.siteId)
 				.projectId(job.projectId)
 				.status(status)
+				.gid(gid)
 				.build())
 			.ifPresent(installationRepository::save);
 		return id;
@@ -165,6 +167,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.siteId(installation.siteId.toString())
 				.correlationId(new CorrelationId(installation.correlationId.toString()))
 				.status(ProjectInstallationStatus.valueOf(installation.status))
+				.gid(installation.gid)
 				.build()
 			).collect(Collectors.toSet());
 	}

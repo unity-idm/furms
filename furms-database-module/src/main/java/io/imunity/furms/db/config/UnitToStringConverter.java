@@ -14,6 +14,6 @@ class UnitToStringConverter implements Converter<ResourceMeasureUnit, String> {
 
 	@Override
 	public String convert(ResourceMeasureUnit unit) {
-		return unit.toString();
+		return unit.getPersistentId();
 	}
 }

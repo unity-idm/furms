@@ -25,7 +25,7 @@ public interface ProjectOperationRepository {
 
 	String create(ProjectUpdateJob projectUpdateJob);
 
-	String update(String id, ProjectInstallationStatus status);
+	String update(String id, ProjectInstallationStatus status, String gid);
 
 	String update(String id, ProjectUpdateStatus status);
 

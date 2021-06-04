@@ -89,10 +89,10 @@ class ProjectView extends FurmsViewComponent {
 		grid.addColumn(ProjectAllocationGridModel::getResourceTypeName)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.3"))
 			.setSortable(true);
-		grid.addColumn(c -> c.amount.toPlainString() + " " + c.getResourceTypeUnit())
+		grid.addColumn(ProjectAllocationGridModel::getAmountWithUnit)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.amount));
+			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
 		grid.addComponentColumn(c -> {
 			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getParent().getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getParent().getDeallocationStatus(c.id);
@@ -195,7 +195,7 @@ class ProjectView extends FurmsViewComponent {
 			.projectId(projectAllocation.projectId)
 			.siteName(projectAllocation.site.getName())
 			.resourceTypeName(projectAllocation.resourceType.name)
-			.resourceTypeUnit(projectAllocation.resourceType.unit.getSuffix())
+			.resourceTypeUnit(projectAllocation.resourceType.unit)
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
 			.accessibleForAllProjectMembers(projectAllocation.resourceType.accessibleForAllProjectMembers)

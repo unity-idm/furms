@@ -111,7 +111,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId.toString())
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.kilo)
+			.unit(ResourceMeasureUnit.KILO)
 			.build();
 		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 

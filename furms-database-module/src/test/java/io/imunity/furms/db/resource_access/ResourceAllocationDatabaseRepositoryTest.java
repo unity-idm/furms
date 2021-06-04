@@ -5,23 +5,6 @@
 
 package io.imunity.furms.db.resource_access;
 
-import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
-import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
-import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -49,6 +32,20 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.resource_access.AccessStatus.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -122,7 +119,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId.toString())
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.kilo)
+			.unit(ResourceMeasureUnit.KILO)
 			.build();
 		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 

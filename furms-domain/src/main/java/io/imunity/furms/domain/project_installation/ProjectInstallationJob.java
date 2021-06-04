@@ -15,13 +15,16 @@ public class ProjectInstallationJob {
 	public final String projectId;
 	public final CorrelationId correlationId;
 	public final ProjectInstallationStatus status;
+	public final String gid;
 
-	ProjectInstallationJob(String id, String siteId, String projectId, CorrelationId correlationId, ProjectInstallationStatus status) {
+	ProjectInstallationJob(String id, String siteId, String projectId, CorrelationId correlationId,
+	                       ProjectInstallationStatus status, String gid) {
 		this.id = id;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.correlationId = correlationId;
 		this.status = status;
+		this.gid = gid;
 	}
 
 	@Override
@@ -33,12 +36,13 @@ public class ProjectInstallationJob {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(correlationId, that.correlationId) &&
+			Objects.equals(gid, that.gid) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, projectId, correlationId, status);
+		return Objects.hash(id, siteId, projectId, correlationId, status, gid);
 	}
 
 	@Override
@@ -48,6 +52,7 @@ public class ProjectInstallationJob {
 			", siteId='" + siteId + '\'' +
 			", projectId='" + projectId + '\'' +
 			", correlationId=" + correlationId +
+			", gid=" + gid +
 			", status=" + status +
 			'}';
 	}
@@ -62,6 +67,7 @@ public class ProjectInstallationJob {
 		private String projectId;
 		private CorrelationId correlationId;
 		private ProjectInstallationStatus status;
+		private String gid;
 
 		private ProjectInstallationJobBuilder() {
 		}
@@ -91,8 +97,13 @@ public class ProjectInstallationJob {
 			return this;
 		}
 
+		public ProjectInstallationJobBuilder gid(String gid) {
+			this.gid = gid;
+			return this;
+		}
+
 		public ProjectInstallationJob build() {
-			return new ProjectInstallationJob(id, siteId, projectId, correlationId, status);
+			return new ProjectInstallationJob(id, siteId, projectId, correlationId, status, gid);
 		}
 	}
 }

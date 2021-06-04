@@ -9,9 +9,9 @@ class Project extends ProjectDefinition {
 	final String id;
 
 	public Project(String name, String description, Validity validity, String researchField, User projectLeader,
-			String communityId, String acronym, String id) {
+			String communityId, String acronym, String gid, String id) {
 		super(name, description, validity, researchField, projectLeader,
-				communityId, acronym);
+				communityId, acronym, gid);
 		this.id = id;
 	}
 }
