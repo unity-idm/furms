@@ -6,21 +6,6 @@
 package io.imunity.furms.db.resource_credits;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
@@ -32,6 +17,20 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
@@ -93,14 +92,14 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.serviceId(serviceId.toString())
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
-			.unit(ResourceMeasureUnit.SiUnit.tera)
+			.unit(ResourceMeasureUnit.TERA)
 			.build();
 		ResourceType resourceType2 = ResourceType.builder()
 			.siteId(siteId2.toString())
 			.serviceId(serviceId2.toString())
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.MB)
+			.unit(ResourceMeasureUnit.MB)
 			.build();
 
 		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));

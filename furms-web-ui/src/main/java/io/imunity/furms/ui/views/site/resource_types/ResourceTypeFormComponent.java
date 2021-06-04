@@ -55,7 +55,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		formLayout.addFormItem(typeComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.type"));
 
 		ComboBox<ResourceMeasureUnit> unitComboBox = new ComboBox<>();
-		unitComboBox.setItemLabelGenerator(ResourceMeasureUnit::getName);
+		unitComboBox.setItemLabelGenerator(ResourceMeasureUnit::name);
 		typeComboBox.addValueChangeListener(event -> {
 			unitComboBox.setItems(event.getValue().units);
 		});

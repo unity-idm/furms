@@ -49,7 +49,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -68,7 +68,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.unit(ResourceMeasureUnit.SiUnit.mega)
+			.unit(ResourceMeasureUnit.MEGA)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -86,7 +86,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.siteId("id")
 			.serviceId("id")
 			.name("name")
-			.unit(ResourceMeasureUnit.SiUnit.mega)
+			.unit(ResourceMeasureUnit.MEGA)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -105,7 +105,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.SiUnit.mega)
+			.unit(ResourceMeasureUnit.MEGA)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -124,7 +124,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -197,7 +197,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
@@ -218,7 +218,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		when(resourceTypeRepository.exists(community.id)).thenReturn(false);
@@ -236,7 +236,7 @@ class ResourceTypeServiceImplValidatorTest {
 			.serviceId("id")
 			.name("name")
 			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.DataUnit.GB)
+			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		ResourceType resourceType2 = ResourceType.builder()

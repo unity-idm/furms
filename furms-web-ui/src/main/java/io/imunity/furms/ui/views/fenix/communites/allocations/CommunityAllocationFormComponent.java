@@ -5,13 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.communites.allocations;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -20,7 +13,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
@@ -28,6 +20,13 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.ComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 public class CommunityAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -72,7 +71,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		resourceTypeComboBox.addValueChangeListener(event -> {
 			if (event.getValue() == null) {
 				resourceCreditComboBox.setItems(Collections.emptyList());
-				createUnitLabel(amountField, ResourceMeasureUnit.SiUnit.none);
+				createUnitLabel(amountField, ResourceMeasureUnit.NONE);
 				return;
 			}
 			String resourceTypeId = event.getValue().id;

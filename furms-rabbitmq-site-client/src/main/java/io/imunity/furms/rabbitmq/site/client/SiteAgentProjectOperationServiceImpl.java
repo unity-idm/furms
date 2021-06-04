@@ -23,6 +23,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
+import java.util.Optional;
 
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
@@ -45,7 +47,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	void receiveAgentProjectInstallationAck(Payload<AgentProjectInstallationRequestAck> ack) {
 		ProjectInstallationStatus status = ack.header.status.equals(Status.FAILED) ? ProjectInstallationStatus.FAILED : ProjectInstallationStatus.ACKNOWLEDGED;
 		ProjectInstallationResult projectInstallationResult = new ProjectInstallationResult(
-			null,
+			Map.of(),
 			status,
 			new Error(ofNullable(ack.header.error).map(e -> e.code).orElse(null), ofNullable(ack.header.error).map(e -> e.message).orElse(null)));
 		projectInstallationService.update(new CorrelationId(ack.header.messageCorrelationId), projectInstallationResult);
@@ -55,7 +57,7 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	void receiveAgentProjectInstallationResult(Payload<AgentProjectInstallationResult> result) {
 		ProjectInstallationStatus status = result.header.status.equals(Status.FAILED) ? ProjectInstallationStatus.FAILED : ProjectInstallationStatus.INSTALLED;
 		ProjectInstallationResult projectInstallationResult = new ProjectInstallationResult(
-			result.body.attributes,
+			Optional.ofNullable(result.body.attributes).orElseGet(Map::of),
 			status,
 			new Error(ofNullable(result.header.error).map(e -> e.code).orElse(null), ofNullable(result.header.error).map(e -> e.message).orElse(null)));
 		projectInstallationService.update(new CorrelationId(result.header.messageCorrelationId), projectInstallationResult);
