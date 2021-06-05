@@ -47,7 +47,7 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 		this.communityAllocation = communityAllocation;
 	}
 
-	ProjectAllocationResolved toProjectAllocationResolved() {
+	ProjectAllocationResolved toProjectAllocationResolved(BigDecimal consumed) {
 		return ProjectAllocationResolved.builder()
 			.id(id.toString())
 			.site(site.toSite())
@@ -57,6 +57,7 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.name(name)
 			.amount(amount)
+			.consumed(consumed)
 			.build();
 	}
 

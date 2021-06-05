@@ -23,9 +23,11 @@ public class ProjectAllocationResolved {
 	public final String projectId;
 	public final String name;
 	public final BigDecimal amount;
+	public final BigDecimal consumed;
 
 	ProjectAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
-	                          CommunityAllocation communityAllocation, String projectId, String name, BigDecimal amount) {
+	                          CommunityAllocation communityAllocation, String projectId, String name, BigDecimal amount,
+	                          BigDecimal consumed) {
 		this.id = id;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -34,6 +36,7 @@ public class ProjectAllocationResolved {
 		this.projectId = projectId;
 		this.name = name;
 		this.amount = amount;
+		this.consumed = consumed;
 	}
 
 	@Override
@@ -48,12 +51,13 @@ public class ProjectAllocationResolved {
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(communityAllocation, that.communityAllocation) &&
 			Objects.equals(name, that.name) &&
+			Objects.equals(consumed, that.consumed) &&
 			Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount, consumed);
 	}
 
 	@Override
@@ -67,6 +71,7 @@ public class ProjectAllocationResolved {
 			", communityAllocation=" + communityAllocation +
 			", name='" + name + '\'' +
 			", amount='" + amount + '\'' +
+			", consumed='" + consumed + '\'' +
 			'}';
 	}
 
@@ -83,6 +88,7 @@ public class ProjectAllocationResolved {
 		public String projectId;
 		public String name;
 		public BigDecimal amount;
+		public BigDecimal consumed;
 
 		private CommunityAllocationResolvedBuilder() {
 		}
@@ -127,8 +133,13 @@ public class ProjectAllocationResolved {
 			return this;
 		}
 
+		public CommunityAllocationResolvedBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
 		public ProjectAllocationResolved build() {
-			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount);
+			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount, consumed);
 		}
 	}
 }

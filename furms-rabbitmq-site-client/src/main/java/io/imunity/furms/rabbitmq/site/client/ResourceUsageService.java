@@ -5,8 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.domain.resource_usage.ProjectAllocationUsage;
-import io.imunity.furms.domain.resource_usage.UserProjectAllocationUsage;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
 import io.imunity.furms.rabbitmq.site.models.Payload;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
 class ResourceUsageService {
@@ -38,11 +40,11 @@ class ResourceUsageService {
 			return;
 		}
 		resourceUsageUpdater.updateUsage(
-			ProjectAllocationUsage.builder()
+			ResourceUsage.builder()
 				.projectId(record.body.projectIdentifier)
 				.projectAllocationId(record.body.allocationIdentifier)
 				.cumulativeConsumption(BigDecimal.valueOf(record.body.cumulativeConsumption))
-				.probedAt(record.body.probedAt.toZonedDateTime())
+				.probedAt(convertToUTCTime(record.body.probedAt))
 				.build()
 		);
 	}
@@ -54,12 +56,12 @@ class ResourceUsageService {
 			return;
 		}
 		resourceUsageUpdater.updateUsage(
-			UserProjectAllocationUsage.builder()
+			UserResourceUsage.builder()
 				.projectId(record.body.projectIdentifier)
 				.projectAllocationId(record.body.allocationIdentifier)
 				.fenixUserId(new FenixUserId(record.body.fenixUserId))
 				.cumulativeConsumption(BigDecimal.valueOf(record.body.cumulativeConsumption))
-				.consumedUntil(record.body.consumedUntil.toZonedDateTime())
+				.consumedUntil(convertToUTCTime(record.body.consumedUntil))
 				.build()
 		);
 	}

@@ -19,7 +19,7 @@ public class CumulativeResourceUsageRecord implements Body {
 	public final OffsetDateTime probedAt;
 
 	@JsonCreator
-	CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier, double cumulativeConsumption, OffsetDateTime probedAt) {
+	public CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier, double cumulativeConsumption, OffsetDateTime probedAt) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.cumulativeConsumption = cumulativeConsumption;

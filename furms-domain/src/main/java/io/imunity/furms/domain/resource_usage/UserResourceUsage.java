@@ -8,39 +8,39 @@ package io.imunity.furms.domain.resource_usage;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class UserProjectAllocationUsage {
+public class UserResourceUsage {
 	public final String projectId;
 	public final String projectAllocationId;
 	public final FenixUserId fenixUserId;
 	public final BigDecimal cumulativeConsumption;
-	public final ZonedDateTime consumedUntil;
+	public final LocalDateTime utcConsumedUntil;
 
-	UserProjectAllocationUsage(String projectId, String projectAllocationId, FenixUserId fenixUserId, BigDecimal cumulativeConsumption, ZonedDateTime consumedUntil) {
+	UserResourceUsage(String projectId, String projectAllocationId, FenixUserId fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime utcConsumedUntil) {
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.fenixUserId = fenixUserId;
 		this.cumulativeConsumption = cumulativeConsumption;
-		this.consumedUntil = consumedUntil;
+		this.utcConsumedUntil = utcConsumedUntil;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserProjectAllocationUsage that = (UserProjectAllocationUsage) o;
+		UserResourceUsage that = (UserResourceUsage) o;
 		return Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
 			Objects.equals(fenixUserId, that.fenixUserId) &&
 			Objects.equals(cumulativeConsumption, that.cumulativeConsumption) &&
-			Objects.equals(consumedUntil, that.consumedUntil);
+			Objects.equals(utcConsumedUntil, that.utcConsumedUntil);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
+		return Objects.hash(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, utcConsumedUntil);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class UserProjectAllocationUsage {
 			", projectAllocationId='" + projectAllocationId + '\'' +
 			", fenixUserId=" + fenixUserId +
 			", cumulativeConsumption=" + cumulativeConsumption +
-			", consumedUntil=" + consumedUntil +
+			", consumedUntil=" + utcConsumedUntil +
 			'}';
 	}
 
@@ -63,7 +63,7 @@ public class UserProjectAllocationUsage {
 		private String projectAllocationId;
 		private FenixUserId fenixUserId;
 		private BigDecimal cumulativeConsumption;
-		private ZonedDateTime consumedUntil;
+		private LocalDateTime consumedUntil;
 
 		private UserProjectAllocationUsageBuilder() {
 		}
@@ -88,13 +88,13 @@ public class UserProjectAllocationUsage {
 			return this;
 		}
 
-		public UserProjectAllocationUsageBuilder consumedUntil(ZonedDateTime consumedUntil) {
+		public UserProjectAllocationUsageBuilder consumedUntil(LocalDateTime consumedUntil) {
 			this.consumedUntil = consumedUntil;
 			return this;
 		}
 
-		public UserProjectAllocationUsage build() {
-			return new UserProjectAllocationUsage(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
+		public UserResourceUsage build() {
+			return new UserResourceUsage(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
 		}
 	}
 }

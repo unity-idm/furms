@@ -18,26 +18,18 @@ class ProjectAllocationGridModel {
 	public String resourceTypeName;
 	public String name;
 	public AmountWithUnit amountWithUnit;
+	public AmountWithUnit consumedWithUnit;
+	public AmountWithUnit remainingWithUnit;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
 		this.resourceTypeName = resourceTypeName;
 		this.name = name;
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
-	}
-
-	String getSiteName() {
-		return siteName;
-	}
-
-	String getResourceTypeName() {
-		return resourceTypeName;
-	}
-
-	AmountWithUnit getAmountWithUnit() {
-		return amountWithUnit;
+		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
+		this.remainingWithUnit = new AmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
 	}
 
 	@Override
@@ -77,6 +69,7 @@ class ProjectAllocationGridModel {
 		public ResourceMeasureUnit resourceTypeUnit;
 		public String name;
 		public BigDecimal amount;
+		public BigDecimal consumed;
 
 		private ProjectAllocationGridModelBuilder() {
 		}
@@ -116,8 +109,13 @@ class ProjectAllocationGridModel {
 			return this;
 		}
 
+		public ProjectAllocationGridModelBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed);
 		}
 	}
 }

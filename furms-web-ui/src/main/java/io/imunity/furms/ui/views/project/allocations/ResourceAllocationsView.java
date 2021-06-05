@@ -61,21 +61,29 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 
 		grid.addComponentColumn(allocation -> {
 			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-			return new Div(icon, new Label(allocation.getSiteName()));
+			return new Div(icon, new Label(allocation.siteName));
 		})
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.1"))
 			.setSortable(true);
-		grid.addColumn(c -> c.name)
+		grid.addColumn(model -> model.name)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.2"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(ProjectAllocationGridModel::getResourceTypeName)
+			.setComparator(model -> model.name.toLowerCase());
+		grid.addColumn(model -> model.resourceTypeName)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.3"))
 			.setSortable(true);
-		grid.addColumn(ProjectAllocationGridModel::getAmountWithUnit)
+		grid.addColumn(model -> model.amountWithUnit)
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.4"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.amountWithUnit.amount));
+		grid.addColumn(model -> model.consumedWithUnit)
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
+			.setComparator(comparing(model -> model.consumedWithUnit.amount));
+		grid.addColumn(model -> model.remainingWithUnit)
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.6"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.remainingWithUnit.amount));
 		grid.addComponentColumn(c -> {
 			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
@@ -92,10 +100,10 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 					installation.errorMessage.map(x -> x.message).orElse(null))
 				).orElseGet(HorizontalLayout::new);
 		})
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.7"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.8"))
 			.setTextAlign(ColumnTextAlign.END);
 
 
@@ -167,6 +175,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.resourceTypeUnit(projectAllocation.resourceType.unit)
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
+			.consumed(projectAllocation.consumed)
 			.build();
 	}
 }

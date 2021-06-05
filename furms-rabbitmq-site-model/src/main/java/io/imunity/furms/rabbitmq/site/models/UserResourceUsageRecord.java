@@ -20,7 +20,7 @@ public class UserResourceUsageRecord implements Body {
 	public final OffsetDateTime consumedUntil;
 
 	@JsonCreator
-	UserResourceUsageRecord(String projectIdentifier, String allocationIdentifier, String fenixUserId, double cumulativeConsumption, OffsetDateTime consumedUntil) {
+	public UserResourceUsageRecord(String projectIdentifier, String allocationIdentifier, String fenixUserId, double cumulativeConsumption, OffsetDateTime consumedUntil) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.fenixUserId = fenixUserId;

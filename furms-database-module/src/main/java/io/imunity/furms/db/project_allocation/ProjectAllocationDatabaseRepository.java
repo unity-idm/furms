@@ -7,16 +7,22 @@ package io.imunity.furms.db.project_allocation;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.*;
 import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -24,10 +30,12 @@ import static org.springframework.util.StringUtils.isEmpty;
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
 	private final ProjectAllocationEntityRepository repository;
 	private final ProjectAllocationReadEntityRepository readRepository;
+	private final ResourceUsageRepository resourceUsageRepository;
 
-	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository, ProjectAllocationReadEntityRepository readRepository) {
+	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository, ProjectAllocationReadEntityRepository readRepository, ResourceUsageRepository resourceUsageRepository) {
 		this.repository = repository;
 		this.readRepository = readRepository;
+		this.resourceUsageRepository = resourceUsageRepository;
 	}
 
 	@Override
@@ -44,14 +52,22 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 		if (isEmpty(id)) {
 			return empty();
 		}
+		BigDecimal newestResourceUsage = resourceUsageRepository.findNewestResourceUsage(id)
+			.map(usage -> usage.cumulativeConsumption).orElse(BigDecimal.ZERO);
 		return readRepository.findById(UUID.fromString(id))
-			.map(ProjectAllocationReadEntity::toProjectAllocationResolved);
+			.map(x -> x.toProjectAllocationResolved(newestResourceUsage));
 	}
 
 	@Override
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
+		Map<String, ResourceUsage> projectAllocationUsage = resourceUsageRepository.findNewestResourceUsages(projectId).stream()
+			.collect(toMap(x -> x.projectAllocationId, Function.identity()));
 		return readRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
-			.map(ProjectAllocationReadEntity::toProjectAllocationResolved)
+			.map(allocationReadEntity -> allocationReadEntity.toProjectAllocationResolved(
+				ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
+				.map(y -> y.cumulativeConsumption)
+				.orElse(BigDecimal.ZERO))
+			)
 			.collect(Collectors.toSet());
 	}
 
