@@ -7,7 +7,7 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

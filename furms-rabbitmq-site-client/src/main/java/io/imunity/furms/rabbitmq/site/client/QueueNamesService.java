@@ -26,4 +26,8 @@ public class QueueNamesService {
 	public static String getSitePublishQueueName(String externalId){
 		return externalId + SITE_PUB;
 	}
+
+	public static String getSiteId(String queueName){
+		return queueName.replace(SITE_PUB,"");
+	}
 }

@@ -28,19 +28,22 @@ class SiteAgentListenerRouter {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ApplicationEventPublisher publisher;
+	private final MessageAuthorizer validator;
 
-	SiteAgentListenerRouter(ApplicationEventPublisher publisher) {
+	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer messageAuthorizer) {
 		this.publisher = publisher;
+		this.validator = messageAuthorizer;
 	}
 
 	@RabbitHandler
-	public void receive(Payload<?> payload, @Header("amqp_receivedRoutingKey") String receivedRoutingKey) {
+	public void receive(Payload<?> payload, @Header("amqp_receivedRoutingKey") String receivedRoutingKey, @Header("amqp_consumerQueue") String queueName) {
 		MDC.put(MDCKey.QUEUE_NAME.key, receivedRoutingKey);
 		try {
+			validator.validate(payload, queueName);
 			publisher.publishEvent(payload);
 			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
-			LOG.error("This error occurred while processing payload: {}", payload, e);
+			LOG.error("This error occurred while processing payload: {} from queue {}", payload, queueName, e);
 		} finally {
 			MDC.remove(MDCKey.QUEUE_NAME.key);
 		}
