@@ -69,7 +69,10 @@ Install any recent RabbitMQ broker with support for AMPQ 0.9.1. The broker setup
 
 * configuration of the TLS in order to enable encryption on the protocol level,
 * definition of the https://www.rabbitmq.com/vhosts.html[RabbitMQ virtual host] utilized for the FURMS purposes,
-* definition of the client user name and password with a connection rights to FURMS virtual host, and privileges to provision queues within this virtual host. 
+* definition of the client user name and password with
+** a connection rights to FURMS virtual host, 
+** privileges to provision queues within this virtual host
+** permissions to write messages to AMQP default exchange (`amq.default`)
 
 The virtual host name, privileged client user name and a password, as well as public CA certificate which was used to sign credential for the broker are used later on in the Ansible group variable file to setup broker connection during installation.
 
@@ -100,10 +103,14 @@ The site's identifier is visible on Site administrator's Settings page as 'Site 
 * `ygmr6-site-pub`
 * `ygmr6-furms-pub`
 
-From Site's point of view, broker administrator must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:
+From Site's point of view, broker administrator must define:
 
-* write messages to `<siteid>-site-pub` queue,
-* read messages from `<siteid>-furms-pub` queue,
+* an exchange of `direct` type within FURMS virtual host with:
+** name set to `<siteid>-site-pub` (note that an exchange and site publish queue names are the same),
+** binding created, and configured to route messages with `<siteid>-site-pub` routing key to `<siteid>-site-pub` queue
+* the client user name and password with a connection rights to FURMS virtual host, and privileges to:
+** write messages to `<siteid>-site-pub` exchange,
+** read messages from `<siteid>-furms-pub` queue,
 
 NOTE: In order to setup a connection from site agent to broker, the aforementioned user name and password is required as well as the public CA certificate which was used to sign credential for the broker. This information needs to be handed over to the local site administrator in order to setup encrypted and authorized connection to FURMS through the broker. 
 
