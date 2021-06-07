@@ -13,7 +13,7 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.UserOperationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

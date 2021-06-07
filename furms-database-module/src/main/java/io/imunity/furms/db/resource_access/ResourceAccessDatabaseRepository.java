@@ -30,15 +30,26 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public Set<UserGrant> findUsersGrants(String projectId) {
+	public Set<UserGrant> findUsersGrantsByProjectId(String projectId) {
 		return userGrantEntityRepository.findAll(UUID.fromString(projectId)).stream()
-			.map(userAllocationResolved -> UserGrant.builder()
-				.projectAllocationId(userAllocationResolved.allocation.projectAllocationId.toString())
-				.userId(userAllocationResolved.allocation.userId)
-				.status(AccessStatus.valueOf(userAllocationResolved.job.status))
-				.message(userAllocationResolved.job.message)
-				.build())
+			.map(this::map)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId) {
+		return userGrantEntityRepository.findAll(UUID.fromString(projectId), fenixUserId.id).stream()
+			.map(this::map)
+			.collect(Collectors.toSet());
+	}
+
+	private UserGrant map(UserGrantResolved userAllocationResolved) {
+		return UserGrant.builder()
+			.projectAllocationId(userAllocationResolved.allocation.projectAllocationId.toString())
+			.userId(userAllocationResolved.allocation.userId)
+			.status(AccessStatus.valueOf(userAllocationResolved.job.status))
+			.message(userAllocationResolved.job.message)
+			.build();
 	}
 
 	@Override
@@ -79,6 +90,15 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(userGrantJob -> userGrantJob.status)
 			.map(AccessStatus::valueOf)
+			.orElseThrow(() -> new IllegalArgumentException("Correlation id doesn't exist: " + correlationId.id));
+	}
+
+	@Override
+	public String findSiteIdByCorrelationId(CorrelationId correlationId) {
+		return userGrantJobEntityRepository
+			.findByCorrelationId(UUID.fromString(correlationId.id))
+			.flatMap(job -> userGrantEntityRepository.findById(job.userGrantId))
+			.map(userGrant -> userGrant.siteId.toString())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation id doesn't exist: " + correlationId.id));
 	}
 

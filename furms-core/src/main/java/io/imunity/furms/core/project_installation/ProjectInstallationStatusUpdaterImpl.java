@@ -10,7 +10,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

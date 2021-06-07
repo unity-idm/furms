@@ -23,7 +23,7 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;

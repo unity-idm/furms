@@ -9,7 +9,7 @@ import io.imunity.furms.domain.project_installation.*;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 
 @Service
 public class MockProjectInstallationStatusUpdater implements ProjectInstallationStatusUpdater {

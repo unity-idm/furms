@@ -10,7 +10,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.site.api.message_resolver.UserOperationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;

@@ -11,7 +11,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

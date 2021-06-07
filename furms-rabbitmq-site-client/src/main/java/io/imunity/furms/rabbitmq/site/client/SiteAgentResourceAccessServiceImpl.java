@@ -10,7 +10,7 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.UserAllocationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
