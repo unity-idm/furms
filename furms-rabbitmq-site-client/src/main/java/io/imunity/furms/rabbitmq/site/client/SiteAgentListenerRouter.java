@@ -5,8 +5,10 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.utils.MDCKey;
+import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
+
+import java.lang.invoke.MethodHandles;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -16,9 +18,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
+import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.utils.MDCKey;
 
 @Component
 @RabbitListener(id = FURMS_LISTENER)
@@ -36,8 +37,8 @@ class SiteAgentListenerRouter {
 	}
 
 	@RabbitHandler
-	public void receive(Payload<?> payload, @Header("amqp_receivedRoutingKey") String receivedRoutingKey, @Header("amqp_consumerQueue") String queueName) {
-		MDC.put(MDCKey.QUEUE_NAME.key, receivedRoutingKey);
+	public void receive(Payload<?> payload, @Header("amqp_consumerQueue") String queueName) {
+		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
 		try {
 			validator.validate(payload, queueName);
 			publisher.publishEvent(payload);
