@@ -169,7 +169,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindAll(){
+	void shouldFindAllByProjectId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
 				.siteId(siteId)
@@ -186,6 +186,38 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
 		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId);
+		assertThat(userAllocationsResolved.size()).isEqualTo(1);
+		UserGrantResolved userGrantResolved = userAllocationsResolved.iterator().next();
+		assertThat(userGrantResolved.allocation).isEqualTo(userAllocation);
+		assertThat(userGrantResolved.job).isEqualTo(userAdditionSaveEntity);
+	}
+
+	@Test
+	void shouldFindAllByProjectIdAndUserId(){
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
+				.siteId(siteId)
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.userId("userId")
+				.build()
+		);
+		userGrantEntityRepository.save(
+			UserGrantEntity.builder()
+				.siteId(siteId)
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.userId("userId2")
+				.build()
+		);
+		UserGrantJobEntity userGrantJobEntity = UserGrantJobEntity.builder()
+			.userAllocationId(userAllocation.getId())
+			.status(AccessStatus.GRANTED)
+			.correlationId(UUID.randomUUID())
+			.build();
+		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
+
+		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId, "userId");
 		assertThat(userAllocationsResolved.size()).isEqualTo(1);
 		UserGrantResolved userGrantResolved = userAllocationsResolved.iterator().next();
 		assertThat(userGrantResolved.allocation).isEqualTo(userAllocation);

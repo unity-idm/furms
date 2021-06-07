@@ -274,7 +274,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Set<UserGrant> userGrants = resourceAccessDatabaseRepository.findUsersGrants(projectId.toString());
+		Set<UserGrant> userGrants = resourceAccessDatabaseRepository.findUsersGrantsByProjectId(projectId.toString());
 		assertThat(userGrants.size()).isEqualTo(1);
 		UserGrant userGrant = userGrants.iterator().next();
 		assertThat(userGrant.userId).isEqualTo("userId");

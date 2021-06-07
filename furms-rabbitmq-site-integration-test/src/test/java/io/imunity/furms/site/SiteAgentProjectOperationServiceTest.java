@@ -5,17 +5,6 @@
 
 package io.imunity.furms.site;
 
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.domain.project_installation.Error;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
@@ -30,6 +19,16 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class SiteAgentProjectOperationServiceTest {
@@ -62,7 +61,7 @@ class SiteAgentProjectOperationServiceTest {
 		siteAgentProjectOperationService.installProject(correlationId, projectInstallation);
 		verify(projectInstallationService, timeout(10000)).update(
 			correlationId,
-			new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, new Error(null, null))
+			new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.ACKNOWLEDGED, new Error(null, null))
 		);
 		verify(projectInstallationService, timeout(10000)).update(
 			correlationId,

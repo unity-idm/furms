@@ -5,10 +5,8 @@
 
 package io.imunity.furms.domain.users;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.Optional.ofNullable;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +14,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.Optional.ofNullable;
 
 public class FURMSUser {
 	public final Optional<PersistentId> id;
@@ -120,6 +119,13 @@ public class FURMSUser {
 		
 		public FURMSUserBuilder fenixUserId(FenixUserId fenixUserId) {
 			this.fenixUserId = fenixUserId;
+			return this;
+		}
+
+		public FURMSUserBuilder fenixUserId(String fenixUserId) {
+			if(fenixUserId == null || fenixUserId.isEmpty())
+				return this;
+			this.fenixUserId = new FenixUserId(fenixUserId);
 			return this;
 		}
 

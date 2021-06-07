@@ -24,6 +24,7 @@ public enum AccessStatus {
 	public static final Set<AccessStatus> FAILED_STATUES = Set.of(GRANT_FAILED, REVOKE_FAILED);
 	public static final Set<AccessStatus> ENABLED_STATUES = Set.of(GRANT_PENDING, GRANT_ACKNOWLEDGED, GRANTED, REVOKE_FAILED);
 	public static final Set<AccessStatus> TERMINAL_GRANTED = Set.of(GRANTED, GRANT_FAILED, REVOKE_FAILED);
+	public static final Set<AccessStatus> GRANTED_STATUES = Set.of(GRANTED, REVOKE_PENDING, REVOKE_FAILED);
 
 	AccessStatus(int persistentId) {
 		this.persistentId = persistentId;
