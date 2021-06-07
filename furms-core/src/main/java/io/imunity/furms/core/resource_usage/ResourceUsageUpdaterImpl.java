@@ -7,7 +7,7 @@ package io.imunity.furms.core.resource_usage;
 
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
-import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
+import io.imunity.furms.rabbitmq.site.api.message_resolver.ResourceUsageUpdater;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Service;
 

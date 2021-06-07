@@ -15,6 +15,6 @@ import java.util.Set;
 public interface ResourceUsageRepository {
 	void create(ResourceUsage resourceUsage);
 	void create(UserResourceUsage userResourceUsage);
-	Set<ResourceUsage> findNewestResourceUsages(String projectId);
-	Optional<ResourceUsage> findNewestResourceUsage(String projectAllocationId);
+	Set<ResourceUsage> findCurrentResourceUsages(String projectId);
+	Optional<ResourceUsage> findCurrentResourceUsage(String projectAllocationId);
 }

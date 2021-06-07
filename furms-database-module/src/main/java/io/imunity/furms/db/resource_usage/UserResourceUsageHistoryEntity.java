@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("user_resource_usage")
-public class UserResourceUsageEntity extends UUIDIdentifiable {
+@Table("user_resource_usage_history")
+public class UserResourceUsageHistoryEntity extends UUIDIdentifiable {
 
 	public final UUID projectId;
 	public final UUID projectAllocationId;
@@ -24,8 +24,7 @@ public class UserResourceUsageEntity extends UUIDIdentifiable {
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime consumedUntil;
 
-	UserResourceUsageEntity(UUID id, UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
-		this.id = id;
+	UserResourceUsageHistoryEntity(UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.fenixUserId = fenixUserId;
@@ -47,7 +46,7 @@ public class UserResourceUsageEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserResourceUsageEntity that = (UserResourceUsageEntity) o;
+		UserResourceUsageHistoryEntity that = (UserResourceUsageHistoryEntity) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
@@ -73,53 +72,47 @@ public class UserResourceUsageEntity extends UUIDIdentifiable {
 			'}';
 	}
 
-	public static UserResourceUsageEntityBuilder builder() {
-		return new UserResourceUsageEntityBuilder();
+	public static UserResourceUsageHistoryEntityBuilder builder() {
+		return new UserResourceUsageHistoryEntityBuilder();
 	}
 
-	public static final class UserResourceUsageEntityBuilder {
-		private UUID id;
+	public static final class UserResourceUsageHistoryEntityBuilder {
 		private UUID projectId;
 		private UUID projectAllocationId;
 		private String fenixUserId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime consumedUntil;
 
-		private UserResourceUsageEntityBuilder() {
+		private UserResourceUsageHistoryEntityBuilder() {
 		}
 
-		public UserResourceUsageEntityBuilder id(UUID id) {
-			this.id = id;
-			return this;
-		}
-
-		public UserResourceUsageEntityBuilder projectId(UUID projectId) {
+		public UserResourceUsageHistoryEntityBuilder projectId(UUID projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public UserResourceUsageEntityBuilder projectAllocationId(UUID projectAllocationId) {
+		public UserResourceUsageHistoryEntityBuilder projectAllocationId(UUID projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public UserResourceUsageEntityBuilder fenixUserId(String fenixUserId) {
+		public UserResourceUsageHistoryEntityBuilder fenixUserId(String fenixUserId) {
 			this.fenixUserId = fenixUserId;
 			return this;
 		}
 
-		public UserResourceUsageEntityBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
+		public UserResourceUsageHistoryEntityBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
 			this.cumulativeConsumption = cumulativeConsumption;
 			return this;
 		}
 
-		public UserResourceUsageEntityBuilder consumedUntil(LocalDateTime consumedUntil) {
+		public UserResourceUsageHistoryEntityBuilder consumedUntil(LocalDateTime consumedUntil) {
 			this.consumedUntil = consumedUntil;
 			return this;
 		}
 
-		public UserResourceUsageEntity build() {
-			return new UserResourceUsageEntity(id, projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
+		public UserResourceUsageHistoryEntity build() {
+			return new UserResourceUsageHistoryEntity(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
 		}
 	}
 }

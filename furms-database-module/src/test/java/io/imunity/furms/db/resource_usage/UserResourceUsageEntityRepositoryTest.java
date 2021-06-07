@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
+class UserResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -63,7 +62,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Autowired
-	private ResourceUsageEntityRepository entityRepository;
+	private UserResourceUsageEntityRepository entityRepository;
 
 	private UUID projectId;
 	private UUID projectId2;
@@ -172,16 +171,17 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldCreate() {
-		ResourceUsageEntity saveEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
+		UserResourceUsageEntity saveEntity = entityRepository.save(
+			UserResourceUsageEntity.builder()
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(saveEntity.getId());
+		Optional<UserResourceUsageEntity> resourceUsageEntities = entityRepository.findById(saveEntity.getId());
 		assertTrue(resourceUsageEntities.isPresent());
 		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
@@ -191,25 +191,27 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldUpdate() {
-		ResourceUsageEntity savedEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
+		UserResourceUsageEntity savedEntity = entityRepository.save(
+			UserResourceUsageEntity.builder()
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.TEN)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
-		ResourceUsageEntity updatedEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
+		UserResourceUsageEntity updatedEntity = entityRepository.save(
+			UserResourceUsageEntity.builder()
 				.id(savedEntity.getId())
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(updatedEntity.getId());
+		Optional<UserResourceUsageEntity> resourceUsageEntities = entityRepository.findById(updatedEntity.getId());
 		assertTrue(resourceUsageEntities.isPresent());
 		assertEquals(updatedEntity.getId(), resourceUsageEntities.get().getId());
 		assertEquals(updatedEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
@@ -219,73 +221,48 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldDelete() {
-		ResourceUsageEntity savedEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
+		UserResourceUsageEntity savedEntity = entityRepository.save(
+			UserResourceUsageEntity.builder()
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.TEN)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 
 		entityRepository.deleteById(savedEntity.getId());
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(savedEntity.getId());
+		Optional<UserResourceUsageEntity> resourceUsageEntities = entityRepository.findById(savedEntity.getId());
 
 		assertFalse(resourceUsageEntities.isPresent());
 	}
 
 	@Test
 	void shouldFindByProjectAllocationId() {
-		ResourceUsageEntity saveEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
+		UserResourceUsageEntity saveEntity = entityRepository.save(
+			UserResourceUsageEntity.builder()
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 		entityRepository.save(
-			ResourceUsageEntity.builder()
+			UserResourceUsageEntity.builder()
 				.projectId(projectId2)
 				.projectAllocationId(projectAllocationId2)
+				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.consumedUntil(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findByProjectAllocationId(saveEntity.projectAllocationId);
+		Optional<UserResourceUsageEntity> resourceUsageEntities = entityRepository.findByProjectAllocationId(saveEntity.projectAllocationId);
 		assertTrue(resourceUsageEntities.isPresent());
 		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId, resourceUsageEntities.get().projectId);
-	}
-
-	@Test
-	void shouldFindAllByProjectId() {
-		ResourceUsageEntity saveEntity = entityRepository.save(
-			ResourceUsageEntity.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
-				.build()
-		);
-		entityRepository.save(
-			ResourceUsageEntity.builder()
-				.projectId(projectId2)
-				.projectAllocationId(projectAllocationId2)
-				.cumulativeConsumption(BigDecimal.ONE)
-				.probedAt(LocalDateTime.now().minusMinutes(5))
-				.build()
-		);
-
-		Set<ResourceUsageEntity> resourceUsageEntities = entityRepository.findAllByProjectId(saveEntity.projectId);
-		assertEquals(1, resourceUsageEntities.size());
-		ResourceUsageEntity entity = resourceUsageEntities.iterator().next();
-		assertEquals(saveEntity.getId(), entity.getId());
-		assertEquals(saveEntity.cumulativeConsumption, entity.cumulativeConsumption);
-		assertEquals(saveEntity.projectAllocationId, entity.projectAllocationId);
-		assertEquals(saveEntity.projectId, entity.projectId);
 	}
 }

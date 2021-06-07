@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ class UsageMockShellProducer {
 	public void sendCumulativeResourceUsageRecord(
 		String projectIdentifier,
 		String allocationIdentifier,
-		double cumulativeConsumption
+		BigDecimal cumulativeConsumption
 	) {
 		Header header = getHeader(UUID.randomUUID().toString());
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new CumulativeResourceUsageRecord(
@@ -50,7 +51,7 @@ class UsageMockShellProducer {
 		String projectIdentifier,
 		String allocationIdentifier,
 		String fenixUserId,
-		double cumulativeConsumption
+		BigDecimal cumulativeConsumption
 	) {
 		Header header = getHeader(UUID.randomUUID().toString());
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new UserResourceUsageRecord(

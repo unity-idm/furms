@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
@@ -16,11 +17,11 @@ public class UserResourceUsageRecord implements Body {
 	public final String projectIdentifier;
 	public final String allocationIdentifier;
 	public final String fenixUserId;
-	public final double cumulativeConsumption;
+	public final BigDecimal cumulativeConsumption;
 	public final OffsetDateTime consumedUntil;
 
 	@JsonCreator
-	public UserResourceUsageRecord(String projectIdentifier, String allocationIdentifier, String fenixUserId, double cumulativeConsumption, OffsetDateTime consumedUntil) {
+	public UserResourceUsageRecord(String projectIdentifier, String allocationIdentifier, String fenixUserId, BigDecimal cumulativeConsumption, OffsetDateTime consumedUntil) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.fenixUserId = fenixUserId;
@@ -28,15 +29,16 @@ public class UserResourceUsageRecord implements Body {
 		this.consumedUntil = consumedUntil;
 	}
 
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserResourceUsageRecord that = (UserResourceUsageRecord) o;
-		return Double.compare(that.cumulativeConsumption, cumulativeConsumption) == 0 &&
-			Objects.equals(projectIdentifier, that.projectIdentifier) &&
+		return Objects.equals(projectIdentifier, that.projectIdentifier) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
 			Objects.equals(fenixUserId, that.fenixUserId) &&
+			Objects.equals(cumulativeConsumption, that.cumulativeConsumption) &&
 			Objects.equals(consumedUntil, that.consumedUntil);
 	}
 

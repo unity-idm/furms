@@ -19,17 +19,16 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
-class ResourceUsageService {
+class SiteAgentResourceUsageService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ResourceUsageUpdater resourceUsageUpdater;
 
-	ResourceUsageService(ResourceUsageUpdater resourceUsageUpdater) {
+	SiteAgentResourceUsageService(ResourceUsageUpdater resourceUsageUpdater) {
 		this.resourceUsageUpdater = resourceUsageUpdater;
 	}
 
@@ -43,7 +42,7 @@ class ResourceUsageService {
 			ResourceUsage.builder()
 				.projectId(record.body.projectIdentifier)
 				.projectAllocationId(record.body.allocationIdentifier)
-				.cumulativeConsumption(BigDecimal.valueOf(record.body.cumulativeConsumption))
+				.cumulativeConsumption(record.body.cumulativeConsumption)
 				.probedAt(convertToUTCTime(record.body.probedAt))
 				.build()
 		);
@@ -60,7 +59,7 @@ class ResourceUsageService {
 				.projectId(record.body.projectIdentifier)
 				.projectAllocationId(record.body.allocationIdentifier)
 				.fenixUserId(new FenixUserId(record.body.fenixUserId))
-				.cumulativeConsumption(BigDecimal.valueOf(record.body.cumulativeConsumption))
+				.cumulativeConsumption(record.body.cumulativeConsumption)
 				.consumedUntil(convertToUTCTime(record.body.consumedUntil))
 				.build()
 		);

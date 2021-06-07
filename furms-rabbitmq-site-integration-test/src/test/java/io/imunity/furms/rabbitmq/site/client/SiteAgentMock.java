@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.rabbitmq.site.models.*;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;

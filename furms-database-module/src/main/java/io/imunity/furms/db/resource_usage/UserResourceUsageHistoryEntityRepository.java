@@ -7,9 +7,9 @@ package io.imunity.furms.db.resource_usage;
 
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-public interface UserResourceUsageEntityRepository extends CrudRepository<UserResourceUsageEntity, UUID> {
-	Optional<UserResourceUsageEntity> findByProjectAllocationId(UUID projectAllocationId);
+public interface UserResourceUsageHistoryEntityRepository extends CrudRepository<UserResourceUsageHistoryEntity, UUID> {
+	Set<UserResourceUsageHistoryEntity> findAllByProjectAllocationId(UUID projectAllocationId);
 }

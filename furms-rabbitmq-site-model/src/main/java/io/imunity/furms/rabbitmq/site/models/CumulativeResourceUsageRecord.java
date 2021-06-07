@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
@@ -15,11 +16,11 @@ import java.util.Objects;
 public class CumulativeResourceUsageRecord implements Body {
 	public final String projectIdentifier;
 	public final String allocationIdentifier;
-	public final double cumulativeConsumption;
+	public final BigDecimal cumulativeConsumption;
 	public final OffsetDateTime probedAt;
 
 	@JsonCreator
-	public CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier, double cumulativeConsumption, OffsetDateTime probedAt) {
+	public CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier, BigDecimal cumulativeConsumption, OffsetDateTime probedAt) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.cumulativeConsumption = cumulativeConsumption;
@@ -31,9 +32,9 @@ public class CumulativeResourceUsageRecord implements Body {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CumulativeResourceUsageRecord that = (CumulativeResourceUsageRecord) o;
-		return Double.compare(that.cumulativeConsumption, cumulativeConsumption) == 0 &&
-			Objects.equals(projectIdentifier, that.projectIdentifier) &&
+		return Objects.equals(projectIdentifier, that.projectIdentifier) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
+			Objects.equals(cumulativeConsumption, that.cumulativeConsumption) &&
 			Objects.equals(probedAt, that.probedAt);
 	}
 

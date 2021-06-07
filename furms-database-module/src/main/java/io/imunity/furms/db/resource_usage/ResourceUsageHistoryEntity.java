@@ -14,16 +14,15 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("resource_usage")
-public class ResourceUsageEntity extends UUIDIdentifiable {
+@Table("resource_usage_history")
+public class ResourceUsageHistoryEntity extends UUIDIdentifiable {
 
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageEntity(UUID id, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
-		this.id = id;
+	ResourceUsageHistoryEntity(UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.cumulativeConsumption = cumulativeConsumption;
@@ -43,7 +42,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ResourceUsageEntity that = (ResourceUsageEntity) o;
+		ResourceUsageHistoryEntity that = (ResourceUsageHistoryEntity) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
@@ -67,47 +66,41 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 			'}';
 	}
 
-	public static ResourceUsageEntityBuilder builder() {
-		return new ResourceUsageEntityBuilder();
+	public static ResourceUsageHistoryEntityBuilder builder() {
+		return new ResourceUsageHistoryEntityBuilder();
 	}
 
-	public static final class ResourceUsageEntityBuilder {
-		private UUID id;
+	public static final class ResourceUsageHistoryEntityBuilder {
 		private UUID projectId;
 		private UUID projectAllocationId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime probedAt;
 
-		private ResourceUsageEntityBuilder() {
+		private ResourceUsageHistoryEntityBuilder() {
 		}
 
-		public ResourceUsageEntityBuilder id(UUID id) {
-			this.id = id;
-			return this;
-		}
-
-		public ResourceUsageEntityBuilder projectId(UUID projectId) {
+		public ResourceUsageHistoryEntityBuilder projectId(UUID projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public ResourceUsageEntityBuilder projectAllocationId(UUID projectAllocationId) {
+		public ResourceUsageHistoryEntityBuilder projectAllocationId(UUID projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public ResourceUsageEntityBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
+		public ResourceUsageHistoryEntityBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
 			this.cumulativeConsumption = cumulativeConsumption;
 			return this;
 		}
 
-		public ResourceUsageEntityBuilder probedAt(LocalDateTime probedAt) {
+		public ResourceUsageHistoryEntityBuilder probedAt(LocalDateTime probedAt) {
 			this.probedAt = probedAt;
 			return this;
 		}
 
-		public ResourceUsageEntity build() {
-			return new ResourceUsageEntity(id, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+		public ResourceUsageHistoryEntity build() {
+			return new ResourceUsageHistoryEntity(projectId, projectAllocationId, cumulativeConsumption, probedAt);
 		}
 	}
 }

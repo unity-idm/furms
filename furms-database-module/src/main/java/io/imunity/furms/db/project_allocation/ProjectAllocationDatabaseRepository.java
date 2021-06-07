@@ -52,7 +52,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 		if (isEmpty(id)) {
 			return empty();
 		}
-		BigDecimal newestResourceUsage = resourceUsageRepository.findNewestResourceUsage(id)
+		BigDecimal newestResourceUsage = resourceUsageRepository.findCurrentResourceUsage(id)
 			.map(usage -> usage.cumulativeConsumption).orElse(BigDecimal.ZERO);
 		return readRepository.findById(UUID.fromString(id))
 			.map(x -> x.toProjectAllocationResolved(newestResourceUsage));
@@ -60,7 +60,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 
 	@Override
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
-		Map<String, ResourceUsage> projectAllocationUsage = resourceUsageRepository.findNewestResourceUsages(projectId).stream()
+		Map<String, ResourceUsage> projectAllocationUsage = resourceUsageRepository.findCurrentResourceUsages(projectId).stream()
 			.collect(toMap(x -> x.projectAllocationId, Function.identity()));
 		return readRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(allocationReadEntity -> allocationReadEntity.toProjectAllocationResolved(
