@@ -56,26 +56,6 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 	Set<CommunityAllocationReadEntity> findAllByCommunityIdAndNameOrSiteName(@Param("id") UUID id,
 	                                                                         @Param("name") String name);
 
-	@Query("SELECT a.*, " +
-			"   s.id AS site_id, s.name AS site_name, s.connection_info AS site_connection_info, s.logo AS site_logo, " +
-			"   s.logo_type AS site_logo_type, rt.id AS resourceType_id, rt.name AS resourceType_name, " +
-			"   rt.site_id AS resourceType_site_id, rt.service_id AS resourceType_service_id, rt.type AS resourceType_type, rt.accessible AS resourceType_accessible, " +
-			"   rt.unit AS resourceType_unit, rc.id AS resourceCredit_id, rc.name AS resourceCredit_name, " +
-			"   rc.site_id AS resourceCredit_site_id, rc.resource_type_id AS resourceCredit_resource_type_id, " +
-			"   rc.split AS resourceCredit_split, rc.amount AS resourceCredit_amount, " +
-			"   rc.create_time AS resourceCredit_create_time, rc.start_time AS resourceCredit_start_time, " +
-			"   rc.end_time AS resourceCredit_end_time " +
-			"FROM community_allocation a " +
-			"   JOIN resource_credit rc ON a.resource_credit_id = rc.id " +
-			"   JOIN site s ON rc.site_id = s.id " +
-			"   JOIN resource_type rt ON rc.resource_type_id = rt.id " +
-			"WHERE a.community_id = :id " +
-			"   AND (UPPER(a.name) LIKE UPPER(CONCAT('%', :name, '%')) " +
-			"       OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%'))) " +
-			"   AND rc.end_time > now()")
-	Set<CommunityAllocationReadEntity> findAllNotExpiredByCommunityIdAndNameOrSiteName(@Param("id") UUID id,
-	                                                                                   @Param("name") String name);
-
 	@Query("select rc.amount as resource_credit_amount, sum(ca.amount) as community_allocations_amount " +
 		"from resource_credit rc " +
 		"left join community_allocation ca on ca.resource_credit_id = rc.id " +

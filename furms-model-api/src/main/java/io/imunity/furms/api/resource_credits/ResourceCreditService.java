@@ -16,7 +16,7 @@ public interface ResourceCreditService {
 
 	Set<ResourceCredit> findAll(String siteId);
 
-	Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId);
+	Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId);
 
 	Set<ResourceCredit> findAll();
 

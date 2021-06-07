@@ -86,8 +86,14 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<Project> findAll(String communityId) {
-		return projectRepository.findAll(communityId);
+	public Set<Project> findAllByCommunityId(String communityId) {
+		return projectRepository.findAllByCommunityId(communityId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
+		return projectRepository.findAllNotExpiredByCommunityId(communityId);
 	}
 
 	@Override
@@ -108,6 +114,13 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public boolean isProjectInTerminalState(String communityId, String projectId) {
 		return projectInstallationService.isProjectInTerminalState(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
+	public boolean isProjectExpired(String id) {
+		final Optional<Project> project = findById(id);
+		return project.isEmpty() || project.get().isExpired();
 	}
 
 	@Override

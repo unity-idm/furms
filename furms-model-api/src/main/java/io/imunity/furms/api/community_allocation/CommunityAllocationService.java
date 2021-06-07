@@ -26,6 +26,8 @@ public interface CommunityAllocationService {
 	                                                           boolean includedFullyDistributed,
 	                                                           boolean includedExpired);
 
+	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId);
+
 	BigDecimal getAvailableAmountForNew(String resourceCreditId);
 
 	BigDecimal getAvailableAmountForUpdate(String resourceCreditId, String communityAllocationId);

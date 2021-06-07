@@ -58,13 +58,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<ProjectAllocation> findByCommunityIdAndId(String communityId, String id) {
-		validator.validateCommunityIdAndProjectAllocationId(communityId, id);
-		return projectAllocationRepository.findById(id);
-	}
-
-	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, id);
@@ -76,12 +69,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id) {
 		validator.validateCommunityIdAndProjectAllocationId(communityId, id);
 		return projectAllocationRepository.findByIdWithRelatedObjects(id);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<CommunityAllocationResolved> findCorrelatedCommunityAllocation(String communityId) {
-		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId);
 	}
 
 	@Override

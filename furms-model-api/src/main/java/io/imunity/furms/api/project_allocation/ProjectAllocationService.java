@@ -5,7 +5,6 @@
 
 package io.imunity.furms.api.project_allocation;
 
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
@@ -17,13 +16,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectAllocationService {
-	Optional<ProjectAllocation> findByCommunityIdAndId(String communityId, String id);
-
 	Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id);
 
 	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id);
-
-	Set<CommunityAllocationResolved> findCorrelatedCommunityAllocation(String communityId);
 
 	BigDecimal getAvailableAmount(String communityId, String communityAllocationId);
 

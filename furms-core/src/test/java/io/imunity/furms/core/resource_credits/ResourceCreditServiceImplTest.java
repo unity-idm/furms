@@ -122,7 +122,7 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsIncludedFullyDistributed() {
 		//given
-		when(resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("")).thenReturn(Set.of(
+		when(resourceCreditRepository.findAllNotExpiredByNameOrSiteName("")).thenReturn(Set.of(
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
@@ -140,7 +140,7 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsNotIncludedFullyDistributed() {
 		//given
-		when(resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired("")).thenReturn(Set.of(
+		when(resourceCreditRepository.findAllNotExpiredByNameOrSiteName("")).thenReturn(Set.of(
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));

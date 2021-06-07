@@ -50,6 +50,7 @@ class CommunityAllocationServiceValidator {
 		notNull(communityAllocation, "CommunityAllocation object cannot be null.");
 		assertCommunityExists(communityAllocation.communityId);
 		assertResourceCreditExists(communityAllocation.resourceCreditId);
+		assertResourceCreditNotExpired(communityAllocation.resourceCreditId);
 		validateName(communityAllocation);
 		notNull(communityAllocation.amount, "CommunityAllocation amount cannot be null.");
 	}
@@ -70,22 +71,22 @@ class CommunityAllocationServiceValidator {
 			CommunityAllocation existingAllocation) {
 		BigDecimal remainingAmount = communityAllocationRepository.getAvailableAmount(updatedAllocation.resourceCreditId);
 		BigDecimal maxAllowedAmount = remainingAmount.add(existingAllocation.amount);
-		assertTrue(updatedAllocation.amount.compareTo(maxAllowedAmount) <= 0, 
-				() -> new CommunityAllocationUpdateAboveCreditAvailableAmountException());
+		assertTrue(updatedAllocation.amount.compareTo(maxAllowedAmount) <= 0,
+				CommunityAllocationUpdateAboveCreditAvailableAmountException::new);
 	}
 
 	private void assertNotUpdatedAboveCredit(CommunityAllocation updatedAllocation,
 			CommunityAllocation existingAllocation) {
 		ResourceCredit credit = resourceCreditRepository.findById(updatedAllocation.resourceCreditId).get();
-		assertFalse(updatedAllocation.amount.compareTo(credit.amount) > 0, 
-				() -> new CommunityAllocationUpdateAboveCreditAmountException());
+		assertFalse(updatedAllocation.amount.compareTo(credit.amount) > 0,
+				CommunityAllocationUpdateAboveCreditAmountException::new);
 	}
 
 	private void assertNotUpdatedBelowDistributed(CommunityAllocation updatedAllocation, CommunityAllocation existingAllocation) {
 		BigDecimal availableAmount = projectAllocationRepository.getAvailableAmount(updatedAllocation.id);
 		BigDecimal distributedAmount = existingAllocation.amount.subtract(availableAmount);
-		assertFalse(distributedAmount.compareTo(updatedAllocation.amount) > 0, 
-				() -> new CommunityAllocationUpdateBelowDistributedAmountException());
+		assertFalse(distributedAmount.compareTo(updatedAllocation.amount) > 0,
+				CommunityAllocationUpdateBelowDistributedAmountException::new);
 	}
 
 	void validateDelete(String id) {
@@ -130,6 +131,11 @@ class CommunityAllocationServiceValidator {
 	private void assertResourceCreditExists(String id) {
 		notNull(id, "ResourceType ID has to be declared.");
 		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist"));
+	}
+
+	private void assertResourceCreditNotExpired(String resourceCreditId) {
+		resourceCreditRepository.findById(resourceCreditId)
+				.ifPresent(credit -> assertFalse(credit.isExpired(), () -> new IllegalArgumentException("Cannot use expired Resource credit")));
 	}
 
 	private void assertCommunityIsNotChanged(CommunityAllocation updatedCommunityAllocation, 
