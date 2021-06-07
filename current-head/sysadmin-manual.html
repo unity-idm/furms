@@ -629,7 +629,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>definition of the <a href="https://www.rabbitmq.com/vhosts.html">RabbitMQ virtual host</a> utilized for the FURMS purposes,</p>
 </li>
 <li>
-<p>definition of the client user name and password with a connection rights to FURMS virtual host, and privileges to provision queues within this virtual host.</p>
+<p>definition of the client user name and password with</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a connection rights to FURMS virtual host,</p>
+</li>
+<li>
+<p>privileges to provision queues within this virtual host</p>
+</li>
+<li>
+<p>permissions to write messages to AMQP default exchange (<code>amq.default</code>)</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -693,15 +706,35 @@ ssl_options.versions.1 = tlsv1.2</code></pre>
 </ul>
 </div>
 <div class="paragraph">
-<p>From Site&#8217;s point of view, broker administrator must define the client user name and password with a connection rights to FURMS virtual host, and privileges to:</p>
+<p>From Site&#8217;s point of view, broker administrator must define:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>write messages to <code>&lt;siteid&gt;-site-pub</code> queue,</p>
+<p>an exchange of <code>direct</code> type within FURMS virtual host with:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name set to <code>&lt;siteid&gt;-site-pub</code> (note that an exchange and site publish queue names are the same),</p>
+</li>
+<li>
+<p>binding created, and configured to route messages with <code>&lt;siteid&gt;-site-pub</code> routing key to <code>&lt;siteid&gt;-site-pub</code> queue</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>the client user name and password with a connection rights to FURMS virtual host, and privileges to:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>write messages to <code>&lt;siteid&gt;-site-pub</code> exchange,</p>
 </li>
 <li>
 <p>read messages from <code>&lt;siteid&gt;-furms-pub</code> queue,</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -1221,19 +1254,31 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 <p>Update the trustStore file: add the public CA certificate which is at the top of the certificates chain used to sign Broker credential.</p>
 </li>
 <li>
-<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file, add the following configuration:</p>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>change the version of furmsVersion to <code>2.0.0</code></p>
+</li>
+<li>
+<p>add the following configuration under the furmsServer:</p>
 <div class="literalblock">
 <div class="content">
-<pre>broker:
-    host:                -- set -- me --
-    port:                -- set -- me --
-    username:            -- set -- me --
-    password:            -- set -- me --
-    virtualHost:         -- set -- me --
-ui:
-    maxSessionInactivityInSeconds:     -- set -- me -- #optional: default 1800
-    secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120</pre>
+<pre>furmsServer:
+	...
+    broker:
+        host:                -- set -- me --
+        port:                -- set -- me --
+        username:            -- set -- me --
+        password:            -- set -- me --
+        virtualHost:         -- set -- me --
+    ui:
+        maxSessionInactivityInSeconds:     -- set -- me -- #optional: default 1800
+        secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120</pre>
 </div>
+</div>
+</li>
+</ul>
 </div>
 </li>
 <li>
@@ -1324,7 +1369,7 @@ ui:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-28 11:16:56 UTC
+Last updated 2021-06-07 14:06:07 UTC
 </div>
 </div>
 <style>
