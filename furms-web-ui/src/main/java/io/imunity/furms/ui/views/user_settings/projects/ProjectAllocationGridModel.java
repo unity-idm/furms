@@ -20,9 +20,10 @@ class ProjectAllocationGridModel {
 	public AmountWithUnit amountWithUnit;
 	public AmountWithUnit consumedWithUnit;
 	public AmountWithUnit remainingWithUnit;
+	public final boolean accessibleForAllProjectMembers;
 
 	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
-	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed) {
+	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
@@ -31,6 +32,7 @@ class ProjectAllocationGridModel {
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
 		this.remainingWithUnit = new AmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
+		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 
 	@Override
@@ -54,6 +56,7 @@ class ProjectAllocationGridModel {
 			", siteName='" + siteName + '\'' +
 			", resourceTypeName='" + resourceTypeName + '\'' +
 			", name='" + name + '\'' +
+			", accessibleForAllProjectMembers=" + accessibleForAllProjectMembers +
 			", amountWithUnit=" + amountWithUnit +
 			'}';
 	}
@@ -71,6 +74,7 @@ class ProjectAllocationGridModel {
 		public String name;
 		public BigDecimal amount;
 		public BigDecimal consumed;
+		private boolean accessibleForAllProjectMembers;
 
 		private ProjectAllocationGridModelBuilder() {
 		}
@@ -82,6 +86,11 @@ class ProjectAllocationGridModel {
 
 		public ProjectAllocationGridModelBuilder projectId(String projectId) {
 			this.projectId = projectId;
+			return this;
+		}
+
+		public ProjectAllocationGridModelBuilder accessibleForAllProjectMembers(boolean accessibleForAllProjectMembers) {
+			this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 			return this;
 		}
 
@@ -116,7 +125,7 @@ class ProjectAllocationGridModel {
 		}
 
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed, accessibleForAllProjectMembers);
 		}
 	}
 }

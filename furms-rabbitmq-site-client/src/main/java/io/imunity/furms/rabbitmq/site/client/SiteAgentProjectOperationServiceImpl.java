@@ -13,7 +13,7 @@ import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

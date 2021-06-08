@@ -13,6 +13,7 @@ import java.util.Set;
 public interface ResourceAccessService {
 	Set<String> findAddedUser(String projectId);
 	Set<UserGrant> findUsersGrants(String projectId);
+	Set<UserGrant> findCurrentUserGrants(String projectId);
 	void grantAccess(GrantAccess grantAccess);
 	void revokeAccess(GrantAccess grantAccess);
 }

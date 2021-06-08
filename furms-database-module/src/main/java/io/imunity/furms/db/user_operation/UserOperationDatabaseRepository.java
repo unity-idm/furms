@@ -6,11 +6,7 @@
 package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserAdditionJob;
-import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
-import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
-import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_operation.*;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Repository;
@@ -119,6 +115,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.userId(userAddition.userId)
 				.projectId(userAddition.projectId.toString())
 				.build())
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+	}
+
+	@Override
+	public String findSiteIdByCorrelationId(CorrelationId correlationId) {
+		return userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(userAddition -> userAddition.siteId.toString())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 

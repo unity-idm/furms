@@ -7,7 +7,7 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.slf4j.Logger;

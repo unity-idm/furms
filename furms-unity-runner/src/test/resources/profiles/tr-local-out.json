@@ -38,6 +38,21 @@
 			"action": {
 				"name": "createAttribute",
 				"parameters": [
+					"fenixUserId",
+					"idsByType['identifier']",
+					"false",
+					"fenixUserId",
+					"fenixUserId"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
 					"username",
 					"idsByType['userName']",
 					"false",

@@ -9,7 +9,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.ssh_keys.*;
-import io.imunity.furms.site.api.message_resolver.SSHKeyOperationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;

@@ -60,7 +60,7 @@ class SiteAgentProjectOperationServiceTest {
 		siteAgentProjectOperationService.installProject(correlationId, projectInstallation);
 		verify(projectInstallationService, timeout(10000)).update(
 			correlationId,
-			new ProjectInstallationResult(null, ProjectInstallationStatus.ACKNOWLEDGED, new Error(null, null))
+			new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.ACKNOWLEDGED, new Error(null, null))
 		);
 		verify(projectInstallationService, timeout(10000)).update(
 			correlationId,

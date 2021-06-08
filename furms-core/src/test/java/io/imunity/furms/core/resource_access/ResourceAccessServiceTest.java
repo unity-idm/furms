@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -37,6 +38,8 @@ class ResourceAccessServiceTest {
 	private ResourceAccessRepository repository;
 	@Mock
 	private UserOperationRepository userRepository;
+	@Mock
+	private AuthzService authzService;
 
 	private ResourceAccessService service;
 	private InOrder orderVerifier;
@@ -54,7 +57,7 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService);
 		orderVerifier = inOrder(repository, siteAgentResourceAccessService);
 	}
 
