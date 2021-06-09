@@ -18,16 +18,20 @@ class ProjectAllocationGridModel {
 	public String resourceTypeName;
 	public String name;
 	public AmountWithUnit amountWithUnit;
+	public AmountWithUnit consumedWithUnit;
+	public AmountWithUnit remainingWithUnit;
 	public final boolean accessibleForAllProjectMembers;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, boolean accessibleForAllProjectMembers) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
+	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
 		this.name = name;
 		this.resourceTypeName = resourceTypeName;
-		this.name = name;
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
+		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
+		this.remainingWithUnit = new AmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
 		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 
@@ -62,13 +66,14 @@ class ProjectAllocationGridModel {
 	}
 
 	public static final class ProjectAllocationGridModelBuilder {
-		private String id;
-		private String projectId;
-		private String siteName;
-		private String resourceTypeName;
-		private ResourceMeasureUnit resourceTypeUnit;
-		private String name;
-		private BigDecimal amount;
+		public String id;
+		public String projectId;
+		public String siteName;
+		public String resourceTypeName;
+		public ResourceMeasureUnit resourceTypeUnit;
+		public String name;
+		public BigDecimal amount;
+		public BigDecimal consumed;
 		private boolean accessibleForAllProjectMembers;
 
 		private ProjectAllocationGridModelBuilder() {
@@ -114,8 +119,13 @@ class ProjectAllocationGridModel {
 			return this;
 		}
 
+		public ProjectAllocationGridModelBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, accessibleForAllProjectMembers);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed, accessibleForAllProjectMembers);
 		}
 	}
 }

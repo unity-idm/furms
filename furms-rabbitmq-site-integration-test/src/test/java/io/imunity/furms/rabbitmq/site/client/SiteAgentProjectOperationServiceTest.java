@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_installation.Error;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
@@ -16,9 +16,8 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
-import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
+import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

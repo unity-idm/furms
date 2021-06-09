@@ -3,13 +3,12 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.AvailabilityStatus;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

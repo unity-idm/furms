@@ -22,7 +22,14 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
 import java.util.Collections;
@@ -30,7 +37,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -65,23 +76,31 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Grid<ProjectAllocationGridModel> createCommunityGrid() {
 		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
 
-		grid.addComponentColumn(allocation -> {
-			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-			return new Div(icon, new Text(allocation.getSiteName()));
+		grid.addComponentColumn(model -> {
+			Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+			return new Div(icon, new Text(model.siteName));
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addColumn(c -> c.name)
+		grid.addColumn(model -> model.name)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.2"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(ProjectAllocationGridModel::getResourceTypeName)
+			.setComparator(model -> model.name.toLowerCase());
+		grid.addColumn(model -> model.resourceTypeName)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.4"))
 			.setSortable(true);
-		grid.addColumn(ProjectAllocationGridModel::getAmountWithUnit)
+		grid.addColumn(model -> model.amountWithUnit)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
+			.setComparator(comparing(c -> c.amountWithUnit.amount));
+		grid.addColumn(model -> model.consumedWithUnit)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
+			.setSortable(true)
+			.setComparator(comparing(c -> c.consumedWithUnit.amount));
+		grid.addColumn(model -> model.remainingWithUnit)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setSortable(true)
+			.setComparator(comparing(c -> c.remainingWithUnit.amount));
 		grid.addComponentColumn(c -> {
 			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
@@ -96,10 +115,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 				.map(installation -> getStatusLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.errorMessage.map(x -> x.message).orElse(null)))
 				.orElseGet(HorizontalLayout::new);
 		})
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(x -> ProjectAllocationDetailsComponentFactory
@@ -172,7 +191,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
 				service.findAllUninstallations(projectId),
-				service.findAllChunks(projectId));
+				service.findAllChunks(projectId))
+			;
 			grid.setItems(loadServicesViewsModels());
 			actionComponent.reload();
 		});

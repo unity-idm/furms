@@ -41,6 +41,7 @@ class ProjectAllocationModelsMapper {
 			.resourceTypeUnit(projectAllocation.resourceType.unit)
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
+			.consumed(projectAllocation.consumed)
 			.build();
 	}
 }

@@ -14,7 +14,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 public class ProjectAllocationDataSnapshot {
 	private final Map<String, ProjectAllocationInstallation> allocationByProjectAllocation;
@@ -22,7 +24,7 @@ public class ProjectAllocationDataSnapshot {
 	private final Map<String, Set<ProjectAllocationChunk>> chunksByProjectAllocationId;
 
 	public ProjectAllocationDataSnapshot(Set<ProjectAllocationInstallation> installations, Set<ProjectDeallocation> uninstallations,
-	                    Set<ProjectAllocationChunk> chunks) {
+	                                     Set<ProjectAllocationChunk> chunks) {
 		this.allocationByProjectAllocation = installations.stream()
 			.collect(toMap(installation -> installation.projectAllocationId, identity()));
 		this.deallocationsByProjectAllocationId = uninstallations.stream()

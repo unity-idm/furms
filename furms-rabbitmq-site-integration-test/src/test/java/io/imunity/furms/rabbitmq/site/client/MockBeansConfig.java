@@ -3,12 +3,23 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
-import io.imunity.furms.rabbitmq.site.client.MessageAuthorizer;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
-import io.imunity.furms.site.api.message_resolver.*;
-import io.imunity.furms.site.api.status_updater.*;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
+import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
+import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
+import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,7 +38,11 @@ class MockBeansConfig {
 	@MockBean
 	private UserAllocationStatusUpdater userAllocationStatusUpdater;
 	@MockBean
+	private ResourceUsageUpdater resourceUsageUpdater;
+
+	@MockBean
 	private MessageAuthorizer messageAuthorizer;
+
 	@MockBean
 	private ProjectAllocationInstallationSiteIdResolver projectAllocationInstallationSiteIdResolver;
 	@MockBean
@@ -42,4 +57,6 @@ class MockBeansConfig {
 	private UserAllocationGrantSiteIdResolver userAllocationGrantSiteIdResolver;
 	@MockBean
 	private ProjectAllocationChunkSiteIdResolver projectAllocationChunkSiteIdResolver;
+	@MockBean
+	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
 }

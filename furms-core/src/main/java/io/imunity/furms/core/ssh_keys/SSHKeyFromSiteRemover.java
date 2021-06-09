@@ -5,21 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
-
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -30,6 +15,20 @@ import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
 
 @Component
 class SSHKeyFromSiteRemover {

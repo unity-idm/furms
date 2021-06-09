@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
- * See LICENCE.txt file for licensing information.
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_installation.*;
 import org.springframework.stereotype.Service;

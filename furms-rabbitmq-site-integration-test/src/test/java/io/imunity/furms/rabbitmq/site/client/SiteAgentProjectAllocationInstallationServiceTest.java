@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.site;
+package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -13,7 +13,6 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import org.junit.jupiter.api.BeforeEach;
