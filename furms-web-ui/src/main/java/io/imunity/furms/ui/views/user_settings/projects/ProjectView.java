@@ -208,8 +208,8 @@ class ProjectView extends FurmsViewComponent {
 			.resourceTypeUnit(projectAllocation.resourceType.unit)
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
-			.accessibleForAllProjectMembers(projectAllocation.resourceType.accessibleForAllProjectMembers)
 			.consumed(projectAllocation.consumed)
+			.accessibleForAllProjectMembers(projectAllocation.resourceType.accessibleForAllProjectMembers)
 			.build();
 	}
 

@@ -181,9 +181,9 @@ class ResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Optional<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(saveEntity.getId());
+		Optional<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(saveEntity.id);
 		assertTrue(resourceUsageEntities.isPresent());
-		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
+		assertEquals(saveEntity.id, resourceUsageEntities.get().id);
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId, resourceUsageEntities.get().projectId);
@@ -200,8 +200,8 @@ class ResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		entityRepository.deleteById(savedEntity.getId());
-		Optional<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(savedEntity.getId());
+		entityRepository.deleteById(savedEntity.id);
+		Optional<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(savedEntity.id);
 
 		assertFalse(resourceUsageEntities.isPresent());
 	}
@@ -228,8 +228,8 @@ class ResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 		Set<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findAllByProjectAllocationId(saveEntity.projectAllocationId);
 		assertEquals(1, resourceUsageEntities.size());
 		ResourceUsageHistoryEntity entity = resourceUsageEntities.iterator().next();
-		assertEquals(saveEntity.getId(), entity.getId());
-		assertEquals(saveEntity.getId(), entity.getId());
+		assertEquals(saveEntity.id, entity.id);
+		assertEquals(saveEntity.id, entity.id);
 		assertEquals(saveEntity.cumulativeConsumption, entity.cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, entity.projectAllocationId);
 		assertEquals(saveEntity.projectId, entity.projectId);
@@ -257,7 +257,7 @@ class ResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 		Set<ResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findAllByProjectId(saveEntity.projectId);
 		assertEquals(1, resourceUsageEntities.size());
 		ResourceUsageHistoryEntity entity = resourceUsageEntities.iterator().next();
-		assertEquals(saveEntity.getId(), entity.getId());
+		assertEquals(saveEntity.id, entity.id);
 		assertEquals(saveEntity.cumulativeConsumption, entity.cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, entity.projectAllocationId);
 		assertEquals(saveEntity.projectId, entity.projectId);

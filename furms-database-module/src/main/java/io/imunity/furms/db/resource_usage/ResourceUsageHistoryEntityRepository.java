@@ -10,7 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Set;
 import java.util.UUID;
 
-public interface ResourceUsageHistoryEntityRepository extends CrudRepository<ResourceUsageHistoryEntity, UUID> {
+public interface ResourceUsageHistoryEntityRepository extends CrudRepository<ResourceUsageHistoryEntity, Long> {
 	Set<ResourceUsageHistoryEntity> findAllByProjectAllocationId(UUID projectAllocationId);
 	Set<ResourceUsageHistoryEntity> findAllByProjectId(UUID projectId);
 }

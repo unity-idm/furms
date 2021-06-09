@@ -5,9 +5,9 @@
 
 package io.imunity.furms.db.resource_usage;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -16,15 +16,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("user_resource_usage_history")
-public class UserResourceUsageHistoryEntity extends UUIDIdentifiable {
-
+public class UserResourceUsageHistoryEntity {
+	@Id
+	public final long id;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final String fenixUserId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime consumedUntil;
 
-	UserResourceUsageHistoryEntity(UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
+	UserResourceUsageHistoryEntity(long id, UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
+		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.fenixUserId = fenixUserId;
@@ -112,7 +114,7 @@ public class UserResourceUsageHistoryEntity extends UUIDIdentifiable {
 		}
 
 		public UserResourceUsageHistoryEntity build() {
-			return new UserResourceUsageHistoryEntity(projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
+			return new UserResourceUsageHistoryEntity(0, projectId, projectAllocationId, fenixUserId, cumulativeConsumption, consumedUntil);
 		}
 	}
 }

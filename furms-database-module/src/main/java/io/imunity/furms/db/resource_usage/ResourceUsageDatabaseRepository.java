@@ -9,8 +9,11 @@ import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +21,9 @@ import java.util.stream.Collectors;
 
 @Repository
 public class ResourceUsageDatabaseRepository implements ResourceUsageRepository {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+
 	private final ResourceUsageEntityRepository resourceUsageEntityRepository;
 	private final ResourceUsageHistoryEntityRepository resourceUsageHistoryEntityRepository;
 	private final UserResourceUsageEntityRepository userResourceUsageEntityRepository;
@@ -43,7 +49,11 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 				.probedAt(resourceUsage.utcProbedAt)
 				.build()
 		);
-		UUID id = resourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(resourceUsage.projectAllocationId))
+		Optional<ResourceUsageEntity> resourceUsageEntity = resourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(resourceUsage.projectAllocationId));
+		if(resourceUsageEntity.isPresent() && resourceUsageEntity.get().cumulativeConsumption.compareTo(resourceUsage.cumulativeConsumption) > 0)
+			LOG.warn("Update resource usage {} to {} from {}", resourceUsageEntity.get().getId(), resourceUsage.cumulativeConsumption, resourceUsageEntity.get().cumulativeConsumption);
+
+		UUID id = resourceUsageEntity
 			.map(UUIDIdentifiable::getId)
 			.orElse(null);
 		resourceUsageEntityRepository.save(
@@ -68,7 +78,11 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 				.consumedUntil(userResourceUsage.utcConsumedUntil)
 				.build()
 		);
-		UUID id = userResourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(userResourceUsage.projectAllocationId))
+		Optional<UserResourceUsageEntity> userResourceUsageEntity = userResourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(userResourceUsage.projectAllocationId));
+		if(userResourceUsageEntity.isPresent() && userResourceUsageEntity.get().cumulativeConsumption.compareTo(userResourceUsage.cumulativeConsumption) > 0)
+			LOG.warn("Update user resource usage {} to {} from {}", userResourceUsageEntity.get().getId(), userResourceUsage.cumulativeConsumption, userResourceUsageEntity.get().cumulativeConsumption);
+
+		UUID id = userResourceUsageEntity
 			.map(UUIDIdentifiable::getId)
 			.orElse(null);
 		userResourceUsageEntityRepository.save(

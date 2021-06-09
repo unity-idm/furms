@@ -181,9 +181,9 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Optional<UserResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(saveEntity.getId());
+		Optional<UserResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(saveEntity.id);
 		assertTrue(resourceUsageEntities.isPresent());
-		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
+		assertEquals(saveEntity.id, resourceUsageEntities.get().id);
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId, resourceUsageEntities.get().projectId);
@@ -201,8 +201,8 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		entityRepository.deleteById(savedEntity.getId());
-		Optional<UserResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(savedEntity.getId());
+		entityRepository.deleteById(savedEntity.id);
+		Optional<UserResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(savedEntity.id);
 
 		assertFalse(resourceUsageEntities.isPresent());
 	}
