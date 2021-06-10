@@ -5,9 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
-import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
-import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
+import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -174,9 +172,7 @@ class ProjectAllocationServiceImplValidatorTest {
 						.build()));
 
 		//when+then
-		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateCreate(communityId, projectAllocation));
-		assertThat(ex.getMessage()).isEqualTo("Cannot use expired Resource credit");
+		assertThrows(ResourceCreditExpiredException.class, () -> validator.validateCreate(communityId, projectAllocation));
 	}
 
 	@Test
@@ -211,9 +207,7 @@ class ProjectAllocationServiceImplValidatorTest {
 				.build()));
 
 		//when+then
-		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateUpdate(communityId, projectAllocation));
-		assertThat(ex.getMessage()).contains("Increased allocation amount for expired projects is not permitted");
+		assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate(communityId, projectAllocation));
 	}
 
 	@Test
@@ -251,7 +245,6 @@ class ProjectAllocationServiceImplValidatorTest {
 			.build();
 
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(false);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate("communityId", projectAllocation));

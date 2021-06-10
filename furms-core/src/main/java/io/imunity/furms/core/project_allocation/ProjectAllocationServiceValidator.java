@@ -50,8 +50,8 @@ class ProjectAllocationServiceValidator {
 	void validateUpdate(String communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
 
-		assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		assertProjectAllocationExists(projectAllocation.id);
+		assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 
 		validateUpdateProjectId(projectAllocation);
 		validateUpdateCommunityAllocationId(projectAllocation);
@@ -87,7 +87,7 @@ class ProjectAllocationServiceValidator {
 	private void assertResourceCreditNotExpired(String communityAllocationId) {
 		communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId)
 				.ifPresent(communityAllocation -> assertFalse(communityAllocation.resourceCredit.isExpired(),
-						() -> new IllegalArgumentException("Cannot use expired Resource credit")));
+						() -> new ResourceCreditExpiredException("Cannot use expired Resource credit")));
 	}
 
 
@@ -175,7 +175,7 @@ class ProjectAllocationServiceValidator {
 			final Optional<ProjectAllocation> oldAllocation = projectAllocationRepository.findById(projectAllocation.id);
 			oldAllocation.ifPresent(old -> assertTrue(
 					old.amount.compareTo(projectAllocation.amount) > 0,
-					() -> new IllegalArgumentException("Increased allocation amount for expired projects is not permitted.")));
+					() -> new ProjectAllocationWrongAmountException("Increased allocation amount for expired projects is not permitted.")));
 		}
 	}
 }
