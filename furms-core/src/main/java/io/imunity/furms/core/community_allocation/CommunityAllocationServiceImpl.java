@@ -5,23 +5,6 @@
 
 package io.imunity.furms.core.community_allocation;
 
-import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static java.util.stream.Collectors.toSet;
-
-import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -31,6 +14,23 @@ import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEve
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class CommunityAllocationServiceImpl implements CommunityAllocationService {
@@ -40,15 +40,18 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	private final CommunityAllocationServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
 	private final ProjectAllocationService projectAllocationService;
+	private final ResourceUsageRepository resourceUsageRepository;
 
 	CommunityAllocationServiceImpl(CommunityAllocationRepository communityAllocationRepository,
 	                               CommunityAllocationServiceValidator validator,
 	                               ApplicationEventPublisher publisher,
-	                               ProjectAllocationService projectAllocationService) {
+	                               ProjectAllocationService projectAllocationService,
+	                               ResourceUsageRepository resourceUsageRepository) {
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.projectAllocationService = projectAllocationService;
+		this.resourceUsageRepository = resourceUsageRepository;
 	}
 
 	@Override
@@ -84,6 +87,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 		final Set<CommunityAllocationResolved> communityAllocations = includedExpired
 				? communityAllocationRepository.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name)
 				: communityAllocationRepository.findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name);
+		resourceUsageRepository.findResourceUsagesSumGroupedByCommunityId()
 		return communityAllocations.stream()
 				.map(credit -> CommunityAllocationResolved.builder()
 					.id(credit.id)

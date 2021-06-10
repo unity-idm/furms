@@ -13,5 +13,6 @@ import java.util.UUID;
 
 public interface ResourceUsageEntityRepository extends CrudRepository<ResourceUsageEntity, UUID> {
 	Optional<ResourceUsageEntity> findByProjectAllocationId(UUID projectAllocationId);
+	Set<ResourceUsageEntity> findAllBySiteId(UUID siteId);
 	Set<ResourceUsageEntity> findAllByProjectId(UUID projectId);
 }

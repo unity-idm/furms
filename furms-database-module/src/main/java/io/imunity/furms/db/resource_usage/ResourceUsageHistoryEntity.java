@@ -18,13 +18,19 @@ import java.util.UUID;
 public class ResourceUsageHistoryEntity {
 	@Id
 	public final long id;
+	public final UUID siteId;
+	public final UUID communityId;
+	public final UUID resourceCreditId;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageHistoryEntity(long id, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
+	ResourceUsageHistoryEntity(long id, UUID siteId, UUID communityId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.id = id;
+		this.siteId = siteId;
+		this.communityId = communityId;
+		this.resourceCreditId = resourceCreditId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.cumulativeConsumption = cumulativeConsumption;
@@ -46,6 +52,9 @@ public class ResourceUsageHistoryEntity {
 		if (o == null || getClass() != o.getClass()) return false;
 		ResourceUsageHistoryEntity that = (ResourceUsageHistoryEntity) o;
 		return Objects.equals(id, that.id) &&
+			Objects.equals(siteId, that.siteId) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(resourceCreditId, that.resourceCreditId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
 			Objects.equals(cumulativeConsumption, that.cumulativeConsumption) &&
@@ -54,13 +63,16 @@ public class ResourceUsageHistoryEntity {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+		return Objects.hash(id, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 	}
 
 	@Override
 	public String toString() {
 		return "ResourceUsageEntity{" +
 			"id=" + id +
+			", siteId=" + siteId +
+			", communityId=" + communityId +
+			", resourceCreditId=" + resourceCreditId +
 			", projectId=" + projectId +
 			", projectAllocationId=" + projectAllocationId +
 			", cumulativeConsumption=" + cumulativeConsumption +
@@ -73,12 +85,30 @@ public class ResourceUsageHistoryEntity {
 	}
 
 	public static final class ResourceUsageHistoryEntityBuilder {
+		private UUID siteId;
+		private UUID communityId;
+		private UUID resourceCreditId;
 		private UUID projectId;
 		private UUID projectAllocationId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime probedAt;
 
 		private ResourceUsageHistoryEntityBuilder() {
+		}
+
+		public ResourceUsageHistoryEntityBuilder siteId(UUID siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
+		public ResourceUsageHistoryEntityBuilder resourceCreditId(UUID resourceCreditId) {
+			this.resourceCreditId = resourceCreditId;
+			return this;
+		}
+
+		public ResourceUsageHistoryEntityBuilder communityId(UUID communityId) {
+			this.communityId = communityId;
+			return this;
 		}
 
 		public ResourceUsageHistoryEntityBuilder projectId(UUID projectId) {
@@ -102,7 +132,7 @@ public class ResourceUsageHistoryEntity {
 		}
 
 		public ResourceUsageHistoryEntity build() {
-			return new ResourceUsageHistoryEntity(0, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+			return new ResourceUsageHistoryEntity(0, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 		}
 	}
 }
