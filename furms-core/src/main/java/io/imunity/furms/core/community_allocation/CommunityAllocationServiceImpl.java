@@ -13,6 +13,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
+import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.core.utils.ResourceCreditsUtils.includedFullyDistributedFilter;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -75,7 +77,20 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
-		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId);
+		ResourceUsageSum resourceUsageSum = resourceUsageRepository.findResourceUsagesSumGroupedByCommunityAllocationId(communityId);
+		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId).stream()
+			.map(credit -> CommunityAllocationResolved.builder()
+				.id(credit.id)
+				.site(credit.site)
+				.resourceType(credit.resourceType)
+				.resourceCredit(credit.resourceCredit)
+				.communityId(credit.communityId)
+				.name(credit.name)
+				.amount(credit.amount)
+				.remaining(projectAllocationService.getAvailableAmount(communityId, credit.id))
+				.consumed(resourceUsageSum.get(credit.id))
+				.build())
+			.collect(Collectors.toSet());
 	}
 
 	@Override
@@ -87,7 +102,6 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 		final Set<CommunityAllocationResolved> communityAllocations = includedExpired
 				? communityAllocationRepository.findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name)
 				: communityAllocationRepository.findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(communityId, name);
-		resourceUsageRepository.findResourceUsagesSumGroupedByCommunityId()
 		return communityAllocations.stream()
 				.map(credit -> CommunityAllocationResolved.builder()
 					.id(credit.id)

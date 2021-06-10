@@ -18,30 +18,22 @@ class CommunityAllocationGridModel {
 	public String resourceCreditName;
 	public String name;
 	public AmountWithUnit amountWithUnit;
+	public AmountWithUnit distributedWithUnit;
+	public AmountWithUnit remainingWithUnit;
+	public BigDecimal consumed;
 
-	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String resourceCreditName, String name, BigDecimal amount) {
+	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName,
+	                             ResourceMeasureUnit resourceTypeUnit, String resourceCreditName,
+	                             String name, BigDecimal amount, BigDecimal remaining, BigDecimal consumed) {
 		this.id = id;
 		this.siteName = siteName;
 		this.resourceTypeName = resourceTypeName;
 		this.resourceCreditName = resourceCreditName;
 		this.name = name;
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
-	}
-
-	String getSiteName() {
-		return siteName;
-	}
-
-	String getResourceTypeName() {
-		return resourceTypeName;
-	}
-
-	String getResourceCreditName() {
-		return resourceCreditName;
-	}
-
-	AmountWithUnit getAmountWithUnit() {
-		return amountWithUnit;
+		this.distributedWithUnit = new AmountWithUnit(amount.subtract(remaining), resourceTypeUnit);
+		this.remainingWithUnit = new AmountWithUnit(remaining, resourceTypeUnit);
+		this.consumed = consumed;
 	}
 
 	@Override
@@ -66,6 +58,9 @@ class CommunityAllocationGridModel {
 			", resourceCreditName='" + resourceCreditName + '\'' +
 			", name='" + name + '\'' +
 			", amountWithUnit=" + amountWithUnit +
+			", distributedWithUnit=" + distributedWithUnit +
+			", remainingWithUnit=" + remainingWithUnit +
+			", consumed=" + consumed +
 			'}';
 	}
 
@@ -81,6 +76,8 @@ class CommunityAllocationGridModel {
 		public String resourceCreditName;
 		public String name;
 		public BigDecimal amount;
+		public BigDecimal remaining;
+		public BigDecimal consumed;
 
 		private CommunityAllocationGridModelBuilder() {
 		}
@@ -120,8 +117,18 @@ class CommunityAllocationGridModel {
 			return this;
 		}
 
+		public CommunityAllocationGridModelBuilder remaining(BigDecimal remaining) {
+			this.remaining = remaining;
+			return this;
+		}
+
+		public CommunityAllocationGridModelBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
 		public CommunityAllocationGridModel build() {
-			return new CommunityAllocationGridModel(id, siteName, resourceTypeName, resourceTypeUnit, resourceCreditName, name, amount);
+			return new CommunityAllocationGridModel(id, siteName, resourceTypeName, resourceTypeUnit, resourceCreditName, name, amount, remaining, consumed);
 		}
 	}
 }

@@ -20,16 +20,18 @@ public class ResourceUsageHistoryEntity {
 	public final long id;
 	public final UUID siteId;
 	public final UUID communityId;
+	public final UUID communityAllocationId;
 	public final UUID resourceCreditId;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageHistoryEntity(long id, UUID siteId, UUID communityId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
+	ResourceUsageHistoryEntity(long id, UUID siteId, UUID communityId, UUID communityAllocationId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.id = id;
 		this.siteId = siteId;
 		this.communityId = communityId;
+		this.communityAllocationId = communityAllocationId;
 		this.resourceCreditId = resourceCreditId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -54,6 +56,7 @@ public class ResourceUsageHistoryEntity {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(communityAllocationId, that.communityAllocationId) &&
 			Objects.equals(resourceCreditId, that.resourceCreditId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
@@ -63,7 +66,7 @@ public class ResourceUsageHistoryEntity {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+		return Objects.hash(id, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 	}
 
 	@Override
@@ -72,6 +75,7 @@ public class ResourceUsageHistoryEntity {
 			"id=" + id +
 			", siteId=" + siteId +
 			", communityId=" + communityId +
+			", communityAllocationId=" + communityAllocationId +
 			", resourceCreditId=" + resourceCreditId +
 			", projectId=" + projectId +
 			", projectAllocationId=" + projectAllocationId +
@@ -87,6 +91,7 @@ public class ResourceUsageHistoryEntity {
 	public static final class ResourceUsageHistoryEntityBuilder {
 		private UUID siteId;
 		private UUID communityId;
+		private UUID communityAllocationId;
 		private UUID resourceCreditId;
 		private UUID projectId;
 		private UUID projectAllocationId;
@@ -111,6 +116,11 @@ public class ResourceUsageHistoryEntity {
 			return this;
 		}
 
+		public ResourceUsageHistoryEntityBuilder communityAllocationId(UUID communityAllocationId) {
+			this.communityAllocationId = communityAllocationId;
+			return this;
+		}
+
 		public ResourceUsageHistoryEntityBuilder projectId(UUID projectId) {
 			this.projectId = projectId;
 			return this;
@@ -132,7 +142,7 @@ public class ResourceUsageHistoryEntity {
 		}
 
 		public ResourceUsageHistoryEntity build() {
-			return new ResourceUsageHistoryEntity(0, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+			return new ResourceUsageHistoryEntity(0, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 		}
 	}
 }

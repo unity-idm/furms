@@ -5,36 +5,49 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 class ResourceCreditViewModel {
 	private final String id;
 	private final String siteId;
-	private String resourceTypeId;
+	private String resourceTypeName;
 	private String name;
 	private Boolean split = true;
-	private BigDecimal amount;
+	private AmountWithUnit amount;
+	private AmountWithUnit distributed;
+	private AmountWithUnit remaining;
+	private BigDecimal consumed;
 	private ZonedDateTime createTime;
 	private ZonedDateTime startTime;
 	private ZonedDateTime endTime;
 
 	public ResourceCreditViewModel(String id,
 			String siteId,
-			String resourceTypeId,
+			String resourceTypeName,
 			String name,
 			Boolean split,
 			BigDecimal amount,
+			BigDecimal remaining,
+			BigDecimal consumed,
+			ResourceMeasureUnit unit,
 			ZonedDateTime createTime,
 			ZonedDateTime startTime,
 			ZonedDateTime endTime) {
 		this.id = id;
 		this.siteId = siteId;
-		this.resourceTypeId = resourceTypeId;
+		this.resourceTypeName = resourceTypeName;
 		this.name = name;
 		this.split = split;
-		this.amount = amount;
+		this.amount = new AmountWithUnit(amount, unit);
+		this.distributed = new AmountWithUnit(amount.subtract(remaining), unit);
+		this.remaining = new AmountWithUnit(remaining, unit);
+		this.consumed = consumed;
 		this.createTime = createTime;
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -42,7 +55,7 @@ class ResourceCreditViewModel {
 
 	public ResourceCreditViewModel(String siteId) {
 		this.id = null;
-		this.resourceTypeId = null;
+		this.resourceTypeName = null;
 		this.siteId = siteId;
 	}
 
@@ -54,12 +67,12 @@ class ResourceCreditViewModel {
 		return siteId;
 	}
 
-	public String getResourceTypeId() {
-		return resourceTypeId;
+	public String getResourceTypeName() {
+		return resourceTypeName;
 	}
 
-	public void setResourceTypeId(String resourceTypeId) {
-		this.resourceTypeId = resourceTypeId;
+	public void setResourceTypeName(String resourceTypeName) {
+		this.resourceTypeName = resourceTypeName;
 	}
 
 	public String getName() {
@@ -78,12 +91,12 @@ class ResourceCreditViewModel {
 		this.split = split;
 	}
 
-	public BigDecimal getAmount() {
+	public AmountWithUnit getAmount() {
 		return amount;
 	}
 
 	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
+		this.amount = new AmountWithUnit(amount, Optional.ofNullable(this.amount).map(x -> x.unit).orElse(null));
 	}
 
 	public ZonedDateTime getStartTime() {
@@ -110,6 +123,19 @@ class ResourceCreditViewModel {
 		this.createTime = createTime;
 	}
 
+	public AmountWithUnit getDistributed() {
+		return distributed;
+	}
+
+	public AmountWithUnit getRemaining() {
+		return remaining;
+	}
+
+
+	public BigDecimal getConsumed() {
+		return consumed;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -128,10 +154,13 @@ class ResourceCreditViewModel {
 		return "ResourceCreditViewModel{" +
 			"id='" + id + '\'' +
 			", siteId='" + siteId + '\'' +
-			", resourceTypeId='" + resourceTypeId + '\'' +
+			", resourceTypeId='" + resourceTypeName + '\'' +
 			", name='" + name + '\'' +
 			", split=" + split +
 			", amount=" + amount +
+			", distributed=" + distributed +
+			", remaining=" + remaining +
+			", consumed=" + consumed +
 			", startTime=" + startTime +
 			", endTime=" + endTime +
 			'}';
@@ -144,10 +173,13 @@ class ResourceCreditViewModel {
 	public static final class ResourceCreditViewModelBuilder {
 		private  String id;
 		private String siteId;
-		private String resourceTypeId;
+		private String resourceTypeName;
 		private String name;
 		private Boolean split;
 		private BigDecimal amount;
+		private BigDecimal remaining;
+		private BigDecimal consumed;
+		private ResourceMeasureUnit unit;
 		private ZonedDateTime createTime;
 		private ZonedDateTime startTime;
 		private ZonedDateTime endTime;
@@ -165,8 +197,8 @@ class ResourceCreditViewModel {
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder resourceTypeId(String resourceTypeId) {
-			this.resourceTypeId = resourceTypeId;
+		public ResourceCreditViewModelBuilder resourceTypeName(String resourceTypeName) {
+			this.resourceTypeName = resourceTypeName;
 			return this;
 		}
 
@@ -182,6 +214,21 @@ class ResourceCreditViewModel {
 
 		public ResourceCreditViewModelBuilder amount(BigDecimal amount) {
 			this.amount = amount;
+			return this;
+		}
+
+		public ResourceCreditViewModelBuilder remaining(BigDecimal remaining) {
+			this.remaining = remaining;
+			return this;
+		}
+
+		public ResourceCreditViewModelBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
+		public ResourceCreditViewModelBuilder unit(ResourceMeasureUnit unit) {
+			this.unit = unit;
 			return this;
 		}
 
@@ -201,8 +248,8 @@ class ResourceCreditViewModel {
 		}
 
 		public ResourceCreditViewModel build() {
-			return new ResourceCreditViewModel(id, siteId, resourceTypeId, name, split, amount, createTime, startTime,
-					endTime);
+			return new ResourceCreditViewModel(id, siteId, resourceTypeName, name, split, amount, remaining, consumed,
+				unit, createTime, startTime, endTime);
 		}
 	}
 }

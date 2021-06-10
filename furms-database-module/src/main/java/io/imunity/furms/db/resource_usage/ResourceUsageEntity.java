@@ -20,15 +20,17 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID communityId;
 	public final UUID resourceCreditId;
+	public final UUID communityAllocationId;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageEntity(UUID id, UUID siteId, UUID communityId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
+	ResourceUsageEntity(UUID id, UUID siteId, UUID communityId, UUID communityAllocationId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.id = id;
 		this.siteId = siteId;
 		this.communityId = communityId;
+		this.communityAllocationId = communityAllocationId;
 		this.resourceCreditId = resourceCreditId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -53,6 +55,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(communityAllocationId, that.communityAllocationId) &&
 			Objects.equals(resourceCreditId, that.resourceCreditId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
@@ -62,7 +65,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+		return Objects.hash(id, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 	}
 
 	@Override
@@ -70,6 +73,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		return "ResourceUsageEntity{" +
 			"id=" + id +
 			", siteId=" + siteId +
+			", communityAllocationId=" + communityAllocationId +
 			", communityId=" + communityId +
 			", resourceCreditId=" + resourceCreditId +
 			", projectId=" + projectId +
@@ -87,6 +91,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		private UUID id;
 		private UUID siteId;
 		private UUID communityId;
+		private UUID communityAllocationId;
 		private UUID projectId;
 		private UUID resourceCreditId;
 		private UUID projectAllocationId;
@@ -106,13 +111,18 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ResourceUsageEntityBuilder communityId(UUID communityId) {
+			this.communityId = communityId;
+			return this;
+		}
+
 		public ResourceUsageEntityBuilder siteId(UUID siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ResourceUsageEntityBuilder communityId(UUID communityId) {
-			this.communityId = communityId;
+		public ResourceUsageEntityBuilder communityAllocationId(UUID communityId) {
+			this.communityAllocationId = communityId;
 			return this;
 		}
 
@@ -137,7 +147,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		}
 
 		public ResourceUsageEntity build() {
-			return new ResourceUsageEntity(id, siteId, communityId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+			return new ResourceUsageEntity(id, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 		}
 	}
 }

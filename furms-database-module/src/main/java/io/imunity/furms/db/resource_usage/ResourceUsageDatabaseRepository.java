@@ -10,7 +10,6 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
-import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
@@ -34,18 +32,15 @@ import static java.util.stream.Collectors.toSet;
 public class ResourceUsageDatabaseRepository implements ResourceUsageRepository {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ResourceUsageEntityRepository resourceUsageEntityRepository;
 	private final ResourceUsageHistoryEntityRepository resourceUsageHistoryEntityRepository;
 	private final UserResourceUsageEntityRepository userResourceUsageEntityRepository;
 	private final UserResourceUsageHistoryEntityRepository userResourceUsageHistoryEntityRepository;
 
-	ResourceUsageDatabaseRepository(ProjectAllocationRepository projectAllocationRepository,
-	                                ResourceUsageEntityRepository resourceUsageEntityRepository,
+	ResourceUsageDatabaseRepository(ResourceUsageEntityRepository resourceUsageEntityRepository,
 	                                ResourceUsageHistoryEntityRepository resourceUsageHistoryEntityRepository,
 	                                UserResourceUsageEntityRepository userResourceUsageEntityRepository,
 	                                UserResourceUsageHistoryEntityRepository userResourceUsageHistoryEntityRepository) {
-		this.projectAllocationRepository = projectAllocationRepository;
 		this.resourceUsageEntityRepository = resourceUsageEntityRepository;
 		this.resourceUsageHistoryEntityRepository = resourceUsageHistoryEntityRepository;
 		this.userResourceUsageEntityRepository = userResourceUsageEntityRepository;
@@ -53,13 +48,12 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 	}
 
 	@Override
-	public void create(ResourceUsage resourceUsage) {
-		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(resourceUsage.projectAllocationId)
-			.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + resourceUsage.projectAllocationId));
+	public void create(ResourceUsage resourceUsage, ProjectAllocationResolved projectAllocationResolved) {
 		resourceUsageHistoryEntityRepository.save(
 			ResourceUsageHistoryEntity.builder()
 				.siteId(UUID.fromString(projectAllocationResolved.site.getId()))
 				.communityId(UUID.fromString(projectAllocationResolved.communityAllocation.communityId))
+				.communityAllocationId(UUID.fromString(projectAllocationResolved.communityAllocation.id))
 				.resourceCreditId(UUID.fromString(projectAllocationResolved.resourceCredit.id))
 				.projectId(UUID.fromString(resourceUsage.projectId))
 				.projectAllocationId(UUID.fromString(resourceUsage.projectAllocationId))
@@ -79,6 +73,7 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 				.id(id)
 				.siteId(UUID.fromString(projectAllocationResolved.site.getId()))
 				.communityId(UUID.fromString(projectAllocationResolved.communityAllocation.communityId))
+				.communityAllocationId(UUID.fromString(projectAllocationResolved.communityAllocation.id))
 				.resourceCreditId(UUID.fromString(projectAllocationResolved.resourceCredit.id))
 				.projectId(UUID.fromString(resourceUsage.projectId))
 				.projectAllocationId(UUID.fromString(resourceUsage.projectAllocationId))
@@ -125,9 +120,9 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 	}
 
 	@Override
-	public ResourceUsageSum findResourceUsagesSumGroupedByCommunityId() {
-		return StreamSupport.stream(resourceUsageEntityRepository.findAll().spliterator(), false)
-			.collect(getResourceUsageSumCollector(resourceUsage -> resourceUsage.communityId.toString()));
+	public ResourceUsageSum findResourceUsagesSumGroupedByCommunityAllocationId(String communityId) {
+		return resourceUsageEntityRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+			.collect(getResourceUsageSumCollector(resourceUsage -> resourceUsage.communityAllocationId.toString()));
 	}
 
 	private Collector<ResourceUsageEntity, Object, ResourceUsageSum> getResourceUsageSumCollector(Function<ResourceUsageEntity, String> classifier) {

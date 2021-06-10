@@ -45,10 +45,6 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 			.collect(toSet());
 	}
 
-	private String trans(String projectAllocationId){
-		return "resource_credit_id"
-	}
-
 	@Override
 	public Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId) {
 		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId))

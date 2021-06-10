@@ -8,6 +8,7 @@ CREATE TABLE resource_usage (
     site_id UUID NOT NULL,
     community_id UUID NOT NULL,
     resource_credit_id UUID NOT NULL,
+    community_allocation_id UUID NOT NULL,
     project_id UUID NOT NULL,
     project_allocation_id UUID NOT NULL,
     cumulative_consumption DECIMAL,
@@ -16,6 +17,7 @@ CREATE TABLE resource_usage (
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
     FOREIGN KEY (community_id) REFERENCES community(id) ON DELETE CASCADE,
     FOREIGN KEY (resource_credit_id) REFERENCES resource_credit(id) ON DELETE CASCADE,
+    FOREIGN KEY (community_allocation_id) REFERENCES community_allocation(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
     FOREIGN KEY (project_allocation_id) REFERENCES project_allocation(id) ON DELETE CASCADE
 );
@@ -25,6 +27,7 @@ CREATE TABLE resource_usage_history (
     site_id UUID NOT NULL,
     community_id UUID NOT NULL,
     resource_credit_id UUID NOT NULL,
+    community_allocation_id UUID NOT NULL,
     project_id UUID NOT NULL,
     project_allocation_id UUID NOT NULL,
     cumulative_consumption DECIMAL,
@@ -32,6 +35,7 @@ CREATE TABLE resource_usage_history (
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
     FOREIGN KEY (community_id) REFERENCES community(id) ON DELETE CASCADE,
     FOREIGN KEY (resource_credit_id) REFERENCES resource_credit(id) ON DELETE CASCADE,
+    FOREIGN KEY (community_allocation_id) REFERENCES community_allocation(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE,
     FOREIGN KEY (project_allocation_id) REFERENCES project_allocation(id) ON DELETE CASCADE
 );
