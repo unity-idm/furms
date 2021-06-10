@@ -191,9 +191,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
 				service.findAllUninstallations(projectId),
-				service.findAllChunks(projectId))
-			;
-			grid.setItems(loadServicesViewsModels());
+				service.findAllChunks(projectId));
+			final List<ProjectAllocationGridModel> items = loadServicesViewsModels();
+			items.stream()
+					.filter(grid::isDetailsVisible)
+					.findFirst()
+					.ifPresent(item -> grid.setDetailsVisible(item, false));
+			grid.setItems(items);
+			grid.getElement().executeJs("this.notifyResize()");
 			actionComponent.reload();
 		});
 	}
