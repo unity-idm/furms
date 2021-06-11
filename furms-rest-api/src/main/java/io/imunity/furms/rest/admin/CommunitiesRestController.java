@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 //@formatter:off
 @RestController
-@RequestMapping(value = "/v1/communities", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/rest-api/v1/communities", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Communities Endpoint",
 	description = "FURMS administration endpoint that provides comprehensive access to communities "
 			+ "as well as exposes basic operations that can be done in the context of communities.")
