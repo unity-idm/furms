@@ -143,7 +143,7 @@ class ProjectDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Set<Project> all = repository.findAll(communityId.toString());
+		Set<Project> all = repository.findAllByCommunityId(communityId.toString());
 
 		//then
 		assertThat(all).hasSize(2);

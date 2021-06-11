@@ -68,7 +68,7 @@ class MembershipResolver {
 
 	private Set<ProjectMembership> resolveProjectsMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
-		Map<String, Project> communityProjects = projectsDAO.findAll(community.id.toString()).stream()
+		Map<String, Project> communityProjects = projectsDAO.findAllByCommunityId(community.id.toString()).stream()
 				.collect(Collectors.toMap(proj -> proj.getId(), proj -> proj));
 		return attributesByResource.entrySet().stream()
 			.filter(entry -> entry.getKey().type == ResourceType.PROJECT)

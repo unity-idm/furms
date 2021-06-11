@@ -14,6 +14,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -37,20 +38,22 @@ import static java.util.Optional.ofNullable;
 @Route(value = "community/admin/project/allocation/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project-allocation.form.page.title")
 class ProjectAllocationFormView extends FurmsViewComponent {
+
+	private final ProjectAllocationService projectAllocationService;
+
 	private final Binder<ProjectAllocationViewModel> binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
 	private final ProjectAllocationFormComponent projectAllocationFormComponent;
-	private final ProjectAllocationService projectAllocationService;
 	private final ProjectAllocationComboBoxesModelsResolver resolver;
+
 	private final String communityId;
-
 	private String projectId;
-
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectAllocationFormView(ProjectAllocationService projectAllocationService) {
+	ProjectAllocationFormView(ProjectAllocationService projectAllocationService,
+							  CommunityAllocationService communityAllocationService) {
 		this.projectAllocationService = projectAllocationService;
 		this.resolver = new ProjectAllocationComboBoxesModelsResolver(
-			projectAllocationService.findCorrelatedCommunityAllocation(getCurrentResourceId()),
+			communityAllocationService.findAllNotExpiredByCommunityIdWithRelatedObjects(getCurrentResourceId()),
 			projectAllocationService::getAvailableAmount
 		);
 		this.projectAllocationFormComponent = new ProjectAllocationFormComponent(binder, resolver);

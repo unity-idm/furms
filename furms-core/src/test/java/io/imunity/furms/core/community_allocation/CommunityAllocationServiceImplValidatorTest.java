@@ -14,6 +14,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -129,6 +132,28 @@ class CommunityAllocationServiceImplValidatorTest {
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(communityAllocation));
+	}
+
+	@Test
+	void shouldNotPassCreateForExpiredResourceCredit() {
+		//given
+		CommunityAllocation communityAllocation = CommunityAllocation.builder()
+				.communityId("id")
+				.resourceCreditId("id")
+				.name("name")
+				.build();
+
+		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
+		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
+		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId))
+				.thenReturn(Optional.of(ResourceCredit.builder()
+					.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1l))
+					.build()));
+
+		//when+then
+		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+				() -> validator.validateCreate(communityAllocation));
+		assertThat(ex.getMessage()).isEqualTo("Cannot use expired Resource credit");
 	}
 
 	@Test

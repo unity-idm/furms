@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
@@ -75,7 +76,16 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 				return;
 			}
 			String resourceTypeId = event.getValue().id;
-			resourceCreditComboBox.setItems(resolver.getResourceCredits(resourceTypeId));
+			Set<ResourceCreditComboBoxModel> resourceCredits = resolver.getResourceCredits(resourceTypeId);
+			if (resourceCredits.isEmpty()) {
+				resourceCreditComboBox.setReadOnly(true);
+				resourceCreditComboBox.setInvalid(true);
+				resourceCreditComboBox.setErrorMessage(getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit.empty"));
+			} else {
+				resourceCreditComboBox.setReadOnly(false);
+				resourceCreditComboBox.setInvalid(false);
+				resourceCreditComboBox.setItems(resourceCredits);
+			}
 			createUnitLabel(amountField, event.getValue().unit);
 		});
 		formLayout.addFormItem(amountField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));

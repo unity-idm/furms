@@ -25,9 +25,8 @@ class ProjectAllocationComboBoxesModelsResolver {
 	private final BiFunction<String, String, BigDecimal> functionAvailableAmount;
 	private final ResourceTypeComboBoxModel defaultResourceType;
 
-	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations, 
-			BiFunction<String, String, BigDecimal> functionAvailableAmount) {
-		
+	ProjectAllocationComboBoxesModelsResolver(Set<CommunityAllocationResolved> communityAllocations,
+											  BiFunction<String, String, BigDecimal> functionAvailableAmount) {
 		this.resourceTypeComboBoxModels = communityAllocations.stream()
 			.map(allocation -> new ResourceTypeComboBoxModel(allocation.resourceType.id, allocation.resourceType.name))
 			.collect(toSet());

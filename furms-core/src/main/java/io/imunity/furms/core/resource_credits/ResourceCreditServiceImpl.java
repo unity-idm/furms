@@ -71,8 +71,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId) {
-		return resourceCreditRepository.findAllByResourceTypeId(resourceTypeId);
+	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
+		return resourceCreditRepository.findAllNotExpiredByResourceTypeId(resourceTypeId);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	                                                                 boolean includedExpired) {
 		final Set<ResourceCredit> resourceCredits = includedExpired
 				? resourceCreditRepository.findAllByNameOrSiteName(name)
-				: resourceCreditRepository.findAllByNameOrSiteNameWithoutExpired(name);
+				: resourceCreditRepository.findAllNotExpiredByNameOrSiteName(name);
 		return resourceCredits.stream().map(credit -> ResourceCreditWithAllocations.builder()
 					.id(credit.id)
 					.name(credit.name)

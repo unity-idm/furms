@@ -66,7 +66,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		CommunityAllocationComboBoxesModelsResolver resolver = new CommunityAllocationComboBoxesModelsResolver(
 			siteService.findAll(),
 			resourceTypeService::findAll,
-			resourceCreditService::findAllByResourceTypeId,
+			resourceCreditService::findAllNotExpiredByResourceTypeId,
 			this::getAvailableAmount
 		);
 		this.communityAllocationFormComponent = new CommunityAllocationFormComponent(binder, resolver);

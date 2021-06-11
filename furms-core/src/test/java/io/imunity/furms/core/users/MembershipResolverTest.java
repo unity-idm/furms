@@ -52,9 +52,9 @@ public class MembershipResolverTest {
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
 		when(communitiesDAO.findById(COMMUNITY2_ID.toString())).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY2_ID.toString()).name("c2").build()));
-		when(projectsDAO.findAll(COMMUNITY1_ID.toString())).thenReturn(Set.of(
+		when(projectsDAO.findAllByCommunityId(COMMUNITY1_ID.toString())).thenReturn(Set.of(
 				Project.builder().id(PROJECT1_ID.toString()).name("p1").build()));
-		when(projectsDAO.findAll(COMMUNITY2_ID.toString())).thenReturn(Set.of(
+		when(projectsDAO.findAllByCommunityId(COMMUNITY2_ID.toString())).thenReturn(Set.of(
 				Project.builder().id(PROJECT2_ID.toString()).name("p2").build()));
 		
 		
@@ -79,7 +79,7 @@ public class MembershipResolverTest {
 				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
-		when(projectsDAO.findAll(COMMUNITY1_ID.toString())).thenReturn(Set.of(
+		when(projectsDAO.findAllByCommunityId(COMMUNITY1_ID.toString())).thenReturn(Set.of(
 				Project.builder().id(PROJECT1_ID.toString()).name("p1").build()));
 		
 		Set<CommunityMembership> membership = resolver.resolveCommunitiesMembership(attrByResource);
@@ -98,7 +98,7 @@ public class MembershipResolverTest {
 				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
-		when(projectsDAO.findAll(COMMUNITY1_ID.toString())).thenReturn(Collections.emptySet());
+		when(projectsDAO.findAllByCommunityId(COMMUNITY1_ID.toString())).thenReturn(Collections.emptySet());
 		
 		Set<CommunityMembership> membership = resolver.resolveCommunitiesMembership(attrByResource);
 		
@@ -130,7 +130,7 @@ public class MembershipResolverTest {
 				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(COMMUNITY1_ID.toString())).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
-		when(projectsDAO.findAll(COMMUNITY1_ID.toString())).thenReturn(Set.of(
+		when(projectsDAO.findAllByCommunityId(COMMUNITY1_ID.toString())).thenReturn(Set.of(
 				Project.builder().id(PROJECT2_ID.toString()).name("p2").build()));
 		
 		

@@ -9,6 +9,7 @@ import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -17,6 +18,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -27,6 +30,7 @@ import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -51,7 +55,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		this.service = service;
 		this.projectId = projectId;
 		this.grid = createCommunityGrid();
-		this.actionComponent = new ActionComponent(projectId, () -> projectService.isProjectInTerminalState(communityId, projectId));
+		this.actionComponent = new ActionComponent(
+				projectId,
+				() -> projectService.isProjectExpired(projectId),
+				() -> projectService.isProjectInTerminalState(communityId, projectId));
 
 		loadGridContent();
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
@@ -190,34 +197,30 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private static class ActionComponent extends Div {
 
 		private final String projectId;
+		private final Supplier<Boolean> isProjectExpired;
 		private final Supplier<Boolean> isProjectInTerminalState;
 
-		ActionComponent(String projectId, Supplier<Boolean> isProjectInTerminalState) {
+		ActionComponent(String projectId,
+						Supplier<Boolean> isProjectExpired,
+						Supplier<Boolean> isProjectInTerminalState) {
 			this.projectId = projectId;
+			this.isProjectExpired = isProjectExpired;
 			this.isProjectInTerminalState = isProjectInTerminalState;
 			reload();
 		}
 
 		void reload() {
 			removeAll();
-			if (isProjectInTerminalState.get()) {
-				add(new RouterGridLink(
-					button(),
-					null,
-					ProjectAllocationFormView.class,
-					"projectId",
-					projectId));
-			} else {
-				Button button = button();
-				button.setEnabled(false);
-				add(button);
-			}
-		}
 
-		private Button button() {
-			Button button = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
-			button.setClassName("reload-disable");
-			return button;
+			final Button allocateButton = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
+			if (isProjectInTerminalState.get() && !isProjectExpired.get()) {
+				allocateButton.addClickListener(x -> UI.getCurrent().navigate(
+						new RouterLink("", ProjectAllocationFormView.class).getHref(),
+						QueryParameters.simple(Map.of("projectId", projectId))));
+			} else {
+				allocateButton.setEnabled(false);
+			}
+			add(allocateButton);
 		}
 	}
 }

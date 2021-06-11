@@ -133,7 +133,7 @@ class CommunityServiceImplValidatorTest {
 		final String id = "id";
 
 		when(communityRepository.exists(id)).thenReturn(true);
-		when(projectRepository.findAll(id)).thenReturn(Set.of(mock(Project.class)));
+		when(projectRepository.findAllByCommunityId(id)).thenReturn(Set.of(mock(Project.class)));
 
 		//when+then
 		assertThrows(RemovingCommunityException.class, () -> validator.validateDelete(id));

@@ -6,6 +6,7 @@
 package io.imunity.furms.db.community_allocation;
 
 import static java.util.Optional.empty;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -59,6 +60,14 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
+		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+				.filter(not(CommunityAllocationReadEntity::isExpired))
+				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
 	                                                                                                String name) {
 		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
@@ -69,7 +78,8 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	@Override
 	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
 	                                                                                                          String name) {
-		return readRepository.findAllNotExpiredByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
+		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
+				.filter(not(CommunityAllocationReadEntity::isExpired))
 				.map(CommunityAllocationReadEntity::toCommunityAllocation)
 				.collect(Collectors.toSet());
 	}
