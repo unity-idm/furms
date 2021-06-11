@@ -95,7 +95,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 			return new FurmsProgressBar(value);
 		})
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.8"))
-			.setTextAlign(ColumnTextAlign.END);
+			.setComparator(comparing(model -> model.consumed));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);

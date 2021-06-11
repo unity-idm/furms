@@ -18,7 +18,8 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
-import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
@@ -409,7 +410,7 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		ResourceUsageSum resourceUsageSum = databaseRepository.findResourceUsagesSumGroupedByCommunityAllocationId(communityId.toString());
+		ResourceUsageByCommunityAllocation resourceUsageSum = databaseRepository.findResourceUsagesSumsByCommunityId(communityId.toString());
 		assertEquals(BigDecimal.valueOf(11), resourceUsageSum.get(communityAllocationId.toString()));
 	}
 
@@ -440,7 +441,7 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		ResourceUsageSum resourceUsageSum = databaseRepository.findResourceUsagesSumGroupedByResourceCreditId(siteId.toString());
+		ResourceUsageByCredit resourceUsageSum = databaseRepository.findResourceUsagesSumsBySiteId(siteId.toString());
 		assertEquals(BigDecimal.valueOf(11), resourceUsageSum.get(resourceCreditId.toString()));
 	}
 }

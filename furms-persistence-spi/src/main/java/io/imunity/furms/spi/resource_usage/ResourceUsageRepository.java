@@ -8,7 +8,8 @@ package io.imunity.furms.spi.resource_usage;
 
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
-import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 
 import java.util.Optional;
@@ -19,6 +20,6 @@ public interface ResourceUsageRepository {
 	void create(UserResourceUsage userResourceUsage);
 	Set<ResourceUsage> findCurrentResourceUsages(String projectId);
 	Optional<ResourceUsage> findCurrentResourceUsage(String projectAllocationId);
-	ResourceUsageSum findResourceUsagesSumGroupedByResourceCreditId(String siteId);
-	ResourceUsageSum findResourceUsagesSumGroupedByCommunityAllocationId(String communityId);
+	ResourceUsageByCredit findResourceUsagesSumsBySiteId(String siteId);
+	ResourceUsageByCommunityAllocation findResourceUsagesSumsByCommunityId(String communityId);
 }

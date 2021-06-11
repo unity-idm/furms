@@ -5,8 +5,8 @@
 
 package io.imunity.furms.db.resource_usage;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -15,8 +15,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("resource_usage")
-public class ResourceUsageEntity extends UUIDIdentifiable {
+public class ResourceUsageEntity {
 
+	@Id
+	public final long id;
 	public final UUID siteId;
 	public final UUID communityId;
 	public final UUID resourceCreditId;
@@ -26,7 +28,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageEntity(UUID id, UUID siteId, UUID communityId, UUID communityAllocationId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
+	ResourceUsageEntity(long id, UUID siteId, UUID communityId, UUID communityAllocationId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.id = id;
 		this.siteId = siteId;
 		this.communityId = communityId;
@@ -88,7 +90,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 	}
 
 	public static final class ResourceUsageEntityBuilder {
-		private UUID id;
+		private long id;
 		private UUID siteId;
 		private UUID communityId;
 		private UUID communityAllocationId;
@@ -101,7 +103,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		private ResourceUsageEntityBuilder() {
 		}
 
-		public ResourceUsageEntityBuilder id(UUID id) {
+		public ResourceUsageEntityBuilder id(long id) {
 			this.id = id;
 			return this;
 		}

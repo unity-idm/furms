@@ -15,7 +15,7 @@ import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
-import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
@@ -60,15 +60,16 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Optional<ResourceCreditWithAllocations> findById(String id, String siteId) {
-		ResourceUsageSum resourceUsageSum = resourceUsageRepository.findResourceUsagesSumGroupedByResourceCreditId(siteId);
+	public Optional<ResourceCreditWithAllocations> findWithAllocationsByIdAndSiteId(String id, String siteId) {
+		ResourceUsageByCredit resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId);
 		return resourceCreditRepository.findById(id).map(credit ->
 			ResourceCreditWithAllocations.builder()
 				.id(credit.id)
 				.name(credit.name)
 				.siteId(credit.siteId)
 				.resourceType(resourceTypeService.findById(credit.resourceTypeId, credit.siteId)
-					.orElse(null))
+					.orElseThrow(() -> new IllegalStateException(String.format("Error - resource type %s doesn't exist", credit.resourceTypeId)))
+				)
 				.split(credit.splittable)
 				.amount(credit.amount)
 				.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
@@ -82,15 +83,16 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ResourceCreditWithAllocations> findAll(String siteId) {
-		ResourceUsageSum resourceUsageSum = resourceUsageRepository.findResourceUsagesSumGroupedByResourceCreditId(siteId);
+	public Set<ResourceCreditWithAllocations> findAllWithAllocations(String siteId) {
+		ResourceUsageByCredit resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId);
 		return resourceCreditRepository.findAll(siteId).stream().map(credit ->
 			ResourceCreditWithAllocations.builder()
 				.id(credit.id)
 				.name(credit.name)
 				.siteId(credit.siteId)
 				.resourceType(resourceTypeService.findById(credit.resourceTypeId, credit.siteId)
-					.orElse(null))
+					.orElseThrow(() -> new IllegalStateException(String.format("Error - resource type %s doesn't exist", credit.resourceTypeId)))
+				)
 				.split(credit.splittable)
 				.amount(credit.amount)
 				.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
@@ -128,7 +130,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					.name(credit.name)
 					.siteId(credit.siteId)
 					.resourceType(resourceTypeService.findById(credit.resourceTypeId, credit.siteId)
-							.orElse(null))
+						.orElseThrow(() -> new IllegalStateException(String.format("Error - resource type %s doesn't exist", credit.resourceTypeId)))
+					)
 					.split(credit.splittable)
 					.amount(credit.amount)
 					.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))

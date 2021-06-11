@@ -4,7 +4,7 @@
  */
 
 CREATE TABLE resource_usage (
-    id UUID PRIMARY KEY NOT NULL,
+    id BIGSERIAL PRIMARY KEY NOT NULL,
     site_id UUID NOT NULL,
     community_id UUID NOT NULL,
     resource_credit_id UUID NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE resource_usage_history (
 );
 
 CREATE TABLE user_resource_usage (
-    id UUID PRIMARY KEY NOT NULL,
+    id BIGSERIAL PRIMARY KEY NOT NULL,
     project_id UUID NOT NULL,
     project_allocation_id UUID NOT NULL,
     fenix_user_id VARCHAR(255) NOT NULL,

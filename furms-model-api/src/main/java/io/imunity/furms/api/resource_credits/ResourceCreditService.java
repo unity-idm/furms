@@ -12,9 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ResourceCreditService {
-	Optional<ResourceCreditWithAllocations> findById(String id, String siteId);
+	Optional<ResourceCreditWithAllocations> findWithAllocationsByIdAndSiteId(String id, String siteId);
 
-	Set<ResourceCreditWithAllocations> findAll(String siteId);
+	Set<ResourceCreditWithAllocations> findAllWithAllocations(String siteId);
 
 	Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId);
 

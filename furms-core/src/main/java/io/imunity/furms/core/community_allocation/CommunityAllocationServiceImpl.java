@@ -13,7 +13,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
-import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
-		ResourceUsageSum resourceUsageSum = resourceUsageRepository.findResourceUsagesSumGroupedByCommunityAllocationId(communityId);
+		ResourceUsageByCommunityAllocation resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsByCommunityId(communityId);
 		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId).stream()
 			.map(credit -> CommunityAllocationResolved.builder()
 				.id(credit.id)

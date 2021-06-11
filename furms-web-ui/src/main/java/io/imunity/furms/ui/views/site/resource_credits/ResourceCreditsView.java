@@ -115,7 +115,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			return new FurmsProgressBar(value);
 		})
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.consumption"))
-			.setTextAlign(ColumnTextAlign.END);
+			.setComparator(comparing(ResourceCreditViewModel::getConsumed));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.actions"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -163,7 +163,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	}
 
 	private List<ResourceCreditViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> resourceCreditService.findAll(getCurrentResourceId()))
+		return handleExceptions(() -> resourceCreditService.findAllWithAllocations(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))

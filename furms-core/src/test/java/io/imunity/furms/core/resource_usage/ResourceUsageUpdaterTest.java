@@ -5,9 +5,11 @@
 
 package io.imunity.furms.core.resource_usage;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +19,17 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ResourceUsageUpdaterTest {
 	@Mock
 	private ResourceUsageRepository repository;
+	@Mock
+	private ProjectAllocationRepository projectAllocationRepository;
 
 	private ResourceUsageUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -31,7 +37,7 @@ class ResourceUsageUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceUsageUpdaterImpl(repository);
+		service = new ResourceUsageUpdaterImpl(repository, projectAllocationRepository);
 		orderVerifier = inOrder(repository);
 	}
 
@@ -43,10 +49,12 @@ class ResourceUsageUpdaterTest {
 			.cumulativeConsumption(BigDecimal.TEN)
 			.probedAt(LocalDateTime.now().minusMinutes(5))
 			.build();
+		ProjectAllocationResolved build = ProjectAllocationResolved.builder().build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects("id")).thenReturn(Optional.of(build));
 
 		service.updateUsage(resourceUsage);
 
-		verify(repository).create(resourceUsage);
+		verify(repository).create(resourceUsage, build);
 	}
 
 	@Test

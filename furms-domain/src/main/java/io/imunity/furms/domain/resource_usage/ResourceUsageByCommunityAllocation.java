@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
-public class ResourceUsageSum {
+public class ResourceUsageByCommunityAllocation {
 	private final Map<String, BigDecimal> idToSum;
 
-	public ResourceUsageSum(Map<String, BigDecimal> idToSum) {
-		this.idToSum = idToSum;
+	public ResourceUsageByCommunityAllocation(Map<String, BigDecimal> idToSum) {
+		this.idToSum = Map.copyOf(idToSum);
 	}
 
 	public BigDecimal get(String id){

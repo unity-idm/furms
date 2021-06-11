@@ -5,10 +5,10 @@
 
 package io.imunity.furms.db.resource_usage;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
-import io.imunity.furms.domain.resource_usage.ResourceUsageSum;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
@@ -17,13 +17,13 @@ import org.springframework.stereotype.Repository;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toSet;
@@ -63,11 +63,11 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 		);
 		Optional<ResourceUsageEntity> resourceUsageEntity = resourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(resourceUsage.projectAllocationId));
 		if(resourceUsageEntity.isPresent() && resourceUsageEntity.get().cumulativeConsumption.compareTo(resourceUsage.cumulativeConsumption) > 0)
-			LOG.warn("Update resource usage {} to {} from {}", resourceUsageEntity.get().getId(), resourceUsage.cumulativeConsumption, resourceUsageEntity.get().cumulativeConsumption);
+			LOG.warn("Update resource usage {} to {} from {}", resourceUsageEntity.get().id, resourceUsage.cumulativeConsumption, resourceUsageEntity.get().cumulativeConsumption);
 
-		UUID id = resourceUsageEntity
-			.map(UUIDIdentifiable::getId)
-			.orElse(null);
+		long id = resourceUsageEntity
+			.map(usageEntity -> usageEntity.id)
+			.orElse(0L);
 		resourceUsageEntityRepository.save(
 			ResourceUsageEntity.builder()
 				.id(id)
@@ -96,11 +96,11 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 		);
 		Optional<UserResourceUsageEntity> userResourceUsageEntity = userResourceUsageEntityRepository.findByProjectAllocationId(UUID.fromString(userResourceUsage.projectAllocationId));
 		if(userResourceUsageEntity.isPresent() && userResourceUsageEntity.get().cumulativeConsumption.compareTo(userResourceUsage.cumulativeConsumption) > 0)
-			LOG.warn("Update user resource usage {} to {} from {}", userResourceUsageEntity.get().getId(), userResourceUsage.cumulativeConsumption, userResourceUsageEntity.get().cumulativeConsumption);
+			LOG.warn("Update user resource usage {} to {} from {}", userResourceUsageEntity.get().id, userResourceUsage.cumulativeConsumption, userResourceUsageEntity.get().cumulativeConsumption);
 
-		UUID id = userResourceUsageEntity
-			.map(UUIDIdentifiable::getId)
-			.orElse(null);
+		long id = userResourceUsageEntity
+			.map(usage -> usage.id)
+			.orElse(0L);
 		userResourceUsageEntityRepository.save(
 			UserResourceUsageEntity.builder()
 				.id(id)
@@ -114,28 +114,28 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 	}
 
 	@Override
-	public ResourceUsageSum findResourceUsagesSumGroupedByResourceCreditId(String siteId) {
-		return resourceUsageEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public ResourceUsageByCredit findResourceUsagesSumsBySiteId(String siteId) {
+		Map<String, BigDecimal> map = resourceUsageEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.collect(getResourceUsageSumCollector(resourceUsage -> resourceUsage.resourceCreditId.toString()));
+		return new ResourceUsageByCredit(map);
 	}
 
 	@Override
-	public ResourceUsageSum findResourceUsagesSumGroupedByCommunityAllocationId(String communityId) {
-		return resourceUsageEntityRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public ResourceUsageByCommunityAllocation findResourceUsagesSumsByCommunityId(String communityId) {
+		Map<String, BigDecimal> map = resourceUsageEntityRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 			.collect(getResourceUsageSumCollector(resourceUsage -> resourceUsage.communityAllocationId.toString()));
+		return new ResourceUsageByCommunityAllocation(map);
 	}
 
-	private Collector<ResourceUsageEntity, Object, ResourceUsageSum> getResourceUsageSumCollector(Function<ResourceUsageEntity, String> classifier) {
-		return collectingAndThen(
-			groupingBy(
-				classifier,
-				reducing(
-					BigDecimal.ZERO,
-					resourceUsage -> resourceUsage.cumulativeConsumption,
-					BigDecimal::add
-				)
-			),
-			ResourceUsageSum::new);
+	private Collector<ResourceUsageEntity, ?, Map<String, BigDecimal>> getResourceUsageSumCollector(Function<ResourceUsageEntity, String> classifier) {
+		return groupingBy(
+					classifier,
+					reducing(
+						BigDecimal.ZERO,
+						resourceUsage -> resourceUsage.cumulativeConsumption,
+						BigDecimal::add
+					)
+			);
 	}
 
 	@Override

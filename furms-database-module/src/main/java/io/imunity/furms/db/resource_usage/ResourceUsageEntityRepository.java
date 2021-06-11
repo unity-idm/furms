@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface ResourceUsageEntityRepository extends CrudRepository<ResourceUsageEntity, UUID> {
+public interface ResourceUsageEntityRepository extends CrudRepository<ResourceUsageEntity, Long> {
 	Optional<ResourceUsageEntity> findByProjectAllocationId(UUID projectAllocationId);
 	Set<ResourceUsageEntity> findAllBySiteId(UUID siteId);
 	Set<ResourceUsageEntity> findAllByCommunityId(UUID communityId);
