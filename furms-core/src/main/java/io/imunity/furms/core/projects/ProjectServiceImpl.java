@@ -5,14 +5,7 @@
 
 package io.imunity.furms.core.projects;
 
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_ADMINS_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
@@ -85,9 +78,15 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<Project> findAll(String communityId) {
-		return projectRepository.findAll(communityId);
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<Project> findAllByCommunityId(String communityId) {
+		return projectRepository.findAllByCommunityId(communityId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
+		return projectRepository.findAllNotExpiredByCommunityId(communityId);
 	}
 
 	@Override
@@ -111,8 +110,15 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
+	public boolean isProjectExpired(String id) {
+		final Optional<Project> project = findById(id);
+		return project.isEmpty() || project.get().isExpired();
+	}
+
+	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "project.communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "project.communityId")
 	public void create(Project project) {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
@@ -167,7 +173,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String projectId, String communityId) {
 		validator.validateDelete(projectId);
 		List<FURMSUser> allProjectUsers = projectGroupsDAO.getAllUsers(communityId, projectId);

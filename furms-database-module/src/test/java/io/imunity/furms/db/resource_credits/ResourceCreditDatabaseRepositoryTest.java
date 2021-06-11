@@ -23,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +33,7 @@ import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
@@ -234,6 +237,92 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllNotExpiredByResourceTypeId() {
+		//given
+		final LocalDateTime utcNow = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("not-expired-1")
+				.split(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("not-expired-2")
+				.split(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("expired-1")
+				.split(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.minusSeconds(1))
+				.build());
+
+		//when
+		Set<ResourceCredit> all = repository.findAllNotExpiredByResourceTypeId(resourceTypeId.toString());
+
+		//then
+		assertThat(all).hasSize(2);
+		assertTrue(all.stream().noneMatch(credit -> credit.name.equals("expired-1")));
+	}
+
+	@Test
+	void shouldFindAllByCreditNameAndNonExpired() {
+		//given
+		final LocalDateTime utcNow = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("test")
+				.split(true)
+				.amount(new BigDecimal(100))
+				.createTime(createTime)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("testAsPreffix")
+				.split(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.plusDays(1))
+				.build());
+		entityRepository.save(ResourceCreditEntity.builder()
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
+				.name("expiredButWithtest")
+				.split(false)
+				.amount(new BigDecimal(455))
+				.createTime(createTime2)
+				.startTime(utcNow.minusDays(1))
+				.endTime(utcNow.minusSeconds(1))
+				.build());
+
+		//when
+		Set<ResourceCredit> all = repository.findAllNotExpiredByNameOrSiteName("test");
+
+		//then
+		assertThat(all).hasSize(2);
+		assertTrue(all.stream().noneMatch(credit -> credit.name.equals("expiredButWithtest")));
+	}
+
+	@Test
 	void shouldCreateResourceCredit() {
 		//given
 		ResourceCredit request = ResourceCredit.builder()
@@ -370,7 +459,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		//when + then
 		assertThat(repository.isNamePresent("new_name", UUID.randomUUID().toString())).isFalse();
 	}
-
 	
 	@Test
 	void shouldReturnTrueForPresentName() {

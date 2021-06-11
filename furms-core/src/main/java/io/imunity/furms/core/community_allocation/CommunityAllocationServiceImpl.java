@@ -100,6 +100,12 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
+		return communityAllocationRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public BigDecimal getAvailableAmountForNew(String resourceCreditId) {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import io.imunity.furms.utils.UTCTimeUtils;
+
 import static java.time.Clock.systemUTC;
 import static java.util.Optional.ofNullable;
 
@@ -41,6 +43,10 @@ public class ResourceCredit {
 		this.utcCreateTime = ofNullable(utcCreateTime).orElseGet(() -> LocalDateTime.now(systemUTC()));
 		this.utcStartTime = utcStartTime;
 		this.utcEndTime = utcEndTime;
+	}
+
+	public boolean isExpired() {
+		return UTCTimeUtils.isExpired(utcEndTime);
 	}
 
 	@Override

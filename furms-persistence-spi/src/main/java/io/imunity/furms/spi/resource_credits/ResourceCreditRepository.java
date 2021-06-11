@@ -19,11 +19,13 @@ public interface ResourceCreditRepository {
 
 	Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId);
 
+	Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId);
+
 	Set<ResourceCredit> findAll();
 
 	Set<ResourceCredit> findAllByNameOrSiteName(String name);
 
-	Set<ResourceCredit> findAllByNameOrSiteNameWithoutExpired(String name);
+	Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name);
 
 	String create(ResourceCredit resourceType);
 
