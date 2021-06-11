@@ -469,7 +469,7 @@ channels:
    site/site_id/resource/allocate/req:
       subscribe:
          summary: Request resource allocation to a project
-         description: Will be sent by FURMS to inform the site that part of resource credit defined by the site admin in FURMS was allocated to a (previously provisioned) project.
+         description: Will be sent by FURMS to inform the site that part of resource credit defined by the site admin in FURMS was allocated to a (previously provisioned) project. Note that this may be either an initial allocation or an update of the allocation. In the latter case the allocationIdentifier parameter should be already known to the site.
          operationId: ProjectResourceAllocationRequest
          message:
             name: ProjectResourceAllocationRequest
@@ -527,6 +527,35 @@ channels:
                   allocationChunkIdentifier:
                      type: string
                      description: Identifies chunk assigned by site under the requested allocationIdentifier. Single FURMS allocation can be realized with multiple chunks.  
+                  amount:
+                     type: number
+                     format: double
+                  validFrom:
+                     type: string
+                     format: dateTime
+                  validTo: 
+                     type: string
+                     format: dateTime
+
+
+   site/site_id/resource/allocate/update:
+      publish:
+         summary: Update of allocated resources
+         description: Carries an update of a previously sent allocation with the ResourceAllocationResult message.
+         operationId: ProjectResourceAllocationUpdate
+         message:
+            name: ProjectResourceAllocationUpdate
+            traits:
+               - $ref: "#/components/messageTraits/response"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  allocationIdentifier:
+                     $ref: "#/components/schemas/allocationIdentifier"
+                  allocationChunkIdentifier:
+                     type: string
+                     description: Identifies the updated chunk.  
                   amount:
                      type: number
                      format: double
