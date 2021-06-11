@@ -13,7 +13,9 @@ import java.util.Set;
 public interface ProjectRepository {
 	Optional<Project> findById(String id);
 
-	Set<Project> findAll(String communityId);
+	Set<Project> findAllByCommunityId(String communityId);
+
+	Set<Project> findAllNotExpiredByCommunityId(String communityId);
 
 	Set<Project> findAll();
 

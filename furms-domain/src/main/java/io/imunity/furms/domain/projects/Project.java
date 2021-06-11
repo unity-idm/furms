@@ -7,6 +7,7 @@ package io.imunity.furms.domain.projects;
 
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.utils.UTCTimeUtils;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -76,6 +77,10 @@ public class Project {
 
 	public PersistentId getLeaderId() {
 		return leaderId;
+	}
+
+	public boolean isExpired() {
+		return UTCTimeUtils.isExpired(utcEndTime);
 	}
 
 	public static ProjectEntityBuilder builder() {

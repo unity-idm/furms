@@ -17,13 +17,17 @@ import java.util.Set;
 public interface ProjectService {
 	Optional<Project> findById(String id);
 
-	Set<Project> findAll(String communityId);
+	Set<Project> findAllByCommunityId(String communityId);
+
+	Set<Project> findAllNotExpiredByCommunityId(String communityId);
 
 	Set<Project> findAll();
 
 	boolean isProjectInTerminalState(String projectId);
 
 	boolean isProjectInTerminalState(String communityId, String projectId);
+
+	boolean isProjectExpired(String projectId);
 
 	void create(Project project);
 

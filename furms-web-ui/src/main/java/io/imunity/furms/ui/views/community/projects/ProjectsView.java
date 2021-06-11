@@ -165,9 +165,9 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private List<ProjectViewModel> loadProjectsViewsModels() {
-		String communityId = getCurrentResourceId();
-		List<FURMSUser> users = projectService.findAllUsers(communityId);
-		return handleExceptions(() -> projectService.findAll(getCurrentResourceId()))
+		final String communityId = getCurrentResourceId();
+		final List<FURMSUser> users = projectService.findAllUsers(communityId);
+		return handleExceptions(() -> projectService.findAllByCommunityId(communityId))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(p -> resolver.resolve(users, p, zoneId))

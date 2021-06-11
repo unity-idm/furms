@@ -45,8 +45,8 @@ class CommunityServiceValidator {
 
 	void validateDelete(String id) {
 		validateId(id);
-		if(!projectRepository.findAll(id).isEmpty())
-			throw new RemovingCommunityException("Removing Community cannot have projects");
+		if(!projectRepository.findAllByCommunityId(id).isEmpty())
+			throw new RemovingCommunityException("Removed Community cannot have projects");
 	}
 
 	private void validateName(Community community) {

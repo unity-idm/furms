@@ -29,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -175,6 +177,39 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldReturnAllNonExpiredAllocationWithRelatedObjects() {
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(resourceCreditId)
+						.name("non-expired")
+						.amount(new BigDecimal(10))
+						.build());
+
+		entityRepository.save(
+				CommunityAllocationEntity.builder()
+						.communityId(communityId)
+						.resourceCreditId(UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+								.siteId(siteId.toString())
+								.resourceTypeId(resourceTypeId.toString())
+								.name("name2")
+								.splittable(true)
+								.amount(new BigDecimal(100))
+								.utcCreateTime(LocalDateTime.now())
+								.utcStartTime(LocalDateTime.now().minusDays(10))
+								.utcEndTime(LocalDateTime.now().minusDays(3))
+								.build())))
+						.name("expired")
+						.amount(new BigDecimal(10))
+						.build());
+
+		Set<CommunityAllocationResolved> allocations = entityDatabaseRepository
+				.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId.toString());
+		assertThat(allocations).hasSize(1);
+		assertThat(allocations.stream().findFirst().get().name).isEqualTo("non-expired");
+	}
+
+	@Test
 	void shouldReturnAllocationsWithRelatedObjects() {
 		entityRepository.save(
 				CommunityAllocationEntity.builder()
@@ -240,7 +275,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnNotExpiredAllocationsWithRelatedObjects() {
 		//given
-		final LocalDateTime now = LocalDateTime.now();
+		final LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
 		final String expiredResource = resourceCreditRepository.create(ResourceCredit.builder()
 				.siteId(siteId.toString())
 				.resourceTypeId(resourceTypeId.toString())

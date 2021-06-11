@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping(value = "/v1/sites", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/rest-api/v1/sites", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Site Endpoint",
 	description = "FURMS administration endpoint that provides comprehensive access to information about sites "
 			+ "as well as exposes basic operations that can be done in a site context.")

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Optional.empty;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
@@ -53,6 +54,14 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
+	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
+		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId))
+				.map(ResourceCreditEntity::toResourceCredit)
+				.filter(not(ResourceCredit::isExpired))
+				.collect(toSet());
+	}
+
+	@Override
 	public Set<ResourceCredit> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 			.map(ResourceCreditEntity::toResourceCredit)
@@ -67,9 +76,10 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public Set<ResourceCredit> findAllByNameOrSiteNameWithoutExpired(String name) {
-		return repository.findAllByNameOrSiteNameWithoutExpired(name)
+	public Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name) {
+		return repository.findAllByNameOrSiteName(name)
 				.map(ResourceCreditEntity::toResourceCredit)
+				.filter(not(ResourceCredit::isExpired))
 				.collect(toSet());
 	}
 

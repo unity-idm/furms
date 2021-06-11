@@ -31,4 +31,9 @@ public class UTCTimeUtils {
 			.map(OffsetDateTime::toLocalDateTime)
 			.orElse(null);
 	}
+
+	public static boolean isExpired(LocalDateTime utcEndTime) {
+		return utcEndTime != null
+				&& LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).isAfter(utcEndTime);
+	}
 }
