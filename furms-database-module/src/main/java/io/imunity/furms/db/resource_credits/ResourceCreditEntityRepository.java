@@ -14,7 +14,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public interface ResourceCreditEntityRepository extends CrudRepository<ResourceCreditEntity, UUID> {
+
 	Stream<ResourceCreditEntity> findAllBySiteId(UUID siteId);
+
 	Stream<ResourceCreditEntity> findAllByResourceTypeId(UUID resourceTypeId);
 
 	@Query("SELECT rc.* " +
@@ -24,17 +26,11 @@ public interface ResourceCreditEntityRepository extends CrudRepository<ResourceC
 			"        OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%')))")
 	Stream<ResourceCreditEntity> findAllByNameOrSiteName(@Param("name") String name);
 
-	@Query("SELECT rc.* " +
-			"FROM resource_credit rc " +
-			"JOIN site s ON rc.site_id = s.id " +
-			"WHERE end_time > now() " +
-			"   AND (UPPER(rc.name) LIKE UPPER(CONCAT('%', :name, '%')) " +
-			"        OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%')))")
-	Stream<ResourceCreditEntity> findAllByNameOrSiteNameWithoutExpired(@Param("name") String name);
-
-
 	boolean existsByNameAndSiteId(String name, UUID siteId);
+
 	boolean existsBySiteId(UUID siteId);
+
 	boolean existsByResourceTypeId(UUID resourceTypeId);
+
 	boolean existsByResourceTypeIdIn(Collection<UUID> resourceTypeIds);
 }

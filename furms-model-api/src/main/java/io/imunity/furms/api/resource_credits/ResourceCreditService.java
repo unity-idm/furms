@@ -5,18 +5,18 @@
 
 package io.imunity.furms.api.resource_credits;
 
-import java.util.Optional;
-import java.util.Set;
-
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 
+import java.util.Optional;
+import java.util.Set;
+
 public interface ResourceCreditService {
-	Optional<ResourceCredit> findById(String id, String siteId);
+	Optional<ResourceCreditWithAllocations> findWithAllocationsByIdAndSiteId(String id, String siteId);
 
-	Set<ResourceCredit> findAll(String siteId);
+	Set<ResourceCreditWithAllocations> findAllWithAllocations(String siteId);
 
-	Set<ResourceCredit> findAllByResourceTypeId(String resourceTypeId);
+	Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId);
 
 	Set<ResourceCredit> findAll();
 

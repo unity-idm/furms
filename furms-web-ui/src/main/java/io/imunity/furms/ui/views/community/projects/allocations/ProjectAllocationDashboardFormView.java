@@ -152,7 +152,8 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private ComboBox<ComboBoxModel> projectsField() {
-		final Set<ComboBoxModel> items = projectService.findAll(binder.getBean().getCommunityId()).stream()
+		final Set<ComboBoxModel> items = projectService.findAllNotExpiredByCommunityId(binder.getBean().getCommunityId())
+				.stream()
 				.map(item -> new ComboBoxModel(item.getId(), item.getName()))
 				.collect(toSet());
 		final ComboBox<ComboBoxModel> projectsComboBox = new ComboBox<>();

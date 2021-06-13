@@ -215,7 +215,7 @@ class AuthTest {
 		Project project = Project.builder().id(uuid2.toString()).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAll(uuid.toString())).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityId(uuid.toString())).thenReturn(Set.of(project));
 
 		assertThrows(AccessDeniedException.class, () -> mockService.getProject(UUID.randomUUID().toString()));
 	}
@@ -237,7 +237,7 @@ class AuthTest {
 		Project project = Project.builder().id(projectUUID.toString()).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAll(communityUUID.toString())).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityId(communityUUID.toString())).thenReturn(Set.of(project));
 
 		Throwable throwable = catchThrowable(() -> mockService.getProject(projectUUID.toString()));
 		assertThat(throwable).isNull();

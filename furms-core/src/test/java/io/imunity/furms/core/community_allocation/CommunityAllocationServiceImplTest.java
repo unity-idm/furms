@@ -12,6 +12,7 @@ import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEve
 import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
 import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -37,6 +38,8 @@ class CommunityAllocationServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private ProjectAllocationService projectAllocationService;
+	@Mock
+	private ResourceUsageRepository resourceUsageRepository;
 
 	private CommunityAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -45,7 +48,7 @@ class CommunityAllocationServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new CommunityAllocationServiceImpl(communityAllocationRepository, validator,
-				publisher, projectAllocationService);
+				publisher, projectAllocationService, resourceUsageRepository);
 		orderVerifier = inOrder(communityAllocationRepository, publisher);
 	}
 

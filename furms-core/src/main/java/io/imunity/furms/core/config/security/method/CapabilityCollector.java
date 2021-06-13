@@ -58,7 +58,7 @@ class CapabilityCollector {
 	}
 
 	private Stream<Map.Entry<ResourceId, ResourceId>> mapProjectToCommunityResourceId(ResourceId communityResourceId) {
-		return projectRepository.findAll(communityResourceId.id.toString()).stream()
+		return projectRepository.findAllByCommunityId(communityResourceId.id.toString()).stream()
 			.map(Project::getId)
 			.map(id -> new ResourceId(id, PROJECT))
 			.map(rId -> Map.entry(rId, communityResourceId));

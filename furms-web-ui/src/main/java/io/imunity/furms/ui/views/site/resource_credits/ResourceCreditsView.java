@@ -17,8 +17,15 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
-import io.imunity.furms.domain.resource_types.AmountWithUnit;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsProgressBar;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -27,10 +34,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.components.support.GridUtils.getsLeadingPartOfUUID;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.math.RoundingMode.HALF_UP;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
@@ -40,13 +50,11 @@ public class ResourceCreditsView extends FurmsViewComponent {
 
 	private final ResourceCreditService resourceCreditService;
 	private final Grid<ResourceCreditViewModel> grid;
-	private final ResourceTypeComboBoxModelResolver resolver;
 	private ZoneId zoneId;
 
 	public ResourceCreditsView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
 		this.grid = createResourceCreditGrid();
-		this.resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
 		zoneId = InvocationContext.getCurrent().getZone();
 
 		Button addButton = createAddButton();
@@ -76,12 +84,21 @@ public class ResourceCreditsView extends FurmsViewComponent {
 				.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.id"))
 				.setSortable(true)
 				.setComparator(x -> x.getName().toLowerCase());
-		grid.addColumn(c -> resolver.getName(c.getResourceTypeId()))
+		grid.addColumn(ResourceCreditViewModel::getResourceTypeName)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.resourceType"))
 			.setSortable(true);
-		grid.addColumn(c -> new AmountWithUnit(c.getAmount(), resolver.getResourceType(c.getResourceTypeId()).unit))
+		grid.addColumn(ResourceCreditViewModel::getAmount)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.credit"))
-			.setSortable(true);
+			.setSortable(true)
+			.setComparator(comparing(model -> model.getAmount().amount));
+		grid.addColumn(ResourceCreditViewModel::getDistributed)
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.distributed"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.getDistributed().amount));
+		grid.addColumn(ResourceCreditViewModel::getRemaining)
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.remaining"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.getRemaining().amount));
 		grid.addColumn(c -> c.getCreateTime().toLocalDate())
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.created"))
 			.setSortable(true);
@@ -91,6 +108,14 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		grid.addColumn(c -> c.getEndTime().toLocalDate())
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.validTo"))
 			.setSortable(true);
+		grid.addComponentColumn(model -> {
+			double value = model.getConsumed()
+				.divide(model.getAmount().amount, 4, HALF_UP)
+				.doubleValue();
+			return new FurmsProgressBar(value);
+		})
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.consumption"))
+			.setComparator(comparing(ResourceCreditViewModel::getConsumed));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.actions"))
 			.setTextAlign(ColumnTextAlign.END);
@@ -138,7 +163,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	}
 
 	private List<ResourceCreditViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> resourceCreditService.findAll(getCurrentResourceId()))
+		return handleExceptions(() -> resourceCreditService.findAllWithAllocations(getCurrentResourceId()))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))

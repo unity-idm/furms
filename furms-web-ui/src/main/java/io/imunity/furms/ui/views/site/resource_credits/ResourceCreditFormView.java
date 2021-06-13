@@ -105,7 +105,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		ResourceCreditViewModel serviceViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> resourceCreditService.findById(id, getCurrentResourceId())))
+			.flatMap(id -> handleExceptions(() -> resourceCreditService.findWithAllocationsByIdAndSiteId(id, getCurrentResourceId())))
 			.flatMap(Function.identity())
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
 			.orElseGet(() -> new ResourceCreditViewModel(getCurrentResourceId()));

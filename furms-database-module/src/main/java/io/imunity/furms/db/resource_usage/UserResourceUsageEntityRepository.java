@@ -10,6 +10,6 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserResourceUsageEntityRepository extends CrudRepository<UserResourceUsageEntity, UUID> {
+public interface UserResourceUsageEntityRepository extends CrudRepository<UserResourceUsageEntity, Long> {
 	Optional<UserResourceUsageEntity> findByProjectAllocationId(UUID projectAllocationId);
 }

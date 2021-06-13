@@ -5,11 +5,11 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import io.imunity.furms.domain.resource_types.ResourceType;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-import io.imunity.furms.domain.resource_types.ResourceType;
 
 public class ResourceCreditWithAllocations {
 	private final String id;
@@ -19,6 +19,7 @@ public class ResourceCreditWithAllocations {
 	private final Boolean split;
 	private final BigDecimal amount;
 	private final BigDecimal remaining;
+	private final BigDecimal consumed;
 	private final LocalDateTime utcCreateTime;
 	private final LocalDateTime utcStartTime;
 	private final LocalDateTime utcEndTime;
@@ -30,6 +31,7 @@ public class ResourceCreditWithAllocations {
 	                                     Boolean split,
 	                                     BigDecimal amount,
 	                                     BigDecimal remaining,
+	                                     BigDecimal consumed,
 	                                     LocalDateTime utcCreateTime,
 	                                     LocalDateTime utcStartTime,
 	                                     LocalDateTime utcEndTime) {
@@ -40,6 +42,7 @@ public class ResourceCreditWithAllocations {
 		this.split = split;
 		this.amount = amount;
 		this.remaining = remaining;
+		this.consumed = consumed;
 		this.utcCreateTime = utcCreateTime;
 		this.utcStartTime = utcStartTime;
 		this.utcEndTime = utcEndTime;
@@ -73,6 +76,10 @@ public class ResourceCreditWithAllocations {
 		return remaining;
 	}
 
+	public BigDecimal getConsumed() {
+		return consumed;
+	}
+
 	public LocalDateTime getUtcCreateTime() {
 		return utcCreateTime;
 	}
@@ -97,6 +104,7 @@ public class ResourceCreditWithAllocations {
 				Objects.equals(split, that.split) &&
 				Objects.equals(amount, that.amount) &&
 				Objects.equals(remaining, that.remaining) &&
+				Objects.equals(consumed, that.consumed) &&
 				Objects.equals(utcCreateTime, that.utcCreateTime) &&
 				Objects.equals(utcStartTime, that.utcStartTime) &&
 				Objects.equals(utcEndTime, that.utcEndTime);
@@ -104,7 +112,7 @@ public class ResourceCreditWithAllocations {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, siteId, resourceType, split, amount, remaining, utcCreateTime, utcStartTime, utcEndTime);
+		return Objects.hash(id, name, siteId, resourceType, split, amount, remaining, consumed, utcCreateTime, utcStartTime, utcEndTime);
 	}
 
 	@Override
@@ -116,6 +124,7 @@ public class ResourceCreditWithAllocations {
 				", resourceType='" + resourceType + '\'' +
 				", split=" + split +
 				", amount=" + amount +
+				", consumed=" + consumed +
 				", remaining=" + remaining +
 				", utcCreateTime=" + utcCreateTime +
 				", utcStartTime=" + utcStartTime +
@@ -134,6 +143,7 @@ public class ResourceCreditWithAllocations {
 		public ResourceType resourceType;
 		public Boolean split;
 		public BigDecimal amount;
+		public BigDecimal consumed;
 		public BigDecimal remaining;
 		public LocalDateTime utcCreateTime;
 		public LocalDateTime utcStartTime;
@@ -172,6 +182,11 @@ public class ResourceCreditWithAllocations {
 			return this;
 		}
 
+		public ResourceCreditWithAllocationsBuilder consumed(BigDecimal consumed) {
+			this.consumed = consumed;
+			return this;
+		}
+
 		public ResourceCreditWithAllocationsBuilder remaining(BigDecimal remaining) {
 			this.remaining = remaining;
 			return this;
@@ -193,7 +208,7 @@ public class ResourceCreditWithAllocations {
 		}
 
 		public ResourceCreditWithAllocations build() {
-			return new ResourceCreditWithAllocations(id, name, siteId, resourceType, split, amount, remaining,
+			return new ResourceCreditWithAllocations(id, name, siteId, resourceType, split, amount, remaining, consumed,
 					utcCreateTime, utcStartTime, utcEndTime);
 		}
 	}

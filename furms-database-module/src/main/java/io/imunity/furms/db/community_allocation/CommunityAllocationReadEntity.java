@@ -10,6 +10,7 @@ import io.imunity.furms.db.resource_credits.ResourceCreditEntity;
 import io.imunity.furms.db.resource_types.ResourceTypeEntity;
 import io.imunity.furms.db.sites.SiteEntity;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -54,6 +55,10 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			.build();
 	}
 
+	public boolean isExpired() {
+		return UTCTimeUtils.isExpired(resourceCredit.endTime);
+	}
+
 	@Override
 	public String toString() {
 		return "CommunityAllocationReadEntity{" +
@@ -84,6 +89,5 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	public int hashCode() {
 		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount);
 	}
-
 
 }

@@ -8,6 +8,7 @@ package io.imunity.furms.db.projects;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.fromString;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -40,9 +41,17 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
-	public Set<Project> findAll(String communityId) {
+	public Set<Project> findAllByCommunityId(String communityId) {
 		return repository.findAllByCommunityId(fromString(communityId))
 				.map(ProjectEntity::toProject)
+				.collect(toSet());
+	}
+
+	@Override
+	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
+		return repository.findAllByCommunityId(fromString(communityId))
+				.map(ProjectEntity::toProject)
+				.filter(not(Project::isExpired))
 				.collect(toSet());
 	}
 

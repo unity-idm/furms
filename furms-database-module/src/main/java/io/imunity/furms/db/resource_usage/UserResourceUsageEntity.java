@@ -5,9 +5,9 @@
 
 package io.imunity.furms.db.resource_usage;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -16,15 +16,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("user_resource_usage")
-public class UserResourceUsageEntity extends UUIDIdentifiable {
+public class UserResourceUsageEntity {
 
+	@Id
+	public final long id;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final String fenixUserId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime consumedUntil;
 
-	UserResourceUsageEntity(UUID id, UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
+	UserResourceUsageEntity(long id, UUID projectId, UUID projectAllocationId, String fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime consumedUntil) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -78,7 +80,7 @@ public class UserResourceUsageEntity extends UUIDIdentifiable {
 	}
 
 	public static final class UserResourceUsageEntityBuilder {
-		private UUID id;
+		private long id;
 		private UUID projectId;
 		private UUID projectAllocationId;
 		private String fenixUserId;
@@ -88,7 +90,7 @@ public class UserResourceUsageEntity extends UUIDIdentifiable {
 		private UserResourceUsageEntityBuilder() {
 		}
 
-		public UserResourceUsageEntityBuilder id(UUID id) {
+		public UserResourceUsageEntityBuilder id(long id) {
 			this.id = id;
 			return this;
 		}

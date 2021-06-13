@@ -5,15 +5,6 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
-import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
-import java.util.Objects;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -22,11 +13,19 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
+
+import java.util.Objects;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class ResourceCreditFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -91,8 +90,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-credits.form.error.validation.combo-box.resource-type")
 			)
 			.bind(
-				resourceType -> resolver.getResourceType(resourceType.getResourceTypeId()),
-				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeId(resourceType.id)
+				resourceType -> resolver.getResourceType(resourceType.getResourceTypeName()),
+				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeName(resourceType.id)
 			);
 		binder.forField(splitCheckbox)
 			.bind(ResourceCreditViewModel::getSplit, ResourceCreditViewModel::setSplit);
@@ -101,7 +100,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				value -> Objects.nonNull(value) && isBigDecimal(value),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.amount")
 			)
-			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.getAmount()),
+			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.getAmount().amount),
 				(resourceCredit, value) -> resourceCredit.setAmount(BigDecimalUtils.toBigDecimal(value))
 			);
 		binder.forField(startTimePicker)

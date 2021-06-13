@@ -5,8 +5,8 @@
 
 package io.imunity.furms.db.resource_usage;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -15,15 +15,25 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("resource_usage")
-public class ResourceUsageEntity extends UUIDIdentifiable {
+public class ResourceUsageEntity {
 
+	@Id
+	public final long id;
+	public final UUID siteId;
+	public final UUID communityId;
+	public final UUID resourceCreditId;
+	public final UUID communityAllocationId;
 	public final UUID projectId;
 	public final UUID projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime probedAt;
 
-	ResourceUsageEntity(UUID id, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
+	ResourceUsageEntity(long id, UUID siteId, UUID communityId, UUID communityAllocationId, UUID resourceCreditId, UUID projectId, UUID projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime probedAt) {
 		this.id = id;
+		this.siteId = siteId;
+		this.communityId = communityId;
+		this.communityAllocationId = communityAllocationId;
+		this.resourceCreditId = resourceCreditId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.cumulativeConsumption = cumulativeConsumption;
@@ -45,6 +55,10 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		if (o == null || getClass() != o.getClass()) return false;
 		ResourceUsageEntity that = (ResourceUsageEntity) o;
 		return Objects.equals(id, that.id) &&
+			Objects.equals(siteId, that.siteId) &&
+			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(communityAllocationId, that.communityAllocationId) &&
+			Objects.equals(resourceCreditId, that.resourceCreditId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(projectAllocationId, that.projectAllocationId) &&
 			Objects.equals(cumulativeConsumption, that.cumulativeConsumption) &&
@@ -53,13 +67,17 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+		return Objects.hash(id, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 	}
 
 	@Override
 	public String toString() {
 		return "ResourceUsageEntity{" +
 			"id=" + id +
+			", siteId=" + siteId +
+			", communityAllocationId=" + communityAllocationId +
+			", communityId=" + communityId +
+			", resourceCreditId=" + resourceCreditId +
 			", projectId=" + projectId +
 			", projectAllocationId=" + projectAllocationId +
 			", cumulativeConsumption=" + cumulativeConsumption +
@@ -72,8 +90,12 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 	}
 
 	public static final class ResourceUsageEntityBuilder {
-		private UUID id;
+		private long id;
+		private UUID siteId;
+		private UUID communityId;
+		private UUID communityAllocationId;
 		private UUID projectId;
+		private UUID resourceCreditId;
 		private UUID projectAllocationId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime probedAt;
@@ -81,8 +103,28 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		private ResourceUsageEntityBuilder() {
 		}
 
-		public ResourceUsageEntityBuilder id(UUID id) {
+		public ResourceUsageEntityBuilder id(long id) {
 			this.id = id;
+			return this;
+		}
+
+		public ResourceUsageEntityBuilder resourceCreditId(UUID resourceCreditId) {
+			this.resourceCreditId = resourceCreditId;
+			return this;
+		}
+
+		public ResourceUsageEntityBuilder communityId(UUID communityId) {
+			this.communityId = communityId;
+			return this;
+		}
+
+		public ResourceUsageEntityBuilder siteId(UUID siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
+		public ResourceUsageEntityBuilder communityAllocationId(UUID communityId) {
+			this.communityAllocationId = communityId;
 			return this;
 		}
 
@@ -107,7 +149,7 @@ public class ResourceUsageEntity extends UUIDIdentifiable {
 		}
 
 		public ResourceUsageEntity build() {
-			return new ResourceUsageEntity(id, projectId, projectAllocationId, cumulativeConsumption, probedAt);
+			return new ResourceUsageEntity(id, siteId, communityId, communityAllocationId, resourceCreditId, projectId, projectAllocationId, cumulativeConsumption, probedAt);
 		}
 	}
 }

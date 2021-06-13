@@ -6,21 +6,21 @@
 package io.imunity.furms.db.resource_credits;
 
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import static java.util.Optional.empty;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
@@ -54,6 +54,14 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
+	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
+		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId))
+				.map(ResourceCreditEntity::toResourceCredit)
+				.filter(not(ResourceCredit::isExpired))
+				.collect(toSet());
+	}
+
+	@Override
 	public Set<ResourceCredit> findAll() {
 		return stream(repository.findAll().spliterator(), false)
 			.map(ResourceCreditEntity::toResourceCredit)
@@ -68,9 +76,10 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public Set<ResourceCredit> findAllByNameOrSiteNameWithoutExpired(String name) {
-		return repository.findAllByNameOrSiteNameWithoutExpired(name)
+	public Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name) {
+		return repository.findAllByNameOrSiteName(name)
 				.map(ResourceCreditEntity::toResourceCredit)
+				.filter(not(ResourceCredit::isExpired))
 				.collect(toSet());
 	}
 
