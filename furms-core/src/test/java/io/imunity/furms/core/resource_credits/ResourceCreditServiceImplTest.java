@@ -5,20 +5,22 @@
 
 package io.imunity.furms.core.resource_credits;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
+import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -26,18 +28,20 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
-import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class ResourceCreditServiceImplTest {
 	@Mock
@@ -56,6 +60,8 @@ class ResourceCreditServiceImplTest {
 	private AuthzService authzService;
 	@Mock
 	private ResourceTypeService resourceTypeService;
+	@Mock
+	private ResourceUsageRepository resourceUsageRepository;
 
 	private ResourceCreditServiceImpl service;
 	private InOrder orderVerifier;
@@ -66,7 +72,7 @@ class ResourceCreditServiceImplTest {
 		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
 				resourceCreditRepository, resourceTypeRepository, siteRepository);
 		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, 
-				communityAllocationService, authzService, resourceTypeService);
+				communityAllocationService, authzService, resourceTypeService, resourceUsageRepository);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -79,13 +85,15 @@ class ResourceCreditServiceImplTest {
 			.name("name")
 			.build())
 		);
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("")).thenReturn(new ResourceUsageByCredit(Map.of()));
+		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
-		Optional<ResourceCredit> byId = service.findById(id, "");
+		Optional<ResourceCreditWithAllocations> byId = service.findWithAllocationsByIdAndSiteId(id, "");
 
 		//then
 		assertThat(byId).isPresent();
-		assertThat(byId.get().id).isEqualTo(id);
+		assertThat(byId.get().getId()).isEqualTo(id);
 	}
 
 	@Test
@@ -99,7 +107,7 @@ class ResourceCreditServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceCredit> otherId = service.findById("otherId", "");
+		Optional<ResourceCreditWithAllocations> otherId = service.findWithAllocationsByIdAndSiteId("otherId", "");
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -111,9 +119,11 @@ class ResourceCreditServiceImplTest {
 		when(resourceCreditRepository.findAll("1")).thenReturn(Set.of(
 			ResourceCredit.builder().id("id1").name("name").build(),
 			ResourceCredit.builder().id("id2").name("name2").build()));
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("1")).thenReturn(new ResourceUsageByCredit(Map.of()));
+		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
-		Set<ResourceCredit> allResourceCredits = service.findAll("1");
+		Set<ResourceCreditWithAllocations> allResourceCredits = service.findAllWithAllocations("1");
 
 		//then
 		assertThat(allResourceCredits).hasSize(2);
@@ -129,12 +139,42 @@ class ResourceCreditServiceImplTest {
 		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
 		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
 		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
 		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", true, false);
 
 		//then
 		assertThat(all).hasSize(3);
+	}
+
+	@Test
+	void shouldReturnResourceCredits() {
+		//given
+		when(resourceCreditRepository.findAll("siteId")).thenReturn(Set.of(
+			ResourceCredit.builder()
+				.id("id1")
+				.name("name")
+				.siteId("siteId")
+				.resourceTypeId("id")
+				.build()
+		));
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("siteId")).thenReturn(
+			new ResourceUsageByCredit(Map.of("id1", BigDecimal.TEN))
+		);
+		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(resourceTypeService.findById("id", "siteId")).thenReturn(Optional.of(ResourceType.builder().build()));
+
+		//when
+		Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("siteId");
+
+		//then
+		assertThat(all).hasSize(1);
+		ResourceCreditWithAllocations credit = all.iterator().next();
+		assertThat(credit.getId()).isEqualTo("id1");
+		assertThat(credit.getRemaining()).isEqualTo(BigDecimal.ONE);
+		assertThat(credit.getConsumed()).isEqualTo(BigDecimal.TEN);
+
 	}
 
 	@Test
@@ -147,6 +187,7 @@ class ResourceCreditServiceImplTest {
 		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
 		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
 		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
 		final Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("", false, false);

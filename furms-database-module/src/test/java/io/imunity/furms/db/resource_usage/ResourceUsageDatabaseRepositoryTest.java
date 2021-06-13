@@ -11,12 +11,15 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
+import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
@@ -76,6 +79,12 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceUsageDatabaseRepository databaseRepository;
 
+	private UUID siteId;
+	private UUID communityId;
+	private UUID resourceCreditId;
+	private UUID communityAllocationId;
+	private UUID communityAllocationId2;
+
 	private UUID projectId;
 	private UUID projectId2;
 
@@ -87,13 +96,13 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		communityId = UUID.fromString(communityRepository.create(community));
 
 		Project project = Project.builder()
 			.communityId(communityId.toString())
@@ -135,7 +144,7 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
@@ -146,7 +155,7 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build()));
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId.toString())
 				.resourceCreditId(resourceCreditId.toString())
@@ -154,7 +163,7 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.amount(new BigDecimal(10))
 				.build()
 		));
-		UUID communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId.toString())
 				.resourceCreditId(resourceCreditId.toString())
@@ -189,6 +198,11 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.projectAllocationId(projectAllocationId.toString())
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build(),
+			ProjectAllocationResolved.builder()
+				.site(Site.builder().id(siteId.toString()).build())
+				.communityAllocation(CommunityAllocation.builder().id(communityAllocationId.toString()).communityId(communityId.toString()).build())
+				.resourceCredit(ResourceCredit.builder().id(resourceCreditId.toString()).build())
 				.build()
 		);
 
@@ -214,7 +228,13 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.projectAllocationId(projectAllocationId.toString())
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build(),
+			ProjectAllocationResolved.builder()
+				.site(Site.builder().id(siteId.toString()).build())
+				.communityAllocation(CommunityAllocation.builder().id(communityAllocationId.toString()).communityId(communityId.toString()).build())
+				.resourceCredit(ResourceCredit.builder().id(resourceCreditId.toString()).build())
 				.build()
+
 		);
 		databaseRepository.create(
 			ResourceUsage.builder()
@@ -222,6 +242,11 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 				.projectAllocationId(projectAllocationId.toString())
 				.cumulativeConsumption(BigDecimal.TEN)
 				.probedAt(LocalDateTime.now().minusMinutes(1))
+				.build(),
+			ProjectAllocationResolved.builder()
+				.site(Site.builder().id(siteId.toString()).build())
+				.communityAllocation(CommunityAllocation.builder().id(communityAllocationId.toString()).communityId(communityId.toString()).build())
+				.resourceCredit(ResourceCredit.builder().id(resourceCreditId.toString()).build())
 				.build()
 		);
 
@@ -306,6 +331,10 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindCurrentResourceUsages() {
 		resourceUsageEntityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -314,6 +343,10 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 		resourceUsageEntityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId2)
 				.cumulativeConsumption(BigDecimal.TEN)
@@ -332,6 +365,10 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindCurrentResourceUsage() {
 		ResourceUsageEntity saveEntity = resourceUsageEntityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -344,5 +381,67 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId.toString(), resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId.toString(), resourceUsageEntities.get().projectId);
+	}
+
+	@Test
+	void shouldFindResourceUsagesSumGroupedByCommunityAllocationId() {
+		resourceUsageEntityRepository.save(
+			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(BigDecimal.ONE)
+				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build()
+		);
+		resourceUsageEntityRepository.save(
+			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
+				.projectId(projectId2)
+				.projectAllocationId(projectAllocationId2)
+				.cumulativeConsumption(BigDecimal.TEN)
+				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build()
+		);
+
+		ResourceUsageByCommunityAllocation resourceUsageSum = databaseRepository.findResourceUsagesSumsByCommunityId(communityId.toString());
+		assertEquals(BigDecimal.valueOf(11), resourceUsageSum.get(communityAllocationId.toString()));
+	}
+
+	@Test
+	void shouldFindResourceUsagesSumGroupedByResourceCreditId() {
+		resourceUsageEntityRepository.save(
+			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(BigDecimal.ONE)
+				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build()
+		);
+		resourceUsageEntityRepository.save(
+			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId2)
+				.projectId(projectId2)
+				.projectAllocationId(projectAllocationId2)
+				.cumulativeConsumption(BigDecimal.TEN)
+				.probedAt(LocalDateTime.now().minusMinutes(5))
+				.build()
+		);
+
+		ResourceUsageByCredit resourceUsageSum = databaseRepository.findResourceUsagesSumsBySiteId(siteId.toString());
+		assertEquals(BigDecimal.valueOf(11), resourceUsageSum.get(resourceCreditId.toString()));
 	}
 }

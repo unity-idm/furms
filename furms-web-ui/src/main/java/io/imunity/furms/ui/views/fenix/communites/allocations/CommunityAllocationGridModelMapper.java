@@ -9,15 +9,17 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 
 class CommunityAllocationGridModelMapper {
 
-	static CommunityAllocationGridModel gridMap(CommunityAllocationResolved CommunityAllocation) {
+	static CommunityAllocationGridModel gridMap(CommunityAllocationResolved communityAllocationResolved) {
 		return CommunityAllocationGridModel.builder()
-				.id(CommunityAllocation.id)
-				.siteName(CommunityAllocation.site.getName())
-				.resourceTypeName(CommunityAllocation.resourceType.name)
-				.resourceTypeUnit(CommunityAllocation.resourceType.unit)
-				.resourceCreditName(CommunityAllocation.resourceCredit.name)
-				.name(CommunityAllocation.name)
-				.amount(CommunityAllocation.amount)
+				.id(communityAllocationResolved.id)
+				.siteName(communityAllocationResolved.site.getName())
+				.resourceTypeName(communityAllocationResolved.resourceType.name)
+				.resourceTypeUnit(communityAllocationResolved.resourceType.unit)
+				.resourceCreditName(communityAllocationResolved.resourceCredit.name)
+				.name(communityAllocationResolved.name)
+				.amount(communityAllocationResolved.amount)
+				.remaining(communityAllocationResolved.remaining)
+				.consumed(communityAllocationResolved.consumed)
 				.build();
 	}
 

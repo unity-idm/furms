@@ -65,6 +65,11 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceUsageEntityRepository entityRepository;
 
+	private UUID siteId;
+	private UUID communityId;
+	private UUID resourceCreditId;
+	private UUID communityAllocationId;
+
 	private UUID projectId;
 	private UUID projectId2;
 
@@ -76,13 +81,13 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		communityId = UUID.fromString(communityRepository.create(community));
 
 		Project project = Project.builder()
 			.communityId(communityId.toString())
@@ -124,7 +129,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
@@ -135,7 +140,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build()));
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId.toString())
 				.resourceCreditId(resourceCreditId.toString())
@@ -174,6 +179,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreate() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -181,9 +190,9 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(saveEntity.getId());
+		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(saveEntity.id);
 		assertTrue(resourceUsageEntities.isPresent());
-		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
+		assertEquals(saveEntity.id, resourceUsageEntities.get().id);
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId, resourceUsageEntities.get().projectId);
@@ -193,6 +202,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate() {
 		ResourceUsageEntity savedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.TEN)
@@ -201,7 +214,11 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 		);
 		ResourceUsageEntity updatedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.id(savedEntity.getId())
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
+				.id(savedEntity.id)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -209,9 +226,9 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(updatedEntity.getId());
+		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(updatedEntity.id);
 		assertTrue(resourceUsageEntities.isPresent());
-		assertEquals(updatedEntity.getId(), resourceUsageEntities.get().getId());
+		assertEquals(updatedEntity.id, resourceUsageEntities.get().id);
 		assertEquals(updatedEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(updatedEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(updatedEntity.projectId, resourceUsageEntities.get().projectId);
@@ -221,6 +238,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDelete() {
 		ResourceUsageEntity savedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.TEN)
@@ -228,8 +249,8 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		entityRepository.deleteById(savedEntity.getId());
-		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(savedEntity.getId());
+		entityRepository.deleteById(savedEntity.id);
+		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findById(savedEntity.id);
 
 		assertFalse(resourceUsageEntities.isPresent());
 	}
@@ -238,6 +259,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindByProjectAllocationId() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -246,6 +271,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 		);
 		entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId2)
 				.projectAllocationId(projectAllocationId2)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -255,7 +284,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 
 		Optional<ResourceUsageEntity> resourceUsageEntities = entityRepository.findByProjectAllocationId(saveEntity.projectAllocationId);
 		assertTrue(resourceUsageEntities.isPresent());
-		assertEquals(saveEntity.getId(), resourceUsageEntities.get().getId());
+		assertEquals(saveEntity.id, resourceUsageEntities.get().id);
 		assertEquals(saveEntity.cumulativeConsumption, resourceUsageEntities.get().cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, resourceUsageEntities.get().projectAllocationId);
 		assertEquals(saveEntity.projectId, resourceUsageEntities.get().projectId);
@@ -265,6 +294,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllByProjectId() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId)
 				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -273,6 +306,10 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 		);
 		entityRepository.save(
 			ResourceUsageEntity.builder()
+				.siteId(siteId)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.communityAllocationId(communityAllocationId)
 				.projectId(projectId2)
 				.projectAllocationId(projectAllocationId2)
 				.cumulativeConsumption(BigDecimal.ONE)
@@ -283,7 +320,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 		Set<ResourceUsageEntity> resourceUsageEntities = entityRepository.findAllByProjectId(saveEntity.projectId);
 		assertEquals(1, resourceUsageEntities.size());
 		ResourceUsageEntity entity = resourceUsageEntities.iterator().next();
-		assertEquals(saveEntity.getId(), entity.getId());
+		assertEquals(saveEntity.id, entity.id);
 		assertEquals(saveEntity.cumulativeConsumption, entity.cumulativeConsumption);
 		assertEquals(saveEntity.projectAllocationId, entity.projectAllocationId);
 		assertEquals(saveEntity.projectId, entity.projectId);

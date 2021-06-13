@@ -26,6 +26,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.math.RoundingMode.HALF_UP;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
@@ -62,25 +63,41 @@ public class CommunityAllocationComponent extends Composite<Div> {
 	private Grid<CommunityAllocationGridModel> createCommunityGrid() {
 		Grid<CommunityAllocationGridModel> grid = new SparseGrid<>(CommunityAllocationGridModel.class);
 
-		grid.addColumn(CommunityAllocationGridModel::getSiteName)
+		grid.addColumn(model -> model.siteName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addComponentColumn(c -> new RouterLink(c.name, CommunityAllocationFormView.class, c.id))
+		grid.addComponentColumn(model -> new RouterLink(model.name, CommunityAllocationFormView.class, model.id))
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.2"))
 			.setSortable(true)
-			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(CommunityAllocationGridModel::getResourceCreditName)
+			.setComparator(model -> model.name.toLowerCase());
+		grid.addColumn(model -> model.resourceCreditName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.3"))
 			.setSortable(true);
-		grid.addColumn(CommunityAllocationGridModel::getResourceTypeName)
+		grid.addColumn(model -> model.resourceTypeName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.4"))
 			.setSortable(true);
-		grid.addColumn(CommunityAllocationGridModel::getAmountWithUnit)
+		grid.addColumn(model -> model.amountWithUnit)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.5"))
 			.setSortable(true)
-			.setComparator(comparing(c -> c.getAmountWithUnit().amount));
-		grid.addComponentColumn(this::createLastColumnContent)
+			.setComparator(comparing(model -> model.amountWithUnit.amount));
+		grid.addColumn(model -> model.distributedWithUnit)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.6"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.distributedWithUnit.amount));
+		grid.addColumn(model -> model.remainingWithUnit)
+			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.7"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.remainingWithUnit.amount));
+		grid.addComponentColumn(model -> {
+			double value = model.consumed
+				.divide(model.amountWithUnit.amount, 4, HALF_UP)
+				.doubleValue();
+			return new FurmsProgressBar(value);
+		})
+			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.8"))
+			.setComparator(comparing(model -> model.consumed));
+		grid.addComponentColumn(this::createLastColumnContent)
+			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;

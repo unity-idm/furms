@@ -6,22 +6,21 @@
 package io.imunity.furms.db.resource_credits;
 
 
-import static java.util.Optional.empty;
-import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import static java.util.Optional.empty;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
