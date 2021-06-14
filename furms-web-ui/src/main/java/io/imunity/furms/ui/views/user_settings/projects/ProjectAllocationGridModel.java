@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.user_settings.projects;
 
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.PositiveAmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ class ProjectAllocationGridModel {
 	public String name;
 	public AmountWithUnit amountWithUnit;
 	public AmountWithUnit consumedWithUnit;
-	public AmountWithUnit remainingWithUnit;
+	public PositiveAmountWithUnit remainingWithUnit;
 	public final boolean accessibleForAllProjectMembers;
 
 	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
@@ -31,7 +32,7 @@ class ProjectAllocationGridModel {
 		this.resourceTypeName = resourceTypeName;
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
-		this.remainingWithUnit = new AmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
+		this.remainingWithUnit = new PositiveAmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
 		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 

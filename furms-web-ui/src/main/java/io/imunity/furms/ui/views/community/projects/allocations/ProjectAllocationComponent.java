@@ -22,6 +22,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.validation.exceptions.ConsumedProjectAllocationRemovingError;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
@@ -30,7 +31,6 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
-import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
@@ -46,6 +46,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -187,8 +188,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Dialog createConfirmDialog(String projectAllocationId, String projectAllocationName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", projectAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> service.delete(communityId, projectAllocationId));
-			loadGridContent();
+			try {
+				service.delete(communityId, projectAllocationId);
+				loadGridContent();
+			} catch (ConsumedProjectAllocationRemovingError e){
+				showErrorNotification(getTranslation("project.allocation.removing.message"));
+			} catch (Exception e){
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 		});
 		return furmsDialog;
 	}

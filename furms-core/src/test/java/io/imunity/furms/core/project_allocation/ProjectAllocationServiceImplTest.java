@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
+import io.imunity.furms.api.validation.exceptions.ConsumedProjectAllocationRemovingError;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.*;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -156,7 +158,10 @@ class ProjectAllocationServiceImplTest {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
-		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder().build();
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.amount(BigDecimal.TEN)
+			.consumed(BigDecimal.ONE)
+			.build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 
 		//when
@@ -164,5 +169,18 @@ class ProjectAllocationServiceImplTest {
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
 		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));
+	}
+
+	@Test
+	void shouldNotAllowToDeleteProjectAllocation() {
+		String id = "id";
+		when(projectAllocationRepository.exists(id)).thenReturn(true);
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.amount(BigDecimal.TEN)
+			.consumed(BigDecimal.TEN)
+			.build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
+
+		assertThrows(ConsumedProjectAllocationRemovingError.class, () -> service.delete("projectId", id));
 	}
 }
