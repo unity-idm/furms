@@ -5,7 +5,14 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation_installation.*;
+import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -26,13 +33,15 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
+	private final UserOperationService userOperationService;
 
-	ProjectAllocationInstallationStatusUpdaterImpl(
-		ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
-		ProjectAllocationRepository projectAllocationRepository
-	) {
+
+	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
+	                                               ProjectAllocationRepository projectAllocationRepository,
+	                                               UserOperationService userOperationService) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
+		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -75,6 +84,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 				allocationInstallation.status)
 			);
 		projectAllocationInstallationRepository.create(result);
+		if(!projectAllocationInstallationRepository.chunksExist(result.projectAllocationId)) {
+			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(result.projectAllocationId)
+				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + result.projectAllocationId));
+			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
+		}
 		LOG.info("ProjectAllocationChunk was created: {}", result);
 	}
 }

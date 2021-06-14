@@ -5,8 +5,11 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
+import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,8 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	private ProjectAllocationInstallationRepository repository;
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
+	@Mock
+	private UserOperationService userOperationService;
 
 
 	private ProjectAllocationInstallationStatusUpdaterImpl service;
@@ -34,8 +39,8 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository);
-		orderVerifier = inOrder(repository);
+		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository, userOperationService);
+		orderVerifier = inOrder(repository, userOperationService);
 	}
 
 	@Test
@@ -64,10 +69,16 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
 			.build());
+		when(projectAllocationRepository.findByIdWithRelatedObjects("id")).thenReturn(Optional.of(
+			ProjectAllocationResolved.builder()
+			.site(Site.builder().id("id").build())
+			.projectId("id")
+			.build()));
 		service.createChunk(chunk);
 
 		//then
 		orderVerifier.verify(repository).create(chunk);
+		orderVerifier.verify(userOperationService).createUserAdditions("id", "id");
 	}
 
 	@Test

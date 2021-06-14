@@ -6,9 +6,13 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
@@ -25,15 +29,12 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 
 	private final ProjectOperationRepository projectOperationRepository;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
-	private final UserOperationService userOperationService;
 
 	ProjectInstallationStatusUpdaterImpl(
 		ProjectOperationRepository projectOperationRepository,
-		ProjectAllocationInstallationService projectAllocationInstallationService,
-		UserOperationService userOperationService) {
+		ProjectAllocationInstallationService projectAllocationInstallationService) {
 		this.projectOperationRepository = projectOperationRepository;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
-		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -47,7 +48,6 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 		projectOperationRepository.update(job.id, result.status, result.attributes.get("gid"));
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
-			userOperationService.createUserAdditions(job.siteId, job.projectId);
 		}
 		if(result.status.equals(ProjectInstallationStatus.FAILED)){
 			projectAllocationInstallationService.cancelWaitingAllocations(job.projectId, new ErrorMessage(result.error.code, result.error.message));

@@ -38,6 +38,8 @@ public interface ProjectAllocationInstallationRepository {
 
 	boolean exists(String id);
 
+	boolean chunksExist(String projectAllocationId);
+
 	void deleteBy(String id);
 
 	void deleteAll();

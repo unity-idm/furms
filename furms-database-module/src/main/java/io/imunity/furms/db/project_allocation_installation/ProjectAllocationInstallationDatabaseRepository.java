@@ -178,6 +178,10 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 		return allocationRepository.existsById(UUID.fromString(id));
 	}
 
+	@Override
+	public boolean chunksExist(String projectAllocationId) {
+		return chunkRepository.existsByProjectAllocationId(UUID.fromString(projectAllocationId));
+	}
 
 	@Override
 	public void deleteBy(String id) {
