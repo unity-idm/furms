@@ -19,6 +19,7 @@ class ResourceCreditViewModelMapper {
 		return ResourceCreditViewModel.builder()
 			.id(resourceCredit.getId())
 			.siteId(resourceCredit.getSiteId())
+			.resourceTypeId(resourceCredit.getResourceType().id)
 			.resourceTypeName(resourceCredit.getResourceType().name)
 			.name(resourceCredit.getName())
 			.split(resourceCredit.getSplit())
