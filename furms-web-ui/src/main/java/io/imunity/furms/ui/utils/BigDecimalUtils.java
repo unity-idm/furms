@@ -5,9 +5,11 @@
 
 package io.imunity.furms.ui.utils;
 
+import static java.util.Optional.ofNullable;
+
 import java.math.BigDecimal;
 
-import static java.util.Optional.ofNullable;
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
 
 public class BigDecimalUtils {
 	public static BigDecimal toBigDecimal(String value) {
@@ -18,8 +20,9 @@ public class BigDecimalUtils {
 			.orElse(null);
 	}
 
-	public static String toString(BigDecimal amount) {
+	public static String toString(AmountWithUnit amount) {
 		return ofNullable(amount)
+			.map(amountWithUnit -> amountWithUnit.amount)
 			.map(BigDecimal::toPlainString)
 			.orElse(null);
 	}
