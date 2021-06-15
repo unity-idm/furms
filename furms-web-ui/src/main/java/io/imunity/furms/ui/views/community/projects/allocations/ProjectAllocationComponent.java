@@ -5,6 +5,22 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
@@ -20,6 +36,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -30,26 +47,9 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
-import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 
 public class ProjectAllocationComponent extends Composite<Div> {
@@ -198,9 +198,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
 				service.findAllUninstallations(projectId),
-				service.findAllChunks(projectId))
-			;
-			grid.setItems(loadServicesViewsModels());
+				service.findAllChunks(projectId));
+			final List<ProjectAllocationGridModel> items = loadServicesViewsModels();
+			items.stream()
+					.filter(grid::isDetailsVisible)
+					.findFirst()
+					.ifPresent(item -> grid.setDetailsVisible(item, false));
+			grid.setItems(items);
+			grid.getElement().executeJs("this.notifyResize()");
 			actionComponent.reload();
 		});
 	}

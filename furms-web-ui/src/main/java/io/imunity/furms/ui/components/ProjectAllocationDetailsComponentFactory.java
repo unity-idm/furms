@@ -29,34 +29,34 @@ public class ProjectAllocationDetailsComponentFactory {
 		tableElement.getStyle().set("text-align", "left");
 		Element thead = new Element("thead");
 
-		Element theadRow = new Element("tr");
-		Element amountHeader = new Element("th");
+		Tr theadRow = new Tr();
+		Th amountHeader = new Th();
 		amountHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.1"));
-		Element receivedHeader = new Element("th");
+		Th receivedHeader = new Th();
 		receivedHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.2"));
-		Element validFromHeader = new Element("th");
+		Th validFromHeader = new Th();
 		validFromHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.3"));
-		Element validToHeader = new Element("th");
+		Th validToHeader = new Th();
 		validToHeader.setText(getTranslation("view.community-admin.project-allocation.inner.table.4"));
 		theadRow.appendChild(amountHeader, receivedHeader, validFromHeader, validToHeader);
 		thead.appendChild(theadRow);
 
-		Element tbody = new Element("tbody");
+		Tbody tbody = new Tbody();
 		for(ProjectAllocationChunk chunk: allocationChunks){
-			Element row = new Element("tr");
-			Element amountField = new Element("td");
+			Tr row = new Tr();
+			Td amountField = new Td();
 			amountField.setText(Optional.ofNullable(chunk.amount).map(Object::toString).orElse(""));
-			Element receivedField = new Element("td");
+			Td receivedField = new Td();
 			receivedField.setText(Optional.ofNullable(chunk.receivedTime)
 				.map(t -> convertToZoneTime(t, browserZoneId))
 				.map(t -> t.format(dateTimeFormatter))
 				.orElse(""));
-			Element validFrom = new Element("td");
+			Td validFrom = new Td();
 			validFrom.setText(Optional.ofNullable(chunk.validFrom)
 				.map(t -> convertToZoneTime(t, browserZoneId))
 				.map(t -> t.format(dateTimeFormatter))
 				.orElse(""));
-			Element validTo = new Element("td");
+			Td validTo = new Td();
 			validTo.setText(Optional.ofNullable(chunk.validTo)
 				.map(t -> convertToZoneTime(t, browserZoneId))
 				.map(t -> t.format(dateTimeFormatter))
@@ -67,7 +67,30 @@ public class ProjectAllocationDetailsComponentFactory {
 		tableElement.appendChild(thead, tbody);
 		Div div = new Div();
 		div.getElement().appendChild(tableElement);
-		div.setMinHeight("6em");
 		return div;
+	}
+
+	private static class Td extends Element {
+		public Td() {
+			super("td");
+		}
+	}
+
+	private static class Th extends Element {
+		public Th() {
+			super("th");
+		}
+	}
+
+	private static class Tr extends Element {
+		public Tr() {
+			super("tr");
+		}
+	}
+
+	private static class Tbody extends Element {
+		public Tbody() {
+			super("tbody");
+		}
 	}
 }
