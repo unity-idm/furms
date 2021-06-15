@@ -1,0 +1,134 @@
+{
+    "rabbit_version":"	3.8.2",
+    "rabbitmq_version": "3.8.2",
+    "users": [
+        {
+            "name": "guest",
+            "password_hash": "v6toq7ut8epHYLyKT4vJZTz5Svc/86m/2c5aBSOKLQaOYgEg",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": "administrator"
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "guest",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "topic_permissions": [],
+    "parameters": [],
+    "global_parameters": [
+        {
+            "name": "cluster_name",
+            "value": "rabbit@rabbit"
+        }
+    ],
+    "policies": [],
+    "queues": [
+        {
+            "name": "fzj-x-furms-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "bsc-x-site-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "bsc-x-furms-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "fzj-x-site-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "cin-x-furms-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "cin-x-site-pub",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "cin-x-site-pub",
+            "vhost": "/",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "bsc-x-site-pub",
+            "vhost": "/",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "fzj-x-site-pub",
+            "vhost": "/",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "bsc-x-site-pub",
+            "vhost": "/",
+            "destination": "bsc-x-site-pub",
+            "destination_type": "queue",
+            "routing_key": "bsc-x-site-pub",
+            "arguments": {}
+        },
+        {
+            "source": "cin-x-site-pub",
+            "vhost": "/",
+            "destination": "cin-x-site-pub",
+            "destination_type": "queue",
+            "routing_key": "cin-x-site-pub",
+            "arguments": {}
+        },
+        {
+            "source": "fzj-x-site-pub",
+            "vhost": "/",
+            "destination": "fzj-x-site-pub",
+            "destination_type": "queue",
+            "routing_key": "fzj-x-site-pub",
+            "arguments": {}
+        }
+    ]
+}
