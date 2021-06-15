@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
@@ -17,12 +18,12 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 	public final String allocationIdentifier;
 	public final String resourceCreditIdentifier;
 	public final String resourceType;
-	public final double amount;
+	public final BigDecimal amount;
 	public final OffsetDateTime validFrom;
 	public final OffsetDateTime validTo;
 
 	@JsonCreator
-	AgentProjectAllocationInstallationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, double amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
+	AgentProjectAllocationInstallationRequest(String projectIdentifier, String allocationIdentifier, String resourceCreditIdentifier, String resourceType, BigDecimal amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.resourceCreditIdentifier = resourceCreditIdentifier;
@@ -37,7 +38,7 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		AgentProjectAllocationInstallationRequest that = (AgentProjectAllocationInstallationRequest) o;
-		return Double.compare(that.amount, amount) == 0 &&
+		return Objects.equals(that.amount, amount) &&
 			Objects.equals(projectIdentifier, that.projectIdentifier) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
 			Objects.equals(resourceCreditIdentifier, that.resourceCreditIdentifier) &&
@@ -73,7 +74,7 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 		public String allocationIdentifier;
 		public String resourceCreditIdentifier;
 		public String resourceType;
-		public double amount;
+		public BigDecimal amount;
 		public OffsetDateTime validFrom;
 		public OffsetDateTime validTo;
 
@@ -100,7 +101,7 @@ public class AgentProjectAllocationInstallationRequest implements Body {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationRequestBuilder amount(double amount) {
+		public AgentProjectResourceAllocationRequestBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
 		}

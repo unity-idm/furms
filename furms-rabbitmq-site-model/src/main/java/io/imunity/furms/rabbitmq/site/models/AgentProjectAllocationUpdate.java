@@ -14,11 +14,10 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@JsonTypeName("ProjectResourceAllocationResult")
-public class AgentProjectAllocationInstallationResult implements Body {
+@JsonTypeName("ProjectResourceAllocationUpdate")
+public class AgentProjectAllocationUpdate implements Body {
 	public final String allocationIdentifier;
 	public final String allocationChunkIdentifier;
-	public final String resourceType;
 	public final BigDecimal amount;
 	public final OffsetDateTime validFrom;
 	public final OffsetDateTime validTo;
@@ -26,10 +25,10 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public final ZonedDateTime receivedTime = ZonedDateTime.now();
 
 	@JsonCreator
-	AgentProjectAllocationInstallationResult(String allocationIdentifier, String allocationChunkIdentifier, String resourceType, BigDecimal amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
+	AgentProjectAllocationUpdate(String allocationIdentifier, String allocationChunkIdentifier,
+	                             BigDecimal amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
 		this.allocationIdentifier = allocationIdentifier;
 		this.allocationChunkIdentifier = allocationChunkIdentifier;
-		this.resourceType = resourceType;
 		this.amount = amount;
 		this.validFrom = validFrom;
 		this.validTo = validTo;
@@ -39,18 +38,17 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AgentProjectAllocationInstallationResult that = (AgentProjectAllocationInstallationResult) o;
-		return Objects.equals(that.amount, amount)  &&
+		AgentProjectAllocationUpdate that = (AgentProjectAllocationUpdate) o;
+		return Objects.equals(that.amount, amount) &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
 			Objects.equals(allocationChunkIdentifier, that.allocationChunkIdentifier) &&
-			Objects.equals(resourceType, that.resourceType) &&
 			Objects.equals(validFrom, that.validFrom) &&
 			Objects.equals(validTo, that.validTo);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
+		return Objects.hash(allocationIdentifier, allocationChunkIdentifier, amount, validFrom, validTo);
 	}
 
 	@Override
@@ -58,7 +56,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 		return "AgentProjectResourceAllocationResult{" +
 			", allocationIdentifier='" + allocationIdentifier + '\'' +
 			", allocationChunkIdentifier='" + allocationChunkIdentifier + '\'' +
-			", resourceType='" + resourceType + '\'' +
 			", amount=" + amount +
 			", validFrom=" + validFrom +
 			", validTo=" + validTo +
@@ -72,7 +69,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public static final class AgentProjectResourceAllocationResultBuilder {
 		public String allocationIdentifier;
 		public String allocationChunkIdentifier;
-		public String resourceType;
 		public BigDecimal amount;
 		public OffsetDateTime validFrom;
 		public OffsetDateTime validTo;
@@ -87,11 +83,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 
 		public AgentProjectResourceAllocationResultBuilder allocationChunkIdentifier(String allocationChunkIdentifier) {
 			this.allocationChunkIdentifier = allocationChunkIdentifier;
-			return this;
-		}
-
-		public AgentProjectResourceAllocationResultBuilder resourceType(String resourceType) {
-			this.resourceType = resourceType;
 			return this;
 		}
 
@@ -110,8 +101,8 @@ public class AgentProjectAllocationInstallationResult implements Body {
 			return this;
 		}
 
-		public AgentProjectAllocationInstallationResult build() {
-			return new AgentProjectAllocationInstallationResult(allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
+		public AgentProjectAllocationUpdate build() {
+			return new AgentProjectAllocationUpdate(allocationIdentifier, allocationChunkIdentifier, amount, validFrom, validTo);
 		}
 	}
 }

@@ -14,4 +14,5 @@ public interface ProjectAllocationInstallationStatusUpdater {
 	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 	void createChunk(ProjectAllocationChunk chunk);
+	void updateChunk(ProjectAllocationChunk chunk);
 }

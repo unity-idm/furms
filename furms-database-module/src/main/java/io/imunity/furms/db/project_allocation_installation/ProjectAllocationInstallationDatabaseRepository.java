@@ -171,6 +171,22 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public void update(ProjectAllocationChunk projectAllocationChunk) {
+		chunkRepository.findByProjectAllocationIdAndChunkId(UUID.fromString(projectAllocationChunk.projectAllocationId) ,projectAllocationChunk.chunkId)
+			.map(chunk -> ProjectAllocationChunkEntity.builder()
+				.id(chunk.getId())
+				.projectAllocationId(UUID.fromString(projectAllocationChunk.projectAllocationId))
+				.chunkId(projectAllocationChunk.chunkId)
+				.amount(projectAllocationChunk.amount)
+				.validFrom(projectAllocationChunk.validFrom)
+				.validTo(projectAllocationChunk.validTo)
+				.receivedTime(projectAllocationChunk.receivedTime)
+				.build())
+			.map(chunkRepository::save)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Chunk %s doesn't exist ", projectAllocationChunk.chunkId)));
+	}
+
+	@Override
 	public boolean exists(String id) {
 		if (isEmpty(id)) {
 			return false;
