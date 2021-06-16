@@ -12,7 +12,9 @@ public enum ProjectAllocationInstallationStatus {
 	PENDING(1,  false, false),
 	ACKNOWLEDGED(2,  true,false),
 	FAILED(3, true,true),
-	PROJECT_INSTALLATION_FAILED(4, true,true);
+	PROJECT_INSTALLATION_FAILED(4, true,true),
+	UPDATING(5, false,false),
+	UPDATING_FAILED(6, true,true);
 
 	ProjectAllocationInstallationStatus(int persistentId, boolean terminal, boolean failed) {
 		this.persistentId = persistentId;

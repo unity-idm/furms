@@ -5,12 +5,24 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.*;
+import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
+import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,15 +37,20 @@ import static org.springframework.util.Assert.notNull;
 @Component
 class ProjectAllocationServiceValidator {
 	private final ProjectAllocationRepository projectAllocationRepository;
+	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectRepository projectRepository;
+	private final ResourceUsageRepository resourceUsageRepository;
 
 	ProjectAllocationServiceValidator(ProjectAllocationRepository projectAllocationRepository,
+	                                  ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
 	                                  CommunityAllocationRepository communityAllocationRepository,
-	                                  ProjectRepository projectRepository) {
+	                                  ProjectRepository projectRepository, ResourceUsageRepository resourceUsageRepository) {
 		this.projectAllocationRepository = projectAllocationRepository;
+		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectRepository = projectRepository;
+		this.resourceUsageRepository = resourceUsageRepository;
 	}
 
 	void validateCreate(String communityId, ProjectAllocation projectAllocation) {
@@ -58,7 +75,10 @@ class ProjectAllocationServiceValidator {
 		validateName(communityId, projectAllocation);
 
 		assertAmountNotNull(projectAllocation.amount);
-		assertAmountNotIncreased(projectAllocation);
+		assertAmountNotIncreasedInExpiredProject(projectAllocation);
+		assertAmountNotIncreasedBeyondCommunityAllocationLimit(projectAllocation);
+		assertAmountNotDecreasedBelowConsumedUsage(projectAllocation);
+		assertStatusIsInTerminalState(projectAllocation);
 	}
 
 	void validateCommunityIdAndProjectId(String communityId, String projectId) {
@@ -169,7 +189,7 @@ class ProjectAllocationServiceValidator {
 		notNull(amount, "ProjectAllocation amount cannot be null.");
 	}
 
-	private void assertAmountNotIncreased(ProjectAllocation projectAllocation) {
+	private void assertAmountNotIncreasedInExpiredProject(ProjectAllocation projectAllocation) {
 		Optional<Project> project = projectRepository.findById(projectAllocation.projectId);
 		if (project.isPresent() && project.get().isExpired()) {
 			final Optional<ProjectAllocation> oldAllocation = projectAllocationRepository.findById(projectAllocation.id);
@@ -177,5 +197,28 @@ class ProjectAllocationServiceValidator {
 					old.amount.compareTo(projectAllocation.amount) > 0,
 					() -> new ProjectAllocationWrongAmountException("Increased allocation amount for expired projects is not permitted.")));
 		}
+	}
+
+	private void assertAmountNotIncreasedBeyondCommunityAllocationLimit(ProjectAllocation projectAllocation) {
+		BigDecimal availableAmount = projectAllocationRepository.getAvailableAmount(projectAllocation.communityAllocationId);
+		BigDecimal currentAllocatedAmount = projectAllocationRepository.findById(projectAllocation.id).map(x -> x.amount)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Project Allocation %s doesn't exist", projectAllocation.id)));
+		BigDecimal realIncreasedValue = projectAllocation.amount.subtract(currentAllocatedAmount);
+		if(availableAmount.subtract(realIncreasedValue).compareTo(BigDecimal.ZERO) <= 0)
+			throw new ProjectAllocationWrongAmountException("Allocation amount have to be less then community allocation limit");
+	}
+
+	private void assertAmountNotDecreasedBelowConsumedUsage(ProjectAllocation projectAllocation) {
+		ResourceUsage resourceUsage = resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Project Allocation %s doesn't exist", projectAllocation.id)));
+		if(resourceUsage.cumulativeConsumption.compareTo(projectAllocation.amount) > 0)
+			throw new ProjectAllocationWrongAmountException("Allocation amount have to be bigger then consumed usage");
+	}
+
+	private void assertStatusIsInTerminalState(ProjectAllocation projectAllocation) {
+		ProjectAllocationInstallation projectAllocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocation.id);
+		Optional<ProjectDeallocation> deallocation = projectAllocationInstallationRepository.findDeallocationByProjectAllocationId(projectAllocation.id);
+		if(!projectAllocationInstallation.status.isTerminal() || deallocation.isPresent())
+			throw new IllegalArgumentException("Only allocations in terminal state can be edit");
 	}
 }

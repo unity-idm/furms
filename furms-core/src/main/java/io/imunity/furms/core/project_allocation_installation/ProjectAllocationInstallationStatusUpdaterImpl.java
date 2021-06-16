@@ -19,6 +19,9 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
 @Service
 class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocationInstallationStatusUpdater {
@@ -44,6 +47,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
+		if(job.status == UPDATING && status == FAILED)
+			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
+
 		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}

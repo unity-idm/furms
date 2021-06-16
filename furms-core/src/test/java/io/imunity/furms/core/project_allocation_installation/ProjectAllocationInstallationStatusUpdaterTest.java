@@ -47,10 +47,10 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 	}
 
 	@Test

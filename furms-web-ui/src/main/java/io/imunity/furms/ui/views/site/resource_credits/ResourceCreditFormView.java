@@ -5,16 +5,6 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-
-import java.time.ZoneId;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -24,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
@@ -38,6 +27,16 @@ import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+
+import java.time.ZoneId;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "site/admin/resource/credits/form", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.resource-credits.form.page.title")
@@ -104,7 +103,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		ResourceCreditViewModel serviceViewModel = ofNullable(parameter)
+		ResourceCreditViewModel resourceCreditViewModel = ofNullable(parameter)
 			.flatMap(id -> handleExceptions(() -> resourceCreditService.findWithAllocationsByIdAndSiteId(id, getCurrentResourceId())))
 			.flatMap(Function.identity())
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
@@ -114,7 +113,10 @@ class ResourceCreditFormView extends FurmsViewComponent {
 			? "view.site-admin.resource-credits.form.parameter.new"
 			: "view.site-admin.resource-credits.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		resourceCreditFormComponent.setFormPools(serviceViewModel);
+		resourceCreditFormComponent.setFormPools(
+			resourceCreditViewModel,
+			resourceCreditService.hasCommunityAllocations(resourceCreditViewModel.getId(), resourceCreditViewModel.getSiteId())
+		);
 	}
 
 	@Override

@@ -7,12 +7,15 @@ package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +49,6 @@ class ProjectAllocationServiceImplTest {
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Mock
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
-	@Mock
-	private CommunityAllocationRepository communityAllocationRepository;
 
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
@@ -56,8 +57,7 @@ class ProjectAllocationServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new ProjectAllocationServiceImpl(
-			projectAllocationRepository, projectInstallationService,
-			communityAllocationRepository, validator,
+			projectAllocationRepository, projectInstallationService, validator,
 			projectAllocationInstallationService, publisher
 		);
 		orderVerifier = inOrder(projectAllocationRepository, projectAllocationInstallationService, publisher);
@@ -144,10 +144,18 @@ class ProjectAllocationServiceImplTest {
 			.amount(new BigDecimal(1))
 			.build();
 
+		when(projectInstallationService.findProjectInstallation( "id")).thenReturn(
+			ProjectInstallation.builder()
+				.siteId("siteId")
+				.build()
+		);
+		when(projectInstallationService.isProjectInstalled("siteId", "id")).thenReturn(true);
+
 		//when
 		service.update("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).update(eq(request));
+		orderVerifier.verify(projectAllocationInstallationService).updateAndStartAllocation("id");
 		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectAllocationEvent("id")));
 	}
 

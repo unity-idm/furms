@@ -9,13 +9,15 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,10 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
@@ -37,7 +42,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationRepository projectAllocationRepository;
-	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
@@ -45,12 +49,10 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
 	                             ProjectInstallationService projectInstallationService,
-	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             ProjectAllocationInstallationService projectAllocationInstallationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
-		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
@@ -146,8 +148,19 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void update(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateUpdate(communityId, projectAllocation);
 		projectAllocationRepository.update(projectAllocation);
+
+		updateProjectAllocation(projectAllocation);
+
 		publisher.publishEvent(new UpdateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation was updated {}", projectAllocation);
+	}
+
+	private void updateProjectAllocation(ProjectAllocation projectAllocation) {
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(projectAllocation.id);
+		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId))
+			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
+		else
+			projectAllocationInstallationService.updateAndStartAllocation(projectAllocation.id);
 	}
 
 	@Override

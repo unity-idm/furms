@@ -169,4 +169,10 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 		publisher.publishEvent(new RemoveResourceCreditEvent(id));
 		LOG.info("ResourceCredit with given ID: {} was deleted", id);
 	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
+	public boolean hasCommunityAllocations(String id, String siteId) {
+		return communityAllocationService.existsByResourceCreditId(id);
+	}
 }

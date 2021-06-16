@@ -59,6 +59,12 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public Optional<ProjectDeallocation> findDeallocationByProjectAllocationId(String projectAllocationId) {
+		return deallocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(ProjectDeallocationEntity::toProjectDeallocation);
+	}
+
+	@Override
 	public Set<ProjectDeallocation> findAllDeallocation(String projectId) {
 		if (isEmpty(projectId)) {
 			throw new IllegalArgumentException("Project Id is empty");
@@ -108,6 +114,22 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 				.build()
 		);
 		return savedProjectAllocation.getId().toString();
+	}
+
+	@Override
+	public String update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId) {
+		return allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(old -> ProjectAllocationInstallationEntity.builder()
+				.id(old.getId())
+				.correlationId(UUID.fromString(correlationId.id))
+				.siteId(old.siteId)
+				.projectAllocationId(old.projectAllocationId)
+				.status(status)
+				.build())
+			.map(allocationRepository::save)
+			.map(ProjectAllocationInstallationEntity::getId)
+			.map(UUID::toString)
+			.get();
 	}
 
 	@Override
