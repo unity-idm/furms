@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-class ProjectDeallocationInstallationSiteIdResolverImpl implements ProjectDeallocationSiteIdResolver {
+class ProjectDeallocationSiteIdResolverImpl implements ProjectDeallocationSiteIdResolver {
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final SiteRepository siteRepository;
 
-	ProjectDeallocationInstallationSiteIdResolverImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository, SiteRepository siteRepository) {
+	ProjectDeallocationSiteIdResolverImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository, SiteRepository siteRepository) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.siteRepository = siteRepository;
 	}
