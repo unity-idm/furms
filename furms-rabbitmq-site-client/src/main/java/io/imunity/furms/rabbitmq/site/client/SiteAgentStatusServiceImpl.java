@@ -14,6 +14,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.site.api.message_resolver.BaseSiteIdResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +38,7 @@ import static io.imunity.furms.rabbitmq.site.models.Status.OK;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Service
-class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
+public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseSiteIdResolver {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -60,6 +62,14 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 	}
 
 	@Override
+	public SiteExternalId getSiteId(CorrelationId correlationId) {
+		PendingJob<SiteAgentStatus> pendingJob = map.get(correlationId.id);
+		return Optional.ofNullable(pendingJob)
+			.map(job -> job.siteExternalId)
+			.orElse(null);
+	}
+
+	@Override
 	public PendingJob<SiteAgentStatus> getStatus(SiteExternalId externalId) {
 		CompletableFuture<SiteAgentStatus> connectionFuture = new CompletableFuture<>();
 
@@ -73,7 +83,7 @@ class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 		}
 		failJobIfNoResponse(connectionFuture);
 
-		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId);
+		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId, externalId);
 		map.put(correlationId.id, pendingJob);
 		return pendingJob;
 	}
