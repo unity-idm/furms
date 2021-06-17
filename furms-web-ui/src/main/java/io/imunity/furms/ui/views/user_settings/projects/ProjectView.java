@@ -237,7 +237,9 @@ class ProjectView extends FurmsViewComponent {
 			.flatMap(identity())
 			.orElseThrow(IllegalStateException::new);
 		this.projectId = projectId;
-		breadCrumbParameter = new BreadCrumbParameter(project.getId(), project.getName(), "ALLOCATION");
+		breadCrumbParameter = new BreadCrumbParameter(
+			project.getId(), project.getName(), getTranslation("view.user-settings.projects.bread-crumb")
+		);
 		loadGridContent();
 	}
 
