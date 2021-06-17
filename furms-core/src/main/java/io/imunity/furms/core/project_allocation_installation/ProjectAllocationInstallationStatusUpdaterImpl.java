@@ -26,6 +26,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
 
 @Service
 class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocationInstallationStatusUpdater {
@@ -54,6 +55,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			return;
 		}
 		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
+		if(job.status.equals(PENDING) && status.equals(ACKNOWLEDGED)){
+			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
+				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
+			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
+		}
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
@@ -84,11 +90,6 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 				allocationInstallation.status)
 			);
 		projectAllocationInstallationRepository.create(result);
-		if(!projectAllocationInstallationRepository.chunksExist(result.projectAllocationId)) {
-			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(result.projectAllocationId)
-				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + result.projectAllocationId));
-			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
-		}
 		LOG.info("ProjectAllocationChunk was created: {}", result);
 	}
 }

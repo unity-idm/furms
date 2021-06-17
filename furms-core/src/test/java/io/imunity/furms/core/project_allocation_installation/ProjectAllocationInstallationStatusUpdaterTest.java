@@ -50,12 +50,19 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
+			.projectAllocationId("allocationId")
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+		when(projectAllocationRepository.findByIdWithRelatedObjects("allocationId")).thenReturn(Optional.of(ProjectAllocationResolved.builder()
+			.site(Site.builder().id("siteId").build())
+			.projectId("projectId")
+			.build()));
+		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, null);
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		orderVerifier.verify(userOperationService).createUserAdditions("siteId", "projectId");
+
 	}
 
 	@Test
@@ -78,7 +85,6 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//then
 		orderVerifier.verify(repository).create(chunk);
-		orderVerifier.verify(userOperationService).createUserAdditions("id", "id");
 	}
 
 	@Test

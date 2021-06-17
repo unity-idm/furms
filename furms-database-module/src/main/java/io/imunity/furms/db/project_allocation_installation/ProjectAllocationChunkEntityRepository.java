@@ -18,6 +18,4 @@ public interface ProjectAllocationChunkEntityRepository extends CrudRepository<P
 		"join project_allocation pa on pa.id = pac.project_allocation_id " +
 		"where pa.project_id = :id")
 	Set<ProjectAllocationChunkEntity> findAllByProjectId(@Param("id") UUID projectId);
-
-	boolean existsByProjectAllocationId(UUID projectAllocationId);
 }
