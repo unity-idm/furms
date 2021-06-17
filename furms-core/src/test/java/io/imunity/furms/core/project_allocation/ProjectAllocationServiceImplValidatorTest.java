@@ -83,7 +83,7 @@ class ProjectAllocationServiceImplValidatorTest {
 	}
 
 	@Test
-	void shouldThrowResourceTypeReservedException() {
+	void shouldThrowWhenResourceTypeReservedException() {
 		//given
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId("id")
@@ -121,7 +121,7 @@ class ProjectAllocationServiceImplValidatorTest {
 			.build()));
 
 		//when+then
-		assertThrows(ResourceTypeReservedException.class, () -> validator.validateCreate("communityId", projectAllocation));
+		assertThrows(ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException.class, () -> validator.validateCreate("communityId", projectAllocation));
 	}
 
 	@Test
