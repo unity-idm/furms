@@ -39,12 +39,13 @@ public class ProjectAllocationChunk {
 			Objects.equals(chunkId, that.chunkId) &&
 			Objects.equals(amount, that.amount) &&
 			Objects.equals(validFrom, that.validFrom) &&
-			Objects.equals(validTo, that.validTo);
+			Objects.equals(validTo, that.validTo) &&
+			Objects.equals(receivedTime, that.receivedTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectAllocationId, chunkId, amount, validFrom, validTo);
+		return Objects.hash(id, projectAllocationId, chunkId, amount, validFrom, validTo, receivedTime);
 	}
 
 	@Override

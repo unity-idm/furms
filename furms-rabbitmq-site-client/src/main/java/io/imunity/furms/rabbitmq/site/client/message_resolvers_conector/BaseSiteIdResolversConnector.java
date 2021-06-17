@@ -13,8 +13,8 @@ import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationA
 import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalAck;
@@ -67,7 +67,7 @@ class BaseSiteIdResolversConnector implements SiteIdResolversConnector {
 			Map.entry(AgentProjectInstallationResult.class, projectInstallationSiteIdResolver),
 
 			Map.entry(AgentProjectUpdateRequestAck.class, projectUpdateSiteIdResolver),
-			Map.entry(AgentProjectUpdateRequest.class, projectUpdateSiteIdResolver),
+			Map.entry(AgentProjectUpdateResult.class, projectUpdateSiteIdResolver),
 
 			Map.entry(AgentSSHKeyAdditionAck.class, sshKeySiteIdResolver),
 			Map.entry(AgentSSHKeyAdditionResult.class, sshKeySiteIdResolver),
