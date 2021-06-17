@@ -131,9 +131,10 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public ProjectDeallocation findDeallocationByCorrelationId(String correlationId) {
 		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(x -> ProjectDeallocation.builder()
-				.projectAllocationId(x.projectAllocationId.toString())
-				.status(ProjectDeallocationStatus.valueOf(x.status))
+			.map(deallocationEntity -> ProjectDeallocation.builder()
+				.siteId(deallocationEntity.siteId.toString())
+				.projectAllocationId(deallocationEntity.projectAllocationId.toString())
+				.status(ProjectDeallocationStatus.valueOf(deallocationEntity.status))
 				.build())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}

@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationSiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.ProjectDeallocationSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
@@ -57,6 +58,8 @@ class MockBeansConfig {
 	private UserAllocationGrantSiteIdResolver userAllocationGrantSiteIdResolver;
 	@MockBean
 	private ProjectAllocationChunkSiteIdResolver projectAllocationChunkSiteIdResolver;
+	@MockBean
+	private ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver;
 	@MockBean
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
 }
