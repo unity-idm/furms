@@ -32,7 +32,7 @@ class ProjectAllocationGridModel {
 		this.resourceTypeName = resourceTypeName;
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
-		this.remainingWithUnit = new PositiveAmountWithUnit(amount.subtract(consumed), resourceTypeUnit);
+		this.remainingWithUnit = PositiveAmountWithUnit.roundToPositiveValue(amount.subtract(consumed), resourceTypeUnit);
 		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
 	}
 

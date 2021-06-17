@@ -6,7 +6,7 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.validation.exceptions.ConsumedProjectAllocationRemovingError;
+import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
@@ -163,8 +163,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void delete(String communityId, String id) {
 		validator.validateDelete(communityId, id);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
-		if(projectAllocationResolved.consumed.compareTo(projectAllocationResolved.amount) >= 0) {
-			throw new ConsumedProjectAllocationRemovingError(String.format("Project Allocation %s cannot be removed", id));
+		if(projectAllocationResolved.consumed.compareTo(BigDecimal.ZERO) > 0) {
+			throw new RemovalOfConsumedProjectAllocationIsFirbiddenException(id);
 		}
 		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
 		publisher.publishEvent(new RemoveProjectAllocationEvent(id));

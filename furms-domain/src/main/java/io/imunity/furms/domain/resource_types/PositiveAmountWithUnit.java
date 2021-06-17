@@ -12,12 +12,16 @@ public class PositiveAmountWithUnit {
 	public final BigDecimal amount;
 	public final ResourceMeasureUnit unit;
 
-	public PositiveAmountWithUnit(BigDecimal amount, ResourceMeasureUnit unit) {
-		if(amount.compareTo(BigDecimal.ZERO) < 0)
-			this.amount = BigDecimal.ZERO;
-		else
-			this.amount = amount;
+	private PositiveAmountWithUnit(BigDecimal amount, ResourceMeasureUnit unit) {
+		this.amount = amount;
 		this.unit = unit;
+	}
+
+	public static PositiveAmountWithUnit roundToPositiveValue(BigDecimal amount, ResourceMeasureUnit unit){
+		if(amount.compareTo(BigDecimal.ZERO) < 0)
+			return new PositiveAmountWithUnit(BigDecimal.ZERO, unit);
+		else
+			return new PositiveAmountWithUnit(amount, unit);
 	}
 
 	@Override

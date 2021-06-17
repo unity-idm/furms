@@ -22,7 +22,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.ConsumedProjectAllocationRemovingError;
+import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
@@ -191,7 +191,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			try {
 				service.delete(communityId, projectAllocationId);
 				loadGridContent();
-			} catch (ConsumedProjectAllocationRemovingError e){
+			} catch (RemovalOfConsumedProjectAllocationIsFirbiddenException e){
 				showErrorNotification(getTranslation("project.allocation.removing.message"));
 			} catch (Exception e){
 				showErrorNotification(getTranslation("base.error.message"));

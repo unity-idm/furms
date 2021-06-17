@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.ConsumedProjectAllocationRemovingError;
+import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.*;
@@ -154,13 +154,13 @@ class ProjectAllocationServiceImplTest {
 	}
 
 	@Test
-	void shouldAllowToDeleteProjectAllocation() {
+	void shouldAllowToDeleteProjectAllocationWhenProjectAllocationIsNotStartedConsuming() {
 		//given
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.amount(BigDecimal.TEN)
-			.consumed(BigDecimal.ONE)
+			.consumed(BigDecimal.ZERO)
 			.build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 
@@ -172,7 +172,7 @@ class ProjectAllocationServiceImplTest {
 	}
 
 	@Test
-	void shouldNotAllowToDeleteProjectAllocation() {
+	void shouldNotAllowToDeleteProjectAllocationWhenAllocationIsConsumed() {
 		String id = "id";
 		when(projectAllocationRepository.exists(id)).thenReturn(true);
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
@@ -181,6 +181,6 @@ class ProjectAllocationServiceImplTest {
 			.build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 
-		assertThrows(ConsumedProjectAllocationRemovingError.class, () -> service.delete("projectId", id));
+		assertThrows(RemovalOfConsumedProjectAllocationIsFirbiddenException.class, () -> service.delete("projectId", id));
 	}
 }
