@@ -13,8 +13,9 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
+import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
@@ -36,6 +39,8 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
 	private ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
+	@Autowired
+	private SiteAgentChunkUpdateProducerMock producerMock;
 
 	@BeforeEach
 	void init(){
@@ -67,6 +72,20 @@ class SiteAgentProjectAllocationInstallationServiceTest {
 
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).createChunk(any());
+	}
+
+	@Test
+	void shouldUpdateProjectAllocationChunk() {
+		AgentProjectAllocationUpdate update = AgentProjectAllocationUpdate.builder()
+			.allocationIdentifier(UUID.randomUUID().toString())
+			.allocationChunkIdentifier("chunkId")
+			.amount(BigDecimal.TEN)
+			.validTo(OffsetDateTime.now().minusDays(5))
+			.validFrom(OffsetDateTime.now().plusDays(5))
+			.build();
+		producerMock.sendAgentProjectAllocationUpdate(update);
+
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateChunk(any());
 	}
 
 	@Test

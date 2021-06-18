@@ -91,7 +91,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-credits.form.error.validation.combo-box.resource-type")
 			)
 			.bind(
-				resourceType -> resolver.getResourceType(resourceType.getResourceTypeName()),
+				resourceType -> resolver.getResourceType(resourceType.getResourceTypeId()),
 				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeName(resourceType.id)
 			);
 		binder.forField(splitCheckbox)

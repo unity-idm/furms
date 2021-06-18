@@ -16,6 +16,7 @@ import java.util.Optional;
 class ResourceCreditViewModel {
 	private final String id;
 	private final String siteId;
+	private String resourceTypeId;
 	private String resourceTypeName;
 	private String name;
 	private Boolean split = true;
@@ -29,6 +30,7 @@ class ResourceCreditViewModel {
 
 	public ResourceCreditViewModel(String id,
 			String siteId,
+			String resourceTypeId,
 			String resourceTypeName,
 			String name,
 			Boolean split,
@@ -41,6 +43,7 @@ class ResourceCreditViewModel {
 			ZonedDateTime endTime) {
 		this.id = id;
 		this.siteId = siteId;
+		this.resourceTypeId = resourceTypeId;
 		this.resourceTypeName = resourceTypeName;
 		this.name = name;
 		this.split = split;
@@ -69,6 +72,10 @@ class ResourceCreditViewModel {
 
 	public String getResourceTypeName() {
 		return resourceTypeName;
+	}
+
+	public String getResourceTypeId() {
+		return resourceTypeId;
 	}
 
 	public void setResourceTypeName(String resourceTypeName) {
@@ -154,7 +161,8 @@ class ResourceCreditViewModel {
 		return "ResourceCreditViewModel{" +
 			"id='" + id + '\'' +
 			", siteId='" + siteId + '\'' +
-			", resourceTypeId='" + resourceTypeName + '\'' +
+			", resourceTypeId='" + resourceTypeId + '\'' +
+			", resourceTypeName='" + resourceTypeName + '\'' +
 			", name='" + name + '\'' +
 			", split=" + split +
 			", amount=" + amount +
@@ -173,6 +181,7 @@ class ResourceCreditViewModel {
 	public static final class ResourceCreditViewModelBuilder {
 		private  String id;
 		private String siteId;
+		private String resourceTypeId;
 		private String resourceTypeName;
 		private String name;
 		private Boolean split;
@@ -194,6 +203,11 @@ class ResourceCreditViewModel {
 
 		public ResourceCreditViewModelBuilder siteId(String siteId) {
 			this.siteId = siteId;
+			return this;
+		}
+
+		public ResourceCreditViewModelBuilder resourceTypeId(String resourceTypeId) {
+			this.resourceTypeId = resourceTypeId;
 			return this;
 		}
 
@@ -248,7 +262,7 @@ class ResourceCreditViewModel {
 		}
 
 		public ResourceCreditViewModel build() {
-			return new ResourceCreditViewModel(id, siteId, resourceTypeName, name, split, amount, remaining, consumed,
+			return new ResourceCreditViewModel(id, siteId, resourceTypeId, resourceTypeName, name, split, amount, remaining, consumed,
 				unit, createTime, startTime, endTime);
 		}
 	}

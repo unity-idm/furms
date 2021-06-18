@@ -31,6 +31,9 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -150,11 +153,10 @@ class MockListeners {
 		TimeUnit.SECONDS.sleep(5);
 
 		AgentProjectAllocationInstallationResult result = AgentProjectAllocationInstallationResult.builder()
-			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
 			.allocationIdentifier(projectInstallationRequest.body.allocationIdentifier)
 			.allocationChunkIdentifier("1")
 			.resourceType(projectInstallationRequest.body.resourceType)
-			.amount(projectInstallationRequest.body.amount / 2)
+			.amount(projectInstallationRequest.body.amount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING))
 			.validFrom(projectInstallationRequest.body.validFrom)
 			.validTo(projectInstallationRequest.body.validTo)
 			.build();
@@ -163,11 +165,10 @@ class MockListeners {
 		TimeUnit.SECONDS.sleep(5);
 
 		AgentProjectAllocationInstallationResult result1 = AgentProjectAllocationInstallationResult.builder()
-			.projectIdentifier(projectInstallationRequest.body.projectIdentifier)
 			.allocationIdentifier(projectInstallationRequest.body.allocationIdentifier)
 			.allocationChunkIdentifier("2")
 			.resourceType(projectInstallationRequest.body.resourceType)
-			.amount(projectInstallationRequest.body.amount / 4)
+			.amount(projectInstallationRequest.body.amount.divide(BigDecimal.valueOf(4), RoundingMode.CEILING))
 			.validFrom(projectInstallationRequest.body.validFrom)
 			.validTo(projectInstallationRequest.body.validTo)
 			.build();
