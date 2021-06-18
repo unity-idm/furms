@@ -16,21 +16,20 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.utils.NotificationUtils;
-import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 
 import java.util.Optional;
 import java.util.function.Function;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -89,16 +88,19 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	private void saveProjectAllocation() {
 		ProjectAllocationViewModel allocationViewModel = binder.getBean();
 		ProjectAllocation projectAllocation = ProjectAllocationModelsMapper.map(allocationViewModel);
-		OptionalException<Void> optionalException;
-		if(projectAllocation.id == null)
-			optionalException = getResultOrException(() -> projectAllocationService.create(communityId, projectAllocation));
-		else
-			optionalException = getResultOrException(() -> projectAllocationService.update(communityId, projectAllocation));
+		try {
+			if(projectAllocation.id == null)
+				projectAllocationService.create(communityId, projectAllocation);
+			else
+				projectAllocationService.update(communityId, projectAllocation);
 
-		optionalException.getException().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
-			() -> UI.getCurrent().navigate(ProjectView.class, projectId)
-		);
+			UI.getCurrent().navigate(ProjectView.class, projectId);
+		} catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
+			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
+		} catch (Exception e) {
+			showErrorNotification(getTranslation("base.error.message"));
+		}
+
 	}
 
 	@Override
