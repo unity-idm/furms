@@ -165,11 +165,11 @@ class ProjectAllocationServiceValidator {
 		ResourceCredit resourceCredit = resourceCreditRepository.findById(communityAllocation.resourceCreditId)
 			.orElseThrow(() -> new IllegalStateException(String.format("Resource Credit %s doesn't exist", communityAllocation.resourceCreditId)));
 
-		AllocationTimestamp allocationTimestamp = new AllocationTimestamp(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
+		AllocationTimespan allocationTimespan = new AllocationTimespan(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
 		boolean matches = projectAllocationRepository.findAllWithRelatedObjects(projectAllocation.projectId).stream()
 			.filter(x -> x.resourceType.id.equals(resourceCredit.resourceTypeId))
-			.map(x -> new AllocationTimestamp(x.resourceCredit.utcStartTime, x.resourceCredit.utcEndTime))
-			.anyMatch(allocationTimestamp::overlaps);
+			.map(x -> new AllocationTimespan(x.resourceCredit.utcStartTime, x.resourceCredit.utcEndTime))
+			.anyMatch(allocationTimespan::overlaps);
 
 		assertFalse(matches, () -> new ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(projectAllocation.projectId, resourceCredit.resourceTypeId));
 	}

@@ -10,6 +10,7 @@ public class ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException ext
     public final String resourceTypeId;
 
     public ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(String projectId, String resourceTypeId) {
+        super("projectId: " + projectId + " resourceTypeId: " + resourceTypeId);
         this.projectId = projectId;
         this.resourceTypeId = resourceTypeId;
     }

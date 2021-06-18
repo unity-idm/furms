@@ -8,19 +8,19 @@ package io.imunity.furms.core.project_allocation;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-class AllocationTimestamp {
+class AllocationTimespan {
 	private final LocalDateTime startTime;
 	private final LocalDateTime endTime;
 
-	AllocationTimestamp(LocalDateTime startTime, LocalDateTime endTime) {
+	AllocationTimespan(LocalDateTime startTime, LocalDateTime endTime) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 
-	boolean overlaps(AllocationTimestamp allocationTimestamp){
-		return isBetween(startTime, allocationTimestamp.startTime, allocationTimestamp.endTime) ||
-			isBetween(endTime, allocationTimestamp.startTime, allocationTimestamp.endTime)      ||
-			(startTime.isBefore(allocationTimestamp.startTime) && endTime.isAfter(allocationTimestamp.endTime));
+	boolean overlaps(AllocationTimespan allocationTimespan){
+		return isBetween(startTime, allocationTimespan.startTime, allocationTimespan.endTime) ||
+			isBetween(endTime, allocationTimespan.startTime, allocationTimespan.endTime)      ||
+			(startTime.isBefore(allocationTimespan.startTime) && endTime.isAfter(allocationTimespan.endTime));
 	}
 
 	private boolean isBetween(LocalDateTime toCheck, LocalDateTime leftBoundary, LocalDateTime rightBoundary){
@@ -31,7 +31,7 @@ class AllocationTimestamp {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AllocationTimestamp that = (AllocationTimestamp) o;
+		AllocationTimespan that = (AllocationTimespan) o;
 		return Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime);
 	}
 
