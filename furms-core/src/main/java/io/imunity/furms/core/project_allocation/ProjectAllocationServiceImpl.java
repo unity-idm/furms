@@ -6,11 +6,15 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.domain.project_allocation.*;
+import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
@@ -28,7 +32,10 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
@@ -156,6 +163,9 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void delete(String communityId, String id) {
 		validator.validateDelete(communityId, id);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
+		if(projectAllocationResolved.consumed.compareTo(BigDecimal.ZERO) > 0) {
+			throw new RemovalOfConsumedProjectAllocationIsFirbiddenException(id);
+		}
 		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
 		publisher.publishEvent(new RemoveProjectAllocationEvent(id));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);
