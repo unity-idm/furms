@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -21,8 +20,8 @@ class ProjectAllocationChunkSiteIdResolverImpl implements ProjectAllocationChunk
 
 	@Override
 	public SiteExternalId getSiteId(String projectAllocationId) {
-		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId)
-			.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + projectAllocationId));
-		return projectAllocationResolved.site.getExternalId();
+		return projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId)
+			.map(x -> x.site.getExternalId())
+			.orElse(null);
 	}
 }

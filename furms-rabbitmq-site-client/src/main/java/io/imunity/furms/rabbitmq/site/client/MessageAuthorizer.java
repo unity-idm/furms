@@ -29,7 +29,7 @@ public class MessageAuthorizer {
 			throw new IllegalArgumentException("This shouldn't happened - no MessageAuthorizer fit to payload");
 		SiteExternalId siteId = siteIdResolversConnector.getSiteId(payload);
 		String siteExternalId = getSiteId(queueName);
-		if(!siteExternalId.equals(siteId.id))
-			throw new IllegalArgumentException(String.format("Error correlation id %s doesn't belong to %s", payload.header.messageCorrelationId, siteExternalId));
+		if(siteId == null || !siteExternalId.equals(siteId.id))
+			throw new IllegalArgumentException(String.format("Message doesn't belong to site:  %s", payload));
 	}
 }
