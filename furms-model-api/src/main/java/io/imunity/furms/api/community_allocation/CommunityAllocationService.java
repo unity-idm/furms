@@ -37,6 +37,4 @@ public interface CommunityAllocationService {
 	void update(CommunityAllocation resourceType);
 
 	void delete(String id);
-
-	boolean existsByResourceCreditId(String resourceCreditId);
 }

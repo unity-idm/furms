@@ -120,7 +120,7 @@ class ProjectAllocationServiceImplTest {
 			ProjectAllocationResolved.builder()
 				.site(Site.builder().build())
 				.build()));
-		when(projectInstallationService.findProjectInstallation( "projectAllocationId")).thenReturn(
+		when(projectInstallationService.findProjectInstallationOfProjectAllocation( "projectAllocationId")).thenReturn(
 			ProjectInstallation.builder()
 				.siteId("siteId")
 				.build()
@@ -144,7 +144,7 @@ class ProjectAllocationServiceImplTest {
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectInstallationService.findProjectInstallation( "id")).thenReturn(
+		when(projectInstallationService.findProjectInstallationOfProjectAllocation( "id")).thenReturn(
 			ProjectInstallation.builder()
 				.siteId("siteId")
 				.build()

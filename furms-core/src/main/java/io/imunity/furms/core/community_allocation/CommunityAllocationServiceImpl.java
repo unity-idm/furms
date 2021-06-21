@@ -129,11 +129,6 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);
 	}
 
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public boolean existsByResourceCreditId(String resourceCreditId) {
-		return communityAllocationRepository.existsByResourceCreditId(resourceCreditId);
-	}
-
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)

@@ -149,7 +149,8 @@ class ResourceCreditServiceValidator {
 	}
 
 	private void assertStartAndEndTimeIsNotChangeAfterAllocation(ResourceCredit resourceCredit) {
-		ResourceCredit savedResourceCredit = resourceCreditRepository.findById(resourceCredit.id).orElseThrow();
+		ResourceCredit savedResourceCredit = resourceCreditRepository.findById(resourceCredit.id)
+			.orElseThrow(() -> new IllegalArgumentException("ResourceCredit id not found: " + resourceCredit));
 		if(!savedResourceCredit.utcStartTime.isEqual(resourceCredit.utcStartTime) && !savedResourceCredit.utcEndTime.isEqual(resourceCredit.utcEndTime)){
 			if(communityAllocationRepository.existsByResourceCreditId(resourceCredit.id))
 				throw new ResourceCreditHasAllocationException("Can not change validity to/from when it already was allocated");

@@ -8,6 +8,7 @@ package io.imunity.furms.core.project_allocation;
 import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
@@ -212,13 +213,13 @@ class ProjectAllocationServiceValidator {
 		ResourceUsage resourceUsage = resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Project Allocation %s doesn't exist", projectAllocation.id)));
 		if(resourceUsage.cumulativeConsumption.compareTo(projectAllocation.amount) > 0)
-			throw new ProjectAllocationWrongAmountException("Allocation amount have to be bigger then consumed usage");
+			throw new ProjectAllocationWrongAmountException("Allocation amount have to be bigger than consumed usage");
 	}
 
 	private void assertStatusIsInTerminalState(ProjectAllocation projectAllocation) {
 		ProjectAllocationInstallation projectAllocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocation.id);
 		Optional<ProjectDeallocation> deallocation = projectAllocationInstallationRepository.findDeallocationByProjectAllocationId(projectAllocation.id);
 		if(!projectAllocationInstallation.status.isTerminal() || deallocation.isPresent())
-			throw new IllegalArgumentException("Only allocations in terminal state can be edit");
+			throw new ProjectAllocationIsNotInTerminalStateException(projectAllocation.id);
 	}
 }

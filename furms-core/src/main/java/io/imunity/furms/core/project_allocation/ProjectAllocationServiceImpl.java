@@ -132,7 +132,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	private void allocateProject(ProjectAllocation projectAllocation, String id) {
-		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(id);
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
 			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
 			projectAllocationInstallationService.createAllocation(id);
@@ -156,7 +156,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	private void updateProjectAllocation(ProjectAllocation projectAllocation) {
-		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(projectAllocation.id);
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(projectAllocation.id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId))
 			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
 		else

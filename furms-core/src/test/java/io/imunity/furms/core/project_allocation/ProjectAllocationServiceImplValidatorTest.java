@@ -337,7 +337,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		//when+then
 		String message = assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation)).getMessage();
-		assertEquals("Allocation amount have to be bigger then consumed usage", message);
+		assertEquals("Allocation amount have to be bigger than consumed usage", message);
 	}
 
 	@Test

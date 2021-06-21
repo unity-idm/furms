@@ -6,9 +6,9 @@
 package io.imunity.furms.core.resource_credits;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
@@ -40,19 +40,19 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final ResourceCreditServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
-	private final CommunityAllocationService communityAllocationService;
+	private final CommunityAllocationServiceHelper communityAllocationServiceHelper;
 	private final AuthzService authzService;
 	private final ResourceTypeService resourceTypeService;
 	private final ResourceUsageRepository resourceUsageRepository;
 
 	ResourceCreditServiceImpl(ResourceCreditRepository resourceCreditRepository,
 	                          ResourceCreditServiceValidator validator, ApplicationEventPublisher publisher,
-	                          CommunityAllocationService communityAllocationService, AuthzService authzService,
+	                          CommunityAllocationServiceHelper communityAllocationServiceHelper, AuthzService authzService,
 	                          ResourceTypeService resourceTypeService, ResourceUsageRepository resourceUsageRepository) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.validator = validator;
 		this.publisher = publisher;
-		this.communityAllocationService = communityAllocationService;
+		this.communityAllocationServiceHelper = communityAllocationServiceHelper;
 		this.authzService = authzService;
 		this.resourceTypeService = resourceTypeService;
 		this.resourceUsageRepository = resourceUsageRepository;
@@ -72,7 +72,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 				)
 				.split(credit.splittable)
 				.amount(credit.amount)
-				.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
+				.remaining(communityAllocationServiceHelper.getAvailableAmountForNew(credit.id))
 				.consumed(resourceUsageSum.get(credit.id))
 				.utcCreateTime(credit.utcCreateTime)
 				.utcStartTime(credit.utcStartTime)
@@ -95,7 +95,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 				)
 				.split(credit.splittable)
 				.amount(credit.amount)
-				.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
+				.remaining(communityAllocationServiceHelper.getAvailableAmountForNew(credit.id))
 				.consumed(resourceUsageSum.get(credit.id))
 				.utcCreateTime(credit.utcCreateTime)
 				.utcStartTime(credit.utcStartTime)
@@ -134,7 +134,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 					)
 					.split(credit.splittable)
 					.amount(credit.amount)
-					.remaining(communityAllocationService.getAvailableAmountForNew(credit.id))
+					.remaining(communityAllocationServiceHelper.getAvailableAmountForNew(credit.id))
 					.utcCreateTime(credit.utcCreateTime)
 					.utcStartTime(credit.utcStartTime)
 					.utcEndTime(credit.utcEndTime)
@@ -173,6 +173,6 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public boolean hasCommunityAllocations(String id, String siteId) {
-		return communityAllocationService.existsByResourceCreditId(id);
+		return communityAllocationServiceHelper.existsByResourceCreditId(id);
 	}
 }

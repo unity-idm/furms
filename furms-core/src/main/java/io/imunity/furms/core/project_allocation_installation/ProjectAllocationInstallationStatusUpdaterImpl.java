@@ -49,8 +49,8 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		}
 		if(job.status == UPDATING && status == FAILED)
 			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
-
-		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
+		else
+			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
