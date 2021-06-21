@@ -132,6 +132,35 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(findAll.get(3).sshkeyFingerprint).isEqualTo("fingerprint6");
 		assertThat(findAll.get(4).sshkeyFingerprint).isEqualTo("fingerprint5");
 	}
+	
+	@Test
+	void shouldDeleteLatest() {
+		// given
+
+		for (int i = 0; i < 10; i++) {
+			SSHKeyHistoryEntity entityToSave = SSHKeyHistoryEntity.builder().siteId(siteId)
+					.sshkeyOwnerId("owner").sshkeyFingerprint("fingerprint" + i)
+					.originationTime(LocalDateTime.now().withSecond(i).withNano(0)).build();
+			entityRepository.save(entityToSave);
+		}
+		// when
+		entityRepository.deleteLatest(fromString(siteId.toString()), "owner");
+		List<SSHKeyHistoryEntity> findAll = entityRepository
+				.findBysiteIdAndSshkeyOwnerIdOrderByOriginationTimeDesc(siteId.toString(), "owner",
+						PageRequest.of(0, 1000));
+
+		assertThat(findAll.size()).isEqualTo(9);
+		assertThat(findAll.get(0).sshkeyFingerprint).isEqualTo("fingerprint8");
+		assertThat(findAll.get(1).sshkeyFingerprint).isEqualTo("fingerprint7");
+		assertThat(findAll.get(2).sshkeyFingerprint).isEqualTo("fingerprint6");
+		assertThat(findAll.get(3).sshkeyFingerprint).isEqualTo("fingerprint5");
+		assertThat(findAll.get(4).sshkeyFingerprint).isEqualTo("fingerprint4");
+		assertThat(findAll.get(5).sshkeyFingerprint).isEqualTo("fingerprint3");
+		assertThat(findAll.get(6).sshkeyFingerprint).isEqualTo("fingerprint2");
+		assertThat(findAll.get(7).sshkeyFingerprint).isEqualTo("fingerprint1");
+		assertThat(findAll.get(8).sshkeyFingerprint).isEqualTo("fingerprint0");
+		
+	}
 
 	@Test
 	void shouldFindCreatedSSHKeyHistory() {

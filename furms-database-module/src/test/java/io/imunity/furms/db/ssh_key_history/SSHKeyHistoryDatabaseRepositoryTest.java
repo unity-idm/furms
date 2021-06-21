@@ -105,6 +105,37 @@ class SSHKeyHistoryDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(findBysiteIdOrderByOriginationTime).hasSameElementsAs(Sets
 				.newSet(savedEntity2.get().toSSHKeyHistory(), savedEntity3.get().toSSHKeyHistory()));
 	}
+	
+	@Test
+	void shouldRemoveLatest() {
+		// given
+		SSHKeyHistory entityToSave1 = SSHKeyHistory.builder().siteId(siteId.toString())
+				.sshkeyOwnerId(new PersistentId("owner")).sshkeyFingerprint("fingerprint1")
+				.originationTime(LocalDateTime.now()).build();
+		SSHKeyHistory entityToSave2 = SSHKeyHistory.builder().siteId(siteId.toString())
+				.sshkeyOwnerId(new PersistentId("owner")).sshkeyFingerprint("fingerprint2")
+				.originationTime(LocalDateTime.now().plusMinutes(1)).build();
+		SSHKeyHistory entityToSave3 = SSHKeyHistory.builder().siteId(siteId.toString())
+				.sshkeyOwnerId(new PersistentId("owner")).sshkeyFingerprint("fingerprint3")
+				.originationTime(LocalDateTime.now().plusMinutes(2)).build();
+
+		String saved1 =  entityDatabaseRepository.create(entityToSave1);
+		String saved2 = entityDatabaseRepository.create(entityToSave2);
+		entityDatabaseRepository.create(entityToSave3);
+
+		Optional<SSHKeyHistoryEntity> savedEntity1 = entityRepository.findById(UUID.fromString(saved1));
+		Optional<SSHKeyHistoryEntity> savedEntity2 = entityRepository.findById(UUID.fromString(saved2));
+		
+		entityDatabaseRepository.deleteLatest(siteId.toString(), "owner");
+		
+		List<SSHKeyHistory> findBysiteIdOrderByOriginationTime = entityDatabaseRepository
+				.findBySiteIdAndOwnerIdLimitTo(siteId.toString(), "owner", 10);
+		assertThat(findBysiteIdOrderByOriginationTime).hasSize(2);
+		assertThat(findBysiteIdOrderByOriginationTime).hasSameElementsAs(Sets
+				.newSet(savedEntity1.get().toSSHKeyHistory(), savedEntity2.get().toSSHKeyHistory()));
+		
+		
+	}
 
 	@Test
 	void shouldDeleteOnlyLast5() {

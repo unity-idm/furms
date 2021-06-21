@@ -29,6 +29,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
+import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -48,12 +49,15 @@ public class ProjectAndUserRemoveListenerTest {
 	@Mock
 	private SSHKeyFromSiteRemover sshKeyFromSiteRemover;
 
+	@Mock
+	private SSHKeyHistoryRepository sshKeyHistoryRepository;
+	
 	private ProjectAndUserRemoveListener listener;
 
 	@BeforeEach
 	void setUp() {
 		listener = new ProjectAndUserRemoveListener(usersDAO, userOperationRepository, repository,
-				sshKeyFromSiteRemover);
+				sshKeyFromSiteRemover, sshKeyHistoryRepository);
 	}
 
 	@Test
@@ -78,6 +82,7 @@ public class ProjectAndUserRemoveListenerTest {
 				new ResourceId(projectUUID, ResourceType.PROJECT)));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
+		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");
 		verify(repository).update(SSHKey.builder().id("id").name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
@@ -110,6 +115,7 @@ public class ProjectAndUserRemoveListenerTest {
 						.build())));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
+		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");
 		verify(repository).update(SSHKey.builder().id("id").name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"

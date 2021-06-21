@@ -16,4 +16,6 @@ public interface SSHKeyHistoryRepository {
 	String create(SSHKeyHistory sshKeyHistory);
 	
 	void deleteOldestLeaveOnly(String siteId, String ownerId, int leave);
+
+	void deleteLatest(String siteId, String ownerId);
 }
