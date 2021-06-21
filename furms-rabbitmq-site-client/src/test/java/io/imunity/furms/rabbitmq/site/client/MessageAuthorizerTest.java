@@ -45,7 +45,7 @@ class MessageAuthorizerTest {
 
 		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
 			.getMessage();
-		assertEquals(String.format("Error correlation id %s doesn't belong to fzx", payload.header.messageCorrelationId), message);
+		assertEquals(String.format("Message doesn't belong to site:  %s", payload), message);
 	}
 
 	@Test

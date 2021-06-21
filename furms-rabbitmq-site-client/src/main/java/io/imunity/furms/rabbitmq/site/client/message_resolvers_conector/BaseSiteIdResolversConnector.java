@@ -96,6 +96,8 @@ class BaseSiteIdResolversConnector implements SiteIdResolversConnector {
 	@Override
 	public SiteExternalId getSiteId(Payload<?> payload) {
 		String messageCorrelationId = payload.header.messageCorrelationId;
+		if(messageCorrelationId == null)
+			return null;
 		return resolvers.get(payload.body.getClass()).getSiteId(new CorrelationId(messageCorrelationId));
 	}
 }
