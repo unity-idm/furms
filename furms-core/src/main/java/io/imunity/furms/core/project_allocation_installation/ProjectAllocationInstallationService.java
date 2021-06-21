@@ -66,6 +66,16 @@ public class ProjectAllocationInstallationService {
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
+	public void updateAndStartAllocation(String projectAllocationId) {
+		CorrelationId correlationId = CorrelationId.randomID();
+		projectAllocationInstallationRepository.update(projectAllocationId, ProjectAllocationInstallationStatus.UPDATING, correlationId);
+		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+		runAfterCommit(() ->
+			siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved)
+		);
+		LOG.info("ProjectAllocationInstallation with project allocation {} was update to status UPDATING", projectAllocationId);
+	}
+
 	public void createAndStartAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();

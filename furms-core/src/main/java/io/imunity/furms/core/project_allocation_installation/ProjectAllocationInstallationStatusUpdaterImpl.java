@@ -27,6 +27,9 @@ import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
 @Service
 class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocationInstallationStatusUpdater {
@@ -60,6 +63,10 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
 			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
 		}
+		if(job.status == UPDATING && status == FAILED)
+			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
+		else
+			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 

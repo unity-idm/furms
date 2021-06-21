@@ -5,17 +5,16 @@
 
 package io.imunity.furms.core.resource_credits;
 
-import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.utils.ValidationUtils;
-
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -34,12 +33,9 @@ class ResourceCreditServiceValidator {
 	private final ResourceTypeRepository resourceTypeRepository;
 	private final SiteRepository siteRepository;
 
-	public ResourceCreditServiceValidator(
-		CommunityAllocationRepository communityAllocationRepository,
-		ResourceCreditRepository resourceCreditRepository,
-		ResourceTypeRepository resourceTypeRepository,
-		SiteRepository siteRepository
-	) {
+	ResourceCreditServiceValidator(CommunityAllocationRepository communityAllocationRepository,
+	                               ResourceCreditRepository resourceCreditRepository,
+	                               ResourceTypeRepository resourceTypeRepository, SiteRepository siteRepository) {
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.resourceTypeRepository = resourceTypeRepository;
@@ -66,6 +62,7 @@ class ResourceCreditServiceValidator {
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
 		validateCreateTime(resourceCredit.utcCreateTime);
 		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
+		assertStartAndEndTimeIsNotChangeAfterAllocation(resourceCredit);
 		assertAmountAboveAlreadyDistributed(resourceCredit, existing);
 	}
 
@@ -148,6 +145,15 @@ class ResourceCreditServiceValidator {
 		notNull(endTime, "ResourceCredit end time cannot be null");
 		if(startTime.isAfter(endTime)){
 			throw new IllegalArgumentException("ResourceCredit start time must be earlier than end time");
+		}
+	}
+
+	private void assertStartAndEndTimeIsNotChangeAfterAllocation(ResourceCredit resourceCredit) {
+		ResourceCredit savedResourceCredit = resourceCreditRepository.findById(resourceCredit.id)
+			.orElseThrow(() -> new IllegalArgumentException("ResourceCredit id not found: " + resourceCredit));
+		if(!savedResourceCredit.utcStartTime.isEqual(resourceCredit.utcStartTime) && !savedResourceCredit.utcEndTime.isEqual(resourceCredit.utcEndTime)){
+			if(communityAllocationRepository.existsByResourceCreditId(resourceCredit.id))
+				throw new ResourceCreditHasAllocationException("Can not change validity to/from when it already was allocated");
 		}
 	}
 }

@@ -59,6 +59,12 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public Optional<ProjectDeallocation> findDeallocationByProjectAllocationId(String projectAllocationId) {
+		return deallocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(ProjectDeallocationEntity::toProjectDeallocation);
+	}
+
+	@Override
 	public Set<ProjectDeallocation> findAllDeallocation(String projectId) {
 		if (isEmpty(projectId)) {
 			throw new IllegalArgumentException("Project Id is empty");
@@ -111,6 +117,23 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
+	public String update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId) {
+		return allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(old -> ProjectAllocationInstallationEntity.builder()
+				.id(old.getId())
+				.correlationId(UUID.fromString(correlationId.id))
+				.siteId(old.siteId)
+				.projectAllocationId(old.projectAllocationId)
+				.status(status)
+				.build())
+			.map(allocationRepository::save)
+			.map(ProjectAllocationInstallationEntity::getId)
+			.map(UUID::toString)
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+
+	}
+
+	@Override
 	public String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(old -> ProjectAllocationInstallationEntity.builder()
@@ -125,7 +148,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			.map(allocationRepository::save)
 			.map(ProjectAllocationInstallationEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 
 	@Override
@@ -155,7 +178,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			.map(deallocationRepository::save)
 			.map(ProjectDeallocationEntity::getId)
 			.map(UUID::toString)
-			.get();
+			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
 
 	@Override

@@ -54,7 +54,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	public ProjectInstallation findProjectInstallation(String projectAllocationId) {
+	public ProjectInstallation findProjectInstallationOfProjectAllocation(String projectAllocationId) {
 		return projectOperationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 

@@ -27,4 +27,6 @@ public interface ResourceCreditService {
 	void update(ResourceCredit resourceType);
 
 	void delete(String id, String siteId);
+
+	boolean hasCommunityAllocations(String id, String siteId);
 }

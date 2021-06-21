@@ -18,6 +18,8 @@ public interface ProjectAllocationInstallationRepository {
 
 	ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId);
 
+	Optional<ProjectDeallocation> findDeallocationByProjectAllocationId(String projectAllocationId);
+
 	Set<ProjectDeallocation> findAllDeallocation(String projectId);
 
 	Set<ProjectAllocationChunk> findAllChunks(String projectId);
@@ -27,6 +29,8 @@ public interface ProjectAllocationInstallationRepository {
 	String create(ProjectAllocationInstallation projectAllocation);
 
 	String create(ProjectDeallocation projectDeallocation);
+
+	String update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
 
 	String create(ProjectAllocationChunk projectAllocationChunk);
 

@@ -9,7 +9,7 @@ import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.projects.Project;
 
 public interface ProjectInstallationService {
-	ProjectInstallation findProjectInstallation(String projectAllocationId);
+	ProjectInstallation findProjectInstallationOfProjectAllocation(String projectAllocationId);
 	boolean isProjectInstalled(String siteId, String projectId);
 	boolean isProjectInTerminalState(String projectId);
 	void create(String projectId, ProjectInstallation projectInstallation);

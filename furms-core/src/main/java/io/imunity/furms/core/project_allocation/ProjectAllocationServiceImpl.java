@@ -19,7 +19,6 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,6 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationRepository projectAllocationRepository;
-	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
@@ -52,12 +50,10 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
 	                             ProjectInstallationService projectInstallationService,
-	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             ProjectAllocationInstallationService projectAllocationInstallationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
-		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
@@ -137,7 +133,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	private void allocateProject(ProjectAllocation projectAllocation, String id) {
-		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallation(id);
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
 			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
 			projectAllocationInstallationService.createAllocation(id);
@@ -153,8 +149,19 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void update(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateUpdate(communityId, projectAllocation);
 		projectAllocationRepository.update(projectAllocation);
+
+		updateProjectAllocation(projectAllocation);
+
 		publisher.publishEvent(new UpdateProjectAllocationEvent(projectAllocation.id));
 		LOG.info("ProjectAllocation was updated {}", projectAllocation);
+	}
+
+	private void updateProjectAllocation(ProjectAllocation projectAllocation) {
+		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(projectAllocation.id);
+		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId))
+			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
+		else
+			projectAllocationInstallationService.updateAndStartAllocation(projectAllocation.id);
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -244,7 +245,40 @@ class ResourceCreditServiceValidatorTest {
 		//when+then
 		assertThrows(CreditUpdateBelowDistributedAmountException.class, () -> validator.validateUpdate(updated));
 	}
-	
+
+	@Test
+	void shouldForbidChangeStartTimeIfAlreadyCommunityAllocationWasCreated() {
+		//given
+		ResourceCredit original = ResourceCredit.builder()
+			.id("id")
+			.siteId("sid")
+			.resourceTypeId("rid")
+			.name("name")
+			.amount(new BigDecimal(10))
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+		ResourceCredit updated = ResourceCredit.builder()
+			.id("id")
+			.siteId("sid")
+			.resourceTypeId("rid")
+			.name("name")
+			.amount(new BigDecimal(10))
+			.utcStartTime(LocalDateTime.now().plusDays(1))
+			.utcEndTime(LocalDateTime.now().plusDays(2))
+			.build();
+
+		when(communityAllocationRepository.existsByResourceCreditId(original.id)).thenReturn(true);
+		when(siteRepository.exists(any())).thenReturn(true);
+		when(resourceCreditRepository.findById(any())).thenReturn(Optional.of(original));
+		when(resourceTypeRepository.exists(any())).thenReturn(true);
+
+		//when+then
+		String message = assertThrows(ResourceCreditHasAllocationException.class, () -> validator.validateUpdate(updated))
+			.getMessage();
+		assertEquals("Can not change validity to/from when it already was allocated", message);
+	}
+
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given

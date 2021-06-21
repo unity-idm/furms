@@ -6,8 +6,8 @@
 package io.imunity.furms.core.resource_credits;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
@@ -53,7 +53,7 @@ class ResourceCreditServiceImplTest {
 	@Mock
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Mock
-	private CommunityAllocationService communityAllocationService;
+	private CommunityAllocationServiceHelper communityAllocationServiceHelper;
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
@@ -71,8 +71,8 @@ class ResourceCreditServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
 				resourceCreditRepository, resourceTypeRepository, siteRepository);
-		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher, 
-				communityAllocationService, authzService, resourceTypeService, resourceUsageRepository);
+		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher,
+			communityAllocationServiceHelper, authzService, resourceTypeService, resourceUsageRepository);
 		orderVerifier = inOrder(resourceCreditRepository, publisher);
 	}
 
@@ -136,9 +136,9 @@ class ResourceCreditServiceImplTest {
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
@@ -162,7 +162,7 @@ class ResourceCreditServiceImplTest {
 		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("siteId")).thenReturn(
 			new ResourceUsageByCredit(Map.of("id1", BigDecimal.TEN))
 		);
-		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
 		when(resourceTypeService.findById("id", "siteId")).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
@@ -184,9 +184,9 @@ class ResourceCreditServiceImplTest {
 				ResourceCredit.builder().id("id1").name("name").build(),
 				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
 				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationService.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationService.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationService.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
