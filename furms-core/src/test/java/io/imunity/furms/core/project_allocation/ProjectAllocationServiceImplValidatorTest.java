@@ -6,23 +6,28 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
+import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -392,8 +397,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 
 		//when+then
-		String message = assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation)).getMessage();
-		assertEquals("Only allocations in terminal state can be edit", message);
+		assertThrows(ProjectAllocationIsNotInTerminalStateException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation));
 	}
 
 	@Test

@@ -5,20 +5,22 @@
 
 package io.imunity.furms.agent.runner;
 
-import io.imunity.furms.rabbitmq.site.models.*;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyAdditionResult;
@@ -31,11 +33,32 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequest;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequestAck;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessResult;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequest;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequestAck;
+import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessResult;
+import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequest;
+import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequestAck;
+import io.imunity.furms.rabbitmq.site.models.UserProjectAddResult;
+import io.imunity.furms.rabbitmq.site.models.UserProjectRemovalRequest;
+import io.imunity.furms.rabbitmq.site.models.UserProjectRemovalRequestAck;
+import io.imunity.furms.rabbitmq.site.models.UserProjectRemovalResult;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +68,7 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 class MockListeners {
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
+	private final Set<String> allocationIdentifiers = new HashSet<>();
 	@Value("${queue.res-name}")
 	private String responseQueueName;
 
@@ -149,6 +173,9 @@ class MockListeners {
 	public void receiveAgentProjectAllocationInstallationRequest(Payload<AgentProjectAllocationInstallationRequest> projectInstallationRequest) throws InterruptedException {
 		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectAllocationInstallationAck()));
+		if(allocationIdentifiers.contains(projectInstallationRequest.body.allocationIdentifier))
+			return;
+		allocationIdentifiers.add(projectInstallationRequest.body.allocationIdentifier);
 
 		TimeUnit.SECONDS.sleep(5);
 

@@ -11,6 +11,7 @@ import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
+import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
@@ -19,14 +20,13 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -233,9 +233,10 @@ class ProjectAllocationServiceValidator {
 	}
 
 	private void assertAmountNotDecreasedBelowConsumedUsage(ProjectAllocation projectAllocation) {
-		ResourceUsage resourceUsage = resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Project Allocation %s doesn't exist", projectAllocation.id)));
-		if(resourceUsage.cumulativeConsumption.compareTo(projectAllocation.amount) > 0)
+		BigDecimal resourceUsage = resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)
+			.map(usage -> usage.cumulativeConsumption)
+			.orElse(BigDecimal.ZERO);
+		if(resourceUsage.compareTo(projectAllocation.amount) > 0)
 			throw new ProjectAllocationWrongAmountException("Allocation amount have to be bigger than consumed usage");
 	}
 
