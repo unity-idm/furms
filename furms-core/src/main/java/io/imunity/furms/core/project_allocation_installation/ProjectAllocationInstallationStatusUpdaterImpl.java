@@ -83,4 +83,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		projectAllocationInstallationRepository.create(result);
 		LOG.info("ProjectAllocationChunk was created: {}", result);
 	}
+
+	@Override
+	@Transactional
+	public void updateChunk(ProjectAllocationChunk result) {
+		projectAllocationInstallationRepository.update(result);
+		LOG.info("ProjectAllocationChunk was updated: {}", result);
+	}
 }

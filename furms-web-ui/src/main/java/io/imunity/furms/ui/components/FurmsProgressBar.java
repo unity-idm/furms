@@ -18,11 +18,15 @@ public class FurmsProgressBar extends Div {
 	public FurmsProgressBar(double value) {
 		addClassName("progressbar-container");
 
-		final Label label = new Label(format("%.2f%%", value*100));
+		final Label label = new Label(format("%.2f%%", value * 100));
 		label.addClassName("progressbar-label");
 
 		final ProgressBar progressBar = new ProgressBar();
-		progressBar.setValue(value);
+		if (Double.compare(value, 1.0) > 0) {
+			progressBar.setValue(1.0);
+		} else {
+			progressBar.setValue(value);
+		}
 		progressBar.addClassName("progressbar-value");
 
 		add(label, progressBar);

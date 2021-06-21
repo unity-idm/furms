@@ -11,19 +11,27 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequestAck;
 import io.imunity.furms.rabbitmq.site.models.Error;
-import io.imunity.furms.rabbitmq.site.models.*;
-import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
+import io.imunity.furms.rabbitmq.site.models.Header;
+import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
+import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.*;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
@@ -69,12 +77,25 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId(result.body.allocationIdentifier)
 			.chunkId(result.body.allocationChunkIdentifier)
-			.amount(BigDecimal.valueOf(result.body.amount))
+			.amount(result.body.amount)
 			.validFrom(convertToUTCTime(result.body.validFrom))
 			.validTo(convertToUTCTime(result.body.validTo))
 			.receivedTime(convertToUTCTime(result.body.receivedTime))
 			.build();
 		projectAllocationInstallationStatusUpdater.createChunk(chunk);
+	}
+
+	@EventListener
+	void receiveProjectResourceAllocationUpdate(Payload<AgentProjectAllocationUpdate> result) {
+		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
+			.projectAllocationId(result.body.allocationIdentifier)
+			.chunkId(result.body.allocationChunkIdentifier)
+			.amount(result.body.amount)
+			.validFrom(convertToUTCTime(result.body.validFrom))
+			.validTo(convertToUTCTime(result.body.validTo))
+			.receivedTime(convertToUTCTime(result.body.receivedTime))
+			.build();
+		projectAllocationInstallationStatusUpdater.updateChunk(chunk);
 	}
 
 	private Optional<ErrorMessage> getErrorMessage(Error error) {

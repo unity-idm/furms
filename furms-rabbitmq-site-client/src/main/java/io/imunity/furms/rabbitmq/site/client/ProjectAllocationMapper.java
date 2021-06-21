@@ -18,7 +18,7 @@ class ProjectAllocationMapper {
 			.allocationIdentifier(projectAllocation.id)
 			.resourceCreditIdentifier(projectAllocation.resourceCredit.id)
 			.resourceType(projectAllocation.resourceType.name)
-			.amount(projectAllocation.amount.doubleValue())
+			.amount(projectAllocation.amount)
 			.validFrom(projectAllocation.resourceCredit.utcStartTime.atOffset(ZoneOffset.UTC))
 			.validTo(projectAllocation.resourceCredit.utcEndTime.atOffset(ZoneOffset.UTC))
 			.build();

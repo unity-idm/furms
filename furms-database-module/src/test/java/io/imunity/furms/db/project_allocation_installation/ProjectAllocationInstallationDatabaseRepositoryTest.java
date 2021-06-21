@@ -11,6 +11,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
@@ -71,6 +72,8 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 	private ProjectAllocationInstallationRepository allocationRepository;
 	@Autowired
 	private ProjectDeallocationEntityRepository deallocationRepository;
+	@Autowired
+	private ProjectAllocationChunkEntityRepository chunkRepository;
 
 	@Autowired
 	private ProjectAllocationInstallationDatabaseRepository entityDatabaseRepository;
@@ -265,6 +268,36 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//then
 		assertThat(allocationRepository.findAll(projectId.toString())).isEmpty();
+	}
+
+	@Test
+	void shouldUpdateChunk(){
+		//given
+		ProjectAllocationChunkEntity request = ProjectAllocationChunkEntity.builder()
+			.projectAllocationId(projectAllocationId)
+			.chunkId("id")
+			.amount(BigDecimal.ONE)
+			.validTo(LocalDateTime.now().minusDays(3))
+			.validFrom(LocalDateTime.now().plusDays(3))
+			.build();
+		ProjectAllocationChunkEntity savedEntity = chunkRepository.save(request);
+
+		//when
+		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
+			.projectAllocationId(projectAllocationId.toString())
+			.chunkId("id")
+			.amount(BigDecimal.TEN)
+			.validTo(LocalDateTime.now().minusDays(2))
+			.validFrom(LocalDateTime.now().plusDays(2))
+			.build();
+		entityDatabaseRepository.update(chunk);
+
+		//then
+		Optional<ProjectAllocationChunkEntity> updatedEntity = chunkRepository.findById(savedEntity.getId());
+		assertThat(updatedEntity).isPresent();
+		assertThat(updatedEntity.get().amount).isEqualTo(chunk.amount);
+		assertThat(updatedEntity.get().validFrom).isEqualToIgnoringNanos(chunk.validFrom);
+		assertThat(updatedEntity.get().validTo).isEqualToIgnoringNanos(chunk.validTo);
 	}
 
 }

@@ -14,16 +14,19 @@ import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -37,16 +40,20 @@ import static org.springframework.util.Assert.notNull;
 
 @Component
 class ProjectAllocationServiceValidator {
+	private final ResourceCreditRepository resourceCreditRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectRepository projectRepository;
 	private final ResourceUsageRepository resourceUsageRepository;
 
-	ProjectAllocationServiceValidator(ProjectAllocationRepository projectAllocationRepository,
+	ProjectAllocationServiceValidator(ResourceCreditRepository resourceCreditRepository,
+	                                  ProjectAllocationRepository projectAllocationRepository,
 	                                  ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
 	                                  CommunityAllocationRepository communityAllocationRepository,
-	                                  ProjectRepository projectRepository, ResourceUsageRepository resourceUsageRepository) {
+	                                  ProjectRepository projectRepository,
+	                                  ResourceUsageRepository resourceUsageRepository) {
+		this.resourceCreditRepository = resourceCreditRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
@@ -59,6 +66,7 @@ class ProjectAllocationServiceValidator {
 		assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		assertProjectExists(projectAllocation.projectId);
 		assertProjectNotExpired(projectAllocation.projectId);
+		assertProjectHasUniqueResourceTypeInGivenPointInTime(projectAllocation);
 		validateCommunityAllocationId(projectAllocation.communityAllocationId);
 		assertResourceCreditNotExpired(projectAllocation.communityAllocationId);
 		validateName(communityId, projectAllocation);
@@ -163,6 +171,21 @@ class ProjectAllocationServiceValidator {
 		final Optional<Project> project = projectRepository.findById(projectId);
 		assertTrue(project.isPresent() && !project.get().isExpired(),
 				() -> new ProjectExpiredException("Project is expired."));
+	}
+
+	private void assertProjectHasUniqueResourceTypeInGivenPointInTime(ProjectAllocation projectAllocation) {
+		CommunityAllocation communityAllocation = communityAllocationRepository.findById(projectAllocation.communityAllocationId)
+			.orElseThrow(() -> new IllegalStateException(String.format("Community Allocation %s doesn't exist", projectAllocation.communityAllocationId)));
+		ResourceCredit resourceCredit = resourceCreditRepository.findById(communityAllocation.resourceCreditId)
+			.orElseThrow(() -> new IllegalStateException(String.format("Resource Credit %s doesn't exist", communityAllocation.resourceCreditId)));
+
+		AllocationTimespan allocationTimespan = new AllocationTimespan(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
+		boolean matches = projectAllocationRepository.findAllWithRelatedObjects(projectAllocation.projectId).stream()
+			.filter(x -> x.resourceType.id.equals(resourceCredit.resourceTypeId))
+			.map(x -> new AllocationTimespan(x.resourceCredit.utcStartTime, x.resourceCredit.utcEndTime))
+			.anyMatch(allocationTimespan::overlaps);
+
+		assertFalse(matches, () -> new ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(projectAllocation.projectId, resourceCredit.resourceTypeId));
 	}
 
 	private void validateCommunityAllocationId(String id) {

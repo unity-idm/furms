@@ -22,6 +22,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
@@ -51,6 +52,7 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 public class ProjectAllocationComponent extends Composite<Div> {
 
@@ -194,8 +196,14 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Dialog createConfirmDialog(String projectAllocationId, String projectAllocationName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", projectAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> service.delete(communityId, projectAllocationId));
-			loadGridContent();
+			try {
+				service.delete(communityId, projectAllocationId);
+				loadGridContent();
+			} catch (RemovalOfConsumedProjectAllocationIsFirbiddenException e){
+				showErrorNotification(getTranslation("project.allocation.removing.message"));
+			} catch (Exception e){
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 		});
 		return furmsDialog;
 	}

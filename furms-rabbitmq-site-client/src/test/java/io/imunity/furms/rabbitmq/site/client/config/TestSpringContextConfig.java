@@ -3,8 +3,10 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.client.config;
 
+import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
+import io.imunity.furms.rabbitmq.site.client.SiteAgentStatusServiceImpl;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationSiteIdResolver;
@@ -12,38 +14,14 @@ import io.imunity.furms.site.api.message_resolver.ProjectDeallocationSiteIdResol
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
 import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
-import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
-import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
-import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
-import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
-import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-class MockBeansConfig {
-	@MockBean
-	private ProjectInstallationStatusUpdater projectInstallationService;
-	@MockBean
-	private ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
-	@MockBean
-	private SiteExternalIdsResolver siteExternalIdsResolver;
-	@MockBean
-	private SSHKeyOperationStatusUpdater sshKeyOperationService;
-	@MockBean
-	private UserOperationStatusUpdater userOperationStatusUpdater;
-	@MockBean
-	private UserAllocationStatusUpdater userAllocationStatusUpdater;
-	@MockBean
-	private ResourceUsageUpdater resourceUsageUpdater;
-
-	@MockBean
-	private MessageAuthorizer messageAuthorizer;
-
+@SpringBootApplication(scanBasePackageClasses = ConnectionInitializer.class, scanBasePackages = "io.imunity.furms.rabbitmq.site.client.message_resolvers_conector")
+class TestSpringContextConfig {
 	@MockBean
 	private ProjectAllocationInstallationSiteIdResolver projectAllocationInstallationSiteIdResolver;
 	@MockBean
@@ -62,4 +40,11 @@ class MockBeansConfig {
 	private ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver;
 	@MockBean
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
+	@MockBean
+	private SiteExternalIdsResolver siteExternalIdsResolver;
+	@MockBean
+	private SiteAgentListenerConnector siteAgentListenerConnector;
+	@MockBean
+	private SiteAgentStatusServiceImpl siteAgentStatusServiceImpl;
+
 }

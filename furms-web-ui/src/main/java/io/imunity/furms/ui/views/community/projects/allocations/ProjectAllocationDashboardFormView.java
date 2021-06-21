@@ -5,19 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
-import static com.vaadin.flow.component.Key.ESCAPE;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static java.math.BigDecimal.ZERO;
-import static java.util.stream.Collectors.toSet;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -31,9 +18,9 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FormButtons;
@@ -44,10 +31,21 @@ import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGr
 import io.imunity.furms.ui.components.support.models.ComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
-import io.imunity.furms.ui.utils.NotificationUtils;
-import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.vaadin.flow.component.Key.ESCAPE;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/dashboard/allocation", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
@@ -129,13 +127,15 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	private void saveProjectAllocation() {
 		final ProjectAllocationViewModel viewModel = binder.getBean();
 		final ProjectAllocation projectAllocation = ProjectAllocationModelsMapper.map(viewModel);
-		final OptionalException<Void> optionalException =
-				getResultOrException(() -> projectAllocationService.create(viewModel.getCommunityId(), projectAllocation));
 
-		optionalException.getException().ifPresentOrElse(
-				throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
-				() -> UI.getCurrent().navigate(DashboardView.class)
-		);
+		try {
+			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
+			UI.getCurrent().navigate(DashboardView.class);
+		}catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
+			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
+		} catch (Exception e) {
+			showErrorNotification(getTranslation("base.error.message"));
+		}
 	}
 
 	private TextField nameField() {

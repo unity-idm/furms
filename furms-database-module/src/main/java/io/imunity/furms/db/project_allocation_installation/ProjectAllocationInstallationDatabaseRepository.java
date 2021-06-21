@@ -154,9 +154,10 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	@Override
 	public ProjectDeallocation findDeallocationByCorrelationId(String correlationId) {
 		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(x -> ProjectDeallocation.builder()
-				.projectAllocationId(x.projectAllocationId.toString())
-				.status(ProjectDeallocationStatus.valueOf(x.status))
+			.map(deallocationEntity -> ProjectDeallocation.builder()
+				.siteId(deallocationEntity.siteId.toString())
+				.projectAllocationId(deallocationEntity.projectAllocationId.toString())
+				.status(ProjectDeallocationStatus.valueOf(deallocationEntity.status))
 				.build())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
@@ -191,6 +192,22 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			.receivedTime(projectAllocationChunk.receivedTime)
 			.build();
 		return chunkRepository.save(chunk).getId().toString();
+	}
+
+	@Override
+	public void update(ProjectAllocationChunk projectAllocationChunk) {
+		chunkRepository.findByProjectAllocationIdAndChunkId(UUID.fromString(projectAllocationChunk.projectAllocationId) ,projectAllocationChunk.chunkId)
+			.map(chunk -> ProjectAllocationChunkEntity.builder()
+				.id(chunk.getId())
+				.projectAllocationId(UUID.fromString(projectAllocationChunk.projectAllocationId))
+				.chunkId(projectAllocationChunk.chunkId)
+				.amount(projectAllocationChunk.amount)
+				.validFrom(projectAllocationChunk.validFrom)
+				.validTo(projectAllocationChunk.validTo)
+				.receivedTime(projectAllocationChunk.receivedTime)
+				.build())
+			.map(chunkRepository::save)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Chunk %s doesn't exist ", projectAllocationChunk.chunkId)));
 	}
 
 	@Override
