@@ -6,8 +6,12 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
-import io.imunity.furms.core.user_operation.UserOperationService;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +31,6 @@ class ProjectInstallationStatusUpdaterTest {
 	private ProjectOperationRepository repository;
 	@Mock
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
-	@Mock
-	private UserOperationService userOperationService;
 
 	private ProjectInstallationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -36,7 +38,7 @@ class ProjectInstallationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService, userOperationService);
+		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService);
 		orderVerifier = inOrder(repository, projectAllocationInstallationService);
 	}
 

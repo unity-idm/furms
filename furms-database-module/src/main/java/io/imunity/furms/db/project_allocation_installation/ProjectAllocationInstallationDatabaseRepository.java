@@ -195,7 +195,6 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 		return allocationRepository.existsById(UUID.fromString(id));
 	}
 
-
 	@Override
 	public void deleteBy(String id) {
 		allocationRepository.deleteById(UUID.fromString(id));
