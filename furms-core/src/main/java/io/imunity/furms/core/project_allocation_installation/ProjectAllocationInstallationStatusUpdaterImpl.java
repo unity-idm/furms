@@ -55,12 +55,16 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			return;
 		}
 		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
-		if(job.status.equals(PENDING) && status.equals(ACKNOWLEDGED)){
+		if(isStatusPendingIsTransitToAcknowledged(status, job)){
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
 			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
 		}
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
+	}
+
+	private boolean isStatusPendingIsTransitToAcknowledged(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallation newStatus) {
+		return newStatus.status.equals(PENDING) && oldStatus.equals(ACKNOWLEDGED);
 	}
 
 	@Override
