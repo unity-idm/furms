@@ -63,7 +63,7 @@ public class SSHKeyServiceValidator {
 		validateName(sshKey.name);
 		validateOwner(sshKey.ownerId);
 		validateFenixId(sshKey.ownerId);
-		validateValue(sshKey.value);
+		validateValue(sshKey);
 		validateSites(sshKey);
 	}
 
@@ -73,7 +73,7 @@ public class SSHKeyServiceValidator {
 		validateIsNamePresentIgnoringRecord(sshKey.name, sshKey.id);
 		validateOwner(sshKey.ownerId);
 		validateFenixId(sshKey.ownerId);
-		validateValue(sshKey.value);
+		validateValue(sshKey);
 		validateSites(sshKey);
 		validateOpenOperation(sshKey);
 	}
@@ -114,10 +114,17 @@ public class SSHKeyServiceValidator {
 				() -> new DuplicatedNameValidationError("SSHKey name has to be unique."));
 	}
 
-	void validateValue(String value) {
-		notNull(value, "SSH key value has to be declared.");
-		hasText(value, "Invalid SSH key value: SSH key value is empty.");
-		SSHKey.validate(value);
+	void validateValue(SSHKey key) {
+		notNull(key.value, "SSH key value has to be declared.");
+		hasText(key.value, "Invalid SSH key value: SSH key value is empty.");
+		key.validate();
+		if (siteRepository.findAll().stream().filter(s -> key.sites.contains(s.getId())
+					&& (s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory())).count() > 0)
+		{
+			key.validateFromOption();
+		}
+		
+		
 	}
 
 	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {

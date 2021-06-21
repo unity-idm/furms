@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
@@ -38,7 +40,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 	private final SiteComboBoxModelResolver resolver;
 	private final SSHKeyService sshKeyService;
 	private final TextArea keyValueField;
-
+	private final MultiselectComboBox<SiteComboBoxModel> sitesComboBox;
 	SSHKeyFormComponent(Binder<SSHKeyUpdateModel> binder, SiteComboBoxModelResolver resolver,
 			SSHKeyService keyService) {
 		this.binder = binder;
@@ -52,7 +54,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.user-settings.ssh-keys.form.field.name"));
 
-		MultiselectComboBox<SiteComboBoxModel> sitesComboBox = new MultiselectComboBox<>();
+		sitesComboBox = new MultiselectComboBox<>();
 		sitesComboBox.setItems(resolver.getSites());
 		sitesComboBox.setItemLabelGenerator(site -> site.name);
 		formLayout.addFormItem(sitesComboBox,
@@ -84,8 +86,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		binder.forField(keyValueField)
 				.withValidator(value -> Objects.nonNull(value) && !value.isBlank(), getTranslation(
 						"view.user-settings.ssh-keys.form.error.validation.field.key"))
-				.withValidator(value -> validateKey(value), getTranslation(
-						"view.user-settings.ssh-keys.form.error.validation.field.key.invalid.format"))
+				.withValidator(new SSHKeyValueValidator())
 				.bind(SSHKeyUpdateModel::getValue, SSHKeyUpdateModel::setValue);
 		keyValueField.addValueChangeListener(e -> binder.validate());
 
@@ -113,6 +114,29 @@ class SSHKeyFormComponent extends Composite<Div> {
 		}
 	}
 
+	public class SSHKeyValueValidator implements Validator<String> {
+		@Override
+		public ValidationResult apply(String value, ValueContext context) {
+			try {
+				Map<String, String> keyOptions = SSHKey.getKeyOptions(value);
+
+				if (sitesComboBox.getValue().stream().filter(s -> s.sshKeyFromOptionMandatory)
+						.count() > 0) {
+					SSHKey.validateFromOption(keyOptions.get("from"));
+				}
+
+			} catch (InvalidSSHKeyFromOptionException e) {
+				return ValidationResult.error(getTranslation(
+						"view.user-settings.ssh-keys.form.error.validation.field.key.invalid.from.option"));
+
+			} catch (Exception e) {
+				return ValidationResult.error(getTranslation(
+						"view.user-settings.ssh-keys.form.error.validation.field.key.invalid.format"));
+			}
+			return ValidationResult.ok();
+		}
+	}
+	
 	public class SiteValidator implements Validator<Set<SiteComboBoxModel>> {
 
 		@Override
