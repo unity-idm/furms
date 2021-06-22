@@ -57,7 +57,7 @@ class ResourceCreditServiceValidator {
 		ResourceCredit existing = assertCreditWithIdExists(resourceCredit.id);
 		validateSplitChange(resourceCredit, existing);
 		validateUpdateSiteId(resourceCredit);
-		validateResourceTypeId(resourceCredit.resourceTypeId);
+		validateUpdateResourceTypeId(resourceCredit);
 		validateName(resourceCredit, Optional.of(existing));
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
 		validateCreateTime(resourceCredit.utcCreateTime);
@@ -124,6 +124,14 @@ class ResourceCreditServiceValidator {
 			.map(s -> s.siteId)
 			.filter(id -> id.equals(resourceCredit.siteId))
 			.orElseThrow(() -> new IllegalArgumentException("Site ID change is forbidden"));
+	}
+
+	private void validateUpdateResourceTypeId(ResourceCredit resourceCredit) {
+		validateResourceTypeId(resourceCredit.resourceTypeId);
+		resourceCreditRepository.findById(resourceCredit.id)
+			.map(credit -> credit.resourceTypeId)
+			.filter(id -> id.equals(resourceCredit.resourceTypeId))
+			.orElseThrow(() -> new IllegalArgumentException("Resource Type ID change is forbidden"));
 	}
 
 	private void validateSplitChange(ResourceCredit updated, ResourceCredit existing) {

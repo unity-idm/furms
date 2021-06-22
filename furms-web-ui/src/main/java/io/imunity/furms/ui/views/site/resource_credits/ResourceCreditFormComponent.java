@@ -36,6 +36,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	private final FormLayout formLayout;
 	private final FurmsDateTimePicker startTimePicker;
 	private final FurmsDateTimePicker endTimePicker;
+	private final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 
 
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
@@ -48,7 +49,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.resource-credits.form.field.name"));
 
-		ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox = new ComboBox<>();
+		resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItems(resolver.getResourceTypes());
 		resourceTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		formLayout.addFormItem(resourceTypeComboBox,
@@ -94,7 +95,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			)
 			.bind(
 				resourceType -> resolver.getResourceType(resourceType.getResourceTypeId()),
-				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeName(resourceType.id)
+				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeId(resourceType.id)
 			);
 		binder.forField(splitCheckbox)
 			.bind(ResourceCreditViewModel::getSplit, ResourceCreditViewModel::setSplit);
@@ -130,6 +131,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			startTimePicker.setReadOnly(true);
 			endTimePicker.setReadOnly(true);
 		}
+		if(resourceCreditViewModel.getId() != null)
+			resourceTypeComboBox.setReadOnly(true);
 		addIdFieldForEditForm(resourceCreditViewModel);
 	}
 
