@@ -28,6 +28,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyFromOptionValidator;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
 
@@ -41,6 +42,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 	private final SSHKeyService sshKeyService;
 	private final TextArea keyValueField;
 	private final MultiselectComboBox<SiteComboBoxModel> sitesComboBox;
+	
 	SSHKeyFormComponent(Binder<SSHKeyUpdateModel> binder, SiteComboBoxModelResolver resolver,
 			SSHKeyService keyService) {
 		this.binder = binder;
@@ -122,12 +124,12 @@ class SSHKeyFormComponent extends Composite<Div> {
 
 				if (sitesComboBox.getValue().stream().filter(s -> s.sshKeyFromOptionMandatory)
 						.count() > 0) {
-					SSHKey.validateFromOption(keyOptions.get("from"));
+					SSHKeyFromOptionValidator.validateFromOption(keyOptions.get("from"));
 				}
 
 			} catch (InvalidSSHKeyFromOptionException e) {
 				return ValidationResult.error(getTranslation(
-						"view.user-settings.ssh-keys.form.error.validation.field.key.invalid.from.option"));
+						"view.user-settings.ssh-keys.form.error.validation.field.key.invalid.from.option", getTranslation("view.user-settings.ssh-keys.form.error.validation.field.key.invalid.from.option.cause." + e.type.toString())));
 
 			} catch (Exception e) {
 				return ValidationResult.error(getTranslation(

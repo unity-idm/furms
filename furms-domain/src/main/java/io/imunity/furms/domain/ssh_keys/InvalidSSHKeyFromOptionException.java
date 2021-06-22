@@ -7,11 +7,23 @@ package io.imunity.furms.domain.ssh_keys;
 
 public class InvalidSSHKeyFromOptionException extends RuntimeException {
 
-	public InvalidSSHKeyFromOptionException(String msg, Throwable cause) {
-		super(msg, cause);
+	public enum ErrorType {
+		CIDR_MASK, INVALID_HOST, WILDCARD_WITH_TLD, WILDCARD, NON_ROUTEABLE_HOST, WILDCARD_IN_ADDRESS
 	}
-	
-	public InvalidSSHKeyFromOptionException(String msg) {
+
+	public final String fromOption;
+	public final ErrorType type;
+
+	public InvalidSSHKeyFromOptionException(String msg, Throwable cause, String fromOption, ErrorType type) {
+		super(msg, cause);
+		this.fromOption = fromOption;
+		this.type = type;
+
+	}
+
+	public InvalidSSHKeyFromOptionException(String msg, String fromOption, ErrorType type) {
 		super(msg);
+		this.fromOption = fromOption;
+		this.type = type;
 	}
 }
