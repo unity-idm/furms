@@ -9,14 +9,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.digest.BuiltinDigests;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.net.InternetDomainName;
 
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -79,7 +75,7 @@ public class SSHKey {
 	}
 
 	public void validateFromOption() {
-		validateFromOption(getKeyOptions().get("from"));
+		SSHKeyFromOptionValidator.validateFromOption(getKeyOptions().get("from"));
 	}
 	
 	public static Map<String, String> getKeyOptions(String publicSSHKey) {
@@ -90,124 +86,6 @@ public class SSHKey {
 
 	public String getFingerprint() {
 		return getKeyFingerprint(value);
-	}
-
-	public static void validateFromOption(String fromOption) {
-		if (fromOption == null || fromOption.isEmpty())
-			return;		
-		String[] options = fromOption.split(",");
-		if (Stream.of(options).filter(o -> !o.startsWith("!")).findAny().isEmpty()) {
-			throw new InvalidSSHKeyFromOptionException("Host in from option require");
-		}
-
-		for (String option : options) {
-
-			if (option.equals("*")) {
-				throw new InvalidSSHKeyFromOptionException("Only * wildcard is not valid host");
-			}
-
-			if (isIPv4(option)) {
-				isValidIPv4(option);
-			} else if (isIPv6(option)) {
-				isValidIPv6(option);
-			} else {
-				isValidHostname(option);
-			}
-		}
-	}
-
-	private static boolean isIPv4(String input) {
-		return CharMatcher.anyOf("0123456789.?*\\/").matchesAllOf(input);
-	}
-
-	private static boolean isIPv6(String input) {
-		return CharMatcher.anyOf(":").matchesAnyOf(input);
-	}
-
-	private static void isValidIPv4(String input) {
-
-		if (input.startsWith("0.0.0.0")) {
-			throw new InvalidSSHKeyFromOptionException("0.0.0.0 is not valid host");
-		}
-
-		if (input.contains("/")) {
-			String[] split = input.split("\\/");
-			if (split.length != 2) {
-				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation");
-			}
-			Integer mask;
-			try {
-				mask = Integer.valueOf(split[1]);
-			} catch (Exception e) {
-				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation");
-
-			}
-
-			if (mask < 16) {
-				throw new InvalidSSHKeyFromOptionException("The subnet mask must be greater than 15");
-			}
-		}
-
-		if (CharMatcher.anyOf("?*").matchesAnyOf(input)) {
-			String[] split = input.split("\\.");
-
-			if (split.length < 2 || CharMatcher.anyOf("?*").matchesAnyOf(split[0])
-					|| CharMatcher.anyOf("?*").matchesAnyOf(split[1])) {
-				throw new InvalidSSHKeyFromOptionException(
-						"*? can be use after 16 bit in host address");
-			}
-		}
-
-	}
-
-	private static void isValidIPv6(String input) {
-
-		if (input.startsWith("::") || input.startsWith("0000:0000:0000:0000:0000:0000:0000:0000")) {
-			throw new InvalidSSHKeyFromOptionException(":: is not valid host");
-		}
-		if (input.contains("/")) {
-			String[] split = input.split("\\/");
-			if (split.length != 2) {
-				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation");
-			}
-			if (Integer.valueOf(split[1]) < 60) {
-				throw new InvalidSSHKeyFromOptionException("The subnet mask must be greater than 59");
-			}
-		} else if (CharMatcher.anyOf("?*").matchesAnyOf(input)) {
-			String[] split = input.split("\\:");
-			if (split.length < 4 || CharMatcher.anyOf("?*").matchesAnyOf(split[0])
-					|| CharMatcher.anyOf("?*").matchesAnyOf(split[1])
-					|| CharMatcher.anyOf("?*").matchesAnyOf(split[2])
-					|| CharMatcher.anyOf("?*").matchesAnyOf(split[3])) {
-				throw new InvalidSSHKeyFromOptionException(
-						"*? can be use after 60 bit in host address");
-			}
-		}
-	}
-
-	private static void isValidHostname(String input) {
-		if (CharMatcher.anyOf("*").matchesAnyOf(input)) {
-			String[] split = input.split("\\*");
-			String last = split[split.length - 1];
-			if (last.isEmpty()) {
-				throw new InvalidSSHKeyFromOptionException(
-						"* wildcard can be use only with domain name");
-			} else {
-				InternetDomainName idm;
-				try {
-					idm = InternetDomainName.from(CharMatcher.is('.').trimLeadingFrom(last));
-				} catch (Exception e) {
-					throw new InvalidSSHKeyFromOptionException(
-							"* wildcard can be use only with domain name");
-				}
-
-				if (idm.isRegistrySuffix()) {
-
-					throw new InvalidSSHKeyFromOptionException(
-							"* wildcard can not be use with top level domain name");
-				}
-			}
-		}
 	}
 
 	public static String getKeyFingerprint(String publicSSHKey) {
