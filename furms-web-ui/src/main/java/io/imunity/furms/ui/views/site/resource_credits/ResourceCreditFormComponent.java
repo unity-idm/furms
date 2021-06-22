@@ -94,7 +94,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			)
 			.bind(
 				resourceType -> resolver.getResourceType(resourceType.getResourceTypeId()),
-				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeName(resourceType.id)
+				(resourceTypeViewModel, resourceType) -> resourceTypeViewModel.setResourceTypeId(resourceType.id)
 			);
 		binder.forField(splitCheckbox)
 			.bind(ResourceCreditViewModel::getSplit, ResourceCreditViewModel::setSplit);

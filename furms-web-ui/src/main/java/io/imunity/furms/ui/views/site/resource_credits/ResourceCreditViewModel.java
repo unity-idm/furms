@@ -78,6 +78,10 @@ class ResourceCreditViewModel {
 		return resourceTypeId;
 	}
 
+	public void setResourceTypeId(String resourceTypeId) {
+		this.resourceTypeId = resourceTypeId;
+	}
+
 	public void setResourceTypeName(String resourceTypeName) {
 		this.resourceTypeName = resourceTypeName;
 	}
