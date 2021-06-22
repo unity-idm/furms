@@ -3,14 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.furms.domain.ssh_key;
+package io.imunity.furms.domain.ssh_keys;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,5 +49,4 @@ public class SSHKeyTest {
 		assertThat(keyOptions.get("no-pty")).isEqualTo("true");
 		assertThat(keyOptions.get("no-port-forwarding")).isEqualTo("true");
 	}
-
 }

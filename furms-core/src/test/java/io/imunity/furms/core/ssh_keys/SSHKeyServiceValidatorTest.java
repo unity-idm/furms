@@ -28,6 +28,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -293,7 +294,7 @@ class SSHKeyServiceValidatorTest {
 	}
 
 	@Test
-	void shouldNotPassCreateWhenSitesRequireFromOptionAndKeyWitoutFromOption() {
+	void shouldNotPassCreateWhenSitesRequireFromOptionAndKeyWithoutFromOption() {
 		// given
 		final SSHKey key = getKey();
 
@@ -305,6 +306,26 @@ class SSHKeyServiceValidatorTest {
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(key));
+	}
+	
+	@Test
+	void shouldNotPassCreateWhenSitesRequireFromOptionAndKeyWithInvalidFromOption() {
+		// given
+		final SSHKey key = SSHKey.builder().id("id").name("name").value(
+				"from=\"*.com\"  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/f"
+						+ "WMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEX"
+						+ "hJD/78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbb"
+						+ "gd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL "
+						+ "demo@demo.pl\n" + "")
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+
+		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
+		when(siteRepository.findAll()).thenReturn(
+				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
+		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
+				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
+		// when+then
+		assertThrows(InvalidSSHKeyFromOptionException.class, () -> validator.validateCreate(key));
 	}
 
 	@Test

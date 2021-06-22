@@ -38,9 +38,9 @@ public class SSHKey {
 
 	@Override
 	public String toString() {
-		return "SSHKey" + "id=" + id + ", name='" + name + ", createTime='"
-				+ createTime + '\'' + ", updateTime='" + updateTime + '\'' + ", ownerId='" + ownerId
-				+ '\'' + ", sites=" + sites + '}';
+		return "SSHKey" + "id=" + id + ", name='" + name + ", createTime='" + createTime + '\''
+				+ ", updateTime='" + updateTime + '\'' + ", ownerId='" + ownerId + '\'' + ", sites="
+				+ sites + '}';
 	}
 
 	public static SSHKey.SSHKeyBuilder builder() {
@@ -74,6 +74,10 @@ public class SSHKey {
 		validate(value);
 	}
 
+	public void validateFromOption() {
+		SSHKeyFromOptionValidator.validateFromOption(getKeyOptions().get("from"));
+	}
+	
 	public static Map<String, String> getKeyOptions(String publicSSHKey) {
 
 		validate(publicSSHKey);
