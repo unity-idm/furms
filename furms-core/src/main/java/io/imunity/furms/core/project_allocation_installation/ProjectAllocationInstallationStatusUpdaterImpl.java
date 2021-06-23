@@ -26,8 +26,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
@@ -57,21 +57,27 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			LOG.info("ProjectAllocationInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
-		if(isStatusPendingIsTransitToAcknowledged(status, job)){
-			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
-				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
-			userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
-		}
-		if(job.status == UPDATING && status == FAILED)
+
+		if(isStatusUpdatingIsTransitToFailed(job.status, status))
 			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
 		else
 			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
+
+		if(isStatusPendingIsTransitToAcknowledged(status, job)) {
+			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
+				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
+			if(!projectAllocationResolved.resourceType.accessibleForAllProjectMembers)
+				userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
+		}
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
 	private boolean isStatusPendingIsTransitToAcknowledged(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallation newStatus) {
 		return newStatus.status.equals(PENDING) && oldStatus.equals(ACKNOWLEDGED);
+	}
+
+	private boolean isStatusUpdatingIsTransitToFailed(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallationStatus newStatus) {
+		return oldStatus == UPDATING && newStatus == FAILED;
 	}
 
 	@Override

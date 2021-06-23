@@ -8,6 +8,7 @@ package io.imunity.furms.core.project_allocation_installation;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.*;
+import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -22,6 +23,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ProjectAllocationInstallationStatusUpdaterTest {
@@ -44,7 +47,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	}
 
 	@Test
-	void shouldUpdateProjectAllocationInstallation() {
+	void shouldUpdateProjectAllocationInstallationStatusAndCreateUserAddition() {
 		//given
 		CorrelationId id = new CorrelationId("id");
 
@@ -55,6 +58,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 			.build()));
 		when(projectAllocationRepository.findByIdWithRelatedObjects("allocationId")).thenReturn(Optional.of(ProjectAllocationResolved.builder()
 			.site(Site.builder().id("siteId").build())
+			.resourceType(ResourceType.builder().accessibleForAllProjectMembers(false).build())
 			.projectId("projectId")
 			.build()));
 		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
@@ -62,7 +66,28 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		//then
 		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 		orderVerifier.verify(userOperationService).createUserAdditions("siteId", "projectId");
+	}
 
+	@Test
+	void shouldUpdateProjectAllocationInstallationStatusAndDoNotCreateUserAddition() {
+		//given
+		CorrelationId id = new CorrelationId("id");
+
+		//when
+		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
+			.projectAllocationId("allocationId")
+			.status(ProjectAllocationInstallationStatus.PENDING)
+			.build()));
+		when(projectAllocationRepository.findByIdWithRelatedObjects("allocationId")).thenReturn(Optional.of(ProjectAllocationResolved.builder()
+			.site(Site.builder().id("siteId").build())
+			.resourceType(ResourceType.builder().accessibleForAllProjectMembers(true).build())
+			.projectId("projectId")
+			.build()));
+		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+
+		//then
+		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		verify(userOperationService, times(0)).createUserAdditions("siteId", "projectId");
 	}
 
 	@Test
