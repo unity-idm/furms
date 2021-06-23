@@ -13,8 +13,11 @@ import io.imunity.furms.ui.user_context.InvocationContext;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
@@ -42,7 +45,11 @@ public class ProjectAllocationDetailsComponentFactory {
 		thead.appendChild(theadRow);
 
 		Tbody tbody = new Tbody();
-		for(ProjectAllocationChunk chunk: allocationChunks){
+		List<ProjectAllocationChunk> orderedChunks = allocationChunks.stream()
+			.sorted(Comparator.comparing((ProjectAllocationChunk chunk) -> chunk.validFrom)
+				.thenComparing(chunk -> chunk.validTo)
+			).collect(Collectors.toList());
+		for(ProjectAllocationChunk chunk: orderedChunks){
 			Tr row = new Tr();
 			Td amountField = new Td();
 			amountField.setText(Optional.ofNullable(chunk.amount).map(Object::toString).orElse(""));
