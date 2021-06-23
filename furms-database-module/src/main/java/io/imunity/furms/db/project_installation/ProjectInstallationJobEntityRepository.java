@@ -21,6 +21,15 @@ public interface ProjectInstallationJobEntityRepository extends CrudRepository<P
 	boolean existsByProjectIdAndStatusOrProjectIdAndStatus(UUID projectId, int pendingStatus, UUID projectId1, int ackStatus);
 
 	@Query(
+		"select s.name as site_name, pij.project_id as project_id, pij.status as status " +
+			"from project_installation_job pij " +
+			"join site s on pij.site_id = s.id " +
+			"join project p on pij.project_id = p.id " +
+			"join community c on p.community_id = c.id " +
+			"where c.id = :id")
+	Set<ProjectInstallationJobStatusEntity> findAllByCommunityId(UUID communityId);
+
+	@Query(
 		"select p.id as id, s.id as site_id, s.external_id as site_external_id, p.name as name, p.description as description, c.id as community_id, " +
 			"c.name as community_name, p.acronym as acronym, p.research_field as research_field, p.start_time as validity_start, p.end_time as validity_end, p.leader_id as leader_id " +
 			"from project_allocation pa " +

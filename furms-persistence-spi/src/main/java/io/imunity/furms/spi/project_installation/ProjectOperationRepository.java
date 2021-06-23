@@ -33,6 +33,8 @@ public interface ProjectOperationRepository {
 
 	boolean areAllProjectOperationInTerminateState(String projectId);
 
+	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);
+
 	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
 
 	Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId);

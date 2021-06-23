@@ -159,6 +159,13 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
+	public Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId) {
+		return installationRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+			.map(job -> new ProjectInstallationJobStatus(job.siteName, job.projectId.toString(), ProjectInstallationStatus.valueOf(job.status)))
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Set<ProjectInstallationJob> findProjectInstallation(String projectId) {
 		return installationRepository.findByProjectId(UUID.fromString(projectId)).stream()
 			.map(installation -> ProjectInstallationJob.builder()
