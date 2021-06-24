@@ -78,11 +78,9 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			String resourceTypeId = event.getValue().id;
 			Set<ResourceCreditComboBoxModel> resourceCredits = resolver.getResourceCredits(resourceTypeId);
 			if (resourceCredits.isEmpty()) {
-				resourceCreditComboBox.setReadOnly(true);
 				resourceCreditComboBox.setInvalid(true);
 				resourceCreditComboBox.setErrorMessage(getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit.empty"));
 			} else {
-				resourceCreditComboBox.setReadOnly(false);
 				resourceCreditComboBox.setInvalid(false);
 				resourceCreditComboBox.setItems(resourceCredits);
 			}
