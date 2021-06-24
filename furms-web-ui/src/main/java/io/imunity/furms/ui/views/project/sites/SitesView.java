@@ -5,75 +5,74 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.StatusLayout;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-import io.imunity.furms.ui.views.project.resource_access.ResourceAccessModel;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_DOWN_SMALL;
-import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_RIGHT_SMALL;
-import static java.util.Collections.emptyList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "project/admin/sites", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
-	public final TreeGrid<ResourceAccessModel> treeGrid;
+	public final ProjectInstallationStatusService projectInstallationStatusService;
+	public final Grid<SiteGridModel> grid;
 
-
-	SitesView() {
-		this.treeGrid = new TreeGrid<>();
-		fillTreeGrid();
+	SitesView(ProjectInstallationStatusService projectInstallationStatusService) {
+		this.projectInstallationStatusService = projectInstallationStatusService;
+		this.grid = new TreeGrid<>();
+		fillGrid();
+		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
 
-	private void fillTreeGrid() {
-		GridActionMenu contextMenu2 = new GridActionMenu();
-		contextMenu2.addItem(new MenuButton(
-				getTranslation("view.project-admin.resource-access.grid.context-menu.expand"), CHEVRON_DOWN_SMALL),
-			event -> treeGrid.expand(resourceAccessViewService.getData().keySet())
-		);
-		contextMenu2.addItem(new MenuButton(
-				getTranslation("view.project-admin.resource-access.grid.context-menu.collapse"), CHEVRON_RIGHT_SMALL),
-			event -> treeGrid.collapse(resourceAccessViewService.getData().keySet())
-		);
-		treeGrid.addHierarchyColumn(ResourceAccessModel::getFullName)
-			.setHeader(new HorizontalLayout(contextMenu2.getTarget(),
-				new Label(getTranslation("view.project-admin.resource-access.grid.column.1"))))
+	private Set<SiteGridModel> loadData() {
+		Map<String, ProjectUpdateJobStatus> collect = projectInstallationStatusService.findAllUpdatesByProjectId(getCurrentResourceId()).stream()
+			.collect(Collectors.toMap(x -> x.siteId, x -> x));
+		return projectInstallationStatusService.findAllByProjectId(getCurrentResourceId()).stream()
+			.map(statusJob -> {
+				String status = Optional.ofNullable(collect.get(statusJob.siteId))
+					.map(x -> getTranslation("project.update.status." + x.status.getPersistentId()))
+					.orElse(getTranslation("project.installation.status." + statusJob.status.getPersistentId()));
+				String message = statusJob.errorMessage
+					.map(y -> y.message)
+					.orElse(null);
+				return new SiteGridModel(statusJob.siteId, statusJob.siteName, status, message);
+			})
+			.collect(Collectors.toSet());
+	}
+
+	private void fillGrid() {
+		grid.addColumn(model -> model.siteName)
+			.setHeader(getTranslation("view.project-admin.sites.grid.1"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		treeGrid.addColumn(ResourceAccessModel::getEmail)
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.3"))
-			.setSortable(true)
-			.setFlexGrow(25);
-		treeGrid.addColumn(ResourceAccessModel::getAllocation)
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.4"))
-			.setSortable(true)
-			.setFlexGrow(25);
-		treeGrid.addColumn(ResourceAccessModel::getAccess)
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.5"))
-			.setSortable(true)
-			.setFlexGrow(12);
-		treeGrid.addComponentColumn(this::getStatusLayout)
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.6"))
-			.setSortable(true)
-			.setFlexGrow(13);
-		treeGrid.addComponentColumn(resourceAccessModel -> {
-			if(isRootNode(resourceAccessModel) || resourceAccessModel.isAccessible())
-				return new Div();
-			if(resourceAccessViewService.isGrantOrRevokeAvailable(resourceAccessModel))
-				return getGridActionsButtonLayout(resourceAccessModel);
-			return getGridRefreshButtonLayout();
+		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message))
+			.setHeader(getTranslation("view.project-admin.sites.grid.2"))
+			.setSortable(true);
+		grid.addComponentColumn(resourceAccessModel -> {
+			Icon icon = REFRESH.create();
+			icon.getStyle().set("cursor", "pointer");
+			icon.addClickListener(x -> grid.setItems(loadData()));
+			return icon;
 		})
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.7"))
+			.setHeader(getTranslation("view.project-admin.sites.grid.3"))
 			.setWidth("6em");
-		treeGrid.setItems(resourceAccessViewService.getData().keySet(), key -> resourceAccessViewService.getData().getOrDefault(key, emptyList()));
-		treeGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+
+		grid.setItems(loadData());
+		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 	}
 }

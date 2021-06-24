@@ -3,27 +3,29 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.project;
-
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+package io.imunity.furms.ui.views.community.projects;
 
 import java.util.Objects;
 
-public class ProjectViewGridModel {
+class ProjectViewGridModel {
 	public final String id;
+	public final String projectId;
 	public final String communityId;
 	public final String name;
 	public final String siteName;
 	public final String description;
-	public final ProjectInstallationStatus status;
+	public final String status;
+	public final String message;
 
-	ProjectViewGridModel(String id, String communityId, String name, String siteName, String description, ProjectInstallationStatus status) {
+	ProjectViewGridModel(String id, String projectId, String communityId, String name, String siteName, String description, String status, String message) {
 		this.id = id;
+		this.projectId = projectId;
 		this.communityId = communityId;
 		this.name = name;
 		this.siteName = siteName;
 		this.description = description;
 		this.status = status;
+		this.message = message;
 	}
 
 	@Override
@@ -31,28 +33,24 @@ public class ProjectViewGridModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectViewGridModel that = (ProjectViewGridModel) o;
-		return Objects.equals(id, that.id) &&
-			Objects.equals(communityId, that.communityId) &&
-			Objects.equals(name, that.name) &&
-			Objects.equals(siteName, that.siteName) &&
-			Objects.equals(description, that.description) &&
-			Objects.equals(status, that.status);
+		return Objects.equals(id, that.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, communityId, name, siteName, description, status);
+		return Objects.hash(id);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectViewGridModel{" +
-			"id='" + id + '\'' +
+			"projectId='" + projectId + '\'' +
 			", communityId='" + communityId + '\'' +
 			", name='" + name + '\'' +
 			", siteName='" + siteName + '\'' +
 			", description='" + description + '\'' +
 			", status=" + status +
+			", message=" + message +
 			'}';
 	}
 
@@ -69,11 +67,13 @@ public class ProjectViewGridModel {
 
 	public static final class ProjectViewGridModelBuilder {
 		public String id;
+		public String projectId;
 		public String communityId;
 		public String name;
 		public String siteName;
 		public String description;
-		public ProjectInstallationStatus status;
+		public String status;
+		public String message;
 
 		private ProjectViewGridModelBuilder() {
 		}
@@ -83,7 +83,12 @@ public class ProjectViewGridModel {
 			return this;
 		}
 
-		public ProjectViewGridModelBuilder communityId(String id) {
+		public ProjectViewGridModelBuilder projectId(String projectId) {
+			this.projectId = projectId;
+			return this;
+		}
+
+		public ProjectViewGridModelBuilder communityId(String communityId) {
 			this.communityId = communityId;
 			return this;
 		}
@@ -103,13 +108,18 @@ public class ProjectViewGridModel {
 			return this;
 		}
 
-		public ProjectViewGridModelBuilder status(ProjectInstallationStatus status) {
+		public ProjectViewGridModelBuilder status(String status) {
 			this.status = status;
 			return this;
 		}
 
+		public ProjectViewGridModelBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectViewGridModel build() {
-			return new ProjectViewGridModel(id, communityId, name, siteName, description, status);
+			return new ProjectViewGridModel(id, projectId, communityId, name, siteName, description, status, message);
 		}
 	}
 }

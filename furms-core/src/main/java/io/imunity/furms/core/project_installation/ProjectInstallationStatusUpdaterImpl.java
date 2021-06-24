@@ -45,7 +45,7 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 			LOG.info("ProjectInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectOperationRepository.update(job.id, result.status, result.attributes.get("gid"));
+		projectOperationRepository.update(job.id, result);
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
 		}
@@ -63,7 +63,7 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 			LOG.info("ProjectInstallation with given correlation id {} cannot be modified", correlationId.id);
 			return;
 		}
-		projectOperationRepository.update(job.id, result.status);
+		projectOperationRepository.update(job.id, result);
 		LOG.info("ProjectUpdate status with given id {} was updated to {}", job.id, result.status);
 	}
 }

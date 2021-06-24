@@ -18,13 +18,17 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;
 	public final int status;
+	public final String code;
+	public final String message;
 	public final String gid;
 
-	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status, String gid) {
+	ProjectInstallationJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status, String code, String message, String gid) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectId = projectId;
+		this.code = code;
+		this.message = message;
 		this.status = status;
 		this.gid = gid;
 	}
@@ -39,12 +43,14 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(gid, that.gid) &&
+			Objects.equals(code, that.code) &&
+			Objects.equals(message, that.message) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectId, status, gid);
+		return Objects.hash(id, correlationId, siteId, projectId, status, code, message, gid);
 	}
 
 	@Override
@@ -56,6 +62,8 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			", projectId=" + projectId +
 			", gid=" + gid +
 			", status=" + status +
+			", code=" + code +
+			", message=" + message +
 			'}';
 	}
 
@@ -70,6 +78,8 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 		private UUID projectId;
 		private int status;
 		private String gid;
+		private String code;
+		private String message;
 
 		private ProjectInstallationJobEntityBuilder() {
 		}
@@ -104,8 +114,18 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectInstallationJobEntityBuilder code(String code) {
+			this.code = code;
+			return this;
+		}
+
+		public ProjectInstallationJobEntityBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectInstallationJobEntity build() {
-			return new ProjectInstallationJobEntity(id, correlationId, siteId, projectId, status, gid);
+			return new ProjectInstallationJobEntity(id, correlationId, siteId, projectId, status, code, message, gid);
 		}
 	}
 }

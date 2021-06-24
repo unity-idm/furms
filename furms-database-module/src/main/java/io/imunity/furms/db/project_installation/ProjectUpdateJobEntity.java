@@ -18,13 +18,17 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final UUID projectId;
 	public final int status;
+	public final String code;
+	public final String message;
 
-	ProjectUpdateJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status) {
+	ProjectUpdateJobEntity(UUID id, UUID correlationId, UUID siteId, UUID projectId, int status, String code, String message) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
 		this.projectId = projectId;
 		this.status = status;
+		this.code = code;
+		this.message = message;
 	}
 
 	@Override
@@ -36,12 +40,14 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(projectId, that.projectId) &&
+			Objects.equals(code, that.code) &&
+			Objects.equals(message, that.message) &&
 			status == that.status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, correlationId, siteId, projectId, status);
+		return Objects.hash(id, correlationId, siteId, projectId, status, message, code);
 	}
 
 	@Override
@@ -52,6 +58,8 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 			", siteId=" + siteId +
 			", projectId=" + projectId +
 			", status=" + status +
+			", message=" + message +
+			", code=" + code +
 			'}';
 	}
 
@@ -65,6 +73,8 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 		private UUID siteId;
 		private UUID projectId;
 		private int status;
+		private String code;
+		private String message;
 
 		private ProjectUpdateJobEntityBuilder() {
 		}
@@ -94,8 +104,18 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectUpdateJobEntityBuilder code(String code) {
+			this.code = code;
+			return this;
+		}
+
+		public ProjectUpdateJobEntityBuilder message(String message) {
+			this.message = message;
+			return this;
+		}
+
 		public ProjectUpdateJobEntity build() {
-			return new ProjectUpdateJobEntity(id, correlationId, siteId, projectId, status);
+			return new ProjectUpdateJobEntity(id, correlationId, siteId, projectId, status, code, message);
 		}
 	}
 }

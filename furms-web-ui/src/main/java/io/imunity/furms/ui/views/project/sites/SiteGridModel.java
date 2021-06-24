@@ -5,19 +5,44 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
-import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.users.FenixUserId;
+import java.util.Objects;
 
 class SiteGridModel {
-	private String firstName;
-	private String lastName;
-	private String email;
-	private String allocation;
-	private String access;
-	private String status;
-	private SiteId siteId;
-	private String allocationId;
-	private FenixUserId fenixUserId;
-	private boolean accessible;
-	private String message;
+	public final String siteId;
+	public final String siteName;
+	public final String status;
+	public final String message;
+
+	SiteGridModel(String siteId, String siteName, String status, String message) {
+		this.siteId = siteId;
+		this.siteName = siteName;
+		this.status = status;
+		this.message = message;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SiteGridModel that = (SiteGridModel) o;
+		return Objects.equals(siteId, that.siteId) &&
+			Objects.equals(siteName, that.siteName) &&
+			Objects.equals(message, that.message) &&
+			Objects.equals(status, that.status);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(siteId, siteName, status, message);
+	}
+
+	@Override
+	public String toString() {
+		return "SiteGridModel{" +
+			"siteId='" + siteId + '\'' +
+			", siteName='" + siteName + '\'' +
+			", status='" + status + '\'' +
+			", message='" + message + '\'' +
+			'}';
+	}
 }

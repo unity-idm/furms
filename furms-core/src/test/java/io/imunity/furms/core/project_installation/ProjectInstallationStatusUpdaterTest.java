@@ -8,7 +8,6 @@ package io.imunity.furms.core.project_installation;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
@@ -22,6 +21,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Map;
 
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
@@ -54,10 +55,11 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectInstallationResult(Map.of(), ProjectInstallationStatus.ACKNOWLEDGED, null));
+		ProjectInstallationResult result = new ProjectInstallationResult(Map.of(), ACKNOWLEDGED, null);
+		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.ACKNOWLEDGED, null);
+		orderVerifier.verify(repository).update("id", result);
 	}
 
 	@Test
@@ -74,10 +76,11 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectInstallationResult(Map.of("gid", "gid"), ProjectInstallationStatus.INSTALLED, null));
+		ProjectInstallationResult result = new ProjectInstallationResult(Map.of("gid", "gid"), INSTALLED, null);
+		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectInstallationStatus.INSTALLED, "gid");
+		orderVerifier.verify(repository).update("id", result);
 		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId", "siteId");
 	}
 
@@ -93,9 +96,10 @@ class ProjectInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findUpdateJobByCorrelationId(id)).thenReturn(projectInstallationJob);
-		service.update(id, new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, null));
+		ProjectUpdateResult result = new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, null);
+		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", ProjectUpdateStatus.UPDATED);
+		orderVerifier.verify(repository).update("id", result);
 	}
 }

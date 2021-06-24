@@ -22,6 +22,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -29,19 +30,23 @@ import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.project.ProjectViewGridModel;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
@@ -54,7 +59,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.projects.page.title")
@@ -69,7 +76,7 @@ public class ProjectsView extends FurmsViewComponent {
 		this.projectService = projectService;
 		this.projectInstallationStatusService = projectInstallationStatusService;
 		this.grid = createCommunityGrid();
-
+		this.projectsViewDataSnapshot = new ProjectsViewDataSnapshot();
 		Button addButton = createAddButton();
 		loadGridContent();
 
@@ -89,7 +96,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private TreeGrid<ProjectViewGridModel> createCommunityGrid() {
 		TreeGrid<ProjectViewGridModel> grid = new TreeGrid<>();
 
-		grid.addComponentColumn(c -> new RouterGridLink(c.name, c.id, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
+		grid.addComponentHierarchyColumn(c -> new RouterGridLink(c.name, c.projectId, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -97,13 +104,13 @@ public class ProjectsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))
 			.setSortable(true);
 		grid.addColumn(c -> c.siteName)
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
 			.setSortable(true);
-		grid.addColumn(c -> c.status)
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))
+		grid.addComponentColumn(c -> new StatusLayout(c.status, c.message))
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.4"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
+			.setHeader(getTranslation("view.community-admin.projects.grid.column.5"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -119,7 +126,7 @@ public class ProjectsView extends FurmsViewComponent {
 		textField.setClearButtonVisible(true);
 		textField.addValueChangeListener(event -> {
 			String value = textField.getValue().toLowerCase();
-			List<ProjectViewGridModel> filteredUsers = loadProjectsViewsModels().stream()
+			List<ProjectViewGridModel> filteredUsers = projectsViewDataSnapshot.projectViewGridModels.stream()
 				.filter(project -> project.matches(value))
 				.collect(toList());
 			grid.setItems(filteredUsers);
@@ -134,10 +141,18 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnContent(ProjectViewGridModel projectViewModel) {
+		if(projectViewModel.communityId == null){
+			GridActionMenu contextMenu = new GridActionMenu();
+			contextMenu.addItem(new MenuButton(
+					getTranslation("view.community-admin.projects.menu.refresh"), REFRESH),
+				event -> loadGridContent()
+			);
+			return new GridActionsButtonLayout(contextMenu.getTarget());
+		}
 		return new GridActionsButtonLayout(
-			new RouterGridLink(USERS, projectViewModel.id, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
-			new RouterGridLink(PIE_CHART, projectViewModel.id, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
-			createContextMenu(projectViewModel.id, projectViewModel.name, projectViewModel.communityId)
+			new RouterGridLink(USERS, projectViewModel.projectId, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
+			new RouterGridLink(PIE_CHART, projectViewModel.projectId, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
+			createContextMenu(projectViewModel.projectId, projectViewModel.name, projectViewModel.communityId)
 		);
 	}
 
@@ -188,40 +203,75 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		grid.setItems(loadProjectsViewsModels(), key -> projectsViewDataSnapshot.getProjectStatuses(key.id));
+		Set<ProjectViewGridModel> currentExpandedItems = projectsViewDataSnapshot.projectViewGridModels.stream()
+			.filter(grid::isExpanded)
+			.collect(Collectors.toSet());
+		projectsViewDataSnapshot = new ProjectsViewDataSnapshot();
+		grid.setItems(projectsViewDataSnapshot.projectViewGridModels, key -> projectsViewDataSnapshot.getProjectStatuses(key.projectId));
+		grid.expand(currentExpandedItems);
 	}
 
-	private List<ProjectViewGridModel> loadProjectsViewsModels() {
-		String communityId = getCurrentResourceId();
-		projectsViewDataSnapshot = new ProjectsViewDataSnapshot(projectInstallationStatusService.findAllByCommunityId(communityId));
-		return handleExceptions(() -> projectService.findAllByCommunityId(communityId))
-			.orElseGet(Collections::emptySet)
-			.stream()
-			.map(p -> ProjectViewGridModel.builder()
-				.id(p.getId())
-				.communityId(p.getCommunityId())
-				.name(p.getName())
-				.description(p.getDescription())
-				.build())
-			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
-			.collect(toList());
-	}
-
-	private static class ProjectsViewDataSnapshot {
+	private class ProjectsViewDataSnapshot {
+		public final List<ProjectViewGridModel> projectViewGridModels;
 		private final Map<String, List<ProjectViewGridModel>> projectInstallationJobStatusByProjectId;
 
-		ProjectsViewDataSnapshot(Set<ProjectInstallationJobStatus> statuses) {
-			this.projectInstallationJobStatusByProjectId = statuses.stream()
-				.map(x -> ProjectViewGridModel.builder()
-					.id(x.projectId)
-					.siteName(x.siteName)
-					.status(x.status)
+		ProjectsViewDataSnapshot() {
+			String communityId = getCurrentResourceId();
+
+			this.projectViewGridModels = handleExceptions(() -> projectService.findAllByCommunityId(communityId))
+				.orElseGet(Collections::emptySet)
+				.stream()
+				.map(p -> ProjectViewGridModel.builder()
+					.id(p.getId())
+					.projectId(p.getId())
+					.communityId(p.getCommunityId())
+					.name(p.getName())
+					.description(p.getDescription())
 					.build())
-				.collect(groupingBy(jobStatus -> jobStatus.id, collectingAndThen(toList(), jobStatuses -> {
-					jobStatuses.sort(Comparator.comparing(jobStatus -> jobStatus.siteName));
-						return jobStatuses;
-					})
+				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
+				.collect(toList());
+
+			Map<String, Map<String, ProjectUpdateJobStatus>> collect = projectInstallationStatusService.findAllUpdatesByCommunityId(communityId).stream()
+				.collect(
+					groupingBy(
+						job -> job.projectId,
+						toMap(job -> job.siteId, Function.identity())
+					)
+				);
+
+			this.projectInstallationJobStatusByProjectId = projectInstallationStatusService.findAllByCommunityId(communityId).stream()
+				.collect(groupingBy(
+					jobStatus -> jobStatus.projectId,
+					collectingAndThen(
+						mapping(
+							jobStatus -> {
+								String status = getString(collect, jobStatus);
+								String message = jobStatus.errorMessage.map(y -> y.message).orElse(null);
+								return mapGrid(jobStatus, status, message);
+								},
+							toList()
+						),
+						jobStatuses -> {
+							jobStatuses.sort(Comparator.comparing(jobStatus -> jobStatus.siteName));
+							return jobStatuses;
+						})
 				));
+		}
+
+		private ProjectViewGridModel mapGrid(ProjectInstallationJobStatus jobStatus, String status, String message) {
+			return ProjectViewGridModel.builder()
+				.id(jobStatus.projectId + jobStatus.siteId)
+				.siteName(jobStatus.siteName)
+				.status(status)
+				.message(message)
+				.build();
+		}
+
+		private String getString(Map<String, Map<String, ProjectUpdateJobStatus>> collect, ProjectInstallationJobStatus x) {
+			return Optional.ofNullable(collect.get(x.projectId))
+				.flatMap(y -> Optional.ofNullable(y.get(x.siteId)))
+				.map(y -> getTranslation("project.update.status." + y.status.getPersistentId()))
+				.orElse(getTranslation("project.installation.status." + x.status.getPersistentId()));
 		}
 
 		public List<ProjectViewGridModel> getProjectStatuses(String projectId) {

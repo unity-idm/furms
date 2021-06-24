@@ -9,7 +9,14 @@ package io.imunity.furms.db.project_installation;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
@@ -24,7 +31,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
@@ -50,6 +59,8 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	private UUID siteId;
 
+	private UUID communityId;
+
 	private UUID projectId;
 
 	@BeforeEach
@@ -64,7 +75,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		communityId = UUID.fromString(communityRepository.create(community));
 
 		Project project = Project.builder()
 			.communityId(communityId.toString())
@@ -102,6 +113,52 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindProjectInstallationJobStatsByCommunityId() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId.toString())
+			.projectId(projectId.toString())
+			.status(PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.create(request);
+
+		//then
+		Set<ProjectInstallationJobStatus> statuses = entityDatabaseRepository.findAllByCommunityId(communityId.toString());
+		assertThat(statuses.size()).isEqualTo(1);
+		ProjectInstallationJobStatus status = statuses.iterator().next();
+		assertThat(status.status).isEqualTo(PENDING);
+		assertThat(status.projectId).isEqualTo(projectId.toString());
+		assertThat(status.siteId).isEqualTo(siteId.toString());
+	}
+
+	@Test
+	void shouldFindProjectInstallationJobStatsByProjectId() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId.toString())
+			.projectId(projectId.toString())
+			.status(PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.create(request);
+
+		//then
+		Set<ProjectInstallationJobStatus> statuses = entityDatabaseRepository.findAllByProjectId(projectId.toString());
+		assertThat(statuses.size()).isEqualTo(1);
+		ProjectInstallationJobStatus status = statuses.iterator().next();
+		assertThat(status.status).isEqualTo(PENDING);
+		assertThat(status.projectId).isEqualTo(projectId.toString());
+		assertThat(status.siteId).isEqualTo(siteId.toString());
+	}
+
+	@Test
 	void shouldUpdateProjectInstallationJob() {
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
@@ -115,7 +172,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		//when
 		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, INSTALLED, "gid");
+		entityDatabaseRepository.update(id, new ProjectInstallationResult(Map.of("gid", "gid"), INSTALLED, new Error(null, null)));
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = installationRepository.findById(UUID.fromString(id));
@@ -138,7 +195,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		String id = entityDatabaseRepository.createOrUpdate(request);
 
 		//then
 		Optional<ProjectUpdateJobEntity> byId = updateRepository.findById(UUID.fromString(id));
@@ -146,6 +203,52 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().getId().toString()).isEqualTo(id);
 		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
 		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
+	}
+
+	@Test
+	void shouldFindProjectUpdateJobByCommunityId() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectUpdateJob request = ProjectUpdateJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId.toString())
+			.projectId(projectId.toString())
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.createOrUpdate(request);
+
+		//then
+		Set<ProjectUpdateJobStatus> statuses = entityDatabaseRepository.findAllUpdatesByCommunityId(communityId.toString());
+
+		ProjectUpdateJobStatus status = statuses.iterator().next();
+		assertThat(status.status).isEqualTo(ProjectUpdateStatus.PENDING);
+		assertThat(status.projectId).isEqualTo(projectId.toString());
+		assertThat(status.siteId).isEqualTo(siteId.toString());
+	}
+
+	@Test
+	void shouldFindProjectUpdateJobByProjectId() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectUpdateJob request = ProjectUpdateJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId.toString())
+			.projectId(projectId.toString())
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.createOrUpdate(request);
+
+		//then
+		Set<ProjectUpdateJobStatus> statuses = entityDatabaseRepository.findAllUpdatesByProjectId(projectId.toString());
+
+		ProjectUpdateJobStatus status = statuses.iterator().next();
+		assertThat(status.status).isEqualTo(ProjectUpdateStatus.PENDING);
+		assertThat(status.projectId).isEqualTo(projectId.toString());
+		assertThat(status.siteId).isEqualTo(siteId.toString());
 	}
 
 	@Test
@@ -161,8 +264,8 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(id, ProjectUpdateStatus.UPDATED);
+		String id = entityDatabaseRepository.createOrUpdate(request);
+		entityDatabaseRepository.update(id, new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, new Error(null, null)));
 
 		//then
 		Optional<ProjectUpdateJobEntity> byId = updateRepository.findById(UUID.fromString(id));
