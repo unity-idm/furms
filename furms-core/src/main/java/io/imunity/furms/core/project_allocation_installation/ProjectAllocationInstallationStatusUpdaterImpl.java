@@ -58,12 +58,12 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			return;
 		}
 
-		if(isStatusUpdatingIsTransitToFailed(job.status, status))
+		if(isTransitionFromUpdatingToFailedStatus(job.status, status))
 			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
 		else
 			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 
-		if(isStatusPendingIsTransitToAcknowledged(status, job)) {
+		if(isTransitionFromPendingToAcknowledgedStatus(status, job)) {
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
 			if(!projectAllocationResolved.resourceType.accessibleForAllProjectMembers)
@@ -72,11 +72,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 
-	private boolean isStatusPendingIsTransitToAcknowledged(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallation newStatus) {
+	private boolean isTransitionFromPendingToAcknowledgedStatus(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallation newStatus) {
 		return newStatus.status.equals(PENDING) && oldStatus.equals(ACKNOWLEDGED);
 	}
 
-	private boolean isStatusUpdatingIsTransitToFailed(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallationStatus newStatus) {
+	private boolean isTransitionFromUpdatingToFailedStatus(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallationStatus newStatus) {
 		return oldStatus == UPDATING && newStatus == FAILED;
 	}
 
