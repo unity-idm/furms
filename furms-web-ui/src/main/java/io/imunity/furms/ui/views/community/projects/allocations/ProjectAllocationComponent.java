@@ -47,12 +47,11 @@ import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 public class ProjectAllocationComponent extends Composite<Div> {
 
@@ -87,6 +86,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 		grid.addComponentColumn(model -> {
 			Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+			if(hasTerminalStatus(model))
+				return new RouterLink(model.siteName, ProjectAllocationFormView.class, model.id);
 			return new Div(icon, new Text(model.siteName));
 		})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
@@ -165,9 +166,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Component createContextMenu(ProjectAllocationGridModel model) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
-		Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(model.id);
-		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
-		if(deallocation.isEmpty() && projectAllocationInstallations.isPresent() && projectAllocationInstallations.get().status.isTerminal()) {
+		if(hasTerminalStatus(model)) {
 			contextMenu.addItem(new MenuButton(
 					getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
 				event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, model.id)
@@ -183,6 +182,12 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
+	}
+
+	private boolean hasTerminalStatus(ProjectAllocationGridModel model) {
+		Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(model.id);
+		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
+		return deallocation.isEmpty() && projectAllocationInstallations.isPresent() && projectAllocationInstallations.get().status.isTerminal();
 	}
 
 	private Component getRefreshMenuItem(GridActionMenu contextMenu) {

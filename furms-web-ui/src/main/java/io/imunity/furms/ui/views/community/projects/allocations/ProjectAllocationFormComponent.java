@@ -5,13 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -20,11 +13,17 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -77,7 +76,10 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 							availableAmount));
 					createUnitLabel(amountField, allocation.unit);
 					amountField.setReadOnly(!allocation.split);
-					amountField.setValue(availableAmount);
+					if(lastAmount.equals(BigDecimal.ZERO))
+						amountField.setValue(availableAmount);
+					else
+						amountField.setValue(lastAmount);
 				},
 				() -> availableAmountLabel.setText("")
 			)
@@ -147,6 +149,8 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ProjectAllocationViewModel model) {
+		if(model.getAmount() != null)
+			lastAmount = model.getAmount();
 		binder.setBean(model);
 		if(model.getResourceType() != null)
 			resourceTypeComboBox.setEnabled(false);
@@ -154,7 +158,5 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 			resourceTypeComboBox.setValue(resolver.getDefaultResourceType());
 		if(model.getAllocationCommunity() != null)
 			communityAllocationComboBox.setEnabled(false);
-		if(model.getAmount() != null)
-			lastAmount = model.getAmount();
 	}
 }
