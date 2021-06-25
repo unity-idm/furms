@@ -6,6 +6,7 @@
 package io.imunity.furms.core.project_allocation;
 
 import io.imunity.furms.api.validation.exceptions.*;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -24,16 +25,20 @@ import static org.springframework.util.Assert.notNull;
 
 @Component
 class ProjectAllocationServiceValidator {
+
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectRepository projectRepository;
+	private final ProjectInstallationService projectInstallationService;
 
 	ProjectAllocationServiceValidator(ProjectAllocationRepository projectAllocationRepository,
-	                                  CommunityAllocationRepository communityAllocationRepository,
-	                                  ProjectRepository projectRepository) {
+									  CommunityAllocationRepository communityAllocationRepository,
+									  ProjectRepository projectRepository,
+									  ProjectInstallationService projectInstallationService) {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectRepository = projectRepository;
+		this.projectInstallationService = projectInstallationService;
 	}
 
 	void validateCreate(String communityId, ProjectAllocation projectAllocation) {
@@ -93,8 +98,11 @@ class ProjectAllocationServiceValidator {
 
 	void validateDelete(String communityId, String projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
-			.ifPresentOrElse(
-				pa -> assertProjectBelongsToCommunity(communityId, pa.projectId),
+			.ifPresentOrElse(projectAllocation -> {
+					assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
+					assertProjectNotExpired(projectAllocation.projectId);
+					assertProjectNotInTerminalState(projectAllocation.projectId);
+				},
 				() -> {
 					throw new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists.");
 				}
@@ -142,6 +150,11 @@ class ProjectAllocationServiceValidator {
 		final Optional<Project> project = projectRepository.findById(projectId);
 		assertTrue(project.isPresent() && !project.get().isExpired(),
 				() -> new ProjectExpiredException("Project is expired."));
+	}
+
+	private void assertProjectNotInTerminalState(String projectId) {
+		assertTrue(projectInstallationService.isProjectInTerminalState(projectId),
+				() -> new ProjectNotInTerminalStateException("Deleted project has to be in terminal state."));
 	}
 
 	private void validateCommunityAllocationId(String id) {
