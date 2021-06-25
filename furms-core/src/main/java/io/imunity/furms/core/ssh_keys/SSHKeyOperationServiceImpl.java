@@ -94,6 +94,12 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 				removeSSHKeyIfRemovedFromLastSite(job);
 			}else if (job.operation.equals(UPDATE)) {
 				
+				List<SSHKeyHistory> history = sshKeyHistoryRepository
+						.findBySiteIdAndOwnerIdLimitTo(job.siteId, key.ownerId.id, 1);
+				if (history.size() > 0
+						&& !history.get(0).sshkeyFingerprint.equals(key.getFingerprint())) {
+					addKeyHistory(job.siteId, key);
+				}
 				updateInstalledKeys(job.siteId, key);
 			}
 		}
