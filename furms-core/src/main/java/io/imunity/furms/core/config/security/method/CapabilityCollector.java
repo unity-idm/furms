@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.config.security.method;
 
-
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -18,8 +17,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.imunity.furms.domain.authz.roles.Capability.REST_API_CALL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.hasAdminRole;
 import static java.util.stream.Collectors.toMap;
 
 @Component
@@ -74,6 +75,15 @@ class CapabilityCollector {
 		for(Role r : roles){
 			capabilities.addAll(r.additionalCapabilities);
 		}
+
+		insertRestApiCallCapability(capabilities, roles);
+
 		return capabilities;
+	}
+
+	private void insertRestApiCallCapability(Set<Capability> capabilities, Set<Role> roles) {
+		if (hasAdminRole(roles)) {
+			capabilities.add(REST_API_CALL);
+		}
 	}
 }

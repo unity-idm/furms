@@ -5,13 +5,12 @@
 
 package io.imunity.furms.rest.error;
 
-import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,13 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {ExceptionHandlersStubController.class},
 		excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
 		includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = SecurityProperties.class)})
-public class RestExceptionHandlersTest {
+public class RestExceptionHandlersTest extends TestBeansRegistry {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@MockBean
-	private UserService userService;
 
 	@Test
 	void shouldReturn_404_onUnknownUserException() throws Exception {
@@ -46,7 +42,6 @@ public class RestExceptionHandlersTest {
 				.andExpect(status().isMethodNotAllowed())
 				.andExpect(jsonPath("$.error", is("Method Not Allowed")));
 	}
-
 
 	@Test
 	void shouldReturn_500_onRuntimeException() throws Exception {

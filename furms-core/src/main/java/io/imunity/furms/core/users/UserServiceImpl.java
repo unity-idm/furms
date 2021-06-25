@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -57,17 +58,19 @@ class UserServiceImpl implements UserService {
 	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
+	private final UserApiKeyRepository userApiKeyRepository;
 
 
 	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
-			SSHKeyRepository sshKeyRepository,  SiteRepository siteRepository, 
-			 InstalledSSHKeyRepository installedSSHKeyRepository) {
+						   SSHKeyRepository sshKeyRepository, SiteRepository siteRepository,
+						   InstalledSSHKeyRepository installedSSHKeyRepository, UserApiKeyRepository userApiKeyRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
 		this.sshKeyRepository = sshKeyRepository;
 		this.siteRepository = siteRepository;
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
+		this.userApiKeyRepository = userApiKeyRepository;
 	}
 
 	@Override
@@ -106,6 +109,7 @@ class UserServiceImpl implements UserService {
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
+		userApiKeyRepository.delete(userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 

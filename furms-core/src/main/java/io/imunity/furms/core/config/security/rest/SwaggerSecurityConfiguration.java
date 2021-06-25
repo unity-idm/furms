@@ -9,8 +9,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import static io.imunity.furms.core.config.security.rest.RestApiSecurityConfigurationOrders.SWAGGER_ORDER;
+
 @Configuration
-@Order(2)
+@Order(SWAGGER_ORDER)
 class SwaggerSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	
 	@Override

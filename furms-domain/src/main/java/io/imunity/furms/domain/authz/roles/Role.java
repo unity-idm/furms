@@ -25,8 +25,11 @@ import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static java.util.Collections.emptyList;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum Role {
 	CENTRAL_IDP(
@@ -108,6 +111,15 @@ public enum Role {
 			.filter(r -> r.unityRoleAttribute.equals(attributeType))
 			.filter(r -> r.unityRoleValue.equals(value))
 			.findAny();
+	}
+
+	public static boolean hasAdminRole(Set<Role> roles) {
+		return !Collections.disjoint(
+				Arrays.stream(values())
+						.filter(role -> "ADMIN".equals(role.unityRoleValue))
+						.collect(Collectors.toSet()),
+				roles);
+
 	}
 
 }

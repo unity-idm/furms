@@ -4,7 +4,7 @@
  */
 package io.imunity.furms.cidp;
 
-import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -13,7 +13,6 @@ import io.imunity.furms.rest.cidp.CentralIdPRestAPIController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
@@ -27,13 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {CentralIdPRestAPIController.class}, 
 	excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
 	includeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = SecurityProperties.class)})
-public class CentralIdPRestAPIControllerTest {
+public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@MockBean
-	private UserService userService;
 
 	@Test
 	public void shouldSetStatus() throws Exception {
