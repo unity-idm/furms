@@ -12,6 +12,7 @@ import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceT
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -28,6 +29,7 @@ import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationIns
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
+import io.imunity.furms.utils.UTCTimeUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,6 +58,8 @@ class ProjectAllocationServiceImplValidatorTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
+	@Mock
+	private ProjectInstallationService projectInstallationService;
 	@Mock
 	private ResourceCreditRepository resourceCreditRepository;
 	@Mock
@@ -534,6 +538,10 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.build()));
+		when(projectInstallationService.isProjectInTerminalState(projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateDelete(communityId, projectAllocation.id));
@@ -623,6 +631,51 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		//when+then
 		assertThrows(ProjectIsNotRelatedWithCommunity.class, () -> validator.validateDelete("communityId", projectAllocation.id));
+	}
+
+	@Test
+	void shouldNotPassDeleteWhenProjectIsExpired() {
+		//given
+		String communityId = "communityId";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+				.id("id")
+				.projectId("projectId")
+				.communityAllocationId("id")
+				.name("name")
+				.amount(new BigDecimal(1))
+				.build();
+
+		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1l))
+				.build()));
+
+		//when+then
+		assertThrows(ProjectExpiredException.class, () -> validator.validateDelete(communityId, projectAllocation.id));
+	}
+
+	@Test
+	void shouldNotPassDeleteWhenProjectIsNotInTerminalState() {
+		//given
+		String communityId = "communityId";
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+				.id("id")
+				.projectId("projectId")
+				.communityAllocationId("id")
+				.name("name")
+				.amount(new BigDecimal(1))
+				.build();
+
+		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.build()));
+		when(projectInstallationService.isProjectInTerminalState(projectAllocation.projectId)).thenReturn(false);
+
+		//when+then
+		assertThrows(ProjectNotInTerminalStateException.class, () -> validator.validateDelete(communityId, projectAllocation.id));
 	}
 
 }

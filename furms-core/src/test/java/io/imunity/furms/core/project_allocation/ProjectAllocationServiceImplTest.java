@@ -20,9 +20,11 @@ import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
@@ -36,6 +38,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectAllocationServiceImplTest {
 	@Mock
 	private ProjectAllocationServiceValidator validator;
@@ -52,16 +55,12 @@ class ProjectAllocationServiceImplTest {
 	@Mock
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
 
+	@InjectMocks
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(
-			projectAllocationRepository, projectInstallationService, validator,
-			projectAllocationInstallationService, publisher
-		);
 		orderVerifier = inOrder(projectAllocationRepository, projectAllocationInstallationService, publisher);
 	}
 
