@@ -9,13 +9,11 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +27,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.*;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 
 @Service
 class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationRepository projectAllocationRepository;
-	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectInstallationService projectInstallationService;
 	private final ProjectAllocationServiceValidator validator;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
@@ -45,12 +41,10 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	ProjectAllocationServiceImpl(ProjectAllocationRepository projectAllocationRepository,
 	                             ProjectInstallationService projectInstallationService,
-	                             CommunityAllocationRepository communityAllocationRepository,
 	                             ProjectAllocationServiceValidator validator,
 	                             ProjectAllocationInstallationService projectAllocationInstallationService,
 	                             ApplicationEventPublisher publisher) {
 		this.projectAllocationRepository = projectAllocationRepository;
-		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectInstallationService = projectInstallationService;
 		this.validator = validator;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;

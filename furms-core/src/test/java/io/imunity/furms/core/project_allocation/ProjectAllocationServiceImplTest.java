@@ -9,16 +9,16 @@ import io.imunity.furms.core.project_allocation_installation.ProjectAllocationIn
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.project_allocation.*;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
@@ -26,11 +26,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectAllocationServiceImplTest {
 	@Mock
 	private ProjectAllocationServiceValidator validator;
@@ -46,20 +46,13 @@ class ProjectAllocationServiceImplTest {
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
 	@Mock
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
-	@Mock
-	private CommunityAllocationRepository communityAllocationRepository;
 
+	@InjectMocks
 	private ProjectAllocationServiceImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationServiceImpl(
-			projectAllocationRepository, projectInstallationService,
-			communityAllocationRepository, validator,
-			projectAllocationInstallationService, publisher
-		);
 		orderVerifier = inOrder(projectAllocationRepository, projectAllocationInstallationService, publisher);
 	}
 
@@ -116,10 +109,6 @@ class ProjectAllocationServiceImplTest {
 			.build();
 
 		//when
-		when(projectAllocationRepository.findByIdWithRelatedObjects(any())).thenReturn(Optional.of(
-			ProjectAllocationResolved.builder()
-				.site(Site.builder().build())
-				.build()));
 		when(projectInstallationService.findProjectInstallation( "projectAllocationId")).thenReturn(
 			ProjectInstallation.builder()
 				.siteId("siteId")
@@ -155,7 +144,6 @@ class ProjectAllocationServiceImplTest {
 	void shouldAllowToDeleteProjectAllocation() {
 		//given
 		String id = "id";
-		when(projectAllocationRepository.exists(id)).thenReturn(true);
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder().build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 
