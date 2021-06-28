@@ -5,12 +5,31 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,6 +39,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
@@ -35,42 +55,33 @@ import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-
 public class ProjectAllocationComponent extends Composite<Div> {
 
-	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
+	private final ProjectService projectService;
+
 	private final String communityId;
 	private final String projectId;
-	private final ActionComponent actionComponent;
+	private final boolean projectExpired;
+	private final boolean projectInTerminalState;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
 
+	private final Grid<ProjectAllocationGridModel> grid;
+	private final ActionComponent actionComponent;
+
 	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
-		this.communityId = getCurrentResourceId();
 		this.service = service;
+		this.projectService = projectService;
+
+		this.communityId = getCurrentResourceId();
 		this.projectId = projectId;
+		this.projectInTerminalState = projectService.isProjectInTerminalState(communityId, projectId);
+		this.projectExpired = projectService.isProjectExpired(projectId);
+
 		this.grid = createCommunityGrid();
 		this.actionComponent = new ActionComponent(
 				projectId,
-				() -> projectService.isProjectExpired(projectId),
+				projectService.isProjectExpired(projectId),
 				() -> projectService.isProjectInTerminalState(communityId, projectId));
 
 		loadGridContent();
@@ -86,12 +97,16 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
 
 		grid.addComponentColumn(model -> {
-			Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
-			return new Div(icon, new Text(model.siteName));
-		})
+				Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+				return new Div(icon, new Text(model.siteName));
+			})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addColumn(model -> model.name)
+		grid.addComponentColumn(model -> {
+				if(hasTerminalStatus(model))
+					return new RouterLink(model.name, ProjectAllocationFormView.class, model.id);
+				return new Text(model.name);
+			})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.2"))
 			.setSortable(true)
 			.setComparator(model -> model.name.toLowerCase());
@@ -165,24 +180,29 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private Component createContextMenu(ProjectAllocationGridModel model) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
-		Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(model.id);
-		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
-		if(deallocation.isEmpty() && projectAllocationInstallations.isPresent() && projectAllocationInstallations.get().status.isTerminal()) {
+		if(hasTerminalStatus(model)) {
 			contextMenu.addItem(new MenuButton(
 					getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
 				event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, model.id)
 			);
 		}
 		Dialog confirmDialog = createConfirmDialog(model.id, model.name);
-		contextMenu.addItem(new MenuButton(
-				getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
-			event -> confirmDialog.open()
-		);
+
+		final MenuItem deleteItem = contextMenu.addItem(
+				new MenuButton(getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
+				event -> confirmDialog.open());
+		deleteItem.setEnabled(projectInTerminalState && !projectExpired);
 
 		getRefreshMenuItem(contextMenu);
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
+	}
+
+	private boolean hasTerminalStatus(ProjectAllocationGridModel model) {
+		Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(model.id);
+		Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(model.id);
+		return deallocation.isEmpty() && projectAllocationInstallations.isPresent() && projectAllocationInstallations.get().status.isTerminal();
 	}
 
 	private Component getRefreshMenuItem(GridActionMenu contextMenu) {
@@ -237,11 +257,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private static class ActionComponent extends Div {
 
 		private final String projectId;
-		private final Supplier<Boolean> isProjectExpired;
+		private final Boolean isProjectExpired;
 		private final Supplier<Boolean> isProjectInTerminalState;
 
 		ActionComponent(String projectId,
-						Supplier<Boolean> isProjectExpired,
+						boolean isProjectExpired,
 						Supplier<Boolean> isProjectInTerminalState) {
 			this.projectId = projectId;
 			this.isProjectExpired = isProjectExpired;
@@ -253,7 +273,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			removeAll();
 
 			final Button allocateButton = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
-			if (isProjectInTerminalState.get() && !isProjectExpired.get()) {
+			if (isProjectInTerminalState.get() && !isProjectExpired) {
 				allocateButton.addClickListener(x -> UI.getCurrent().navigate(
 						new RouterLink("", ProjectAllocationFormView.class).getHref(),
 						QueryParameters.simple(Map.of("projectId", projectId))));
