@@ -95,7 +95,7 @@ public class ProjectsView extends FurmsViewComponent {
 		if (projectViewModel.isExpired()) {
 			final Icon warningIcon = TIME_BACKWARD.create();
 			final Tooltip warningTooltip = new Tooltip(warningIcon, TooltipPosition.BOTTOM, TooltipAlignment.CENTER);
-			warningTooltip.add("Project has expired");
+			warningTooltip.add(getTranslation("view.community-admin.projects.grid.column.1.expired.project.tooltip"));
 			getContent().add(warningTooltip);
 
 			nameComponent.add(warningIcon);

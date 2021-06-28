@@ -5,13 +5,7 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
-import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
-import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
-import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
-import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
-import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
-import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
+import io.imunity.furms.api.validation.exceptions.*;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
@@ -29,7 +23,6 @@ import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationIns
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
-import io.imunity.furms.utils.UTCTimeUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

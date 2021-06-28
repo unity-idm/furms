@@ -14,6 +14,7 @@ import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;

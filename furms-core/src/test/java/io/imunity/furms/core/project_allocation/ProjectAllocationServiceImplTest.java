@@ -14,7 +14,6 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -33,7 +32,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
@@ -117,10 +115,6 @@ class ProjectAllocationServiceImplTest {
 			.build();
 
 		//when
-		when(projectAllocationRepository.findByIdWithRelatedObjects(any())).thenReturn(Optional.of(
-			ProjectAllocationResolved.builder()
-				.site(Site.builder().build())
-				.build()));
 		when(projectInstallationService.findProjectInstallationOfProjectAllocation( "projectAllocationId")).thenReturn(
 			ProjectInstallation.builder()
 				.siteId("siteId")
@@ -164,7 +158,6 @@ class ProjectAllocationServiceImplTest {
 	void shouldAllowToDeleteProjectAllocationWhenProjectAllocationIsNotStartedConsuming() {
 		//given
 		String id = "id";
-		when(projectAllocationRepository.exists(id)).thenReturn(true);
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.ZERO)
@@ -181,7 +174,6 @@ class ProjectAllocationServiceImplTest {
 	@Test
 	void shouldNotAllowToDeleteProjectAllocationWhenAllocationIsConsumed() {
 		String id = "id";
-		when(projectAllocationRepository.exists(id)).thenReturn(true);
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.TEN)
