@@ -184,6 +184,31 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldUpdateProjectInstallationJobWhenAttributesAreNull() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.id("id")
+			.correlationId(correlationId)
+			.siteId(siteId.toString())
+			.projectId(projectId.toString())
+			.status(PENDING)
+			.build();
+
+		//when
+		String id = entityDatabaseRepository.create(request);
+		entityDatabaseRepository.update(id, new ProjectInstallationResult(null, INSTALLED, new Error(null, null)));
+
+		//then
+		Optional<ProjectInstallationJobEntity> byId = installationRepository.findById(UUID.fromString(id));
+		assertThat(byId).isPresent();
+		assertThat(byId.get().getId().toString()).isEqualTo(id);
+		assertThat(byId.get().correlationId.toString()).isEqualTo(correlationId.id);
+		assertThat(byId.get().status).isEqualTo(INSTALLED.getPersistentId());
+		assertThat(byId.get().gid).isEqualTo(null);
+	}
+
+	@Test
 	void shouldCreateProjectUpdateJob() {
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());

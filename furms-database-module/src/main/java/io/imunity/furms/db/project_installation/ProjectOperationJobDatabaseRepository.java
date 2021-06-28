@@ -19,6 +19,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 @Repository
 class ProjectOperationJobDatabaseRepository implements ProjectOperationRepository {
 	private final ProjectInstallationJobEntityRepository installationRepository;
@@ -118,7 +120,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.siteId(job.siteId)
 				.projectId(job.projectId)
 				.status(result.status)
-				.gid(result.attributes.get("gid"))
+				.gid(ofNullable(result.attributes).map(attributes -> attributes.get("gid")).orElse(null))
 				.code(result.error.code)
 				.message(result.error.message)
 				.build())
