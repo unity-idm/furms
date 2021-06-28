@@ -29,6 +29,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -56,21 +57,31 @@ import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
 public class ProjectAllocationComponent extends Composite<Div> {
 
-	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
+	private final ProjectService projectService;
+
 	private final String communityId;
 	private final String projectId;
-	private final ActionComponent actionComponent;
+	private final boolean projectExpired;
+	private final boolean projectInTerminalState;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
 
+	private final Grid<ProjectAllocationGridModel> grid;
+	private final ActionComponent actionComponent;
+
 	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
-		this.communityId = getCurrentResourceId();
 		this.service = service;
+		this.projectService = projectService;
+
+		this.communityId = getCurrentResourceId();
 		this.projectId = projectId;
+		this.projectInTerminalState = projectService.isProjectInTerminalState(communityId, projectId);
+		this.projectExpired = projectService.isProjectExpired(projectId);
+
 		this.grid = createCommunityGrid();
 		this.actionComponent = new ActionComponent(
 				projectId,
-				() -> projectService.isProjectExpired(projectId),
+				projectService.isProjectExpired(projectId),
 				() -> projectService.isProjectInTerminalState(communityId, projectId));
 
 		loadGridContent();
@@ -176,10 +187,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			);
 		}
 		Dialog confirmDialog = createConfirmDialog(model.id, model.name);
-		contextMenu.addItem(new MenuButton(
-				getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
-			event -> confirmDialog.open()
-		);
+
+		final MenuItem deleteItem = contextMenu.addItem(
+				new MenuButton(getTranslation("view.community-admin.project-allocation.menu.delete"), TRASH),
+				event -> confirmDialog.open());
+		deleteItem.setEnabled(projectInTerminalState && !projectExpired);
 
 		getRefreshMenuItem(contextMenu);
 
@@ -245,11 +257,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private static class ActionComponent extends Div {
 
 		private final String projectId;
-		private final Supplier<Boolean> isProjectExpired;
+		private final Boolean isProjectExpired;
 		private final Supplier<Boolean> isProjectInTerminalState;
 
 		ActionComponent(String projectId,
-						Supplier<Boolean> isProjectExpired,
+						boolean isProjectExpired,
 						Supplier<Boolean> isProjectInTerminalState) {
 			this.projectId = projectId;
 			this.isProjectExpired = isProjectExpired;
@@ -261,7 +273,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			removeAll();
 
 			final Button allocateButton = new Button(getTranslation("view.community-admin.project-allocation.page.button"));
-			if (isProjectInTerminalState.get() && !isProjectExpired.get()) {
+			if (isProjectInTerminalState.get() && !isProjectExpired) {
 				allocateButton.addClickListener(x -> UI.getCurrent().navigate(
 						new RouterLink("", ProjectAllocationFormView.class).getHref(),
 						QueryParameters.simple(Map.of("projectId", projectId))));

@@ -5,12 +5,17 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import com.vaadin.componentfactory.Tooltip;
+import com.vaadin.componentfactory.TooltipAlignment;
+import com.vaadin.componentfactory.TooltipPosition;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -70,7 +75,7 @@ public class ProjectsView extends FurmsViewComponent {
 	private Grid<ProjectViewModel> createCommunityGrid() {
 		Grid<ProjectViewModel> grid = new SparseGrid<>(ProjectViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterGridLink(c.getName(), c.getId(), ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
+		grid.addComponentColumn(this::createNameComponent)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -82,6 +87,24 @@ public class ProjectsView extends FurmsViewComponent {
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
+	}
+
+	private HorizontalLayout createNameComponent(ProjectViewModel projectViewModel) {
+		final HorizontalLayout nameComponent = new HorizontalLayout();
+
+		if (projectViewModel.isExpired()) {
+			final Icon warningIcon = TIME_BACKWARD.create();
+			final Tooltip warningTooltip = new Tooltip(warningIcon, TooltipPosition.BOTTOM, TooltipAlignment.CENTER);
+			warningTooltip.add(getTranslation("view.community-admin.projects.grid.column.1.expired.project.tooltip"));
+			getContent().add(warningTooltip);
+
+			nameComponent.add(warningIcon);
+		}
+
+		nameComponent.add(new RouterGridLink(projectViewModel.getName(), projectViewModel.getId(),
+				ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM));
+
+		return nameComponent;
 	}
 
 	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewModel> grid, Button addButton) {

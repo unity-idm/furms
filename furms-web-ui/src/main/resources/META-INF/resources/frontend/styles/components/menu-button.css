@@ -6,3 +6,7 @@
 .menu-button iron-icon {
 	margin-right: 1em;
 }
+
+.menu-button[disabled] {
+	color: var(--lumo-disabled-text-color);
+}

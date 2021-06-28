@@ -14,7 +14,9 @@ import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
 import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
+import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -46,19 +48,22 @@ class ProjectAllocationServiceValidator {
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final ProjectRepository projectRepository;
 	private final ResourceUsageRepository resourceUsageRepository;
+	private final ProjectInstallationService projectInstallationService;
 
 	ProjectAllocationServiceValidator(ResourceCreditRepository resourceCreditRepository,
 	                                  ProjectAllocationRepository projectAllocationRepository,
 	                                  ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
 	                                  CommunityAllocationRepository communityAllocationRepository,
 	                                  ProjectRepository projectRepository,
-	                                  ResourceUsageRepository resourceUsageRepository) {
+	                                  ResourceUsageRepository resourceUsageRepository,
+									  ProjectInstallationService projectInstallationService) {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.projectRepository = projectRepository;
 		this.resourceUsageRepository = resourceUsageRepository;
+		this.projectInstallationService = projectInstallationService;
 	}
 
 	void validateCreate(String communityId, ProjectAllocation projectAllocation) {
@@ -122,8 +127,11 @@ class ProjectAllocationServiceValidator {
 
 	void validateDelete(String communityId, String projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
-			.ifPresentOrElse(
-				pa -> assertProjectBelongsToCommunity(communityId, pa.projectId),
+			.ifPresentOrElse(projectAllocation -> {
+					assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
+					assertProjectNotExpired(projectAllocation.projectId);
+					assertProjectNotInTerminalState(projectAllocation.projectId);
+				},
 				() -> {
 					throw new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists.");
 				}
@@ -171,6 +179,11 @@ class ProjectAllocationServiceValidator {
 		final Optional<Project> project = projectRepository.findById(projectId);
 		assertTrue(project.isPresent() && !project.get().isExpired(),
 				() -> new ProjectExpiredException("Project is expired."));
+	}
+
+	private void assertProjectNotInTerminalState(String projectId) {
+		assertTrue(projectInstallationService.isProjectInTerminalState(projectId),
+				() -> new ProjectNotInTerminalStateException("Deleted project has to be in terminal state."));
 	}
 
 	private void assertProjectHasUniqueResourceTypeInGivenPointInTime(ProjectAllocation projectAllocation) {
