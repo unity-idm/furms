@@ -16,8 +16,10 @@ class ProjectViewGridModel {
 	public final String description;
 	public final String status;
 	public final String message;
+	public final boolean expired;
 
-	ProjectViewGridModel(String id, String projectId, String communityId, String name, String siteName, String description, String status, String message) {
+	ProjectViewGridModel(String id, String projectId, String communityId, String name, String siteName,
+	                     String description, String status, String message, boolean expired) {
 		this.id = id;
 		this.projectId = projectId;
 		this.communityId = communityId;
@@ -26,6 +28,7 @@ class ProjectViewGridModel {
 		this.description = description;
 		this.status = status;
 		this.message = message;
+		this.expired = expired;
 	}
 
 	@Override
@@ -51,6 +54,7 @@ class ProjectViewGridModel {
 			", description='" + description + '\'' +
 			", status=" + status +
 			", message=" + message +
+			", expired=" + expired +
 			'}';
 	}
 
@@ -74,6 +78,7 @@ class ProjectViewGridModel {
 		public String description;
 		public String status;
 		public String message;
+		public boolean expired;
 
 		private ProjectViewGridModelBuilder() {
 		}
@@ -118,8 +123,13 @@ class ProjectViewGridModel {
 			return this;
 		}
 
+		public ProjectViewGridModelBuilder expired(boolean expired) {
+			this.expired = expired;
+			return this;
+		}
+
 		public ProjectViewGridModel build() {
-			return new ProjectViewGridModel(id, projectId, communityId, name, siteName, description, status, message);
+			return new ProjectViewGridModel(id, projectId, communityId, name, siteName, description, status, message, expired);
 		}
 	}
 }

@@ -37,6 +37,7 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+import io.imunity.furms.utils.UTCTimeUtils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,6 +53,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TIME_BACKWARD;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -122,10 +124,10 @@ public class ProjectsView extends FurmsViewComponent {
 		return grid;
 	}
 
-	private HorizontalLayout createNameComponent(ProjectViewModel projectViewModel) {
-		final HorizontalLayout nameComponent = new HorizontalLayout();
+	private HorizontalLayout createNameComponent(ProjectViewGridModel projectViewModel) {
+		HorizontalLayout nameComponent = new HorizontalLayout();
 
-		if (projectViewModel.isExpired()) {
+		if (projectViewModel.expired) {
 			final Icon warningIcon = TIME_BACKWARD.create();
 			final Tooltip warningTooltip = new Tooltip(warningIcon, TooltipPosition.BOTTOM, TooltipAlignment.CENTER);
 			warningTooltip.add(getTranslation("view.community-admin.projects.grid.column.1.expired.project.tooltip"));
@@ -134,13 +136,12 @@ public class ProjectsView extends FurmsViewComponent {
 			nameComponent.add(warningIcon);
 		}
 
-		nameComponent.add(new RouterGridLink(projectViewModel.getName(), projectViewModel.getId(),
+		nameComponent.add(new RouterGridLink(projectViewModel.name, projectViewModel.id,
 				ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM));
 
 		return nameComponent;
 	}
 
-	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewModel> grid, Button addButton) {
 	private HorizontalLayout createSearchFilterLayout(Grid<ProjectViewGridModel> grid, Button addButton) {
 		TextField textField = new TextField();
 		textField.setPlaceholder(getTranslation("view.community-admin.projects.field.search"));
@@ -250,6 +251,7 @@ public class ProjectsView extends FurmsViewComponent {
 					.communityId(p.getCommunityId())
 					.name(p.getName())
 					.description(p.getDescription())
+					.expired(UTCTimeUtils.isExpired(p.getUtcEndTime()))
 					.build())
 				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 				.collect(toList());
