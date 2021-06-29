@@ -23,10 +23,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -44,6 +47,8 @@ class ProjectUpdateEntityRepositoryTest extends DBIntegrationTest {
 
 	private UUID siteId;
 	private UUID siteId2;
+
+	private UUID communityId;
 
 	private UUID projectId;
 	private UUID projectId2;
@@ -67,7 +72,7 @@ class ProjectUpdateEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		communityId = UUID.fromString(communityRepository.create(community));
 		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
 
 		Project project = Project.builder()
@@ -168,6 +173,94 @@ class ProjectUpdateEntityRepositoryTest extends DBIntegrationTest {
 
 		//then
 		assertThat(byId).isPresent();
+	}
+
+	@Test
+	void shouldFindCreatedProjectUpdateJobByProjectIdAndSiteId() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectUpdateJobEntity toSave = ProjectUpdateJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		ProjectUpdateJobEntity saved = entityRepository.save(toSave);
+
+		//when
+		Optional<ProjectUpdateJobEntity> entity = entityRepository.findByProjectIdAndSiteId(projectId, siteId);
+
+		//then
+		assertThat(entity).isPresent();
+		assertThat(entity.get().getId()).isEqualTo(saved.getId());
+		assertThat(entity.get().status).isEqualTo(PENDING.getPersistentId());
+		assertThat(entity.get().correlationId).isEqualTo(correlationId);
+		assertThat(entity.get().projectId).isEqualTo(projectId);
+	}
+
+	@Test
+	void shouldFindAllProjectUpdateJobByCommunityId() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectUpdateJobEntity toSave = ProjectUpdateJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+		ProjectUpdateJobEntity toSave1 = ProjectUpdateJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId2)
+			.projectId(projectId2)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		ProjectUpdateJobEntity saved = entityRepository.save(toSave);
+		entityRepository.save(toSave1);
+
+		//when
+		Set<ProjectUpdateJobEntity> entities = entityRepository.findAllByCommunityId(communityId);
+
+		//then
+		assertThat(entities.size()).isEqualTo(1);
+		ProjectUpdateJobEntity entity = entities.iterator().next();
+		assertThat(entity.getId()).isEqualTo(saved.getId());
+		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
+		assertThat(entity.correlationId).isEqualTo(correlationId);
+		assertThat(entity.projectId).isEqualTo(projectId);
+	}
+
+	@Test
+	void shouldFindAllProjectUpdateJobByProjectId() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectUpdateJobEntity toSave = ProjectUpdateJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+		ProjectUpdateJobEntity toSave1 = ProjectUpdateJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId2)
+			.projectId(projectId2)
+			.status(ProjectUpdateStatus.PENDING)
+			.build();
+
+		ProjectUpdateJobEntity saved = entityRepository.save(toSave);
+		entityRepository.save(toSave1);
+
+		//when
+		List<ProjectUpdateJobEntity> entities = entityRepository.findByProjectId(projectId);
+
+		//then
+		assertThat(entities.size()).isEqualTo(1);
+		ProjectUpdateJobEntity entity = entities.iterator().next();
+		assertThat(entity.getId()).isEqualTo(saved.getId());
+		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
+		assertThat(entity.correlationId).isEqualTo(correlationId);
+		assertThat(entity.projectId).isEqualTo(projectId);
 	}
 
 	@Test

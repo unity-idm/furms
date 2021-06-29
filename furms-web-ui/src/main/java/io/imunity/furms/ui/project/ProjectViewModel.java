@@ -7,12 +7,9 @@ package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
-import io.imunity.furms.utils.UTCTimeUtils;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
-
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 public class ProjectViewModel {
 	public final String id;
@@ -141,10 +138,6 @@ public class ProjectViewModel {
 				description.toLowerCase().contains(value) ||
 				acronym.toLowerCase().contains(value) ||
 				researchField.toLowerCase().contains(value);
-	}
-
-	public boolean isExpired() {
-		return UTCTimeUtils.isExpired(convertToUTCTime(endTime));
 	}
 
 	@Override
