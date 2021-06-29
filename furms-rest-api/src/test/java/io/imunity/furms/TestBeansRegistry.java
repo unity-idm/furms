@@ -12,13 +12,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 public class TestBeansRegistry {
 
-    @MockBean
-    protected UserService userService;
+	@MockBean
+	protected UserService userService;
 
-    @MockBean
-    protected UserApiKeyService userApiKeyService;
+	@MockBean
+	protected UserApiKeyService userApiKeyService;
 
-    @MockBean
-    protected RoleLoader roleLoader;
+	@MockBean
+	protected RoleLoader roleLoader;
 
 }

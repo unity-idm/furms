@@ -24,81 +24,81 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 @PageTitle(key = "view.user-settings.api-key.page.title")
 public class APIKeyView extends FurmsViewComponent {
 
-    private final UserApiKeyService userApiKeyService;
-    private final AuthzService authzService;
+	private final UserApiKeyService userApiKeyService;
+	private final AuthzService authzService;
 
-    private final CopyToClipboardStringComponent apiKeyFormItem;
+	private final CopyToClipboardStringComponent apiKeyFormItem;
 
-    private final PersistentId userId;
+	private final PersistentId userId;
 
-    public APIKeyView(UserApiKeyService userApiKeyService, AuthzService authzService) {
-        this.userApiKeyService = userApiKeyService;
-        this.authzService = authzService;
-        this.userId = this.authzService.getCurrentAuthNUser().id
-                .orElseThrow(() -> new AccessDeniedException("User ID not found in security context"));
+	public APIKeyView(UserApiKeyService userApiKeyService, AuthzService authzService) {
+		this.userApiKeyService = userApiKeyService;
+		this.authzService = authzService;
+		this.userId = this.authzService.getCurrentAuthNUser().id
+				.orElseThrow(() -> new AccessDeniedException("User ID not found in security context"));
 
-        final String apiKey = userApiKeyService.findByUserId(userId)
-                .map(UserApiKey::getApiKey)
-                .map(UUID::toString)
-                .orElse(null);
+		final String apiKey = userApiKeyService.findByUserId(userId)
+				.map(UserApiKey::getApiKey)
+				.map(UUID::toString)
+				.orElse(null);
 
-        final FurmsFormLayout furmsFormLayout = new FurmsFormLayout();
+		final FurmsFormLayout furmsFormLayout = new FurmsFormLayout();
 
-        furmsFormLayout.addFormItem(
-                new CopyToClipboardStringComponent(userId.id,
-                        getTranslation("view.user-settings.api-key.form.name.copy.msg")),
-                getTranslation("view.user-settings.api-key.form.name.label"));
+		furmsFormLayout.addFormItem(
+				new CopyToClipboardStringComponent(userId.id,
+						getTranslation("view.user-settings.api-key.form.name.copy.msg")),
+				getTranslation("view.user-settings.api-key.form.name.label"));
 
-        this.apiKeyFormItem = new CopyToClipboardStringComponent("",
-                getTranslation("view.user-settings.api-key.form.key.copy.msg"));
-        setApiKeyFormItemValue(apiKey);
-        furmsFormLayout.addFormItem(
-                apiKeyFormItem,
-                getTranslation("view.user-settings.api-key.form.key.label"));
+		this.apiKeyFormItem = new CopyToClipboardStringComponent("",
+				getTranslation("view.user-settings.api-key.form.key.copy.msg"));
+		setApiKeyFormItemValue(apiKey);
+		furmsFormLayout.addFormItem(
+				apiKeyFormItem,
+				getTranslation("view.user-settings.api-key.form.key.label"));
 
-        final Button generate = new Button(getTranslation("view.user-settings.api-key.form.button.generate"),
-                e -> generateAPIKeyAction());
-        generate.setEnabled(isApiKeyFormItemEmpty());
-        this.apiKeyFormItem.addValueChangeListener(event -> generate.setEnabled(isApiKeyFormItemEmpty()));
-        final Button revoke = new Button(getTranslation("view.user-settings.api-key.form.button.revoke"),
-                e -> revokeAPIKeyAction());
-        final FormButtons formButtons = new FormButtons(generate, revoke);
+		final Button generate = new Button(getTranslation("view.user-settings.api-key.form.button.generate"),
+				e -> generateAPIKeyAction());
+		generate.setEnabled(isApiKeyFormItemEmpty());
+		this.apiKeyFormItem.addValueChangeListener(event -> generate.setEnabled(isApiKeyFormItemEmpty()));
+		final Button revoke = new Button(getTranslation("view.user-settings.api-key.form.button.revoke"),
+				e -> revokeAPIKeyAction());
+		final FormButtons formButtons = new FormButtons(generate, revoke);
 
-        getContent().add(furmsFormLayout, formButtons);
-    }
+		getContent().add(furmsFormLayout, formButtons);
+	}
 
-    private void generateAPIKeyAction() {
-        setApiKeyFormItemValue(generateAPIKey());
-    }
+	private void generateAPIKeyAction() {
+		setApiKeyFormItemValue(generateAPIKey());
+	}
 
-    private String generateAPIKey() {
-        return userApiKeyService.generate(userId)
-                .or(() -> {
-                    showErrorNotification(getTranslation("view.user-settings.api-key.form.button.generate.error"));
-                    return Optional.empty();
-                })
-                .map(UserApiKey::getApiKey)
-                .map(UUID::toString)
-                .get();
-    }
+	private String generateAPIKey() {
+		return userApiKeyService.generate(userId)
+				.or(() -> {
+					showErrorNotification(getTranslation("view.user-settings.api-key.form.button.generate.error"));
+					return Optional.empty();
+				})
+				.map(UserApiKey::getApiKey)
+				.map(UUID::toString)
+				.get();
+	}
 
-    private void revokeAPIKeyAction() {
-        userApiKeyService.revoke(userId);;
-        setApiKeyFormItemValue(null);
-    }
+	private void revokeAPIKeyAction() {
+		userApiKeyService.revoke(userId);
+		setApiKeyFormItemValue(null);
+	}
 
-    private boolean isApiKeyFormItemEmpty() {
-        return apiKeyFormItem.getValue().equals(getTranslation("view.user-settings.api-key.form.key.empty"));
-    }
+	private boolean isApiKeyFormItemEmpty() {
+		return apiKeyFormItem.getValue().equals(getTranslation("view.user-settings.api-key.form.key.empty"));
+	}
 
-    private void setApiKeyFormItemValue(String apiKey) {
-        if (StringUtils.isBlank(apiKey)) {
-            apiKeyFormItem.setValue(getTranslation("view.user-settings.api-key.form.key.empty"));
-            apiKeyFormItem.setReadOnly(false);
-        } else {
-            apiKeyFormItem.setValue(apiKey);
-            apiKeyFormItem.setReadOnly(true);
-        }
-    }
+	private void setApiKeyFormItemValue(String apiKey) {
+		if (StringUtils.isBlank(apiKey)) {
+			apiKeyFormItem.setValue(getTranslation("view.user-settings.api-key.form.key.empty"));
+			apiKeyFormItem.setReadOnly(false);
+		} else {
+			apiKeyFormItem.setValue(apiKey);
+			apiKeyFormItem.setReadOnly(true);
+		}
+	}
 
 }

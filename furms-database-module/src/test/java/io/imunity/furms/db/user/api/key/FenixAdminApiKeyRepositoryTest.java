@@ -37,13 +37,13 @@ class FenixAdminApiKeyRepositoryTest {
 
     @Test
     void shouldNotExistsForNonCompleteParam() {
-        assertFalse(repository.exists(Optional.empty()));
-        assertFalse(repository.exists(Optional.of(UserApiKey.builder()
+        assertFalse(repository.exists(null));
+        assertFalse(repository.exists(UserApiKey.builder()
                 .userId(new PersistentId("userId"))
-                .build())));
-        assertFalse(repository.exists(Optional.of(UserApiKey.builder()
+                .build()));
+        assertFalse(repository.exists(UserApiKey.builder()
                 .apiKey(UUID.randomUUID())
-                .build())));
+                .build()));
     }
 
     @Test
@@ -65,8 +65,8 @@ class FenixAdminApiKeyRepositoryTest {
                 .build();
 
         //when + then
-        assertFalse(repository.exists(Optional.of(wrongUserId)));
-        assertFalse(repository.exists(Optional.of(wrongApiKey)));
+        assertFalse(repository.exists(wrongUserId));
+        assertFalse(repository.exists(wrongApiKey));
     }
 
     @Test
@@ -104,7 +104,7 @@ class FenixAdminApiKeyRepositoryTest {
                 .build();
 
         //when
-        repository.create(Optional.of(userApiKey));
+        repository.create(userApiKey);
 
         //then
         final Optional<UserApiKeyEntity> created = entityRepository.findByUserId(userApiKey.getUserId().id);
@@ -115,13 +115,13 @@ class FenixAdminApiKeyRepositoryTest {
 
     @Test
     void shouldNotCreateForNonCompleteUserApiKeyParam() {
-        assertThrows(IllegalArgumentException.class, () -> repository.create(Optional.empty()));
-        assertThrows(IllegalArgumentException.class, () -> repository.create(Optional.of(UserApiKey.builder()
+        assertThrows(IllegalArgumentException.class, () -> repository.create(null));
+        assertThrows(IllegalArgumentException.class, () -> repository.create(UserApiKey.builder()
                 .userId(new PersistentId("userId"))
-                .build())));
-        assertThrows(IllegalArgumentException.class, () -> repository.create(Optional.of(UserApiKey.builder()
+                .build()));
+        assertThrows(IllegalArgumentException.class, () -> repository.create(UserApiKey.builder()
                 .apiKey(UUID.randomUUID())
-                .build())));
+                .build()));
     }
 
     @Test

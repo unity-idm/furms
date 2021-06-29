@@ -20,81 +20,81 @@ import static com.vaadin.flow.component.icon.VaadinIcon.CLIPBOARD;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 public class CopyToClipboardStringComponent
-        extends HorizontalLayout
-        implements HasValue<CopyToClipboardStringComponent, String>, HasValue.ValueChangeEvent<String>{
+		extends HorizontalLayout
+		implements HasValue<CopyToClipboardStringComponent, String>, HasValue.ValueChangeEvent<String> {
 
-    private final Label valueLabel;
-    private final Button button;
-    private final ClipboardHelper clipboardButton;
+	private final Label valueLabel;
+	private final Button button;
+	private final ClipboardHelper clipboardButton;
 
-    private String oldValue;
+	private String oldValue;
 
-    public CopyToClipboardStringComponent(String value, String onSuccessMessage) {
+	public CopyToClipboardStringComponent(String value, String onSuccessMessage) {
 
-        this.valueLabel = new Label(value);
+		this.valueLabel = new Label(value);
 
-        this.button = new Button(CLIPBOARD.create());
-        this.button.addThemeVariants(LUMO_TERTIARY_INLINE);
-        this.button.addClickListener(e -> showSuccessNotification(onSuccessMessage));
+		this.button = new Button(CLIPBOARD.create());
+		this.button.addThemeVariants(LUMO_TERTIARY_INLINE);
+		this.button.addClickListener(e -> showSuccessNotification(onSuccessMessage));
 
-        this.clipboardButton = new ClipboardHelper(value, button);
+		this.clipboardButton = new ClipboardHelper(value, button);
 
-        add(this.valueLabel, this.clipboardButton);
-    }
+		add(this.valueLabel, this.clipboardButton);
+	}
 
-    @Override
-    public void setValue(String value) {
-        this.oldValue = getValue();
-        this.valueLabel.setText(value);
-        this.clipboardButton.setContent(value);
+	@Override
+	public void setValue(String value) {
+		this.oldValue = getValue();
+		this.valueLabel.setText(value);
+		this.clipboardButton.setContent(value);
 
-        ComponentUtil.fireEvent(this,
-                new AbstractField.ComponentValueChangeEvent<>(this, this, this.oldValue, true));
-    }
+		ComponentUtil.fireEvent(this,
+				new AbstractField.ComponentValueChangeEvent<>(this, this, this.oldValue, true));
+	}
 
-    @Override
-    public HasValue<?, String> getHasValue() {
-        return this;
-    }
+	@Override
+	public HasValue<?, String> getHasValue() {
+		return this;
+	}
 
-    @Override
-    public boolean isFromClient() {
-        return false;
-    }
+	@Override
+	public boolean isFromClient() {
+		return false;
+	}
 
-    @Override
-    public String getOldValue() {
-        return null;
-    }
+	@Override
+	public String getOldValue() {
+		return null;
+	}
 
-    @Override
-    public String getValue() {
-        return this.valueLabel.getText();
-    }
+	@Override
+	public String getValue() {
+		return this.valueLabel.getText();
+	}
 
-    @Override
-    public Registration addValueChangeListener(ValueChangeListener<? super CopyToClipboardStringComponent> listener) {
-        ComponentEventListener componentListener = event -> listener.valueChanged(this);
-        return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
-    }
+	@Override
+	public Registration addValueChangeListener(ValueChangeListener<? super CopyToClipboardStringComponent> listener) {
+		ComponentEventListener componentListener = event -> listener.valueChanged(this);
+		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
+	}
 
-    @Override
-    public void setReadOnly(boolean readOnly) {
-        this.clipboardButton.setVisible(readOnly);
-    }
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		this.clipboardButton.setVisible(readOnly);
+	}
 
-    @Override
-    public boolean isReadOnly() {
-        return !this.clipboardButton.isVisible();
-    }
+	@Override
+	public boolean isReadOnly() {
+		return !this.clipboardButton.isVisible();
+	}
 
-    @Override
-    public void setRequiredIndicatorVisible(boolean b) {
-        //Not implemented
-    }
+	@Override
+	public void setRequiredIndicatorVisible(boolean b) {
+		//Not implemented
+	}
 
-    @Override
-    public boolean isRequiredIndicatorVisible() {
-        return false;
-    }
+	@Override
+	public boolean isRequiredIndicatorVisible() {
+		return false;
+	}
 }

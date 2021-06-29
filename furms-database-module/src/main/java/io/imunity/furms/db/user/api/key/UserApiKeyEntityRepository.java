@@ -15,11 +15,11 @@ import java.util.UUID;
 
 interface UserApiKeyEntityRepository extends CrudRepository<UserApiKeyEntity, UUID> {
 
-    boolean existsByUserIdAndApiKey(String userId, UUID apiKey);
+	boolean existsByUserIdAndApiKey(String userId, UUID apiKey);
 
-    Optional<UserApiKeyEntity> findByUserId(String userId);
+	Optional<UserApiKeyEntity> findByUserId(String userId);
 
-    @Modifying
-    @Query("DELETE FROM user_api_key WHERE user_id = :userId")
-    long deleteByUserId(@Param("userId") String userId);
+	@Modifying
+	@Query("DELETE FROM user_api_key WHERE user_id = :userId")
+	long deleteByUserId(@Param("userId") String userId);
 }

@@ -5,9 +5,9 @@
 
 package io.imunity.furms.db.user.api.key;
 
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.key.UserApiKey;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -15,62 +15,69 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("user_api_key")
-public class UserApiKeyEntity extends UUIDIdentifiable {
+public class UserApiKeyEntity {
 
-    private final UUID apiKey;
+	@Id
+	private final Long id;
 
-    private final String userId;
+	private final UUID apiKey;
 
-    @PersistenceConstructor
-    UserApiKeyEntity(UUID id, UUID apiKey, String userId) {
-        this.id = id;
-        this.apiKey = apiKey;
-        this.userId = userId;
-    }
+	private final String userId;
 
-    public UserApiKeyEntity(UserApiKey userApiKey) {
-        if (userApiKey == null) {
-            throw new IllegalArgumentException("UserApiKey object is null.");
-        }
-        this.id = null;
-        this.apiKey = userApiKey.getApiKey();
-        this.userId = userApiKey.getUserId().id;
-    }
+	@PersistenceConstructor
+	UserApiKeyEntity(Long id, UUID apiKey, String userId) {
+		this.id = id;
+		this.apiKey = apiKey;
+		this.userId = userId;
+	}
 
-    public UUID getApiKey() {
-        return apiKey;
-    }
+	public UserApiKeyEntity(UserApiKey userApiKey) {
+		if (userApiKey == null) {
+			throw new IllegalArgumentException("UserApiKey object is null.");
+		}
+		this.id = null;
+		this.apiKey = userApiKey.getApiKey();
+		this.userId = userApiKey.getUserId().id;
+	}
 
-    public String getUserId() {
-        return userId;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserApiKeyEntity that = (UserApiKeyEntity) o;
-        return Objects.equals(apiKey, that.apiKey) && Objects.equals(userId, that.userId);
-    }
+	public UUID getApiKey() {
+		return apiKey;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(apiKey, userId);
-    }
+	public String getUserId() {
+		return userId;
+	}
 
-    @Override
-    public String toString() {
-        return "ApiKeyEntity{" +
-                "apiKey=" + apiKey +
-                ", userId='" + userId + '\'' +
-                '}';
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		UserApiKeyEntity that = (UserApiKeyEntity) o;
+		return Objects.equals(apiKey, that.apiKey) && Objects.equals(userId, that.userId);
+	}
 
-    public UserApiKey toUserApiKey() {
-        return UserApiKey.builder()
-                .apiKey(apiKey)
-                .userId(new PersistentId(userId))
-                .build();
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(apiKey, userId);
+	}
+
+	@Override
+	public String toString() {
+		return "ApiKeyEntity{" +
+				"apiKey=" + apiKey +
+				", userId='" + userId + '\'' +
+				'}';
+	}
+
+	public UserApiKey toUserApiKey() {
+		return UserApiKey.builder()
+				.apiKey(apiKey)
+				.userId(new PersistentId(userId))
+				.build();
+	}
 
 }

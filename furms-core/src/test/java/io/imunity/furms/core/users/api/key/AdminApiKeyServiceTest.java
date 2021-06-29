@@ -29,171 +29,171 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AdminApiKeyServiceTest {
 
-    @Mock
-    private UserApiKeyRepository repository;
+	@Mock
+	private UserApiKeyRepository repository;
 
-    @Mock
-    private UsersDAO usersDAO;
+	@Mock
+	private UsersDAO usersDAO;
 
-    @InjectMocks
-    private AdminApiKeyService service;
+	@InjectMocks
+	private AdminApiKeyService service;
 
-    @Test
-    void shouldFindUserByUserIdAndApiKey() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        when(repository.exists(Optional.of(UserApiKey.builder().userId(userId).apiKey(apiKey).build()))).thenReturn(true);
-        when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
-                .id(userId)
-                .email("email")
-                .build()));
+	@Test
+	void shouldFindUserByUserIdAndApiKey() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		when(repository.exists(UserApiKey.builder().userId(userId).apiKey(apiKey).build())).thenReturn(true);
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+				.id(userId)
+				.email("email")
+				.build()));
 
-        //when
-        final Optional<FURMSUser> user = service.findUserByUserIdAndApiKey(userId, apiKey);
+		//when
+		final Optional<FURMSUser> user = service.findUserByUserIdAndApiKey(userId, apiKey);
 
-        //then
-        assertThat(user).isPresent();
-        assertThat(user.get().id.get()).isEqualTo(userId);
-    }
+		//then
+		assertThat(user).isPresent();
+		assertThat(user.get().id.get()).isEqualTo(userId);
+	}
 
-    @Test
-    void shouldNotFindUserByUserIdAndApiKeyDueToNonExistingAPIKey() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        when(repository.exists(Optional.of(UserApiKey.builder().userId(userId).apiKey(apiKey).build()))).thenReturn(false);
+	@Test
+	void shouldNotFindUserByUserIdAndApiKeyDueToNonExistingAPIKey() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		when(repository.exists(UserApiKey.builder().userId(userId).apiKey(apiKey).build())).thenReturn(false);
 
-        //when
-        final Optional<FURMSUser> user = service.findUserByUserIdAndApiKey(userId, apiKey);
+		//when
+		final Optional<FURMSUser> user = service.findUserByUserIdAndApiKey(userId, apiKey);
 
-        //then
-        assertThat(user).isEmpty();
-    }
+		//then
+		assertThat(user).isEmpty();
+	}
 
-    @Test
-    void shouldFindByUserId() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
-                .id(userId)
-                .email("email")
-                .build()));
-        when(repository.findByUserId(userId)).thenReturn(Optional.of(UserApiKey.builder()
-                .userId(userId)
-                .apiKey(apiKey)
-                .build()));
+	@Test
+	void shouldFindByUserId() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+				.id(userId)
+				.email("email")
+				.build()));
+		when(repository.findByUserId(userId)).thenReturn(Optional.of(UserApiKey.builder()
+				.userId(userId)
+				.apiKey(apiKey)
+				.build()));
 
-        //when
-        final Optional<UserApiKey> userApiKey = service.findByUserId(userId);
+		//when
+		final Optional<UserApiKey> userApiKey = service.findByUserId(userId);
 
-        //then
-        assertThat(userApiKey).isPresent();
-        assertThat(userApiKey.get().getUserId()).isEqualTo(userId);
-        assertThat(userApiKey.get().getApiKey()).isEqualTo(apiKey);
-    }
+		//then
+		assertThat(userApiKey).isPresent();
+		assertThat(userApiKey.get().getUserId()).isEqualTo(userId);
+		assertThat(userApiKey.get().getApiKey()).isEqualTo(apiKey);
+	}
 
-    @Test
-    void shouldNotFindByUserIdDueToNonExistingUser() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        when(usersDAO.findById(userId)).thenReturn(Optional.empty());
+	@Test
+	void shouldNotFindByUserIdDueToNonExistingUser() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
-        //when + then
-        assertThrows(UnknownUserException.class, () -> service.findByUserId(userId));
-    }
+		//when + then
+		assertThrows(UnknownUserException.class, () -> service.findByUserId(userId));
+	}
 
-    @Test
-    void shouldGenerateNewApiKey() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        final UserApiKey userApiKey = UserApiKey.builder()
-                .apiKey(apiKey)
-                .userId(userId)
-                .build();
-        when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
-                .id(userId)
-                .email("email")
-                .build()));
-        when(repository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(repository.create(any())).thenReturn(Optional.of(userApiKey));
+	@Test
+	void shouldGenerateNewApiKey() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		final UserApiKey userApiKey = UserApiKey.builder()
+				.apiKey(apiKey)
+				.userId(userId)
+				.build();
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+				.id(userId)
+				.email("email")
+				.build()));
+		when(repository.findByUserId(userId)).thenReturn(Optional.empty());
+		when(repository.create(any())).thenReturn(Optional.of(userApiKey));
 
-        //when
-        final Optional<UserApiKey> generated = service.generate(userId);
+		//when
+		final Optional<UserApiKey> generated = service.generate(userId);
 
-        //then
-        assertThat(generated).isPresent();
-        assertThat(generated.get().getUserId()).isEqualTo(userId);
-        assertThat(generated.get().getApiKey()).isEqualTo(apiKey);
-    }
+		//then
+		assertThat(generated).isPresent();
+		assertThat(generated.get().getUserId()).isEqualTo(userId);
+		assertThat(generated.get().getApiKey()).isEqualTo(apiKey);
+	}
 
-    @Test
-    void shouldNotGenerateNewApiKeyDueToUserNotExists() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        final UserApiKey userApiKey = UserApiKey.builder()
-                .apiKey(apiKey)
-                .userId(userId)
-                .build();
-        when(usersDAO.findById(userId)).thenReturn(Optional.empty());
+	@Test
+	void shouldNotGenerateNewApiKeyDueToUserNotExists() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		final UserApiKey userApiKey = UserApiKey.builder()
+				.apiKey(apiKey)
+				.userId(userId)
+				.build();
+		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
-        //when + then
-        assertThrows(UnknownUserException.class, () -> service.generate(userId));
-    }
+		//when + then
+		assertThrows(UnknownUserException.class, () -> service.generate(userId));
+	}
 
-    @Test
-    void shouldNotGenerateNewApiKeyDueToApiKeyAlreadyExists() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        final UserApiKey userApiKey = UserApiKey.builder()
-                .apiKey(apiKey)
-                .userId(userId)
-                .build();
-        when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
-                .id(userId)
-                .email("email")
-                .build()));
-        when(repository.findByUserId(userId)).thenReturn(Optional.of(userApiKey));
+	@Test
+	void shouldNotGenerateNewApiKeyDueToApiKeyAlreadyExists() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		final UserApiKey userApiKey = UserApiKey.builder()
+				.apiKey(apiKey)
+				.userId(userId)
+				.build();
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+				.id(userId)
+				.email("email")
+				.build()));
+		when(repository.findByUserId(userId)).thenReturn(Optional.of(userApiKey));
 
-        //when + then
-        assertThrows(IllegalArgumentException.class, () -> service.generate(userId));
-    }
+		//when + then
+		assertThrows(IllegalArgumentException.class, () -> service.generate(userId));
+	}
 
-    @Test
-    void shouldRevokeApiKey() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        final UUID apiKey = UUID.randomUUID();
-        final UserApiKey userApiKey = UserApiKey.builder()
-                .apiKey(apiKey)
-                .userId(userId)
-                .build();
-        when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
-                .id(userId)
-                .email("email")
-                .build()));
+	@Test
+	void shouldRevokeApiKey() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		final UUID apiKey = UUID.randomUUID();
+		final UserApiKey userApiKey = UserApiKey.builder()
+				.apiKey(apiKey)
+				.userId(userId)
+				.build();
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+				.id(userId)
+				.email("email")
+				.build()));
 
-        //when
-        service.revoke(userId);
+		//when
+		service.revoke(userId);
 
-        //then
-        verify(repository, times(1)).delete(userId);
-    }
+		//then
+		verify(repository, times(1)).delete(userId);
+	}
 
-    @Test
-    void shouldNotRevokeApiKeyDueToUserNotExists() {
-        //given
-        final PersistentId userId = new PersistentId("userId");
-        when(usersDAO.findById(userId)).thenReturn(Optional.empty());
+	@Test
+	void shouldNotRevokeApiKeyDueToUserNotExists() {
+		//given
+		final PersistentId userId = new PersistentId("userId");
+		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
-        //when + then
-        assertThrows(UnknownUserException.class, () -> service.revoke(userId));
-    }
+		//when + then
+		assertThrows(UnknownUserException.class, () -> service.revoke(userId));
+	}
 
 
 }

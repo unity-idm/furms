@@ -12,12 +12,12 @@ import java.util.Optional;
 
 public interface UserApiKeyRepository {
 
-    boolean exists(Optional<UserApiKey> userApiKey);
+	boolean exists(UserApiKey userApiKey);
 
-    Optional<UserApiKey> findByUserId(PersistentId userId);
+	Optional<UserApiKey> findByUserId(PersistentId userId);
 
-    Optional<UserApiKey> create(Optional<UserApiKey> userApiKey);
+	Optional<UserApiKey> create(UserApiKey userApiKey);
 
-    void delete(PersistentId userId);
+	void delete(PersistentId userId);
 
 }

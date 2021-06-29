@@ -17,54 +17,54 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 @Repository
 class FenixAdminApiKeyRepository implements UserApiKeyRepository {
 
-    private final UserApiKeyEntityRepository entityRepository;
+	private final UserApiKeyEntityRepository entityRepository;
 
-    FenixAdminApiKeyRepository(UserApiKeyEntityRepository entityRepository) {
-        this.entityRepository = entityRepository;
-    }
+	FenixAdminApiKeyRepository(UserApiKeyEntityRepository entityRepository) {
+		this.entityRepository = entityRepository;
+	}
 
-    @Override
-    public boolean exists(Optional<UserApiKey> userApiKey) {
-        if (notValid(userApiKey)) {
-            return false;
-        }
-        return entityRepository.existsByUserIdAndApiKey(userApiKey.get().getUserId().id, userApiKey.get().getApiKey());
-    }
+	@Override
+	public boolean exists(UserApiKey userApiKey) {
+		if (notValid(userApiKey)) {
+			return false;
+		}
+		return entityRepository.existsByUserIdAndApiKey(userApiKey.getUserId().id, userApiKey.getApiKey());
+	}
 
-    @Override
-    public Optional<UserApiKey> findByUserId(PersistentId userId) {
-        if (notValid(userId)) {
-            return Optional.empty();
-        }
-        return entityRepository.findByUserId(userId.id)
-                .map(UserApiKeyEntity::toUserApiKey);
-    }
+	@Override
+	public Optional<UserApiKey> findByUserId(PersistentId userId) {
+		if (notValid(userId)) {
+			return Optional.empty();
+		}
+		return entityRepository.findByUserId(userId.id)
+				.map(UserApiKeyEntity::toUserApiKey);
+	}
 
-    @Override
-    public Optional<UserApiKey> create(Optional<UserApiKey> userApiKey) {
-        if (notValid(userApiKey)) {
-            throw new IllegalArgumentException("Incorrect parameters for API Key create.");
-        }
-        return Optional.of(entityRepository.save(new UserApiKeyEntity(userApiKey.get())))
-                .map(UserApiKeyEntity::toUserApiKey);
-    }
+	@Override
+	public Optional<UserApiKey> create(UserApiKey userApiKey) {
+		if (notValid(userApiKey)) {
+			throw new IllegalArgumentException("Incorrect parameters for API Key create.");
+		}
+		return Optional.of(entityRepository.save(new UserApiKeyEntity(userApiKey)))
+				.map(UserApiKeyEntity::toUserApiKey);
+	}
 
-    @Override
-    public void delete(PersistentId userId) {
-        if (notValid(userId)) {
-            return;
-        }
+	@Override
+	public void delete(PersistentId userId) {
+		if (notValid(userId)) {
+			return;
+		}
 
-        entityRepository.deleteByUserId(userId.id);
-    }
+		entityRepository.deleteByUserId(userId.id);
+	}
 
-    private boolean notValid(Optional<UserApiKey> userApiKey) {
-        return userApiKey.isEmpty()
-                || userApiKey.get().getApiKey() == null
-                || notValid(userApiKey.get().getUserId());
-    }
+	private boolean notValid(UserApiKey userApiKey) {
+		return userApiKey == null
+				|| userApiKey.getApiKey() == null
+				|| notValid(userApiKey.getUserId());
+	}
 
-    private boolean notValid(PersistentId userId) {
-        return userId == null || isEmpty(userId.id);
-    }
+	private boolean notValid(PersistentId userId) {
+		return userId == null || isEmpty(userId.id);
+	}
 }

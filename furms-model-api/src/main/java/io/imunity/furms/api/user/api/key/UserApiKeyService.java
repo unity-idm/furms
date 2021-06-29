@@ -14,12 +14,12 @@ import java.util.UUID;
 
 public interface UserApiKeyService {
 
-    Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey);
+	Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey);
 
-    Optional<UserApiKey> findByUserId(PersistentId userId);
+	Optional<UserApiKey> findByUserId(PersistentId userId);
 
-    Optional<UserApiKey> generate(PersistentId userId);
+	Optional<UserApiKey> generate(PersistentId userId);
 
-    void revoke(PersistentId userId);
+	void revoke(PersistentId userId);
 
 }

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.Capability.REST_API_CALL;
+import static io.imunity.furms.domain.authz.roles.Capability.REST_API_KEY_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.apache.logging.log4j.util.Strings.isEmpty;
@@ -28,74 +28,80 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 @Service
 class AdminApiKeyService implements UserApiKeyService {
 
-    private final UserApiKeyRepository repository;
-    private final UsersDAO usersDAO;
+	private final UserApiKeyRepository repository;
+	private final UsersDAO usersDAO;
 
-    AdminApiKeyService(UserApiKeyRepository repository, UsersDAO usersDAO) {
-        this.repository = repository;
-        this.usersDAO = usersDAO;
-    }
+	AdminApiKeyService(UserApiKeyRepository repository, UsersDAO usersDAO) {
+		this.repository = repository;
+		this.usersDAO = usersDAO;
+	}
 
-    @Override
-    public Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey) {
-        final boolean exists = repository.exists(Optional.of(UserApiKey.builder()
-                .userId(userId)
-                .apiKey(apiKey)
-                .build()));
+	@Override
+	public Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey) {
+		final boolean exists = repository.exists(UserApiKey.builder()
+				.userId(userId)
+				.apiKey(apiKey)
+				.build());
 
-        if (!exists) {
-            return Optional.empty();
-        }
+		if (!exists) {
+			return Optional.empty();
+		}
 
-        return usersDAO.findById(userId);
-    }
+		return usersDAO.findById(userId);
+	}
 
-    @Override
-    @FurmsAuthorize(capability = REST_API_CALL, resourceType = APP_LEVEL)
-    public Optional<UserApiKey> findByUserId(PersistentId userId) {
-        assertUserExists(userId);
+	@Override
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	public Optional<UserApiKey> findByUserId(PersistentId userId) {
+		assertUserExists(userId);
 
-        return repository.findByUserId(userId);
-    }
+		return repository.findByUserId(userId);
+	}
 
-    @Override
-    @Transactional
-    @FurmsAuthorize(capability = REST_API_CALL, resourceType = APP_LEVEL)
-    public Optional<UserApiKey> generate(PersistentId userId) {
-        assertUserExists(userId);
-        assertKeyNotExists(userId);
+	@Override
+	@Transactional
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	public Optional<UserApiKey> generate(PersistentId userId) {
+		assertUserExists(userId);
+		assertKeyNotExists(userId);
 
-        repository.delete(userId);
+		repository.delete(userId);
 
-        return repository.create(Optional.of(UserApiKey.builder()
-                .apiKey(UUID.randomUUID())
-                .userId(userId)
-                .build()));
-    }
+		return repository.create(UserApiKey.builder()
+				.apiKey(UUID.randomUUID())
+				.userId(userId)
+				.build());
+	}
 
-    @Override
-    @Transactional
-    @FurmsAuthorize(capability = REST_API_CALL, resourceType = APP_LEVEL)
-    public void revoke(PersistentId userId) {
-        assertUserExists(userId);
+	@Override
+	@Transactional
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	public void revoke(PersistentId userId) {
+		assertUserExists(userId);
 
-        repository.delete(userId);
-    }
+		repository.delete(userId);
+	}
 
-    private void assertUserExists(PersistentId userId) {
-        assertTrue(userId != null && !isEmpty(userId.id),
-                () -> { throw new IllegalArgumentException("User not exists."); });
+	private void assertUserExists(PersistentId userId) {
+		assertTrue(userId != null && !isEmpty(userId.id),
+				() -> {
+					throw new IllegalArgumentException("User not exists.");
+				});
 
-        usersDAO.findById(userId)
-                .orElseThrow(() -> new UnknownUserException(new FenixUserId(userId.id)));
-    }
+		usersDAO.findById(userId)
+				.orElseThrow(() -> new UnknownUserException(new FenixUserId(userId.id)));
+	}
 
 
-    private void assertKeyNotExists(PersistentId userId) {
-        assertTrue(userId != null && !isEmpty(userId.id),
-                () -> { throw new IllegalArgumentException("User not exists."); });
+	private void assertKeyNotExists(PersistentId userId) {
+		assertTrue(userId != null && !isEmpty(userId.id),
+				() -> {
+					throw new IllegalArgumentException("User not exists.");
+				});
 
-        assertTrue(repository.findByUserId(userId).isEmpty(),
-                () -> { throw new IllegalArgumentException("API KEY for specific user already exists"); });
-    }
+		assertTrue(repository.findByUserId(userId).isEmpty(),
+				() -> {
+					throw new IllegalArgumentException("API KEY for specific user already exists");
+				});
+	}
 }

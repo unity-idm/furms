@@ -27,52 +27,56 @@ import java.util.UUID;
 
 public class RestApiBasicAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private final static String REST_API_CIDP_CALLS_PATTERN = "\\/rest-api\\/.*\\/cidp\\/.*";
+	private final static String REST_API_CIDP_CALLS_PATTERN = "\\/rest-api\\/.*\\/cidp\\/.*";
 
-    private final UserApiKeyService userApiKeyService;
-    private final RoleLoader roleLoader;
-    private final BasicAuthenticationConverter authenticationConverter;
+	private final UserApiKeyService userApiKeyService;
+	private final RoleLoader roleLoader;
+	private final BasicAuthenticationConverter authenticationConverter;
 
-    public RestApiBasicAuthenticationFilter(
-            AuthenticationManager authenticationManager,
-            UserApiKeyService userApiKeyService,
-            RoleLoader roleLoader
-    ) {
-        super(authenticationManager);
-        this.userApiKeyService = userApiKeyService;
-        this.roleLoader = roleLoader;
-        this.authenticationConverter = new BasicAuthenticationConverter();
-    }
+	public RestApiBasicAuthenticationFilter(
+			AuthenticationManager authenticationManager,
+			UserApiKeyService userApiKeyService,
+			RoleLoader roleLoader
+	) {
+		super(authenticationManager);
+		this.userApiKeyService = userApiKeyService;
+		this.roleLoader = roleLoader;
+		this.authenticationConverter = new BasicAuthenticationConverter();
+	}
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (!request.getRequestURI().matches(REST_API_CIDP_CALLS_PATTERN)) {
-            final UsernamePasswordAuthenticationToken authRequest = authenticationConverter.convert(request);
-            if (authRequest == null) {
-                chain.doFilter(request, response);
-                return;
-            }
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+		try {
+			if (!request.getRequestURI().matches(REST_API_CIDP_CALLS_PATTERN)) {
+				final UsernamePasswordAuthenticationToken authRequest = authenticationConverter.convert(request);
+				if (authRequest == null) {
+					chain.doFilter(request, response);
+					return;
+				}
 
-            final PersistentId userId = new PersistentId(authRequest.getPrincipal().toString());
-            final UUID apiKey = UUID.fromString(authRequest.getCredentials().toString());
+				final PersistentId userId = new PersistentId(authRequest.getPrincipal().toString());
+				final UUID apiKey = UUID.fromString(authRequest.getCredentials().toString());
 
-            final Optional<FURMSUser> user = userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey);
-            if (user.isEmpty()) {
-                chain.doFilter(request, response);
-                return;
-            }
+				final Optional<FURMSUser> user = userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey);
+				if (user.isEmpty()) {
+					chain.doFilter(request, response);
+					return;
+				}
 
-            final FURMSUser userWithRoles = new FURMSUser(user.get(), roleLoader.loadUserRoles(userId));
-            final Authentication authResult = new UsernamePasswordAuthenticationToken(
-                    new RestApiUser(userId.id, apiKey.toString(), userWithRoles),
-                    null, Set.of());
+				final FURMSUser userWithRoles = new FURMSUser(user.get(), roleLoader.loadUserRoles(userId));
+				final Authentication authResult = new UsernamePasswordAuthenticationToken(
+						new RestApiUser(userId.id, apiKey.toString(), userWithRoles),
+						null, Set.of());
 
-            SecurityContextHolder.getContext().setAuthentication(authResult);
-            this.onSuccessfulAuthentication(request, response, authResult);
+				SecurityContextHolder.getContext().setAuthentication(authResult);
+				this.onSuccessfulAuthentication(request, response, authResult);
 
-            chain.doFilter(request, response);
-        } else {
-            super.doFilterInternal(request, response, chain);
-        }
-    }
+				chain.doFilter(request, response);
+			} else {
+				super.doFilterInternal(request, response, chain);
+			}
+		} catch (Exception e) {
+			super.doFilterInternal(request, response, chain);
+		}
+	}
 }

@@ -58,19 +58,17 @@ class UserServiceImpl implements UserService {
 	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
-	private final UserApiKeyRepository userApiKeyRepository;
 
 
 	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
 						   SSHKeyRepository sshKeyRepository, SiteRepository siteRepository,
-						   InstalledSSHKeyRepository installedSSHKeyRepository, UserApiKeyRepository userApiKeyRepository) {
+						   InstalledSSHKeyRepository installedSSHKeyRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
 		this.sshKeyRepository = sshKeyRepository;
 		this.siteRepository = siteRepository;
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
-		this.userApiKeyRepository = userApiKeyRepository;
 	}
 
 	@Override
@@ -109,7 +107,6 @@ class UserServiceImpl implements UserService {
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
-		userApiKeyRepository.delete(userId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId((String) null, APP_LEVEL)));
 	}
 

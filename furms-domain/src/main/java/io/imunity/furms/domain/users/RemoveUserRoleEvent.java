@@ -39,7 +39,7 @@ public class RemoveUserRoleEvent implements UserEvent{
 
 	@Override
 	public String toString() {
-		return "RemoveFromGroupUserEvent{" +
+		return "RemoveUserRoleEvent{" +
 			"id='" + id + '\'' +
 			", resourceId=" + resourceId +
 			'}';

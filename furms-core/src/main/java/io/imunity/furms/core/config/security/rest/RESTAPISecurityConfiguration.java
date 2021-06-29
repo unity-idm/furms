@@ -36,7 +36,7 @@ import static io.imunity.furms.core.config.security.rest.RestApiSecurityConfigur
 @Configuration
 @Order(REST_API_ORDER)
 class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(RESTAPISecurityConfiguration.class);
 	private final SecurityProperties configuration;
 	private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -56,42 +56,41 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.antMatcher("/rest-api/**")
-			.addFilterAfter(new UserContextSetterFilter(), BasicAuthenticationFilter.class)
-			.addFilterAt(
-					new RestApiBasicAuthenticationFilter(super.authenticationManagerBean(), userApiKeyService, roleLoader),
-					BasicAuthenticationFilter.class)
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.csrf().disable()
-			.authorizeRequests().anyRequest().authenticated().and()
-			.httpBasic();
+				.antMatcher("/rest-api/**")
+				.addFilterAfter(new UserContextSetterFilter(), BasicAuthenticationFilter.class)
+				.addFilterAt(
+						new RestApiBasicAuthenticationFilter(super.authenticationManagerBean(), userApiKeyService, roleLoader),
+						BasicAuthenticationFilter.class)
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.csrf().disable()
+				.authorizeRequests().anyRequest().authenticated().and()
+				.httpBasic();
 	}
 
 	@Bean
 	public UserDetailsService presharedKeyUsers() throws Exception {
-		
+
 		List<PresetUser> users = new ArrayList<>();
 		if (hasCentralIdPUserDefined())
 			users.add(createCentralIdPUser());
 		return new PresetUsersProvider(users);
 	}
-	
+
 	private boolean hasCentralIdPUserDefined() {
-		if (configuration.getCentralIdPUsername().isEmpty() || configuration.getCentralIdPSecret().isEmpty())
-		{
+		if (configuration.getCentralIdPUsername().isEmpty() || configuration.getCentralIdPSecret().isEmpty()) {
 			LOG.warn("Central IdP access credentials are not configured. CIdP REST endpoint won't be accessible.");
 			return false;
 		}
 		return true;
 	}
-	
+
 	private PresetUser createCentralIdPUser() {
-		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId((String)null, ResourceType.APP_LEVEL), 
+		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId((String) null, ResourceType.APP_LEVEL),
 				Set.of(Role.CENTRAL_IDP));
-		
-		return new PresetUser(configuration.getCentralIdPUsername().get(), 
-				encoder.encode(configuration.getCentralIdPSecret().get()), 
-				Collections.emptySet(), 
+
+		return new PresetUser(configuration.getCentralIdPUsername().get(),
+				encoder.encode(configuration.getCentralIdPSecret().get()),
+				Collections.emptySet(),
 				rolesMap);
 	}
 }

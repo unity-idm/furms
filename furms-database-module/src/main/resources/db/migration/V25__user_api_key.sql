@@ -4,8 +4,8 @@
  */
 
 CREATE TABLE user_api_key (
-    id UUID PRIMARY KEY NOT NULL,
-    api_key UUID NOT NULL,
-    user_id VARCHAR(255) NOT NULL,
+    id      BIGSERIAL PRIMARY KEY NOT NULL,
+    api_key UUID                  NOT NULL,
+    user_id VARCHAR(255)          NOT NULL,
     CONSTRAINT user_api_key_id_unique UNIQUE (api_key, user_id)
 );
