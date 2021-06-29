@@ -15,6 +15,7 @@ import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsVie
 import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsView;
 import io.imunity.furms.ui.views.project.resource_access.ResourceAccessView;
 import io.imunity.furms.ui.views.project.settings.SettingsView;
+import io.imunity.furms.ui.views.project.sites.SitesView;
 import io.imunity.furms.ui.views.project.users.UsersView;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationO
 		furmsLayout = new FurmsLayout(
 			List.of(
 				MenuComponent.builder(UsersView.class).build(),
+				MenuComponent.builder(SitesView.class).build(),
 				MenuComponent.builder(ResourceAccessView.class).build(),
 				MenuComponent.builder(ResourceAllocationsView.class).build(),
 				MenuComponent.builder(AlarmsView.class).build(),

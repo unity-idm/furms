@@ -23,15 +23,23 @@ public interface ProjectOperationRepository {
 
 	String create(ProjectInstallationJob projectInstallationJob);
 
-	String create(ProjectUpdateJob projectUpdateJob);
+	String createOrUpdate(ProjectUpdateJob projectUpdateJob);
 
-	String update(String id, ProjectInstallationStatus status, String gid);
+	String update(String id, ProjectInstallationResult result);
 
-	String update(String id, ProjectUpdateStatus status);
+	String update(String id, ProjectUpdateResult result);
 
 	boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId);
 
 	boolean areAllProjectOperationInTerminateState(String projectId);
+
+	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);
+
+	Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(String communityId);
+
+	Set<ProjectInstallationJobStatus> findAllByProjectId(String projectId);
+
+	Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(String projectId);
 
 	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
 
