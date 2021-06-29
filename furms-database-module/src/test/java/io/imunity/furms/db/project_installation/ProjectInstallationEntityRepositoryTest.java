@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
@@ -44,6 +45,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 
 	private UUID siteId;
 	private UUID siteId2;
+
+	private UUID communityId;
 
 	private UUID projectId;
 	private UUID projectId2;
@@ -67,7 +70,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		communityId = UUID.fromString(communityRepository.create(community));
 		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
 
 		Project project = Project.builder()
@@ -118,6 +121,73 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().status).isEqualTo(PENDING.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 		assertThat(byId.get().gid).isEqualTo("gid");
+	}
+
+
+	@Test
+	void shouldFindProjectInstallationJobByCommunityId() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(PENDING)
+			.gid("gid")
+			.build();
+		ProjectInstallationJobEntity secondEntityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(UUID.randomUUID())
+			.siteId(siteId)
+			.projectId(projectId2)
+			.status(PENDING)
+			.gid("gid")
+			.build();
+
+		//when
+		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
+		entityRepository.save(secondEntityToSave);
+
+		//then
+		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByCommunityId(communityId);
+		assertThat(entities).hasSize(1);
+		ProjectInstallationJobStatusEntity entity = entities.iterator().next();
+		assertThat(entity.projectId).isEqualTo(projectId);
+		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
+		assertThat(entity.siteId).isEqualTo(siteId);
+		assertThat(entity.siteName).isEqualTo("name");
+	}
+
+	@Test
+	void shouldFindProjectInstallationJobByProjectId() {
+		//given
+		UUID correlationId = UUID.randomUUID();
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(PENDING)
+			.gid("gid")
+			.build();
+		ProjectInstallationJobEntity secondEntityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(UUID.randomUUID())
+			.siteId(siteId)
+			.projectId(projectId2)
+			.status(PENDING)
+			.gid("gid")
+			.build();
+
+		//when
+		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
+		entityRepository.save(secondEntityToSave);
+
+		//then
+		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByProjectId(projectId);
+		assertThat(entities).hasSize(1);
+		ProjectInstallationJobStatusEntity entity = entities.iterator().next();
+		assertThat(entity.projectId).isEqualTo(projectId);
+		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
+		assertThat(entity.siteId).isEqualTo(siteId);
+		assertThat(entity.siteName).isEqualTo("name");
 	}
 
 	@Test

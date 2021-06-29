@@ -117,7 +117,7 @@ class ProjectInstallationServiceTest {
 		}
 
 		//then
-		orderVerifier.verify(repository).create(any(ProjectUpdateJob.class));
+		orderVerifier.verify(repository).createOrUpdate(any(ProjectUpdateJob.class));
 
 		orderVerifier.verify(siteAgentProjectOperationService).updateProject(any(), any(), any(), any());
 	}

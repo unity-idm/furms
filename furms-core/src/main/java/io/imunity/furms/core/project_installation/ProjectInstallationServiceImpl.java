@@ -5,18 +5,6 @@
 
 package io.imunity.furms.core.project_installation;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
@@ -32,6 +20,17 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 
 @Service
 class ProjectInstallationServiceImpl implements ProjectInstallationService {
@@ -137,7 +136,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 				.projectId(project.getId())
 				.status(ProjectUpdateStatus.PENDING)
 				.build();
-			projectOperationRepository.create(projectUpdateJob);
+			projectOperationRepository.createOrUpdate(projectUpdateJob);
 			runAfterCommit(() -> siteAgentProjectOperationService.updateProject(
 				projectUpdateJob.correlationId,
 				siteId.externalId,
