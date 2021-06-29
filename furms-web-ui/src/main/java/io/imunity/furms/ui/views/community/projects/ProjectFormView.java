@@ -55,7 +55,7 @@ class ProjectFormView extends FurmsViewComponent {
 		this.projectService = projectService;
 		this.resolver = resolver;
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
-		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
+		this.projectFormComponent = new ProjectFormComponent(binder, false, users);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();

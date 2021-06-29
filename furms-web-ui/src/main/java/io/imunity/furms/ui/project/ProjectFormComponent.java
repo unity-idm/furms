@@ -52,7 +52,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
-		nameField.setEnabled(restrictedEditing);
+		nameField.setReadOnly(restrictedEditing);
 		FormLayout formLayout = new FurmsFormLayout();
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
@@ -64,23 +64,24 @@ public class ProjectFormComponent extends Composite<Div> {
 		TextField acronymField = new TextField();
 		acronymField.setValueChangeMode(EAGER);
 		acronymField.setMaxLength(MAX_ACRONYM_LENGTH);
-		acronymField.setEnabled(restrictedEditing);
+		acronymField.setReadOnly(restrictedEditing);
 		formLayout.addFormItem(acronymField, getTranslation("view.community-admin.project.form.field.acronym"));
 
 		startDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
+		startDateTimePicker.setReadOnly(restrictedEditing);
 		formLayout.addFormItem(startDateTimePicker, getTranslation("view.community-admin.project.form.field.start-time"));
 
 		endDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
+		endDateTimePicker.setReadOnly(restrictedEditing);
 		formLayout.addFormItem(endDateTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
 		TextField researchField = new TextField();
 		researchField.setValueChangeMode(EAGER);
 		researchField.setMaxLength(MAX_NAME_LENGTH);
-		researchField.setEnabled(restrictedEditing);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
-		furmsUserComboBox.setEnabled(restrictedEditing);
+		furmsUserComboBox.setReadOnly(restrictedEditing);
 		furmsUserComboBox.setClassName("furms-leader-combo-box");
 		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));
 
@@ -92,10 +93,10 @@ public class ProjectFormComponent extends Composite<Div> {
 		getContent().add(formLayout);
 	}
 
-	public void disableAll(){
-		descriptionField.setEnabled(false);
-		startDateTimePicker.setEnabled(false);
-		endDateTimePicker.setEnabled(false);
+	public void readOnlyAll(){
+		descriptionField.setReadOnly(true);
+		startDateTimePicker.setReadOnly(true);
+		endDateTimePicker.setReadOnly(true);
 	}
 
 	private void prepareValidator(TextField nameField, TextArea descriptionField, TextField acronymField,

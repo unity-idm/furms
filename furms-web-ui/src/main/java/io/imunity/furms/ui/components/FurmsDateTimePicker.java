@@ -52,10 +52,10 @@ public class FurmsDateTimePicker
 		this.defaultTimeProvider = defaultTimeValueProvider;
 
 		this.datePicker = new DatePicker();
-		this.datePicker.setEnabled(true);
+		this.datePicker.setReadOnly(false);
 		this.datePicker.addValueChangeListener(event -> setValueAndFireEventChange());
 		this.timePicker = new TimePicker();
-		this.timePicker.setEnabled(true);
+		this.timePicker.setReadOnly(false);
 		this.timePicker.setVisible(false);
 		this.timePicker.setLocale(CLOCK_24_FORMAT_LOCALE);
 		this.timePicker.addValueChangeListener(event -> setValueAndFireEventChange());
@@ -135,6 +135,7 @@ public class FurmsDateTimePicker
 	public void setReadOnly(boolean readOnly) {
 		this.datePicker.setReadOnly(readOnly);
 		this.timePicker.setReadOnly(readOnly);
+		this.enableTimeButton.setEnabled(!readOnly);
 	}
 
 	@Override
