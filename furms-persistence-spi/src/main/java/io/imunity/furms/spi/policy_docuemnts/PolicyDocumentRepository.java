@@ -19,8 +19,7 @@ public interface PolicyDocumentRepository {
 
 	PolicyId create(PolicyDocument projectAllocation);
 
-	PolicyId update(PolicyDocument projectAllocation);
-
+	PolicyId update(PolicyDocument projectAllocation, boolean revision);
 
 	boolean isNamePresent(String communityId, String name);
 

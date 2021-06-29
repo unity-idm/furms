@@ -43,7 +43,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 	PolicyDocument toPolicyDocument(){
 		return PolicyDocument.builder()
 			.id(new PolicyId(id))
-			.siteId(siteId)
+			.siteId(siteId.toString())
 			.name(name)
 			.workflow(PolicyWorkflow.valueOf(workflow))
 			.revision(revision)

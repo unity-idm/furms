@@ -55,11 +55,11 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public PolicyId update(PolicyDocument policyDocument) {
+	public PolicyId update(PolicyDocument policyDocument, boolean revision) {
 		return repository.findById(policyDocument.id.id)
 			.map(old -> PolicyDocumentEntity.builder()
 				.name(policyDocument.name)
-				.revision(old.revision + 1)
+				.revision(revision ? old.revision + 1 : old.revision)
 				.wysiwygText(policyDocument.wysiwygText)
 				.file(policyDocument.policyFile.getFile())
 				.fileType(policyDocument.policyFile.getType())

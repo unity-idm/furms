@@ -43,7 +43,7 @@ import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.views.site.PolicyDocumentsView;
+import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 @Route(value = "site/admin/settings", layout = SiteAdminMenu.class)

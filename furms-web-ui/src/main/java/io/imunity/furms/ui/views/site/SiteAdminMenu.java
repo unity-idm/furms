@@ -11,6 +11,7 @@ import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
+import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.resource_credits.ResourceCreditsView;
 import io.imunity.furms.ui.views.site.resource_types.ResourceTypesView;
 import io.imunity.furms.ui.views.site.services.InfraServicesView;
