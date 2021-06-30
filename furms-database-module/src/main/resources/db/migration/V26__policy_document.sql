@@ -14,8 +14,8 @@ CREATE TABLE policy_document (
     file BYTEA,
     file_type VARCHAR(255),
     CONSTRAINT policy_document_consistency CHECK (
-        (workflow = 0 AND wysiwyg_text IS NOT NULL AND file IS NULL AND file_type IS NULL) OR
-        (workflow = 1 AND wysiwyg_text IS NULL AND file IS NOT NULL AND file_type IS NOT NULL)
+        (content_type = 0 AND wysiwyg_text IS NOT NULL AND file IS NULL AND file_type IS NULL) OR
+        (content_type = 1 AND wysiwyg_text IS NULL AND file IS NOT NULL AND file_type IS NOT NULL)
     ),
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE
 );

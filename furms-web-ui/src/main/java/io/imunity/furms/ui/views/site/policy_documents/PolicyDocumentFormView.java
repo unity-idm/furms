@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -18,23 +19,23 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyFile;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.PolicyFileUpload;
-import io.imunity.furms.ui.views.fenix.communites.CommunitiesView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 import org.vaadin.pekka.WysiwygE;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -51,6 +52,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
 
 	private final Binder<PolicyDocumentFormModel> binder = new BeanValidationBinder<>(PolicyDocumentFormModel.class);
+	private final Label revision = new Label();
 
 	private BreadCrumbParameter breadCrumbParameter;
 
@@ -61,69 +63,115 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
-//		nameField.setEnabled(restrictedEditing);
-		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
+		formLayout.addFormItem(nameField, getTranslation("view.site-admin.policy-documents.form.layout.name"));
 
-		ComboBox<PolicyDocumentFormModel> workflowComboBox = new ComboBox<>();
-		workflowComboBox.setItemLabelGenerator(resourceType -> resourceType.workflow.name());
-		formLayout.addFormItem(workflowComboBox, getTranslation("view.community-admin.project-allocation.form.field.resource_type"));
+		ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
+		workflowComboBox.setItems(Arrays.stream(PolicyWorkflow.values()));
+		workflowComboBox.setItemLabelGenerator(workflow -> getTranslation("view.site-admin.policy-documents.form.layout.workflow." + workflow.getPersistentId()));
+		formLayout.addFormItem(workflowComboBox, getTranslation("view.site-admin.policy-documents.form.layout.workflow"));
 
-		Label revision = new Label("revision");
-		formLayout.addFormItem(revision, getTranslation("view.community-admin.project.form.field.name"));
+		formLayout.addFormItem(revision, getTranslation("view.site-admin.policy-documents.form.layout.revision"));
 
-		ComboBox<PolicyDocumentFormModel> contentTypeComboBox = new ComboBox<>();
-		contentTypeComboBox.setItemLabelGenerator(resourceType -> resourceType.contentType.name());
-		formLayout.addFormItem(contentTypeComboBox, getTranslation("view.community-admin.project-allocation.form.field.resource_type"));
+		ComboBox<PolicyContentType> contentTypeComboBox = new ComboBox<>();
+		contentTypeComboBox.setItems(Arrays.stream(PolicyContentType.values()));
+		contentTypeComboBox.setItemLabelGenerator(contentType -> getTranslation("view.site-admin.policy-documents.form.layout.content-type." + contentType.getPersistentId()));
+		formLayout.addFormItem(contentTypeComboBox, getTranslation("view.site-admin.policy-documents.form.layout.content-type"));
 
 		WysiwygE wysiwygE = new WysiwygE();
-		wysiwygE.addValueChangeListener(x -> System.out.println(x.getValue()));
 
-		PolicyFileUpload uploadComponent = createUploadComponent();
+		PolicyFileUpload uploadComponent = new PolicyFileUpload();
+
+		FormLayout.FormItem formItem = formLayout.addFormItem(new Div(), "");
 
 		contentTypeComboBox.addValueChangeListener(event -> {
-			if(event.getValue().contentType.equals(PolicyContentType.PDF)){
-				formLayout.remove(wysiwygE);
-				formLayout.addFormItem(uploadComponent, getTranslation("view.community-admin.project.form.logo"));
+			if(event.getValue().equals(PolicyContentType.PDF)){
+				formItem.removeAll();
+				wysiwygE.clear();
+				formItem.add(getTranslation("view.site-admin.policy-documents.form.layout.upload"));
+				formItem.add(uploadComponent);
 			}
-			if(event.getValue().contentType.equals(PolicyContentType.EMBEDDED)){
-				formLayout.remove(uploadComponent);
-				formLayout.addFormItem(wysiwygE, getTranslation("view.community-admin.project-allocation.form.field.resource_type"));
+			if(event.getValue().equals(PolicyContentType.EMBEDDED)){
+				formItem.removeAll();
+				uploadComponent.clear();
+				formItem.add(getTranslation("view.site-admin.policy-documents.form.layout.wyswige"));
+				formItem.add(wysiwygE);
 			}
 		});
 
-		FormButtons buttons = new FormButtons(createCloseButton(), createSaveButton(), createSaveWithRevisionButton());
+		prepareValidator(nameField, workflowComboBox, contentTypeComboBox, wysiwygE, uploadComponent);
 
+		getContent().add(formLayout);
+	}
 
-		getContent().add(formLayout, buttons);
+	private void addCreateButtons() {
+		FormButtons buttons = new FormButtons(
+			createCloseButton(),
+			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), false)
+		);
+		getContent().add(buttons);
+	}
+
+	private void addUpdateButtons() {
+		FormButtons buttons = new FormButtons(
+			createCloseButton(),
+			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), false),
+			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save-with-revision"), true)
+		);
+		getContent().add(buttons);
+	}
+
+	private void prepareValidator(TextField nameField,
+	                              ComboBox<PolicyWorkflow> workflowComboBox,
+	                              ComboBox<PolicyContentType> contentTypeComboBox,
+	                              WysiwygE wysiwygE, PolicyFileUpload uploadComponent) {
+		binder.forField(nameField)
+			.withValidator(
+				value -> Objects.nonNull(value) && !value.isBlank(),
+				getTranslation("view.site-admin.policy-documents.form.error.validation.name")
+			)
+			.bind(model -> model.name, (model, name) -> model.name = name);
+		binder.forField(workflowComboBox)
+			.withValidator(
+				Objects::nonNull,
+				getTranslation("view.site-admin.policy-documents.form.error.validation.workflow")
+			)
+			.bind(model -> model.workflow, (model, workflow) -> model.workflow = workflow);
+		binder.forField(contentTypeComboBox)
+			.withValidator(
+				Objects::nonNull,
+				getTranslation("view.site-admin.policy-documents.form.error.validation.content-type")
+			)
+			.bind(model -> model.contentType, (model, contentType) -> model.contentType = contentType);
+		binder.forField(wysiwygE)
+			.withValidator(
+				obj -> Objects.nonNull(obj) || !uploadComponent.isEmpty(),
+				getTranslation("view.site-admin.policy-documents.form.error.validation.text")
+			)
+			.bind(model -> model.wysiwygText, (model, wysiwygText) -> model.wysiwygText = wysiwygText);
+		binder.forField(uploadComponent)
+			.withValidator(
+				obj -> Objects.nonNull(obj) || !wysiwygE.isEmpty(),
+				getTranslation("view.site-admin.policy-documents.form.error.validation.file")
+			)
+			.bind(model -> model.policyFile, (model, policyFile) -> model.policyFile = policyFile != null ? policyFile : PolicyFile.empty());
 	}
 
 	private Button createCloseButton() {
 		Button closeButton = new Button(getTranslation("view.fenix-admin.community.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickShortcut(Key.ESCAPE);
-		closeButton.addClickListener(x -> UI.getCurrent().navigate(CommunitiesView.class));
+		closeButton.addClickListener(x -> UI.getCurrent().navigate(PolicyDocumentsView.class));
 		return closeButton;
 	}
 
-	private Button createSaveButton() {
-		Button saveButton = new Button(getTranslation("view.fenix-admin.community.form.button.save"));
+	private Button createSaveButton(String text, boolean withRevision) {
+		Button saveButton = new Button(text);
+		saveButton.getStyle().set("margin-right", "0.5em");
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
 			binder.validate();
 			if(binder.isValid()) {
-				savePolicyDocument(false);
-			}
-		});
-		return saveButton;
-	}
-
-	private Button createSaveWithRevisionButton() {
-		Button saveButton = new Button(getTranslation("view.fenix-admin.community.form.button.save"));
-		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		saveButton.addClickListener(x -> {
-			binder.validate();
-			if(binder.isValid()) {
-				savePolicyDocument(true);
+				savePolicyDocument(withRevision);
 			}
 		});
 		return saveButton;
@@ -142,30 +190,8 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			UI.getCurrent().navigate(PolicyDocumentsView.class);
 		} catch (Exception e) {
 			showErrorNotification(getTranslation("base.error.message"));
+			throw e;
 		}
-	}
-
-	private PolicyFileUpload createUploadComponent() {
-		PolicyFileUpload upload = new PolicyFileUpload();
-		upload.addFinishedListener(event -> {
-			try {
-				binder.getBean().policyFile = upload.loadFile(event.getMIMEType());
-				StreamResource streamResource =
-					new StreamResource(event.getFileName(), upload.getMemoryBuffer()::getInputStream);
-//				upload.getImage().setSrc(streamResource);
-//				upload.getImage().setVisible(true);
-			} catch (IOException e) {
-				showErrorNotification(getTranslation("view.community-admin.project.form.error.validation.file"));
-			}
-		});
-		upload.addFileRejectedListener(event ->
-			showErrorNotification(getTranslation("view.community-admin.project.form.error.validation.file"))
-		);
-		upload.addFileRemovedListener(event -> {
-			binder.getBean().policyFile = PolicyFile.empty();
-//			upload.getImage().setVisible(false);
-		});
-		return upload;
 	}
 
 	@Override
@@ -181,6 +207,11 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			: "view.site-admin.policy-documents.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
 		binder.setBean(policyDocumentFormModel);
+		revision.setText(String.valueOf(policyDocumentFormModel.revision + 1));
+		if(policyDocumentFormModel.id == null)
+			addCreateButtons();
+		else
+			addUpdateButtons();
 	}
 
 	@Override

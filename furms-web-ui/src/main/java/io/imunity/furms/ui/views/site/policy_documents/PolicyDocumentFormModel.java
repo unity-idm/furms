@@ -20,7 +20,7 @@ class PolicyDocumentFormModel {
 	public int revision;
 	public PolicyContentType contentType;
 	public String wysiwygText;
-	public PolicyFile policyFile;
+	public PolicyFile policyFile = PolicyFile.empty();
 
 	PolicyDocumentFormModel(PolicyId id,
 	                               String siteId,
@@ -83,7 +83,7 @@ class PolicyDocumentFormModel {
 		private int revision;
 		private PolicyContentType contentType;
 		private String wysiwygText;
-		private PolicyFile policyFile;
+		private PolicyFile policyFile = PolicyFile.empty();
 
 		private PolicyDocumentFormModelBuilder() {
 		}

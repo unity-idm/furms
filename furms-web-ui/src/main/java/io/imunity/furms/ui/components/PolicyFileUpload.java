@@ -9,26 +9,34 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.FileRejectedEvent;
 import com.vaadin.flow.component.upload.FinishedEvent;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.dom.DomEventListener;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import io.imunity.furms.domain.policy_documents.PolicyFile;
+import org.apache.commons.lang3.ArrayUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-@CssImport("./styles/components/furms-image-upload.css")
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+
 public class PolicyFileUpload extends HorizontalLayout
 		implements HasValue<PolicyFileUpload, PolicyFile>, HasValue.ValueChangeEvent<PolicyFile> {
 
 	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
-	private final static String[] ACCEPTED_IMG_FILES = {"image/jpeg", "image/png", "image/gif"};
+	private final static String[] ACCEPTED_FILE_TYPES = {"application/pdf"};
 
+	private final Anchor downloadIcon;
 	private final Upload upload;
 
 	private boolean readOnly;
@@ -41,16 +49,31 @@ public class PolicyFileUpload extends HorizontalLayout
 		readOnly = false;
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);
-		upload.setAcceptedFileTypes(ACCEPTED_IMG_FILES);
+		upload.setAcceptedFileTypes(ACCEPTED_FILE_TYPES);
 		upload.setMaxFileSize(MAX_IMAGE_SIZE_BYTES);
 		upload.setDropAllowed(true);
 		upload.setVisible(!readOnly);
 
-//		addFinishedListener(event -> setValueAndFireEventChange(
-//				new FurmsImage(image.getSrc().getBytes(), createMimeType(event.getMIMEType()))));
-//		addFileRemovedListener(event -> setValueAndFireEventChange(null));
+		downloadIcon = new Anchor();
+		downloadIcon.getElement().setAttribute("download", true);
+		Button button = new Button(new Icon(VaadinIcon.FILE_TEXT));
+		button.setSizeFull();
+		downloadIcon.add(button);
 
-		add(upload);
+		addFinishedListener(event -> {
+			try {
+				setValue(
+						new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(event.getMIMEType()))
+				);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		addFileRemovedListener(event -> setValue(null));
+		addFileRejectedListener(event ->
+			showErrorNotification(getTranslation("file.invalidate.message"))
+		);
+		add(downloadIcon, upload);
 	}
 
 	public void cleanCurrentFileName() {
@@ -68,10 +91,6 @@ public class PolicyFileUpload extends HorizontalLayout
 	public void addFileRemovedListener(DomEventListener fileRemovedListener) {
 		upload.getElement().addEventListener("file-remove", fileRemovedListener);
 	}
-
-//	public Image getImage() {
-//		return image;
-//	}
 
 	public Upload getUpload() {
 		return upload;
@@ -127,10 +146,13 @@ public class PolicyFileUpload extends HorizontalLayout
 		this.oldValue = this.value;
 		this.value = value;
 
-//		if (this.value != null) {
-//			this.image.setSrc(new StreamResource("", () -> new ByteArrayInputStream(this.value.getImage())));
-//			this.image.setVisible(!ArrayUtils.isEmpty(value.getImage()));
-//		}
+		if (this.value != null) {
+			downloadIcon.setHref(new StreamResource("policy.pdf", () -> new ByteArrayInputStream(this.value.getFile())));
+			downloadIcon.setVisible(!ArrayUtils.isEmpty(value.getFile()));
+		}
+		else
+			downloadIcon.setVisible(false);
+		ComponentUtil.fireEvent(this, new AbstractField.ComponentValueChangeEvent<>(this, this, value, false));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -142,12 +164,6 @@ public class PolicyFileUpload extends HorizontalLayout
 
 	public PolicyFile loadFile(String mimeType) throws IOException {
 		return new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(mimeType));
-	}
-
-	private void setValueAndFireEventChange(PolicyFile newImage) {
-		PolicyFile oldValueBuffered = value;
-		setValue(newImage);
-		ComponentUtil.fireEvent(this, new AbstractField.ComponentValueChangeEvent<>(this, this, oldValueBuffered, false));
 	}
 
 	private String createMimeType(String mimeType) {

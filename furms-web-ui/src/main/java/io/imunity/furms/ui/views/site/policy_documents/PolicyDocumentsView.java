@@ -63,11 +63,11 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	}
 
 	private HorizontalLayout createHeaderLayout(Button addButton) {
-		return new ViewHeaderLayout(getTranslation("view.community-admin.projects.header"), addButton);
+		return new ViewHeaderLayout(getTranslation("view.site-admin.policy-documents.page.header"), addButton);
 	}
 
 	private Button createAddButton() {
-		Button addButton = new Button(getTranslation("view.community-admin.projects.button.add"), PLUS_CIRCLE.create());
+		Button addButton = new Button(getTranslation("view.site-admin.policy-documents.button.add"), PLUS_CIRCLE.create());
 		addButton.addClickListener(x -> UI.getCurrent().navigate(PolicyDocumentFormView.class));
 		return addButton;
 	}
@@ -90,14 +90,14 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 		Grid<PolicyDocumentGridModel> grid = new SparseGrid<>(PolicyDocumentGridModel.class);
 
 		grid.addComponentColumn(model -> new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString()))
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
+			.setHeader(getTranslation("view.site-admin.policy-documents.grid.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
 		grid.addColumn(model -> model.workflow.name())
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))
+			.setHeader(getTranslation("view.site-admin.policy-documents.grid.2"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
+			.setHeader(getTranslation("view.site-admin.policy-documents.grid.3"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -115,14 +115,14 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
-			getTranslation("view.community-admin.projects.menu.edit"), EDIT),
+			getTranslation("view.site-admin.policy-documents.menu.edit"), EDIT),
 			event -> UI.getCurrent().navigate(PolicyDocumentFormView.class, policyDocumentId.id.toString())
 		);
 
 		Dialog confirmDialog = createConfirmDialog(policyDocumentId, policyDocumentName, siteId);
 
 		contextMenu.addItem(new MenuButton(
-			getTranslation("view.community-admin.projects.menu.delete"), TRASH),
+			getTranslation("view.site-admin.policy-documents.menu.delete"), TRASH),
 			event -> confirmDialog.open()
 		);
 
@@ -130,7 +130,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	}
 
 	private Dialog createConfirmDialog(PolicyId policyDocumentId, String policyDocumentName, String siteId) {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.projects.dialog.text", policyDocumentName));
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.policy-documents.dialog.text", policyDocumentName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			handleExceptions(() -> policyDocumentService.delete(siteId, policyDocumentId));
 			loadGridContent();
