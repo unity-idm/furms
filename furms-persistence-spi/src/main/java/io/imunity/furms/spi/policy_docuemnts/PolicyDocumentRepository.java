@@ -21,7 +21,7 @@ public interface PolicyDocumentRepository {
 
 	PolicyId update(PolicyDocument projectAllocation, boolean revision);
 
-	boolean isNamePresent(String communityId, String name);
+	boolean isNamePresent(String siteId, String name);
 
 	void deleteById(PolicyId id);
 

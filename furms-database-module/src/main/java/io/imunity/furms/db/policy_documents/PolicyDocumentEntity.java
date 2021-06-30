@@ -61,6 +61,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 		return workflow == that.workflow &&
 			revision == that.revision &&
 			contentType == that.contentType &&
+			Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(wysiwygText, that.wysiwygText) &&

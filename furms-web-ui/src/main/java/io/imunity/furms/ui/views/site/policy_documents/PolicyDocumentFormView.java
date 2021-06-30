@@ -53,6 +53,8 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 
 	private final Binder<PolicyDocumentFormModel> binder = new BeanValidationBinder<>(PolicyDocumentFormModel.class);
 	private final Label revision = new Label();
+	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
+	;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
@@ -65,7 +67,6 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.policy-documents.form.layout.name"));
 
-		ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
 		workflowComboBox.setItems(Arrays.stream(PolicyWorkflow.values()));
 		workflowComboBox.setItemLabelGenerator(workflow -> getTranslation("view.site-admin.policy-documents.form.layout.workflow." + workflow.getPersistentId()));
 		formLayout.addFormItem(workflowComboBox, getTranslation("view.site-admin.policy-documents.form.layout.workflow"));
@@ -210,8 +211,10 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		revision.setText(String.valueOf(policyDocumentFormModel.revision + 1));
 		if(policyDocumentFormModel.id == null)
 			addCreateButtons();
-		else
+		else {
 			addUpdateButtons();
+			workflowComboBox.setReadOnly(true);
+		}
 	}
 
 	@Override

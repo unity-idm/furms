@@ -24,6 +24,4 @@ public interface PolicyDocumentService {
 	void updateWithRevision(PolicyDocument policyDocument);
 
 	void delete(String siteId, PolicyId id);
-
-	boolean isNamePresent(String siteId, String name);
 }

@@ -61,7 +61,7 @@ public class PolicyDocument {
 		private int revision;
 		private PolicyContentType contentType;
 		private String wysiwygText;
-		private PolicyFile policyFile;
+		private PolicyFile policyFile = PolicyFile.empty();
 
 		private PolicyDocumentEntityBuilder() {
 		}
@@ -107,7 +107,10 @@ public class PolicyDocument {
 		}
 
 		public PolicyDocumentEntityBuilder file(byte[] file, String type) {
-			this.policyFile = new PolicyFile(file, type);
+			if(file == null && type == null)
+				this.policyFile = PolicyFile.empty();
+			else
+				this.policyFile = new PolicyFile(file, type);
 			return this;
 		}
 

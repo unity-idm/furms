@@ -33,7 +33,7 @@ public class PolicyFile {
 	}
 
 	public static PolicyFile empty() {
-		return new PolicyFile(new byte[0], (String) null);
+		return new PolicyFile(new byte[0], null);
 	}
 
 	@Override
