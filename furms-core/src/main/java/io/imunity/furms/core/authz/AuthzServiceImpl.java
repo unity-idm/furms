@@ -17,10 +17,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.authz.roles.Capability.REST_API_KEY_MANAGEMENT;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -46,6 +48,20 @@ public class AuthzServiceImpl implements AuthzService {
 		return getCurrent().roles.entrySet().stream()
 			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
 			.anyMatch(entry -> entry.getValue().contains(role));
+	}
+
+	@Override
+	public boolean hasRESTAPITokensCreationRights() {
+		return hasRESTAPITokensCreationRights(getCurrentUserId());
+	}
+
+	@Override
+	public boolean hasRESTAPITokensCreationRights(PersistentId userId) {
+		return roleLoader.loadUserRoles(userId).values().stream()
+				.flatMap(Collection::stream)
+				.map(role -> role.capabilities)
+				.flatMap(Collection::stream)
+				.anyMatch(capability -> REST_API_KEY_MANAGEMENT == capability);
 	}
 
 	@EventListener

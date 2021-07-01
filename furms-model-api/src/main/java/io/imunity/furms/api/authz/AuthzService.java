@@ -19,4 +19,6 @@ public interface AuthzService {
 	Map<ResourceId, Set<Role>> getRoles();
 	PersistentId getCurrentUserId();
 	boolean isResourceMember(String resourceId, Role role);
+	boolean hasRESTAPITokensCreationRights();
+	boolean hasRESTAPITokensCreationRights(PersistentId userId);
 }

@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -60,8 +61,8 @@ class UserServiceImpl implements UserService {
 
 
 	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
-			SSHKeyRepository sshKeyRepository,  SiteRepository siteRepository, 
-			 InstalledSSHKeyRepository installedSSHKeyRepository) {
+						   SSHKeyRepository sshKeyRepository, SiteRepository siteRepository,
+						   InstalledSSHKeyRepository installedSSHKeyRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;

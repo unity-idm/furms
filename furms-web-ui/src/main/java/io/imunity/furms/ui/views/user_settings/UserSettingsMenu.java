@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.user_settings;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsSelectFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
@@ -16,25 +17,34 @@ import io.imunity.furms.ui.views.user_settings.sites.SitesView;
 import io.imunity.furms.ui.views.user_settings.ssh_keys.SSHKeysView;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class UserSettingsMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	UserSettingsMenu(FurmsSelectFactory furmsSelectFactory) {
+	UserSettingsMenu(FurmsSelectFactory furmsSelectFactory, AuthzService authzService) {
 		setPrimarySection(Section.DRAWER);
-		furmsLayout = new FurmsLayout(
-			List.of(
-				MenuComponent.builder(ProfileView.class).build(),
-				MenuComponent.builder(SitesView.class).build(),
-				MenuComponent.builder(ProjectsView.class).build(),
-				MenuComponent.builder(PolicyDocumentsView.class).build(),
-				MenuComponent.builder(SSHKeysView.class).build(),
-				MenuComponent.builder(APIKeyView.class).build()
-			),
-			furmsSelectFactory
-		);
-		addToNavbar(false, furmsLayout.createNavbar());
-		addToDrawer(furmsLayout.createDrawerContent());
+		final List<MenuComponent> menuComponents = Stream.of(
+					MenuComponent.builder(ProfileView.class).build(),
+					MenuComponent.builder(SitesView.class).build(),
+					MenuComponent.builder(ProjectsView.class).build(),
+					MenuComponent.builder(PolicyDocumentsView.class).build(),
+					MenuComponent.builder(SSHKeysView.class).build(),
+					createApiKeyManagementElement(authzService))
+				.filter(Objects::nonNull)
+				.collect(toList());
+		this.furmsLayout = new FurmsLayout(menuComponents, furmsSelectFactory);
+		addToNavbar(false, this.furmsLayout.createNavbar());
+		addToDrawer(this.furmsLayout.createDrawerContent());
+	}
+
+	private MenuComponent createApiKeyManagementElement(AuthzService authzService) {
+		return authzService.hasRESTAPITokensCreationRights()
+				? MenuComponent.builder(APIKeyView.class).build()
+				: null;
 	}
 
 	@Override

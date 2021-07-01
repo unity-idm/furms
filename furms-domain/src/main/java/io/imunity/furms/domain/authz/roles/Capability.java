@@ -6,8 +6,9 @@
 package io.imunity.furms.domain.authz.roles;
 
 public enum Capability {
-	USERS_MAINTENANCE, 
-	AUTHENTICATED, 
+	USERS_MAINTENANCE,
+	REST_API_KEY_MANAGEMENT,
+	AUTHENTICATED,
 	PROFILE, 
 	SITE_READ, 
 	SITE_WRITE, 

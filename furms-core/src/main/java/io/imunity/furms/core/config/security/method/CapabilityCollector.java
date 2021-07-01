@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.config.security.method;
 
-
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -74,6 +73,7 @@ class CapabilityCollector {
 		for(Role r : roles){
 			capabilities.addAll(r.additionalCapabilities);
 		}
+
 		return capabilities;
 	}
 }

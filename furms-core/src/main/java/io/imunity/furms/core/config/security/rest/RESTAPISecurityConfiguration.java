@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.imunity.furms.api.user.api.key.UserApiKeyService;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -29,54 +31,66 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
 
+import static io.imunity.furms.core.config.security.rest.RestApiSecurityConfigurationOrders.REST_API_ORDER;
+
 @Configuration
-@Order(1)
+@Order(REST_API_ORDER)
 class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(RESTAPISecurityConfiguration.class);
 	private final SecurityProperties configuration;
 	private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-	
-	RESTAPISecurityConfiguration(SecurityProperties configuration) {
+	private final UserApiKeyService userApiKeyService;
+	private final RoleLoader roleLoader;
+
+	RESTAPISecurityConfiguration(
+			SecurityProperties configuration,
+			UserApiKeyService userApiKeyService,
+			RoleLoader roleLoader
+	) {
 		this.configuration = configuration;
+		this.userApiKeyService = userApiKeyService;
+		this.roleLoader = roleLoader;
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.antMatcher("/rest-api/**")
-			.addFilterAfter(new UserContextSetterFilter(), BasicAuthenticationFilter.class)
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.csrf().disable()
-			.authorizeRequests().anyRequest().authenticated().and()
-			.httpBasic();
+				.antMatcher("/rest-api/**")
+				.addFilterAfter(new UserContextSetterFilter(), BasicAuthenticationFilter.class)
+				.addFilterAt(
+						new RestApiBasicAuthenticationFilter(super.authenticationManagerBean(), userApiKeyService, roleLoader),
+						BasicAuthenticationFilter.class)
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.csrf().disable()
+				.authorizeRequests().anyRequest().authenticated().and()
+				.httpBasic();
 	}
-	
-	@Bean                                                             
+
+	@Bean
 	public UserDetailsService presharedKeyUsers() throws Exception {
-		
+
 		List<PresetUser> users = new ArrayList<>();
 		if (hasCentralIdPUserDefined())
 			users.add(createCentralIdPUser());
 		return new PresetUsersProvider(users);
 	}
-	
+
 	private boolean hasCentralIdPUserDefined() {
-		if (configuration.getCentralIdPUsername().isEmpty() || configuration.getCentralIdPSecret().isEmpty())
-		{
+		if (configuration.getCentralIdPUsername().isEmpty() || configuration.getCentralIdPSecret().isEmpty()) {
 			LOG.warn("Central IdP access credentials are not configured. CIdP REST endpoint won't be accessible.");
 			return false;
 		}
 		return true;
 	}
-	
+
 	private PresetUser createCentralIdPUser() {
-		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId((String)null, ResourceType.APP_LEVEL), 
+		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId((String) null, ResourceType.APP_LEVEL),
 				Set.of(Role.CENTRAL_IDP));
-		
-		return new PresetUser(configuration.getCentralIdPUsername().get(), 
-				encoder.encode(configuration.getCentralIdPSecret().get()), 
-				Collections.emptySet(), 
+
+		return new PresetUser(configuration.getCentralIdPUsername().get(),
+				encoder.encode(configuration.getCentralIdPSecret().get()),
+				Collections.emptySet(),
 				rolesMap);
 	}
 }

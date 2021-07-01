@@ -68,7 +68,7 @@ public class ProjectAndUserRemoveListener {
 	@EventListener
 	@Transactional
 	public void onUserRoleRemove(RemoveUserProjectMembershipEvent removeUserRoleEvent) {
-		LOG.debug("RemoveUserRoleEvent received: {}", removeUserRoleEvent);
+		LOG.debug("RemoveUserProjectMembershipEvent received: {}", removeUserRoleEvent);
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(removeUserRoleEvent.id);
 		if (fenixUserId == null) {
 			LOG.error("Can not get user sites, user {} without fenix id", removeUserRoleEvent.id);
