@@ -153,7 +153,7 @@ class ProjectServiceImpl implements ProjectService {
 			.communityId(project.getCommunityId())
 			.name(project.getName())
 			.acronym(project.getAcronym())
-			.researchField(project.getResearchField())
+			.researchField(attributes.getResearchField())
 			.utcStartTime(project.getUtcStartTime())
 			.utcEndTime(project.getUtcEndTime())
 			.leaderId(project.getLeaderId())

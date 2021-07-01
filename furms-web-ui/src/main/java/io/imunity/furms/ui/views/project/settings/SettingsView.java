@@ -52,7 +52,7 @@ public class SettingsView extends FurmsViewComponent {
 		this.projectService = projectService;
 		this.resolver = resolver;
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
-		this.projectFormComponent = new ProjectFormComponent(binder, false, users);
+		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
 		zoneId = InvocationContext.getCurrent().getZone();
 
 		projectFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
@@ -64,7 +64,7 @@ public class SettingsView extends FurmsViewComponent {
 			disableEditorMode();
 		}
 		if(!projectService.isProjectInTerminalState(oldProject.id)){
-			projectFormComponent.disableAll();
+			projectFormComponent.readOnlyAll();
 		}
 
 		binder.addStatusChangeListener(status -> {
@@ -121,7 +121,11 @@ public class SettingsView extends FurmsViewComponent {
 			binder.validate();
 			if(binder.isValid()) {
 				ProjectViewModel projectViewModel = new ProjectViewModel(binder.getBean());
-				ProjectAdminControlledAttributes project = new ProjectAdminControlledAttributes(projectViewModel.id, projectViewModel.description, projectViewModel.logo);
+				ProjectAdminControlledAttributes project = new ProjectAdminControlledAttributes(
+						projectViewModel.id,
+						projectViewModel.description,
+						projectViewModel.researchField,
+						projectViewModel.logo);
 				getResultOrException(() -> projectService.update(project))
 					.getException()
 					.ifPresentOrElse(
@@ -130,7 +134,6 @@ public class SettingsView extends FurmsViewComponent {
 							oldProject = projectViewModel;
 							disableEditorMode();
 							showSuccessNotification(getTranslation("view.project-admin.settings.update.success"));
-							projectFormComponent.disableAll();
 						}
 					);
 			}
