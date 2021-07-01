@@ -12,11 +12,13 @@ import io.imunity.furms.domain.images.FurmsImage;
 public class ProjectAdminControlledAttributes {
 	private final String id;
 	private final String description;
+	private final String researchField;
 	private final FurmsImage logo;
 
-	public ProjectAdminControlledAttributes(String id, String description, FurmsImage logo) {
+	public ProjectAdminControlledAttributes(String id, String description, String researchField, FurmsImage logo) {
 		this.id = id;
 		this.description = description;
+		this.researchField = researchField;
 		this.logo = logo;
 	}
 
@@ -28,6 +30,10 @@ public class ProjectAdminControlledAttributes {
 		return description;
 	}
 
+	public String getResearchField() {
+		return researchField;
+	}
+
 	public FurmsImage getLogo() {
 		return logo;
 	}
@@ -37,22 +43,24 @@ public class ProjectAdminControlledAttributes {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectAdminControlledAttributes that = (ProjectAdminControlledAttributes) o;
-		return Objects.equals(id, that.id) &&
-			Objects.equals(description, that.description) &&
-			Objects.equals(logo, that.logo);
+		return Objects.equals(id, that.id)
+				&& Objects.equals(description, that.description)
+				&& Objects.equals(researchField, that.researchField)
+				&& Objects.equals(logo, that.logo);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, description, logo);
+		return Objects.hash(id, description, researchField, logo);
 	}
 
 	@Override
 	public String toString() {
-		return "AdminControlledProjectAttributes{" +
-			"id='" + id + '\'' +
-			", description='" + description + '\'' +
-			", logo=" + logo == null ? "no image" : logo.getType() +
-			'}';
+		return "ProjectAdminControlledAttributes{" +
+				"id='" + id + '\'' +
+				", description='" + description + '\'' +
+				", researchField='" + researchField + '\'' +
+				", logo=" + logo +
+				'}';
 	}
 }

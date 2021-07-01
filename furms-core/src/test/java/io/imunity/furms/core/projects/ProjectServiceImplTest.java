@@ -207,7 +207,8 @@ class ProjectServiceImplTest {
 			.utcEndTime(endTime)
 			.build();
 		FurmsImage empty = FurmsImage.empty();
-		ProjectAdminControlledAttributes request = new ProjectAdminControlledAttributes("id", "description_new", empty);
+		ProjectAdminControlledAttributes request = new ProjectAdminControlledAttributes(
+				"id", "description_new", "researchField_new", empty);
 		ProjectGroup groupRequest = ProjectGroup.builder()
 			.id("id")
 			.name("userFacingName")
@@ -227,7 +228,7 @@ class ProjectServiceImplTest {
 			.logo(empty)
 			.name("userFacingName")
 			.acronym("acronym")
-			.researchField("research field")
+			.researchField("researchField_new")
 			.utcStartTime(startTime)
 			.utcEndTime(endTime)
 			.build();
