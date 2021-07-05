@@ -7,7 +7,7 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
-import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsNotConsistException;
+import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsInconsistentException;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -50,7 +50,7 @@ class PolicyDocumentValidator {
 		assertSiteIdIsNotChanged(policyDocument, savedPolicyDocument.get());
 		assertWorkflowIsNotChanged(policyDocument, savedPolicyDocument.get());
 
-		assertNameIsPresent(policyDocument);
+		assertNameIsSameOrPresent(policyDocument, savedPolicyDocument.get());
 
 		notNull(policyDocument.contentType, "Content type cannot be null.");
 
@@ -58,18 +58,25 @@ class PolicyDocumentValidator {
 	}
 
 	private void assertPolicyDocumentIsConsist(PolicyDocument policyDocument) {
-		if(policyDocument.contentType.equals(PolicyContentType.PDF) && policyDocument.wysiwygText != null && !policyDocument.wysiwygText.isBlank())
-			throw new PolicyDocumentIsNotConsistException("PDF content type should not contains wyswige text");
-		if(policyDocument.contentType.equals(PolicyContentType.EMBEDDED) &&
-				(policyDocument.policyFile.getFile() != null && policyDocument.policyFile.getFile().length != 0) ||
-				(policyDocument.policyFile.getType() != null && !policyDocument.policyFile.getType().isBlank())
-		){
-			throw new PolicyDocumentIsNotConsistException("Embedded content type should not contains file");
+		if(policyDocument.contentType.equals(PolicyContentType.PDF) && policyDocument.htmlText != null && !policyDocument.htmlText.isBlank())
+			throw new PolicyDocumentIsInconsistentException("PDF content type should not contain wyswige text");
+		if(policyDocument.contentType.equals(PolicyContentType.EMBEDDED) && !policyDocument.policyFile.isEmpty()) {
+			throw new PolicyDocumentIsInconsistentException("Embedded content type should not contain file");
+		}
+		if(policyDocument.htmlText == null || policyDocument.htmlText.isBlank() && policyDocument.policyFile.isEmpty()) {
+			throw new PolicyDocumentIsInconsistentException("Html text and policy file are nulls");
 		}
 	}
 
 	private void assertNameIsPresent(PolicyDocument policyDocument) {
 		notNull(policyDocument.name, "Policy document object cannot be null.");
+		validateName(policyDocument.siteId, policyDocument.name);
+	}
+
+	private void assertNameIsSameOrPresent(PolicyDocument policyDocument, PolicyDocument savedPolicyDocument) {
+		notNull(policyDocument.name, "Policy document object cannot be null.");
+		if(policyDocument.name.equals(savedPolicyDocument.name))
+			return;
 		validateName(policyDocument.siteId, policyDocument.name);
 	}
 
@@ -96,6 +103,6 @@ class PolicyDocumentValidator {
 
 	private void validateName(String siteId, String name) {
 		notNull(name, "Site name has to be declared.");
-		assertTrue(!repository.isNamePresent(siteId, name), () -> new DuplicatedNameValidationError("Policy Document name has to be unique."));
+		assertTrue(repository.isNamePresent(siteId, name), () -> new DuplicatedNameValidationError("Policy Document name has to be unique."));
 	}
 }

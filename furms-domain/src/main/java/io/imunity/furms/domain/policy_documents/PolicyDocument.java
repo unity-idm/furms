@@ -15,17 +15,19 @@ public class PolicyDocument {
 	public final PolicyWorkflow workflow;
 	public final int revision;
 	public final PolicyContentType contentType;
-	public final String wysiwygText;
+	public final String htmlText;
 	public final PolicyFile policyFile;
 
-	PolicyDocument(PolicyId id, String siteId, String name, PolicyWorkflow workflow, int revision, PolicyContentType contentType, String wysiwygText, PolicyFile policyFile) {
+	PolicyDocument(PolicyId id, String siteId, String name, PolicyWorkflow workflow, int revision, PolicyContentType contentType, String htmlText, PolicyFile policyFile) {
+		if((htmlText != null && !htmlText.isBlank() && !policyFile.isEmpty()))
+			throw new IllegalArgumentException("Html text or policy file have to be empty");
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.workflow = workflow;
 		this.revision = revision;
 		this.contentType = contentType;
-		this.wysiwygText = wysiwygText;
+		this.htmlText = htmlText;
 		this.policyFile = policyFile;
 	}
 
@@ -40,13 +42,13 @@ public class PolicyDocument {
 			Objects.equals(name, that.name) &&
 			workflow == that.workflow &&
 			contentType == that.contentType &&
-			Objects.equals(wysiwygText, that.wysiwygText) &&
+			Objects.equals(htmlText, that.htmlText) &&
 			Objects.equals(policyFile, that.policyFile);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, name, workflow, revision, contentType, wysiwygText, policyFile);
+		return Objects.hash(id, siteId, name, workflow, revision, contentType, htmlText, policyFile);
 	}
 
 	public static PolicyDocumentEntityBuilder builder() {
@@ -60,7 +62,7 @@ public class PolicyDocument {
 		private PolicyWorkflow workflow;
 		private int revision;
 		private PolicyContentType contentType;
-		private String wysiwygText;
+		private String htmlText;
 		private PolicyFile policyFile = PolicyFile.empty();
 
 		private PolicyDocumentEntityBuilder() {
@@ -97,7 +99,7 @@ public class PolicyDocument {
 		}
 
 		public PolicyDocumentEntityBuilder wysiwygText(String wysiwygText) {
-			this.wysiwygText = wysiwygText;
+			this.htmlText = wysiwygText;
 			return this;
 		}
 
@@ -115,7 +117,7 @@ public class PolicyDocument {
 		}
 
 		public PolicyDocument build() {
-			return new PolicyDocument(id, siteId, name, workflow, revision, contentType, wysiwygText, policyFile);
+			return new PolicyDocument(id, siteId, name, workflow, revision, contentType, htmlText, policyFile);
 		}
 	}
 }

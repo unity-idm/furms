@@ -5,11 +5,11 @@
 
 package io.imunity.furms.core.policy_documents;
 
-import io.imunity.furms.domain.policy_documents.CreatePolicyDocumentEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.RemovePolicyDocumentEvent;
-import io.imunity.furms.domain.policy_documents.UpdatePolicyDocumentEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateCreate(policyDocument);
 		orderVerifier.verify(repository).create(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new CreatePolicyDocumentEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreateEvent(policyId));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, false);
-		orderVerifier.verify(publisher).publishEvent(new UpdatePolicyDocumentEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 
 	}
 
@@ -95,7 +95,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
-		orderVerifier.verify(publisher).publishEvent(new UpdatePolicyDocumentEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
 	@Test
@@ -104,6 +104,6 @@ class PolicyDocumentServiceImplTest {
 		service.delete("siteId", policyId);
 
 		orderVerifier.verify(repository).deleteById(policyId);
-		orderVerifier.verify(publisher).publishEvent(new RemovePolicyDocumentEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyId));
 	}
 }

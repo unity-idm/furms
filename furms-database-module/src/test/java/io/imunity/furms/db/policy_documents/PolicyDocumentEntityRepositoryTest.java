@@ -62,7 +62,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(saved.workflow).isEqualTo(next.workflow);
 		assertThat(saved.revision).isEqualTo(next.revision);
 		assertThat(saved.contentType).isEqualTo(next.contentType);
-		assertThat(saved.wysiwygText).isEqualTo(next.wysiwygText);
+		assertThat(saved.htmlText).isEqualTo(next.htmlText);
 		assertThat(saved.file).isEqualTo(next.file);
 		assertThat(saved.fileType).isEqualTo(next.fileType);
 	}
@@ -119,7 +119,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(saved.workflow).isEqualTo(next.workflow);
 		assertThat(saved.revision).isEqualTo(next.revision);
 		assertThat(saved.contentType).isEqualTo(next.contentType);
-		assertThat(saved.wysiwygText).isEqualTo(next.wysiwygText);
+		assertThat(saved.htmlText).isEqualTo(next.htmlText);
 		assertThat(saved.file).isEqualTo(next.file);
 		assertThat(saved.fileType).isEqualTo(next.fileType);
 	}
@@ -145,7 +145,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(saved.workflow).isEqualTo(next.workflow);
 		assertThat(saved.revision).isEqualTo(next.revision);
 		assertThat(saved.contentType).isEqualTo(next.contentType);
-		assertThat(saved.wysiwygText).isEqualTo(next.wysiwygText);
+		assertThat(saved.htmlText).isEqualTo(next.htmlText);
 		assertThat(saved.file).isEqualTo(next.file);
 		assertThat(saved.fileType).isEqualTo(next.fileType);
 	}
@@ -212,7 +212,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(saved1.workflow).isEqualTo(next.workflow);
 		assertThat(saved1.revision).isEqualTo(next.revision);
 		assertThat(saved1.contentType).isEqualTo(next.contentType);
-		assertThat(saved1.wysiwygText).isEqualTo(next.wysiwygText);
+		assertThat(saved1.htmlText).isEqualTo(next.htmlText);
 		assertThat(saved1.file).isEqualTo(next.file);
 		assertThat(saved1.fileType).isEqualTo(next.fileType);
 	}

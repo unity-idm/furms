@@ -68,7 +68,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(policyDocument.get().workflow).isEqualTo(PolicyWorkflow.valueOf(saved.workflow));
 		assertThat(policyDocument.get().revision).isEqualTo(saved.revision);
 		assertThat(policyDocument.get().contentType).isEqualTo(PolicyContentType.valueOf(saved.contentType));
-		assertThat(policyDocument.get().wysiwygText).isEqualTo(saved.wysiwygText);
+		assertThat(policyDocument.get().htmlText).isEqualTo(saved.htmlText);
 		assertThat(policyDocument.get().policyFile).isEqualTo(PolicyFile.empty());
 	}
 
@@ -124,7 +124,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(policyDocumentEntity.get().workflow).isEqualTo(policyDocument.workflow.getPersistentId());
 		assertThat(policyDocumentEntity.get().revision).isEqualTo(policyDocument.revision);
 		assertThat(policyDocumentEntity.get().contentType).isEqualTo(policyDocument.contentType.getPersistentId());
-		assertThat(policyDocumentEntity.get().wysiwygText).isEqualTo(policyDocument.wysiwygText);
+		assertThat(policyDocumentEntity.get().htmlText).isEqualTo(policyDocument.htmlText);
 		assertThat(policyDocumentEntity.get().file).isEqualTo(null);
 		assertThat(policyDocumentEntity.get().fileType).isEqualTo(null);
 	}
@@ -152,7 +152,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(policyDocumentEntity.get().workflow).isEqualTo(policyDocument.workflow.getPersistentId());
 		assertThat(policyDocumentEntity.get().revision).isEqualTo(policyDocument.revision);
 		assertThat(policyDocumentEntity.get().contentType).isEqualTo(policyDocument.contentType.getPersistentId());
-		assertThat(policyDocumentEntity.get().wysiwygText).isEqualTo(null);
+		assertThat(policyDocumentEntity.get().htmlText).isEqualTo(null);
 		assertThat(policyDocumentEntity.get().file).isEqualTo(new byte[1]);
 		assertThat(policyDocumentEntity.get().fileType).isEqualTo("pdf");
 	}
@@ -192,7 +192,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(readPolicyDocumentEntity.get().workflow).isEqualTo(policyDocumentEntity.workflow);
 		assertThat(readPolicyDocumentEntity.get().revision).isEqualTo(1);
 		assertThat(readPolicyDocumentEntity.get().contentType).isEqualTo(policyDocument.contentType.getPersistentId());
-		assertThat(readPolicyDocumentEntity.get().wysiwygText).isEqualTo(null);
+		assertThat(readPolicyDocumentEntity.get().htmlText).isEqualTo(null);
 		assertThat(readPolicyDocumentEntity.get().file).isEqualTo(new byte[1]);
 		assertThat(readPolicyDocumentEntity.get().fileType).isEqualTo("pdf");
 	}
@@ -232,7 +232,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(readPolicyDocumentEntity.get().workflow).isEqualTo(policyDocumentEntity.workflow);
 		assertThat(readPolicyDocumentEntity.get().revision).isEqualTo(0);
 		assertThat(readPolicyDocumentEntity.get().contentType).isEqualTo(policyDocument.contentType.getPersistentId());
-		assertThat(readPolicyDocumentEntity.get().wysiwygText).isEqualTo(null);
+		assertThat(readPolicyDocumentEntity.get().htmlText).isEqualTo(null);
 		assertThat(readPolicyDocumentEntity.get().file).isEqualTo(new byte[1]);
 		assertThat(readPolicyDocumentEntity.get().fileType).isEqualTo("pdf");
 	}

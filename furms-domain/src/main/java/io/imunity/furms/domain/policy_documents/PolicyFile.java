@@ -11,13 +11,13 @@ import java.util.Optional;
 
 public class PolicyFile {
 	private final byte[] file;
-	private final PolicyFileExtension type;
+	private final PolicyFileType type;
 
 	public PolicyFile(byte[] logoImage, String type) {
 		this.file = logoImage;
 		this.type = Optional.ofNullable(type)
 			.map(String::toUpperCase)
-			.map(PolicyFileExtension::valueOf)
+			.map(PolicyFileType::valueOf)
 			.orElse(null);
 	}
 
@@ -25,9 +25,13 @@ public class PolicyFile {
 		return file;
 	}
 
-	public String getType() {
+	public boolean isEmpty(){
+		return file.length == 0 && type == null;
+	}
+
+	public String getTypeExtension() {
 		return Optional.ofNullable(type)
-			.map(Enum::name)
+			.map(e -> e.extension)
 			.map(String::toLowerCase)
 			.orElse(null);
 	}

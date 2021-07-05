@@ -17,7 +17,7 @@ class PolicyDocumentFormModelMapper {
 			.workflow(policyDocument.workflow)
 			.revision(policyDocument.revision)
 			.contentType(policyDocument.contentType)
-			.wysiwygText(policyDocument.wysiwygText)
+			.wysiwygText(policyDocument.htmlText)
 			.policyFile(policyDocument.policyFile)
 			.build();
 	}

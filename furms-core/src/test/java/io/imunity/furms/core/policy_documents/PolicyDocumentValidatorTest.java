@@ -7,7 +7,7 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
-import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsNotConsistException;
+import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsInconsistentException;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -76,7 +76,7 @@ class PolicyDocumentValidatorTest {
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
+		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
 
 		String message = assertThrows(DuplicatedNameValidationError.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
@@ -91,12 +91,21 @@ class PolicyDocumentValidatorTest {
 			.id(policyId)
 			.siteId("siteId")
 			.workflow(PolicyWorkflow.WEB_BASED)
+			.contentType(PolicyContentType.EMBEDDED)
 			.name("name")
 			.build();
 
+		PolicyDocument policyDocument1 = PolicyDocument.builder()
+			.id(policyId)
+			.siteId("siteId")
+			.workflow(PolicyWorkflow.WEB_BASED)
+			.contentType(PolicyContentType.EMBEDDED)
+			.name("name1")
+			.build();
+
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
-		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+		when(repository.isNamePresent("siteId", "name1")).thenReturn(false);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument1));
 
 
 		String message = assertThrows(DuplicatedNameValidationError.class, () -> validator.validateUpdate(policyDocument))
@@ -115,11 +124,11 @@ class PolicyDocumentValidatorTest {
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
+		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
 
-		String message = assertThrows(PolicyDocumentIsNotConsistException.class, () -> validator.validateCreate(policyDocument))
+		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
-		assertEquals(message, "PDF content type should not contains wyswige text");
+		assertEquals(message, "PDF content type should not contain wyswige text");
 	}
 
 	@Test
@@ -140,9 +149,9 @@ class PolicyDocumentValidatorTest {
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 
-		String message = assertThrows(PolicyDocumentIsNotConsistException.class, () -> validator.validateUpdate(policyDocument))
+		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateUpdate(policyDocument))
 			.getMessage();
-		assertEquals(message, "PDF content type should not contains wyswige text");
+		assertEquals(message, "PDF content type should not contain wyswige text");
 	}
 
 	@Test
@@ -156,11 +165,11 @@ class PolicyDocumentValidatorTest {
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
+		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
 
-		String message = assertThrows(PolicyDocumentIsNotConsistException.class, () -> validator.validateCreate(policyDocument))
+		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
-		assertEquals(message, "Embedded content type should not contains file");
+		assertEquals(message, "Embedded content type should not contain file");
 	}
 
 	@Test
@@ -174,7 +183,7 @@ class PolicyDocumentValidatorTest {
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
+		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
 
 		validator.validateCreate(policyDocument);
 	}
@@ -192,12 +201,12 @@ class PolicyDocumentValidatorTest {
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
+		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		String message = assertThrows(PolicyDocumentIsNotConsistException.class, () -> validator.validateUpdate(policyDocument))
+		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateUpdate(policyDocument))
 			.getMessage();
-		assertEquals(message, "Embedded content type should not contains file");
+		assertEquals(message, "Embedded content type should not contain file");
 	}
 
 	@Test

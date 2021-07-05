@@ -7,11 +7,11 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.CreatePolicyDocumentEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.RemovePolicyDocumentEvent;
-import io.imunity.furms.domain.policy_documents.UpdatePolicyDocumentEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Creating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateCreate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.create(policyDocument);
-		publisher.publishEvent(new CreatePolicyDocumentEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentCreateEvent(policyId));
 	}
 
 	@Override
@@ -69,7 +69,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, false);
-		publisher.publishEvent(new UpdatePolicyDocumentEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
 	@Override
@@ -78,7 +78,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, true);
-		publisher.publishEvent(new UpdatePolicyDocumentEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
 	@Override
@@ -86,6 +86,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void delete(String siteId, PolicyId policyId) {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
 		policyDocumentRepository.deleteById(policyId);
-		publisher.publishEvent(new RemovePolicyDocumentEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
 	}
 }

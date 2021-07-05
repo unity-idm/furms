@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class PolicyDocumentIsNotConsistException extends IllegalArgumentException {
+public class PolicyDocumentIsInconsistentException extends IllegalArgumentException {
 
-	public PolicyDocumentIsNotConsistException(String message) {
+	public PolicyDocumentIsInconsistentException(String message) {
 		super(message);
 	}
 }

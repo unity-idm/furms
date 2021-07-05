@@ -45,9 +45,9 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 				.name(policyDocument.name)
 				.workflow(policyDocument.workflow.getPersistentId())
 				.contentType(policyDocument.contentType.getPersistentId())
-				.wysiwygText(policyDocument.wysiwygText.isBlank() ? null : policyDocument.wysiwygText)
+				.wysiwygText(policyDocument.htmlText.isBlank() ? null : policyDocument.htmlText)
 				.file(policyDocument.policyFile.getFile().length == 0 ? null : policyDocument.policyFile.getFile())
-				.fileType(policyDocument.policyFile.getType())
+				.fileType(policyDocument.policyFile.getTypeExtension())
 				.build()
 		);
 		return new PolicyId(savedProjectAllocation.getId());
@@ -63,9 +63,9 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 				.workflow(old.workflow)
 				.contentType(policyDocument.contentType.getPersistentId())
 				.revision(revision ? old.revision + 1 : old.revision)
-				.wysiwygText(policyDocument.wysiwygText.isBlank() ? null : policyDocument.wysiwygText)
+				.wysiwygText(policyDocument.htmlText.isBlank() ? null : policyDocument.htmlText)
 				.file(policyDocument.policyFile.getFile().length == 0 ? null : policyDocument.policyFile.getFile())
-				.fileType(policyDocument.policyFile.getType())
+				.fileType(policyDocument.policyFile.getTypeExtension())
 				.build()
 			)
 			.map(repository::save)

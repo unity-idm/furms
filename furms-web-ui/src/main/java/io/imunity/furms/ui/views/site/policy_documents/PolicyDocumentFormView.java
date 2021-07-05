@@ -20,6 +20,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsInconsistentException;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyFile;
@@ -189,6 +191,10 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			else
 				policyDocumentService.update(policyDocument);
 			UI.getCurrent().navigate(PolicyDocumentsView.class);
+		} catch (DuplicatedNameValidationError e) {
+			showErrorNotification(getTranslation("name.duplicated.error.message"));
+		} catch (PolicyDocumentIsInconsistentException e) {
+			showErrorNotification(getTranslation("policy.document.terminal-state.message"));
 		} catch (Exception e) {
 			showErrorNotification(getTranslation("base.error.message"));
 			throw e;

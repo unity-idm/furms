@@ -24,18 +24,18 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 	public final int workflow;
 	public final int revision;
 	public final int contentType;
-	public final String wysiwygText;
+	public final String htmlText;
 	public final byte[] file;
 	public final String fileType;
 
-	PolicyDocumentEntity(UUID id, UUID siteId, String name, int workflow, int revision, int contentType, String wysiwygText, byte[] file, String fileType) {
+	PolicyDocumentEntity(UUID id, UUID siteId, String name, int workflow, int revision, int contentType, String htmlText, byte[] file, String fileType) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.workflow = workflow;
 		this.revision = revision;
 		this.contentType = contentType;
-		this.wysiwygText = wysiwygText;
+		this.htmlText = htmlText;
 		this.file = file;
 		this.fileType = fileType;
 	}
@@ -48,7 +48,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 			.workflow(PolicyWorkflow.valueOf(workflow))
 			.revision(revision)
 			.contentType(PolicyContentType.valueOf(contentType))
-			.wysiwygText(wysiwygText)
+			.wysiwygText(htmlText)
 			.file(file, fileType)
 			.build();
 	}
@@ -64,14 +64,14 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 			Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
-			Objects.equals(wysiwygText, that.wysiwygText) &&
+			Objects.equals(htmlText, that.htmlText) &&
 			Arrays.equals(file, that.file) &&
 			Objects.equals(fileType, that.fileType);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(siteId, name, workflow, revision, contentType, wysiwygText, fileType);
+		int result = Objects.hash(siteId, name, workflow, revision, contentType, htmlText, fileType);
 		result = 31 * result + Arrays.hashCode(file);
 		return result;
 	}
@@ -85,7 +85,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 			", workflow=" + workflow +
 			", revision=" + revision +
 			", contentType=" + contentType +
-			", wysiwygText='" + wysiwygText + '\'' +
+			", htmlText='" + htmlText + '\'' +
 			", fileType='" + fileType + '\'' +
 			'}';
 	}
@@ -95,15 +95,15 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 	}
 
 	public static final class PolicyDocumentEntityBuilder {
+		protected UUID id;
 		public UUID siteId;
 		public String name;
 		public int workflow;
 		public int revision;
 		public int contentType;
-		public String wysiwygText;
+		public String htmlText;
 		public byte[] file;
 		public String fileType;
-		protected UUID id;
 
 		private PolicyDocumentEntityBuilder() {
 		}
@@ -139,7 +139,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 		}
 
 		public PolicyDocumentEntityBuilder wysiwygText(String wysiwygText) {
-			this.wysiwygText = wysiwygText;
+			this.htmlText = wysiwygText;
 			return this;
 		}
 
@@ -154,7 +154,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 		}
 
 		public PolicyDocumentEntity build() {
-			return new PolicyDocumentEntity(id, siteId, name, workflow, revision, contentType, wysiwygText, file, fileType);
+			return new PolicyDocumentEntity(id, siteId, name, workflow, revision, contentType, htmlText, file, fileType);
 		}
 	}
 }

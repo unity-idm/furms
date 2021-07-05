@@ -7,10 +7,10 @@ package io.imunity.furms.domain.policy_documents;
 
 import java.util.Objects;
 
-public class RemovePolicyDocumentEvent implements PolicyDocumentEvent {
+public class PolicyDocumentUpdatedEvent implements PolicyDocumentEvent {
 	public final PolicyId id;
 
-	public RemovePolicyDocumentEvent(PolicyId id) {
+	public PolicyDocumentUpdatedEvent(PolicyId id) {
 		this.id = id;
 	}
 
@@ -18,7 +18,7 @@ public class RemovePolicyDocumentEvent implements PolicyDocumentEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		RemovePolicyDocumentEvent siteEvent = (RemovePolicyDocumentEvent) o;
+		PolicyDocumentUpdatedEvent siteEvent = (PolicyDocumentUpdatedEvent) o;
 		return Objects.equals(id, siteEvent.id);
 	}
 
@@ -29,7 +29,7 @@ public class RemovePolicyDocumentEvent implements PolicyDocumentEvent {
 
 	@Override
 	public String toString() {
-		return "RemovePolicyDocumentEvent{" +
+		return "PolicyDocumentUpdatedEvent{" +
 			"id='" + id + '\'' +
 			'}';
 	}

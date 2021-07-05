@@ -33,7 +33,7 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 public class PolicyFileUpload extends HorizontalLayout
 		implements HasValue<PolicyFileUpload, PolicyFile>, HasValue.ValueChangeEvent<PolicyFile> {
 
-	private final static int MAX_IMAGE_SIZE_BYTES = 100000000;
+	private final static int MAX_FILE_SIZE_BYTES = 100000000;
 	private final static String[] ACCEPTED_FILE_TYPES = {"application/pdf"};
 
 	private final Anchor downloadIcon;
@@ -50,7 +50,7 @@ public class PolicyFileUpload extends HorizontalLayout
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);
 		upload.setAcceptedFileTypes(ACCEPTED_FILE_TYPES);
-		upload.setMaxFileSize(MAX_IMAGE_SIZE_BYTES);
+		upload.setMaxFileSize(MAX_FILE_SIZE_BYTES);
 		upload.setDropAllowed(true);
 		upload.setVisible(!readOnly);
 
@@ -62,10 +62,9 @@ public class PolicyFileUpload extends HorizontalLayout
 
 		addFinishedListener(event -> {
 			try {
-				setValue(
-						new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(event.getMIMEType()))
-				);
+				setValue(new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(event.getMIMEType())));
 			} catch (IOException e) {
+				showErrorNotification(getTranslation("file.invalidate.message"));
 				throw new RuntimeException(e);
 			}
 		});
@@ -147,7 +146,7 @@ public class PolicyFileUpload extends HorizontalLayout
 		this.value = value;
 
 		if (this.value != null) {
-			downloadIcon.setHref(new StreamResource("policy.pdf", () -> new ByteArrayInputStream(this.value.getFile())));
+			downloadIcon.setHref(new StreamResource("policy." + value.getTypeExtension(), () -> new ByteArrayInputStream(this.value.getFile())));
 			downloadIcon.setVisible(!ArrayUtils.isEmpty(value.getFile()));
 		}
 		else
