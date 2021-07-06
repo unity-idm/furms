@@ -7,13 +7,13 @@ package io.imunity.furms.ui.views.project.sites;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
@@ -34,7 +34,7 @@ public class SitesView extends FurmsViewComponent {
 
 	SitesView(ProjectInstallationStatusService projectInstallationStatusService) {
 		this.projectInstallationStatusService = projectInstallationStatusService;
-		this.grid = new TreeGrid<>();
+		this.grid = new SparseGrid<>(SiteGridModel.class);
 		fillGrid();
 		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
@@ -64,10 +64,9 @@ public class SitesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.sites.grid.2"))
 			.setSortable(true);
 		grid.addComponentColumn(resourceAccessModel -> {
-			Icon icon = REFRESH.create();
-			icon.getStyle().set("cursor", "pointer");
-			icon.addClickListener(x -> grid.setItems(loadData()));
-			return icon;
+			IconButton iconButton = new IconButton(REFRESH.create());
+			iconButton.addClickListener(event -> grid.setItems(loadData()));
+			return iconButton;
 		})
 			.setHeader(getTranslation("view.project-admin.sites.grid.3"))
 			.setWidth("6em");

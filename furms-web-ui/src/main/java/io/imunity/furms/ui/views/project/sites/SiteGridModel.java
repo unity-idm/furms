@@ -25,15 +25,12 @@ class SiteGridModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		SiteGridModel that = (SiteGridModel) o;
-		return Objects.equals(siteId, that.siteId) &&
-			Objects.equals(siteName, that.siteName) &&
-			Objects.equals(message, that.message) &&
-			Objects.equals(status, that.status);
+		return Objects.equals(siteId, that.siteId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteId, siteName, status, message);
+		return Objects.hash(siteId);
 	}
 
 	@Override

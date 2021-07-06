@@ -1,0 +1,4 @@
+.furms-icon {
+    width: var(--iron-icon-width, 34px);
+    height: var(--iron-icon-height, 34px);
+}
