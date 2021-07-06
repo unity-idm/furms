@@ -118,6 +118,10 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>flow-server-production-mode</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.vaadin.pekka</groupId>
+			<artifactId>wysiwyg_e-java</artifactId>
+		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
