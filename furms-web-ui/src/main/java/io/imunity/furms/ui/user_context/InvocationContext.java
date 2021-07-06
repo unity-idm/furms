@@ -50,7 +50,7 @@ public class InvocationContext {
 		try {
 			return zone.get(ZONE_INIT_TIMEOUT_S, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			LOG.error("Can not get user zone");
+			LOG.error("Can not get user zone", e);
 		}
 		return ZoneId.of("UTC");
 	}
