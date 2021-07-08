@@ -7,8 +7,11 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
@@ -24,6 +27,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.Optional;
+
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
@@ -36,6 +41,8 @@ class ResourceAccessServiceTest {
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
 	@Mock
 	private ResourceAccessRepository repository;
+	@Mock
+	private UserOperationService userOperationService;
 	@Mock
 	private UserOperationRepository userRepository;
 	@Mock
@@ -57,16 +64,22 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userOperationService, userRepository, authzService);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService, userOperationService);
 	}
 
 	@Test
-	void shouldGrantAccess() {
+	void shouldGrantAccessForInstalledUser() {
+		FenixUserId fenixUserId = new FenixUserId("userId");
 		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(new SiteId("siteId", "externalId"))
+			.projectId("projectId")
+			.fenixUserId(fenixUserId)
 			.build();
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
+
 		service.grantAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
@@ -74,8 +87,56 @@ class ResourceAccessServiceTest {
 		}
 
 		//then
-		orderVerifier.verify(repository).create(any(), eq(grantAccess));
+		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(AccessStatus.GRANT_PENDING));
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
+	}
+
+	@Test
+	void shouldGrantAccessForNonInstalledUser() {
+		FenixUserId fenixUserId = new FenixUserId("userId");
+		SiteId siteId = new SiteId("siteId", "externalId");
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(siteId)
+			.projectId("projectId")
+			.fenixUserId(fenixUserId)
+			.build();
+		//when
+		when(repository.exists(grantAccess)).thenReturn(false);
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
+
+		service.grantAccess(grantAccess);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
+
+		//then
+		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(AccessStatus.USER_INSTALLING));
+		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", fenixUserId);
+	}
+
+	@Test
+	void shouldGrantAccessForInstallingUser() {
+		FenixUserId fenixUserId = new FenixUserId("userId");
+		SiteId siteId = new SiteId("siteId", "externalId");
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(siteId)
+			.projectId("projectId")
+			.fenixUserId(fenixUserId)
+			.build();
+		//when
+		when(repository.exists(grantAccess)).thenReturn(false);
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+
+		service.grantAccess(grantAccess);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
+
+		//then
+		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(AccessStatus.USER_INSTALLING));
+		verify(userOperationService, times(0)).createUserAdditions(siteId, "projectId", fenixUserId);
 	}
 
 	@Test

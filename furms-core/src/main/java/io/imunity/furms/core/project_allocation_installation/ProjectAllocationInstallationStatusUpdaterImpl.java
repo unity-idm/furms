@@ -5,8 +5,6 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.core.user_operation.UserOperationService;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -27,7 +25,6 @@ import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PENDING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
@@ -37,15 +34,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
-	private final UserOperationService userOperationService;
-
 
 	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
-	                                               ProjectAllocationRepository projectAllocationRepository,
-	                                               UserOperationService userOperationService) {
+	                                               ProjectAllocationRepository projectAllocationRepository) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
-		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -63,17 +56,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		else
 			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 
-		if(isTransitionFromPendingToAcknowledgedStatus(status, job)) {
-			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(job.projectAllocationId)
-				.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + job.projectAllocationId));
-			if(!projectAllocationResolved.resourceType.accessibleForAllProjectMembers)
-				userOperationService.createUserAdditions(projectAllocationResolved.site.getId(), projectAllocationResolved.projectId);
-		}
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
-	}
-
-	private boolean isTransitionFromPendingToAcknowledgedStatus(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallation newStatus) {
-		return newStatus.status.equals(PENDING) && oldStatus.equals(ACKNOWLEDGED);
 	}
 
 	private boolean isTransitionFromUpdatingToFailedStatus(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallationStatus newStatus) {

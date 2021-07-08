@@ -12,6 +12,7 @@ import static io.imunity.furms.domain.resource_access.AccessStatus.*;
 
 class TransitionValidator {
 	private final Map<AccessStatus, Set<AccessStatus>> accessStatusAllowedTransitions = Map.of(
+		USER_INSTALLING, Set.of(GRANT_PENDING),
 		GRANT_PENDING, Set.of(GRANT_ACKNOWLEDGED, GRANT_FAILED, GRANTED),
 		REVOKE_PENDING, Set.of(REVOKE_ACKNOWLEDGED, REVOKE_FAILED, REVOKED),
 		GRANT_ACKNOWLEDGED, Set.of(GRANT_FAILED, GRANTED),

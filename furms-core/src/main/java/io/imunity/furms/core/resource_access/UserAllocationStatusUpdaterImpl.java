@@ -5,8 +5,11 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
@@ -21,9 +24,11 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ResourceAccessRepository repository;
+	private final UserOperationService userOperationService;
 
-	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository) {
+	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, UserOperationService userOperationService) {
 		this.repository = repository;
+		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -33,6 +38,11 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 		if(!currentStatus.isTransitionalTo(status))
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, status));
 		if(status.equals(AccessStatus.REVOKED)) {
+			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
+			FenixUserId fenixUserId = new FenixUserId(projectUserGrant.userId);
+			if(repository.findUserGrantsByProjectIdAndFenixUserId(projectUserGrant.projectId, fenixUserId).isEmpty())
+				userOperationService.createUserRemovals(projectUserGrant.projectId, fenixUserId);
 			repository.deleteByCorrelationId(correlationId);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;

@@ -102,6 +102,12 @@ class UnityUsersDAO implements UsersDAO {
 	public Optional<FURMSUser> findById(PersistentId userId) {
 		return userService.getUser(userId);
 	}
+
+	@Override
+	public Optional<FURMSUser> findById(FenixUserId userId) {
+		PersistentId persistentId = userService.getPersistentId(userId);
+		return userService.getUser(persistentId);
+	}
 	
 	@Override
 	public PersistentId getPersistentId(FenixUserId userId) {

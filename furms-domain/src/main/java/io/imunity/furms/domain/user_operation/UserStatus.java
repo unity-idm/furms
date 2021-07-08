@@ -8,21 +8,23 @@ package io.imunity.furms.domain.user_operation;
 import java.util.Arrays;
 
 public enum UserStatus {
-	ADDING_PENDING(0, false),
-	ADDING_ACKNOWLEDGED(1, false),
-	ADDED(2, false),
-	ADDING_FAILED(3, true),
-	REMOVAL_PENDING(4, false),
-	REMOVAL_ACKNOWLEDGED(5, false),
-	REMOVED(6, false),
-	REMOVAL_FAILED(7, true);
+	ADDING_PENDING(0, true, false),
+	ADDING_ACKNOWLEDGED(1, true,false),
+	ADDED(2, true,false),
+	ADDING_FAILED(3, true,true),
+	REMOVAL_PENDING(4, true,false),
+	REMOVAL_ACKNOWLEDGED(5, true,false),
+	REMOVED(6, true,false),
+	REMOVAL_FAILED(7, true,true);
 
-	UserStatus(int persistentId, boolean errorStatus) {
+	UserStatus(int persistentId, boolean terminal, boolean errorStatus) {
 		this.persistentId = persistentId;
+		this.terminal = terminal;
 		this.errorStatus = errorStatus;
 	}
 
 	private final int persistentId;
+	private final boolean terminal;
 	private final boolean errorStatus;
 	private static final TransitionValidator TRANSITION_VALIDATOR = new TransitionValidator();
 

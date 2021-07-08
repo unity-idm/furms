@@ -25,8 +25,8 @@ public interface UserOperationRepository {
 	void update(UserAdditionJob userAdditionJob);
 	void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage);
 	boolean isUserAdded(String siteId, String userId);
-	Set<String> findUserIds(String projectId);
 	UserStatus findAdditionStatusByCorrelationId(String correlationId);
+	Optional<UserStatus> findAdditionStatus(String siteId, String projectId, FenixUserId userId);
 	UserAddition findAdditionByCorrelationId(CorrelationId correlationId);
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(String correlationId);
