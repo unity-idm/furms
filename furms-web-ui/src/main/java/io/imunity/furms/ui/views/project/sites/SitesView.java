@@ -62,14 +62,15 @@ public class SitesView extends FurmsViewComponent {
 			.setFlexGrow(25);
 		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message))
 			.setHeader(getTranslation("view.project-admin.sites.grid.2"))
-			.setSortable(true);
+			.setSortable(true)
+			.setFlexGrow(2);
 		grid.addComponentColumn(resourceAccessModel -> {
 			IconButton iconButton = new IconButton(REFRESH.create());
 			iconButton.addClickListener(event -> grid.setItems(loadData()));
 			return iconButton;
 		})
-			.setHeader(getTranslation("view.project-admin.sites.grid.3"))
-			.setWidth("6em");
+			.setHeader(getTranslation("view.project-admin.sites.grid.3"));
+
 
 		grid.setItems(loadData());
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

@@ -119,7 +119,9 @@ public class ProjectsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.5"))
 			.setTextAlign(ColumnTextAlign.END);
 
+		grid.setHeightByRows(true);
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		grid.addClassName("sparse-grid");
 
 		return grid;
 	}
