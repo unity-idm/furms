@@ -29,7 +29,7 @@ public interface ProjectService {
 
 	boolean isProjectExpired(String projectId);
 
-	void create(Project project);
+	String create(Project project);
 
 	void update(Project project);
 

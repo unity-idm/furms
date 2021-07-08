@@ -11,6 +11,7 @@ import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import java.util.Set;
 
 public interface ProjectInstallationStatusService {
+	Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId);
 	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);
 	Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(String communityId);
 	Set<ProjectInstallationJobStatus> findAllByProjectId(String projectId);

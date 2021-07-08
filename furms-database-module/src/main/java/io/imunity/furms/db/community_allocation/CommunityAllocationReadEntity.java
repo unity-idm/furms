@@ -9,6 +9,7 @@ import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.db.resource_credits.ResourceCreditEntity;
 import io.imunity.furms.db.resource_types.ResourceTypeEntity;
 import io.imunity.furms.db.sites.SiteEntity;
+import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.data.relational.core.mapping.Column;
@@ -43,7 +44,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 		this.resourceCredit = resourceCredit;
 	}
 
-	CommunityAllocationResolved toCommunityAllocation() {
+	CommunityAllocationResolved toCommunityAllocationResolved() {
 		return CommunityAllocationResolved.builder()
 			.id(id.toString())
 			.site(site.toSite())
@@ -53,6 +54,16 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			.name(name)
 			.amount(amount)
 			.build();
+	}
+
+	CommunityAllocation toCommunityAllocation() {
+		return CommunityAllocation.builder()
+				.id(id.toString())
+				.resourceCreditId(resourceCredit.getId().toString())
+				.communityId(communityId.toString())
+				.name(name)
+				.amount(amount)
+				.build();
 	}
 
 	public boolean isExpired() {

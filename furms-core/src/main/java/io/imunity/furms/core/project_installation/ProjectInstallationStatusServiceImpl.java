@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Capability.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 
 @Service
 class ProjectInstallationStatusServiceImpl implements ProjectInstallationStatusService {
@@ -25,6 +23,12 @@ class ProjectInstallationStatusServiceImpl implements ProjectInstallationStatusS
 
 	ProjectInstallationStatusServiceImpl(ProjectOperationRepository projectOperationRepository) {
 		this.projectOperationRepository = projectOperationRepository;
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId) {
+		return projectOperationRepository.findAllBySiteId(siteId);
 	}
 
 	@Override

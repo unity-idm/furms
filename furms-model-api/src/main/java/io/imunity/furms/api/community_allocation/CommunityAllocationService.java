@@ -19,6 +19,8 @@ public interface CommunityAllocationService {
 
 	Set<CommunityAllocation> findAll();
 
+	Set<CommunityAllocation> findAllByCommunityId(String communityId);
+
 	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId);
 
 	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId,

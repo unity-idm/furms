@@ -4,6 +4,15 @@
  */
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+
 enum InstallationStatus {
-	INSTALLED, PENDING, REJECTED
+	PENDING,
+	ACKNOWLEDGED,
+	INSTALLED,
+	FAILED;
+
+	public static InstallationStatus valueOf(ProjectInstallationStatus status) {
+		return InstallationStatus.valueOf(status.name());
+	}
 }

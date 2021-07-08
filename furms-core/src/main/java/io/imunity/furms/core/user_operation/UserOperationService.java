@@ -31,7 +31,9 @@ import java.util.Set;
 
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.user_operation.UserStatus.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -80,6 +82,12 @@ public class UserOperationService implements UserAllocationsService {
 						.projects(loadProjects(fenixUserId, site.getId()))
 						.build())
 				.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<UserAddition> findAllBySiteId(String siteId) {
+		return repository.findAllUserAdditionsByUserId(siteId);
 	}
 
 	public void createUserAdditions(String projectId, PersistentId userId) {

@@ -18,6 +18,8 @@ public interface SSHKeyService {
 
 	Set<SSHKey> findOwned();
 
+	Set<SSHKey> findByOwnerId(String ownerId);
+
 	String create(SSHKey sshKey);
 
 	String update(SSHKey sshKey);

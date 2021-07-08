@@ -16,6 +16,7 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,8 +37,11 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class ProjectAllocationServiceImpl implements ProjectAllocationService {
@@ -65,6 +70,13 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, id);
 		return projectAllocationRepository.findById(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Optional<ProjectAllocationResolved> findWithRelatedObjectsByProjectIdAndId(String projectId, String id) {
+		validator.validateProjectIdAndProjectAllocationId(projectId, id);
+		return projectAllocationRepository.findByIdWithRelatedObjects(id);
 	}
 
 	@Override
@@ -101,6 +113,48 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteId(String siteId) {
+		final Set<ProjectAllocationResolved> allocations = projectAllocationRepository.findAllWithRelatedObjectsBySiteId(siteId);
+		return allocations.stream()
+				.map(allocation -> projectAllocationInstallationService.findAllChunks(allocation.projectId))
+				.flatMap(Collection::stream)
+				.map(chunk -> ProjectAllocationChunkResolved.builder()
+						.id(chunk.id)
+						.chunkId(chunk.chunkId)
+						.projectAllocation(allocations.stream()
+								.filter(allocation -> allocation.id.equals(chunk.projectAllocationId))
+								.findFirst().get())
+						.amount(chunk.amount)
+						.validFrom(chunk.validFrom)
+						.validTo(chunk.validTo)
+						.receivedTime(chunk.receivedTime)
+						.build())
+				.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteIdAndProjectId(String siteId, String projectId) {
+		final Set<ProjectAllocationResolved> allocations = projectAllocationRepository.findAllWithRelatedObjects(projectId);
+		return allocations.stream()
+				.map(allocation -> projectAllocationInstallationService.findAllChunks(allocation.projectId))
+				.flatMap(Collection::stream)
+				.map(chunk -> ProjectAllocationChunkResolved.builder()
+						.id(chunk.id)
+						.chunkId(chunk.chunkId)
+						.projectAllocation(allocations.stream()
+								.filter(allocation -> allocation.id.equals(chunk.projectAllocationId))
+								.findFirst().get())
+						.amount(chunk.amount)
+						.validFrom(chunk.validFrom)
+						.validTo(chunk.validTo)
+						.receivedTime(chunk.receivedTime)
+						.build())
+				.collect(toSet());
+	}
+
+	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationInstallation> findAllInstallations(String projectId) {
 		return projectAllocationInstallationService.findAll(projectId);
@@ -109,6 +163,18 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
+		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(String siteId) {
+		return projectAllocationRepository.findAllWithRelatedObjectsBySiteId(siteId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteIdAndProjectId(String siteId, String projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
 

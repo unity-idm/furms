@@ -7,6 +7,7 @@ package io.imunity.furms.utils;
 
 import java.time.*;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Optional.ofNullable;
 
 public class UTCTimeUtils {
@@ -30,6 +31,12 @@ public class UTCTimeUtils {
 			.map(time -> time.withOffsetSameInstant(ZoneOffset.UTC))
 			.map(OffsetDateTime::toLocalDateTime)
 			.orElse(null);
+	}
+
+	public static ZonedDateTime convertToUTCZoned(LocalDateTime localDateTime){
+		return ofNullable(localDateTime)
+				.map(time -> ZonedDateTime.of(time, UTC))
+				.orElse(null);
 	}
 
 	public static boolean isExpired(LocalDateTime utcEndTime) {

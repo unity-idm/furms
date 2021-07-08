@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -125,6 +126,13 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 		Map<String, BigDecimal> map = resourceUsageEntityRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 			.collect(getResourceUsageSumCollector(resourceUsage -> resourceUsage.communityAllocationId.toString()));
 		return new ResourceUsageByCommunityAllocation(map);
+	}
+
+	@Override
+	public Set<UserResourceUsage> findUserResourceUsages(Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to) {
+		return userResourceUsageHistoryEntityRepository.findAllByProjectAllocationIdIn(projectAllocations)
+				.stream().map(UserResourceUsageHistoryEntity::toUserResourceUsage)
+				.collect(toSet());
 	}
 
 	private Collector<ResourceUsageEntity, ?, Map<String, BigDecimal>> getResourceUsageSumCollector(Function<ResourceUsageEntity, String> classifier) {

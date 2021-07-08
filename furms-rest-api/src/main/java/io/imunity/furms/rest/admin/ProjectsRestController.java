@@ -30,12 +30,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Projects Endpoint", description = "FURMS administration endpoint that provides comprehensive access to Projects "
 		+ "as well as exposes basic operations that can be done in context of a Projects")
 public class ProjectsRestController {
+
+	private final ProjectsRestService service;
+
+	public ProjectsRestController(ProjectsRestService service) {
+		this.service = service;
+	}
+
 	/********************************************************************************************
 	 * 
 	 * Projects CRUD.
 	 * 
 	 ********************************************************************************************/
-	@Operation(summary = "Retrieve all projects", 
+	@Operation(
+			summary = "Retrieve all projects",
 			description = "Returns complete information about all projects including its allocations", 
 			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
@@ -43,54 +51,63 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied"), })
 	@GetMapping()
 	public List<Project> getAll() {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return service.findAll();
 	}
 
-	@Operation(summary = "Retrieve project information with members", 
+	@Operation(
+			summary = "Retrieve project information with members",
 			description = "Returns complete information about project including its allocations and its members.", 
 			security = {@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
-			@ApiResponse(responseCode = "404", description = "Project not found", content = {
-					@Content }) })
+			@ApiResponse(responseCode = "404", description = "Project not found", content = { @Content }) })
 	@GetMapping("/{projectId}")
-	public ProjectWithUsers get(@PathVariable("projectId") String projectId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	public ProjectWithUsers get(
+			@PathVariable("projectId") String projectId) {
+		return service.findOneById(projectId);
 	}
 
-	@Operation(summary = "Delete project", description = "Removes project from community.", security = {
-			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@Operation(
+			summary = "Delete project",
+			description = "Removes project from community.",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
-			@ApiResponse(responseCode = "404", description = "Project not found", content = {
-					@Content }) })
+			@ApiResponse(responseCode = "404", description = "Project not found", content = { @Content }) })
 	@DeleteMapping("/{projectId}")
-	public void delete(@PathVariable("projectId") String projectId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	public void delete(
+			@PathVariable("projectId") String projectId) {
+		service.delete(projectId);
 	}
 
-	@Operation(summary = "Update project", description = "Update particular project.", security = {
-			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@Operation(
+			summary = "Update project",
+			description = "Update particular project.",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
-			@ApiResponse(responseCode = "404", description = "Project not found", content = {
-					@Content }) })
+			@ApiResponse(responseCode = "404", description = "Project not found", content = { @Content }) })
 	@PutMapping("/{projectId}")
-	public Project update(@RequestBody ProjectMutableDefinition request) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	public Project update(
+			@PathVariable("projectId") String projectId,
+			@RequestBody ProjectMutableDefinition request) {
+		return service.update(projectId, request);
 	}
 
-	@Operation(summary = "Add project", description = "Creates project under particular community.", security = {
-			@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@Operation(
+			summary = "Add project",
+			description = "Creates project under particular community.",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
-			@ApiResponse(responseCode = "403", description = "Permission denied"), })
+			@ApiResponse(responseCode = "403", description = "Permission denied") })
 	@PostMapping()
-	public Project add(@RequestBody ProjectDefinition request) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	public Project add(
+			@RequestBody ProjectDefinition request) {
+		return service.create(request);
 	}
 
 	/********************************************************************************************
@@ -98,34 +115,37 @@ public class ProjectsRestController {
 	 * Project's allocations.
 	 * 
 	 ********************************************************************************************/
-	@Operation(summary = "Retrieve all allocations", 
+	@Operation(
+			summary = "Retrieve all allocations",
 			description = "Retrieve all project's allocations information", 
 			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
-			@ApiResponse(responseCode = "404", description = "Project not found", content = {
-					@Content }) })
+			@ApiResponse(responseCode = "404", description = "Project not found", content = { @Content }) })
 	@GetMapping("/{projectId}/allocations")
 	public List<ProjectAllocation> getAllocations(
 			@PathVariable("projectId") String projectId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return service.findAllProjectAllocationsByProjectId(projectId);
 	}
 
-	@Operation(summary = "Retrieve allocation information", description = "Retrieve project's allocation information", 
+	@Operation(
+			summary = "Retrieve allocation information",
+			description = "Retrieve project's allocation information",
 			security = {@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
-			@ApiResponse(responseCode = "404", description = "Project or allocation not found", content = {
-					@Content }) })
+			@ApiResponse(responseCode = "404", description = "Project or allocation not found", content = { @Content }) })
 	@GetMapping("/{projectId}/allocations/{projectAllocationId}")
-	public ProjectAllocation getAllocation(@PathVariable("projectId") String projectId,
+	public ProjectAllocation getAllocation(
+			@PathVariable("projectId") String projectId,
 			@PathVariable("projectAllocationId") String projectAllocationId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return service.findByIdAndProjectAllocationId(projectId, projectAllocationId);
 	}
 
-	@Operation(summary = "Create allocation", description = "Allocate resources to a project.", 
+	@Operation(summary = "Create allocation",
+			description = "Allocate resources to a project.",
 			security = {@SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
@@ -136,6 +156,6 @@ public class ProjectsRestController {
 	public List<ProjectAllocation> addAllocation(
 			@PathVariable("projectId") String projectId,
 			@RequestBody ProjectAllocationDefinition request) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return service.addAllocation(projectId, request);
 	}
 }

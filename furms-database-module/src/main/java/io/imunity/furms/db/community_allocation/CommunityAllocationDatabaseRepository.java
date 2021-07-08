@@ -48,21 +48,28 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 			return empty();
 		}
 		return readRepository.findById(UUID.fromString(id))
-			.map(CommunityAllocationReadEntity::toCommunityAllocation);
+			.map(CommunityAllocationReadEntity::toCommunityAllocationResolved);
 	}
 
 	@Override
 	public Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
-			.map(CommunityAllocationReadEntity::toCommunityAllocation)
+			.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<CommunityAllocation> findAllByCommunityId(String communityId) {
+		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.collect(Collectors.toSet());
 	}
 
 	@Override
 	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
-				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
@@ -70,7 +77,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	public Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
 	                                                                                                String name) {
 		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
-				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
@@ -79,7 +86,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	                                                                                                          String name) {
 		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
-				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
