@@ -16,6 +16,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationDecreaseBeyondUsageException;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExpiredProjectException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
@@ -101,6 +103,10 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
 		} catch (ProjectAllocationWrongAmountException e) {
 			showErrorNotification(getTranslation("project.allocation.wrong.amount.message"));
+		} catch (ProjectAllocationIncreaseInExpiredProjectException e) {
+			showErrorNotification(getTranslation("project.allocation.increase.amount.in.expired.project.message"));
+		} catch (ProjectAllocationDecreaseBeyondUsageException e) {
+			showErrorNotification(getTranslation("project.allocation.decrease.amount.beyond.usage.message"));
 		} catch (ProjectAllocationIsNotInTerminalStateException e) {
 			showErrorNotification(getTranslation("project.allocation.terminal-state.message"));
 		} catch (Exception e) {
