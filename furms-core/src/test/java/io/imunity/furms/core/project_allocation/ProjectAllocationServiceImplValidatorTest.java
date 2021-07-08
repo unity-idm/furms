@@ -315,7 +315,7 @@ class ProjectAllocationServiceImplValidatorTest {
 				.build()));
 
 		//when+then
-		assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate(communityId, projectAllocation));
+		assertThrows(ProjectAllocationIncreaseInExpiredProjectException.class, () -> validator.validateUpdate(communityId, projectAllocation));
 	}
 
 	@Test
@@ -429,8 +429,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		);
 
 		//when+then
-		String message = assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation)).getMessage();
-		assertEquals("Allocation amount have to be bigger than consumed usage", message);
+		assertThrows(ProjectAllocationDecreaseBeyondUsageException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation));
 	}
 
 	@Test

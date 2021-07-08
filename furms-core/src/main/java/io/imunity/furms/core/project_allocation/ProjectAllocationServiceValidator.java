@@ -8,6 +8,8 @@ package io.imunity.furms.core.project_allocation;
 import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationDecreaseBeyondUsageException;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExpiredProjectException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
@@ -232,7 +234,7 @@ class ProjectAllocationServiceValidator {
 			final Optional<ProjectAllocation> oldAllocation = projectAllocationRepository.findById(projectAllocation.id);
 			oldAllocation.ifPresent(old -> assertTrue(
 					old.amount.compareTo(projectAllocation.amount) > 0,
-					() -> new ProjectAllocationWrongAmountException("Increased allocation amount for expired projects is not permitted.")));
+				ProjectAllocationIncreaseInExpiredProjectException::new));
 		}
 	}
 
@@ -250,7 +252,7 @@ class ProjectAllocationServiceValidator {
 			.map(usage -> usage.cumulativeConsumption)
 			.orElse(BigDecimal.ZERO);
 		if(resourceUsage.compareTo(projectAllocation.amount) > 0)
-			throw new ProjectAllocationWrongAmountException("Allocation amount have to be bigger than consumed usage");
+			throw new ProjectAllocationDecreaseBeyondUsageException();
 	}
 
 	private void assertStatusIsInTerminalState(ProjectAllocation projectAllocation) {
