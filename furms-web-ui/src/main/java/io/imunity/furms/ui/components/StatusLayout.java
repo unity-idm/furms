@@ -6,7 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.componentfactory.Tooltip;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
@@ -16,7 +16,7 @@ public class StatusLayout extends HorizontalLayout {
 
 	public StatusLayout(String status, String message) {
 		if(status != null) {
-			Text text = new Text(status);
+			Label text = new Label(status);
 			add(text);
 		}
 		if(message != null){
@@ -26,5 +26,6 @@ public class StatusLayout extends HorizontalLayout {
 			tooltip.add(message);
 			add(tooltip, icon);
 		}
+		setAlignItems(Alignment.END);
 	}
 }
