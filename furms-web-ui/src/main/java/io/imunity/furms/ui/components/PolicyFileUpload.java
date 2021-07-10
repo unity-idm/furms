@@ -57,6 +57,7 @@ public class PolicyFileUpload extends HorizontalLayout
 		downloadIcon = new Anchor();
 		downloadIcon.getElement().setAttribute("download", true);
 		Button button = new Button(new Icon(VaadinIcon.FILE_TEXT));
+		button.getStyle().set("margin", "0");
 		button.setSizeFull();
 		downloadIcon.add(button);
 

@@ -10,6 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -29,6 +30,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -90,13 +92,11 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			if(event.getValue().equals(PolicyContentType.PDF)){
 				formItem.removeAll();
 				wysiwygE.clear();
-				formItem.add(getTranslation("view.site-admin.policy-documents.form.layout.upload"));
 				formItem.add(uploadComponent);
 			}
 			if(event.getValue().equals(PolicyContentType.EMBEDDED)){
 				formItem.removeAll();
 				uploadComponent.clear();
-				formItem.add(getTranslation("view.site-admin.policy-documents.form.layout.wyswige"));
 				formItem.add(wysiwygE);
 			}
 		});
@@ -152,10 +152,6 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			)
 			.bind(model -> model.wysiwygText, (model, wysiwygText) -> model.wysiwygText = wysiwygText);
 		binder.forField(uploadComponent)
-			.withValidator(
-				obj -> Objects.nonNull(obj) || !wysiwygE.isEmpty(),
-				getTranslation("view.site-admin.policy-documents.form.error.validation.file")
-			)
 			.bind(model -> model.policyFile, (model, policyFile) -> model.policyFile = policyFile != null ? policyFile : PolicyFile.empty());
 	}
 
@@ -169,15 +165,27 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 
 	private Button createSaveButton(String text, boolean withRevision) {
 		Button saveButton = new Button(text);
+		Dialog confirmDialog = createConfirmDialog();
 		saveButton.getStyle().set("margin-right", "0.5em");
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
 			binder.validate();
 			if(binder.isValid()) {
-				savePolicyDocument(withRevision);
+				if(withRevision)
+					confirmDialog.open();
+				else
+					savePolicyDocument(false);
 			}
 		});
 		return saveButton;
+	}
+
+	private Dialog createConfirmDialog() {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.policy-documents.confirm.dialog"));
+		furmsDialog.addConfirmButtonClickListener(event -> {
+			savePolicyDocument(true);
+		});
+		return furmsDialog;
 	}
 
 	private void savePolicyDocument(boolean withRevision) {
