@@ -30,11 +30,11 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
-import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.PolicyFileUpload;
+import io.imunity.furms.ui.components.RevisionFurmsDialog;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 import org.vaadin.pekka.WysiwygE;
 
@@ -117,8 +117,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	private void addUpdateButtons() {
 		FormButtons buttons = new FormButtons(
 			createCloseButton(),
-			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), false),
-			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save-with-revision"), true)
+			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), true)
 		);
 		getContent().add(buttons);
 	}
@@ -163,15 +162,14 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		return closeButton;
 	}
 
-	private Button createSaveButton(String text, boolean withRevision) {
+	private Button createSaveButton(String text, boolean update) {
 		Button saveButton = new Button(text);
 		Dialog confirmDialog = createConfirmDialog();
-		saveButton.getStyle().set("margin-right", "0.5em");
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(x -> {
 			binder.validate();
 			if(binder.isValid()) {
-				if(withRevision)
+				if(update)
 					confirmDialog.open();
 				else
 					savePolicyDocument(false);
@@ -181,10 +179,9 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	}
 
 	private Dialog createConfirmDialog() {
-		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.policy-documents.confirm.dialog"));
-		furmsDialog.addConfirmButtonClickListener(event -> {
-			savePolicyDocument(true);
-		});
+		RevisionFurmsDialog furmsDialog = new RevisionFurmsDialog(getTranslation("view.site-admin.policy-documents.confirm.dialog"));
+		furmsDialog.addSaveButtonClickListener(event -> savePolicyDocument(false));
+		furmsDialog.addSaveWithRevisionButtonClickListener(event -> savePolicyDocument(true));
 		return furmsDialog;
 	}
 
