@@ -23,7 +23,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
+import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
@@ -74,13 +74,13 @@ import static java.util.stream.Collectors.toMap;
 public class ProjectsView extends FurmsViewComponent {
 
 	private final ProjectService projectService;
-	private final ProjectInstallationStatusService projectInstallationStatusService;
+	private final ProjectInstallationsService projectInstallationsService;
 	private final TreeGrid<ProjectViewGridModel> grid;
 	private ProjectsViewDataSnapshot projectsViewDataSnapshot;
 
-	public ProjectsView(ProjectService projectService, ProjectInstallationStatusService projectInstallationStatusService) {
+	public ProjectsView(ProjectService projectService, ProjectInstallationsService projectInstallationsService) {
 		this.projectService = projectService;
-		this.projectInstallationStatusService = projectInstallationStatusService;
+		this.projectInstallationsService = projectInstallationsService;
 		this.grid = createCommunityGrid();
 		this.projectsViewDataSnapshot = new ProjectsViewDataSnapshot();
 		Button addButton = createAddButton();
@@ -258,7 +258,7 @@ public class ProjectsView extends FurmsViewComponent {
 				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 				.collect(toList());
 
-			Map<String, Map<String, ProjectUpdateJobStatus>> collect = projectInstallationStatusService.findAllUpdatesByCommunityId(communityId).stream()
+			Map<String, Map<String, ProjectUpdateJobStatus>> collect = projectInstallationsService.findAllUpdatesByCommunityId(communityId).stream()
 				.collect(
 					groupingBy(
 						job -> job.projectId,
@@ -266,7 +266,7 @@ public class ProjectsView extends FurmsViewComponent {
 					)
 				);
 
-			this.projectInstallationJobStatusByProjectId = projectInstallationStatusService.findAllByCommunityId(communityId).stream()
+			this.projectInstallationJobStatusByProjectId = projectInstallationsService.findAllByCommunityId(communityId).stream()
 				.collect(groupingBy(
 					jobStatus -> jobStatus.projectId,
 					collectingAndThen(

@@ -20,8 +20,7 @@ public interface ProjectInstallationJobEntityRepository extends CrudRepository<P
 	boolean existsBySiteIdAndProjectIdAndStatus(UUID siteId, UUID projectId, int status);
 	boolean existsByProjectIdAndStatusOrProjectIdAndStatus(UUID projectId, int pendingStatus, UUID projectId1, int ackStatus);
 
-	@Query(
-			"select s.id as site_id, " +
+	@Query("select s.id as site_id, " +
 					"s.name as site_name, " +
 					"pij.project_id as project_id, " +
 					"pij.status as status, " +
@@ -33,6 +32,20 @@ public interface ProjectInstallationJobEntityRepository extends CrudRepository<P
 					"join project p on pij.project_id = p.id " +
 					"where s.id = :siteId")
 	Set<ProjectInstallationJobStatusEntity> findAllBySiteId(@Param("siteId") UUID siteId);
+
+	@Query("SELECT s.id AS site_id, " +
+					"s.name AS site_name, " +
+					"pij.project_id AS project_id, " +
+					"pij.status AS status, " +
+					"pij.message AS message, " +
+					"pij.code AS code, " +
+					"pij.gid AS gid " +
+					"FROM project_installation_job pij " +
+					"JOIN site s ON pij.site_id = s.id " +
+					"JOIN project p ON pij.project_id = p.id " +
+					"WHERE pij.status = 2 " +
+					" AND s.id = :siteId")
+	Set<ProjectInstallationJobStatusEntity> findAllInstalledBySiteId(@Param("siteId") UUID siteId);
 
 	@Query(
 		"select s.id as site_id, s.name as site_name, pij.project_id as project_id, pij.status as status, pij.message as message, pij.code as code " +

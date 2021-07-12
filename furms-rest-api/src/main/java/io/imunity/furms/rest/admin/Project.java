@@ -4,10 +4,9 @@
  */
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
+import io.imunity.furms.domain.sites.SiteInstalledProject;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
 
@@ -22,7 +21,9 @@ class Project extends ProjectDefinition {
 		this.id = id;
 	}
 
-	public Project(io.imunity.furms.domain.projects.Project project, Optional<ProjectInstallationJobStatus> status, User projectLeader) {
+	public Project(io.imunity.furms.domain.projects.Project project,
+	               SiteInstalledProject siteInstalledProject,
+	               User projectLeader) {
 		this(project.getName(),
 				project.getDescription(),
 				new Validity(convertToUTCZoned(project.getUtcStartTime()), convertToUTCZoned(project.getUtcEndTime())),
@@ -30,13 +31,20 @@ class Project extends ProjectDefinition {
 				projectLeader,
 				project.getCommunityId(),
 				project.getAcronym(),
-				status.map(x -> status.get().gid)
-					.orElse(null),
+				siteInstalledProject.gid.id,
 				project.getId());
 	}
 
-	public Project(io.imunity.furms.domain.projects.Project projectBySiteId, ProjectInstallationJobStatus status, User projectLeader) {
-		this(projectBySiteId, Optional.ofNullable(status), projectLeader);
+	public Project(io.imunity.furms.domain.projects.Project project, User user) {
+		this(project.getName(),
+				project.getDescription(),
+				new Validity(convertToUTCZoned(project.getUtcStartTime()), convertToUTCZoned(project.getUtcEndTime())),
+				project.getResearchField(),
+				user,
+				project.getCommunityId(),
+				project.getAcronym(),
+				null,
+				project.getId());
 	}
 
 	@Override

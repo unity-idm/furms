@@ -130,7 +130,7 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 
 	@Override
 	public Set<UserResourceUsage> findUserResourceUsages(Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to) {
-		return userResourceUsageHistoryEntityRepository.findAllByProjectAllocationIdIn(projectAllocations)
+		return userResourceUsageHistoryEntityRepository.findAllByProjectAllocationIdInAndInPeriod(projectAllocations, from, to)
 				.stream().map(UserResourceUsageHistoryEntity::toUserResourceUsage)
 				.collect(toSet());
 	}

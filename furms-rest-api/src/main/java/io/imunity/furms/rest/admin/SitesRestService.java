@@ -6,7 +6,7 @@
 package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
+import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
@@ -19,10 +19,11 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.sites.Gid;
+import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.*;
-import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -46,7 +47,7 @@ class SitesRestService {
 	private final ResourceUsageService resourceUsageService;
 	private final InfraServiceService infraServiceService;
 	private final ProjectAllocationService projectAllocationService;
-	private final ProjectInstallationStatusService projectInstallationStatusService;
+	private final ProjectInstallationsService projectInstallationsService;
 	private final UserService userService;
 	private final UserAllocationsService userAllocationsService;
 	private final SSHKeyService sshKeyService;
@@ -58,7 +59,7 @@ class SitesRestService {
 	                 ResourceUsageService resourceUsageService,
 	                 InfraServiceService infraServiceService,
 	                 ProjectAllocationService projectAllocationService,
-	                 ProjectInstallationStatusService projectInstallationStatusService,
+	                 ProjectInstallationsService projectInstallationsService,
 	                 UserService userService, UserAllocationsService userAllocationsService,
 	                 SSHKeyService sshKeyService) {
 		this.siteService = siteService;
@@ -68,7 +69,7 @@ class SitesRestService {
 		this.resourceUsageService = resourceUsageService;
 		this.infraServiceService = infraServiceService;
 		this.projectAllocationService = projectAllocationService;
-		this.projectInstallationStatusService = projectInstallationStatusService;
+		this.projectInstallationsService = projectInstallationsService;
 		this.userService = userService;
 		this.userAllocationsService = userAllocationsService;
 		this.sshKeyService = sshKeyService;
@@ -161,7 +162,7 @@ class SitesRestService {
 	}
 
 	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {
-		return projectInstallationStatusService.findAllBySiteId(siteId).stream()
+		return projectInstallationsService.findAllSiteInstalledProjectsBySiteId(siteId).stream()
 				.map(this::convertToProject)
 				.collect(toList());
 	}
@@ -213,13 +214,19 @@ class SitesRestService {
 				.collect(toList());
 	}
 
-	List<ProjectUsageRecord> findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(
-			String siteId, String projectId, ZonedDateTime from, ZonedDateTime until) {
+	List<ProjectUsageRecord> findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(String siteId,
+	                                                                               String projectId,
+	                                                                               ZonedDateTime from,
+	                                                                               ZonedDateTime until) {
 		final Set<ProjectAllocationResolved> allocations = projectAllocationService
 				.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId);
-		final Set<UserResourceUsage> userUsages = resourceUsageService.findAllUserUsages(allocations.stream()
-				.map(allocation -> UUID.fromString(allocation.id))
-				.collect(toSet()), convertToUTCTime(from), convertToUTCTime(until));
+		final Set<UserResourceUsage> userUsages = resourceUsageService.findAllUserUsages(
+				siteId,
+				allocations.stream()
+					.map(allocation -> UUID.fromString(allocation.id))
+					.collect(toSet()),
+				convertToUTCTime(from),
+				convertToUTCTime(until));
 
 		return userUsages.stream()
 				.map(userUsage -> new ProjectUsageRecord(userUsage, findAllocation(userUsage.projectAllocationId, allocations)))
@@ -240,14 +247,14 @@ class SitesRestService {
 				.findFirst();
 	}
 
-	private ProjectInstallation convertToProject(ProjectInstallationJobStatus status) {
-		final io.imunity.furms.domain.projects.Project projectBySiteId = projectService.findById(status.projectId)
+	private ProjectInstallation convertToProject(SiteInstalledProject projectInstallation) {
+		final io.imunity.furms.domain.projects.Project projectBySiteId = projectService.findById(projectInstallation.projectId)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Project installations not found, " +
 						"related Project not found."));
 		final User projectLeader = findUser(projectBySiteId.getLeaderId().id);
-		final Project project = new Project(projectBySiteId, status, projectLeader);
+		final Project project = new Project(projectBySiteId, projectInstallation, projectLeader);
 
-		return new ProjectInstallation(project, InstallationStatus.valueOf(status.status), null, status.gid);
+		return new ProjectInstallation(project, InstallationStatus.INSTALLED, null, projectInstallation.gid.id);
 	}
 
 	private User findUser(String userId) {

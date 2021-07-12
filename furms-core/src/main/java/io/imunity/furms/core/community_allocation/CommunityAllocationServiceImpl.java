@@ -77,7 +77,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocation> findAllByCommunityId(String communityId) {
-		return communityAllocationRepository.findAll();
+		return communityAllocationRepository.findAllByCommunityId(communityId);
 	}
 
 	@Override

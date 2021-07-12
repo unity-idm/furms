@@ -20,7 +20,7 @@ import java.util.Set;
 public interface ProjectAllocationService {
 	Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id);
 
-	Optional<ProjectAllocationResolved> findWithRelatedObjectsByProjectIdAndId(String projectId, String id);
+	Optional<ProjectAllocationResolved> findByIdValidatingProjectsWithRelatedObjects(String id, String projectId);
 
 	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id);
 

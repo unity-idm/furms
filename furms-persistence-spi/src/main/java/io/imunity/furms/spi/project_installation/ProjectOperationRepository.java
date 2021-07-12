@@ -7,6 +7,7 @@ package io.imunity.furms.spi.project_installation;
 
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -46,6 +47,8 @@ public interface ProjectOperationRepository {
 	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
 
 	Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId);
+
+	Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId);
 
 	void deleteById(String id);
 

@@ -35,9 +35,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,6 +72,7 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 
 	private UUID projectAllocationId;
 	private UUID projectAllocationId2;
+	private UUID communityAllocationId;
 
 	@BeforeEach
 	void init() throws IOException {
@@ -134,7 +138,7 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build()));
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId.toString())
 				.resourceCreditId(resourceCreditId.toString())
@@ -198,12 +202,67 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 				.fenixUserId("userId")
 				.cumulativeConsumption(BigDecimal.TEN)
 				.consumedUntil(LocalDateTime.now().minusMinutes(5))
-				.build()
-		);
+				.build());
 
 		entityRepository.deleteById(savedEntity.id);
 		Optional<UserResourceUsageHistoryEntity> resourceUsageEntities = entityRepository.findById(savedEntity.id);
 
 		assertFalse(resourceUsageEntities.isPresent());
 	}
+
+	@Test
+	void shouldReturnUserResourceUsagesByAllocationIdAndOnlyInSpecificPeriod() {
+		//given
+		final UUID wrongAllocationId = UUID.fromString(projectAllocationRepository.create(
+				ProjectAllocation.builder()
+						.projectId(projectId2.toString())
+						.communityAllocationId(communityAllocationId.toString())
+						.name("anem2")
+						.amount(new BigDecimal(30))
+						.build()));
+		final String userId = "userId";
+		final LocalDateTime from = LocalDateTime.of(2000, 10, 5, 0, 0);
+		final LocalDateTime until = LocalDateTime.of(2000, 10, 10, 23, 59);
+
+		createEntity(userId, projectAllocationId, from.minusMinutes(1));
+		createEntity(userId, wrongAllocationId, from.minusMinutes(1));
+		createEntity(userId, projectAllocationId, from);
+		createEntity(userId, wrongAllocationId, from);
+		createEntity(userId, projectAllocationId, from.plusDays(1));
+		createEntity(userId, projectAllocationId2, from.plusDays(1));
+		createEntity(userId, wrongAllocationId, from.plusDays(1));
+		createEntity(userId, projectAllocationId, until.minusMinutes(1));
+		createEntity(userId, projectAllocationId2, until.minusMinutes(1));
+		createEntity(userId, wrongAllocationId, until.minusMinutes(1));
+		createEntity(userId, projectAllocationId, until);
+		createEntity(userId, wrongAllocationId, until);
+		createEntity(userId, projectAllocationId, until.plusMinutes(1));
+		createEntity(userId, projectAllocationId2, until.plusMinutes(1));
+		createEntity(userId, wrongAllocationId, until.plusMinutes(1));
+
+		//when
+		final Set<UserResourceUsageHistoryEntity> userUsageHistory = entityRepository
+				.findAllByProjectAllocationIdInAndInPeriod(Set.of(projectAllocationId, projectAllocationId2), from, until);
+
+		//then
+		assertThat(userUsageHistory).hasSize(6);
+		assertThat(userUsageHistory.stream()
+				.allMatch(history -> List.of(projectAllocationId, projectAllocationId2).contains(history.projectAllocationId)))
+				.isTrue();
+		assertThat(userUsageHistory.stream()
+				.allMatch(history -> !history.consumedUntil.isBefore(from) && !history.consumedUntil.isAfter(until)))
+				.isTrue();
+
+	}
+
+	private UserResourceUsageHistoryEntity createEntity(String userId, UUID allocationId, LocalDateTime consumedUntil) {
+		return entityRepository.save(UserResourceUsageHistoryEntity.builder()
+				.projectId(projectId)
+				.projectAllocationId(allocationId)
+				.fenixUserId(userId)
+				.cumulativeConsumption(BigDecimal.TEN)
+				.consumedUntil(consumedUntil)
+				.build());
+	}
+
 }

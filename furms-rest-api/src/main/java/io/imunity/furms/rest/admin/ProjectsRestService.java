@@ -6,7 +6,6 @@
 package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.users.UserService;
@@ -26,36 +25,33 @@ class ProjectsRestService {
 
 	private final ProjectService projectService;
 	private final ProjectAllocationService projectAllocationService;
-	private final ProjectInstallationStatusService projectInstallationStatusService;
 	private final ResourceAccessService resourceAccessService;
 	private final UserService userService;
 
-	public ProjectsRestService(ProjectService projectService,
+	ProjectsRestService(ProjectService projectService,
 	                           ProjectAllocationService projectAllocationService,
-	                           ProjectInstallationStatusService projectInstallationStatusService,
 	                           ResourceAccessService resourceAccessService,
 	                           UserService userService) {
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
-		this.projectInstallationStatusService = projectInstallationStatusService;
 		this.resourceAccessService = resourceAccessService;
 		this.userService = userService;
 	}
 
-	public List<Project> findAll() {
+	List<Project> findAll() {
 		return projectService.findAll().stream()
 				.map(this::convertToProject)
 				.collect(toList());
 	}
 
-	public ProjectWithUsers findOneById(String projectId) {
+	ProjectWithUsers findOneById(String projectId) {
 		return projectService.findById(projectId)
 				.map(this::convertToProjectWithUsers)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
 	}
 
-	public void delete(String projectId) {
+	void delete(String projectId) {
 		final Optional<io.imunity.furms.domain.projects.Project> project = projectService.findById(projectId);
 		if (project.isEmpty()) {
 			throw new ProjectRestNotFoundException("Could Not find project to delete");
@@ -63,7 +59,7 @@ class ProjectsRestService {
 		projectService.delete(projectId, project.get().getCommunityId());
 	}
 
-	public Project update(String projectId, ProjectMutableDefinition request) {
+	Project update(String projectId, ProjectMutableDefinition request) {
 		final io.imunity.furms.domain.projects.Project project = projectService.findById(projectId)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
@@ -87,7 +83,7 @@ class ProjectsRestService {
 						"with specific id"));
 	}
 
-	public Project create(ProjectDefinition request) {
+	Project create(ProjectDefinition request) {
 		final String projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
 				.name(request.name)
@@ -105,20 +101,20 @@ class ProjectsRestService {
 						"with specific id"));
 	}
 
-	public List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
+	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
 		return projectAllocationService.findAllWithRelatedObjects(projectId).stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
-	public ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		return projectAllocationService.findWithRelatedObjectsByProjectIdAndId(projectId, projectAllocationId)
+	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
+		return projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId)
 				.map(ProjectAllocation::new)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 				"with specific id"));
 	}
 
-	public List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationDefinition request) {
+	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationDefinition request) {
 		if (request == null) {
 			throw new IllegalArgumentException("Could not create Project Allocation due to empty request body.");
 		}
@@ -134,17 +130,14 @@ class ProjectsRestService {
 		return findAllProjectAllocationsByProjectId(projectId);
 	}
 
-	private Project convertToProject(io.imunity.furms.domain.projects.Project project) {
-		return new Project(
-				project,
-				projectInstallationStatusService.findAllByProjectId(project.getId()).stream().findFirst(),
-				findUser(project.getLeaderId()));
-	}
-
 	private ProjectWithUsers convertToProjectWithUsers(io.imunity.furms.domain.projects.Project project) {
 		return new ProjectWithUsers(
 				convertToProject(project),
 				new ArrayList<>(resourceAccessService.findAddedUser(project.getId())));
+	}
+
+	private Project convertToProject(io.imunity.furms.domain.projects.Project project) {
+		return new Project(project, findUser(project.getLeaderId()));
 	}
 
 	private User findUser(PersistentId userId) {

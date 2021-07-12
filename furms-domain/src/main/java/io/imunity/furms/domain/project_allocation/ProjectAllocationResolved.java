@@ -9,7 +9,6 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.FenixUserId;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -25,11 +24,10 @@ public class ProjectAllocationResolved {
 	public final String name;
 	public final BigDecimal amount;
 	public final BigDecimal consumed;
-	public final FenixUserId fenixUserId;
 
 	ProjectAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
 	                          CommunityAllocation communityAllocation, String projectId, String name, BigDecimal amount,
-	                          BigDecimal consumed, FenixUserId fenixUserId) {
+	                          BigDecimal consumed) {
 		this.id = id;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -39,7 +37,6 @@ public class ProjectAllocationResolved {
 		this.name = name;
 		this.amount = amount;
 		this.consumed = consumed;
-		this.fenixUserId = fenixUserId;
 	}
 
 	@Override
@@ -55,8 +52,7 @@ public class ProjectAllocationResolved {
 			Objects.equals(communityAllocation, that.communityAllocation) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(consumed, that.consumed) &&
-			Objects.equals(amount, that.amount) &&
-			Objects.equals(fenixUserId, that.fenixUserId);
+			Objects.equals(amount, that.amount);
 	}
 
 	@Override
@@ -76,7 +72,6 @@ public class ProjectAllocationResolved {
 			", name='" + name + '\'' +
 			", amount='" + amount + '\'' +
 			", consumed='" + consumed + '\'' +
-			", fenixUserId='" + fenixUserId + '\'' +
 			'}';
 	}
 
@@ -94,7 +89,6 @@ public class ProjectAllocationResolved {
 		public String name;
 		public BigDecimal amount;
 		public BigDecimal consumed;
-		public FenixUserId fenixUserId;
 
 		private CommunityAllocationResolvedBuilder() {
 		}
@@ -144,14 +138,9 @@ public class ProjectAllocationResolved {
 			return this;
 		}
 
-		public CommunityAllocationResolvedBuilder fenixUserId(FenixUserId fenixUserId) {
-			this.fenixUserId = fenixUserId;
-			return this;
-		}
-
 		public ProjectAllocationResolved build() {
 			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId,
-					name, amount, consumed, fenixUserId);
+					name, amount, consumed);
 		}
 	}
 }

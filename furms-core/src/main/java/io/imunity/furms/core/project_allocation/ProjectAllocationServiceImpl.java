@@ -74,9 +74,10 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Optional<ProjectAllocationResolved> findWithRelatedObjectsByProjectIdAndId(String projectId, String id) {
-		validator.validateProjectIdAndProjectAllocationId(projectId, id);
-		return projectAllocationRepository.findByIdWithRelatedObjects(id);
+	public Optional<ProjectAllocationResolved> findByIdValidatingProjectsWithRelatedObjects(String allocationId,
+	                                                                                        String projectId) {
+		validator.validateProjectIdAndProjectAllocationId(projectId, allocationId);
+		return projectAllocationRepository.findByIdWithRelatedObjects(allocationId);
 	}
 
 	@Override

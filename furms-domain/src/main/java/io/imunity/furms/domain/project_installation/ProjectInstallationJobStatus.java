@@ -14,20 +14,17 @@ public class ProjectInstallationJobStatus {
 	public final String siteId;
 	public final String siteName;
 	public final String projectId;
-	public final String gid;
 	public final ProjectInstallationStatus status;
 	public final Optional<ErrorMessage> errorMessage;
 
 	ProjectInstallationJobStatus(String siteId,
 	                             String siteName,
 	                             String projectId,
-	                             String gid,
 	                             ProjectInstallationStatus status,
 	                             Optional<ErrorMessage> errorMessage) {
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.projectId = projectId;
-		this.gid = gid;
 		this.status = status;
 		this.errorMessage = errorMessage;
 	}
@@ -41,7 +38,6 @@ public class ProjectInstallationJobStatus {
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(siteName, that.siteName) &&
 			Objects.equals(projectId, that.projectId) &&
-			Objects.equals(gid, that.gid) &&
 			Objects.equals(errorMessage, that.errorMessage);
 	}
 
@@ -56,7 +52,6 @@ public class ProjectInstallationJobStatus {
 			"siteName='" + siteName + '\'' +
 			", siteId=" + siteId +
 			", projectId=" + projectId +
-			", gid=" + gid +
 			", status=" + status +
 			", errorMessage=" + errorMessage +
 			'}';
@@ -70,7 +65,6 @@ public class ProjectInstallationJobStatus {
 		public String siteId;
 		public String siteName;
 		public String projectId;
-		public String gid;
 		public ProjectInstallationStatus status;
 		public Optional<ErrorMessage> errorMessage = Optional.empty();
 
@@ -92,11 +86,6 @@ public class ProjectInstallationJobStatus {
 			return this;
 		}
 
-		public ProjectInstallationJobStatusBuilder gid(String gid) {
-			this.gid = gid;
-			return this;
-		}
-
 		public ProjectInstallationJobStatusBuilder status(ProjectInstallationStatus status) {
 			this.status = status;
 			return this;
@@ -110,7 +99,7 @@ public class ProjectInstallationJobStatus {
 		}
 
 		public ProjectInstallationJobStatus build() {
-			return new ProjectInstallationJobStatus(siteId, siteName, projectId, gid, status, errorMessage);
+			return new ProjectInstallationJobStatus(siteId, siteName, projectId, status, errorMessage);
 		}
 	}
 }

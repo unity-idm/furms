@@ -13,6 +13,6 @@ import java.util.UUID;
 
 public interface ResourceUsageService {
 
-	Set<UserResourceUsage> findAllUserUsages(Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to);
+	Set<UserResourceUsage> findAllUserUsages(String siteId, Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to);
 
 }
