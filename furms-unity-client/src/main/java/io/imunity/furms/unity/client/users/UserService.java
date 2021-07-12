@@ -110,6 +110,13 @@ public class UserService {
 		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
 	}
 
+	public Optional<FURMSUser> getUser(FenixUserId userId){
+		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
+		Entity entity  = getEntity(userId);
+
+		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
+	}
+
 	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
@@ -128,6 +135,15 @@ public class UserService {
 			.build()
 			.toUriString();
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));
+	}
+
+	private List<Attribute> getAttributesFromRootGroup(FenixUserId userId) {
+		String path = UriComponentsBuilder.newInstance()
+			.pathSegment(ENTITY_ATTRIBUTES)
+			.uriVariables(Map.of(ID, userId.id))
+			.build()
+			.toUriString();
+		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
 
 	private Entity getEntity(PersistentId userId) {

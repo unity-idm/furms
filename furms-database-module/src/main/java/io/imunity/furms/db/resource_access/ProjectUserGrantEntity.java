@@ -3,17 +3,15 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.resource_access;
-
-import io.imunity.furms.domain.users.FenixUserId;
+package io.imunity.furms.db.resource_access;
 
 import java.util.Objects;
 
-public class ProjectUserGrant {
+public class ProjectUserGrantEntity {
 	public final String projectId;
-	public final FenixUserId userId;
+	public final String userId;
 
-	public ProjectUserGrant(String projectId, FenixUserId userId) {
+	public ProjectUserGrantEntity(String projectId, String userId) {
 		this.projectId = projectId;
 		this.userId = userId;
 	}
@@ -22,7 +20,7 @@ public class ProjectUserGrant {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectUserGrant userGrant = (ProjectUserGrant) o;
+		ProjectUserGrantEntity userGrant = (ProjectUserGrantEntity) o;
 		return Objects.equals(projectId, userGrant.projectId) &&
 			Objects.equals(userId, userGrant.userId);
 	}

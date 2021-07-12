@@ -9,7 +9,6 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
@@ -40,9 +39,8 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 		if(status.equals(AccessStatus.REVOKED)) {
 			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
-			FenixUserId fenixUserId = new FenixUserId(projectUserGrant.userId);
-			if(repository.findUserGrantsByProjectIdAndFenixUserId(projectUserGrant.projectId, fenixUserId).isEmpty())
-				userOperationService.createUserRemovals(projectUserGrant.projectId, fenixUserId);
+			if(repository.findUserGrantsByProjectIdAndFenixUserId(projectUserGrant.projectId, projectUserGrant.userId).isEmpty())
+				userOperationService.createUserRemovals(projectUserGrant.projectId, projectUserGrant.userId);
 			repository.deleteByCorrelationId(correlationId);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;

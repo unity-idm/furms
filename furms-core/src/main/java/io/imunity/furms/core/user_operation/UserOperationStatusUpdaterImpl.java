@@ -50,13 +50,13 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 		repository.update(userAddition);
 		if(userAddition.status.equals(UserStatus.ADDED)){
 			UserAddition addition = repository.findAdditionByCorrelationId(userAddition.correlationId);
-			sendWaitingGrantAccess(addition.siteId.id, addition.projectId, new FenixUserId(addition.userId));
+			sendQueuedGrandAccess(addition.siteId.id, addition.projectId, new FenixUserId(addition.userId));
 		}
 
 		LOG.info("UserAddition was correlation id {} was added", userAddition.correlationId.id);
 	}
 
-	private void sendWaitingGrantAccess(String siteId, String projectId, FenixUserId userId) {
+	private void sendQueuedGrandAccess(String siteId, String projectId, FenixUserId userId) {
 		Set<GrantAccess> userGrants = resourceAccessRepository.findWaitingGrantAccesses(userId, projectId, siteId);
 		for (GrantAccess grantAccess : userGrants) {
 			CorrelationId correlationId = CorrelationId.randomID();

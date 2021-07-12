@@ -169,6 +169,30 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindByCorrelationId(){
+		UserGrantEntity userAllocation = userGrantEntityRepository.save(
+			UserGrantEntity.builder()
+				.siteId(siteId)
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.userId("userId")
+				.build()
+		);
+		UUID correlationId = UUID.randomUUID();
+		UserGrantJobEntity userGrantJobEntity = UserGrantJobEntity.builder()
+			.userAllocationId(userAllocation.getId())
+			.status(AccessStatus.GRANTED)
+			.correlationId(correlationId)
+			.build();
+		userGrantJobEntityRepository.save(userGrantJobEntity);
+
+		Optional<ProjectUserGrantEntity> userAllocationResolved = userGrantEntityRepository.findByCorrelationId(correlationId.toString());
+		assertThat(userAllocationResolved).isPresent();
+		assertThat(userAllocationResolved.get().userId).isEqualTo("userId");
+		assertThat(userAllocationResolved.get().projectId).isEqualTo(projectId.toString());
+	}
+
+	@Test
 	void shouldFindAllByProjectId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()

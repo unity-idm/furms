@@ -5,7 +5,6 @@
 
 package io.imunity.furms.db.resource_access;
 
-import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +31,7 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +
 			"where uaj.correlation_id = :correlation_id"
 	)
-	Optional<ProjectUserGrant> findByCorrelationId(@Param("correlation_id") String correlationId);
+	Optional<ProjectUserGrantEntity> findByCorrelationId(@Param("correlation_id") String correlationId);
 
 	@Query(
 		"select ua.*, s.external_id as site_external_id " +

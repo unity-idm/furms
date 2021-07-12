@@ -76,19 +76,28 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		if(repository.exists(grantAccess))
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 
-		Optional<UserStatus> additionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
-		if(additionStatus.isEmpty() || additionStatus.get().equals(UserStatus.ADDING_PENDING) || additionStatus.get().equals(UserStatus.ADDING_ACKNOWLEDGED))
-			repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
-		else {
+		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+		if(isUserProvided(userAdditionStatus)){
 			repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
 			runAfterCommit(() ->
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		if(additionStatus.isEmpty() || additionStatus.get().equals(UserStatus.ADDING_FAILED))
-			userOperationService.createUserAdditions(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
+		else {
+			repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
+			if(isUserNotProviding(userAdditionStatus))
+				userOperationService.createUserAdditions(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
+		}
 
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
+	}
+
+	private boolean isUserProvided(Optional<UserStatus> userAdditionStatus) {
+		return !(userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_PENDING) || userAdditionStatus.get().equals(UserStatus.ADDING_ACKNOWLEDGED));
+	}
+
+	private boolean isUserNotProviding(Optional<UserStatus> userAdditionStatus) {
+		return userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_FAILED);
 	}
 
 	@Override
