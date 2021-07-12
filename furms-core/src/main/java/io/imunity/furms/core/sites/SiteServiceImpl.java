@@ -293,7 +293,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
 				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
 				.sshKeyHistoryLength(ofNullable(site.getSshKeyHistoryLength()).orElse(oldSite.getSshKeyHistoryLength()))
-				.build();	
+				.policyId(site.getPolicyId())
+				.build();
 	}
 	
 	private void assertNotEmpty(String siteId, PersistentId userId) {

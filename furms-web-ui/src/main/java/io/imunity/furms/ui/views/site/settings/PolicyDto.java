@@ -3,32 +3,27 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.policy_documents;
+package io.imunity.furms.ui.views.site.settings;
+
+import io.imunity.furms.domain.policy_documents.PolicyId;
 
 import java.util.Objects;
-import java.util.UUID;
 
-public class PolicyId {
-	public final UUID id;
+class PolicyDto {
+	public final PolicyId id;
+	public final String name;
 
-	public PolicyId(UUID id) {
+	PolicyDto(PolicyId id, String name) {
 		this.id = id;
-	}
-
-	public PolicyId(String id) {
-		this.id = UUID.fromString(id);
-	}
-
-	public static PolicyId empty() {
-		return new PolicyId((UUID) null);
+		this.name = name;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PolicyId policyId = (PolicyId) o;
-		return Objects.equals(id, policyId.id);
+		PolicyDto policyDto = (PolicyDto) o;
+		return Objects.equals(id, policyDto.id);
 	}
 
 	@Override
@@ -38,8 +33,9 @@ public class PolicyId {
 
 	@Override
 	public String toString() {
-		return "PolicyId{" +
-			"id=" + id +
+		return "PolicyDto{" +
+			"id='" + id + '\'' +
+			", name='" + name + '\'' +
 			'}';
 	}
 }

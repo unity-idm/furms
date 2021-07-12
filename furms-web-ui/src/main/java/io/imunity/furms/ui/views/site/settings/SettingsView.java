@@ -5,37 +5,24 @@
 
 package io.imunity.furms.ui.views.site.settings;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
-
+import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.constant.SSHKeysConst;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -43,8 +30,26 @@ import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vaadin.pekka.WysiwygE;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "site/admin/settings", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.settings.page.title")
@@ -57,25 +62,36 @@ public class SettingsView extends FurmsViewComponent {
 
 	private final SiteService siteService;
 
+	private final Map<PolicyId, PolicyDto> policyDocuments;
+
 	private final TextField name;
+
+	private final ComboBox<PolicyDto> policies;
 
 	private final Div externalId;
 
 	private SiteSettingsDto bufferedSettings;
 
-	SettingsView(SiteService siteService) {
+	SettingsView(SiteService siteService, PolicyDocumentService policyDocumentService) {
 		this.siteService = siteService;
+		SiteSettingsDto siteSettingsDto = loadSite();
+		this.policyDocuments = policyDocumentService.findAllBySiteId(siteSettingsDto.getId())
+			.stream()
+			.map(policyDocument -> new PolicyDto(policyDocument.id, policyDocument.name))
+			.collect(Collectors.toMap(x -> x.id, Function.identity()));
+
 		this.name = new TextField();
 		this.externalId = new Div();
+		policies = new ComboBox<>();
 
-		addForm();
+		addForm(siteSettingsDto);
 	}
 
-	private void addForm() {
+	private void addForm(SiteSettingsDto dto) {
 		FormLayout formLayout = new FurmsFormLayout();
 
 		Binder<SiteSettingsDto> binder = new Binder<>(SiteSettingsDto.class);
-		binder.setBean(loadSite());
+		binder.setBean(dto);
 
 		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.id"));
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
@@ -83,6 +99,7 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.addFormItem(sshKeyFromMandatory(binder), "");
 		formLayout.addFormItem(prohibitOldSSHKey(binder), "");
 		formLayout.addFormItem(uploadRow(binder), getTranslation("view.site-admin.settings.form.logo"));
+		formLayout.addFormItem(policyRow(binder), getTranslation("view.site-admin.settings.form.policy"));
 		formLayout.add(buttonsRow(binder));
 
 		getContent().add(formLayout);
@@ -106,6 +123,19 @@ public class SettingsView extends FurmsViewComponent {
 				.bind(SiteSettingsDto::getName, SiteSettingsDto::setName);
 
 		return name;
+	}
+
+	private ComboBox<PolicyDto> policyRow(Binder<SiteSettingsDto> binder) {
+		policies.setItemLabelGenerator(policy -> policy.name);
+		policies.setItems(policyDocuments.values());
+
+		binder.forField(policies)
+			.bind(site -> policyDocuments.get(site.getPolicyId()),
+				(site, policy) -> site.setPolicyId(Optional.ofNullable(policy)
+					.map(p -> p.id)
+					.orElse(PolicyId.empty()))
+			);
+		return policies;
 	}
 
 	private FurmsImageUpload uploadRow(Binder<SiteSettingsDto> binder) {
@@ -137,9 +167,8 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private Component connectionInfoRow(Binder<SiteSettingsDto> binder) {
-		TextArea textArea = new TextArea();
+		WysiwygE textArea = new WysiwygE();
 		textArea.setValueChangeMode(EAGER);
-		textArea.setClassName("wide-text-area");
 		textArea.setPlaceholder(getTranslation("view.site-admin.settings.form.info.placeholder"));
 		binder.forField(textArea)
 				.bind(SiteSettingsDto::getConnectionInfo, SiteSettingsDto::setConnectionInfo);
@@ -203,6 +232,7 @@ public class SettingsView extends FurmsViewComponent {
 						.logo(settings.getLogo())
 						.sshKeyFromOptionMandatory(settings.isSshKeyFromOptionMandatory())
 						.sshKeyHistoryLength(settings.isProhibitOldsshKeys()? SSHKeysConst.MAX_HISTORY_SIZE : 0)
+						.policyId(settings.getPolicyId())
 						.build());
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
@@ -236,7 +266,8 @@ public class SettingsView extends FurmsViewComponent {
 				|| !Objects.equals(bufferedSettings.getLogo(), bean.getLogo())
 				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo())
 				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory())
-				|| !Objects.equals(bufferedSettings.isProhibitOldsshKeys(), bean.isProhibitOldsshKeys());
+				|| !Objects.equals(bufferedSettings.isProhibitOldsshKeys(), bean.isProhibitOldsshKeys())
+				|| !Objects.equals(bufferedSettings.getPolicyId(), bean.getPolicyId());
 	}
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {

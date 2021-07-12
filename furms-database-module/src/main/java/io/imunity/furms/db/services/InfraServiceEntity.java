@@ -6,6 +6,7 @@
 package io.imunity.furms.db.services;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraService;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -17,12 +18,14 @@ class InfraServiceEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final String name;
 	public final String description;
+	public final UUID policyId;
 
-	InfraServiceEntity(UUID id, UUID siteId, String name, String description) {
+	InfraServiceEntity(UUID id, UUID siteId, String name, String description, UUID policyId) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.description = description;
+		this.policyId = policyId;
 	}
 
 	InfraService toService(){
@@ -31,6 +34,7 @@ class InfraServiceEntity extends UUIDIdentifiable {
 			.name(name)
 			.description(description)
 			.siteId(siteId.toString())
+			.policyId(new PolicyId(policyId))
 			.build();
 	}
 
@@ -42,21 +46,23 @@ class InfraServiceEntity extends UUIDIdentifiable {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
-			Objects.equals(description, that.description);
+			Objects.equals(description, that.description) &&
+			Objects.equals(policyId, that.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, name, description);
+		return Objects.hash(id, siteId, name, description, policyId);
 	}
 
 	@Override
 	public String toString() {
 		return "ServiceEntity{" +
 			"siteId=" + siteId +
+			", id=" + id +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
-			", id=" + id +
+			", policyId=" + policyId +
 			'}';
 	}
 
@@ -69,12 +75,18 @@ class InfraServiceEntity extends UUIDIdentifiable {
 		public UUID siteId;
 		public String name;
 		public String description;
+		public UUID policyId;
 
 		private ServiceEntityBuilder() {
 		}
 
 		public ServiceEntityBuilder siteId(UUID siteId) {
 			this.siteId = siteId;
+			return this;
+		}
+
+		public ServiceEntityBuilder policyId(UUID policyId) {
+			this.policyId = policyId;
 			return this;
 		}
 
@@ -94,7 +106,7 @@ class InfraServiceEntity extends UUIDIdentifiable {
 		}
 
 		public InfraServiceEntity build() {
-			return new InfraServiceEntity(id, siteId, name, description);
+			return new InfraServiceEntity(id, siteId, name, description, policyId);
 		}
 	}
 }

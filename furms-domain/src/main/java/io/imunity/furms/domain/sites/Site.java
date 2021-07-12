@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.sites;
 
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 
 import java.util.Objects;
 
@@ -18,9 +19,10 @@ public class Site {
 	private final Boolean sshKeyFromOptionMandatory;
 	private final SiteExternalId externalId;
 	private final Integer sshKeyHistoryLength;
+	private final PolicyId policyId;
 
 	private Site(String id, String name, String connectionInfo, FurmsImage logo, Boolean sshKeyFromOptionMandatory,
-			Integer sshKeyHistoryLength, SiteExternalId externalId) {
+			Integer sshKeyHistoryLength, SiteExternalId externalId, PolicyId policyId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
@@ -28,6 +30,7 @@ public class Site {
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 		this.sshKeyHistoryLength = sshKeyHistoryLength;
 		this.externalId = externalId;
+		this.policyId = policyId;
 	}
 
 	public String getId() {
@@ -63,6 +66,10 @@ public class Site {
 		return sshKeyHistoryLength == null || sshKeyHistoryLength.equals(0) ? false : true;
 	}
 
+	public PolicyId getPolicyId() {
+		return policyId;
+	}
+
 	public static SiteBuilder builder() {
 		return new SiteBuilder();
 	}
@@ -78,12 +85,13 @@ public class Site {
 				Objects.equals(logo, site.logo) &&
 				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory) &&
 				Objects.equals(sshKeyHistoryLength, site.sshKeyHistoryLength) &&
-				Objects.equals(externalId, site.externalId);
+				Objects.equals(externalId, site.externalId) &&
+				Objects.equals(policyId, site.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength);
+		return Objects.hash(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength, policyId);
 	}
 
 	@Override
@@ -95,6 +103,7 @@ public class Site {
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				", sshKeyHistoryLength=" + sshKeyHistoryLength +
 				", externalId=" + externalId +
+				", policyId=" + policyId +
 				'}';
 	}
 
@@ -107,9 +116,15 @@ public class Site {
 		private Boolean sshKeyFromOptionMandatory;
 		private SiteExternalId externalId;
 		private Integer sshKeyHistoryLength;
+		private PolicyId policyId = PolicyId.empty();
 
 		public SiteBuilder id(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public SiteBuilder policyId(PolicyId policyId) {
+			this.policyId = policyId;
 			return this;
 		}
 
@@ -144,10 +159,8 @@ public class Site {
 		}
 
 		public Site build() {
-			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId);
+			return new Site(id, name, connectionInfo, logo, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId, policyId);
 		}
-
-		
 
 	}
 

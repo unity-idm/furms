@@ -5,14 +5,6 @@
 
 package io.imunity.furms.ui.views.site.services;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-
-import java.util.Optional;
-import java.util.function.Function;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -22,8 +14,9 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
+import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.services.InfraServiceService;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
@@ -32,6 +25,16 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "site/admin/service/form", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.service.form.page.title")
@@ -42,9 +45,13 @@ class InfraServiceFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	InfraServiceFormView(InfraServiceService infraServiceService) {
+	InfraServiceFormView(InfraServiceService infraServiceService, PolicyDocumentService policyDocumentService) {
 		this.infraServiceService = infraServiceService;
-		this.serviceFormComponent = new InfraServiceFormComponent(binder);
+		Map<PolicyId, PolicyDto> policyDtos = policyDocumentService.findAllBySiteId(getCurrentResourceId())
+			.stream()
+			.map(policyDocument -> new PolicyDto(policyDocument.id, policyDocument.name))
+			.collect(Collectors.toMap(x -> x.id, x -> x));
+		this.serviceFormComponent = new InfraServiceFormComponent(binder, policyDtos);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();

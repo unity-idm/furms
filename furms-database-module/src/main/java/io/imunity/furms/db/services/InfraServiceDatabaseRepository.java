@@ -5,19 +5,18 @@
 
 package io.imunity.furms.db.services;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.spi.services.InfraServiceRepository;
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Repository
 class InfraServiceDatabaseRepository implements InfraServiceRepository {
@@ -57,6 +56,7 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 				.siteId(UUID.fromString(infraService.siteId))
 				.name(infraService.name)
 				.description(infraService.description)
+				.policyId(infraService.policyId.id)
 				.build()
 		);
 		return savedService.getId().toString();
@@ -70,6 +70,7 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 				.siteId(UUID.fromString(infraService.siteId))
 				.name(infraService.name)
 				.description(infraService.description)
+				.policyId(infraService.policyId.id)
 				.build()
 			)
 			.map(repository::save)
