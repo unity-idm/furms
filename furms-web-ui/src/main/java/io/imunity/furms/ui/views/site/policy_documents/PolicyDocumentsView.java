@@ -55,7 +55,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 
 	private void loadPageContent() {
 		Button addButton = createAddButton();
-		grid = createCommunityGrid();
+		grid = createPolicyDocumentGrid();
 
 		loadGridContent();
 
@@ -86,14 +86,14 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 			.collect(toList());
 	}
 
-	private Grid<PolicyDocumentGridModel> createCommunityGrid() {
+	private Grid<PolicyDocumentGridModel> createPolicyDocumentGrid() {
 		Grid<PolicyDocumentGridModel> grid = new SparseGrid<>(PolicyDocumentGridModel.class);
 
 		grid.addComponentColumn(model -> new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString()))
 			.setHeader(getTranslation("view.site-admin.policy-documents.grid.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
-		grid.addColumn(model -> model.workflow.name())
+		grid.addColumn(model -> getTranslation("view.site-admin.policy-documents.workflow." + model.workflow.getPersistentId()))
 			.setHeader(getTranslation("view.site-admin.policy-documents.grid.2"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
