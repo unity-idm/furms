@@ -3,17 +3,17 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.site.services;
+package io.imunity.furms.ui.views.site;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
 
 import java.util.Objects;
 
-class PolicyDto {
+public class PolicyDto {
 	public final PolicyId id;
 	public final String name;
 
-	PolicyDto(PolicyId id, String name) {
+	public PolicyDto(PolicyId id, String name) {
 		this.id = id;
 		this.name = name;
 	}

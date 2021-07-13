@@ -30,6 +30,7 @@ import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.views.site.PolicyDto;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import org.slf4j.Logger;

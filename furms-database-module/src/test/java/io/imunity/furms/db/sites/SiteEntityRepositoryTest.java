@@ -60,8 +60,8 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 
 		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
 			.siteId(old.getId().toString())
-			.name("ala")
-			.wysiwygText("aaa")
+			.name("policyName")
+			.wysiwygText("wysiwygText")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.build());

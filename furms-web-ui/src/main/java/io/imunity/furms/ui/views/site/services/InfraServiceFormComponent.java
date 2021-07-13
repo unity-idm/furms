@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import io.imunity.furms.ui.views.site.PolicyDto;
 
 import java.util.Map;
 import java.util.Objects;

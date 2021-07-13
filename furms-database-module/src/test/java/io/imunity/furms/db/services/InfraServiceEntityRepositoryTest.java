@@ -58,8 +58,8 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
 			.siteId(siteId.toString())
-			.name("ala")
-			.wysiwygText("aaa")
+			.name("policyName")
+			.wysiwygText("wysiwygText")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.build());
@@ -94,8 +94,8 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 		serviceRepository.save(old);
 		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
 			.siteId(siteId.toString())
-			.name("ala")
-			.wysiwygText("aaa")
+			.name("policyName")
+			.wysiwygText("wysiwygText")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.build());

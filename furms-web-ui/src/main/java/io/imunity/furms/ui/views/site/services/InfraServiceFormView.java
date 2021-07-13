@@ -24,6 +24,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
+import io.imunity.furms.ui.views.site.PolicyDto;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 import java.util.Map;
