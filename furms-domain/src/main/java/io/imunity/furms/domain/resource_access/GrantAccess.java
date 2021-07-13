@@ -44,7 +44,7 @@ public class GrantAccess {
 
 	@Override
 	public String toString() {
-		return "RevokeAccess{" +
+		return "GrantAccess{" +
 			"siteId=" + siteId +
 			", projectId='" + projectId + '\'' +
 			", allocationId='" + allocationId + '\'' +

@@ -11,7 +11,6 @@ import io.imunity.furms.domain.resource_access.UserGrant;
 import java.util.Set;
 
 public interface ResourceAccessService {
-	Set<String> findAddedUser(String projectId);
 	Set<UserGrant> findUsersGrants(String projectId);
 	Set<UserGrant> findCurrentUserGrants(String projectId);
 	void grantAccess(GrantAccess grantAccess);

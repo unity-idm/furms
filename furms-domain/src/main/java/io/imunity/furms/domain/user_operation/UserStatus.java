@@ -8,7 +8,7 @@ package io.imunity.furms.domain.user_operation;
 import java.util.Arrays;
 
 public enum UserStatus {
-	ADDING_PENDING(0, false),
+	ADDING_PENDING(0,  false),
 	ADDING_ACKNOWLEDGED(1, false),
 	ADDED(2, false),
 	ADDING_FAILED(3, true),

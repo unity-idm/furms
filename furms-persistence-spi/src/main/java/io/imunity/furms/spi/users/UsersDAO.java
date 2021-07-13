@@ -19,6 +19,7 @@ public interface UsersDAO {
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
 	UserStatus getUserStatus(FenixUserId fenixUserId);
 	Optional<FURMSUser> findById(PersistentId userId);
+	Optional<FURMSUser> findById(FenixUserId userId);
 	UserAttributes getUserAttributes(FenixUserId fenixUserId);
 	PersistentId getPersistentId(FenixUserId userId);
 	FenixUserId getFenixUserId(PersistentId userId);

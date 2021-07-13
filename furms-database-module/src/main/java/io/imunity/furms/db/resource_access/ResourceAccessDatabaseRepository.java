@@ -8,12 +8,15 @@ package io.imunity.furms.db.resource_access;
 
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,6 +40,12 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
+	public Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId) {
+		return userGrantEntityRepository.findByCorrelationId(correlationId.id)
+			.map(entity -> new ProjectUserGrant(entity.projectId, new FenixUserId(entity.userId)));
+	}
+
+	@Override
 	public Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId) {
 		return userGrantEntityRepository.findAll(UUID.fromString(projectId), fenixUserId.id).stream()
 			.map(this::map)
@@ -53,7 +62,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void create(CorrelationId correlationId, GrantAccess grantAccess) {
+	public void create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
 		UserGrantEntity save = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
 				.siteId(UUID.fromString(grantAccess.siteId.id))
@@ -65,7 +74,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
 			.correlationId(UUID.fromString(correlationId.id))
 			.userAllocationId(save.getId())
-			.status(AccessStatus.GRANT_PENDING)
+			.status(accessStatus)
 			.build()
 		);
 	}
@@ -82,6 +91,18 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.map(userGrantResolved -> userGrantResolved.job.status)
 			.map(AccessStatus::valueOf)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("UserGant with user id %s and allocation id %s doesn't exist", userId, allocationId)));
+	}
+
+	@Override
+	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId) {
+		return userGrantEntityRepository.findByUserIdAndProjectIdAndSiteId(userId.id, UUID.fromString(projectId), UUID.fromString(siteId), AccessStatus.USER_INSTALLING.getPersistentId()).stream()
+			.map(x -> GrantAccess.builder()
+				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
+				.fenixUserId(new FenixUserId(x.userId))
+				.projectId(x.projectId.toString())
+				.allocationId(x.projectAllocationId.toString())
+				.build())
+			.collect(Collectors.toSet());
 	}
 
 	@Override

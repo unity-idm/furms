@@ -7,7 +7,11 @@ package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation_installation.*;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
@@ -23,8 +27,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ProjectAllocationInstallationStatusUpdaterTest {
@@ -42,8 +44,8 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository, userOperationService);
-		orderVerifier = inOrder(repository, userOperationService);
+		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository);
+		orderVerifier = inOrder(repository);
 	}
 
 	@Test
@@ -65,7 +67,6 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//then
 		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
-		orderVerifier.verify(userOperationService).createUserAdditions("siteId", "projectId");
 	}
 
 	@Test
@@ -87,7 +88,6 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//then
 		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
-		verify(userOperationService, times(0)).createUserAdditions("siteId", "projectId");
 	}
 
 	@Test
