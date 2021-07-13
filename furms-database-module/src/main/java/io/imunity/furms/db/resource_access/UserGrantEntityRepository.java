@@ -31,7 +31,7 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +
 			"where uaj.correlation_id = :correlation_id"
 	)
-	Optional<ProjectUserGrantEntity> findByCorrelationId(@Param("correlation_id") String correlationId);
+	Optional<ProjectUserGrantEntity> findByCorrelationId(@Param("correlation_id") UUID correlationId);
 
 	@Query(
 		"select ua.*, s.external_id as site_external_id " +
