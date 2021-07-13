@@ -24,7 +24,7 @@ public class RevisionFurmsDialog extends Dialog {
 		revisionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		revisionButton.addClickListener(event -> close());
 
-		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		saveButton.addClickListener(event -> close());
 
 		cancelButton.addClickListener(event -> close());
@@ -39,6 +39,7 @@ public class RevisionFurmsDialog extends Dialog {
 				horizontalLayout
 			)
 		);
+		setMaxWidth("60em");
 	}
 
 	public void addSaveButtonClickListener(ComponentEventListener<ClickEvent<Button>> listener){
