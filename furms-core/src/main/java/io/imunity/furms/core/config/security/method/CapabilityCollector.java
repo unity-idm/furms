@@ -71,7 +71,7 @@ class CapabilityCollector {
 			roles.addAll(role);
 		}
 		for(Role r : roles){
-			capabilities.addAll(r.additionalCapabilities);
+			capabilities.addAll(r.globalCapabilities);
 		}
 
 		return capabilities;

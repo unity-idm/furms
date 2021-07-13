@@ -59,7 +59,7 @@ public class AuthzServiceImpl implements AuthzService {
 	public boolean hasRESTAPITokensCreationRights(PersistentId userId) {
 		return roleLoader.loadUserRoles(userId).values().stream()
 				.flatMap(Collection::stream)
-				.map(role -> role.capabilities)
+				.map(role -> role.globalCapabilities)
 				.flatMap(Collection::stream)
 				.anyMatch(capability -> REST_API_KEY_MANAGEMENT == capability);
 	}

@@ -18,7 +18,7 @@ public interface UserApiKeyService {
 
 	Optional<UserApiKey> findByUserId(PersistentId userId);
 
-	Optional<UserApiKey> generate(PersistentId userId);
+	void save(PersistentId userId, String value);
 
 	void revoke(PersistentId userId);
 
