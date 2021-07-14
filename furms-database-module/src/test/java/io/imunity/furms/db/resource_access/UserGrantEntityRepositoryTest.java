@@ -186,7 +186,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Optional<ProjectUserGrantEntity> userAllocationResolved = userGrantEntityRepository.findByCorrelationId(correlationId.toString());
+		Optional<ProjectUserGrantEntity> userAllocationResolved = userGrantEntityRepository.findByCorrelationId(correlationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().userId).isEqualTo("userId");
 		assertThat(userAllocationResolved.get().projectId).isEqualTo(projectId.toString());

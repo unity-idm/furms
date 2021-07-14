@@ -41,7 +41,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 
 	@Override
 	public Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId) {
-		return userGrantEntityRepository.findByCorrelationId(correlationId.id)
+		return userGrantEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(entity -> new ProjectUserGrant(entity.projectId, new FenixUserId(entity.userId)));
 	}
 
