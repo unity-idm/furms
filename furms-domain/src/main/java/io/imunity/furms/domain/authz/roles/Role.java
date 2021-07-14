@@ -17,21 +17,16 @@ public enum Role {
 		"-irrelevant-",
 		"-irrelevant-",
 		emptyList(),
-		List.of(
-			USERS_MAINTENANCE,
-			OWNED_SSH_KEY_MANAGMENT
-		)
+		List.of(USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT)
 	),
 	FENIX_ADMIN(
 		"furmsFenixRole",
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
-			FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS, USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT, REST_API_KEY_MANAGEMENT
+			FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS, USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT
 		),
-		List.of(
-			SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_LIMITED_READ
-		)
+		List.of(SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
 	SITE_SUPPORT(
 		"furmsSiteRole",
@@ -43,27 +38,27 @@ public enum Role {
 		"furmsSiteRole",
 		"ADMIN",
 		List.of(
-			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, OWNED_SSH_KEY_MANAGMENT, REST_API_KEY_MANAGEMENT
+			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, OWNED_SSH_KEY_MANAGMENT
 		),
-		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ)
+		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
 	COMMUNITY_ADMIN(
 		"furmsCommunityRole",
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE, PROJECT_LIMITED_WRITE,
-			PROJECT_LEAVE, PROJECT_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT, REST_API_KEY_MANAGEMENT
+			PROJECT_LEAVE, PROJECT_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT
 		),
-		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ)
+		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
 	PROJECT_ADMIN(
 		"furmsProjectRole",
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, PROJECT_READ, PROJECT_LIMITED_WRITE, PROJECT_ADMINS_MANAGEMENT,
-			PROJECT_MEMBER_MANAGEMENT, PROJECT_LEAVE, OWNED_SSH_KEY_MANAGMENT, REST_API_KEY_MANAGEMENT
+			PROJECT_MEMBER_MANAGEMENT, PROJECT_LEAVE, OWNED_SSH_KEY_MANAGMENT
 		),
-		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ)
+		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
 	PROJECT_USER(
 		"furmsProjectRole",
@@ -77,14 +72,14 @@ public enum Role {
 	public final String unityRoleAttribute;
 	public final String unityRoleValue;
 	public final List<Capability> capabilities;
-	public final List<Capability> additionalCapabilities;
+	public final List<Capability> globalCapabilities;
 
 	Role(String unityRoleAttribute, String unityRoleValue, List<Capability> capabilities,
-	     List<Capability> additionalCapabilities) {
+	     List<Capability> globalCapabilities) {
 		this.unityRoleAttribute = unityRoleAttribute;
 		this.unityRoleValue = unityRoleValue;
 		this.capabilities = List.copyOf(capabilities);
-		this.additionalCapabilities = List.copyOf(additionalCapabilities);
+		this.globalCapabilities = List.copyOf(globalCapabilities);
 	}
 
 	public static Optional<Role> translateRole(String attributeType, String value) {

@@ -5,12 +5,16 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.policy_documents.PolicyContentType;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import io.imunity.furms.db.DBIntegrationTest;
 
 import java.util.Optional;
 
@@ -22,6 +26,8 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private SiteEntityRepository siteEntityRepository;
+	@Autowired
+	private PolicyDocumentRepository policyDocumentRepository;
 
 	@BeforeEach
 	void setUp() {
@@ -51,10 +57,20 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 				.name("name")
 				.externalId("id")
 				.build());
+
+		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
+			.siteId(old.getId().toString())
+			.name("policyName")
+			.wysiwygText("wysiwygText")
+			.workflow(PolicyWorkflow.WEB_BASED)
+			.contentType(PolicyContentType.EMBEDDED)
+			.build());
+
 		SiteEntity toUpdate = SiteEntity.builder()
 				.id(old.getId())
 				.name("new_name")
 				.externalId("id2")
+				.policyId(policyId.id)
 				.build();
 
 		//when
@@ -64,6 +80,7 @@ class SiteEntityRepositoryTest extends DBIntegrationTest {
 		Optional<SiteEntity> byId = siteEntityRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
+		assertThat(byId.get().getPolicyId()).isEqualTo(policyId.id);
 	}
 
 	@Test

@@ -76,6 +76,7 @@ class SiteDatabaseRepository implements SiteRepository {
 				.logo(site.getLogo())
 				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
 				.externalId(siteExternalId.id)
+				.policyId(site.getPolicyId().id)
 				.build());
 		return saved.getId().toString();
 	}
@@ -94,6 +95,7 @@ class SiteDatabaseRepository implements SiteRepository {
 						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())
 						.sshKeyHistoryLength(site.getSshKeyHistoryLength())
 						.externalId(oldEntity.getExternalId())
+						.policyId(site.getPolicyId().id)
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)

@@ -7,8 +7,6 @@ package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
@@ -17,7 +15,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
-import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -33,7 +30,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,7 +37,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class UserOperationServiceTest {
 	@Mock
@@ -52,8 +51,6 @@ class UserOperationServiceTest {
 	private SiteRepository siteRepository;
 	@Mock
 	private UsersDAO usersDAO;
-	@Mock
-	private ProjectGroupsDAO projectGroupsDAO;
 	@Mock
 	private ProjectRepository projectRepository;
 	@Mock
@@ -77,54 +74,25 @@ class UserOperationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, siteRepository,
-				projectGroupsDAO, usersDAO, projectRepository);
+		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 
 	@Test
 	void shouldCreateUserAddition() {
+		SiteId siteId = new SiteId("siteId", new SiteExternalId("id"));
 		String projectId = "projectId";
 		PersistentId userId = new PersistentId("userId");
+		FenixUserId fenixUserId = new FenixUserId("id");
 		FURMSUser user = FURMSUser.builder()
 			.id(userId)
-			.fenixUserId(new FenixUserId("id"))
+			.fenixUserId(fenixUserId)
 			.email("email")
 			.build();
 		//when
-		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
-		service.createUserAdditions(projectId, userId);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
-
-		//then
-		orderVerifier.verify(repository).create(any(UserAddition.class));
-		orderVerifier.verify(siteAgentUserService).addUser(any(UserAddition.class), eq(user));
-	}
-
-	@Test
-	void shouldCreateAllUserAddition() {
-		String siteId = "siteId";
-		String projectId = "projectId";
-		String communityId = "projectId";
-		PersistentId userId = new PersistentId("userId");
-		FURMSUser user = FURMSUser.builder()
-			.id(userId)
-			.email("email")
-			.build();
-		//when
-		when(siteRepository.findById(siteId)).thenReturn(Optional.of(Site.builder()
-			.id(siteId)
-			.build()));
-		when(projectRepository.findById(projectId)).thenReturn(Optional.of(Project.builder()
-			.id(projectId)
-			.communityId(communityId)
-			.build()));
-		when(projectGroupsDAO.getAllUsers(communityId, projectId)).thenReturn(List.of(user));
-		service.createUserAdditions(siteId, projectId);
+		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
+		service.createUserAdditions(siteId, projectId, fenixUserId);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -137,6 +105,7 @@ class UserOperationServiceTest {
 
 	@Test
 	void shouldNotCreateUserAddition() {
+		SiteId siteId = new SiteId("siteId", new SiteExternalId("id"));
 		String projectId = "projectId";
 		PersistentId userId = new PersistentId("userId");
 		FenixUserId id = new FenixUserId("id");
@@ -148,10 +117,10 @@ class UserOperationServiceTest {
 		//when
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(repository.existsByUserIdAndProjectId(id, projectId)).thenReturn(true);
-		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(projectId, userId));
+		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, id));
 	}
 
 	@ParameterizedTest

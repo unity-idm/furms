@@ -23,7 +23,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -122,12 +124,7 @@ class AdminApiKeyServiceTest {
 		when(repository.create(any())).thenReturn(Optional.of(userApiKey));
 
 		//when
-		final Optional<UserApiKey> generated = service.generate(userId);
-
-		//then
-		assertThat(generated).isPresent();
-		assertThat(generated.get().getUserId()).isEqualTo(userId);
-		assertThat(generated.get().getApiKey()).isEqualTo(apiKey);
+		service.save(userId, apiKey.toString());
 	}
 
 	@Test
@@ -142,7 +139,7 @@ class AdminApiKeyServiceTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
 		//when + then
-		assertThrows(UnknownUserException.class, () -> service.generate(userId));
+		assertThrows(UnknownUserException.class, () -> service.save(userId, apiKey.toString()));
 	}
 
 	@Test
@@ -161,7 +158,7 @@ class AdminApiKeyServiceTest {
 		when(repository.findByUserId(userId)).thenReturn(Optional.of(userApiKey));
 
 		//when + then
-		assertThrows(IllegalArgumentException.class, () -> service.generate(userId));
+		assertThrows(IllegalArgumentException.class, () -> service.save(userId, apiKey.toString()));
 	}
 
 	@Test

@@ -6,7 +6,12 @@
 package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.user_operation.*;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
+import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
@@ -116,9 +120,16 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public Optional<UserStatus> findAdditionStatus(String siteId, String projectId, FenixUserId userId) {
+		return userAdditionEntityRepository.findStatusBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id)
+			.map(UserStatus::valueOf);
+	}
+
+	@Override
 	public UserAddition findAdditionByCorrelationId(CorrelationId correlationId) {
-		return 	userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+		return userAdditionEntityRepository.findReadEntityByCorrelationId(UUID.fromString(correlationId.id))
 			.map(userAddition -> UserAddition.builder()
+				.siteId(new SiteId(userAddition.site.getId().toString(), userAddition.site.getExternalId()))
 				.userId(userAddition.userId)
 				.projectId(userAddition.projectId.toString())
 				.build())
@@ -184,12 +195,5 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	@Override
 	public boolean isUserAdded(String siteId, String userId) {
 		return userAdditionEntityRepository.existsBySiteIdAndUserId(UUID.fromString(siteId), userId);
-	}
-
-	@Override
-	public Set<String> findUserIds(String projectId) {
-		return userAdditionEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
-			.map(x -> x.userId)
-			.collect(Collectors.toSet());
 	}
 }

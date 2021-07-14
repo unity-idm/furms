@@ -5,18 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.sites.add;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-import java.lang.invoke.MethodHandles;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -26,9 +14,9 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -36,6 +24,17 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.SitesView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Route(value = "fenix/admin/sites/add", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.sites.add.title")
@@ -108,6 +107,7 @@ public class SitesAddView extends FurmsViewComponent {
 			try {
 				siteService.create(Site.builder()
 						.name(formData.getName())
+						.policyId(PolicyId.empty())
 						.build());
 				UI.getCurrent().navigate(SitesView.class);
 			} catch (DuplicatedNameValidationError e) {

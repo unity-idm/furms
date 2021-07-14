@@ -7,20 +7,24 @@ package io.imunity.furms.spi.resource_access;
 
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FenixUserId;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface ResourceAccessRepository {
+	Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId);
 	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
 	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
-	void create(CorrelationId correlationId, GrantAccess grantAccess);
+	void create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
 	boolean exists(GrantAccess grantAccess);
 	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
+	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId);
 	AccessStatus findCurrentStatus(CorrelationId correlationId);
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);

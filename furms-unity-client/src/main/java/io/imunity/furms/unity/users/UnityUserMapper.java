@@ -6,6 +6,21 @@
 package io.imunity.furms.unity.users;
 
 
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.unity.common.AttributeValueMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.Identity;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
@@ -13,22 +28,6 @@ import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static org.springframework.util.StringUtils.isEmpty;
 import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
 import static pl.edu.icm.unity.types.basic.EntityState.valid;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserStatus;
-import io.imunity.furms.unity.common.AttributeValueMapper;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.Identity;
 
 public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -44,6 +43,15 @@ public class UnityUserMapper {
 
 	public static Optional<FURMSUser> map(PersistentId userId,  List<Identity> identities, List<Attribute> attributes){
 		FURMSUser user = buildUser(userId, getFenixId(identities), attributes);
+		if(user.id == null || user.email == null) {
+			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
+			return Optional.empty();
+		}
+		return Optional.of(user);
+	}
+
+	public static Optional<FURMSUser> map(FenixUserId userId,  List<Identity> identities, List<Attribute> attributes){
+		FURMSUser user = buildUser(getPersistentId(identities), userId, attributes);
 		if(user.id == null || user.email == null) {
 			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
 			return Optional.empty();
@@ -92,7 +100,12 @@ public class UnityUserMapper {
 	
 	private static FenixUserId getFenixId(List<Identity> identities) {
 		return identities.stream().filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
-				.findAny().map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
+				.findAny().map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
+	}
+
+	private static PersistentId getPersistentId(List<Identity> identities) {
+		return identities.stream().filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
+			.findAny().map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
 	}
 
 	private static UserStatus getStatus(final GroupMember groupMember) {

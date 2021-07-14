@@ -10,7 +10,6 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.domain.sites.UserSitesInstallationInfoData;
@@ -19,9 +18,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
-import io.imunity.furms.spi.projects.ProjectGroupsDAO;
-import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
@@ -34,7 +30,9 @@ import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.user_operation.UserStatus.*;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
+import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -42,28 +40,17 @@ public class UserOperationService implements UserAllocationsService {
 	private final AuthzService authzService;
 	private final SiteAgentUserService siteAgentUserService;
 	private final SiteService siteService;
-
 	private final UserOperationRepository repository;
-	private final ProjectRepository projectRepository;
-	private final SiteRepository siteRepository;
-
-	private final ProjectGroupsDAO projectGroupsDAO;
 	private final UsersDAO usersDAO;
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService, UserOperationRepository repository,
 	                     SiteAgentUserService siteAgentUserService,
-	                     SiteRepository siteRepository,
-	                     ProjectGroupsDAO projectGroupsDAO,
-	                     UsersDAO usersDAO,
-	                     ProjectRepository projectRepository) {
+	                     UsersDAO usersDAO) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
-		this.projectRepository = projectRepository;
 		this.siteAgentUserService = siteAgentUserService;
-		this.siteRepository = siteRepository;
-		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
 	}
 
@@ -90,50 +77,49 @@ public class UserOperationService implements UserAllocationsService {
 		return repository.findAllUserAdditionsByUserId(siteId);
 	}
 
-	public void createUserAdditions(String projectId, PersistentId userId) {
-		FURMSUser user = usersDAO.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException(String.format("User with id %s doesn't exist", userId)));
-		FenixUserId fenixUserId = user.fenixUserId
-			.orElseThrow(() -> new IllegalArgumentException(String.format("FenixId for user with id %s is not present", userId)));
-		if(repository.existsByUserIdAndProjectId(fenixUserId, projectId))
-			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user.fenixUserId, projectId));
-		siteRepository.findByProjectId(projectId)
-			.forEach(siteId -> {
-				UserAddition userAddition = UserAddition.builder()
-					.correlationId(CorrelationId.randomID())
-					.projectId(projectId)
-					.siteId(siteId)
-					.userId(user.fenixUserId.map(uId -> uId.id).orElse(null))
-					.status(ADDING_PENDING)
-					.build();
-				repository.create(userAddition);
-				runAfterCommit(() ->
-					siteAgentUserService.addUser(userAddition, user)
-				);
-			});
+	private Set<UserProjectsInstallationInfoData> loadProjects(String fenixUserId, String siteId) {
+		return repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId).stream()
+			.map(userAddition -> UserProjectsInstallationInfoData.builder()
+				.name(userAddition.getProjectName())
+				.remoteAccountName(userAddition.getUserId())
+				.status(userAddition.getStatus())
+				.errorMessage(userAddition.getErrorMessage())
+				.build()
+			).collect(toSet());
 	}
 
-	public void createUserAdditions(String siteId, String projectId) {
-		Site site = siteRepository.findById(siteId).get();
-		String communityId = projectRepository.findById(projectId).get().getCommunityId();
-		projectGroupsDAO.getAllUsers(communityId, projectId)
-			.forEach(user -> {
-				UserAddition userAddition = UserAddition.builder()
-					.correlationId(CorrelationId.randomID())
-					.projectId(projectId)
-					.siteId(new SiteId(site.getId(), site.getExternalId()))
-					.userId(user.fenixUserId.map(userId -> userId.id).orElse(null))
-					.status(ADDING_PENDING)
-					.build();
-				repository.create(userAddition);
-				runAfterCommit(() ->
-					siteAgentUserService.addUser(userAddition, user)
-				);
-		});
+	public void createUserAdditions(SiteId siteId, String projectId, FenixUserId userId) {
+		Optional<FURMSUser> user = usersDAO.findById(userId);
+		if(user.isEmpty())
+			throw new IllegalArgumentException(String.format("User %s doesn't exist", userId));
+
+		if(repository.existsByUserIdAndProjectId(userId, projectId))
+			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user, projectId));
+
+		UserAddition userAddition = UserAddition.builder()
+			.correlationId(CorrelationId.randomID())
+			.projectId(projectId)
+			.siteId(siteId)
+			.userId(userId.id)
+			.status(ADDING_PENDING)
+			.build();
+		repository.create(userAddition);
+		runAfterCommit(() ->
+			siteAgentUserService.addUser(userAddition, user.get())
+		);
 	}
 
 	public void createUserRemovals(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
+		createUserRemovals(projectId, user);
+	}
+
+	public void createUserRemovals(String projectId, FenixUserId userId) {
+		FURMSUser user = usersDAO.findById(userId).get();
+		createUserRemovals(projectId, user);
+	}
+
+	private void createUserRemovals(String projectId, FURMSUser user) {
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		repository.findAllUserAdditions(projectId, fenixUserId).stream()
 			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
@@ -158,14 +144,4 @@ public class UserOperationService implements UserAllocationsService {
 			});
 	}
 
-	private Set<UserProjectsInstallationInfoData> loadProjects(String fenixUserId, String siteId) {
-		return repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId).stream()
-				.map(userAddition -> UserProjectsInstallationInfoData.builder()
-						.name(userAddition.getProjectName())
-						.remoteAccountName(userAddition.getUserId())
-						.status(userAddition.getStatus())
-						.errorMessage(userAddition.getErrorMessage())
-						.build()
-				).collect(toSet());
-	}
 }

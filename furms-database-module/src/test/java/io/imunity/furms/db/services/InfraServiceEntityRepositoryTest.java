@@ -7,8 +7,13 @@ package io.imunity.furms.db.services;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.policy_documents.PolicyContentType;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +34,8 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 	private SiteRepository siteRepository;
 	@Autowired
 	private InfraServiceEntityRepository serviceRepository;
+	@Autowired
+	private PolicyDocumentRepository policyDocumentRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
@@ -49,10 +56,19 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreateInfraService() {
 		//given
+		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
+			.siteId(siteId.toString())
+			.name("policyName")
+			.wysiwygText("wysiwygText")
+			.workflow(PolicyWorkflow.WEB_BASED)
+			.contentType(PolicyContentType.EMBEDDED)
+			.build());
+
 		InfraServiceEntity entityToSave = InfraServiceEntity.builder()
 			.name("name")
 			.siteId(siteId)
 			.description("description")
+			.policyId(policyId.id)
 			.build();
 
 		//when
@@ -76,10 +92,19 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 			.description("description")
 			.build();
 		serviceRepository.save(old);
+		PolicyId policyId = policyDocumentRepository.create(PolicyDocument.builder()
+			.siteId(siteId.toString())
+			.name("policyName")
+			.wysiwygText("wysiwygText")
+			.workflow(PolicyWorkflow.WEB_BASED)
+			.contentType(PolicyContentType.EMBEDDED)
+			.build());
+
 		InfraServiceEntity toUpdate = InfraServiceEntity.builder()
 			.name("new_name")
 			.siteId(siteId2)
 			.description("new_description")
+			.policyId(policyId.id)
 			.build();
 
 		//when
@@ -91,6 +116,7 @@ class InfraServiceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().siteId).isEqualTo(siteId2);
 		assertThat(byId.get().name).isEqualTo("new_name");
 		assertThat(byId.get().description).isEqualTo("new_description");
+		assertThat(byId.get().policyId).isEqualTo(policyId.id);
 	}
 
 	@Test

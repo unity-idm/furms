@@ -247,7 +247,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.fenixUserId(new FenixUserId("userId"))
 			.build();
 
-		resourceAccessDatabaseRepository.create(correlationId, grantAccess);
+		resourceAccessDatabaseRepository.create(correlationId, grantAccess, GRANT_PENDING);
 
 		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
 		assertThat(userAllocationResolved).isPresent();
