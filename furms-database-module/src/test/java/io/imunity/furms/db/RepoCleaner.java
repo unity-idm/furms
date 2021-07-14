@@ -8,10 +8,12 @@ import io.imunity.furms.db.resource_access.UserGrantEntityRepository;
 import io.imunity.furms.db.user_operation.UserAdditionEntityRepository;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,10 @@ public class RepoCleaner {
 	private UserAdditionEntityRepository userAdditionEntityRepository;
 	@Autowired
 	private UserGrantEntityRepository userGrantEntityRepository;
+	@Autowired
+	private PolicyDocumentRepository policyDocumentRepository;
+	@Autowired
+	private InfraServiceRepository infraServiceRepository;
 
 
 	public void cleanAll() {
@@ -48,6 +54,8 @@ public class RepoCleaner {
 		resourceCreditRepository.deleteAll();
 		projectRepository.deleteAll();
 		communityRepository.deleteAll();
+		infraServiceRepository.deleteAll();
 		siteRepository.deleteAll();
+		policyDocumentRepository.deleteAll();
 	}
 }

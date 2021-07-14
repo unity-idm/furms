@@ -14,6 +14,7 @@ class InfraServiceViewModelMapper {
 			.siteId(infraService.siteId)
 			.name(infraService.name)
 			.description(infraService.description)
+			.policyId(infraService.policyId)
 			.build();
 	}
 
@@ -23,6 +24,7 @@ class InfraServiceViewModelMapper {
 			.siteId(serviceViewModel.getSiteId())
 			.name(serviceViewModel.getName())
 			.description(serviceViewModel.getDescription())
+			.policyId(serviceViewModel.getPolicyId())
 			.build();
 	}
 }

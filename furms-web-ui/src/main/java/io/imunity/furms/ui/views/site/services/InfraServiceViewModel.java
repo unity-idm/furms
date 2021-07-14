@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.site.services;
 
+import io.imunity.furms.domain.policy_documents.PolicyId;
+
 import java.util.Objects;
 
 class InfraServiceViewModel {
@@ -12,17 +14,20 @@ class InfraServiceViewModel {
 	private final String siteId;
 	private String name;
 	private String description;
+	private PolicyId policyId;
 
-	private InfraServiceViewModel(String id, String siteId, String name, String description) {
+	private InfraServiceViewModel(String id, String siteId, String name, String description, PolicyId policyId) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
 		this.description = description;
+		this.policyId = policyId;
 	}
 
 	InfraServiceViewModel(String siteId) {
 		this.id = null;
 		this.siteId = siteId;
+		this.policyId = PolicyId.empty();
 	}
 
 	public String getId() {
@@ -49,6 +54,14 @@ class InfraServiceViewModel {
 		this.description = description;
 	}
 
+	PolicyId getPolicyId() {
+		return policyId;
+	}
+
+	void setPolicyId(PolicyId policyId) {
+		this.policyId = policyId;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -57,12 +70,13 @@ class InfraServiceViewModel {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(name, that.name) &&
-			Objects.equals(description, that.description);
+			Objects.equals(description, that.description) &&
+			Objects.equals(policyId, that.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, name, description);
+		return Objects.hash(id, siteId, name, description, policyId);
 	}
 
 	@Override
@@ -72,6 +86,7 @@ class InfraServiceViewModel {
 			", siteId='" + siteId + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
+			", policyId='" + policyId + '\'' +
 			'}';
 	}
 
@@ -84,12 +99,18 @@ class InfraServiceViewModel {
 		private String siteId;
 		private String name;
 		private String description;
+		private PolicyId policyId = PolicyId.empty();
 
 		private ServiceViewModelBuilder() {
 		}
 
 		public ServiceViewModelBuilder id(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public ServiceViewModelBuilder policyId(PolicyId policyId) {
+			this.policyId = policyId;
 			return this;
 		}
 
@@ -109,7 +130,7 @@ class InfraServiceViewModel {
 		}
 
 		public InfraServiceViewModel build() {
-			return new InfraServiceViewModel(id, siteId, name, description);
+			return new InfraServiceViewModel(id, siteId, name, description, policyId);
 		}
 	}
 }

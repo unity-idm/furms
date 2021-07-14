@@ -7,6 +7,7 @@ package io.imunity.furms.db.sites;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import org.springframework.data.relational.core.mapping.Table;
@@ -25,10 +26,11 @@ public class SiteEntity extends UUIDIdentifiable {
 	private final Boolean sshKeyFromOptionMandatory;
 	private final Integer sshKeyHistoryLength;
 	private final String externalId;
+	private final UUID policyId;
 
 
 	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType,
-			Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, String externalId) {
+			Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, String externalId, UUID policyId) {
 		this.id = id;
 		this.name = name;
 		this.connectionInfo = connectionInfo;
@@ -37,6 +39,7 @@ public class SiteEntity extends UUIDIdentifiable {
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 		this.sshKeyHistoryLength = sshKeyHistoryLength;
 		this.externalId = externalId;
+		this.policyId = policyId;
 	}
 
 	public Site toSite() {
@@ -48,6 +51,7 @@ public class SiteEntity extends UUIDIdentifiable {
 				.sshKeyFromOptionMandatory(sshKeyFromOptionMandatory)
 				.sshKeyHistoryLength(sshKeyHistoryLength)
 				.externalId(new SiteExternalId(externalId))
+				.policyId(new PolicyId(policyId))
 				.build();
 	}
 
@@ -57,6 +61,10 @@ public class SiteEntity extends UUIDIdentifiable {
 
 	public String getExternalId() {
 		return externalId;
+	}
+
+	public UUID getPolicyId() {
+		return policyId;
 	}
 
 	public static SiteEntity.SiteEntityBuilder builder() {
@@ -75,12 +83,13 @@ public class SiteEntity extends UUIDIdentifiable {
 				Objects.equals(logoType, entity.logoType)&&
 				Objects.equals(sshKeyFromOptionMandatory, entity.sshKeyFromOptionMandatory) &&
 				Objects.equals(sshKeyHistoryLength, entity.sshKeyHistoryLength) &&
-				Objects.equals(externalId, entity.externalId);
+				Objects.equals(externalId, entity.externalId) &&
+				Objects.equals(policyId, entity.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength);
+		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength, policyId);
 		result = 31 * result + Arrays.hashCode(logo);
 		return result;
 	}
@@ -95,6 +104,7 @@ public class SiteEntity extends UUIDIdentifiable {
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				", sshKeyHistoryLength=" + sshKeyHistoryLength +
 				", externalId=" + externalId +
+				", policyId=" + policyId +
 				'}';
 	}
 
@@ -108,9 +118,15 @@ public class SiteEntity extends UUIDIdentifiable {
 		private Boolean sshKeyFromOptionMandatory;
 		private String externalId;
 		private Integer sshKeyHistoryLength;
-		
+		private UUID policyId;
+
 		public SiteEntity.SiteEntityBuilder id(UUID id) {
 			this.id = id;
+			return this;
+		}
+
+		public SiteEntity.SiteEntityBuilder policyId(UUID policyId) {
+			this.policyId = policyId;
 			return this;
 		}
 
@@ -149,7 +165,7 @@ public class SiteEntity extends UUIDIdentifiable {
 
 
 		public SiteEntity build() {
-			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId);
+			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId, policyId);
 		}
 	}
 }

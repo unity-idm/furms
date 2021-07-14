@@ -5,6 +5,8 @@
 
 package io.imunity.furms.domain.services;
 
+import io.imunity.furms.domain.policy_documents.PolicyId;
+
 import java.util.Objects;
 
 public class InfraService {
@@ -12,12 +14,14 @@ public class InfraService {
 	public final String name;
 	public final String description;
 	public final String siteId;
+	public final PolicyId policyId;
 
-	public InfraService(String id, String name, String description, String siteId) {
+	public InfraService(String id, String name, String description, String siteId, PolicyId policyId) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.siteId = siteId;
+		this.policyId = policyId;
 	}
 
 	@Override
@@ -28,12 +32,13 @@ public class InfraService {
 		return Objects.equals(id, infraService.id) &&
 			Objects.equals(name, infraService.name) &&
 			Objects.equals(description, infraService.description) &&
-			Objects.equals(siteId, infraService.siteId);
+			Objects.equals(siteId, infraService.siteId) &&
+			Objects.equals(policyId, infraService.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, description, siteId);
+		return Objects.hash(id, name, description, siteId, policyId);
 	}
 
 	@Override
@@ -43,6 +48,7 @@ public class InfraService {
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
 			", siteId='" + siteId + '\'' +
+			", policyId='" + policyId + '\'' +
 			'}';
 	}
 
@@ -55,12 +61,18 @@ public class InfraService {
 		public String name;
 		public String description;
 		public String siteId;
+		public PolicyId policyId = PolicyId.empty();
 
 		private ServiceBuilder() {
 		}
 
 		public ServiceBuilder id(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public ServiceBuilder policyId(PolicyId policyId) {
+			this.policyId = policyId;
 			return this;
 		}
 
@@ -80,7 +92,7 @@ public class InfraService {
 		}
 
 		public InfraService build() {
-			return new InfraService(id, name, description, siteId);
+			return new InfraService(id, name, description, siteId, policyId);
 		}
 	}
 }
