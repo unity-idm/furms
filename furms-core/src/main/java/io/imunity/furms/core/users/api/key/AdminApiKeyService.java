@@ -61,14 +61,14 @@ class AdminApiKeyService implements UserApiKeyService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
-	public Optional<UserApiKey> generate(PersistentId userId) {
+	public void save(PersistentId userId, String value) {
 		assertUserExists(userId);
 		assertKeyNotExists(userId);
 
 		repository.delete(userId);
 
-		return repository.create(UserApiKey.builder()
-				.apiKey(UUID.randomUUID())
+		repository.create(UserApiKey.builder()
+				.apiKey(UUID.fromString(value))
 				.userId(userId)
 				.build());
 	}
