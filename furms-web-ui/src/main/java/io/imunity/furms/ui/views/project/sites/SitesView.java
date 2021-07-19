@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.project.sites;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.project_installation.ProjectInstallationStatusService;
+import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.IconButton;
@@ -29,20 +29,20 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 @Route(value = "project/admin/sites", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
-	public final ProjectInstallationStatusService projectInstallationStatusService;
+	public final ProjectInstallationsService projectInstallationsService;
 	public final Grid<SiteGridModel> grid;
 
-	SitesView(ProjectInstallationStatusService projectInstallationStatusService) {
-		this.projectInstallationStatusService = projectInstallationStatusService;
+	SitesView(ProjectInstallationsService projectInstallationsService) {
+		this.projectInstallationsService = projectInstallationsService;
 		this.grid = new SparseGrid<>(SiteGridModel.class);
 		fillGrid();
 		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
 
 	private Set<SiteGridModel> loadData() {
-		Map<String, ProjectUpdateJobStatus> collect = projectInstallationStatusService.findAllUpdatesByProjectId(getCurrentResourceId()).stream()
+		Map<String, ProjectUpdateJobStatus> collect = projectInstallationsService.findAllUpdatesByProjectId(getCurrentResourceId()).stream()
 			.collect(Collectors.toMap(x -> x.siteId, x -> x));
-		return projectInstallationStatusService.findAllByProjectId(getCurrentResourceId()).stream()
+		return projectInstallationsService.findAllByProjectId(getCurrentResourceId()).stream()
 			.map(statusJob -> {
 				String status = Optional.ofNullable(collect.get(statusJob.siteId))
 					.map(x -> getTranslation("project.update.status." + x.status.getPersistentId()))

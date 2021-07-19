@@ -8,6 +8,8 @@ package io.imunity.furms.db.project_installation;
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.Gid;
+import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
@@ -170,6 +172,19 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
+	public Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId) {
+		return installationRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+				.map(job -> ProjectInstallationJobStatus.builder()
+						.siteId(job.siteId.toString())
+						.siteName(job.siteName)
+						.projectId(job.projectId.toString())
+						.status(ProjectInstallationStatus.valueOf(job.status))
+						.errorMessage(job.code, job.message)
+						.build())
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId) {
 		return installationRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 			.map(job -> ProjectInstallationJobStatus.builder()
@@ -242,6 +257,18 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 		return updateRepository.findByProjectId(UUID.fromString(projectId)).stream()
 			.map(x -> ProjectUpdateStatus.valueOf(x.status))
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId) {
+		return installationRepository.findAllInstalledBySiteId(UUID.fromString(siteId)).stream()
+				.map(installation -> SiteInstalledProject.builder()
+						.siteId(installation.siteId.toString())
+						.siteName(installation.siteName)
+						.projectId(installation.projectId.toString())
+						.gid(new Gid(installation.gid))
+						.build())
+				.collect(Collectors.toSet());
 	}
 
 	@Override

@@ -54,6 +54,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		this.userOperationService = userOperationService;
 		this.authzService = authzService;
 	}
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<String> findAddedUser(String projectId) {
+		return userRepository.findUserIds(projectId);
+	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")

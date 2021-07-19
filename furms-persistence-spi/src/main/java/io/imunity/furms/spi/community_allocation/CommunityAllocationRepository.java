@@ -19,6 +19,8 @@ public interface CommunityAllocationRepository {
 
 	Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId);
 
+	Set<CommunityAllocation> findAllByCommunityId(String communityId);
+
 	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId);
 
 	Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,

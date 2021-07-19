@@ -8,7 +8,10 @@ package io.imunity.furms.domain.project_installation;
 import java.util.Arrays;
 
 public enum ProjectInstallationStatus {
-	PENDING(0, false), ACKNOWLEDGED(1, false), INSTALLED(2, true), FAILED(3, true);
+	PENDING(0, false),
+	ACKNOWLEDGED(1, false),
+	INSTALLED(2, true),
+	FAILED(3, true);
 
 
 	ProjectInstallationStatus(int persistentId, boolean terminal) {

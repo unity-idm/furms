@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface UserAdditionEntityRepository extends CrudRepository<UserAdditionSaveEntity, UUID> {
+
+	Set<UserAdditionSaveEntity> findAllByProjectId(UUID projectId);
+
 	@Query(
 			"select ua.*, uaj.*, s.id as site_id, s.external_id as site_external_id " +
 			"from user_addition ua " +
@@ -31,6 +34,13 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 			"where ua.user_id = :user_id"
 	)
 	Set<UserAdditionReadEntity> findAllByUserId(@Param("user_id") String userId);
+
+	@Query("select ua.*, uaj.*, s.id as site_id, s.external_id as site_external_id " +
+			"from user_addition ua " +
+				"join user_addition_job uaj on ua.id = uaj.user_addition_id " +
+				"join site s on ua.site_id = s.id " +
+			"where s.id = :siteId")
+	Set<UserAdditionReadEntity> findAllBySiteId(@Param("siteId") String siteId);
 	
 	@Query("SELECT ua.*," +
 			"       uaj.*," +

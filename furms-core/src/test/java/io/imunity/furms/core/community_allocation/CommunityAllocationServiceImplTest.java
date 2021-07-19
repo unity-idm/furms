@@ -71,6 +71,23 @@ class CommunityAllocationServiceImplTest {
 	}
 
 	@Test
+	void shouldReturnCommunityAllocationByCommunityId() {
+		//given
+		String id = "id";
+		when(communityAllocationRepository.findAllByCommunityId(id)).thenReturn(Set.of(CommunityAllocation.builder()
+				.id(id)
+				.name("name")
+				.build())
+		);
+
+		//when
+		Set<CommunityAllocation> byId = service.findAllByCommunityId(id);
+
+		//then
+		assertThat(byId).hasSize(1);
+	}
+
+	@Test
 	void shouldNotReturnNotExisting() {
 		//when
 		Optional<CommunityAllocation> otherId = service.findById("otherId");

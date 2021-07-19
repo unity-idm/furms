@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -155,6 +156,47 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
 		assertThat(entity.siteId).isEqualTo(siteId);
 		assertThat(entity.siteName).isEqualTo("name");
+	}
+
+	@Test
+	void shouldFindSiteInstalledProjectsBySiteid() {
+		//given
+		final ProjectInstallationJobEntity installed1 = entityRepository.save(ProjectInstallationJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId)
+				.status(INSTALLED)
+				.gid("gid")
+				.build());
+		final ProjectInstallationJobEntity installed2 = entityRepository.save(ProjectInstallationJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId2)
+				.status(INSTALLED)
+				.gid("gid")
+				.build());
+		final ProjectInstallationJobEntity notInstalled = entityRepository.save(ProjectInstallationJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.siteId(siteId)
+				.projectId(projectId2)
+				.status(PENDING)
+				.gid("gid")
+				.build());
+		final ProjectInstallationJobEntity wrongSite = entityRepository.save(ProjectInstallationJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.siteId(siteId2)
+				.projectId(projectId2)
+				.status(INSTALLED)
+				.gid("gid")
+				.build());
+
+		//when
+		final Set<ProjectInstallationJobStatusEntity> installed = entityRepository.findAllInstalledBySiteId(siteId);
+
+		//then
+		assertThat(installed).hasSize(2);
+		assertThat(installed.stream().allMatch(install -> install.status == INSTALLED.getPersistentId())).isTrue();
+		assertThat(installed.stream().allMatch(install -> install.siteId.equals(siteId))).isTrue();
 	}
 
 	@Test

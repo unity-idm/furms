@@ -139,7 +139,8 @@ public class ProjectAllocationResolved {
 		}
 
 		public ProjectAllocationResolved build() {
-			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount, consumed);
+			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId,
+					name, amount, consumed);
 		}
 	}
 }

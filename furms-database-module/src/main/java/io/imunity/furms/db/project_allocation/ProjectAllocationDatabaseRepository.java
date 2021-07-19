@@ -13,6 +13,7 @@ import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -69,6 +70,21 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 				.orElse(BigDecimal.ZERO))
 			)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(String siteId) {
+		final Set<ProjectAllocationReadEntity> allocations = readRepository.findAllBySiteId(siteId);
+		Map<String, ResourceUsage> projectAllocationUsage = allocations.stream()
+				.map(allocation -> resourceUsageRepository.findCurrentResourceUsages(allocation.projectId.toString()))
+				.flatMap(Collection::stream)
+				.collect(toMap(x -> x.projectAllocationId, Function.identity()));
+		return allocations.stream()
+				.map(allocationReadEntity -> allocationReadEntity.toProjectAllocationResolved(
+						ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
+								.map(y -> y.cumulativeConsumption)
+								.orElse(BigDecimal.ZERO)))
+				.collect(Collectors.toSet());
 	}
 
 	@Override

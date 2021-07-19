@@ -18,7 +18,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
-import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -94,6 +93,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		PersistentId ownerId = authzService.getCurrentUserId();
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
 		return sshKeysRepository.findAllByOwnerId(ownerId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	public Set<SSHKey> findByOwnerId(String ownerId) {
+		LOG.debug("Getting all SSH keys for owner {}", ownerId);
+		return sshKeysRepository.findAllByOwnerId(new PersistentId(ownerId));
 	}
 
 	@Transactional

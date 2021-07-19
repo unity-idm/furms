@@ -13,7 +13,7 @@ import org.springframework.data.repository.CrudRepository;
 interface SSHKeyEntityRepository extends CrudRepository<SSHKeyEntity, UUID> {
 	
 	Stream<SSHKeyEntity> findAllByOwnerId(String id);
-	
+
 	boolean existsByName(String name);
 
 	boolean existsByNameAndIdIsNot(String name, UUID id);

@@ -427,6 +427,40 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllCommunityAllocationsByCommunityId() {
+		//given
+		entityRepository.save(CommunityAllocationEntity.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
+				.name("name")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+		entityRepository.save(CommunityAllocationEntity.builder()
+				.communityId(communityId2)
+				.resourceCreditId(resourceCreditId2)
+				.name("name2")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+		entityRepository.save(CommunityAllocationEntity.builder()
+				.communityId(communityId2)
+				.resourceCreditId(resourceCreditId2)
+				.name("name3")
+				.amount(new BigDecimal(10))
+				.build()
+		);
+
+		//when
+		Set<CommunityAllocation> all = entityDatabaseRepository.findAllByCommunityId(communityId.toString());
+		Set<CommunityAllocation> all2 = entityDatabaseRepository.findAllByCommunityId(communityId2.toString());
+
+		//then
+		assertThat(all).hasSize(1);
+		assertThat(all2).hasSize(2);
+	}
+
+	@Test
 	void shouldCreateCommunityAllocation() {
 		//given
 		CommunityAllocation request = CommunityAllocation.builder()

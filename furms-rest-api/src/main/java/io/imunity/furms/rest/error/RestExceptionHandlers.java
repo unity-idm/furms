@@ -4,6 +4,8 @@
  */
 package io.imunity.furms.rest.error;
 
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +44,18 @@ class RestExceptionHandlers {
 				.status(NOT_FOUND)
 				.body(RestExceptionData.builder()
 						.message(format("User %s not found", ex.userId))
+						.error(NOT_FOUND.getReasonPhrase())
+						.path(request.getRequestURI())
+						.build());
+	}
+
+	@ExceptionHandler({RestNotFoundException.class, IdNotFoundValidationError.class})
+	ResponseEntity<RestExceptionData> handleRestNotFound(RestNotFoundException ex, HttpServletRequest request) {
+		LOG.error("REST requested element not found: ", ex);
+		return ResponseEntity
+				.status(NOT_FOUND)
+				.body(RestExceptionData.builder()
+						.message(ex.getMessage())
 						.error(NOT_FOUND.getReasonPhrase())
 						.path(request.getRequestURI())
 						.build());

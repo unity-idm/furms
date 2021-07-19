@@ -12,15 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class ProjectInstallationStatusServiceImplTest {
+class ProjectInstallationsServiceImplTest {
 	@Mock
 	private ProjectOperationRepository projectOperationRepository;
 	@InjectMocks
-	private ProjectInstallationStatusServiceImpl service;
+	private ProjectInstallationsServiceImpl service;
 
 	@Test
 	void findAllByCommunityId() {

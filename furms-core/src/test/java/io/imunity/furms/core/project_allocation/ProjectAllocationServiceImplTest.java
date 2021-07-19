@@ -104,6 +104,24 @@ class ProjectAllocationServiceImplTest {
 	}
 
 	@Test
+	void shouldFindByProjectIdAndAllocationIdWithRelatedObjects() {
+		//given
+		final String allocationId = "allocationId";
+		final String projectId = "projectId";
+		when(projectAllocationRepository.findByIdWithRelatedObjects(allocationId)).thenReturn(Optional.of(
+				ProjectAllocationResolved.builder().projectId(projectId).build()
+		));
+
+		//when
+		Optional<ProjectAllocationResolved> projectAllocation = service.findByIdValidatingProjectsWithRelatedObjects(
+				allocationId, projectId);
+
+		//then
+		assertThat(projectAllocation).isPresent();
+		assertThat(projectAllocation.get().projectId).isEqualTo(projectId);
+	}
+
+	@Test
 	void shouldAllowToCreateProjectAllocation() {
 		//given
 		ProjectAllocation request = ProjectAllocation.builder()

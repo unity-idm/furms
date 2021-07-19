@@ -88,7 +88,7 @@ class ProjectFormView extends FurmsViewComponent {
 		Project project = ProjectViewModelMapper.map(projectViewModel);
 		OptionalException<Void> optionalException;
 		if(project.getId() == null)
-			optionalException = getResultOrException(() -> projectService.create(project));
+			optionalException = getResultOrException(() -> { projectService.create(project); });
 		else
 			optionalException = getResultOrException(() -> projectService.update(project));
 

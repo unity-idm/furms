@@ -35,6 +35,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public Set<String> findUserIds(String projectId) {
+		return userAdditionEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+				.map(x -> x.userId)
+				.collect(toSet());
+	}
+
+	@Override
 	public Set<UserAddition> findAllUserAdditions(String projectId, String userId) {
 		return userAdditionEntityRepository.findAllByProjectIdAndUserId(UUID.fromString(projectId), userId).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
@@ -46,6 +53,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 		return userAdditionEntityRepository.findAllByUserId(userId).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
+	}
+
+	@Override
+	public Set<UserAddition> findAllUserAdditionsByUserId(String siteId) {
+		return userAdditionEntityRepository.findAllBySiteId(siteId).stream()
+				.map(UserAdditionReadEntity::toUserAddition)
+				.collect(toSet());
 	}
 
 	@Override

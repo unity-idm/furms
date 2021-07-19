@@ -17,7 +17,11 @@ public class ProjectInstallationJobStatus {
 	public final ProjectInstallationStatus status;
 	public final Optional<ErrorMessage> errorMessage;
 
-	ProjectInstallationJobStatus(String siteId, String siteName, String projectId, ProjectInstallationStatus status, Optional<ErrorMessage> errorMessage) {
+	ProjectInstallationJobStatus(String siteId,
+	                             String siteName,
+	                             String projectId,
+	                             ProjectInstallationStatus status,
+	                             Optional<ErrorMessage> errorMessage) {
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.projectId = projectId;

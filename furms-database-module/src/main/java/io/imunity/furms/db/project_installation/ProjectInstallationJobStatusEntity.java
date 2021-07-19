@@ -13,14 +13,22 @@ class ProjectInstallationJobStatusEntity {
 	public final String siteName;
 	public final UUID projectId;
 	public final int status;
+	public final String gid;
 	public final String code;
 	public final String message;
 
-	ProjectInstallationJobStatusEntity(UUID siteId, String siteName, UUID projectId, int status, String code, String message) {
+	ProjectInstallationJobStatusEntity(UUID siteId,
+	                                   String siteName,
+	                                   UUID projectId,
+	                                   int status,
+	                                   String gid,
+	                                   String code,
+	                                   String message) {
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.projectId = projectId;
 		this.status = status;
+		this.gid = gid;
 		this.code = code;
 		this.message = message;
 	}
