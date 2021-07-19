@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface UserAdditionEntityRepository extends CrudRepository<UserAdditionSaveEntity, UUID> {
+
+	Set<UserAdditionSaveEntity> findAllByProjectId(UUID projectId);
+
 	@Query(
 			"select ua.*, uaj.*, s.id as site_id, s.external_id as site_external_id " +
 			"from user_addition ua " +
