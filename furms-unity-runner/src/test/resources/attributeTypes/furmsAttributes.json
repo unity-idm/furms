@@ -305,5 +305,19 @@
 		},
 		"name": "name",
 		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 2147483647,
+		"minElements": 0,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"name": "furmsPolicyAgreementState",
+		"syntaxId": "string"
 	}
 ]

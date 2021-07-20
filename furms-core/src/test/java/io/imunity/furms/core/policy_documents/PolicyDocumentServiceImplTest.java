@@ -10,6 +10,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private PolicyDocumentValidator validator;
 	@Mock
+	private PolicyDocumentDAO policyDocumentDAO;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private PolicyDocumentServiceImpl service;
@@ -39,7 +42,7 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, publisher);
+		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, publisher);
 		orderVerifier = inOrder(repository, validator, publisher);
 	}
 

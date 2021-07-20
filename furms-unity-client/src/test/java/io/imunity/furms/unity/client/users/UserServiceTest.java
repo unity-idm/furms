@@ -6,7 +6,11 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
@@ -21,8 +25,10 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,6 +73,43 @@ public class UserServiceTest {
 			List.of(role.unityRoleValue)
 		);
 		verify(unityClient, times(1)).put(eq(path), eq(attribute));
+	}
+
+	@Test
+	void shouldAddUserPolicyAgreement() {
+		FenixUserId userId = new FenixUserId("userId");
+		String group = "/";
+		String path = "/entity/" + userId.id + "/attribute";
+		String getAttributesPath = "/entity/" + userId.id + "/attributes";
+
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
+			.thenReturn(emptyList());
+		String id = UUID.randomUUID().toString();
+		PolicyAgreement policyAgreement = PolicyAgreement.builder()
+			.policyDocumentId(new PolicyId(id))
+			.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+			.build();
+		userService.addUserPolicyAgreement(userId, policyAgreement);
+
+		Attribute attribute = new Attribute(
+			FURMS_POLICY_AGREEMENT_STATE,
+			STRING,
+			group,
+			List.of(PolicyAgreementParser.parse(PolicyAgreementArgument.valueOf(policyAgreement)))
+		);
+		verify(unityClient, times(1)).put(eq(path), eq(attribute), eq(Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY)));
+	}
+
+	@Test
+	void shouldReturnUserEmptyPolicyAgreementsList() {
+		FenixUserId userId = new FenixUserId("userId");
+		String getAttributesPath = "/entity/" + userId.id + "/attributes";
+
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
+			.thenReturn(emptyList());
+		userService.getPolicyAgreements(userId);
+
+		verify(unityClient, times(1)).get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
 
 	@Test

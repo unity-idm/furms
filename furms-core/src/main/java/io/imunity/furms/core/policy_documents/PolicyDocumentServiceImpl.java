@@ -7,23 +7,33 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
-import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 class PolicyDocumentServiceImpl implements PolicyDocumentService {
@@ -31,12 +41,13 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentValidator validator;
+	private final PolicyDocumentDAO policyDocumentDAO;
 	private final ApplicationEventPublisher publisher;
 
-
-	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository, PolicyDocumentValidator validator, ApplicationEventPublisher publisher) {
+	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository, PolicyDocumentValidator validator, PolicyDocumentDAO policyDocumentDAO, ApplicationEventPublisher publisher) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
+		this.policyDocumentDAO = policyDocumentDAO;
 		this.publisher = publisher;
 	}
 
@@ -52,6 +63,27 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public Set<PolicyDocument> findAllBySiteId(String siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllBySiteId(siteId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId) {
+		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+		Map<PolicyId, PolicyAgreement> collect = policyDocumentDAO.getPolicyAgreements(userId).stream()
+			.collect(toMap(x -> x.policyDocumentId, x -> x));
+		return policyDocumentRepository.findAllByUserId(userId, x ->
+			Optional.ofNullable(collect.get(x))
+				.map(y -> y.decisionTs)
+				.map(y -> LocalDateTime.ofInstant(y, ZoneOffset.UTC.normalized()))
+				.orElse(null)
+		);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public void addUserPolicyAgreement(FenixUserId userId, PolicyAgreement policyAgreement) {
+		LOG.debug("Adding Policy Document id={} for user id={}", policyAgreement.policyDocumentId.id, userId.id);
+		policyDocumentDAO.addUserPolicyAgreement(userId, policyAgreement);
 	}
 
 	@Override

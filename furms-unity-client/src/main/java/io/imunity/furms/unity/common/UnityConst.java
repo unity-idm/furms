@@ -11,6 +11,7 @@ public class UnityConst {
 	public static final String IDENTITY_TYPE = "identityType";
 	public static final String PERSISTENT_IDENTITY = "persistent";
 	public static final String IDENTIFIER_IDENTITY = "identifier";
+	public static final String STRING = "string";
 	public static final String ENUMERATION = "enumeration";
 	public static final String RECURSIVE = "recursive";
 	public static final String WITH_PARENTS = "withParents";
@@ -22,6 +23,8 @@ public class UnityConst {
 	public static final String COMMUNITY_ID = "communityId";
 	public static final String PROJECT_ID = "projectId";
 	public static final String ROOT_GROUP_PATH = "rootGroupPath";
+	public static final String FURMS_POLICY_AGREEMENT_STATE = "furmsPolicyAgreementState";
+
 
 	public static final String ROOT_GROUP = "/";
 	public static final String FENIX_GROUP = "/fenix";

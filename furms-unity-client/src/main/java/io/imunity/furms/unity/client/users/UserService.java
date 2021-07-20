@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
 import static io.imunity.furms.unity.common.UnityPaths.*;
@@ -54,7 +56,7 @@ public class UserService {
 	}
 
 	public void addUserRole(PersistentId userId, String group, Role role){
-		String uriComponents = prepareRoleRequestPath(userId);
+		String uriComponents = prepareAttributeRequestPath(userId);
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.add(role.unityRoleValue);
 
@@ -67,7 +69,33 @@ public class UserService {
 		unityClient.put(uriComponents, attribute);
 	}
 
-	private String prepareRoleRequestPath(PersistentId userId) {
+	public void addUserPolicyAgreement(FenixUserId userId, PolicyAgreement policyAgreement) {
+		String uriComponents = prepareAttributeRequestPath(userId);
+		Set<PolicyAgreement> policyAgreements = getPolicyAgreements(userId);
+		policyAgreements.add(policyAgreement);
+
+		Attribute attribute = new Attribute(
+			FURMS_POLICY_AGREEMENT_STATE,
+			STRING,
+			"/",
+			policyAgreements.stream()
+				.map(PolicyAgreementArgument::valueOf)
+				.map(PolicyAgreementParser::parse)
+				.collect(Collectors.toUnmodifiableList())
+		);
+		unityClient.put(uriComponents, attribute, Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY));
+	}
+
+	private String prepareAttributeRequestPath(PersistentId userId) {
+		return UriComponentsBuilder.newInstance()
+			.path(ENTITY_BASE)
+			.pathSegment("{" + ID + "}")
+			.path(ATTRIBUTE_PATTERN)
+			.buildAndExpand(Map.of(ID, userId.id))
+			.toUriString();
+	}
+
+	private String prepareAttributeRequestPath(FenixUserId userId) {
 		return UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.pathSegment("{" + ID + "}")
@@ -82,7 +110,7 @@ public class UserService {
 	}
 
 	public void removeUserRole(PersistentId userId, String group, Role role){
-		String uriComponents = prepareRoleRequestPath(userId);
+		String uriComponents = prepareAttributeRequestPath(userId);
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.remove(role.unityRoleValue);
 
@@ -100,6 +128,16 @@ public class UserService {
 			.stream()
 			.filter(attribute -> attribute.getName().equals(role.unityRoleAttribute))
 			.flatMap(attribute -> attribute.getValues().stream())
+			.collect(toSet());
+	}
+
+	public Set<PolicyAgreement> getPolicyAgreements(FenixUserId userId) {
+		return getAttributesFromRootGroup(userId)
+			.stream()
+			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_AGREEMENT_STATE))
+			.flatMap(attribute -> attribute.getValues().stream())
+			.map(PolicyAgreementParser::parse)
+			.map(PolicyAgreementArgument::toPolicyAgreement)
 			.collect(toSet());
 	}
 
