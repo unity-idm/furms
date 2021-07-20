@@ -12,17 +12,23 @@ import java.util.Optional;
 public class PolicyFile {
 	private final byte[] file;
 	private final PolicyFileType type;
+	private final String name;
 
-	public PolicyFile(byte[] logoImage, String type) {
+	public PolicyFile(byte[] logoImage, String type, String name) {
 		this.file = logoImage;
 		this.type = Optional.ofNullable(type)
 			.map(String::toUpperCase)
 			.map(PolicyFileType::valueOf)
 			.orElse(null);
+		this.name = name;
 	}
 
 	public byte[] getFile() {
 		return file;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public boolean isEmpty(){
@@ -37,7 +43,7 @@ public class PolicyFile {
 	}
 
 	public static PolicyFile empty() {
-		return new PolicyFile(new byte[0], null);
+		return new PolicyFile(new byte[0], null, null);
 	}
 
 	@Override

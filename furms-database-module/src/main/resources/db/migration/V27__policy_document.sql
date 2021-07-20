@@ -10,7 +10,7 @@ CREATE TABLE policy_document (
     workflow INT CONSTRAINT policy_document_workflow_range CHECK (workflow = 0 OR workflow = 1),
     revision INT,
     content_type INT CONSTRAINT policy_document_content_type_range CHECK (content_type = 0 OR content_type = 1),
-    html_text VARCHAR(255),
+    html_text TEXT,
     file BYTEA,
     file_type VARCHAR(255),
     CONSTRAINT policy_document_consistency CHECK (

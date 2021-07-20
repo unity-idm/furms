@@ -49,7 +49,7 @@ class PolicyDocumentEntity extends UUIDIdentifiable {
 			.revision(revision)
 			.contentType(PolicyContentType.valueOf(contentType))
 			.wysiwygText(htmlText)
-			.file(file, fileType)
+			.file(file, fileType, name + "-rev" + revision)
 			.build();
 	}
 
