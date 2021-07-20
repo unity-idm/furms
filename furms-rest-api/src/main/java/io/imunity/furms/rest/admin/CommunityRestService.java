@@ -5,17 +5,17 @@
 
 package io.imunity.furms.rest.admin;
 
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.rest.error.exceptions.CommunityAllocationRestNotFoundException;
 import io.imunity.furms.rest.error.exceptions.CommunityRestNotFoundException;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 
 @Service
 class CommunityRestService {

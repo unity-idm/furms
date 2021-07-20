@@ -4,11 +4,10 @@
  */
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import io.imunity.furms.domain.users.FURMSUser;
 
 class User {
 	public final String fenixIdentifier;
