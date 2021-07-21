@@ -161,7 +161,7 @@ class PolicyDocumentValidatorTest {
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
-			.file(new byte[2], "pdf")
+			.file(new byte[2], "pdf", "name-rev0")
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);
@@ -197,7 +197,7 @@ class PolicyDocumentValidatorTest {
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
-			.file(new byte[2], "pdf")
+			.file(new byte[2], "pdf", "name-rev0")
 			.build();
 
 		when(siteRepository.exists("siteId")).thenReturn(true);

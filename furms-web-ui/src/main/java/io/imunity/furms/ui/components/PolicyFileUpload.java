@@ -63,7 +63,7 @@ public class PolicyFileUpload extends HorizontalLayout
 
 		addFinishedListener(event -> {
 			try {
-				setValue(new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(event.getMIMEType())));
+				setValue(new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(event.getMIMEType()), event.getFileName()));
 			} catch (IOException e) {
 				showErrorNotification(getTranslation("file.invalidate.message"));
 				throw new RuntimeException(e);
@@ -147,7 +147,10 @@ public class PolicyFileUpload extends HorizontalLayout
 		this.value = value;
 
 		if (this.value != null) {
-			downloadIcon.setHref(new StreamResource("policy." + value.getTypeExtension(), () -> new ByteArrayInputStream(this.value.getFile())));
+			downloadIcon.setHref(new StreamResource(
+				value.getName() + "." + value.getTypeExtension(),
+				() -> new ByteArrayInputStream(this.value.getFile()))
+			);
 			downloadIcon.setVisible(!ArrayUtils.isEmpty(value.getFile()));
 		}
 		else
@@ -160,10 +163,6 @@ public class PolicyFileUpload extends HorizontalLayout
 	public Registration addValueChangeListener(ValueChangeListener<? super PolicyFileUpload> listener) {
 		ComponentEventListener componentListener = event -> listener.valueChanged(this);
 		return ComponentUtil.addListener(this, AbstractField.ComponentValueChangeEvent.class, componentListener);
-	}
-
-	public PolicyFile loadFile(String mimeType) throws IOException {
-		return new PolicyFile(memoryBuffer.getInputStream().readAllBytes(), createMimeType(mimeType));
 	}
 
 	private String createMimeType(String mimeType) {

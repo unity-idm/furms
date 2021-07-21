@@ -58,7 +58,6 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	private final Binder<PolicyDocumentFormModel> binder = new BeanValidationBinder<>(PolicyDocumentFormModel.class);
 	private final Label revision = new Label();
 	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
-	;
 
 	private BreadCrumbParameter breadCrumbParameter;
 

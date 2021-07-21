@@ -138,7 +138,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.revision(0)
 			.contentType(PolicyContentType.PDF)
 			.wysiwygText(" ")
-			.file(new byte[1], "pdf")
+			.file(new byte[1], "pdf", "name-rev0")
 			.build();
 
 		PolicyId policyId = repository.create(policyDocument);
@@ -178,7 +178,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.revision(0)
 			.contentType(PolicyContentType.PDF)
 			.wysiwygText(" ")
-			.file(new byte[1], "pdf")
+			.file(new byte[1], "pdf", "name-rev0")
 			.build();
 
 		repository.update(policyDocument, true);
@@ -218,7 +218,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.revision(0)
 			.contentType(PolicyContentType.PDF)
 			.wysiwygText(" ")
-			.file(new byte[1], "pdf")
+			.file(new byte[1], "pdf", "name-rev0")
 			.build();
 
 		repository.update(policyDocument, false);
