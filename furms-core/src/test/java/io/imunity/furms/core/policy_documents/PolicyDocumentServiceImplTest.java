@@ -5,11 +5,16 @@
 
 package io.imunity.furms.core.policy_documents;
 
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +23,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +38,10 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private PolicyDocumentValidator validator;
 	@Mock
+	private PolicyDocumentDAO policyDocumentDAO;
+	@Mock
+	private AuthzService authzService;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private PolicyDocumentServiceImpl service;
@@ -39,8 +51,8 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, publisher);
-		orderVerifier = inOrder(repository, validator, publisher);
+		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, publisher);
+		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO);
 	}
 
 	@Test
@@ -105,5 +117,46 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(repository).deleteById(policyId);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyId));
+	}
+
+	@Test
+	void shouldFindAllByCurrentUser() {
+		FenixUserId userId = new FenixUserId("userId");
+		PolicyId policyId0 = new PolicyId(UUID.randomUUID());
+		PolicyId policyId1 = new PolicyId(UUID.randomUUID());
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("email")
+			.fenixUserId(userId).build()
+		);
+		when(policyDocumentDAO.getPolicyAgreements(userId)).thenReturn(Set.of(
+			PolicyAgreement.builder()
+				.policyDocumentId(policyId0)
+				.build(),
+			PolicyAgreement.builder()
+				.policyDocumentId(policyId1)
+				.build()
+		));
+
+		service.findAllByCurrentUser();
+
+		orderVerifier.verify(repository).findAllByUserId(eq(userId), any());
+	}
+
+	@Test
+	void shouldAddPolicyToUser() {
+		FenixUserId userId = new FenixUserId("userId");
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PolicyAgreement policyAgreement = PolicyAgreement.builder()
+			.policyDocumentId(policyId)
+			.build();
+
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("email")
+			.fenixUserId(userId).build()
+		);
+
+		service.addCurrentUserPolicyAgreement(policyAgreement);
+
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAgreement);
 	}
 }

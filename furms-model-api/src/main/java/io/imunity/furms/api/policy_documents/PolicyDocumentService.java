@@ -5,7 +5,9 @@
 
 package io.imunity.furms.api.policy_documents;
 
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 
 import java.util.Optional;
@@ -17,7 +19,11 @@ public interface PolicyDocumentService {
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 
+	Set<PolicyDocumentExtended> findAllByCurrentUser();
+
 	void create(PolicyDocument policyDocument);
+
+	void addCurrentUserPolicyAgreement(PolicyAgreement policyAgreement);
 
 	void update(PolicyDocument policyDocument);
 
