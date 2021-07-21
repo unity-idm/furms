@@ -9,10 +9,10 @@ import java.time.Instant;
 import java.util.Objects;
 
 public class PolicyAgreement {
-	public PolicyId policyDocumentId;
-	public int policyDocumentRevision;
-	public PolicyAgreementStatus acceptanceStatus;
-	public Instant decisionTs;
+	public final PolicyId policyDocumentId;
+	public final int policyDocumentRevision;
+	public final PolicyAgreementStatus acceptanceStatus;
+	public final Instant decisionTs;
 
 	PolicyAgreement(PolicyId policyDocumentId, int policyDocumentRevision, PolicyAgreementStatus acceptanceStatus, Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;

@@ -23,7 +23,6 @@ import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.IconButton;
@@ -52,7 +51,6 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 public class PolicyDocumentsView extends FurmsViewComponent {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final PolicyDocumentService policyDocumentService;
-	private final FenixUserId fenixUserId;
 
 	private final Grid<PolicyDocumentExtended> grid;
 
@@ -60,7 +58,6 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		this.policyDocumentService = service;
 		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
 		FURMSUser user = authzService.getCurrentAuthNUser();
-		this.fenixUserId = user.fenixUserId.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.sites.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
 		grid.addColumn(x -> x.name)
@@ -92,7 +89,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		Set<PolicyDocumentExtended> policies = policyDocumentService.findAllByUserId(fenixUserId);
+		Set<PolicyDocumentExtended> policies = policyDocumentService.findAllByCurrentUser();
 		grid.setItems(policies.stream().sorted(Comparator.comparing(x -> x.name)));
 	}
 
@@ -114,7 +111,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 				.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
-			policyDocumentService.addUserPolicyAgreement(fenixUserId, policyAgreement);
+			policyDocumentService.addCurrentUserPolicyAgreement(policyAgreement);
 			loadGridContent();
 		});
 		return iconApproveButton;

@@ -145,6 +145,14 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldFindAllByUserId() {
+		FenixUserId fenixUserId = initUserWithAccessToSiteAndServicePolicies();
+		LocalDateTime now = LocalDateTime.now();
+		Set<PolicyDocumentExtended> policyDocuments = repository.findAllByUserId(fenixUserId, (x,y) -> now);
+
+		assertThat(policyDocuments.size()).isEqualTo(2);
+	}
+
+	private FenixUserId initUserWithAccessToSiteAndServicePolicies() {
 		Site site = Site.builder()
 			.name("name2")
 			.connectionInfo("alala")
@@ -253,10 +261,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.externalId(new SiteExternalId("id2"))
 			.build();
 		siteRepository.update(updateSite);
-		LocalDateTime now = LocalDateTime.now();
-		Set<PolicyDocumentExtended> policyDocuments = repository.findAllByUserId(fenixUserId, x -> now);
-
-		assertThat(policyDocuments.size()).isEqualTo(2);
+		return fenixUserId;
 	}
 
 	@Test

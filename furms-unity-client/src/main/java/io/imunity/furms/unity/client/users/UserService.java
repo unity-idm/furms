@@ -72,6 +72,10 @@ public class UserService {
 	public void addUserPolicyAgreement(FenixUserId userId, PolicyAgreement policyAgreement) {
 		String uriComponents = prepareAttributeRequestPath(userId);
 		Set<PolicyAgreement> policyAgreements = getPolicyAgreements(userId);
+		Set<PolicyAgreement> oldRevisionPolicyAgreement = policyAgreements.stream()
+			.filter(x -> x.policyDocumentId.equals(policyAgreement.policyDocumentId))
+			.collect(toSet());
+		policyAgreements.removeAll(oldRevisionPolicyAgreement);
 		policyAgreements.add(policyAgreement);
 
 		Attribute attribute = new Attribute(

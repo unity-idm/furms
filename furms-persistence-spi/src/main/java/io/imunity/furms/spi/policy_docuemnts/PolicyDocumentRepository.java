@@ -14,12 +14,12 @@ import io.imunity.furms.domain.users.FenixUserId;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public interface PolicyDocumentRepository {
 	Optional<PolicyDocument> findById(PolicyId id);
 
-	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, Function<PolicyId, LocalDateTime> acceptedGetter);
+	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 

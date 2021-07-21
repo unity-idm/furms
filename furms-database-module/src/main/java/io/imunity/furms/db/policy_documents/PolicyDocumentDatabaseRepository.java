@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
@@ -39,7 +39,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, Function<PolicyId, LocalDateTime> acceptedGetter) {
+	public Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter) {
 		return Stream.of(
 			repository.findAllSitePoliciesByUserId(userId.id),
 			repository.findAllServicePoliciesByUserId(userId.id)
@@ -52,7 +52,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 						.siteId(policyDocument.siteId.toString())
 						.siteName(policyDocument.siteName)
 						.serviceName(policyDocument.serviceName)
-						.acceptedTime(acceptedGetter.apply(id))
+						.acceptedTime(acceptedGetter.apply(id, policyDocument.revision))
 						.name(policyDocument.name)
 						.workflow(PolicyWorkflow.valueOf(policyDocument.workflow))
 						.revision(policyDocument.revision)
