@@ -58,7 +58,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 						.revision(policyDocument.revision)
 						.contentType(PolicyContentType.valueOf(policyDocument.contentType))
 						.wysiwygText(policyDocument.htmlText)
-						.file(policyDocument.file, policyDocument.fileType)
+						.file(policyDocument.file, policyDocument.fileType, policyDocument.name + "-rev" + policyDocument.revision)
 						.build();
 				}
 			)
