@@ -52,7 +52,7 @@ public interface ProjectAllocationReadEntityRepository extends CrudRepository<Pr
 			"join site s on rc.site_id = s.id " +
 			"join resource_type rt on rc.resource_type_id = rt.id " +
 			"where s.id = :siteId")
-	Set<ProjectAllocationReadEntity> findAllBySiteId(@Param("siteId") String id);
+	Set<ProjectAllocationReadEntity> findAllBySiteId(@Param("siteId") UUID id);
 
 	@Query("select ca.amount as community_allocation_amount, sum(pa.amount) as project_allocations_amount " +
 		"from community_allocation ca " +
