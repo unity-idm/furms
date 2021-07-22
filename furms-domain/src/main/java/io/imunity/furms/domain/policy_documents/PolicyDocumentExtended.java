@@ -139,11 +139,11 @@ public class PolicyDocumentExtended {
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder file(byte[] file, String type) {
+		public PolicyDocumentEntityBuilder file(byte[] file, String type, String name) {
 			if(file == null && type == null)
 				this.policyFile = PolicyFile.empty();
 			else
-				this.policyFile = new PolicyFile(file, type);
+				this.policyFile = new PolicyFile(file, type, name);
 			return this;
 		}
 
