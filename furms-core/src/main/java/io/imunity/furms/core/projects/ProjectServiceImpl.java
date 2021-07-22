@@ -45,6 +45,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_REA
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
@@ -76,6 +77,12 @@ class ProjectServiceImpl implements ProjectService {
 		this.authzService = authzService;
 		this.projectInstallationService = projectInstallationService;
 		this.userOperationService = userOperationService;
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public boolean existsById(String id) {
+		return projectRepository.exists(id);
 	}
 
 	@Override

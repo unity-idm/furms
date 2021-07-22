@@ -1,3 +1,7 @@
 .form-buttons {
 	padding-top: var(--lumo-size-l);
 }
+
+.form-buttons > vaadin-button {
+	margin-right: 5px;
+}

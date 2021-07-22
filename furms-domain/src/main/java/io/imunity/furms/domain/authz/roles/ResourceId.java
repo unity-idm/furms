@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.lang.String.format;
+
 public class ResourceId {
 	public final UUID id;
 	public final ResourceType type;
@@ -19,9 +21,13 @@ public class ResourceId {
 	}
 
 	public ResourceId(String id, ResourceType type) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		try {
+			this.id = Optional.ofNullable(id)
+					.map(UUID::fromString)
+					.orElse(null);
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectResourceIdException(format("Incorrect Resource ID: %s", id));
+		}
 		this.type = type;
 	}
 

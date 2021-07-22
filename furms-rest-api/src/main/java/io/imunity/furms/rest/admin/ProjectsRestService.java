@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,24 +45,21 @@ class ProjectsRestService {
 	}
 
 	ProjectWithUsers findOneById(String projectId) {
-		return projectService.findById(projectId)
+		return performIfExists(projectId, () -> projectService.findById(projectId))
 				.map(this::convertToProjectWithUsers)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-						"with specific id"));
+				.get();
 	}
 
 	void delete(String projectId) {
-		final Optional<io.imunity.furms.domain.projects.Project> project = projectService.findById(projectId);
-		if (project.isEmpty()) {
-			throw new ProjectRestNotFoundException("Could Not find project to delete");
-		}
-		projectService.delete(projectId, project.get().getCommunityId());
+		final io.imunity.furms.domain.projects.Project project = performIfExists(
+				projectId, () -> projectService.findById(projectId)).get();
+		projectService.delete(projectId, project.getCommunityId());
 	}
 
 	Project update(String projectId, ProjectMutableDefinition request) {
-		final io.imunity.furms.domain.projects.Project project = projectService.findById(projectId)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-						"with specific id"));
+		final io.imunity.furms.domain.projects.Project project = performIfExists(
+				projectId, () -> projectService.findById(projectId))
+				.get();
 
 		projectService.update(io.imunity.furms.domain.projects.Project.builder()
 				.id(projectId)
@@ -102,16 +99,17 @@ class ProjectsRestService {
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
-		return projectAllocationService.findAllWithRelatedObjects(projectId).stream()
+		return performIfExists(projectId, () -> projectAllocationService.findAllWithRelatedObjects(projectId))
+				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		return projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId)
+		return performIfExists(projectId,
+					() -> projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
 				.map(ProjectAllocation::new)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-				"with specific id"));
+				.get();
 	}
 
 	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationDefinition request) {
@@ -128,6 +126,10 @@ class ProjectsRestService {
 						.build());
 
 		return findAllProjectAllocationsByProjectId(projectId);
+	}
+
+	private <T> T performIfExists(String projectId, Supplier<T> action) {
+		return ResourceExistsWrapper.performIfExists(() -> projectService.existsById(projectId), action);
 	}
 
 	private ProjectWithUsers convertToProjectWithUsers(io.imunity.furms.domain.projects.Project project) {

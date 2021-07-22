@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 
@@ -37,11 +38,7 @@ import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.rest.error.exceptions.InfraServiceRestNotFoundException;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
-import io.imunity.furms.rest.error.exceptions.ResourceCreditRestNotFoundException;
-import io.imunity.furms.rest.error.exceptions.ResourceTypeRestNotFoundException;
-import io.imunity.furms.rest.error.exceptions.SiteRestNotFoundException;
 
 @Service
 class SitesRestService {
@@ -108,7 +105,7 @@ class SitesRestService {
 	}
 
 	Site findOneById(String siteId) {
-		return siteService.findById(siteId)
+		return performIfExists(siteId, () -> siteService.findById(siteId))
 				.map(site -> new Site(
 						site.getId(),
 						site.getName(),
@@ -125,56 +122,55 @@ class SitesRestService {
 								.collect(toList()),
 						//TODO fill policy
 						List.of()))
-				.orElseThrow(() -> new SiteRestNotFoundException("Site for specific ID doesn't exist."));
+				.get();
 	}
 
 	List<ResourceCredit> findAllResourceCreditsBySiteId(String siteId) {
-		return resourceCreditService.findAllWithAllocations(siteId).stream()
+		return performIfExists(siteId, () -> resourceCreditService.findAllWithAllocations(siteId)).stream()
 				.map(ResourceCredit::new)
 				.collect(toList());
 	}
 
 	ResourceCredit findResourceCreditBySiteIdAndId(String siteId, String creditId) {
-		return resourceCreditService.findWithAllocationsByIdAndSiteId(creditId, siteId)
+		return performIfExists(siteId, () -> resourceCreditService.findWithAllocationsByIdAndSiteId(creditId, siteId))
 				.map(ResourceCredit::new)
-				.orElseThrow(() -> new ResourceCreditRestNotFoundException(format("Could not find Resource Credit for " +
-						"id=%s and siteId=%s", creditId, siteId)));
+				.get();
 	}
 
 	List<ResourceType> findAllResourceTypesBySiteId(String siteId) {
-		return resourceTypeService.findAll(siteId).stream()
+		return performIfExists(siteId, () -> resourceTypeService.findAll(siteId)).stream()
 				.map(ResourceType::new)
 				.collect(toList());
 	}
 
 	ResourceType findResourceTypesBySiteIdAndId(String siteId, String resourceTypeId) {
-		return resourceTypeService.findById(resourceTypeId, siteId)
+		return performIfExists(siteId, () -> resourceTypeService.findById(resourceTypeId, siteId))
 				.map(ResourceType::new)
-				.orElseThrow(() -> new ResourceTypeRestNotFoundException(format("Could not find Resource Type for " +
-						"id=%s and siteId=%s", resourceTypeId, siteId)));
+				.get();
 	}
 
 	List<InfraService> findAllServicesBySiteId(String siteId) {
-		return infraServiceService.findAll(siteId).stream()
+		return performIfExists(siteId, () -> infraServiceService.findAll(siteId)).stream()
 				.map(InfraService::new)
 				.collect(toList());
 	}
 
 	InfraService findServiceBySiteIdAndId(String siteId, String serviceId) {
-		return infraServiceService.findById(serviceId, siteId)
+		return performIfExists(siteId, () -> infraServiceService.findById(serviceId, siteId))
 				.map(InfraService::new)
-				.orElseThrow(() -> new InfraServiceRestNotFoundException(format("Could not find Service for " +
-						"id=%s and siteId=%s", serviceId, siteId)));
+				.get();
 	}
 
 	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {
-		return projectInstallationsService.findAllSiteInstalledProjectsBySiteId(siteId).stream()
+		return performIfExists(siteId, () -> projectInstallationsService.findAllSiteInstalledProjectsBySiteId(siteId))
+				.stream()
 				.map(this::convertToProject)
 				.collect(toList());
 	}
 
 	List<SiteUser> findAllSiteUsersBySiteId(String siteId) {
-		final Set<UserAddition> userAdditionsBySite = userAllocationsService.findAllBySiteId(siteId);
+		final Set<UserAddition> userAdditionsBySite = performIfExists(siteId,
+				() -> userAllocationsService.findAllBySiteId(siteId));
 		final Map<String, Set<String>> projectsGroupingByUserId = userAdditionsBySite.stream().collect(groupingBy(
 				userAddition -> userAddition.userId,
 				mapping(userAddition -> userAddition.projectId, toSet())));
@@ -190,32 +186,39 @@ class SitesRestService {
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsBySiteId(String siteId) {
-		return projectAllocationService.findAllWithRelatedObjectsBySiteId(siteId).stream()
+		return performIfExists(siteId, () -> projectAllocationService.findAllWithRelatedObjectsBySiteId(siteId))
+				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsBySiteIdAndProjectId(String siteId, String projectId) {
-		return projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId).stream()
+		return performIfExists(siteId,
+					() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId))
+				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteId(String siteId) {
-		return projectAllocationService.findAllChunksBySiteId(siteId).stream()
+		return performIfExists(siteId, () -> projectAllocationService.findAllChunksBySiteId(siteId)).stream()
 				.map(SiteAllocatedResources::new)
 				.collect(toList());
 	}
 
 	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteIdAndProjectId(String siteId, String projectId) {
-		return projectAllocationService.findAllChunksBySiteIdAndProjectId(siteId, projectId).stream()
+		return performIfExists(siteId,
+					() -> projectAllocationService.findAllChunksBySiteIdAndProjectId(siteId, projectId))
+				.stream()
 				.map(SiteAllocatedResources::new)
 				.collect(toList());
 	}
 
 	List<ProjectCumulativeResourceConsumption> findAllProjectCumulativeResourceConsumptionBySiteIdAndProjectId(
 			String siteId, String projectId) {
-		return projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId).stream()
+		return performIfExists(siteId,
+					() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId))
+				.stream()
 				.map(ProjectCumulativeResourceConsumption::new)
 				.collect(toList());
 	}
@@ -224,8 +227,8 @@ class SitesRestService {
 	                                                                               String projectId,
 	                                                                               ZonedDateTime from,
 	                                                                               ZonedDateTime until) {
-		final Set<ProjectAllocationResolved> allocations = projectAllocationService
-				.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId);
+		final Set<ProjectAllocationResolved> allocations = performIfExists(siteId,
+				() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId));
 		final Set<UserResourceUsage> userUsages = resourceUsageService.findAllUserUsages(
 				siteId,
 				allocations.stream()
@@ -237,6 +240,10 @@ class SitesRestService {
 		return userUsages.stream()
 				.map(userUsage -> new ProjectUsageRecord(userUsage, findAllocation(userUsage.projectAllocationId, allocations)))
 				.collect(toList());
+	}
+
+	private <T> T performIfExists(String siteId, Supplier<T> action) {
+		return ResourceExistsWrapper.performIfExists(() -> siteService.existsById(siteId), action);
 	}
 
 	private ProjectAllocationResolved findAllocation(String projectAllocationId, Set<ProjectAllocationResolved> allocations) {
