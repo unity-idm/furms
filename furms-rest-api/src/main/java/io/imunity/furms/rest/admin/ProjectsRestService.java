@@ -56,7 +56,7 @@ class ProjectsRestService {
 		projectService.delete(projectId, project.getCommunityId());
 	}
 
-	Project update(String projectId, ProjectMutableDefinition request) {
+	Project update(String projectId, ProjectUpdateRequest request) {
 		final io.imunity.furms.domain.projects.Project project = performIfExists(
 				projectId, () -> projectService.findById(projectId))
 				.get();
@@ -71,7 +71,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeader.fenixIdentifier))
+				.leaderId(new PersistentId(request.projectLeaderId))
 				.build());
 
 		return projectService.findById(projectId)
@@ -80,7 +80,7 @@ class ProjectsRestService {
 						"with specific id"));
 	}
 
-	Project create(ProjectDefinition request) {
+	Project create(ProjectCreateRequest request) {
 		final String projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
 				.name(request.name)
@@ -89,7 +89,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeader.fenixIdentifier))
+				.leaderId(new PersistentId(request.projectLeaderId))
 				.build());
 
 		return projectService.findById(projectId)
@@ -112,17 +112,17 @@ class ProjectsRestService {
 				.get();
 	}
 
-	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationDefinition request) {
+	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationAddRequest request) {
 		if (request == null) {
 			throw new IllegalArgumentException("Could not create Project Allocation due to empty request body.");
 		}
 		projectAllocationService.create(
-				request.communityAllocationId.communityId,
+				request.communityId,
 				io.imunity.furms.domain.project_allocation.ProjectAllocation.builder()
 						.projectId(projectId)
-						.communityAllocationId(request.communityAllocationId.allocationId)
+						.communityAllocationId(request.communityAllocationId)
 						.name(request.name)
-						.amount(request.amount.amount)
+						.amount(request.amount)
 						.build());
 
 		return findAllProjectAllocationsByProjectId(projectId);

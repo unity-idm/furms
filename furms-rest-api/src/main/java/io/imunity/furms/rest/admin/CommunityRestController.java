@@ -108,7 +108,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@PostMapping("/{communityId}/allocations")
 	public List<CommunityAllocation> addAllocation(@PathVariable("communityId") String communityId,
-	                                               @RequestBody CommunityAllocationDefinition request) {
+	                                               @RequestBody CommunityAllocationAddRequest request) {
 		return restService.addAllocation(communityId, request);
 	}
 

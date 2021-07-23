@@ -61,12 +61,12 @@ class CommunityRestService {
 						communityAllocationId, communityId)));
 	}
 
-	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationDefinition request) {
+	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationAddRequest request) {
 		communityAllocationService.create(io.imunity.furms.domain.community_allocation.CommunityAllocation.builder()
 				.communityId(communityId)
-				.resourceCreditId(request.siteAllocationId.creditId)
+				.resourceCreditId(request.creditId)
 				.name(request.name)
-				.amount(request.amount.amount)
+				.amount(request.amount)
 				.build());
 		return findAllocationByCommunityId(communityId);
 	}
