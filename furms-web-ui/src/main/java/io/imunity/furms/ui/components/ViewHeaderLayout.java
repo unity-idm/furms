@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 @CssImport("./styles/components/view-header.css")
 public class ViewHeaderLayout extends HorizontalLayout {
-
+	private final H4 title;
 
 	public ViewHeaderLayout(String headerLabel) {
 		this(headerLabel, new Div());
@@ -28,10 +28,14 @@ public class ViewHeaderLayout extends HorizontalLayout {
 		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
 		
-		H4 title = new H4(headerLabel);
+		title = new H4(headerLabel);
 		title.setWidthFull();
 		
 		add(title, buttonLayout);
+	}
+
+	public void setText(String text){
+		title.setText(text);
 	}
 
 	private void setDefault() {

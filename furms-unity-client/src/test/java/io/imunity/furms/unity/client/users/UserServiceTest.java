@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAgreement;
 import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.UserPolicyAgreements;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -22,9 +23,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
@@ -123,7 +126,23 @@ public class UserServiceTest {
 		List<FURMSUser> allUsersFromGroup = userService.getAllUsersFromGroup(group, attr -> true);
 
 		assertThat(allUsersFromGroup).isEmpty();
+	}
 
+	@Test
+	void shouldReturnEmptyUsersListFromMultipleGroups() {
+		String path = "/group-members-multi/%2F";
+
+		when(unityClient.post(
+			path,
+			List.of("/fenix/communities/communityId/projects/projectId2/users", "/fenix/communities/communityId/projects/projectId1/users"),
+			Map.of(),
+			new ParameterizedTypeReference<MultiGroupMembers>() {})
+		)
+			.thenReturn(new MultiGroupMembers(List.of(), Map.of()));
+
+		Set<UserPolicyAgreements> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
+
+		assertThat(allUsersFromGroup).isEmpty();
 	}
 
 	@Test
