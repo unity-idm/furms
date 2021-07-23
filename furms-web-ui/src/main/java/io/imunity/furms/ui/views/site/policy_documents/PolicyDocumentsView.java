@@ -106,7 +106,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	private HorizontalLayout createLastColumnContent(PolicyDocumentGridModel model) {
 		Component contextMenu = createContextMenu(model.id, model.name, model.siteId);
 		if(model.workflow.equals(PolicyWorkflow.PAPER_BASED))
-			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), PolicyDocumentAcceptanceView.class), contextMenu);
+			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), PolicyDocumentAgreementView.class), contextMenu);
 		else
 			return new GridActionsButtonLayout(contextMenu);
 	}

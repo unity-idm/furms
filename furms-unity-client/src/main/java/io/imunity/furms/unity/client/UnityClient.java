@@ -5,13 +5,6 @@
 
 package io.imunity.furms.unity.client;
 
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -20,6 +13,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 public class UnityClient {
@@ -69,6 +69,16 @@ public class UnityClient {
 
 	public void post(String path, Object body) {
 		post(path, body, emptyMap());
+	}
+
+	public <T> T post(String path, Object body, Map<String, String> queryParams, ParameterizedTypeReference<T> typeReference) {
+		MultiValueMap<String, String> params = createStringParams(queryParams);
+		return webClient.post()
+			.uri(uriBuilder -> uri(uriBuilder, path, params))
+			.bodyValue(body == null ? "" : body)
+			.retrieve()
+			.bodyToMono(typeReference)
+			.block();
 	}
 
 	public void post(String path, Object body, Map<String, String> queryParams) {

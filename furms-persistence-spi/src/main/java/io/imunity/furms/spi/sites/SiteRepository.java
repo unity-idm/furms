@@ -9,6 +9,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,6 +20,8 @@ public interface SiteRepository {
 	SiteExternalId findByIdExternalId(String id);
 
 	Set<SiteId> findByProjectId(String id);
+
+	Map<String, Set<String>> findRelatedProjectIds(SiteId siteId);
 
 	Set<Site> findAll();
 
