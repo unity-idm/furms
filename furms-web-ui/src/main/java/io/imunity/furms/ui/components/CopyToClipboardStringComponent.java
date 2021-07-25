@@ -72,6 +72,7 @@ public class CopyToClipboardStringComponent
 		return this.valueLabel.getText();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Registration addValueChangeListener(ValueChangeListener<? super CopyToClipboardStringComponent> listener) {
 		ComponentEventListener componentListener = event -> listener.valueChanged(this);

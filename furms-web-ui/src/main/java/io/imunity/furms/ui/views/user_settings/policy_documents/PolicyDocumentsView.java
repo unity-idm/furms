@@ -37,7 +37,6 @@ import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
-import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.IconButton;
@@ -58,7 +57,6 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 	PolicyDocumentsView(AuthzService authzService, PolicyDocumentService service) {
 		this.policyDocumentService = service;
 		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
-		FURMSUser user = authzService.getCurrentAuthNUser();
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
 		grid.addColumn(x -> x.name)

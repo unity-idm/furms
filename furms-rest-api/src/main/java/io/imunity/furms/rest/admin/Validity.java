@@ -7,7 +7,7 @@ package io.imunity.furms.rest.admin;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-public class Validity {
+class Validity {
 	public final ZonedDateTime from;
 	public final ZonedDateTime to;
 

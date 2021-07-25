@@ -100,7 +100,6 @@ class AdminApiKeyServiceTest {
 	void shouldNotFindByUserIdDueToNonExistingUser() {
 		//given
 		final PersistentId userId = new PersistentId("userId");
-		final UUID apiKey = UUID.randomUUID();
 		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
 		//when + then
@@ -132,10 +131,6 @@ class AdminApiKeyServiceTest {
 		//given
 		final PersistentId userId = new PersistentId("userId");
 		final UUID apiKey = UUID.randomUUID();
-		final UserApiKey userApiKey = UserApiKey.builder()
-				.apiKey(apiKey)
-				.userId(userId)
-				.build();
 		when(usersDAO.findById(userId)).thenReturn(Optional.empty());
 
 		//when + then
@@ -165,11 +160,6 @@ class AdminApiKeyServiceTest {
 	void shouldRevokeApiKey() {
 		//given
 		final PersistentId userId = new PersistentId("userId");
-		final UUID apiKey = UUID.randomUUID();
-		final UserApiKey userApiKey = UserApiKey.builder()
-				.apiKey(apiKey)
-				.userId(userId)
-				.build();
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
 				.id(userId)
 				.email("email")

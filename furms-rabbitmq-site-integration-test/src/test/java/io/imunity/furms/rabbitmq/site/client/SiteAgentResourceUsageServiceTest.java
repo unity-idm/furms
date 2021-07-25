@@ -26,8 +26,6 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 class SiteAgentResourceUsageServiceTest {
 	@Autowired
-	private SiteAgentResourceUsageService siteAgentResourceUsageService;
-	@Autowired
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
 	private ResourceUsageUpdater resourceUsageUpdater;

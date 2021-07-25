@@ -58,7 +58,6 @@ import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 public class ProjectAllocationComponent extends Composite<Div> {
 
 	private final ProjectAllocationService service;
-	private final ProjectService projectService;
 
 	private final String communityId;
 	private final String projectId;
@@ -71,7 +70,6 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
 		this.service = service;
-		this.projectService = projectService;
 
 		this.communityId = getCurrentResourceId();
 		this.projectId = projectId;

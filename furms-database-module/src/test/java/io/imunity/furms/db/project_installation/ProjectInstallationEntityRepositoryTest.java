@@ -145,7 +145,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
+		entityRepository.save(entityToSave);
 		entityRepository.save(secondEntityToSave);
 
 		//then
@@ -161,28 +161,28 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindSiteInstalledProjectsBySiteid() {
 		//given
-		final ProjectInstallationJobEntity installed1 = entityRepository.save(ProjectInstallationJobEntity.builder()
+		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
 				.siteId(siteId)
 				.projectId(projectId)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
-		final ProjectInstallationJobEntity installed2 = entityRepository.save(ProjectInstallationJobEntity.builder()
+		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
 				.siteId(siteId)
 				.projectId(projectId2)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
-		final ProjectInstallationJobEntity notInstalled = entityRepository.save(ProjectInstallationJobEntity.builder()
+		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
 				.siteId(siteId)
 				.projectId(projectId2)
 				.status(PENDING)
 				.gid("gid")
 				.build());
-		final ProjectInstallationJobEntity wrongSite = entityRepository.save(ProjectInstallationJobEntity.builder()
+		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
 				.siteId(siteId2)
 				.projectId(projectId2)
@@ -219,7 +219,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		ProjectInstallationJobEntity saved = entityRepository.save(entityToSave);
+		entityRepository.save(entityToSave);
 		entityRepository.save(secondEntityToSave);
 
 		//then
