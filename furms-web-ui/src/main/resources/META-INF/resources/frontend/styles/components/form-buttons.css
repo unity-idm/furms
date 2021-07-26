@@ -3,5 +3,5 @@
 }
 
 .form-buttons > vaadin-button {
-	margin-right: 5px;
+	margin-right: var(--lumo-space-xs);
 }

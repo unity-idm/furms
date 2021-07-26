@@ -8,12 +8,17 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-class ResourceExistsWrapper {
+class ResourceChecker {
+	private final Function<String, Boolean> availabilityTester;
 
-	static <T> T performIfExists(BooleanSupplier availabilityTester, Supplier<T> actionToPerform) {
+	public ResourceChecker(Function<String, Boolean> availabilityTester) {
+		this.availabilityTester = availabilityTester;
+	}
+
+	<T> T performIfExists(String resourceId, Supplier<T> actionToPerform) {
 		try {
 			final T result = actionToPerform.get();
 			if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
@@ -21,11 +26,19 @@ class ResourceExistsWrapper {
 			}
 			return result;
 		} catch (Exception e) {
-			if (!(e instanceof RestNotFoundException) && !availabilityTester.getAsBoolean()) {
+			if (isNotRestNotFoundException(e) && isNotAvailable(resourceId)) {
 				throw new RestNotFoundException("Resource does not exist");
 			}
 			throw e;
 		}
+	}
+
+	private boolean isNotRestNotFoundException(Exception e) {
+		return !(e instanceof RestNotFoundException);
+	}
+
+	private boolean isNotAvailable(String resourceId) {
+		return !availabilityTester.apply(resourceId);
 	}
 
 }

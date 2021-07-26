@@ -22,10 +22,12 @@ class CommunityRestService {
 
 	private final CommunityService communityService;
 	private final CommunityAllocationService communityAllocationService;
+	private final ResourceChecker resourceChecker;
 
 	CommunityRestService(CommunityService communityService, CommunityAllocationService communityAllocationService) {
 		this.communityService = communityService;
 		this.communityAllocationService = communityAllocationService;
+		this.resourceChecker = new ResourceChecker(communityService::existsById);
 	}
 
 	List<Community> findAll() {
@@ -37,7 +39,7 @@ class CommunityRestService {
 	}
 
 	Community findOneById(String communityId) {
-		return performIfExists(communityId, () -> communityService.findById(communityId))
+		return resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId))
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(communityId)))
@@ -45,14 +47,14 @@ class CommunityRestService {
 	}
 
 	List<CommunityAllocation> findAllocationByCommunityId(String communityId) {
-		performIfExists(communityId, () -> communityService.findById(communityId));
+		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		return communityAllocationService.findAllWithRelatedObjects(communityId).stream()
 				.map(CommunityAllocation::new)
 				.collect(toList());
 	}
 
 	CommunityAllocation findAllocationByIdAndCommunityId(String communityAllocationId, String communityId) {
-		return performIfExists(communityId,
+		return resourceChecker.performIfExists(communityId,
 					() -> communityAllocationService.findByIdWithRelatedObjects(communityAllocationId))
 				.filter(allocation -> allocation.communityId.equals(communityId))
 				.map(CommunityAllocation::new)
@@ -69,10 +71,6 @@ class CommunityRestService {
 				.amount(request.amount)
 				.build());
 		return findAllocationByCommunityId(communityId);
-	}
-
-	private <T> T performIfExists(String communityId, Supplier<T> action) {
-		return ResourceExistsWrapper.performIfExists(() -> communityService.existsById(communityId), action);
 	}
 
 }

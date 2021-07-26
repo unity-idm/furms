@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,6 +26,7 @@ class ProjectsRestService {
 	private final ProjectAllocationService projectAllocationService;
 	private final ResourceAccessService resourceAccessService;
 	private final UserService userService;
+	private final ResourceChecker resourceChecker;
 
 	ProjectsRestService(ProjectService projectService,
 	                           ProjectAllocationService projectAllocationService,
@@ -36,6 +36,7 @@ class ProjectsRestService {
 		this.projectAllocationService = projectAllocationService;
 		this.resourceAccessService = resourceAccessService;
 		this.userService = userService;
+		this.resourceChecker = new ResourceChecker(projectService::existsById);
 	}
 
 	List<Project> findAll() {
@@ -45,19 +46,19 @@ class ProjectsRestService {
 	}
 
 	ProjectWithUsers findOneById(String projectId) {
-		return performIfExists(projectId, () -> projectService.findById(projectId))
+		return resourceChecker.performIfExists(projectId, () -> projectService.findById(projectId))
 				.map(this::convertToProjectWithUsers)
 				.get();
 	}
 
 	void delete(String projectId) {
-		final io.imunity.furms.domain.projects.Project project = performIfExists(
+		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
 				projectId, () -> projectService.findById(projectId)).get();
 		projectService.delete(projectId, project.getCommunityId());
 	}
 
 	Project update(String projectId, ProjectUpdateRequest request) {
-		final io.imunity.furms.domain.projects.Project project = performIfExists(
+		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
 				projectId, () -> projectService.findById(projectId))
 				.get();
 
@@ -99,14 +100,15 @@ class ProjectsRestService {
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
-		return performIfExists(projectId, () -> projectAllocationService.findAllWithRelatedObjects(projectId))
+		return resourceChecker.performIfExists(projectId,
+					() -> projectAllocationService.findAllWithRelatedObjects(projectId))
 				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		return performIfExists(projectId,
+		return resourceChecker.performIfExists(projectId,
 					() -> projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
 				.map(ProjectAllocation::new)
 				.get();
@@ -126,10 +128,6 @@ class ProjectsRestService {
 						.build());
 
 		return findAllProjectAllocationsByProjectId(projectId);
-	}
-
-	private <T> T performIfExists(String projectId, Supplier<T> action) {
-		return ResourceExistsWrapper.performIfExists(() -> projectService.existsById(projectId), action);
 	}
 
 	private ProjectWithUsers convertToProjectWithUsers(io.imunity.furms.domain.projects.Project project) {
