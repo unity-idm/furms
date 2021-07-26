@@ -6,47 +6,49 @@ package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
-class CommunityAllocation extends CommunityAllocationDefinition {
-	
-	public final CommunityAllocationId id;
+class CommunityAllocation {
+	public final String id;
+	public final String creditId;
+	public final String name;
+	public final BigDecimal amount;
 
-	CommunityAllocation(SiteCreditId siteAllocationId, String name, ResourceType resourceType,
-			ResourceAmount credits, CommunityAllocationId id) {
-		super(siteAllocationId, name, resourceType, credits);
+	CommunityAllocation(String id, String creditId, String name, BigDecimal amount) {
 		this.id = id;
+		this.creditId = creditId;
+		this.name = name;
+		this.amount = amount;
 	}
 
-	CommunityAllocation(CommunityAllocationResolved allocation) {
-		this(new SiteCreditId(allocation.resourceCredit),
-				allocation.name,
-				new ResourceType(allocation.resourceType),
-				new ResourceAmount(allocation.amount, allocation.resourceType.unit.getSuffix()),
-				new CommunityAllocationId(allocation.communityId, allocation.id));
+	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
+		this(communityAllocation.communityId, communityAllocation.resourceCredit.id, communityAllocation.name,
+				communityAllocation.amount);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
 		CommunityAllocation that = (CommunityAllocation) o;
-		return Objects.equals(id, that.id);
+		return Objects.equals(id, that.id)
+				&& Objects.equals(creditId, that.creditId)
+				&& Objects.equals(name, that.name)
+				&& Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), id);
+		return Objects.hash(id, creditId, name, amount);
 	}
 
 	@Override
 	public String toString() {
 		return "CommunityAllocation{" +
 				"id=" + id +
-				", siteAllocationId=" + siteAllocationId +
+				", creditId='" + creditId + '\'' +
 				", name='" + name + '\'' +
-				", resourceType=" + resourceType +
 				", amount=" + amount +
 				'}';
 	}

@@ -6,47 +6,47 @@ package io.imunity.furms.rest.admin;
 
 import java.util.Objects;
 
-class ProjectMutableDefinition {
+class ProjectUpdateRequest {
 	public final String name;
 	public final String description;
 	public final Validity validity;
 	public final String researchField;
-	public final User projectLeader;
+	public final String projectLeaderId;
 	
-	ProjectMutableDefinition(String name, String description, Validity validity, 
-			String researchField, User projectLeader) {
+	ProjectUpdateRequest(String name, String description, Validity validity,
+	                     String researchField, String projectLeaderId) {
 		this.name = name;
 		this.description = description;
 		this.validity = validity;
 		this.researchField = researchField;
-		this.projectLeader = projectLeader;
+		this.projectLeaderId = projectLeaderId;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectMutableDefinition that = (ProjectMutableDefinition) o;
+		ProjectUpdateRequest that = (ProjectUpdateRequest) o;
 		return Objects.equals(name, that.name)
 				&& Objects.equals(description, that.description)
 				&& Objects.equals(validity, that.validity)
 				&& Objects.equals(researchField, that.researchField)
-				&& Objects.equals(projectLeader, that.projectLeader);
+				&& Objects.equals(projectLeaderId, that.projectLeaderId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, description, validity, researchField, projectLeader);
+		return Objects.hash(name, description, validity, researchField, projectLeaderId);
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectMutableDefinition{" +
+		return "ProjectUpdateRequest{" +
 				"name='" + name + '\'' +
 				", description='" + description + '\'' +
 				", validity=" + validity +
 				", researchField='" + researchField + '\'' +
-				", projectLeader=" + projectLeader +
+				", projectLeaderId=" + projectLeaderId +
 				'}';
 	}
 }

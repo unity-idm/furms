@@ -7,10 +7,10 @@ package io.imunity.furms.rest.admin;
 
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -187,26 +187,19 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		//given
 		final String siteId = "siteId";
 		when(sitesRestService.findAllProjectAllocationsBySiteId(siteId)).thenReturn(List.of(
-				createProjectAllocation(siteId, "id1"), createProjectAllocation(siteId, "id2")));
+				createProjectAllocation("id1"), createProjectAllocation("id2")));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/furmsAllocations", siteId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[1].id.allocationId").value("id2"))
-				.andExpect(jsonPath("$.[0].id.projectId").value("projectId"))
-				.andExpect(jsonPath("$.[0].id.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[0].communityAllocationId.communityId").value("communityId"))
-				.andExpect(jsonPath("$.[0].communityAllocationId.allocationId").value("id1"))
+				.andExpect(jsonPath("$.[1].id").value("id2"))
+				.andExpect(jsonPath("$.[0].id").value("id1"))
+				.andExpect(jsonPath("$.[0].communityAllocationId").value("id1"))
 				.andExpect(jsonPath("$.[0].name").value("name"))
-				.andExpect(jsonPath("$.[0].resourceType.id.siteId").value(siteId))
-				.andExpect(jsonPath("$.[0].resourceType.id.typeId").value("typeId"))
-				.andExpect(jsonPath("$.[0].resourceType.name").value("name"))
-				.andExpect(jsonPath("$.[0].resourceType.serviceId.siteId").value(siteId))
-				.andExpect(jsonPath("$.[0].resourceType.serviceId.serviceId").value("serviceId"))
-				.andExpect(jsonPath("$.[0].amount.amount").value("1"))
-				.andExpect(jsonPath("$.[0].amount.unit").value("unit"));
+				.andExpect(jsonPath("$.[0].resourceTypeId").value("typeId"))
+				.andExpect(jsonPath("$.[0].amount").value("1"));
 	}
 
 	@Test
@@ -215,15 +208,15 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		final String siteId = "siteId";
 		final String projectId = "projectId";
 		when(sitesRestService.findAllProjectAllocationsBySiteIdAndProjectId(siteId, projectId)).thenReturn(List.of(
-				createProjectAllocation(siteId, "id1"), createProjectAllocation(siteId, "id2")));
+				createProjectAllocation("id1"), createProjectAllocation("id2")));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/furmsAllocations/{projectId}", siteId, projectId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[1].id.allocationId").value("id2"));
+				.andExpect(jsonPath("$.[0].id").value("id1"))
+				.andExpect(jsonPath("$.[1].id").value("id2"));
 	}
 
 	@Test
@@ -238,11 +231,10 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].allocationId.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[1].allocationId.projectId").value("projectId"))
-				.andExpect(jsonPath("$.[1].allocationId.allocationId").value("id2"))
-				.andExpect(jsonPath("$.[1].amount.amount").value("1"))
-				.andExpect(jsonPath("$.[1].amount.unit").value("unit"))
+				.andExpect(jsonPath("$.[0].allocationId").value("id1"))
+				.andExpect(jsonPath("$.[1].allocationId").value("id2"))
+				.andExpect(jsonPath("$.[1].siteId").value(siteId))
+				.andExpect(jsonPath("$.[1].amount").value("1"))
 				.andExpect(jsonPath("$.[1].validity.from").isNotEmpty())
 				.andExpect(jsonPath("$.[1].validity.to").isNotEmpty());
 	}
@@ -260,8 +252,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].allocationId.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[1].allocationId.allocationId").value("id2"));
+				.andExpect(jsonPath("$.[0].allocationId").value("id1"))
+				.andExpect(jsonPath("$.[1].allocationId").value("id2"));
 	}
 
 	@Test
@@ -279,13 +271,10 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].projectAllocationId.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[1].projectAllocationId.projectId").value("projectId"))
-				.andExpect(jsonPath("$.[1].projectAllocationId.allocationId").value("id2"))
-				.andExpect(jsonPath("$.[1].resourceTypeId.siteId").value(siteId))
-				.andExpect(jsonPath("$.[1].resourceTypeId.typeId").value("typeId"))
-				.andExpect(jsonPath("$.[1].consumedAmount.amount").value("1"))
-				.andExpect(jsonPath("$.[1].consumedAmount.unit").value("unit"))
+				.andExpect(jsonPath("$.[0].projectAllocationId").value("id1"))
+				.andExpect(jsonPath("$.[1].projectAllocationId").value("id2"))
+				.andExpect(jsonPath("$.[1].resourceTypeId").value("typeId"))
+				.andExpect(jsonPath("$.[1].consumedAmount").value("1"))
 				.andExpect(jsonPath("$.[1].consumedUntil").isNotEmpty());
 	}
 
@@ -305,13 +294,10 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].projectAllocationId.allocationId").value("id1"))
-				.andExpect(jsonPath("$.[1].projectAllocationId.projectId").value("projectId"))
-				.andExpect(jsonPath("$.[1].projectAllocationId.allocationId").value("id2"))
-				.andExpect(jsonPath("$.[1].resourceTypeId.siteId").value(siteId))
-				.andExpect(jsonPath("$.[1].resourceTypeId.typeId").value("typeId"))
-				.andExpect(jsonPath("$.[1].consumedAmount.amount").value("1"))
-				.andExpect(jsonPath("$.[1].consumedAmount.unit").value("unit"))
+				.andExpect(jsonPath("$.[0].projectAllocationId").value("id1"))
+				.andExpect(jsonPath("$.[1].projectAllocationId").value("id2"))
+				.andExpect(jsonPath("$.[1].resourceTypeId").value("typeId"))
+				.andExpect(jsonPath("$.[1].consumedAmount").value("1"))
 				.andExpect(jsonPath("$.[1].userFenixId").value("fenixIdentifier"))
 				.andExpect(jsonPath("$.[1].from").isNotEmpty())
 				.andExpect(jsonPath("$.[1].until").isNotEmpty());
@@ -340,29 +326,23 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ResourceAmount createResourceAmount() {
-		return new ResourceAmount(BigDecimal.ONE, "unit");
+		return new ResourceAmount(ONE, "unit");
 	}
 
-	private ProjectAllocation createProjectAllocation(String siteId, String allocationId) {
-		return new ProjectAllocation(new CommunityAllocationId("communityId", allocationId), "name",
-				createResourceType(siteId, "typeId"), createResourceAmount(),
-				new ProjectAllocationId("projectId", allocationId));
+	private ProjectAllocation createProjectAllocation(String allocationId) {
+		return new ProjectAllocation(allocationId, allocationId, "name", "typeId", ONE);
 	}
 
 	private SiteAllocatedResources createSiteAllocatedResources(String siteId, String id) {
-		return new SiteAllocatedResources(new ProjectAllocationId("projectId", id), createResourceAmount(),
-				new Validity(sampleFrom, sampleTo));
+		return new SiteAllocatedResources(id, siteId, ONE, new Validity(sampleFrom, sampleTo));
 	}
 
 	private ProjectCumulativeResourceConsumption createProjectCumulativeResourceConsumption(String siteId, String id) {
-		return new ProjectCumulativeResourceConsumption(new ProjectAllocationId("projectId", id),
-				new ResourceTypeId(siteId, "typeId"), createResourceAmount(), sampleTo);
+		return new ProjectCumulativeResourceConsumption(id, siteId, "typeId", ONE, sampleTo);
 	}
 
 	private ProjectUsageRecord createProjectUsageRecord(String siteId, String id) {
-		return new ProjectUsageRecord(new ProjectAllocationId("projectId", id),
-				new ResourceTypeId(siteId, "typeId"), createResourceAmount(), sampleUser.fenixIdentifier,
-				sampleFrom, sampleTo);
+		return new ProjectUsageRecord(id,"typeId", siteId, ONE, sampleUser.fenixIdentifier, sampleFrom, sampleTo);
 	}
 
 }

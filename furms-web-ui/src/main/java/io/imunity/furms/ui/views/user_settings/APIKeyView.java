@@ -22,6 +22,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
@@ -36,8 +37,7 @@ public class APIKeyView extends FurmsViewComponent {
 
 	private final CopyToClipboardStringComponent apiKeyFormItem;
 	private final Button generateRevokeButton;
-	private final Button cancelButton;
-	private final Button saveButton;
+	private final FormButtons formButtons;
 
 	private final PersistentId userId;
 
@@ -67,17 +67,18 @@ public class APIKeyView extends FurmsViewComponent {
 				apiKeyRow,
 				getTranslation("view.user-settings.api-key.form.key.label"));
 
-		this.cancelButton = new Button(
+		final Button cancelButton = new Button(
 				getTranslation("view.user-settings.api-key.form.button.cancel"),
 				e -> cancelAction());
-		this.saveButton = new Button(
+		cancelButton.addThemeVariants(LUMO_TERTIARY);
+		final Button saveButton = new Button(
 				getTranslation("view.user-settings.api-key.form.button.save"),
 				e -> saveApiKeyAction());
-		this.saveButton.addThemeVariants(LUMO_PRIMARY);
-		setApiKeyFormItemValue(apiKey);
-		this.saveButton.setEnabled(false);
+		saveButton.addThemeVariants(LUMO_PRIMARY);
 
-		final FormButtons formButtons = new FormButtons(cancelButton, saveButton);
+		this.formButtons = new FormButtons(cancelButton, saveButton);
+		setApiKeyFormItemValue(apiKey);
+		this.formButtons.setVisible(false);
 
 		getContent().add(furmsFormLayout, formButtons);
 	}
@@ -91,7 +92,7 @@ public class APIKeyView extends FurmsViewComponent {
 
 	private void cancelAction() {
 		setApiKeyFormItemValue(loadApiKey());
-		saveButton.setEnabled(false);
+		formButtons.setVisible(false);
 	}
 
 	private void generateAPIKeyAction() {
@@ -107,7 +108,7 @@ public class APIKeyView extends FurmsViewComponent {
 				userApiKeyService.save(userId, apiKeyFormItem.getValue());
 				showSuccessNotification(getTranslation("view.user-settings.api-key.form.save.success.message"));
 			}
-			saveButton.setEnabled(false);
+			formButtons.setVisible(false);
 		} catch (Exception e) {
 			LOG.error("Unable to save API KEY for user=" + userId, e);
 			showErrorNotification(getTranslation("view.user-settings.api-key.form.button.generate.error"));
@@ -130,7 +131,7 @@ public class APIKeyView extends FurmsViewComponent {
 			generateRevokeButton.setText(getTranslation("view.user-settings.api-key.form.button.revoke"));
 			generateRevokeButton.addClickListener(event -> revokeAPIKeyAction());
 		}
-		saveButton.setEnabled(true);
+		formButtons.setVisible(true);
 	}
 
 }

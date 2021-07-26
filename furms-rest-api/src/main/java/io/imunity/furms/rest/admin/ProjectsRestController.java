@@ -93,7 +93,7 @@ public class ProjectsRestController {
 	@PutMapping("/{projectId}")
 	public Project update(
 			@PathVariable("projectId") String projectId,
-			@RequestBody ProjectMutableDefinition request) {
+			@RequestBody ProjectUpdateRequest request) {
 		return service.update(projectId, request);
 	}
 
@@ -106,7 +106,7 @@ public class ProjectsRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied") })
 	@PostMapping()
 	public Project add(
-			@RequestBody ProjectDefinition request) {
+			@RequestBody ProjectCreateRequest request) {
 		return service.create(request);
 	}
 
@@ -155,7 +155,7 @@ public class ProjectsRestController {
 	@PostMapping("/{projectId}/allocations")
 	public List<ProjectAllocation> addAllocation(
 			@PathVariable("projectId") String projectId,
-			@RequestBody ProjectAllocationDefinition request) {
+			@RequestBody ProjectAllocationAddRequest request) {
 		return service.addAllocation(projectId, request);
 	}
 }

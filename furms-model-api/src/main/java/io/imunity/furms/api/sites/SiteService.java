@@ -17,10 +17,12 @@ import java.util.Set;
 
 public interface SiteService {
 
+	boolean existsById(String id);
+
 	Optional<Site> findById(String id);
 
 	Set<Site> findAll();
-	
+
 	Set<Site> findUserSites(PersistentId userId);
 
 	void create(Site site);

@@ -5,7 +5,7 @@
 
 package io.imunity.furms.rest.error.exceptions;
 
-public abstract class RestNotFoundException extends RuntimeException {
+public class RestNotFoundException extends RuntimeException {
 
 	public RestNotFoundException(String message) {
 		super(message);

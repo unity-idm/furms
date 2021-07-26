@@ -9,12 +9,14 @@ import io.imunity.furms.rest.error.exceptions.CommunityAllocationRestNotFoundExc
 import io.imunity.furms.rest.error.exceptions.CommunityRestNotFoundException;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -96,18 +98,10 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 					communityId, allocationId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.communityId").value(communityId))
-				.andExpect(jsonPath("$.id.allocationId").value(allocationId))
-				.andExpect(jsonPath("$.siteAllocationId.siteId").value("siteId"))
-				.andExpect(jsonPath("$.siteAllocationId.creditId").value("creditId"))
+				.andExpect(jsonPath("$.id").value(allocationId))
+				.andExpect(jsonPath("$.creditId").value("creditId"))
 				.andExpect(jsonPath("$.name").value("name"))
-				.andExpect(jsonPath("$.resourceType.id.siteId").value("siteId"))
-				.andExpect(jsonPath("$.resourceType.id.typeId").value("typeId"))
-				.andExpect(jsonPath("$.resourceType.name").value("name"))
-				.andExpect(jsonPath("$.resourceType.serviceId.siteId").value("siteId"))
-				.andExpect(jsonPath("$.resourceType.serviceId.serviceId").value("serviceId"))
-				.andExpect(jsonPath("$.amount.amount").value("1"))
-				.andExpect(jsonPath("$.amount.unit").value("none"));
+				.andExpect(jsonPath("$.amount").value("1"));
 	}
 
 	@Test
@@ -129,12 +123,7 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	void shouldCallAddAllocationWithProperBody() throws Exception {
 		//given
 		final String communityId = "communityId";
-		final CommunityAllocationDefinition request = new CommunityAllocationDefinition(
-				new SiteCreditId("siteId", "creditId"),
-				"name",
-				new ResourceType(new ResourceTypeId("siteId", "typeId"), "name",
-						new ServiceId("siteId", "serviceId")),
-				new ResourceAmount(BigDecimal.ONE, "none"));
+		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest("creditId", "name", ONE);
 		when(communityRestService.addAllocation(communityId, request)).thenReturn(List.of());
 
 		//when + then
@@ -152,13 +141,7 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private CommunityAllocation createCommunityAllocation(String id, String communityId) {
-		return new CommunityAllocation(
-				new SiteCreditId("siteId", "creditId"),
-				"name",
-				new ResourceType(new ResourceTypeId("siteId", "typeId"), "name",
-						new ServiceId("siteId", "serviceId")),
-				new ResourceAmount(BigDecimal.ONE, "none"),
-				new CommunityAllocationId(communityId, id));
+		return new CommunityAllocation(id, "creditId", "name", ONE);
 	}
 
 }
