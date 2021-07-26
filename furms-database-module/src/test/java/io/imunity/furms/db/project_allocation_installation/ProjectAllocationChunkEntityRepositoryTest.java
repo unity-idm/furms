@@ -66,7 +66,6 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	private ProjectAllocationChunkEntityRepository entityRepository;
 
 	private UUID siteId;
-	private UUID siteId2;
 
 	private UUID projectId;
 	private UUID projectId2;
@@ -83,7 +82,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
 			.name("name")

@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,15 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
+	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes){
+		FURMSUser user = buildUser(identities, attributes);
+		if(user.id == null || user.email == null) {
+			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
+			return Optional.empty();
+		}
+		return Optional.of(user);
+	}
+
 	public static Optional<FURMSUser> map(FenixUserId userId,  List<Identity> identities, List<Attribute> attributes){
 		FURMSUser user = buildUser(getPersistentId(identities), userId, attributes);
 		if(user.id == null || user.email == null) {
@@ -70,6 +80,17 @@ public class UnityUserMapper {
 			.build();
 	}
 
+	private static FURMSUser buildUser(List<Identity> identities, Collection<? extends Attribute> attributes) {
+		return FURMSUser.builder()
+			.id(new PersistentId(getId(identities)))
+			.fenixUserId(getFenixId(identities))
+			.firstName(getFirstAttributeValue(attributes, "firstname"))
+			.lastName(getFirstAttributeValue(attributes, "surname"))
+			.email(getFirstAttributeValue(attributes, "email"))
+			.status(getStatus(attributes))
+			.build();
+	}
+
 	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<Attribute> attributes) {
 		return FURMSUser.builder()
 			.id(userId)
@@ -82,7 +103,11 @@ public class UnityUserMapper {
 	}
 
 	private static String getId(GroupMember groupMember) {
-		return groupMember.getEntity().getIdentities().stream()
+		return getId(groupMember.getEntity().getIdentities());
+	}
+
+	private static String getId(List<Identity> identities) {
+		return identities.stream()
 			.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
 			.findAny()
 			.map(Identity::getComparableValue)
@@ -90,17 +115,16 @@ public class UnityUserMapper {
 	}
 	
 	private static FenixUserId getFenixId(GroupMember groupMember) {
-		return groupMember.getEntity().getIdentities().stream()
+		return getFenixId(groupMember.getEntity().getIdentities());
+	}
+
+	private static FenixUserId getFenixId(List<Identity> identities) {
+		return identities.stream()
 			.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
 			.findAny()
 			.map(Identity::getComparableValue)
-			.map(id -> new FenixUserId(id))
+			.map(FenixUserId::new)
 			.orElse(null);
-	}
-	
-	private static FenixUserId getFenixId(List<Identity> identities) {
-		return identities.stream().filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
-				.findAny().map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
 	}
 
 	private static PersistentId getPersistentId(List<Identity> identities) {
@@ -108,11 +132,11 @@ public class UnityUserMapper {
 			.findAny().map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
 	}
 
-	private static UserStatus getStatus(final GroupMember groupMember) {
+	private static UserStatus getStatus(GroupMember groupMember) {
 		return getStatus(groupMember.getEntity().getEntityInformation().getState().name());
 	}
 
-	private static UserStatus getStatus(final List<Attribute> attributes) {
+	private static UserStatus getStatus(Collection<? extends Attribute> attributes) {
 		return getStatus(getFirstAttributeValue(attributes, "entityState"));
 	}
 
@@ -132,7 +156,7 @@ public class UnityUserMapper {
 			.orElse(null);
 	}
 
-	private static String getFirstAttributeValue(List<Attribute> attributes, String attributeValue) {
+	private static String getFirstAttributeValue(Collection<? extends Attribute> attributes, String attributeValue) {
 		return attributes
 			.stream()
 			.filter(attribute -> attribute.getName().equals(attributeValue))

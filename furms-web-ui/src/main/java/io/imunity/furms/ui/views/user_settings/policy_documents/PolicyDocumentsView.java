@@ -5,32 +5,10 @@
 
 package io.imunity.furms.ui.views.user_settings.policy_documents;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.server.StreamResource;
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
-import io.imunity.furms.domain.policy_documents.PolicyContentType;
-import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
-import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.IconButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
-import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.io.ByteArrayInputStream;
 import java.time.ZoneId;
@@ -41,10 +19,32 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.server.StreamResource;
+
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyContentType;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.IconButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
@@ -57,8 +57,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 	PolicyDocumentsView(AuthzService authzService, PolicyDocumentService service) {
 		this.policyDocumentService = service;
 		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
-		FURMSUser user = authzService.getCurrentAuthNUser();
-		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.sites.page.title"));
+		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
 		grid.addColumn(x -> x.name)
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.1"))

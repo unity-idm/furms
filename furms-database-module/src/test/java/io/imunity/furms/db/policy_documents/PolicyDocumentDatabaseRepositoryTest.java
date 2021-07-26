@@ -135,8 +135,8 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.fileType("pdf")
 			.build();
 
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
-		PolicyDocumentEntity saved1 = policyDocumentEntityRepository.save(policyDocumentEntity1);
+		policyDocumentEntityRepository.save(policyDocumentEntity);
+		policyDocumentEntityRepository.save(policyDocumentEntity1);
 
 		Set<PolicyDocument> policyDocuments = repository.findAllBySiteId(siteId.toString());
 
@@ -430,7 +430,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("sdsadas")
 			.build();
 
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
+		policyDocumentEntityRepository.save(policyDocumentEntity);
 
 		assertThat(repository.isNamePresent(siteId.toString(), "name2")).isTrue();
 	}
@@ -446,7 +446,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("sdsadas")
 			.build();
 
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
+		policyDocumentEntityRepository.save(policyDocumentEntity);
 
 		assertThat(repository.isNamePresent(siteId.toString(), "name")).isFalse();
 	}

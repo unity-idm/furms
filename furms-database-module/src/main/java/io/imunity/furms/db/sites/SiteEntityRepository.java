@@ -33,4 +33,14 @@ interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 			"where pa.project_id = :id"
 	)
 	Set<SiteEntity> findRelatedSites(@Param("id") UUID projectId);
+
+	@Query(
+		"select ca.community_id as community_id, pa.project_id as project_id " +
+			"from site s " +
+			"join resource_credit rs on rs.site_id = s.id " +
+			"join community_allocation ca on ca.resource_credit_id = rs.id " +
+			"join project_allocation pa on pa.community_allocation_id = ca.id " +
+			"where s.id = :id"
+	)
+	Set<CommunityAndProjectIdHolder> findRelatedProjectIds(@Param("id") UUID siteId);
 }

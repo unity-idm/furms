@@ -317,7 +317,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("sdsadas")
 			.build();
 
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
+		policyDocumentEntityRepository.save(policyDocumentEntity);
 
 		assertThat(policyDocumentEntityRepository.existsBySiteIdAndName(siteId, "name")).isTrue();
 	}
@@ -333,7 +333,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("sdsadas")
 			.build();
 
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
+		policyDocumentEntityRepository.save(policyDocumentEntity);
 
 		assertThat(policyDocumentEntityRepository.existsBySiteIdAndName(UUID.randomUUID(), "name")).isFalse();
 	}
@@ -430,18 +430,6 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
-
-		PolicyDocumentEntity policyDocumentEntity1 = PolicyDocumentEntity.builder()
-			.id(saved.getId())
-			.siteId(siteId)
-			.name("name2")
-			.workflow(1)
-			.revision(1)
-			.contentType(1)
-			.file(new byte[0])
-			.fileType("pdf")
-			.build();
-
 		PolicyDocumentEntity saved1 = policyDocumentEntityRepository.save(policyDocumentEntity);
 		PolicyDocumentEntity next = policyDocumentEntityRepository.findById(saved.getId()).get();
 

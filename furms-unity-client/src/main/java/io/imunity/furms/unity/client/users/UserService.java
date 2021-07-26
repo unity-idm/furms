@@ -7,6 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.UserPolicyAgreements;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -20,14 +21,43 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.unity.common.UnityConst.*;
-import static io.imunity.furms.unity.common.UnityPaths.*;
+import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
+import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_AGREEMENT_STATE;
+import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP_PATH;
+import static io.imunity.furms.unity.common.UnityConst.STRING;
+import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.ENTITY_ATTRIBUTES;
+import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS_MULTI;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -136,7 +166,11 @@ public class UserService {
 	}
 
 	public Set<PolicyAgreement> getPolicyAgreements(FenixUserId userId) {
-		return getAttributesFromRootGroup(userId)
+		return getPolicyAgreements(getAttributesFromRootGroup(userId));
+	}
+
+	public Set<PolicyAgreement> getPolicyAgreements(Collection<? extends Attribute> attributes) {
+		return attributes
 			.stream()
 			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_AGREEMENT_STATE))
 			.flatMap(attribute -> attribute.getValues().stream())
@@ -228,6 +262,43 @@ public class UserService {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());
+	}
+
+	public Set<UserPolicyAgreements> getAllUsersPolicyAcceptanceFromGroups(String group, Map<String, Set<String>> ids){
+		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
+		String path = UriComponentsBuilder.newInstance()
+			.path(GROUP_MEMBERS_MULTI)
+			.pathSegment("{" + ROOT_GROUP_PATH + "}")
+			.buildAndExpand(uriVariables)
+			.encode()
+			.toUriString();
+
+		List<String> groups = ids.entrySet().stream()
+			.map(entry -> getProjectPaths(entry.getKey(), entry.getValue()))
+			.flatMap(Collection::stream)
+			.collect(toList());
+
+		MultiGroupMembers multiGroupMembers = unityClient.post(path, groups, Map.of(), new ParameterizedTypeReference<MultiGroupMembers>() {});
+		Map<Long, List<Identity>> collect = multiGroupMembers.entities.stream().collect(toMap(x -> x.getEntityInformation().getId(), Entity::getIdentities));
+
+		return multiGroupMembers.members.values().stream()
+			.flatMap(Collection::stream)
+			.map(x -> UnityUserMapper.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
+				.map(y -> new UserPolicyAgreements(y, getPolicyAgreements(x.attributes)))
+			)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(toSet());
+	}
+
+	private List<String> getProjectPaths(String communityId, Set<String> projectIds) {
+		return projectIds.stream()
+			.map(projectId ->
+				UriComponentsBuilder.newInstance()
+				.path(PROJECT_PATTERN)
+				.uriVariables(Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId))
+				.toUriString()
+			).collect(Collectors.toList());
 	}
 
 	public PersistentId getPersistentId(FenixUserId userId) {

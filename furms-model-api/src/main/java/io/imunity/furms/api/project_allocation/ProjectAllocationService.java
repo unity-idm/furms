@@ -13,7 +13,6 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 

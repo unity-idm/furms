@@ -11,6 +11,7 @@ import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.UUID.fromString;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -58,6 +60,15 @@ class SiteDatabaseRepository implements SiteRepository {
 		return repository.findRelatedSites(fromString(id)).stream()
 			.map(site -> new SiteId(site.getId().toString(), new SiteExternalId(site.getExternalId())))
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Map<String, Set<String>> findRelatedProjectIds(SiteId siteId) {
+		if (isEmpty(siteId)) {
+			throw new IllegalArgumentException("Id should not be null");
+		}
+		return repository.findRelatedProjectIds(fromString(siteId.id)).stream()
+			.collect(Collectors.groupingBy(x -> x.communityId.toString(), mapping(x -> x.projectId.toString(), toSet())));
 	}
 
 	@Override
