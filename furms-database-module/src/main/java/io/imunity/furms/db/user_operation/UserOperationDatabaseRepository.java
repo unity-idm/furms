@@ -67,6 +67,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 		return userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
 				.map(userAddition -> UserAdditionWithProject.builder()
 						.siteName(userAddition.siteName)
+						.projectId(userAddition.projectId)
 						.projectName(userAddition.projectName)
 						.userId(userAddition.uid)
 						.status(UserStatus.valueOf(userAddition.status))

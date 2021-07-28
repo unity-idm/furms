@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
+import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.users.UserAllocationsService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +39,6 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -57,9 +58,11 @@ class UserServiceImplTest {
 	@Mock
 	private SSHKeyRepository sshKeyRepository;
 	@Mock
-	private SiteRepository siteRepository;
+	private SiteService siteService;
 	@Mock
 	private InstalledSSHKeyRepository installedSSHKeyRepository;
+	@Mock
+	private UserAllocationsService userAllocationsService;
 
 	@Test
 	void shouldAllowToInviteUser() {
@@ -87,7 +90,7 @@ class UserServiceImplTest {
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
 		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
 				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
-		when(siteRepository.findAll())
+		when(siteService.findAll())
 				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
 						Site.builder().id("s2").name("site2").build())));
 
@@ -113,7 +116,7 @@ class UserServiceImplTest {
 		FenixUserId fid = new FenixUserId("id");
 		PersistentId pid = new PersistentId("id");
 
-		when(siteRepository.findAll())
+		when(siteService.findAll())
 				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
 						Site.builder().id("s2").name("site2").build())));
 		when(usersDAO.getUserAttributes(fid))

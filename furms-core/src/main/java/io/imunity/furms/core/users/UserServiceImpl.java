@@ -18,8 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.domain.users.UserSiteInstallation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -43,7 +47,6 @@ import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -53,20 +56,26 @@ class UserServiceImpl implements UserService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UsersDAO usersDAO;
 	private final SSHKeyRepository sshKeyRepository;
-	private final SiteRepository siteRepository;
+	private final SiteService siteService;
+	private final UserAllocationsService userAllocationsService;
 	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 	private final MembershipResolver membershipResolver;
 	private final ApplicationEventPublisher publisher;
 
 
-	public UserServiceImpl(UsersDAO usersDAO, MembershipResolver membershipResolver, ApplicationEventPublisher publisher,
-						   SSHKeyRepository sshKeyRepository, SiteRepository siteRepository,
-						   InstalledSSHKeyRepository installedSSHKeyRepository) {
+	public UserServiceImpl(UsersDAO usersDAO,
+	                       MembershipResolver membershipResolver,
+	                       ApplicationEventPublisher publisher,
+	                       SSHKeyRepository sshKeyRepository,
+	                       SiteService siteService,
+	                       UserAllocationsService userAllocationsService,
+	                       InstalledSSHKeyRepository installedSSHKeyRepository) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
 		this.sshKeyRepository = sshKeyRepository;
-		this.siteRepository = siteRepository;
+		this.siteService = siteService;
+		this.userAllocationsService = userAllocationsService;
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
 	}
 
@@ -156,7 +165,9 @@ class UserServiceImpl implements UserService {
 					.filterExposedAttribtues(userAttributes.rootAttributes);
 			PersistentId userId = usersDAO.getPersistentId(fenixUserId);
 			Set<SiteSSHKeys> sshKeys = getSitesSSHKeys(userId);
-			return new UserRecord(userStatus, rootAttribtues, communityMembership, sshKeys);
+			Set<UserSiteInstallation> userSiteInstallations = userAllocationsService.findUserSitesInstallations(userId);
+
+			return new UserRecord(userStatus, rootAttribtues, communityMembership, sshKeys, userSiteInstallations);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
@@ -164,8 +175,8 @@ class UserServiceImpl implements UserService {
 	}
 
 	private Set<SiteSSHKeys> getSitesSSHKeys(PersistentId userId) {
-		Map<String, Site> sites = siteRepository.findAll().stream()
-				.collect(Collectors.toMap(s -> s.getId(), s -> s));
+		Map<String, Site> sites = siteService.findAll().stream()
+				.collect(Collectors.toMap(Site::getId, s -> s));
 		Set<SSHKey> keys = sshKeyRepository.findAllByOwnerId(userId);
 		Map<String, Set<String>> siteKeys = new HashMap<>();
 

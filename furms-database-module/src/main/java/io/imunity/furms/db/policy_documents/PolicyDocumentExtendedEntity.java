@@ -6,6 +6,10 @@
 package io.imunity.furms.db.policy_documents;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.policy_documents.PolicyContentType;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -24,7 +28,8 @@ class PolicyDocumentExtendedEntity extends UUIDIdentifiable {
 	public final byte[] file;
 	public final String fileType;
 
-	PolicyDocumentExtendedEntity(UUID id, UUID siteId, String siteName, String serviceName, String name, int workflow, int revision, int contentType, String htmlText, byte[] file, String fileType) {
+	PolicyDocumentExtendedEntity(UUID id, UUID siteId, String siteName, String serviceName, String name, int workflow,
+	                             int revision, int contentType, String htmlText, byte[] file, String fileType) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteName = siteName;
@@ -77,5 +82,18 @@ class PolicyDocumentExtendedEntity extends UUIDIdentifiable {
 			", htmlText='" + htmlText + '\'' +
 			", fileType='" + fileType + '\'' +
 			'}';
+	}
+
+	public PolicyDocument toPolicyDocument() {
+		return PolicyDocument.builder()
+				.id(new PolicyId(id))
+				.siteId(siteId.toString())
+				.name(name)
+				.workflow(PolicyWorkflow.valueOf(workflow))
+				.revision(revision)
+				.contentType(PolicyContentType.valueOf(contentType))
+				.wysiwygText(htmlText)
+				.file(file, fileType, name + "-rev" + revision)
+				.build();
 	}
 }

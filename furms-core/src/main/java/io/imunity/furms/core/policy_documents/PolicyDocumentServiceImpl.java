@@ -7,8 +7,11 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAgreementExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
@@ -17,6 +20,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
@@ -27,17 +31,19 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.policy_documents.PolicyAgreementStatus.ACCEPTED;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class PolicyDocumentServiceImpl implements PolicyDocumentService {
@@ -49,8 +55,11 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final ApplicationEventPublisher publisher;
 
-	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository, PolicyDocumentValidator validator,
-	                          PolicyDocumentDAO policyDocumentDAO, AuthzService authzService, ApplicationEventPublisher publisher) {
+	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository,
+	                          PolicyDocumentValidator validator,
+	                          PolicyDocumentDAO policyDocumentDAO,
+	                          AuthzService authzService,
+	                          ApplicationEventPublisher publisher) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
@@ -87,7 +96,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			)
 			.filter(agreement -> agreement.user.fenixUserId.isPresent())
 			.map(agreement -> agreement.user)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 	}
 
 	@Override
@@ -108,6 +117,44 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				.map(policyAgreement -> LocalDateTime.ofInstant(policyAgreement, ZoneOffset.UTC.normalized()))
 				.orElse(null)
 		);
+	}
+
+	@Override
+	public Set<PolicyAgreementExtended> findSitePolicyAcceptancesByUserId(PersistentId userId) {
+		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllSitePoliciesByUserId(userId);
+		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
+	}
+
+	@Override
+	public Set<PolicyAgreementExtended> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
+		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
+		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
+	}
+
+	private Set<PolicyAgreementExtended> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
+	                                                                                   Set<PolicyDocument> userPolicies) {
+		return findPolicyAcceptancesByUserId(userId).stream()
+				.filter(policyAcceptance -> policyAcceptance.acceptanceStatus == ACCEPTED)
+				.map(policyAcceptance -> userPolicies.stream()
+								.filter(userPolicy -> isPolicyRelatedToAcceptance(userPolicy, policyAcceptance))
+								.findFirst()
+								.map(policyDocument -> new PolicyAgreementExtended(policyAcceptance, policyDocument))
+								.orElse(null))
+				.filter(Objects::nonNull)
+				.collect(toSet());
+	}
+
+	private boolean isPolicyRelatedToAcceptance(PolicyDocument userPolicy, PolicyAgreement policyAcceptance) {
+		return userPolicy.id.equals(policyAcceptance.policyDocumentId)
+				&& userPolicy.revision == policyAcceptance.policyDocumentRevision;
+	}
+
+	private Set<PolicyAgreement> findPolicyAcceptancesByUserId(PersistentId userId) {
+		final FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
+				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
+
+		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+		return policyDocumentDAO.getPolicyAgreements(fenixUserId);
 	}
 
 	@Override

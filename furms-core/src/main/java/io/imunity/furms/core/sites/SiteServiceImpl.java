@@ -290,6 +290,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 				.id(oldSite.getId())
 				.name(site.getName())
 				.logo(ofNullable(site.getLogo()).orElse(oldSite.getLogo()))
+				.oauthClientId(ofNullable(site.getOauthClientId()).orElse(oldSite.getOauthClientId()))
 				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
 				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
 				.sshKeyHistoryLength(ofNullable(site.getSshKeyHistoryLength()).orElse(oldSite.getSshKeyHistoryLength()))
