@@ -5,8 +5,10 @@
 
 package io.imunity.furms.core.communites;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 
@@ -61,6 +63,12 @@ class CommunityServiceImpl implements CommunityService {
 		this.validator = validator;
 		this.publisher = publisher;
 		this.authzService = authzService;
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public boolean existsById(String id) {
+		return communityRepository.exists(id);
 	}
 
 	@Override

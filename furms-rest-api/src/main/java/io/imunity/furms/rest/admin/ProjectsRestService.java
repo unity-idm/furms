@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,6 +26,7 @@ class ProjectsRestService {
 	private final ProjectAllocationService projectAllocationService;
 	private final ResourceAccessService resourceAccessService;
 	private final UserService userService;
+	private final ResourceChecker resourceChecker;
 
 	ProjectsRestService(ProjectService projectService,
 	                           ProjectAllocationService projectAllocationService,
@@ -36,6 +36,7 @@ class ProjectsRestService {
 		this.projectAllocationService = projectAllocationService;
 		this.resourceAccessService = resourceAccessService;
 		this.userService = userService;
+		this.resourceChecker = new ResourceChecker(projectService::existsById);
 	}
 
 	List<Project> findAll() {
@@ -45,24 +46,21 @@ class ProjectsRestService {
 	}
 
 	ProjectWithUsers findOneById(String projectId) {
-		return projectService.findById(projectId)
+		return resourceChecker.performIfExists(projectId, () -> projectService.findById(projectId))
 				.map(this::convertToProjectWithUsers)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-						"with specific id"));
+				.get();
 	}
 
 	void delete(String projectId) {
-		final Optional<io.imunity.furms.domain.projects.Project> project = projectService.findById(projectId);
-		if (project.isEmpty()) {
-			throw new ProjectRestNotFoundException("Could Not find project to delete");
-		}
-		projectService.delete(projectId, project.get().getCommunityId());
+		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
+				projectId, () -> projectService.findById(projectId)).get();
+		projectService.delete(projectId, project.getCommunityId());
 	}
 
-	Project update(String projectId, ProjectMutableDefinition request) {
-		final io.imunity.furms.domain.projects.Project project = projectService.findById(projectId)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-						"with specific id"));
+	Project update(String projectId, ProjectUpdateRequest request) {
+		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
+				projectId, () -> projectService.findById(projectId))
+				.get();
 
 		projectService.update(io.imunity.furms.domain.projects.Project.builder()
 				.id(projectId)
@@ -74,7 +72,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeader.fenixIdentifier))
+				.leaderId(new PersistentId(request.projectLeaderId))
 				.build());
 
 		return projectService.findById(projectId)
@@ -83,7 +81,7 @@ class ProjectsRestService {
 						"with specific id"));
 	}
 
-	Project create(ProjectDefinition request) {
+	Project create(ProjectCreateRequest request) {
 		final String projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
 				.name(request.name)
@@ -92,7 +90,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeader.fenixIdentifier))
+				.leaderId(new PersistentId(request.projectLeaderId))
 				.build());
 
 		return projectService.findById(projectId)
@@ -102,29 +100,31 @@ class ProjectsRestService {
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
-		return projectAllocationService.findAllWithRelatedObjects(projectId).stream()
+		return resourceChecker.performIfExists(projectId,
+					() -> projectAllocationService.findAllWithRelatedObjects(projectId))
+				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		return projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId)
+		return resourceChecker.performIfExists(projectId,
+					() -> projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
 				.map(ProjectAllocation::new)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
-				"with specific id"));
+				.get();
 	}
 
-	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationDefinition request) {
+	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationAddRequest request) {
 		if (request == null) {
 			throw new IllegalArgumentException("Could not create Project Allocation due to empty request body.");
 		}
 		projectAllocationService.create(
-				request.communityAllocationId.communityId,
+				request.communityId,
 				io.imunity.furms.domain.project_allocation.ProjectAllocation.builder()
 						.projectId(projectId)
-						.communityAllocationId(request.communityAllocationId.allocationId)
+						.communityAllocationId(request.communityAllocationId)
 						.name(request.name)
-						.amount(request.amount.amount)
+						.amount(request.amount)
 						.build());
 
 		return findAllProjectAllocationsByProjectId(projectId);

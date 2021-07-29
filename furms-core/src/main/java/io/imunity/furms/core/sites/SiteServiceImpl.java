@@ -88,6 +88,12 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public boolean existsById(String id) {
+		return siteRepository.exists(id);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
 	public Optional<Site> findById(String id) {
 		LOG.debug("Getting Site with id={}", id);

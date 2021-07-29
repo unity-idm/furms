@@ -5,12 +5,14 @@
 package io.imunity.furms.rest.error;
 
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.domain.authz.roles.IncorrectResourceIdException;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.invoke.MethodHandles;
 
 import static java.lang.String.format;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -49,8 +52,23 @@ class RestExceptionHandlers {
 						.build());
 	}
 
-	@ExceptionHandler({RestNotFoundException.class, IdNotFoundValidationError.class})
-	ResponseEntity<RestExceptionData> handleRestNotFound(RestNotFoundException ex, HttpServletRequest request) {
+	@ExceptionHandler({AccessDeniedException.class})
+	ResponseEntity<RestExceptionData> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+		LOG.error("AccessDeniedException during REST operation: ", ex);
+		return ResponseEntity
+				.status(FORBIDDEN)
+				.body(RestExceptionData.builder()
+						.message(ex.getMessage())
+						.error(FORBIDDEN.getReasonPhrase())
+						.path(request.getRequestURI())
+						.build());
+	}
+
+	@ExceptionHandler({
+			RestNotFoundException.class,
+			IdNotFoundValidationError.class,
+			IncorrectResourceIdException.class})
+	ResponseEntity<RestExceptionData> handleRestNotFound(RuntimeException ex, HttpServletRequest request) {
 		LOG.error("REST requested element not found: ", ex);
 		return ResponseEntity
 				.status(NOT_FOUND)

@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CommunityService {
+	boolean existsById(String id);
+
 	Optional<Community> findById(String id);
 
 	Set<Community> findAll();

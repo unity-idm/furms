@@ -9,23 +9,25 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.rest.error.exceptions.CommunityAllocationRestNotFoundException;
-import io.imunity.furms.rest.error.exceptions.CommunityRestNotFoundException;
 
 @Service
 class CommunityRestService {
 
 	private final CommunityService communityService;
 	private final CommunityAllocationService communityAllocationService;
+	private final ResourceChecker resourceChecker;
 
 	CommunityRestService(CommunityService communityService, CommunityAllocationService communityAllocationService) {
 		this.communityService = communityService;
 		this.communityAllocationService = communityAllocationService;
+		this.resourceChecker = new ResourceChecker(communityService::existsById);
 	}
 
 	List<Community> findAll() {
@@ -37,21 +39,23 @@ class CommunityRestService {
 	}
 
 	Community findOneById(String communityId) {
-		return communityService.findById(communityId)
+		return resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId))
 				.map(community -> new Community(
 						community,
-						communityAllocationService.findAllByCommunityId(community.getId())))
-				.orElseThrow(() -> new CommunityRestNotFoundException("Community for specific id doesn't exists."));
+						communityAllocationService.findAllByCommunityId(communityId)))
+				.get();
 	}
 
 	List<CommunityAllocation> findAllocationByCommunityId(String communityId) {
+		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		return communityAllocationService.findAllWithRelatedObjects(communityId).stream()
 				.map(CommunityAllocation::new)
 				.collect(toList());
 	}
 
 	CommunityAllocation findAllocationByIdAndCommunityId(String communityAllocationId, String communityId) {
-		return communityAllocationService.findByIdWithRelatedObjects(communityAllocationId)
+		return resourceChecker.performIfExists(communityId,
+					() -> communityAllocationService.findByIdWithRelatedObjects(communityAllocationId))
 				.filter(allocation -> allocation.communityId.equals(communityId))
 				.map(CommunityAllocation::new)
 				.orElseThrow(() -> new CommunityAllocationRestNotFoundException(format(
@@ -59,12 +63,12 @@ class CommunityRestService {
 						communityAllocationId, communityId)));
 	}
 
-	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationDefinition request) {
+	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationAddRequest request) {
 		communityAllocationService.create(io.imunity.furms.domain.community_allocation.CommunityAllocation.builder()
 				.communityId(communityId)
-				.resourceCreditId(request.siteAllocationId.creditId)
+				.resourceCreditId(request.creditId)
 				.name(request.name)
-				.amount(request.amount.amount)
+				.amount(request.amount)
 				.build());
 		return findAllocationByCommunityId(communityId);
 	}

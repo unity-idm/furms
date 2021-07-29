@@ -7,31 +7,26 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
 
 class SiteAllocatedResources {
-	public final ProjectAllocationId allocationId;
-	public final ResourceAmount amount;
+	public final String allocationId;
+	public final String siteId;
+	public final BigDecimal amount;
 	public final Validity validity;
-	
-	SiteAllocatedResources(ProjectAllocationId allocationId, ResourceAmount amount, Validity validity) {
+
+	public SiteAllocatedResources(String allocationId, String siteId, BigDecimal amount, Validity validity) {
 		this.allocationId = allocationId;
+		this.siteId = siteId;
 		this.amount = amount;
 		this.validity = validity;
 	}
 
-	public SiteAllocatedResources(ProjectAllocationResolved projectAllocation) {
-		this(new ProjectAllocationId(projectAllocation.projectId, projectAllocation.id),
-				new ResourceAmount(projectAllocation.amount, projectAllocation.resourceType.unit.getSuffix()),
-				new Validity(convertToUTCZoned(projectAllocation.resourceCredit.utcCreateTime),
-							convertToUTCZoned(projectAllocation.resourceCredit.utcEndTime)));
-	}
-
 	public SiteAllocatedResources(ProjectAllocationChunkResolved chunk) {
-		this(new ProjectAllocationId(chunk.projectAllocation.projectId, chunk.projectAllocation.id),
-				new ResourceAmount(chunk.amount, chunk.projectAllocation.resourceType.unit.getSuffix()),
+		this(chunk.projectAllocation.id, chunk.projectAllocation.site.getId(), chunk.amount,
 				new Validity(convertToUTCZoned(chunk.validFrom), convertToUTCZoned(chunk.validTo)));
 	}
 
@@ -41,19 +36,21 @@ class SiteAllocatedResources {
 		if (o == null || getClass() != o.getClass()) return false;
 		SiteAllocatedResources that = (SiteAllocatedResources) o;
 		return Objects.equals(allocationId, that.allocationId)
+				&& Objects.equals(siteId, that.siteId)
 				&& Objects.equals(amount, that.amount)
 				&& Objects.equals(validity, that.validity);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allocationId, amount, validity);
+		return Objects.hash(allocationId, siteId, amount, validity);
 	}
 
 	@Override
 	public String toString() {
 		return "SiteAllocatedResources{" +
-				"allocationId=" + allocationId +
+				"allocationId='" + allocationId + '\'' +
+				", siteId='" + siteId + '\'' +
 				", amount=" + amount +
 				", validity=" + validity +
 				'}';
