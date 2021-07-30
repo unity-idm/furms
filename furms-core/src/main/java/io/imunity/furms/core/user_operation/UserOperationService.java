@@ -8,9 +8,10 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
@@ -19,8 +20,8 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserSiteInstallation;
-import io.imunity.furms.domain.users.UserSiteInstallationProject;
+import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -29,10 +30,10 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
@@ -53,19 +54,22 @@ public class UserOperationService implements UserAllocationsService {
 	private final UserOperationRepository repository;
 	private final UsersDAO usersDAO;
 	private final PolicyDocumentService policyService;
+	private final SSHKeyService sshKeyService;
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService,
 	                     UserOperationRepository repository,
 	                     SiteAgentUserService siteAgentUserService,
 	                     UsersDAO usersDAO,
-	                     PolicyDocumentService policyService) {
+	                     PolicyDocumentService policyService,
+	                     SSHKeyService sshKeyService) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
 		this.siteAgentUserService = siteAgentUserService;
 		this.usersDAO = usersDAO;
 		this.policyService = policyService;
+		this.sshKeyService = sshKeyService;
 	}
 
 	@Override
@@ -76,28 +80,29 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
-	public Set<UserSiteInstallation> findUserSitesInstallations(PersistentId userId) {
-		final Map<String, Optional<PolicyAgreementExtended>> sitesPolicy =
+	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
+		final Map<String, Optional<PolicyAcceptanceExtended>> sitesPolicy =
 				policyService.findSitePolicyAcceptancesByUserId(userId).stream()
 						.collect(groupingBy(
 								policyAcceptance -> policyAcceptance.siteId,
 								maxBy(comparingInt(policyAcceptance -> policyAcceptance.policyDocumentRevision))));
-		final Map<String, Set<PolicyAgreementExtended>> servicePolicies =
+		final Map<String, Set<PolicyAcceptanceExtended>> servicePolicies =
 				policyService.findServicesPolicyAcceptancesByUserId(userId).stream()
 						.collect(groupingBy(policyAcceptance -> policyAcceptance.siteId, toSet()));
 		return findByUserId(userId).stream()
-				.map(site -> UserSiteInstallation.builder()
+				.map(site -> SiteUser.builder()
 						.siteId(site.getSiteId())
 						.siteOauthClientId(site.getOauthClientId())
 						.projectSitesMemberships(site.getProjects().stream()
-								.map(project -> UserSiteInstallationProject.builder()
+								.map(project -> ProjectMembershipOnSite.builder()
 										.projectId(project.getProjectId())
 										.localUserId(project.getRemoteAccountName())
 										.build())
 								.collect(toSet()))
 						.sitePolicyAcceptance(sitesPolicy.getOrDefault(site.getSiteId(), empty()).orElse(null))
 						.servicesPolicyAcceptance(servicePolicies.getOrDefault(site.getSiteId(), Set.of()))
+						.sshKeys(sshKeyService.findSiteSSHKeysByUserId(userId))
 						.build())
 				.collect(toSet());
 	}

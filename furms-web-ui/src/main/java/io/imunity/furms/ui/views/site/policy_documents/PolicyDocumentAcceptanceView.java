@@ -13,8 +13,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -41,7 +41,7 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Route(value = "site/admin/policy/documents/acceptance", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.policy-documents-acceptance.page.title")
-public class PolicyDocumentAgreementView extends FurmsViewComponent {
+public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
 	private final Grid<FURMSUser> grid;
 	private final ViewHeaderLayout viewHeaderLayout;
@@ -49,15 +49,15 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	PolicyDocumentAgreementView(PolicyDocumentService policyDocumentService) {
+	PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
-		this.grid = createUserAgreementGrid();
+		this.grid = createUserAcceptanceGrid();
 		this.viewHeaderLayout = new ViewHeaderLayout("");
 
 		getContent().add(viewHeaderLayout, grid);
 	}
 
-	private Grid<FURMSUser> createUserAgreementGrid() {
+	private Grid<FURMSUser> createUserAcceptanceGrid() {
 		Grid<FURMSUser> grid = new SparseGrid<>(FURMSUser.class);
 
 		grid.addColumn(model -> model.firstName.orElse(""))
@@ -87,13 +87,13 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.policy-documents-acceptance.menu.accept"), CHECK_CIRCLE),
 			event -> {
-				PolicyAgreement policyAgreement = PolicyAgreement.builder()
+				PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 					.policyDocumentId(policyDocument.id)
 					.policyDocumentRevision(policyDocument.revision)
-					.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+					.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 					.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 					.build();
-				policyDocumentService.addUserPolicyAgreement(policyDocument.siteId, model.fenixUserId.get(), policyAgreement);
+				policyDocumentService.addUserPolicyAcceptance(policyDocument.siteId, model.fenixUserId.get(), policyAcceptance);
 				loadGridContent();
 			}
 		);
@@ -102,8 +102,7 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		Set<FURMSUser> allUserWithoutPolicyAgreement = policyDocumentService.findAllUserWithoutPolicyAgreement(policyDocument.siteId, policyDocument.id);
-		grid.setItems(allUserWithoutPolicyAgreement);
+		grid.setItems(policyDocumentService.findAllUserWithoutPolicyAcceptance(policyDocument.siteId, policyDocument.id));
 	}
 
 	@Override

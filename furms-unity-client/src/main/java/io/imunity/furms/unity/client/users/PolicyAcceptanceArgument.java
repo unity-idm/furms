@@ -6,47 +6,50 @@
 package io.imunity.furms.unity.client.users;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 
 import java.time.Instant;
 import java.util.Objects;
 
-class PolicyAgreementArgument {
+class PolicyAcceptanceArgument {
 	public final String policyDocumentId;
 	public final int policyDocumentRevision;
 	public final String acceptanceStatus;
 	public final Instant decisionTs;
 
 	@JsonCreator
-	public PolicyAgreementArgument(String policyDocumentId, int policyDocumentRevision, String acceptanceStatus, Instant decisionTs) {
+	public PolicyAcceptanceArgument(String policyDocumentId, int policyDocumentRevision, String acceptanceStatus, Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;
 		this.policyDocumentRevision = policyDocumentRevision;
 		this.acceptanceStatus = acceptanceStatus;
 		this.decisionTs = decisionTs;
 	}
 
-	PolicyAgreement toPolicyAgreement(){
-		return PolicyAgreement.builder()
+	PolicyAcceptance toPolicyAcceptance(){
+		return PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(policyDocumentId))
 			.policyDocumentRevision(policyDocumentRevision)
-			.acceptanceStatus(PolicyAgreementStatus.valueOf(acceptanceStatus))
+			.acceptanceStatus(PolicyAcceptanceStatus.valueOf(acceptanceStatus))
 			.decisionTs(decisionTs)
 			.build();
 	}
 
-	static PolicyAgreementArgument valueOf(PolicyAgreement policyAgreement){
-		return new PolicyAgreementArgument(policyAgreement.policyDocumentId.id.toString(),
-			policyAgreement.policyDocumentRevision, policyAgreement.acceptanceStatus.name(), policyAgreement.decisionTs);
+	static PolicyAcceptanceArgument valueOf(PolicyAcceptance policyAcceptance){
+		return new PolicyAcceptanceArgument(policyAcceptance.policyDocumentId.id.toString(),
+			policyAcceptance.policyDocumentRevision, policyAcceptance.acceptanceStatus.name(), policyAcceptance.decisionTs);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PolicyAgreementArgument that = (PolicyAgreementArgument) o;
-		return policyDocumentRevision == that.policyDocumentRevision && Objects.equals(policyDocumentId, that.policyDocumentId) && Objects.equals(acceptanceStatus, that.acceptanceStatus) && Objects.equals(decisionTs, that.decisionTs);
+		PolicyAcceptanceArgument that = (PolicyAcceptanceArgument) o;
+		return policyDocumentRevision == that.policyDocumentRevision
+				&& Objects.equals(policyDocumentId, that.policyDocumentId)
+				&& Objects.equals(acceptanceStatus, that.acceptanceStatus)
+				&& Objects.equals(decisionTs, that.decisionTs);
 	}
 
 	@Override
@@ -56,7 +59,7 @@ class PolicyAgreementArgument {
 
 	@Override
 	public String toString() {
-		return "PolicyAgreementArgument{" +
+		return "PolicyAcceptanceArgument{" +
 			"policyDocumentId='" + policyDocumentId + '\'' +
 			", policyDocumentRevision=" + policyDocumentRevision +
 			", acceptanceStatus='" + acceptanceStatus + '\'' +

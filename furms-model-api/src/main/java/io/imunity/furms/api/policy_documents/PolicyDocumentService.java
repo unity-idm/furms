@@ -5,8 +5,8 @@
 
 package io.imunity.furms.api.policy_documents;
 
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -23,19 +23,19 @@ public interface PolicyDocumentService {
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 
-	Set<FURMSUser> findAllUserWithoutPolicyAgreement(String siteId, PolicyId policyId);
+	Set<FURMSUser> findAllUserWithoutPolicyAcceptance(String siteId, PolicyId policyId);
 
 	Set<PolicyDocumentExtended> findAllByCurrentUser();
 
-	Set<PolicyAgreementExtended> findSitePolicyAcceptancesByUserId(PersistentId userId);
+	Set<PolicyAcceptanceExtended> findSitePolicyAcceptancesByUserId(PersistentId userId);
 
-	Set<PolicyAgreementExtended> findServicesPolicyAcceptancesByUserId(PersistentId userId);
+	Set<PolicyAcceptanceExtended> findServicesPolicyAcceptancesByUserId(PersistentId userId);
 
 	void create(PolicyDocument policyDocument);
 
-	void addCurrentUserPolicyAgreement(PolicyAgreement policyAgreement);
+	void addCurrentUserPolicyAcceptance(PolicyAcceptance policyAcceptance);
 
-	void addUserPolicyAgreement(String siteId, FenixUserId userId, PolicyAgreement policyAgreement);
+	void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance);
 
 	void update(PolicyDocument policyDocument);
 

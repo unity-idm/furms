@@ -5,16 +5,16 @@
 
 package io.imunity.furms.rest.cidp;
 
-import io.imunity.furms.domain.users.UserSiteInstallationProject;
+import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 
 import java.util.Objects;
 
-public class UserSiteInstallationProjectJson {
+public class ProjectMembershipOnSiteJson {
 
 	public final String localUserId;
 	public final String projectId;
 
-	public UserSiteInstallationProjectJson(UserSiteInstallationProject project) {
+	public ProjectMembershipOnSiteJson(ProjectMembershipOnSite project) {
 		this.localUserId = project.localUserId;
 		this.projectId = project.projectId;
 	}
@@ -23,7 +23,7 @@ public class UserSiteInstallationProjectJson {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserSiteInstallationProjectJson that = (UserSiteInstallationProjectJson) o;
+		ProjectMembershipOnSiteJson that = (ProjectMembershipOnSiteJson) o;
 		return Objects.equals(localUserId, that.localUserId)
 				&& Objects.equals(projectId, that.projectId);
 	}
@@ -35,7 +35,7 @@ public class UserSiteInstallationProjectJson {
 
 	@Override
 	public String toString() {
-		return "UserSiteInstallationProjectJson{" +
+		return "ProjectMembershipOnSiteJson{" +
 				"localUserId='" + localUserId + '\'' +
 				", projectId='" + projectId + '\'' +
 				'}';

@@ -5,8 +5,8 @@
 
 package io.imunity.furms.rest.cidp;
 
-import io.imunity.furms.domain.policy_documents.PolicyAgreementExtended;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.utils.UTCTimeUtils;
 
 import java.time.ZonedDateTime;
@@ -14,13 +14,13 @@ import java.util.Objects;
 
 class PolicyAcceptanceJson {
 	public final String policyId;
-	public final PolicyAgreementStatus accepted;
+	public final PolicyAcceptanceStatus acceptanceStatus;
 	public final ZonedDateTime processedOn;
 	public final int revision;
 
-	public PolicyAcceptanceJson(PolicyAgreementExtended policyAcceptance) {
+	public PolicyAcceptanceJson(PolicyAcceptanceExtended policyAcceptance) {
 		this.policyId = policyAcceptance.policyDocumentId.id.toString();
-		this.accepted = policyAcceptance.acceptanceStatus;
+		this.acceptanceStatus = policyAcceptance.acceptanceStatus;
 		this.processedOn = UTCTimeUtils.convertToZoneTime(policyAcceptance.decisionTs);
 		this.revision = policyAcceptance.policyDocumentRevision;
 	}
@@ -32,20 +32,20 @@ class PolicyAcceptanceJson {
 		PolicyAcceptanceJson that = (PolicyAcceptanceJson) o;
 		return revision == that.revision
 				&& Objects.equals(policyId, that.policyId)
-				&& accepted == that.accepted
+				&& acceptanceStatus == that.acceptanceStatus
 				&& Objects.equals(processedOn, that.processedOn);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(policyId, accepted, processedOn, revision);
+		return Objects.hash(policyId, acceptanceStatus, processedOn, revision);
 	}
 
 	@Override
 	public String toString() {
 		return "PolicyAcceptanceJson{" +
 				", policyId='" + policyId + '\'' +
-				", accepted=" + accepted +
+				", acceptanceStatus=" + acceptanceStatus +
 				", processedOn=" + processedOn +
 				", revision=" + revision +
 				'}';

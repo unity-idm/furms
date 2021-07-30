@@ -8,7 +8,8 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementExtended;
+import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -19,9 +20,8 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserSiteInstallation;
+import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
-import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -60,13 +60,13 @@ class UserOperationServiceTest {
 	@Mock
 	private UsersDAO usersDAO;
 	@Mock
-	private ProjectRepository projectRepository;
-	@Mock
 	private AuthzService authzService;
 	@Mock
 	private SiteService siteService;
 	@Mock
 	private PolicyDocumentService policyService;
+	@Mock
+	private SSHKeyService sshKeyService;
 
 	private UserOperationService service;
 	private InOrder orderVerifier;
@@ -84,7 +84,8 @@ class UserOperationServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO, policyService);
+		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
+				policyService, sshKeyService);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 
@@ -112,27 +113,27 @@ class UserOperationServiceTest {
 				UserAdditionWithProject.builder().projectId("project32").userId("remoteUser32").build(),
 				UserAdditionWithProject.builder().projectId("project33").userId("remoteUser33").build()));
 		when(policyService.findSitePolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
-				PolicyAgreementExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
-				PolicyAgreementExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
-				PolicyAgreementExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAgreementExtended.builder().siteId("id3").policyDocumentId(policy3).build()));
+				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
+				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
+				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
+				PolicyAcceptanceExtended.builder().siteId("id3").policyDocumentId(policy3).build()));
 		when(policyService.findServicesPolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
-				PolicyAgreementExtended.builder().siteId("id1").policyDocumentId(policy1).build(),
-				PolicyAgreementExtended.builder().siteId("id1").policyDocumentId(policy2).build(),
-				PolicyAgreementExtended.builder().siteId("id2").policyDocumentId(policy1).build(),
-				PolicyAgreementExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAgreementExtended.builder().siteId("id2").policyDocumentId(policy3).build(),
-				PolicyAgreementExtended.builder().siteId("id3").policyDocumentId(policy1).build()));
+				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).build(),
+				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy2).build(),
+				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy1).build(),
+				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
+				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy3).build(),
+				PolicyAcceptanceExtended.builder().siteId("id3").policyDocumentId(policy1).build()));
 
 		//when
-		final Set<UserSiteInstallation> userSitesInstallations = service.findUserSitesInstallations(userId);
+		final Set<SiteUser> userSitesInstallations = service.findUserSitesInstallations(userId);
 
 		//then
 		assertThat(userSitesInstallations).hasSize(3);
 		userSitesInstallations.stream()
 				.filter(site -> site.siteId.equals("id1"))
 				.forEach(site ->{
-					assertThat(site.projectSitesMemberships).hasSize(1);
+					assertThat(site.projectMemberships).hasSize(1);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth1");
 					assertThat(site.sitePolicyAcceptance.policyDocumentRevision).isEqualTo(2);
 					assertThat(site.servicesPolicyAcceptance).hasSize(2);
@@ -140,7 +141,7 @@ class UserOperationServiceTest {
 		userSitesInstallations.stream()
 				.filter(site -> site.siteId.equals("id2"))
 				.forEach(site ->{
-					assertThat(site.projectSitesMemberships).hasSize(2);
+					assertThat(site.projectMemberships).hasSize(2);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth2");
 					assertThat(site.sitePolicyAcceptance).isNotNull();
 					assertThat(site.servicesPolicyAcceptance).hasSize(3);
@@ -148,7 +149,7 @@ class UserOperationServiceTest {
 		userSitesInstallations.stream()
 				.filter(site -> site.siteId.equals("id3"))
 				.forEach(site ->{
-					assertThat(site.projectSitesMemberships).hasSize(3);
+					assertThat(site.projectMemberships).hasSize(3);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth3");
 					assertThat(site.sitePolicyAcceptance).isNotNull();
 					assertThat(site.servicesPolicyAcceptance).hasSize(1);

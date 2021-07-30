@@ -6,13 +6,13 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.UserPolicyAgreements;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
@@ -131,11 +131,11 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build()
 		);
-		when(policyDocumentDAO.getPolicyAgreements(userId)).thenReturn(Set.of(
-			PolicyAgreement.builder()
+		when(policyDocumentDAO.getyPolicyAcceptances(userId)).thenReturn(Set.of(
+			PolicyAcceptance.builder()
 				.policyDocumentId(policyId0)
 				.build(),
-			PolicyAgreement.builder()
+			PolicyAcceptance.builder()
 				.policyDocumentId(policyId1)
 				.build()
 		));
@@ -146,7 +146,7 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldFindAllAllUserWithoutPolicyAgreement() {
+	void shouldFindAllAllUserWithoutPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 
@@ -158,14 +158,14 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
-		when(policyDocumentDAO.getUserPolicyAgreements("siteId")).thenReturn(Set.of(
-			new UserPolicyAgreements(user, Set.of())
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
+			new UserPolicyAcceptances(user, Set.of())
 		));
 
-		Set<FURMSUser> users = service.findAllUserWithoutPolicyAgreement("siteId", policyId);
+		Set<FURMSUser> users = service.findAllUserWithoutPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAgreements("siteId");
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
 		assertEquals(1, users.size());
 		assertEquals(user, users.iterator().next());
@@ -175,7 +175,7 @@ class PolicyDocumentServiceImplTest {
 	void shouldAddPolicyToCurrentUser() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		PolicyAgreement policyAgreement = PolicyAgreement.builder()
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
 			.build();
 
@@ -184,16 +184,16 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build()
 		);
 
-		service.addCurrentUserPolicyAgreement(policyAgreement);
+		service.addCurrentUserPolicyAcceptance(policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAgreement);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
 	@Test
 	void shouldAddPolicyToUser() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		PolicyAgreement policyAgreement = PolicyAgreement.builder()
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
 			.build();
 
@@ -202,8 +202,8 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build()
 		);
 
-		service.addUserPolicyAgreement("siteId", userId, policyAgreement);
+		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAgreement);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 }

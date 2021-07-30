@@ -32,8 +32,8 @@ import com.vaadin.flow.server.StreamResource;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
@@ -104,13 +104,13 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 	private IconButton createApproveIcon(PolicyDocumentExtended policyDocumentExtended) {
 		IconButton iconApproveButton = new IconButton(CHECK_CIRCLE.create());
 		iconApproveButton.addClickListener(event -> {
-			PolicyAgreement policyAgreement = PolicyAgreement.builder()
+			PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 				.policyDocumentId(policyDocumentExtended.id)
 				.policyDocumentRevision(policyDocumentExtended.revision)
-				.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
-			policyDocumentService.addCurrentUserPolicyAgreement(policyAgreement);
+			policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);
 			loadGridContent();
 		});
 		return iconApproveButton;

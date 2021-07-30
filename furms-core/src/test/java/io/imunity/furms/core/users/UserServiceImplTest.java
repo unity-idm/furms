@@ -6,19 +6,30 @@
 package io.imunity.furms.core.users;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
-import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
+import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.users.CommunityMembership;
+import io.imunity.furms.domain.users.ProjectMembership;
+import io.imunity.furms.domain.users.SiteSSHKeys;
+import io.imunity.furms.domain.users.UserAttribute;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,21 +37,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.google.common.collect.Sets;
-
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
-import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,12 +58,6 @@ class UserServiceImplTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private MembershipResolver resolver;
-	@Mock
-	private SSHKeyRepository sshKeyRepository;
-	@Mock
-	private SiteService siteService;
-	@Mock
-	private InstalledSSHKeyRepository installedSSHKeyRepository;
 	@Mock
 	private UserAllocationsService userAllocationsService;
 
@@ -81,70 +78,39 @@ class UserServiceImplTest {
 	}
 
 	@Test
-	void shouldGetSiteSSHKeysWithSitesWithSuccessInstalledStatus() {
+	void shouldGetCompleteUserInformation() {
 		// given
-		FenixUserId fid = new FenixUserId("id");
-		PersistentId pid = new PersistentId("id");
-		when(usersDAO.getUserAttributes(fid))
-				.thenReturn(new UserAttributes(Collections.emptySet(), Collections.emptyMap()));
-		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
-		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
-				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
-		when(siteService.findAll())
-				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
-						Site.builder().id("s2").name("site2").build())));
+		final FenixUserId fid = new FenixUserId("id");
+		final PersistentId pid = new PersistentId("id");
+		final UUID policy1 = UUID.randomUUID();
+		final UUID policy2 = UUID.randomUUID();
+		final Map<ResourceId, Set<UserAttribute>> resourceAttributes = Map.of(
+				new ResourceId(UUID.randomUUID().toString(), SITE),
+				Set.of(new UserAttribute("site", "attr")));
+		final Set<UserAttribute> rootAttributes = Set.of(new UserAttribute("root", "attr"));
+		final UserAttributes userAttribute = new UserAttributes(rootAttributes, resourceAttributes);
+		final Set<SiteUser> siteUser = Set.of(new SiteUser(
+				"siteId",
+				"siteOauthClientId",
+				Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
+				new PolicyAcceptanceExtended(new PolicyId(policy1), "siteId", 1,
+						ACCEPTED, Instant.now()),
+				Set.of(new PolicyAcceptanceExtended(new PolicyId(policy2), "siteId", 2,
+						ACCEPTED, Instant.now())),
+				Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))));
 
-		when(installedSSHKeyRepository.findBySSHKeyId("key"))
-				.thenReturn(Arrays.asList(InstalledSSHKey.builder().siteId("s1").value("v1").build()));
+		when(usersDAO.getUserAttributes(fid)).thenReturn(userAttribute);
+		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
+		when(usersDAO.getUserStatus(fid)).thenReturn(ENABLED);
+		when(resolver.filterExposedAttribtues(rootAttributes)).thenReturn(rootAttributes);
+		when(userAllocationsService.findUserSitesInstallations(pid)).thenReturn(siteUser);
 
 		// when
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
 
 		// then
-		assertThat(userRecord.sshKeys).hasSize(1);
-		SiteSSHKeys siteSSHKeys = userRecord.sshKeys.iterator().next();
-
-		assertThat(siteSSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
-		assertThat(siteSSHKeys.siteId).isEqualTo("s1");
-		assertThat(siteSSHKeys.siteName).isEqualTo("site1");
-
-	}
-
-	@Test
-	void shouldGetUserSSHKeysForAllSites() {
-		// given
-		FenixUserId fid = new FenixUserId("id");
-		PersistentId pid = new PersistentId("id");
-
-		when(siteService.findAll())
-				.thenReturn(new HashSet<>(Arrays.asList(Site.builder().id("s1").name("site1").build(),
-						Site.builder().id("s2").name("site2").build())));
-		when(usersDAO.getUserAttributes(fid))
-				.thenReturn(new UserAttributes(Collections.emptySet(), Collections.emptyMap()));
-		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
-		when(sshKeyRepository.findAllByOwnerId(pid)).thenReturn(Sets.newHashSet(
-				SSHKey.builder().id("key").sites(Sets.newHashSet("s1", "s2")).value("v1").build()));
-
-		when(installedSSHKeyRepository.findBySSHKeyId("key"))
-				.thenReturn(Arrays.asList(InstalledSSHKey.builder().siteId("s1").value("v1").build(),
-						InstalledSSHKey.builder().siteId("s2").value("v1").build()));
-
-		// when
-		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
-
-		// then
-		assertThat(userRecord.sshKeys).hasSize(2);
-		SiteSSHKeys site1SSHKeys = userRecord.sshKeys.stream().filter(s -> s.siteId.equals("s1")).findAny()
-				.get();
-		SiteSSHKeys site2SSHKeys = userRecord.sshKeys.stream().filter(s -> s.siteId.equals("s2")).findAny()
-				.get();
-
-		assertThat(site1SSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
-		assertThat(site1SSHKeys.siteId).isEqualTo("s1");
-		assertThat(site1SSHKeys.siteName).isEqualTo("site1");
-
-		assertThat(site2SSHKeys.sshKeys).hasSameElementsAs(Sets.newHashSet("v1"));
-		assertThat(site2SSHKeys.siteId).isEqualTo("s2");
-		assertThat(site2SSHKeys.siteName).isEqualTo("site2");
+		assertThat(userRecord.userStatus).isEqualTo(ENABLED);
+		assertThat(userRecord.attributes).containsAll(rootAttributes);
+		assertThat(userRecord.siteInstallations).containsAll(siteUser);
 	}
 }

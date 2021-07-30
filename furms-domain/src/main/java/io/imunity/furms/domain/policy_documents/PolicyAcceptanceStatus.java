@@ -5,6 +5,6 @@
 
 package io.imunity.furms.domain.policy_documents;
 
-public enum PolicyAgreementStatus {
+public enum PolicyAcceptanceStatus {
 	ACCEPTED, NOT_ACCEPTED
 }

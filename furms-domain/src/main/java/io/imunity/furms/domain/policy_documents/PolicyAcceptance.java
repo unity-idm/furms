@@ -8,13 +8,16 @@ package io.imunity.furms.domain.policy_documents;
 import java.time.Instant;
 import java.util.Objects;
 
-public class PolicyAgreement {
+public class PolicyAcceptance {
 	public final PolicyId policyDocumentId;
 	public final int policyDocumentRevision;
-	public final PolicyAgreementStatus acceptanceStatus;
+	public final PolicyAcceptanceStatus acceptanceStatus;
 	public final Instant decisionTs;
 
-	PolicyAgreement(PolicyId policyDocumentId, int policyDocumentRevision, PolicyAgreementStatus acceptanceStatus, Instant decisionTs) {
+	PolicyAcceptance(PolicyId policyDocumentId,
+	                 int policyDocumentRevision,
+	                 PolicyAcceptanceStatus acceptanceStatus,
+	                 Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;
 		this.policyDocumentRevision = policyDocumentRevision;
 		this.acceptanceStatus = acceptanceStatus;
@@ -25,8 +28,11 @@ public class PolicyAgreement {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PolicyAgreement that = (PolicyAgreement) o;
-		return policyDocumentRevision == that.policyDocumentRevision && Objects.equals(policyDocumentId, that.policyDocumentId) && acceptanceStatus == that.acceptanceStatus && Objects.equals(decisionTs, that.decisionTs);
+		PolicyAcceptance that = (PolicyAcceptance) o;
+		return policyDocumentRevision == that.policyDocumentRevision
+				&& Objects.equals(policyDocumentId, that.policyDocumentId)
+				&& acceptanceStatus == that.acceptanceStatus
+				&& Objects.equals(decisionTs, that.decisionTs);
 	}
 
 	@Override
@@ -36,7 +42,7 @@ public class PolicyAgreement {
 
 	@Override
 	public String toString() {
-		return "PolicyAgreement{" +
+		return "PolicyAcceptance{" +
 			"policyDocumentId=" + policyDocumentId +
 			", policyDocumentRevision=" + policyDocumentRevision +
 			", acceptanceStatus=" + acceptanceStatus +
@@ -44,41 +50,41 @@ public class PolicyAgreement {
 			'}';
 	}
 
-	public static PolicyAgreementBuilder builder() {
-		return new PolicyAgreementBuilder();
+	public static PolicyAcceptanceBuilder builder() {
+		return new PolicyAcceptanceBuilder();
 	}
 
-	public static final class PolicyAgreementBuilder {
+	public static final class PolicyAcceptanceBuilder {
 		public PolicyId policyDocumentId;
 		public int policyDocumentRevision;
-		public PolicyAgreementStatus acceptanceStatus;
+		public PolicyAcceptanceStatus acceptanceStatus;
 		public Instant decisionTs;
 
-		private PolicyAgreementBuilder() {
+		private PolicyAcceptanceBuilder() {
 		}
 
-		public PolicyAgreementBuilder policyDocumentId(PolicyId policyDocumentId) {
+		public PolicyAcceptanceBuilder policyDocumentId(PolicyId policyDocumentId) {
 			this.policyDocumentId = policyDocumentId;
 			return this;
 		}
 
-		public PolicyAgreementBuilder policyDocumentRevision(int policyDocumentRevision) {
+		public PolicyAcceptanceBuilder policyDocumentRevision(int policyDocumentRevision) {
 			this.policyDocumentRevision = policyDocumentRevision;
 			return this;
 		}
 
-		public PolicyAgreementBuilder acceptanceStatus(PolicyAgreementStatus acceptanceStatus) {
+		public PolicyAcceptanceBuilder acceptanceStatus(PolicyAcceptanceStatus acceptanceStatus) {
 			this.acceptanceStatus = acceptanceStatus;
 			return this;
 		}
 
-		public PolicyAgreementBuilder decisionTs(Instant decisionTs) {
+		public PolicyAcceptanceBuilder decisionTs(Instant decisionTs) {
 			this.decisionTs = decisionTs;
 			return this;
 		}
 
-		public PolicyAgreement build() {
-			return new PolicyAgreement(policyDocumentId, policyDocumentRevision, acceptanceStatus, decisionTs);
+		public PolicyAcceptance build() {
+			return new PolicyAcceptance(policyDocumentId, policyDocumentRevision, acceptanceStatus, decisionTs);
 		}
 	}
 }
