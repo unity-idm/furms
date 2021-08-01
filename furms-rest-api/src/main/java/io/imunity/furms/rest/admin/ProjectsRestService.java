@@ -7,14 +7,11 @@ package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -24,30 +21,27 @@ class ProjectsRestService {
 
 	private final ProjectService projectService;
 	private final ProjectAllocationService projectAllocationService;
-	private final ResourceAccessService resourceAccessService;
-	private final UserService userService;
 	private final ResourceChecker resourceChecker;
+	private final ProjectsRestConverter converter;
 
 	ProjectsRestService(ProjectService projectService,
-	                           ProjectAllocationService projectAllocationService,
-	                           ResourceAccessService resourceAccessService,
-	                           UserService userService) {
+	                    ProjectAllocationService projectAllocationService,
+	                    ProjectsRestConverter converter) {
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
-		this.resourceAccessService = resourceAccessService;
-		this.userService = userService;
 		this.resourceChecker = new ResourceChecker(projectService::existsById);
+		this.converter = converter;
 	}
 
 	List<Project> findAll() {
 		return projectService.findAll().stream()
-				.map(this::convertToProject)
+				.map(converter::convert)
 				.collect(toList());
 	}
 
 	ProjectWithUsers findOneById(String projectId) {
 		return resourceChecker.performIfExists(projectId, () -> projectService.findById(projectId))
-				.map(this::convertToProjectWithUsers)
+				.map(converter::convertToProjectWithUsers)
 				.get();
 	}
 
@@ -76,7 +70,7 @@ class ProjectsRestService {
 				.build());
 
 		return projectService.findById(projectId)
-				.map(this::convertToProject)
+				.map(converter::convert)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
 	}
@@ -94,7 +88,7 @@ class ProjectsRestService {
 				.build());
 
 		return projectService.findById(projectId)
-				.map(this::convertToProject)
+				.map(converter::convert)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
 	}
@@ -128,22 +122,6 @@ class ProjectsRestService {
 						.build());
 
 		return findAllProjectAllocationsByProjectId(projectId);
-	}
-
-	private ProjectWithUsers convertToProjectWithUsers(io.imunity.furms.domain.projects.Project project) {
-		return new ProjectWithUsers(
-				convertToProject(project),
-				new ArrayList<>(resourceAccessService.findAddedUser(project.getId())));
-	}
-
-	private Project convertToProject(io.imunity.furms.domain.projects.Project project) {
-		return new Project(project, findUser(project.getLeaderId()));
-	}
-
-	private User findUser(PersistentId userId) {
-		return userService.findById(userId)
-				.map(User::new)
-				.orElse(null);
 	}
 
 }

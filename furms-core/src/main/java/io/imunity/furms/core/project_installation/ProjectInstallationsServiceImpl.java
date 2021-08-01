@@ -33,6 +33,12 @@ class ProjectInstallationsServiceImpl implements ProjectInstallationsService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId) {
+		return projectOperationRepository.findAllSiteInstalledProjectsByProjectId(projectId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId) {
 		return projectOperationRepository.findAllBySiteId(siteId);

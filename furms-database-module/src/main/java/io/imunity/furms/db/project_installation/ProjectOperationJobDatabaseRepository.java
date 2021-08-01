@@ -262,12 +262,14 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	@Override
 	public Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId) {
 		return installationRepository.findAllInstalledBySiteId(UUID.fromString(siteId)).stream()
-				.map(installation -> SiteInstalledProject.builder()
-						.siteId(installation.siteId.toString())
-						.siteName(installation.siteName)
-						.projectId(installation.projectId.toString())
-						.gid(new Gid(installation.gid))
-						.build())
+				.map(this::convertToSiteInstalledProject)
+				.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId) {
+		return installationRepository.findAllInstalledByProjectId(UUID.fromString(projectId)).stream()
+				.map(this::convertToSiteInstalledProject)
 				.collect(Collectors.toSet());
 	}
 
@@ -280,6 +282,15 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	public void deleteAll() {
 		installationRepository.deleteAll();
 		updateRepository.deleteAll();
+	}
+
+	private SiteInstalledProject convertToSiteInstalledProject(ProjectInstallationJobStatusEntity installation) {
+		return SiteInstalledProject.builder()
+				.siteId(installation.siteId.toString())
+				.siteName(installation.siteName)
+				.projectId(installation.projectId.toString())
+				.gid(new Gid(installation.gid))
+				.build();
 	}
 }
 

@@ -13,6 +13,7 @@ import java.util.Set;
 
 public interface ProjectInstallationsService {
 	Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId);
+	Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId);
 	Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId);
 	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);
 	Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(String communityId);

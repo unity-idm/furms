@@ -10,6 +10,7 @@ import io.imunity.furms.rest.error.exceptions.CommunityRestNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.math.BigDecimal.ONE;
@@ -56,6 +57,45 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.allocations", hasSize(2)))
 				.andExpect(jsonPath("$.allocations[0]").value("allocation11"))
 				.andExpect(jsonPath("$.allocations[1]").value("allocation12"));
+	}
+
+	@Test
+	void shouldFindAllRelatedProjectsByCommunityId() throws Exception {
+		//given
+		final String communityId = "communityId";
+		final String projectId1 = "projectId1";
+		final String projectId2 = "projectId2";
+		when(communityRestService.findAllProjectsByCommunityId(communityId))
+				.thenReturn(List.of(createProject(projectId1), createProject(projectId2)));
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_COMMUNITIES+"/{communityId}/projects", communityId)
+				.header(AUTHORIZATION, authKey()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$.[0].id").value(projectId1))
+				.andExpect(jsonPath("$.[0].communityId").value("communityId"))
+				.andExpect(jsonPath("$.[0].acronym").value("acronym"))
+				.andExpect(jsonPath("$.[0].installations[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.[0].installations[0].gid").value("gid"))
+				.andExpect(jsonPath("$.[0].name").value("name"))
+				.andExpect(jsonPath("$.[0].description").value("description"))
+				.andExpect(jsonPath("$.[0].validity.from").isNotEmpty())
+				.andExpect(jsonPath("$.[0].validity.to").isNotEmpty())
+				.andExpect(jsonPath("$.[0].researchField").value("researchField"))
+				.andExpect(jsonPath("$.[0].projectLeader.fenixIdentifier").value("fenixIdentifier"))
+				.andExpect(jsonPath("$.[0].projectLeader.title").value("title"))
+				.andExpect(jsonPath("$.[0].projectLeader.firstname").value("firstname"))
+				.andExpect(jsonPath("$.[0].projectLeader.lastname").value("lastname"))
+				.andExpect(jsonPath("$.[0].projectLeader.email").value("email"))
+				.andExpect(jsonPath("$.[0].projectLeader.affiliation.name").value("name"))
+				.andExpect(jsonPath("$.[0].projectLeader.affiliation.email").value("email"))
+				.andExpect(jsonPath("$.[0].projectLeader.affiliation.country").value("country"))
+				.andExpect(jsonPath("$.[0].projectLeader.affiliation.postalAddress").value("postalAddress"))
+				.andExpect(jsonPath("$.[0].projectLeader.nationality").value("nationality"))
+				.andExpect(jsonPath("$.[0].projectLeader.dateOfBirth").isNotEmpty())
+				.andExpect(jsonPath("$.[0].projectLeader.placeOfBirth").value("placeOfBirth"))
+				.andExpect(jsonPath("$.[0].projectLeader.postalAddress").value("postalAddress"));
 	}
 
 	@Test
@@ -142,6 +182,12 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 
 	private CommunityAllocation createCommunityAllocation(String id, String communityId) {
 		return new CommunityAllocation(id, "creditId", "name", ONE);
+	}
+
+	private Project createProject(String id) {
+		return new Project(id, "acronym", "name", "communityId", "researchField",
+				Set.of(new ProjectSiteInstallation("siteId", "gid")), "description",
+				new Validity(sampleFrom, sampleTo), sampleUser);
 	}
 
 }
