@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -64,7 +65,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.project.id").value(projectId))
 				.andExpect(jsonPath("$.project.communityId").value("communityId"))
 				.andExpect(jsonPath("$.project.acronym").value("acronym"))
-				.andExpect(jsonPath("$.project.gid").value("gid"))
+				.andExpect(jsonPath("$.project.installations[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.project.installations[0].gid").value("gid"))
 				.andExpect(jsonPath("$.project.name").value("name"))
 				.andExpect(jsonPath("$.project.description").value("description"))
 				.andExpect(jsonPath("$.project.validity.from").isNotEmpty())
@@ -218,7 +220,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private Project createProject(String id) {
-		return new Project(id, "acronym", "name", "communityId", "researchField", "gid", "description",
+		return new Project(id, "acronym", "name", "communityId", "researchField",
+				Set.of(new ProjectSiteInstallation("siteId", "gid")), "description",
 				new Validity(sampleFrom, sampleTo), sampleUser);
 	}
 

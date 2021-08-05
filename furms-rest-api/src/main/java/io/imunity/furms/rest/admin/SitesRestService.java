@@ -263,7 +263,7 @@ class SitesRestService {
 				.orElseThrow(() -> new ProjectRestNotFoundException("Project installations not found, " +
 						"related Project not found."));
 		final User projectLeader = findUser(projectBySiteId.getLeaderId().id);
-		final Project project = new Project(projectBySiteId, projectLeader, projectInstallation.gid);
+		final Project project = new Project(projectBySiteId, projectLeader, Set.of(projectInstallation));
 
 		return new ProjectInstallation(project, InstallationStatus.INSTALLED, null, projectInstallation.gid.id);
 	}

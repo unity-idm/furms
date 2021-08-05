@@ -8,6 +8,7 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -19,6 +20,7 @@ class ResourceChecker {
 	}
 
 	<T> T performIfExists(String resourceId, Supplier<T> actionToPerform) {
+		assertUUID(resourceId);
 		try {
 			final T result = actionToPerform.get();
 			if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
@@ -26,10 +28,18 @@ class ResourceChecker {
 			}
 			return result;
 		} catch (Exception e) {
-			if (isNotRestNotFoundException(e) && isNotAvailable(resourceId)) {
+			if ((isNotRestNotFoundException(e) && isNotAvailable(resourceId))) {
 				throw new RestNotFoundException("Resource does not exist");
 			}
 			throw e;
+		}
+	}
+
+	private void assertUUID(String resourceId) {
+		try {
+			UUID.fromString(resourceId);
+		} catch (Exception e) {
+			throw new RestNotFoundException("Resource does not exist");
 		}
 	}
 

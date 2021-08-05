@@ -64,6 +64,19 @@ public class CommunityRestController {
 		return restService.findOneById(communityId);
 	}
 
+	@Operation(
+			summary = "Get all community projects",
+			description = "Returns complete information about projects related to specific community.",
+			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successful operation"),
+			@ApiResponse(responseCode = "403", description = "Permission denied"),
+			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
+	@GetMapping("/{communityId}/projects")
+	public List<Project> getCommunityProjects(@PathVariable("communityId") String communityId) {
+		return restService.findAllProjectsByCommunityId(communityId);
+	}
+
 	/********************************************************************************************
 	 * 
 	 * Community's allocations.

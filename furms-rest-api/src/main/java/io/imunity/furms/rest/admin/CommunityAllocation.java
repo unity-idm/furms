@@ -23,7 +23,7 @@ class CommunityAllocation {
 	}
 
 	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
-		this(communityAllocation.communityId, communityAllocation.resourceCredit.id, communityAllocation.name,
+		this(communityAllocation.id, communityAllocation.resourceCredit.id, communityAllocation.name,
 				communityAllocation.amount);
 	}
 
