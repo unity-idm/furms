@@ -8,7 +8,7 @@ package io.imunity.furms.core.policy_documents;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
@@ -74,14 +74,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<FURMSUser> findAllUserWithoutPolicyAgreement(String siteId, PolicyId policyId) {
-		LOG.debug("Getting all Users which not accepted Policy Document {}", policyId.id);
+	public Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
+		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
 
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
 
 		return policyDocumentDAO.getUserPolicyAgreements(siteId).stream()
-			.filter(userAgreement -> userAgreement.policyAgreements.stream()
+			.filter(userAgreement -> userAgreement.policyAcceptances.stream()
 				.noneMatch(policyAgreement -> policyAgreement.policyDocumentId.equals(policyDocument.id) &&
 					policyAgreement.policyDocumentRevision == policyDocument.revision)
 			)
@@ -98,7 +98,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 		LOG.debug("Getting all Policy Document for user id={}", userId.id);
 
-		Map<PolicyId, PolicyAgreement> collect = policyDocumentDAO.getPolicyAgreements(userId).stream()
+		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAgreements(userId).stream()
 			.collect(toMap(policyAgreement -> policyAgreement.policyDocumentId, identity()));
 
 		return policyDocumentRepository.findAllByUserId(userId, (policyId, revision) ->
@@ -112,18 +112,18 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
-	public void addCurrentUserPolicyAgreement(PolicyAgreement policyAgreement) {
+	public void addCurrentUserPolicyAcceptance(PolicyAcceptance policyAcceptance) {
 		FenixUserId userId = authzService.getCurrentAuthNUser().fenixUserId
 			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
-		LOG.debug("Adding Policy Document id={} for user id={}", policyAgreement.policyDocumentId.id, userId.id);
-		policyDocumentDAO.addUserPolicyAgreement(userId, policyAgreement);
+		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
+		policyDocumentDAO.addUserPolicyAgreement(userId, policyAcceptance);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public void addUserPolicyAgreement(String siteId, FenixUserId userId, PolicyAgreement policyAgreement) {
-		LOG.debug("Adding Policy Document id={} for user id={}", policyAgreement.policyDocumentId.id, userId.id);
-		policyDocumentDAO.addUserPolicyAgreement(userId, policyAgreement);
+	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
+		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
+		policyDocumentDAO.addUserPolicyAgreement(userId, policyAcceptance);
 	}
 
 	@Override

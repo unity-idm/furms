@@ -6,10 +6,9 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.UserPolicyAgreements;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -23,11 +22,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
@@ -88,17 +85,17 @@ public class UserServiceTest {
 		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
 			.thenReturn(emptyList());
 		String id = UUID.randomUUID().toString();
-		PolicyAgreement policyAgreement = PolicyAgreement.builder()
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(id))
 			.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
 			.build();
-		userService.addUserPolicyAgreement(userId, policyAgreement);
+		userService.addUserPolicyAgreement(userId, policyAcceptance);
 
 		Attribute attribute = new Attribute(
 			FURMS_POLICY_AGREEMENT_STATE,
 			STRING,
 			group,
-			List.of(PolicyAgreementParser.parse(PolicyAgreementArgument.valueOf(policyAgreement)))
+			List.of(PolicyAgreementParser.parse(PolicyAgreementArgument.valueOf(policyAcceptance)))
 		);
 		verify(unityClient, times(1)).put(eq(path), eq(attribute), eq(Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY)));
 	}

@@ -13,7 +13,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -87,13 +87,13 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.policy-documents-acceptance.menu.accept"), CHECK_CIRCLE),
 			event -> {
-				PolicyAgreement policyAgreement = PolicyAgreement.builder()
+				PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 					.policyDocumentId(policyDocument.id)
 					.policyDocumentRevision(policyDocument.revision)
 					.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
 					.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 					.build();
-				policyDocumentService.addUserPolicyAgreement(policyDocument.siteId, model.fenixUserId.get(), policyAgreement);
+				policyDocumentService.addUserPolicyAcceptance(policyDocument.siteId, model.fenixUserId.get(), policyAcceptance);
 				loadGridContent();
 			}
 		);
@@ -102,7 +102,7 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		Set<FURMSUser> allUserWithoutPolicyAgreement = policyDocumentService.findAllUserWithoutPolicyAgreement(policyDocument.siteId, policyDocument.id);
+		Set<FURMSUser> allUserWithoutPolicyAgreement = policyDocumentService.findAllUsersWithoutCurrentRevisionPolicyAcceptance(policyDocument.siteId, policyDocument.id);
 		grid.setItems(allUserWithoutPolicyAgreement);
 	}
 
