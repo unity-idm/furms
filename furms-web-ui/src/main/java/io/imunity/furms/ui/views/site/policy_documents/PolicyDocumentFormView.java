@@ -57,6 +57,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 
 	private final Binder<PolicyDocumentFormModel> binder = new BeanValidationBinder<>(PolicyDocumentFormModel.class);
 	private final Label revision = new Label();
+	private final Div buttonLayout = new Div();
 	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
 
 	private BreadCrumbParameter breadCrumbParameter;
@@ -102,7 +103,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 
 		prepareValidator(nameField, workflowComboBox, contentTypeComboBox, wysiwygE, uploadComponent);
 
-		getContent().add(formLayout);
+		getContent().add(formLayout, buttonLayout);
 	}
 
 	private void addCreateButtons() {
@@ -110,7 +111,8 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			createCloseButton(),
 			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), false)
 		);
-		getContent().add(buttons);
+		buttonLayout.removeAll();
+		buttonLayout.add(buttons);
 	}
 
 	private void addUpdateButtons() {
@@ -118,7 +120,8 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			createCloseButton(),
 			createSaveButton(getTranslation("view.site-admin.policy-documents.form.button.save"), true)
 		);
-		getContent().add(buttons);
+		buttonLayout.removeAll();
+		buttonLayout.add(buttons);
 	}
 
 	private void prepareValidator(TextField nameField,
