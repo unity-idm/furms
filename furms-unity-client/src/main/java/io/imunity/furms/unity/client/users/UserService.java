@@ -6,8 +6,8 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
-import io.imunity.furms.domain.policy_documents.UserPolicyAgreements;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -99,20 +99,20 @@ public class UserService {
 		unityClient.put(uriComponents, attribute);
 	}
 
-	public void addUserPolicyAgreement(FenixUserId userId, PolicyAgreement policyAgreement) {
+	public void addUserPolicyAgreement(FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		String uriComponents = prepareAttributeRequestPath(userId);
-		Set<PolicyAgreement> policyAgreements = getPolicyAgreements(userId);
-		Set<PolicyAgreement> oldRevisionPolicyAgreement = policyAgreements.stream()
-			.filter(x -> x.policyDocumentId.equals(policyAgreement.policyDocumentId))
+		Set<PolicyAcceptance> policyAcceptances = getPolicyAgreements(userId);
+		Set<PolicyAcceptance> oldRevisionPolicyAcceptance = policyAcceptances.stream()
+			.filter(x -> x.policyDocumentId.equals(policyAcceptance.policyDocumentId))
 			.collect(toSet());
-		policyAgreements.removeAll(oldRevisionPolicyAgreement);
-		policyAgreements.add(policyAgreement);
+		policyAcceptances.removeAll(oldRevisionPolicyAcceptance);
+		policyAcceptances.add(policyAcceptance);
 
 		Attribute attribute = new Attribute(
 			FURMS_POLICY_AGREEMENT_STATE,
 			STRING,
 			"/",
-			policyAgreements.stream()
+			policyAcceptances.stream()
 				.map(PolicyAgreementArgument::valueOf)
 				.map(PolicyAgreementParser::parse)
 				.collect(Collectors.toUnmodifiableList())
@@ -165,11 +165,11 @@ public class UserService {
 			.collect(toSet());
 	}
 
-	public Set<PolicyAgreement> getPolicyAgreements(FenixUserId userId) {
+	public Set<PolicyAcceptance> getPolicyAgreements(FenixUserId userId) {
 		return getPolicyAgreements(getAttributesFromRootGroup(userId));
 	}
 
-	public Set<PolicyAgreement> getPolicyAgreements(Collection<? extends Attribute> attributes) {
+	public Set<PolicyAcceptance> getPolicyAgreements(Collection<? extends Attribute> attributes) {
 		return attributes
 			.stream()
 			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_AGREEMENT_STATE))
@@ -264,7 +264,7 @@ public class UserService {
 			.collect(toList());
 	}
 
-	public Set<UserPolicyAgreements> getAllUsersPolicyAcceptanceFromGroups(String group, Map<String, Set<String>> ids){
+	public Set<UserPolicyAcceptances> getAllUsersPolicyAcceptanceFromGroups(String group, Map<String, Set<String>> ids){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS_MULTI)
@@ -284,7 +284,7 @@ public class UserService {
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
 			.map(x -> UnityUserMapper.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
-				.map(y -> new UserPolicyAgreements(y, getPolicyAgreements(x.attributes)))
+				.map(y -> new UserPolicyAcceptances(y, getPolicyAgreements(x.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)

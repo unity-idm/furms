@@ -10,33 +10,33 @@ import io.imunity.furms.domain.users.FURMSUser;
 import java.util.Objects;
 import java.util.Set;
 
-public class UserPolicyAgreements {
+public class UserPolicyAcceptances {
 	public final FURMSUser user;
-	public final Set<PolicyAgreement> policyAgreements;
+	public final Set<PolicyAcceptance> policyAcceptances;
 
-	public UserPolicyAgreements(FURMSUser user, Set<PolicyAgreement> policyAgreements) {
+	public UserPolicyAcceptances(FURMSUser user, Set<PolicyAcceptance> policyAcceptances) {
 		this.user = user;
-		this.policyAgreements = policyAgreements;
+		this.policyAcceptances = policyAcceptances;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserPolicyAgreements that = (UserPolicyAgreements) o;
-		return Objects.equals(user, that.user) && Objects.equals(policyAgreements, that.policyAgreements);
+		UserPolicyAcceptances that = (UserPolicyAcceptances) o;
+		return Objects.equals(user, that.user) && Objects.equals(policyAcceptances, that.policyAcceptances);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(user, policyAgreements);
+		return Objects.hash(user, policyAcceptances);
 	}
 
 	@Override
 	public String toString() {
 		return "UserPolicyAgreements{" +
 			"user=" + user +
-			", policyAgreements=" + policyAgreements +
+			", policyAgreements=" + policyAcceptances +
 			'}';
 	}
 }

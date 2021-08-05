@@ -6,7 +6,7 @@
 package io.imunity.furms.unity.client.users;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import io.imunity.furms.domain.policy_documents.PolicyAgreement;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 
@@ -27,8 +27,8 @@ class PolicyAgreementArgument {
 		this.decisionTs = decisionTs;
 	}
 
-	PolicyAgreement toPolicyAgreement(){
-		return PolicyAgreement.builder()
+	PolicyAcceptance toPolicyAgreement(){
+		return PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(policyDocumentId))
 			.policyDocumentRevision(policyDocumentRevision)
 			.acceptanceStatus(PolicyAgreementStatus.valueOf(acceptanceStatus))
@@ -36,9 +36,9 @@ class PolicyAgreementArgument {
 			.build();
 	}
 
-	static PolicyAgreementArgument valueOf(PolicyAgreement policyAgreement){
-		return new PolicyAgreementArgument(policyAgreement.policyDocumentId.id.toString(),
-			policyAgreement.policyDocumentRevision, policyAgreement.acceptanceStatus.name(), policyAgreement.decisionTs);
+	static PolicyAgreementArgument valueOf(PolicyAcceptance policyAcceptance){
+		return new PolicyAgreementArgument(policyAcceptance.policyDocumentId.id.toString(),
+			policyAcceptance.policyDocumentRevision, policyAcceptance.acceptanceStatus.name(), policyAcceptance.decisionTs);
 	}
 
 	@Override

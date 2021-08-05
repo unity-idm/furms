@@ -8,13 +8,13 @@ package io.imunity.furms.domain.policy_documents;
 import java.time.Instant;
 import java.util.Objects;
 
-public class PolicyAgreement {
+public class PolicyAcceptance {
 	public final PolicyId policyDocumentId;
 	public final int policyDocumentRevision;
 	public final PolicyAgreementStatus acceptanceStatus;
 	public final Instant decisionTs;
 
-	PolicyAgreement(PolicyId policyDocumentId, int policyDocumentRevision, PolicyAgreementStatus acceptanceStatus, Instant decisionTs) {
+	PolicyAcceptance(PolicyId policyDocumentId, int policyDocumentRevision, PolicyAgreementStatus acceptanceStatus, Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;
 		this.policyDocumentRevision = policyDocumentRevision;
 		this.acceptanceStatus = acceptanceStatus;
@@ -25,7 +25,7 @@ public class PolicyAgreement {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PolicyAgreement that = (PolicyAgreement) o;
+		PolicyAcceptance that = (PolicyAcceptance) o;
 		return policyDocumentRevision == that.policyDocumentRevision && Objects.equals(policyDocumentId, that.policyDocumentId) && acceptanceStatus == that.acceptanceStatus && Objects.equals(decisionTs, that.decisionTs);
 	}
 
@@ -77,8 +77,8 @@ public class PolicyAgreement {
 			return this;
 		}
 
-		public PolicyAgreement build() {
-			return new PolicyAgreement(policyDocumentId, policyDocumentRevision, acceptanceStatus, decisionTs);
+		public PolicyAcceptance build() {
+			return new PolicyAcceptance(policyDocumentId, policyDocumentRevision, acceptanceStatus, decisionTs);
 		}
 	}
 }
