@@ -10,6 +10,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class UserAllocationStatusUpdaterTest {
 	private ResourceAccessRepository repository;
 	@Mock
 	private UserOperationService userOperationService;
+	@Mock
+	private NotificationDAO notificationDAO;
 
 	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -49,8 +52,8 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService);
-		orderVerifier = inOrder(repository, userOperationService);
+		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, notificationDAO);
+		orderVerifier = inOrder(repository, userOperationService, notificationDAO);
 	}
 
 	@ParameterizedTest
@@ -58,10 +61,14 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUserGrantToGrand(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
+		FenixUserId userId = new FenixUserId("userId");
+		when(repository.findUsersGrantsByCorrelationId(correlationId))
+			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANTED, "msg");
+		orderVerifier.verify(notificationDAO).notifyAboutNewPolicy(userId);
 	}
 
 	@Test

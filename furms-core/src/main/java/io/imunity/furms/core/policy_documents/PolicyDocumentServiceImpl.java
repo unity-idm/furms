@@ -17,6 +17,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
@@ -47,14 +48,17 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentValidator validator;
 	private final PolicyDocumentDAO policyDocumentDAO;
+	private final NotificationDAO notificationDAO;
 	private final ApplicationEventPublisher publisher;
 
 	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository, PolicyDocumentValidator validator,
-	                          PolicyDocumentDAO policyDocumentDAO, AuthzService authzService, ApplicationEventPublisher publisher) {
+	                          PolicyDocumentDAO policyDocumentDAO, AuthzService authzService,
+	                          ApplicationEventPublisher publisher, NotificationDAO notificationDAO) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.authzService = authzService;
+		this.notificationDAO = notificationDAO;
 		this.publisher = publisher;
 	}
 
@@ -80,7 +84,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
 
-		return policyDocumentDAO.getUserPolicyAgreements(siteId).stream()
+		return policyDocumentDAO.getUserPolicyAcceptances(siteId).stream()
 			.filter(userAgreement -> userAgreement.policyAcceptances.stream()
 				.noneMatch(policyAgreement -> policyAgreement.policyDocumentId.equals(policyDocument.id) &&
 					policyAgreement.policyDocumentRevision == policyDocument.revision)
@@ -150,6 +154,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, true);
+		notificationDAO.notifyAboutChangedPolicy(policyDocument);
 		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
