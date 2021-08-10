@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -15,9 +16,11 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.shared.Registration;
+import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
+import io.imunity.furms.domain.policy_documents.UserWaitingPoliciesAcceptanceListChangedEvent;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.notifications.NotificationBarElement;
@@ -29,37 +32,52 @@ import static com.vaadin.flow.component.icon.VaadinIcon.BELL;
 
 @CssImport(value = "./styles/custom-lumo-theme.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
-public class NotificationBarComponent extends ContextMenu {
+public class NotificationBarComponent extends Button {
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private final NotificationService notificationService;
+	private final FURMSUser currentUser;
 	private final Span badge;
+	private final ContextMenu contextMenu;
 	private Registration broadcasterRegistration;
 
-	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, NotificationService notificationService) {
+	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, NotificationService notificationService, FURMSUser furmsUser) {
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.notificationService = notificationService;
-		Icon bell = BELL.create();
+		this.currentUser = furmsUser;
+
 		badge = new Span();
 		badge.getElement().setAttribute("theme","badge error primary small pill");
+		contextMenu = new ContextMenu();
+		contextMenu.setOpenOnClick(true);
+		contextMenu.setTarget(this);
 
-		Button button = new Button(new Div(bell, badge));
-		setOpenOnClick(true);
-		setTarget(button);
+		setIcon(new Div(BELL.create(), badge));
 		loadData();
 	}
 
+	public Component getContextMenuTarget(){
+		return contextMenu.getTarget();
+	}
+
 	private void setNumber(int number) {
-		Label label = new Label(String.valueOf(number));
-		label.getStyle().set("margin-top", "-4px");
 		badge.removeAll();
-		badge.add(label);
+		if(number > 0) {
+			Label label = new Label(String.valueOf(number));
+			label.getStyle().set("margin-top", "-3px");
+			badge.add(label);
+			badge.setVisible(true);
+			setDisabled(false);
+		}else {
+			badge.setVisible(false);
+			setDisabled(true);
+		}
 	}
 
 	private void loadData() {
-		removeAll();
+		contextMenu.removeAll();
 		Set<NotificationBarElement> allCurrentUserNotification = notificationService.findAllCurrentUserNotification();
 		allCurrentUserNotification
-			.forEach(x -> addItem(x.text, y -> UI.getCurrent().navigate(x.redirect)));
+			.forEach(x -> contextMenu.addItem(x.text, y -> UI.getCurrent().navigate(x.redirect)));
 		setNumber(allCurrentUserNotification.size());
 	}
 
@@ -71,9 +89,18 @@ public class NotificationBarComponent extends ContextMenu {
 			VaadinListener.builder()
 				.consumer(event -> ui.access(this::loadData))
 				.predicate(event -> event instanceof PolicyDocumentUpdatedEvent)
-//				.orPredicate(event -> event instanceof SiteEvent)
+				.orPredicate(this::isCurrentUserPoliciesAcceptanceListChanged)
 				.build()
 		);
+	}
+
+	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
+		if(!(furmsEvent instanceof UserWaitingPoliciesAcceptanceListChangedEvent))
+			return false;
+		UserWaitingPoliciesAcceptanceListChangedEvent event = (UserWaitingPoliciesAcceptanceListChangedEvent) furmsEvent;
+		return currentUser.fenixUserId
+			.filter(id -> id.equals(event.fenixUserId))
+			.isPresent();
 	}
 
 	@Override
