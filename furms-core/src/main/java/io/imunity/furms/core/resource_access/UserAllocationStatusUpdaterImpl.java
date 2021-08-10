@@ -45,6 +45,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}
+		//FIXME ADD EVENT HERE
 		repository.update(correlationId, status, msg);
 		LOG.info("UserAllocation status with correlation id {} was updated to {}", correlationId.id, status);
 	}

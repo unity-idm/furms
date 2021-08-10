@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.user_settings;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.ui.FurmsSelectFactory;
+import io.imunity.furms.ui.FurmsComponentFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 public class UserSettingsMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	UserSettingsMenu(FurmsSelectFactory furmsSelectFactory, AuthzService authzService) {
+	UserSettingsMenu(FurmsComponentFactory furmsComponentFactory, AuthzService authzService) {
 		setPrimarySection(Section.DRAWER);
 		final List<MenuComponent> menuComponents = Stream.of(
 					MenuComponent.builder(ProfileView.class).build(),
@@ -37,7 +37,7 @@ public class UserSettingsMenu extends FurmsAppLayout implements AfterNavigationO
 					createApiKeyManagementElement(authzService))
 				.filter(Objects::nonNull)
 				.collect(toList());
-		this.furmsLayout = new FurmsLayout(menuComponents, furmsSelectFactory);
+		this.furmsLayout = new FurmsLayout(menuComponents, furmsComponentFactory);
 		addToNavbar(false, this.furmsLayout.createNavbar());
 		addToDrawer(this.furmsLayout.createDrawerContent());
 	}

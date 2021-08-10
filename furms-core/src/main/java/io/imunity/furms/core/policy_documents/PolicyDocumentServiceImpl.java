@@ -93,15 +93,16 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<PolicyDocumentExtended> findAllByCurrentUser() {
-		FenixUserId userId = authzService.getCurrentAuthNUser().fenixUserId
-			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
+		Optional<FenixUserId> userId = authzService.getCurrentAuthNUser().fenixUserId;
+		if(userId.isEmpty())
+			return Set.of();
 
-		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+		LOG.debug("Getting all Policy Document for user id={}", userId.get().id);
 
-		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAgreements(userId).stream()
+		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAgreements(userId.get()).stream()
 			.collect(toMap(policyAgreement -> policyAgreement.policyDocumentId, identity()));
 
-		return policyDocumentRepository.findAllByUserId(userId, (policyId, revision) ->
+		return policyDocumentRepository.findAllByUserId(userId.get(), (policyId, revision) ->
 			Optional.ofNullable(collect.get(policyId))
 				.filter(policyAgreement -> policyAgreement.policyDocumentRevision == revision)
 				.map(policyAgreement -> policyAgreement.decisionTs)
