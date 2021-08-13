@@ -5,25 +5,7 @@
 
 package io.imunity.furms.unity.sites;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.ID;
-import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
-import static io.imunity.furms.unity.common.UnityPaths.META;
-import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
-
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -31,8 +13,28 @@ import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteWebClient;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.META;
+import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
 class UnitySiteWebClient implements SiteWebClient {
@@ -134,35 +136,45 @@ class UnitySiteWebClient implements SiteWebClient {
 
 
 	@Override
-	public List<FURMSUser> getAllAdmins(String siteId) {
+	public List<FURMSUser> getAllSiteUsers(String siteId, Set<Role> roles) {
 		assertTrue(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);
-		return userService.getAllUsersByRole(sitePath, SITE_ADMIN);
+		return userService.getAllUsersByRoles(sitePath, roles);
 	}
 
 	@Override
-	public void addAdmin(String siteId, PersistentId userId) {
+	public void addSiteUser(String siteId, PersistentId userId, Role role) {
 		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
-				() -> new IllegalArgumentException("Could not add Site Administrator in Unity. Missing Site ID or User ID"));
+				() -> new IllegalArgumentException("Could not add Site role in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);
 		userService.addUserToGroup(userId, group);
-		userService.addUserRole(userId, group, SITE_ADMIN);
+		userService.addUserRole(userId, group, role);
 	}
 
 	@Override
-	public void removeAdmin(String siteId, PersistentId userId) {
+	public void removeSiteUser(String siteId, PersistentId userId) {
+		removeSiteRole(siteId, userId);
+	}
+
+	private void removeSiteRole(String siteId, PersistentId userId) {
 		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
-				() -> new IllegalArgumentException("Could not remove Site Administrator in Unity. Missing Site ID or User ID"));
+				() -> new IllegalArgumentException("Could not remove Site role in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);
-		Set<String> roleValues = userService.getRoleValues(userId, group, SITE_ADMIN);
-		if (roleValues.contains(SITE_ADMIN.unityRoleValue)) {
+		Set<String> roleValues = userService.getRoleValues(userId, group).stream()
+			.filter(attribute -> attribute.getName().equals(SITE_SUPPORT.unityRoleAttribute) || attribute.getName().equals(SITE_ADMIN.unityRoleAttribute))
+			.flatMap(attribute -> attribute.getValues().stream())
+			.collect(toSet());
+
+		if (roleValues.contains(SITE_ADMIN.unityRoleValue) || roleValues.contains(SITE_SUPPORT.unityRoleValue)) {
 			if (roleValues.size() == 1)
 				userService.removeUserFromGroup(userId, group);
-			else
+			else if(roleValues.contains(SITE_ADMIN.unityRoleValue))
 				userService.removeUserRole(userId, group, SITE_ADMIN);
+			else
+				userService.removeUserRole(userId, group, SITE_SUPPORT);
 		}
 	}
 

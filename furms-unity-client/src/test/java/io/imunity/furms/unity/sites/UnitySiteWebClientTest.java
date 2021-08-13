@@ -152,7 +152,7 @@ class UnitySiteWebClientTest {
 			);
 
 		//when
-		List<FURMSUser> admins = unitySiteWebClient.getAllAdmins(siteId);
+		List<FURMSUser> admins = unitySiteWebClient.getAllSiteUsers(siteId, Set.of(SITE_ADMIN));
 
 		//then
 		assertThat(admins).hasSize(2);
@@ -167,7 +167,7 @@ class UnitySiteWebClientTest {
 		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 		//when
-		unitySiteWebClient.addAdmin(siteId, userId);
+		unitySiteWebClient.addSiteUser(siteId, userId, SITE_ADMIN);
 
 		//then
 		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
@@ -184,7 +184,7 @@ class UnitySiteWebClientTest {
 		//when
 		when(userService.getRoleValues(Mockito.any(), Mockito.anyString(), Mockito.any()))
 			.thenReturn(Set.of("ADMIN"));
-		unitySiteWebClient.removeAdmin(siteId, userId);
+		unitySiteWebClient.removeSiteUser(siteId, userId);
 
 		//then
 		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(SITE_ADMIN));
@@ -201,7 +201,7 @@ class UnitySiteWebClientTest {
 
 		//when
 		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(SITE_ADMIN))).thenReturn(Set.of(SITE_ADMIN.unityRoleValue, SITE_SUPPORT.unityRoleValue));
-		unitySiteWebClient.removeAdmin(siteId, userId);
+		unitySiteWebClient.removeSiteUser(siteId, userId);
 
 		//then
 		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));

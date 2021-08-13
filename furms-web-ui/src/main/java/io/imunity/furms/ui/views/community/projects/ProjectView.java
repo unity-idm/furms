@@ -27,6 +27,8 @@ import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
+import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
@@ -117,15 +119,18 @@ public class ProjectView extends FurmsViewComponent {
 			getTranslation("view.community-admin.project.button.demit"),
 			() -> projectService.isAdmin(project.getId())
 		);
-		UsersGridComponent grid = UsersGridComponent.builder()
+		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
-			.withFetchUsersAction(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()))
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			}).build();
+
+		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
+		UsersGridComponent grid = new UsersGridComponent(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
+
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();

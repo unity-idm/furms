@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.rest.workshop;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -178,7 +179,7 @@ class WorkshopService {
 		siteWebClient.create(Site.builder().id(siteId).name(site.getName()).build());
 		
 		LOG.info("Making user {} site {} admin", user.email, siteId);
-		siteWebClient.addAdmin(siteId, user.id.orElseThrow());
+		siteWebClient.addSiteUser(siteId, user.id.orElseThrow(), Role.SITE_ADMIN);
 		
 		return siteExternalId;
 	}

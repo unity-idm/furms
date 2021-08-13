@@ -9,10 +9,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 
 public class VaadinTranslator {
-	public static String getTranslation(String key) {
+	public static String getTranslation(String key, Object... objects) {
 		return VaadinService.getCurrent()
 			.getInstantiator()
 			.getI18NProvider()
-			.getTranslation(key, UI.getCurrent().getLocale());
+			.getTranslation(key, UI.getCurrent().getLocale(), objects);
 	}
 }

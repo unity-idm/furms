@@ -165,6 +165,10 @@ public class UserService {
 			.collect(toSet());
 	}
 
+	public List<Attribute> getRoleValues(PersistentId userId, String group) {
+		return getAttributesFromGroup(userId, group);
+	}
+
 	public Set<PolicyAcceptance> getPolicyAgreements(FenixUserId userId) {
 		return getPolicyAgreements(getAttributesFromRootGroup(userId));
 	}
@@ -244,6 +248,13 @@ public class UserService {
 		Predicate<AttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&
 				attribute.getValues().contains(role.unityRoleValue);
+		return getAllUsersFromGroup(group, filter);
+	}
+
+	public List<FURMSUser> getAllUsersByRoles(String group, Set<Role> roles) {
+		Predicate<AttributeExt> filter = attribute ->
+			roles.stream().map(role -> role.unityRoleAttribute).anyMatch(role -> role.equals(attribute.getName())) &&
+				roles.stream().map(role -> role.unityRoleValue).anyMatch(role -> attribute.getValues().contains(role));
 		return getAllUsersFromGroup(group, filter);
 	}
 

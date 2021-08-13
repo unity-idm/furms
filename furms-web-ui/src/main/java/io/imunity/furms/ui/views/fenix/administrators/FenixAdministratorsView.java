@@ -5,23 +5,23 @@
 
 package io.imunity.furms.ui.views.fenix.administrators;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-
-import java.lang.invoke.MethodHandles;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
+import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
@@ -42,14 +42,16 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
-		this.grid = UsersGridComponent.builder()
+		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(authzService.getCurrentUserId())
 			.redirectOnCurrentUserRemoval()
-			.withFetchUsersAction(userService::getFenixAdmins)
 			.withRemoveUserAction(userId -> {
 				userService.removeFenixAdminRole(userId);
 				inviteUser.reload();
 			}).build();
+		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
+		grid = new UsersGridComponent(userService::getFenixAdmins, userGrid);
+
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
 		getContent().add(headerLayout, inviteUser, grid);

@@ -224,37 +224,73 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<FURMSUser> findAllAdmins(String id) {
+	public List<FURMSUser> findAllAdministrators(String id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
-		return webClient.getAllAdmins(id);
+		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_ADMIN));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
+	public List<FURMSUser> findAllSupports(String id) {
+		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
+		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
+		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_SUPPORT));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
+	public List<FURMSUser> findAllSiteUsers(String id) {
+		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
+		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
+		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
+		inviteUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void inviteSupport(String siteId, PersistentId userId) {
+		inviteUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
+	}
+
+	private void inviteUser(String siteId, PersistentId userId, Runnable inviter) {
 		assertNotEmpty(siteId, userId);
 		Optional<FURMSUser> user = usersDAO.findById(userId);
 		if (user.isEmpty()) {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
-		webClient.addAdmin(siteId, userId);
+		inviter.run();
 		publisher.publishEvent(new InviteUserEvent(user.get().id.orElse(null), new ResourceId(siteId, SITE)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addAdmin(String siteId, PersistentId userId) {
+		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void addSupport(String siteId, PersistentId userId) {
+		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
+	}
+
+	private void addUser(String siteId, PersistentId userId, Runnable adder) {
 		assertNotEmpty(siteId, userId);
 
 		try {
-			webClient.addAdmin(siteId, userId);
+			adder.run();
 			publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not add Site Administrator: ", e);
 			try {
-				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeAdmin(siteId, userId));
+				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeSiteUser(siteId, userId));
 			} catch (RuntimeException ex) {
 				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", ex);
 			}
@@ -264,11 +300,11 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void removeAdmin(String siteId, PersistentId userId) {
+	public void removeSiteUser(String siteId, PersistentId userId) {
 		assertNotEmpty(siteId, userId);
 
 		try {
-			webClient.removeAdmin(siteId, userId);
+			webClient.removeSiteUser(siteId, userId);
 			publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
@@ -281,6 +317,12 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public boolean isAdmin(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
+	public boolean isSupport(String siteId) {
+		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
 	}
 
 	@Override

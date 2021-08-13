@@ -18,6 +18,8 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
+import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
@@ -101,14 +103,15 @@ public class CommunityView extends FurmsViewComponent {
 			getTranslation("view.fenix-admin.community.button.demit"),
 			() -> communityService.isAdmin(communityId)
 		);
-		UsersGridComponent grid = UsersGridComponent.builder()
+		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
-			.withFetchUsersAction(() -> communityService.findAllAdmins(communityId))
 			.withRemoveUserAction(userId -> {
 				communityService.removeAdmin(communityId, userId);
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			}).build();
+		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
+		UsersGridComponent grid = new UsersGridComponent(() -> communityService.findAllAdmins(communityId), userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
 			grid.reloadGrid();

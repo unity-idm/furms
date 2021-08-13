@@ -35,15 +35,25 @@ public interface SiteService {
 
 	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
 
-	List<FURMSUser> findAllAdmins(String siteId);
+	List<FURMSUser> findAllSiteUsers(String id);
+
+	List<FURMSUser> findAllAdministrators(String siteId);
+
+	List<FURMSUser> findAllSupports(String siteId);
 
 	void inviteAdmin(String siteId, PersistentId userId);
 
+	void inviteSupport(String siteId, PersistentId userId);
+
 	void addAdmin(String siteId, PersistentId userId);
 
-	void removeAdmin(String siteId, PersistentId userId);
+	void addSupport(String siteId, PersistentId userId);
+
+	void removeSiteUser(String siteId, PersistentId userId);
 
 	boolean isAdmin(String siteId);
+
+	boolean isSupport(String siteId);
 
 	PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId);
 }

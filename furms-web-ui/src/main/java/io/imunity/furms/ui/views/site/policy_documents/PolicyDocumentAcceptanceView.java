@@ -41,7 +41,7 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Route(value = "site/admin/policy/documents/acceptance", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.policy-documents-acceptance.page.title")
-public class PolicyDocumentAgreementView extends FurmsViewComponent {
+public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
 	private final Grid<FURMSUser> grid;
 	private final ViewHeaderLayout viewHeaderLayout;
@@ -49,7 +49,7 @@ public class PolicyDocumentAgreementView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	PolicyDocumentAgreementView(PolicyDocumentService policyDocumentService) {
+	protected PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
 		this.grid = createUserAgreementGrid();
 		this.viewHeaderLayout = new ViewHeaderLayout("");
