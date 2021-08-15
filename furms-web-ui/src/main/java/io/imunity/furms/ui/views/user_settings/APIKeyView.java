@@ -93,10 +93,12 @@ public class APIKeyView extends FurmsViewComponent {
 	private void cancelAction() {
 		setApiKeyFormItemValue(loadApiKey());
 		formButtons.setVisible(false);
+		generateRevokeButton.setEnabled(true);
 	}
 
 	private void generateAPIKeyAction() {
 		setApiKeyFormItemValue(UUID.randomUUID().toString());
+		generateRevokeButton.setEnabled(false);
 	}
 
 	private void saveApiKeyAction() {
@@ -109,6 +111,7 @@ public class APIKeyView extends FurmsViewComponent {
 				showSuccessNotification(getTranslation("view.user-settings.api-key.form.save.success.message"));
 			}
 			formButtons.setVisible(false);
+			generateRevokeButton.setEnabled(true);
 		} catch (Exception e) {
 			LOG.error("Unable to save API KEY for user=" + userId, e);
 			showErrorNotification(getTranslation("view.user-settings.api-key.form.button.generate.error"));
@@ -117,6 +120,7 @@ public class APIKeyView extends FurmsViewComponent {
 
 	private void revokeAPIKeyAction() {
 		setApiKeyFormItemValue(null);
+		generateRevokeButton.setEnabled(false);
 	}
 
 	private void setApiKeyFormItemValue(String apiKey) {
