@@ -9,8 +9,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
-import java.util.function.Supplier;
 
+import io.imunity.furms.api.projects.ProjectService;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.communites.CommunityService;
@@ -21,13 +21,20 @@ import io.imunity.furms.rest.error.exceptions.CommunityAllocationRestNotFoundExc
 class CommunityRestService {
 
 	private final CommunityService communityService;
+	private final ProjectService projectService;
 	private final CommunityAllocationService communityAllocationService;
 	private final ResourceChecker resourceChecker;
+	private final ProjectsRestConverter projectsRestConverter;
 
-	CommunityRestService(CommunityService communityService, CommunityAllocationService communityAllocationService) {
+	CommunityRestService(CommunityService communityService,
+	                     ProjectService projectService,
+	                     CommunityAllocationService communityAllocationService,
+	                     ProjectsRestConverter projectsRestConverter) {
 		this.communityService = communityService;
+		this.projectService = projectService;
 		this.communityAllocationService = communityAllocationService;
 		this.resourceChecker = new ResourceChecker(communityService::existsById);
+		this.projectsRestConverter = projectsRestConverter;
 	}
 
 	List<Community> findAll() {
@@ -35,6 +42,13 @@ class CommunityRestService {
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(community.getId())))
+				.collect(toList());
+	}
+
+	List<Project> findAllProjectsByCommunityId(String communityId) {
+		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
+				.stream()
+				.map(projectsRestConverter::convert)
 				.collect(toList());
 	}
 
@@ -72,5 +86,4 @@ class CommunityRestService {
 				.build());
 		return findAllocationByCommunityId(communityId);
 	}
-
 }

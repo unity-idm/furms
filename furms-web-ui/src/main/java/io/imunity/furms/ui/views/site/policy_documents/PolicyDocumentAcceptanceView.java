@@ -102,7 +102,8 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		grid.setItems(policyDocumentService.findAllUserWithoutPolicyAcceptance(policyDocument.siteId, policyDocument.id));
+		Set<FURMSUser> allUserWithoutPolicyAgreement = policyDocumentService.findAllUsersWithoutCurrentRevisionPolicyAcceptance(policyDocument.siteId, policyDocument.id);
+		grid.setItems(allUserWithoutPolicyAgreement);
 	}
 
 	@Override

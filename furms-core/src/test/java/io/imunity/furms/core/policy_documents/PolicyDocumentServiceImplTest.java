@@ -162,7 +162,40 @@ class PolicyDocumentServiceImplTest {
 			new UserPolicyAcceptances(user, Set.of())
 		));
 
-		Set<FURMSUser> users = service.findAllUserWithoutPolicyAcceptance("siteId", policyId);
+		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+
+		orderVerifier.verify(repository).findById(policyId);
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
+
+		assertEquals(1, users.size());
+		assertEquals(user, users.iterator().next());
+	}
+
+	@Test
+	void shouldFindAllUserWithoutCurrentRevisionPolicyAgreement() {
+		FenixUserId userId = new FenixUserId("userId");
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+
+		when(repository.findById(policyId)).thenReturn(Optional.of(
+			PolicyDocument.builder()
+				.id(policyId)
+				.revision(2)
+				.build()
+			)
+		);
+		FURMSUser user = FURMSUser.builder()
+			.fenixUserId(userId)
+			.email("email")
+			.build();
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
+			new UserPolicyAcceptances(user, Set.of(PolicyAcceptance.builder()
+				.policyDocumentId(policyId)
+				.policyDocumentRevision(1)
+				.build())
+			)
+		));
+
+		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");

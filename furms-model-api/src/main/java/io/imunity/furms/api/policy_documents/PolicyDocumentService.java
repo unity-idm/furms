@@ -23,7 +23,7 @@ public interface PolicyDocumentService {
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 
-	Set<FURMSUser> findAllUserWithoutPolicyAcceptance(String siteId, PolicyId policyId);
+	Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId);
 
 	Set<PolicyDocumentExtended> findAllByCurrentUser();
 

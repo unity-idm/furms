@@ -50,6 +50,8 @@ public interface ProjectOperationRepository {
 
 	Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId);
 
+	Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId);
+
 	void deleteById(String id);
 
 	void deleteAll();

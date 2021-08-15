@@ -23,11 +23,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.unity.common.UnityConst.*;
@@ -128,22 +126,22 @@ public class UserServiceTest {
 		assertThat(allUsersFromGroup).isEmpty();
 	}
 
-	@Test
-	void shouldReturnEmptyUsersListFromMultipleGroups() {
-		String path = "/group-members-multi/%2F";
-
-		when(unityClient.post(
-			path,
-			List.of("/fenix/communities/communityId/projects/projectId2/users", "/fenix/communities/communityId/projects/projectId1/users"),
-			Map.of(),
-			new ParameterizedTypeReference<MultiGroupMembers>() {})
-		)
-			.thenReturn(new MultiGroupMembers(List.of(), Map.of()));
-
-		Set<UserPolicyAcceptances> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
-
-		assertThat(allUsersFromGroup).isEmpty();
-	}
+//	@Test
+//	void shouldReturnEmptyUsersListFromMultipleGroups() {
+//		String path = "/group-members-multi/%2F";
+//
+//		when(unityClient.post(
+//			path,
+//			List.of("/fenix/communities/communityId/projects/projectId2/users", "/fenix/communities/communityId/projects/projectId1/users"),
+//			Map.of(),
+//			new ParameterizedTypeReference<MultiGroupMembers>() {})
+//		)
+//			.thenReturn(new MultiGroupMembers(List.of(), Map.of()));
+//
+//		Set<UserPolicyAcceptances> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
+//
+//		assertThat(allUsersFromGroup).isEmpty();
+//	}
 
 	@Test
 	void shouldRemoveUserRole() {

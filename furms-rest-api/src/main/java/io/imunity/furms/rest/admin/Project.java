@@ -4,9 +4,13 @@
  */
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.domain.sites.Gid;
+import io.imunity.furms.domain.sites.SiteInstalledProject;
 
 import java.util.Objects;
+import java.util.Set;
+
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 
 class Project {
 	public final String id;
@@ -14,43 +18,37 @@ class Project {
 	public final String name;
 	public final String communityId;
 	public final String researchField;
-	public final String gid;
+	public final Set<ProjectSiteInstallation> installations;
 	public final String description;
 	public final Validity validity;
 	public final User projectLeader;
 
-	Project(String id, String acronym, String name, String communityId, String researchField, String gid,
-	               String description, Validity validity, User projectLeader) {
+	Project(String id, String acronym, String name, String communityId, String researchField,
+	        Set<ProjectSiteInstallation> installations, String description, Validity validity, User projectLeader) {
 		this.id = id;
 		this.acronym = acronym;
 		this.name = name;
 		this.communityId = communityId;
 		this.researchField = researchField;
-		this.gid = gid;
+		this.installations = installations;
 		this.description = description;
 		this.validity = validity;
 		this.projectLeader = projectLeader;
 	}
 
-	Project(io.imunity.furms.domain.projects.Project project, User user) {
+	public Project(io.imunity.furms.domain.projects.Project project,
+	               User user,
+	               Set<SiteInstalledProject> projectInstallations) {
 		this(project.getId(),
 				project.getAcronym(),
 				project.getName(),
 				project.getCommunityId(),
 				project.getResearchField(),
-				null,
-				project.getDescription(),
-				new Validity(project.getUtcStartTime(), project.getUtcEndTime()),
-				user);
-	}
-
-	public Project(io.imunity.furms.domain.projects.Project project, User user, Gid gid) {
-		this(project.getId(),
-				project.getAcronym(),
-				project.getName(),
-				project.getCommunityId(),
-				project.getResearchField(),
-				gid.id,
+				ofNullable(projectInstallations)
+					.map(installations -> installations.stream()
+							.map(ProjectSiteInstallation::new)
+							.collect(toSet()))
+					.orElse(Set.of()),
 				project.getDescription(),
 				new Validity(project.getUtcStartTime(), project.getUtcEndTime()),
 				user);
@@ -66,7 +64,7 @@ class Project {
 				&& Objects.equals(name, project.name)
 				&& Objects.equals(communityId, project.communityId)
 				&& Objects.equals(researchField, project.researchField)
-				&& Objects.equals(gid, project.gid)
+				&& Objects.equals(installations, project.installations)
 				&& Objects.equals(description, project.description)
 				&& Objects.equals(validity, project.validity)
 				&& Objects.equals(projectLeader, project.projectLeader);
@@ -74,7 +72,7 @@ class Project {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, acronym, name, communityId, researchField, gid, description, validity, projectLeader);
+		return Objects.hash(id, acronym, name, communityId, researchField, installations, description, validity, projectLeader);
 	}
 
 	@Override
@@ -85,7 +83,7 @@ class Project {
 				", name='" + name + '\'' +
 				", communityId='" + communityId + '\'' +
 				", researchField='" + researchField + '\'' +
-				", gid='" + gid + '\'' +
+				", installations='" + installations + '\'' +
 				", description='" + description + '\'' +
 				", validity=" + validity +
 				", projectLeader=" + projectLeader +

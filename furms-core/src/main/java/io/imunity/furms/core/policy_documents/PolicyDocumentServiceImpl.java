@@ -82,8 +82,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<FURMSUser> findAllUserWithoutPolicyAcceptance(String siteId, PolicyId policyId) {
-		LOG.debug("Getting all Users which not accepted Policy Document {}", policyId.id);
+	public Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
+		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
 
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
