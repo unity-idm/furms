@@ -9,7 +9,6 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -93,7 +92,7 @@ public class UserServiceTest {
 		userService.addUserPolicyAcceptance(userId, policyAcceptance);
 
 		Attribute attribute = new Attribute(
-				FURMS_POLICY_ACCEPTANCE_STATE,
+				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
 			STRING,
 			group,
 			List.of(PolicyAcceptanceParser.parse(PolicyAcceptanceArgument.valueOf(policyAcceptance)))

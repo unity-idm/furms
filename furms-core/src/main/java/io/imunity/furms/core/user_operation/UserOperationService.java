@@ -11,7 +11,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
@@ -82,12 +82,12 @@ public class UserOperationService implements UserAllocationsService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
-		final Map<String, Optional<PolicyAcceptanceExtended>> sitesPolicy =
+		final Map<String, Optional<PolicyAcceptanceAtSite>> sitesPolicy =
 				policyService.findSitePolicyAcceptancesByUserId(userId).stream()
 						.collect(groupingBy(
 								policyAcceptance -> policyAcceptance.siteId,
 								maxBy(comparingInt(policyAcceptance -> policyAcceptance.policyDocumentRevision))));
-		final Map<String, Set<PolicyAcceptanceExtended>> servicePolicies =
+		final Map<String, Set<PolicyAcceptanceAtSite>> servicePolicies =
 				policyService.findServicesPolicyAcceptancesByUserId(userId).stream()
 						.collect(groupingBy(policyAcceptance -> policyAcceptance.siteId, toSet()));
 		return findByUserId(userId).stream()

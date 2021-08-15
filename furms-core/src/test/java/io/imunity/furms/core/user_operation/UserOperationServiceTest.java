@@ -9,7 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -113,17 +113,17 @@ class UserOperationServiceTest {
 				UserAdditionWithProject.builder().projectId("project32").userId("remoteUser32").build(),
 				UserAdditionWithProject.builder().projectId("project33").userId("remoteUser33").build()));
 		when(policyService.findSitePolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
-				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
-				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
-				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAcceptanceExtended.builder().siteId("id3").policyDocumentId(policy3).build()));
+				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id3").policyDocumentId(policy3).build()));
 		when(policyService.findServicesPolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
-				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy1).build(),
-				PolicyAcceptanceExtended.builder().siteId("id1").policyDocumentId(policy2).build(),
-				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy1).build(),
-				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAcceptanceExtended.builder().siteId("id2").policyDocumentId(policy3).build(),
-				PolicyAcceptanceExtended.builder().siteId("id3").policyDocumentId(policy1).build()));
+				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy1).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy3).build(),
+				PolicyAcceptanceAtSite.builder().siteId("id3").policyDocumentId(policy1).build()));
 
 		//when
 		final Set<SiteUser> userSitesInstallations = service.findUserSitesInstallations(userId);

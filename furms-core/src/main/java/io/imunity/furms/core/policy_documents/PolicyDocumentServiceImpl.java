@@ -9,7 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
@@ -120,26 +120,26 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
-	public Set<PolicyAcceptanceExtended> findSitePolicyAcceptancesByUserId(PersistentId userId) {
+	public Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(PersistentId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllSitePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
-	public Set<PolicyAcceptanceExtended> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
+	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
 	}
 
-	private Set<PolicyAcceptanceExtended> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
-	                                                                                    Set<PolicyDocument> userPolicies) {
+	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
+	                                                                                  Set<PolicyDocument> userPolicies) {
 		return findPolicyAcceptancesByUserId(userId).stream()
 				.filter(policyAcceptance -> policyAcceptance.acceptanceStatus == ACCEPTED)
 				.map(policyAcceptance -> userPolicies.stream()
 								.filter(userPolicy -> isPolicyRelatedToAcceptance(userPolicy, policyAcceptance))
 								.findFirst()
-								.map(policyDocument -> new PolicyAcceptanceExtended(policyAcceptance, policyDocument))
+								.map(policyDocument -> new PolicyAcceptanceAtSite(policyAcceptance, policyDocument))
 								.orElse(null))
 				.filter(Objects::nonNull)
 				.collect(toSet());

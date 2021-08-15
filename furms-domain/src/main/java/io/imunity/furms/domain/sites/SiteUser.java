@@ -5,7 +5,8 @@
 
 package io.imunity.furms.domain.sites;
 
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import com.google.common.collect.ImmutableSet;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.users.SiteSSHKeys;
 
@@ -17,22 +18,22 @@ public class SiteUser {
 	public final String siteId;
 	public final String siteOauthClientId;
 	public final Set<ProjectMembershipOnSite> projectMemberships;
-	public final PolicyAcceptanceExtended sitePolicyAcceptance;
-	public final Set<PolicyAcceptanceExtended> servicesPolicyAcceptance;
+	public final PolicyAcceptanceAtSite sitePolicyAcceptance;
+	public final Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance;
 	public final Set<SiteSSHKeys> siteSSHKeys;
 
 	public SiteUser(String siteId,
 	                String siteOauthClientId,
 	                Set<ProjectMembershipOnSite> projectMemberships,
-	                PolicyAcceptanceExtended sitePolicyAcceptance,
-	                Set<PolicyAcceptanceExtended> servicesPolicyAcceptance,
+	                PolicyAcceptanceAtSite sitePolicyAcceptance,
+	                Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance,
 	                Set<SiteSSHKeys> siteSSHKeys) {
 		this.siteId = siteId;
 		this.siteOauthClientId = siteOauthClientId;
 		this.projectMemberships = projectMemberships;
 		this.sitePolicyAcceptance = sitePolicyAcceptance;
 		this.servicesPolicyAcceptance = servicesPolicyAcceptance;
-		this.siteSSHKeys = siteSSHKeys;
+		this.siteSSHKeys = ImmutableSet.copyOf(siteSSHKeys);
 	}
 
 	@Override
@@ -74,8 +75,8 @@ public class SiteUser {
 		private String siteId;
 		private String siteOauthClientId;
 		private Set<ProjectMembershipOnSite> projectMemberships;
-		private PolicyAcceptanceExtended sitePolicyAcceptance;
-		private Set<PolicyAcceptanceExtended> servicesPolicyAcceptance;
+		private PolicyAcceptanceAtSite sitePolicyAcceptance;
+		private Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance;
 		private Set<SiteSSHKeys> siteSSHKeys;
 
 		private SiteUserBuilder() {
@@ -96,12 +97,12 @@ public class SiteUser {
 			return this;
 		}
 
-		public SiteUserBuilder sitePolicyAcceptance(PolicyAcceptanceExtended sitePolicyAcceptance) {
+		public SiteUserBuilder sitePolicyAcceptance(PolicyAcceptanceAtSite sitePolicyAcceptance) {
 			this.sitePolicyAcceptance = sitePolicyAcceptance;
 			return this;
 		}
 
-		public SiteUserBuilder servicesPolicyAcceptance(Set<PolicyAcceptanceExtended> servicesPolicyAcceptance) {
+		public SiteUserBuilder servicesPolicyAcceptance(Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance) {
 			this.servicesPolicyAcceptance = servicesPolicyAcceptance;
 			return this;
 		}

@@ -5,7 +5,7 @@
 
 package io.imunity.furms.rest.cidp;
 
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.utils.UTCTimeUtils;
 
@@ -18,7 +18,7 @@ class PolicyAcceptanceJson {
 	public final ZonedDateTime processedOn;
 	public final int revision;
 
-	public PolicyAcceptanceJson(PolicyAcceptanceExtended policyAcceptance) {
+	public PolicyAcceptanceJson(PolicyAcceptanceAtSite policyAcceptance) {
 		this.policyId = policyAcceptance.policyDocumentId.id.toString();
 		this.acceptanceStatus = policyAcceptance.acceptanceStatus;
 		this.processedOn = UTCTimeUtils.convertToZoneTime(policyAcceptance.decisionTs);

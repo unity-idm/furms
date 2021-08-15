@@ -7,7 +7,7 @@ package io.imunity.furms.rest.cidp;
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
@@ -60,9 +60,9 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						"siteId",
 						"siteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-						new PolicyAcceptanceExtended(new PolicyId(policy1), "siteId", 1,
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
 								ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceExtended(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
 								ACCEPTED, Instant.now())),
 						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))))));
 
@@ -99,18 +99,18 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						"siteId",
 						"siteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-						new PolicyAcceptanceExtended(new PolicyId(policy1), "siteId", 1,
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
 								ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceExtended(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
 								ACCEPTED, Instant.now())),
 						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))),
 					new SiteUser(
 						"siteId",
 						"otherSiteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId2", "projId")),
-						new PolicyAcceptanceExtended(new PolicyId(policy1), "siteId", 1,
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
 								ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceExtended(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
 								ACCEPTED, Instant.now())),
 						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))))));
 

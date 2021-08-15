@@ -23,8 +23,7 @@ public class UnityConst {
 	public static final String COMMUNITY_ID = "communityId";
 	public static final String PROJECT_ID = "projectId";
 	public static final String ROOT_GROUP_PATH = "rootGroupPath";
-	public static final String FURMS_POLICY_ACCEPTANCE_STATE = "furmsPolicyAgreementState";
-
+	public static final String FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE = "furmsPolicyAgreementState";
 
 	public static final String ROOT_GROUP = "/";
 	public static final String FENIX_GROUP = "/fenix";

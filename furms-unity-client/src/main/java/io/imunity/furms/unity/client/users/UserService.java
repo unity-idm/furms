@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
-import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE;
+import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
 import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
 import static io.imunity.furms.unity.common.UnityConst.ID;
@@ -109,7 +109,7 @@ public class UserService {
 		policyAcceptances.add(policyAcceptance);
 
 		Attribute attribute = new Attribute(
-				FURMS_POLICY_ACCEPTANCE_STATE,
+				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
 			STRING,
 			"/",
 			policyAcceptances.stream()
@@ -172,7 +172,7 @@ public class UserService {
 	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
 		return attributes
 			.stream()
-			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE))
+			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
 			.flatMap(attribute -> attribute.getValues().stream())
 			.map(PolicyAcceptanceParser::parse)
 			.map(PolicyAcceptanceArgument::toPolicyAcceptance)

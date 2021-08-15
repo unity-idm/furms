@@ -8,15 +8,15 @@ package io.imunity.furms.domain.policy_documents;
 import java.time.Instant;
 import java.util.Objects;
 
-public class PolicyAcceptanceExtended {
+public class PolicyAcceptanceAtSite {
 	public final PolicyId policyDocumentId;
 	public final String siteId;
 	public final int policyDocumentRevision;
 	public final PolicyAcceptanceStatus acceptanceStatus;
 	public final Instant decisionTs;
 
-	public PolicyAcceptanceExtended(PolicyId policyDocumentId, String siteId, int policyDocumentRevision,
-	                                PolicyAcceptanceStatus acceptanceStatus, Instant decisionTs) {
+	public PolicyAcceptanceAtSite(PolicyId policyDocumentId, String siteId, int policyDocumentRevision,
+	                              PolicyAcceptanceStatus acceptanceStatus, Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;
 		this.siteId = siteId;
 		this.policyDocumentRevision = policyDocumentRevision;
@@ -24,7 +24,7 @@ public class PolicyAcceptanceExtended {
 		this.decisionTs = decisionTs;
 	}
 
-	public PolicyAcceptanceExtended(PolicyAcceptance policyAcceptance, PolicyDocument policyDocument) {
+	public PolicyAcceptanceAtSite(PolicyAcceptance policyAcceptance, PolicyDocument policyDocument) {
 		this(policyAcceptance.policyDocumentId, policyDocument.siteId, policyAcceptance.policyDocumentRevision,
 				policyAcceptance.acceptanceStatus, policyAcceptance.decisionTs);
 	}
@@ -33,7 +33,7 @@ public class PolicyAcceptanceExtended {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PolicyAcceptanceExtended that = (PolicyAcceptanceExtended) o;
+		PolicyAcceptanceAtSite that = (PolicyAcceptanceAtSite) o;
 		return policyDocumentRevision == that.policyDocumentRevision && Objects.equals(policyDocumentId, that.policyDocumentId) && Objects.equals(siteId, that.siteId) && acceptanceStatus == that.acceptanceStatus && Objects.equals(decisionTs, that.decisionTs);
 	}
 
@@ -44,7 +44,7 @@ public class PolicyAcceptanceExtended {
 
 	@Override
 	public String toString() {
-		return "PolicyAcceptanceExtended{" +
+		return "PolicyAcceptanceAtSite{" +
 				"policyDocumentId=" + policyDocumentId +
 				", siteId='" + siteId + '\'' +
 				", policyDocumentRevision=" + policyDocumentRevision +
@@ -53,48 +53,48 @@ public class PolicyAcceptanceExtended {
 				'}';
 	}
 
-	public static PolicyAcceptanceExtendedBuilder builder() {
-		return new PolicyAcceptanceExtendedBuilder();
+	public static PolicyAcceptanceAtSiteBuilder builder() {
+		return new PolicyAcceptanceAtSiteBuilder();
 	}
 
 
-	public static final class PolicyAcceptanceExtendedBuilder {
+	public static final class PolicyAcceptanceAtSiteBuilder {
 		public PolicyId policyDocumentId;
 		public String siteId;
 		public int policyDocumentRevision;
 		public PolicyAcceptanceStatus acceptanceStatus;
 		public Instant decisionTs;
 
-		private PolicyAcceptanceExtendedBuilder() {
+		private PolicyAcceptanceAtSiteBuilder() {
 		}
 
-		public PolicyAcceptanceExtendedBuilder policyDocumentId(PolicyId policyDocumentId) {
+		public PolicyAcceptanceAtSiteBuilder policyDocumentId(PolicyId policyDocumentId) {
 			this.policyDocumentId = policyDocumentId;
 			return this;
 		}
 
-		public PolicyAcceptanceExtendedBuilder siteId(String siteId) {
+		public PolicyAcceptanceAtSiteBuilder siteId(String siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public PolicyAcceptanceExtendedBuilder policyDocumentRevision(int policyDocumentRevision) {
+		public PolicyAcceptanceAtSiteBuilder policyDocumentRevision(int policyDocumentRevision) {
 			this.policyDocumentRevision = policyDocumentRevision;
 			return this;
 		}
 
-		public PolicyAcceptanceExtendedBuilder acceptanceStatus(PolicyAcceptanceStatus acceptanceStatus) {
+		public PolicyAcceptanceAtSiteBuilder acceptanceStatus(PolicyAcceptanceStatus acceptanceStatus) {
 			this.acceptanceStatus = acceptanceStatus;
 			return this;
 		}
 
-		public PolicyAcceptanceExtendedBuilder decisionTs(Instant decisionTs) {
+		public PolicyAcceptanceAtSiteBuilder decisionTs(Instant decisionTs) {
 			this.decisionTs = decisionTs;
 			return this;
 		}
 
-		public PolicyAcceptanceExtended build() {
-			return new PolicyAcceptanceExtended(policyDocumentId, siteId, policyDocumentRevision, acceptanceStatus, decisionTs);
+		public PolicyAcceptanceAtSite build() {
+			return new PolicyAcceptanceAtSite(policyDocumentId, siteId, policyDocumentRevision, acceptanceStatus, decisionTs);
 		}
 	}
 }

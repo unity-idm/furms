@@ -22,12 +22,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.imunity.furms.api.users.UserAllocationsService;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.sites.SiteUser;
-import io.imunity.furms.domain.users.CommunityMembership;
-import io.imunity.furms.domain.users.ProjectMembership;
 import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttribute;
 import org.junit.jupiter.api.Test;
@@ -93,9 +91,9 @@ class UserServiceImplTest {
 				"siteId",
 				"siteOauthClientId",
 				Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-				new PolicyAcceptanceExtended(new PolicyId(policy1), "siteId", 1,
+				new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
 						ACCEPTED, Instant.now()),
-				Set.of(new PolicyAcceptanceExtended(new PolicyId(policy2), "siteId", 2,
+				Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
 						ACCEPTED, Instant.now())),
 				Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))));
 

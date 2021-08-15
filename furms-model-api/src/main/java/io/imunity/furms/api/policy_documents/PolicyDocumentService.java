@@ -6,7 +6,7 @@
 package io.imunity.furms.api.policy_documents;
 
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceExtended;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -27,9 +27,9 @@ public interface PolicyDocumentService {
 
 	Set<PolicyDocumentExtended> findAllByCurrentUser();
 
-	Set<PolicyAcceptanceExtended> findSitePolicyAcceptancesByUserId(PersistentId userId);
+	Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(PersistentId userId);
 
-	Set<PolicyAcceptanceExtended> findServicesPolicyAcceptancesByUserId(PersistentId userId);
+	Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId);
 
 	void create(PolicyDocument policyDocument);
 
