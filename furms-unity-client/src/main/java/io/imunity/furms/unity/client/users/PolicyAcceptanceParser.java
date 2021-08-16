@@ -10,22 +10,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-class PolicyAgreementParser {
+class PolicyAcceptanceParser {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	static {
 		objectMapper.registerModule(new JavaTimeModule());
 		objectMapper.registerModule(new ParameterNamesModule());
 	}
 
-	static PolicyAgreementArgument parse(String jsonString){
+	static PolicyAcceptanceArgument parse(String jsonString){
 		try {
-			return objectMapper.readValue(jsonString, PolicyAgreementArgument.class);
+			return objectMapper.readValue(jsonString, PolicyAcceptanceArgument.class);
 		} catch (JsonProcessingException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
-	static String parse(PolicyAgreementArgument argument){
+	static String parse(PolicyAcceptanceArgument argument){
 		try {
 			return objectMapper.writeValueAsString(argument);
 		} catch (JsonProcessingException e) {

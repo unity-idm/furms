@@ -33,7 +33,7 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
@@ -107,7 +107,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 			PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 				.policyDocumentId(policyDocumentExtended.id)
 				.policyDocumentRevision(policyDocumentExtended.revision)
-				.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
 			policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);

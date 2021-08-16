@@ -135,7 +135,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build()
 		);
-		when(policyDocumentDAO.getPolicyAgreements(userId)).thenReturn(Set.of(
+		when(policyDocumentDAO.getyPolicyAcceptances(userId)).thenReturn(Set.of(
 			PolicyAcceptance.builder()
 				.policyDocumentId(policyId0)
 				.build(),
@@ -150,7 +150,7 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldFindAllUserWithoutPolicyAgreement() {
+	void shouldFindAllAllUserWithoutPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 
@@ -223,7 +223,7 @@ class PolicyDocumentServiceImplTest {
 
 		service.addCurrentUserPolicyAcceptance(policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
 	@Test
@@ -241,6 +241,6 @@ class PolicyDocumentServiceImplTest {
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 }

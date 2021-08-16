@@ -10,20 +10,34 @@ import java.util.Set;
 
 public class UserSitesInstallationInfoData {
 
+	private final String siteId;
 	private final String siteName;
+	private final String oauthClientId;
 	private final String connectionInfo;
 	private final Set<UserProjectsInstallationInfoData> projects;
 
-	public UserSitesInstallationInfoData(String siteName,
+	public UserSitesInstallationInfoData(String siteId,
+	                                     String siteName,
+	                                     String oauthClientId,
 	                                     String connectionInfo,
 	                                     Set<UserProjectsInstallationInfoData> projects) {
+		this.siteId = siteId;
 		this.siteName = siteName;
+		this.oauthClientId = oauthClientId;
 		this.connectionInfo = connectionInfo;
 		this.projects = projects;
 	}
 
+	public String getSiteId() {
+		return siteId;
+	}
+
 	public String getSiteName() {
 		return siteName;
+	}
+
+	public String getOauthClientId() {
+		return oauthClientId;
 	}
 
 	public String getConnectionInfo() {
@@ -39,20 +53,25 @@ public class UserSitesInstallationInfoData {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserSitesInstallationInfoData that = (UserSitesInstallationInfoData) o;
-		return Objects.equals(siteName, that.siteName) &&
-				Objects.equals(connectionInfo, that.connectionInfo) &&
-				Objects.equals(projects, that.projects);
+		return Objects.equals(siteId, that.siteId)
+				&& Objects.equals(siteName, that.siteName)
+				&& Objects.equals(oauthClientId, that.oauthClientId)
+				&& Objects.equals(connectionInfo, that.connectionInfo)
+				&& Objects.equals(projects, that.projects);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteName, connectionInfo, projects);
+		return Objects.hash(siteId, siteName, oauthClientId, connectionInfo, projects);
 	}
 
 	@Override
 	public String toString() {
 		return "UserSitesInstallationInfoData{" +
-				"siteName='" + siteName + '\'' +
+				"siteId='" + siteId + '\'' +
+				", siteName='" + siteName + '\'' +
+				", oauthClientId='" + oauthClientId + '\'' +
+				", connectionInfo='" + connectionInfo + '\'' +
 				", projects=" + projects +
 				'}';
 	}
@@ -62,15 +81,27 @@ public class UserSitesInstallationInfoData {
 	}
 
 	public static final class UserSitesInstallationInfoDataBuilder {
+		private String siteId;
 		private String siteName;
+		private String oauthClientId;
 		private String connectionInfo;
 		private Set<UserProjectsInstallationInfoData> projects;
 
 		private UserSitesInstallationInfoDataBuilder() {
 		}
 
+		public UserSitesInstallationInfoDataBuilder siteId(String siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public UserSitesInstallationInfoDataBuilder siteName(String siteName) {
 			this.siteName = siteName;
+			return this;
+		}
+
+		public UserSitesInstallationInfoDataBuilder oauthClientId(String oauthClientId) {
+			this.oauthClientId = oauthClientId;
 			return this;
 		}
 
@@ -85,7 +116,7 @@ public class UserSitesInstallationInfoData {
 		}
 
 		public UserSitesInstallationInfoData build() {
-			return new UserSitesInstallationInfoData(siteName, connectionInfo, projects);
+			return new UserSitesInstallationInfoData(siteId, siteName, oauthClientId, connectionInfo, projects);
 		}
 	}
 }

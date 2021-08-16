@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.policy_documents;
 
+import com.google.common.collect.ImmutableSet;
 import io.imunity.furms.domain.users.FURMSUser;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ public class UserPolicyAcceptances {
 
 	public UserPolicyAcceptances(FURMSUser user, Set<PolicyAcceptance> policyAcceptances) {
 		this.user = user;
-		this.policyAcceptances = policyAcceptances;
+		this.policyAcceptances = ImmutableSet.copyOf(policyAcceptances);
 	}
 
 	@Override
@@ -34,9 +35,9 @@ public class UserPolicyAcceptances {
 
 	@Override
 	public String toString() {
-		return "UserPolicyAgreements{" +
+		return "UserPolicyAcceptances{" +
 			"user=" + user +
-			", policyAgreements=" + policyAcceptances +
+			", policyAcceptances=" + policyAcceptances +
 			'}';
 	}
 }
