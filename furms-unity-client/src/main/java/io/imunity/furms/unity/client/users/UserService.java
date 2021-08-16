@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
-import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_AGREEMENT_STATE;
+import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
 import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
 import static io.imunity.furms.unity.common.UnityConst.ID;
@@ -99,9 +99,9 @@ public class UserService {
 		unityClient.put(uriComponents, attribute);
 	}
 
-	public void addUserPolicyAgreement(FenixUserId userId, PolicyAcceptance policyAcceptance) {
+	public void addUserPolicyAcceptance(FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		String uriComponents = prepareAttributeRequestPath(userId);
-		Set<PolicyAcceptance> policyAcceptances = getPolicyAgreements(userId);
+		Set<PolicyAcceptance> policyAcceptances = getPolicyAcceptances(userId);
 		Set<PolicyAcceptance> oldRevisionPolicyAcceptance = policyAcceptances.stream()
 			.filter(x -> x.policyDocumentId.equals(policyAcceptance.policyDocumentId))
 			.collect(toSet());
@@ -109,12 +109,12 @@ public class UserService {
 		policyAcceptances.add(policyAcceptance);
 
 		Attribute attribute = new Attribute(
-			FURMS_POLICY_AGREEMENT_STATE,
+				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
 			STRING,
 			"/",
 			policyAcceptances.stream()
-				.map(PolicyAgreementArgument::valueOf)
-				.map(PolicyAgreementParser::parse)
+				.map(PolicyAcceptanceArgument::valueOf)
+				.map(PolicyAcceptanceParser::parse)
 				.collect(Collectors.toUnmodifiableList())
 		);
 		unityClient.put(uriComponents, attribute, Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY));
@@ -165,17 +165,17 @@ public class UserService {
 			.collect(toSet());
 	}
 
-	public Set<PolicyAcceptance> getPolicyAgreements(FenixUserId userId) {
-		return getPolicyAgreements(getAttributesFromRootGroup(userId));
+	public Set<PolicyAcceptance> getPolicyAcceptances(FenixUserId userId) {
+		return getPolicyAcceptances(getAttributesFromRootGroup(userId));
 	}
 
-	public Set<PolicyAcceptance> getPolicyAgreements(Collection<? extends Attribute> attributes) {
+	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
 		return attributes
 			.stream()
-			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_AGREEMENT_STATE))
+			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
 			.flatMap(attribute -> attribute.getValues().stream())
-			.map(PolicyAgreementParser::parse)
-			.map(PolicyAgreementArgument::toPolicyAgreement)
+			.map(PolicyAcceptanceParser::parse)
+			.map(PolicyAcceptanceArgument::toPolicyAcceptance)
 			.collect(toSet());
 	}
 
@@ -284,7 +284,7 @@ public class UserService {
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
 			.map(x -> UnityUserMapper.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
-				.map(y -> new UserPolicyAcceptances(y, getPolicyAgreements(x.attributes)))
+				.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)

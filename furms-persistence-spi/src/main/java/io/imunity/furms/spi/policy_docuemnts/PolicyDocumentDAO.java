@@ -12,7 +12,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import java.util.Set;
 
 public interface PolicyDocumentDAO {
-	void addUserPolicyAgreement(FenixUserId userId, PolicyAcceptance policyAcceptance);
-	Set<PolicyAcceptance> getPolicyAgreements(FenixUserId userId);
-	Set<UserPolicyAcceptances> getUserPolicyAgreements(String siteId);
+	void addUserPolicyAcceptance(FenixUserId userId, PolicyAcceptance policyAcceptance);
+	Set<PolicyAcceptance> getyPolicyAcceptances(FenixUserId userId);
+	Set<UserPolicyAcceptances> getUserPolicyAcceptances(String siteId);
 }

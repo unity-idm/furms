@@ -131,7 +131,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build()
 		);
-		when(policyDocumentDAO.getPolicyAgreements(userId)).thenReturn(Set.of(
+		when(policyDocumentDAO.getyPolicyAcceptances(userId)).thenReturn(Set.of(
 			PolicyAcceptance.builder()
 				.policyDocumentId(policyId0)
 				.build(),
@@ -146,7 +146,7 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldFindAllUserWithoutPolicyAgreement() {
+	void shouldFindAllAllUserWithoutPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 
@@ -158,14 +158,14 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
-		when(policyDocumentDAO.getUserPolicyAgreements("siteId")).thenReturn(Set.of(
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of())
 		));
 
 		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAgreements("siteId");
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
 		assertEquals(1, users.size());
 		assertEquals(user, users.iterator().next());
@@ -187,7 +187,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
-		when(policyDocumentDAO.getUserPolicyAgreements("siteId")).thenReturn(Set.of(
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of(PolicyAcceptance.builder()
 				.policyDocumentId(policyId)
 				.policyDocumentRevision(1)
@@ -198,7 +198,7 @@ class PolicyDocumentServiceImplTest {
 		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAgreements("siteId");
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
 		assertEquals(1, users.size());
 		assertEquals(user, users.iterator().next());
@@ -219,7 +219,7 @@ class PolicyDocumentServiceImplTest {
 
 		service.addCurrentUserPolicyAcceptance(policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
 	@Test
@@ -237,6 +237,6 @@ class PolicyDocumentServiceImplTest {
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 }

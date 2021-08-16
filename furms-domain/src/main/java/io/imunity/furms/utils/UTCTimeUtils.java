@@ -18,6 +18,12 @@ public class UTCTimeUtils {
 			.orElse(null);
 	}
 
+	public static ZonedDateTime convertToZoneTime(Instant instant) {
+		return ofNullable(instant)
+				.map(inst -> inst.atZone(ZoneOffset.UTC))
+				.orElse(null);
+	}
+
 	public static LocalDateTime convertToUTCTime(ZonedDateTime zonedDateTime){
 		return ofNullable(zonedDateTime)
 			.map(ZonedDateTime::toOffsetDateTime)

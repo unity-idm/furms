@@ -45,6 +45,7 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 	@Query("SELECT ua.*," +
 			"       uaj.*," +
 			"       s.name AS site_name," +
+			"       p.id AS project_id," +
 			"       p.name AS project_name" +
 			" FROM user_addition ua" +
 			"   JOIN user_addition_job uaj ON ua.id = uaj.user_addition_id" +
