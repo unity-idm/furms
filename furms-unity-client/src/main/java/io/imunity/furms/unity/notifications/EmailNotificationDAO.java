@@ -55,7 +55,7 @@ class EmailNotificationDAO implements NotificationDAO {
 	public void notifyAboutAllNotAcceptedPolicies(FenixUserId userId) {
 		PersistentId persistentId = userService.getPersistentId(userId);
 
-		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = userService.getPolicyAgreements(userId).stream()
+		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = userService.getPolicyAcceptances(userId).stream()
 			.collect(Collectors.toMap(x -> x.policyDocumentId, Function.identity()));
 
 		policyDocumentRepository.findAllByUserId(userId, (id, revision) -> LocalDateTime.MAX).stream()

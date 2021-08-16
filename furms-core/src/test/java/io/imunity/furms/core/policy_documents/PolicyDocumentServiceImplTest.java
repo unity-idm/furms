@@ -57,7 +57,7 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, publisher, notificationDAO);
+		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, notificationDAO, publisher);
 		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO);
 	}
 

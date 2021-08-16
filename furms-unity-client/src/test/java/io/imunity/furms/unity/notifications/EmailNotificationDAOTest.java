@@ -122,7 +122,7 @@ class EmailNotificationDAOTest {
 			.build();
 
 		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
-		when(userService.getPolicyAgreements(fenixUserId)).thenReturn(Set.of(policyAcceptance));
+		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 
 
@@ -149,7 +149,7 @@ class EmailNotificationDAOTest {
 			.build();
 
 		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
-		when(userService.getPolicyAgreements(fenixUserId)).thenReturn(Set.of(policyAcceptance));
+		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 
 
