@@ -12,3 +12,8 @@
 	width: var(--vaadin-text-field-default-width, 16em);
 	font-size: var(--lumo-font-size-m);
 }
+
+.furms-role-type-combo-box {
+	width: var(--vaadin-text-field-default-width-m, 9em);
+	font-size: var(--lumo-font-size-m);
+}

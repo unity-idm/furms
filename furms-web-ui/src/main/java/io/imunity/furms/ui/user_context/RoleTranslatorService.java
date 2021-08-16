@@ -5,6 +5,23 @@
 
 package io.imunity.furms.ui.user_context;
 
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.lang.invoke.MethodHandles;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 import static io.imunity.furms.ui.user_context.ViewMode.COMMUNITY;
 import static io.imunity.furms.ui.user_context.ViewMode.FENIX;
@@ -17,24 +34,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-
-import java.lang.invoke.MethodHandles;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
 
 @Service
 class RoleTranslatorService implements RoleTranslator {
@@ -101,7 +100,7 @@ class RoleTranslatorService implements RoleTranslator {
 				return siteService.findById(resourceId.id.toString())
 					.map(site ->
 						Stream.of(
-							new FurmsViewUserContext(site.getId(), getAdminName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE),
+							new FurmsViewUserContext(site.getId(), getSupportName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE),
 							userSettings)
 					)
 					.orElseGet(() -> {
@@ -146,5 +145,9 @@ class RoleTranslatorService implements RoleTranslator {
 
 	private String getAdminName(String name) {
 		return name + " " + getTranslation("admin");
+	}
+
+	private String getSupportName(String name) {
+		return name + " " + getTranslation("support");
 	}
 }

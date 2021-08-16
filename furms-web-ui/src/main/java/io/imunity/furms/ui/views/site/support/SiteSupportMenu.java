@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.site;
+package io.imunity.furms.ui.views.site.support;
 
 import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
@@ -19,7 +19,7 @@ public class SiteSupportMenu extends FurmsAppLayout {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(
-				MenuComponent.builder(SignedPoliciesView.class).build()
+				MenuComponent.builder(PolicyDocumentsSupportView.class).build()
 			)
 		);
 		addToNavbar(false, furmsLayout.createNavbar());

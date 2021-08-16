@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
-public class AdministratorsGridItem {
+public class UserGridItem {
 	private final Optional<PersistentId> id;
 	private final Optional<String> firstName;
 	private final Optional<String> lastName;
@@ -23,7 +23,7 @@ public class AdministratorsGridItem {
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
-	public AdministratorsGridItem(FURMSUser user){
+	public UserGridItem(FURMSUser user){
 		this.id = user.id;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;
@@ -63,7 +63,7 @@ public class AdministratorsGridItem {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AdministratorsGridItem that = (AdministratorsGridItem) o;
+		UserGridItem that = (UserGridItem) o;
 		return id.equals(that.id);
 	}
 

@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.rest.workshop;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -20,7 +21,7 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ class WorkshopService {
 	private final CommunityRepository communityRepository;
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final SiteRepository siteRepository;
-	private final SiteWebClient siteWebClient;
+	private final SiteGroupDAO siteGroupDAO;
 	private final UsersDAO usersDAO;
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final CommunityAllocationRepository communityAllocationRepository;
@@ -54,7 +55,7 @@ class WorkshopService {
 	WorkshopService(CommunityRepository communityRepository,
 			CommunityGroupsDAO communityGroupsDAO,
 			SiteRepository siteRepository,
-			SiteWebClient siteWebClient,
+			SiteGroupDAO siteGroupDAO,
 			UsersDAO usersDAO,
 			ResourceCreditRepository resourceCreditRepository,
 			CommunityAllocationRepository communityAllocationRepository,
@@ -62,7 +63,7 @@ class WorkshopService {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
-		this.siteWebClient = siteWebClient;
+		this.siteGroupDAO = siteGroupDAO;
 		this.usersDAO = usersDAO;
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
@@ -175,10 +176,10 @@ class WorkshopService {
 		String siteId = siteRepository.create(site, siteExternalId);
 		
 		siteAgentService.initializeSiteConnection(siteExternalId);
-		siteWebClient.create(Site.builder().id(siteId).name(site.getName()).build());
+		siteGroupDAO.create(Site.builder().id(siteId).name(site.getName()).build());
 		
 		LOG.info("Making user {} site {} admin", user.email, siteId);
-		siteWebClient.addAdmin(siteId, user.id.orElseThrow());
+		siteGroupDAO.addSiteUser(siteId, user.id.orElseThrow(), Role.SITE_ADMIN);
 		
 		return siteExternalId;
 	}

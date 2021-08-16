@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.sites.*;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -21,7 +22,7 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ class SiteServiceImplTest {
 	@Mock
 	private SiteRepository repository;
 	@Mock
-	private SiteWebClient webClient;
+	private SiteGroupDAO webClient;
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
 	@Mock
@@ -297,7 +298,7 @@ class SiteServiceImplTest {
 	void shouldReturnAllSiteAdmins() {
 		//given
 		String siteId = "id";
-		when(webClient.getAllAdmins(siteId)).thenReturn(List.of(FURMSUser.builder()
+		when(webClient.getAllSiteUsers(siteId, Set.of(Role.SITE_ADMIN))).thenReturn(List.of(FURMSUser.builder()
 			.id(new PersistentId("id"))
 			.firstName("firstName")
 			.lastName("lastName")
@@ -306,7 +307,7 @@ class SiteServiceImplTest {
 	);
 
 		//when
-		List<FURMSUser> allAdmins = service.findAllAdmins(siteId);
+		List<FURMSUser> allAdmins = service.findAllAdministrators(siteId);
 
 		//then
 		assertThat(allAdmins).hasSize(1);
@@ -315,8 +316,8 @@ class SiteServiceImplTest {
 	@Test
 	void shouldThrowExceptionWhenSiteIdIsEmptyForFindAllAdmins() {
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.findAllAdmins(null));
-		assertThrows(IllegalArgumentException.class, () -> service.findAllAdmins(""));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllAdministrators(null));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllAdministrators(""));
 	}
 
 	@Test
@@ -329,7 +330,7 @@ class SiteServiceImplTest {
 		service.addAdmin(siteId, userId);
 
 		//then
-		verify(webClient, times(1)).addAdmin(siteId, userId);
+		verify(webClient, times(1)).addSiteUser(siteId, userId, Role.SITE_ADMIN);
 		verify(publisher, times(1)).publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
@@ -349,13 +350,13 @@ class SiteServiceImplTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
-		doThrow(UnityFailureException.class).when(webClient).addAdmin(siteId, userId);
+		doThrow(UnityFailureException.class).when(webClient).addSiteUser(siteId, userId, Role.SITE_ADMIN);
 		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
-		verify(webClient, times(1)).removeAdmin(siteId, userId);
+		verify(webClient, times(1)).removeSiteUser(siteId, userId);
 		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
@@ -366,22 +367,22 @@ class SiteServiceImplTest {
 		PersistentId userId = new PersistentId("userId");
 
 		//when
-		service.removeAdmin(siteId, userId);
+		service.removeSiteUser(siteId, userId);
 
 		//then
-		verify(webClient, times(1)).removeAdmin(siteId, userId);
+		verify(webClient, times(1)).removeSiteUser(siteId, userId);
 		verify(publisher, times(1)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenSiteIdOrUserIdAreEmptyForRemoveAdmin() {
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("testId", null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, new PersistentId("")));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin(null, new PersistentId("testId")));
-		assertThrows(IllegalArgumentException.class, () -> service.removeAdmin("", new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("", null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("testId", null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, new PersistentId("testId")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("", new PersistentId("")));
 	}
 
 	@Test
@@ -389,10 +390,10 @@ class SiteServiceImplTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
-		doThrow(UnityFailureException.class).when(webClient).removeAdmin(siteId, userId);
+		doThrow(UnityFailureException.class).when(webClient).removeSiteUser(siteId, userId);
 
 		//then
-		assertThrows(UnityFailureException.class, () -> service.removeAdmin(siteId, userId));
+		assertThrows(UnityFailureException.class, () -> service.removeSiteUser(siteId, userId));
 		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
 	}
 

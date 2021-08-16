@@ -49,7 +49,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
+	protected PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
 		this.grid = createUserAcceptanceGrid();
 		this.viewHeaderLayout = new ViewHeaderLayout("");

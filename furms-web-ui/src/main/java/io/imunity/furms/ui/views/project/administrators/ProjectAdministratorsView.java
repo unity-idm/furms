@@ -5,10 +5,7 @@
 
 package io.imunity.furms.ui.views.project.administrators;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
@@ -18,8 +15,12 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
+import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "project/admin/administrators", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.administrators.page.title")
@@ -34,14 +35,16 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			userService::getAllUsers,
 			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
 		);
-		UsersGridComponent grid = UsersGridComponent.builder()
+		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
-			.withFetchUsersAction(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()))
 			.withRemoveUserAction(userId -> {
 				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
 				inviteUser.reload();
 			}).build();
+		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
+
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId());
 			grid.reloadGrid();

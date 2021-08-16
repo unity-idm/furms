@@ -5,19 +5,8 @@
 
 package io.imunity.furms.ui.views.project.users;
 
-import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-
-import java.lang.invoke.MethodHandles;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
@@ -29,8 +18,19 @@ import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
+import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
@@ -73,17 +73,18 @@ public class UsersView extends FurmsLandingViewComponent {
 			membershipLayout.setEnabled(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP.test(user));
 		});
 		
-		UsersGridComponent grid = UsersGridComponent.builder()
+		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.allowRemovalOfLastUser()
 			.withConfirmRemovalMessageKey("view.project-admin.users.remove.confirm")
 			.withConfirmSelfRemovalMessageKey("view.project-admin.users.remove.yourself.confirm")
-			.withFetchUsersAction(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()))
 			.withRemoveUserAction(userId -> {
 				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
 				inviteUser.reload();
 				membershipLayout.loadAppropriateButton();
 			}).build();
+		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();

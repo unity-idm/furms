@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -20,6 +21,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
+import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
@@ -28,6 +30,7 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,24 +49,32 @@ import static java.util.stream.Collectors.toList;
 @PageTitle(key = "view.site-admin.policy-documents.page.title")
 public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	private final PolicyDocumentService policyDocumentService;
+	private final Class<? extends FurmsViewComponent> acceptanceView;
+	private final boolean editable;
 
 	private Grid<PolicyDocumentGridModel> grid;
 
+	@Autowired
 	PolicyDocumentsView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
+		this.acceptanceView = PolicyDocumentAcceptanceView.class;
+		this.editable = true;
+	}
+
+	protected PolicyDocumentsView(PolicyDocumentService policyDocumentService, Class<? extends FurmsViewComponent> acceptanceView) {
+		this.policyDocumentService = policyDocumentService;
+		this.acceptanceView = acceptanceView;
+		this.editable = false;
 	}
 
 	private void loadPageContent() {
-		Button addButton = createAddButton();
 		grid = createPolicyDocumentGrid();
 
 		loadGridContent();
-
-		getContent().add(createHeaderLayout(addButton), grid);
-	}
-
-	private HorizontalLayout createHeaderLayout(Button addButton) {
-		return new ViewHeaderLayout(getTranslation("view.site-admin.policy-documents.page.header"), addButton);
+		ViewHeaderLayout viewHeaderLayout = editable ?
+			new ViewHeaderLayout(getTranslation("view.site-admin.policy-documents.page.header"), createAddButton()):
+			new ViewHeaderLayout(getTranslation("view.site-admin.policy-documents.page.header"));
+		getContent().add(viewHeaderLayout, grid);
 	}
 
 	private Button createAddButton() {
@@ -89,7 +100,12 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	private Grid<PolicyDocumentGridModel> createPolicyDocumentGrid() {
 		Grid<PolicyDocumentGridModel> grid = new SparseGrid<>(PolicyDocumentGridModel.class);
 
-		grid.addComponentColumn(model -> new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString()))
+		grid.addComponentColumn(model -> {
+			if(editable)
+				return new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString());
+			else
+				return new Label(model.name);
+		})
 			.setHeader(getTranslation("view.site-admin.policy-documents.grid.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());
@@ -104,11 +120,20 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnContent(PolicyDocumentGridModel model) {
+		if(!editable)
+			return createLastColumnWithoutContextMenu(model);
 		Component contextMenu = createContextMenu(model.id, model.name, model.siteId);
 		if(model.workflow.equals(PolicyWorkflow.PAPER_BASED))
-			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), PolicyDocumentAcceptanceView.class), contextMenu);
+			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), acceptanceView), contextMenu);
 		else
 			return new GridActionsButtonLayout(contextMenu);
+	}
+
+	private HorizontalLayout createLastColumnWithoutContextMenu(PolicyDocumentGridModel model) {
+		if(model.workflow.equals(PolicyWorkflow.PAPER_BASED))
+			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), acceptanceView));
+		else
+			return new HorizontalLayout();
 	}
 
 	private Component createContextMenu(PolicyId policyDocumentId, String policyDocumentName, String siteId) {
