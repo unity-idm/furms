@@ -30,7 +30,7 @@
 
 		<spring.boot.version>2.4.0</spring.boot.version>
 
-		<unity.version>3.4.0</unity.version>
+		<unity.version>3.6.0-m1</unity.version>
 
 		<qpid-broker.version>8.0.4</qpid-broker.version>
 
