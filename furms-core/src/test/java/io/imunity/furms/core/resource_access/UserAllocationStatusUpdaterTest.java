@@ -10,6 +10,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class UserAllocationStatusUpdaterTest {
 	private ResourceAccessRepository repository;
 	@Mock
 	private UserOperationService userOperationService;
+	@Mock
+	private NotificationDAO notificationDAO;
 
 	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -49,23 +52,40 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService);
-		orderVerifier = inOrder(repository, userOperationService);
+		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, notificationDAO);
+		orderVerifier = inOrder(repository, userOperationService, notificationDAO);
 	}
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED"})
-	void shouldUpdateUserGrantToGrand(AccessStatus status) {
+	void shouldUpdateUsersGrantToGrand(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
+		FenixUserId userId = new FenixUserId("userId");
+		when(repository.findUsersGrantsByCorrelationId(correlationId))
+			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANTED, "msg");
 	}
 
+	@ParameterizedTest
+	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED"})
+	void shouldNotifyAboutNewNotAcceptedPolicy(AccessStatus status) {
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		FenixUserId userId = new FenixUserId("userId");
+		when(repository.findUsersGrantsByCorrelationId(correlationId))
+			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
+		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		service.update(correlationId, GRANTED, "msg");
+
+		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(userId);
+	}
+
 	@Test
-	void shouldUpdateUserGrantToAcknowledged() {
+	void shouldUpdateUsersGrantToAcknowledged() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(GRANT_PENDING);
@@ -76,7 +96,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED"})
-	void shouldUpdateUserGrantToFailed(AccessStatus status) {
+	void shouldUpdateUsersGrantToFailed(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -87,7 +107,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED", "REVOKED"}, mode = EXCLUDE)
-	void shouldNotUpdateUserGrantToGrantedIfPreviousStateIs(AccessStatus status) {
+	void shouldNotUpdateUsersGrantToGrantedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -97,7 +117,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "REVOKED"}, mode = EXCLUDE)
-	void shouldNotUpdateUserGrantToAcknowledgedIfPreviousStateIs(AccessStatus status) {
+	void shouldNotUpdateUsersGrantToAcknowledgedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -107,7 +127,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED", "REVOKED"}, mode = EXCLUDE)
-	void shouldNotUpdateUserGrantToFailedIfPreviousStateIs(AccessStatus status) {
+	void shouldNotUpdateUsersGrantToFailedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -116,7 +136,7 @@ class UserAllocationStatusUpdaterTest {
 	}
 
 	@Test
-	void shouldUpdateUserRevokeToAcknowledged() {
+	void shouldUpdateUsersRevokeToAcknowledged() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(REVOKE_PENDING);
@@ -127,7 +147,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"})
-	void shouldUpdateUserRevokeToFailed(AccessStatus status) {
+	void shouldUpdateUsersRevokeToFailed(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -138,7 +158,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING"}, mode = EXCLUDE)
-	void shouldNotUpdateUserRevokeToAcknowledgedIfPreviousStateIs(AccessStatus status) {
+	void shouldNotUpdateUsersRevokeToAcknowledgedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -148,7 +168,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED", "REVOKED"}, mode = EXCLUDE)
-	void shouldNotUpdateUserRevokeToFailedIfPreviousStateIs(AccessStatus status) {
+	void shouldNotUpdateUsersRevokeToFailedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -158,7 +178,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"})
-	void shouldRemoveUserGrant(AccessStatus status) {
+	void shouldRemoveUsersGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -171,7 +191,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"})
-	void shouldRemoveUserGrantAndUserAdditionWhenItIsLastGrant(AccessStatus status) {
+	void shouldRemoveUsersGrantAndUserAdditionWhenItIsLastGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
@@ -187,7 +207,7 @@ class UserAllocationStatusUpdaterTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"}, mode = EXCLUDE)
-	void shouldNotRemoveUserGrantIfPreviousStateIs(AccessStatus status) {
+	void shouldNotRemoveUsersGrantIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);

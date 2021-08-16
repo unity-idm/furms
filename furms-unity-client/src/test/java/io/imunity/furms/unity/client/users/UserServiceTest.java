@@ -51,7 +51,16 @@ public class UserServiceTest {
 
 		userService.addUserToGroup(userId, group);
 
-		verify(unityClient, times(1)).post(eq(path), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
+		verify(unityClient, times(1)).post(eq(path));
+	}
+
+	@Test
+	void shouldSendUserNotification() {
+		PersistentId userId = new PersistentId("userId");
+
+		userService.sendUserNotification(userId, "templateId", Map.of("custom.name", "name"));
+
+		verify(unityClient).post("/userNotification-trigger/entity/userId/template/templateId", null, Map.of("custom.name", "name"));
 	}
 
 	@Test

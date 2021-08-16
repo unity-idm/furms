@@ -10,6 +10,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,12 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 
 	private final ResourceAccessRepository repository;
 	private final UserOperationService userOperationService;
+	private final NotificationDAO notificationDAO;
 
-	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, UserOperationService userOperationService) {
+	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, UserOperationService userOperationService, NotificationDAO notificationDAO) {
 		this.repository = repository;
 		this.userOperationService = userOperationService;
+		this.notificationDAO = notificationDAO;
 	}
 
 	@Override
@@ -46,6 +49,11 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 			return;
 		}
 		repository.update(correlationId, status, msg);
+		if(status.equals(AccessStatus.GRANTED)){
+			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
+			notificationDAO.notifyAboutAllNotAcceptedPolicies(projectUserGrant.userId);
+		}
 		LOG.info("UserAllocation status with correlation id {} was updated to {}", correlationId.id, status);
 	}
 }

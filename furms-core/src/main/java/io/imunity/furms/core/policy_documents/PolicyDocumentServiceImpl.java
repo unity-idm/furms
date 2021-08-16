@@ -19,6 +19,8 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
@@ -52,17 +54,20 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentValidator validator;
 	private final PolicyDocumentDAO policyDocumentDAO;
+	private final NotificationDAO notificationDAO;
 	private final ApplicationEventPublisher publisher;
 
 	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository,
 	                          PolicyDocumentValidator validator,
 	                          PolicyDocumentDAO policyDocumentDAO,
 	                          AuthzService authzService,
+	                          NotificationDAO notificationDAO,
 	                          ApplicationEventPublisher publisher) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.authzService = authzService;
+		this.notificationDAO = notificationDAO;
 		this.publisher = publisher;
 	}
 
@@ -198,6 +203,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, true);
+		notificationDAO.notifyAboutChangedPolicy(policyDocument);
 		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 

@@ -237,7 +237,7 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 		FenixUserId fenixUserId = new FenixUserId("id");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.fenixUserId(fenixUserId)
-			.siteId(new SiteId(siteId.toString(), (String) null))
+			.siteId(new SiteId(siteId.toString()))
 			.projectId(projectId.toString())
 			.allocationId(projectAllocationId.toString())
 			.build();

@@ -23,6 +23,8 @@ import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,7 +72,16 @@ public class UserService {
 
 	public void addUserToGroup(PersistentId userId, String group){
 		String path = prepareGroupRequestPath(userId, group);
-		unityClient.post(path, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
+		unityClient.post(path);
+	}
+
+	public void sendUserNotification(PersistentId userId, String templateId, Map<String, String> parameters){
+		String path = prepareUserNotificationRequestPath(userId, templateId);
+
+		Map<String, String> encodedParams = parameters.entrySet().stream()
+			.collect(toMap(Map.Entry::getKey, x -> URLEncoder.encode(x.getValue(), StandardCharsets.UTF_8)));
+
+		unityClient.post(path, null, encodedParams);
 	}
 
 	private String prepareGroupRequestPath(PersistentId userId, String group) {
@@ -80,6 +91,18 @@ public class UserService {
 			.pathSegment("{" + GROUP_PATH + "}")
 			.path(ENTITY_BASE)
 			.pathSegment("{" + ID + "}")
+			.buildAndExpand(uriVariables)
+			.encode()
+			.toUriString();
+	}
+
+	private String prepareUserNotificationRequestPath(PersistentId userId, String templateId) {
+		Map<String, String> uriVariables = Map.of("identityValue", userId.id, "templateId", templateId);
+		return UriComponentsBuilder.newInstance()
+			.path("/userNotification-trigger/entity/")
+			.pathSegment("{" + "identityValue" + "}")
+			.path("/template/")
+			.pathSegment("{" + "templateId" + "}")
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();

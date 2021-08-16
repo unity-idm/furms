@@ -15,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,8 @@ class PolicyDocumentServiceImplTest {
 	private AuthzService authzService;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private NotificationDAO notificationDAO;
 
 	private PolicyDocumentServiceImpl service;
 	private InOrder orderVerifier;
@@ -54,8 +57,8 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, publisher);
-		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO);
+		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, notificationDAO, publisher);
+		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO);
 	}
 
 	@Test
@@ -110,6 +113,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
+		orderVerifier.verify(notificationDAO).notifyAboutChangedPolicy(policyDocument);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
