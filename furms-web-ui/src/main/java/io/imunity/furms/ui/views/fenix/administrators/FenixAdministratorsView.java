@@ -50,7 +50,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = new UsersGridComponent(userService::getFenixAdmins, userGrid);
+		grid = UsersGridComponent.defaultInit(userService::getFenixAdmins, userGrid);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		

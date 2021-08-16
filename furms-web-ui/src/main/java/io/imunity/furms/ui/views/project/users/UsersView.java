@@ -84,7 +84,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				membershipLayout.loadAppropriateButton();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = new UsersGridComponent(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();

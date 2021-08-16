@@ -10,7 +10,7 @@ import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
 import org.springframework.stereotype.Component;
@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -33,18 +31,17 @@ import static io.imunity.furms.unity.common.UnityPaths.META;
 import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.lang.Boolean.TRUE;
-import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
-class UnitySiteWebClient implements SiteWebClient {
+class UnitySiteGroupDAO implements SiteGroupDAO {
 
 	private static final String RECURSIVE_PARAM = "recursive";
 
 	private final UnityClient unityClient;
 	private final UserService userService;
 
-	public UnitySiteWebClient(UnityClient unityClient, UserService userService) {
+	public UnitySiteGroupDAO(UnityClient unityClient, UserService userService) {
 		this.unityClient = unityClient;
 		this.userService = userService;
 	}
@@ -163,19 +160,8 @@ class UnitySiteWebClient implements SiteWebClient {
 				() -> new IllegalArgumentException("Could not remove Site role in Unity. Missing Site ID or User ID"));
 
 		String group = getSitePath(siteId);
-		Set<String> roleValues = userService.getRoleValues(userId, group).stream()
-			.filter(attribute -> attribute.getName().equals(SITE_SUPPORT.unityRoleAttribute) || attribute.getName().equals(SITE_ADMIN.unityRoleAttribute))
-			.flatMap(attribute -> attribute.getValues().stream())
-			.collect(toSet());
 
-		if (roleValues.contains(SITE_ADMIN.unityRoleValue) || roleValues.contains(SITE_SUPPORT.unityRoleValue)) {
-			if (roleValues.size() == 1)
-				userService.removeUserFromGroup(userId, group);
-			else if(roleValues.contains(SITE_ADMIN.unityRoleValue))
-				userService.removeUserRole(userId, group, SITE_ADMIN);
-			else
-				userService.removeUserRole(userId, group, SITE_SUPPORT);
-		}
+		userService.removeUserFromGroup(userId, group);
 	}
 
 	private Map<String, Object> uriVariables(Site site) {

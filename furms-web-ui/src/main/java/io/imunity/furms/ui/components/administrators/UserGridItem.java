@@ -9,7 +9,6 @@ import com.vaadin.flow.component.icon.Icon;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
-import io.imunity.furms.ui.views.site.administrators.SiteRole;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +21,6 @@ public class UserGridItem {
 	private final Optional<String> lastName;
 	private final UserStatus status;
 	private final String email;
-	private final Optional<SiteRole> siteRole;
 	private Icon icon = ANGLE_RIGHT.create();
 
 	public UserGridItem(FURMSUser user){
@@ -31,16 +29,6 @@ public class UserGridItem {
 		this.lastName = user.lastName;
 		this.status = user.status;
 		this.email = user.email;
-		this.siteRole = Optional.empty();
-	}
-
-	public UserGridItem(FURMSUser user, SiteRole role){
-		this.id = user.id;
-		this.firstName = user.firstName;
-		this.lastName = user.lastName;
-		this.status = user.status;
-		this.email = user.email;
-		this.siteRole = Optional.of(role);
 	}
 
 	public Optional<PersistentId> getId() {
@@ -61,10 +49,6 @@ public class UserGridItem {
 
 	public String getEmail() {
 		return email;
-	}
-
-	public Optional<SiteRole> getSiteRole() {
-		return siteRole;
 	}
 
 	public Icon getIcon() {

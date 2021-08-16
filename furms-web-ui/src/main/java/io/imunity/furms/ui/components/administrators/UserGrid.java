@@ -27,11 +27,11 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class UserGrid {
 	private final Grid<UserGridItem> grid;
-	private final Supplier<List<UserGridItem>> fetchUsersAction;
+	private final Supplier<List<UserGridItem>> fetchUserGridItemsAction;
 
-	private UserGrid(Grid<UserGridItem> grid, Supplier<List<UserGridItem>> fetchUsersAction) {
+	private UserGrid(Grid<UserGridItem> grid, Supplier<List<UserGridItem>> fetchUserGridItemsAction) {
 		this.grid = grid;
-		this.fetchUsersAction = fetchUsersAction;
+		this.fetchUserGridItemsAction = fetchUserGridItemsAction;
 	}
 
 	public Component getGrid(){
@@ -39,7 +39,7 @@ public class UserGrid {
 	}
 
 	public void reloadGrid() {
-		grid.setItems(fetchUsersAction.get());
+		grid.setItems(fetchUserGridItemsAction.get());
 	}
 
 	public static Builder builder() {
@@ -77,8 +77,8 @@ public class UserGrid {
 			return this;
 		}
 
-		public Builder withCustomColumn(Function<UserGridItem, String> valueProvider, String header) {
-			grid.addColumn(valueProvider::apply)
+		public <T> Builder withCustomColumn(Function<T, String> valueProvider, String header) {
+			grid.addColumn(t -> valueProvider.apply((T) t))
 				.setHeader(header)
 				.setSortable(true)
 				.setFlexGrow(35);

@@ -39,7 +39,7 @@ public interface SiteService {
 
 	List<FURMSUser> findAllAdministrators(String siteId);
 
-	List<FURMSUser> findAllSupports(String siteId);
+	List<FURMSUser> findAllSupportUsers(String siteId);
 
 	void inviteAdmin(String siteId, PersistentId userId);
 
@@ -51,9 +51,9 @@ public interface SiteService {
 
 	void removeSiteUser(String siteId, PersistentId userId);
 
-	boolean isAdmin(String siteId);
+	boolean isCurrentUserAdminOf(String siteId);
 
-	boolean isSupport(String siteId);
+	boolean isCurrentUserSupportOf(String siteId);
 
 	PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId);
 }

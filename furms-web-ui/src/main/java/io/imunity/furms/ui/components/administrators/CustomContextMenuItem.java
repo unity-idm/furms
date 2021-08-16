@@ -11,13 +11,13 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-class CustomContextMenuItem {
-	public final Function<UserGridItem, MenuButton> buttonProvider;
-	public final Consumer<UserGridItem> action;
+class CustomContextMenuItem<T> {
+	public final Function<T, MenuButton> buttonProvider;
+	public final Consumer<T> menuButtonHandler;
 
-	CustomContextMenuItem(Function<UserGridItem, MenuButton> buttonProvider, Consumer<UserGridItem> action) {
+	CustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> menuButtonHandler) {
 		this.buttonProvider = buttonProvider;
-		this.action = action;
+		this.menuButtonHandler = menuButtonHandler;
 	}
 
 	@Override
@@ -25,19 +25,19 @@ class CustomContextMenuItem {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CustomContextMenuItem that = (CustomContextMenuItem) o;
-		return Objects.equals(buttonProvider, that.buttonProvider) && Objects.equals(action, that.action);
+		return Objects.equals(buttonProvider, that.buttonProvider) && Objects.equals(menuButtonHandler, that.menuButtonHandler);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(buttonProvider, action);
+		return Objects.hash(buttonProvider, menuButtonHandler);
 	}
 
 	@Override
 	public String toString() {
 		return "CustomContextMenuItem{" +
 			"buttonProvider=" + buttonProvider +
-			", action=" + action +
+			", action=" + menuButtonHandler +
 			'}';
 	}
 }

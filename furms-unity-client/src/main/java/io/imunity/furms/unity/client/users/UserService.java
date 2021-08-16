@@ -252,9 +252,13 @@ public class UserService {
 	}
 
 	public List<FURMSUser> getAllUsersByRoles(String group, Set<Role> roles) {
-		Predicate<AttributeExt> filter = attribute ->
-			roles.stream().map(role -> role.unityRoleAttribute).anyMatch(role -> role.equals(attribute.getName())) &&
-				roles.stream().map(role -> role.unityRoleValue).anyMatch(role -> attribute.getValues().contains(role));
+		Predicate<AttributeExt> filter = attribute -> {
+			for(Role role : roles){
+				if(role.unityRoleAttribute.equals(attribute.getName()) && attribute.getValues().contains(role.unityRoleValue))
+					return true;
+			}
+			return false;
+		};
 		return getAllUsersFromGroup(group, filter);
 	}
 

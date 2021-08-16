@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components.administrators;
 
 import com.google.common.base.Preconditions;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import io.imunity.furms.domain.users.PersistentId;
@@ -119,8 +120,8 @@ public class UserContextMenuFactory {
 				doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
 		});
 		customContextMenuItems.forEach(item ->
-			contextMenu.addItem(item.buttonProvider.apply(gridItem), event -> {
-				item.action.accept(gridItem);
+			contextMenu.addItem((Component)item.buttonProvider.apply(gridItem), event -> {
+				item.menuButtonHandler.accept(gridItem);
 				gridReloader.run();
 			})
 		);
@@ -180,7 +181,7 @@ public class UserContextMenuFactory {
 			return this;
 		}
 
-		public Builder addCustomContextMenuItem(Function<UserGridItem, MenuButton> buttonProvider, Consumer<UserGridItem> action) {
+		public <T> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action) {
 			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action));
 			return this;
 		}

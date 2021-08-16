@@ -74,7 +74,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.sites.button.join"),
 			getTranslation("view.fenix-admin.sites.button.demit"),
-			() -> siteService.isAdmin(siteId)
+			() -> siteService.isCurrentUserAdminOf(siteId)
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);
@@ -102,7 +102,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			}).build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = new UsersGridComponent(() -> siteService.findAllAdministrators(siteId), userGrid);
+		grid = UsersGridComponent.defaultInit(() -> siteService.findAllAdministrators(siteId), userGrid);
 
 		Site site = handleExceptions(() -> siteService.findById(siteId))
 				.flatMap(identity())

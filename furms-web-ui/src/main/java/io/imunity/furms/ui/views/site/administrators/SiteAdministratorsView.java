@@ -14,6 +14,7 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.administrators.SiteUserGridItem;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
@@ -56,12 +57,12 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
 			.addCustomContextMenuItem(
-				userGridItem ->
+				(SiteUserGridItem userGridItem) ->
 					new MenuButton(
 						getTranslation("view.site-admin.administrators.grid.role.change." + userGridItem.getSiteRole()
 							.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 						EXCHANGE),
-				userGridItem -> {
+				(SiteUserGridItem userGridItem) -> {
 					if(userGridItem.getId().isPresent() && userGridItem.getSiteRole().isPresent()){
 						siteService.removeSiteUser(siteId, userGridItem.getId().get());
 						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT))
@@ -78,14 +79,14 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 		UserGrid.Builder userGrid = UserGrid.builder()
 			.withFullNameColumn()
-			.withCustomColumn(userGridItem ->
+			.withCustomColumn((SiteUserGridItem userGridItem) ->
 				getTranslation("view.site-admin.administrators.grid.role." + userGridItem.getSiteRole()
 					.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 				getTranslation("view.site-admin.administrators.grid.role.column"))
 			.withEmailColumn()
 			.withStatusColumn()
 			.withContextMenuColumn(userContextMenuFactory);
-		grid = new UsersGridComponent(userGrid, this::loadUsers);
+		grid = UsersGridComponent.init(this::loadUsers, userGrid);
 		doInviteAction(inviteUser);
 
 		ViewHeaderLayout header = new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"));
@@ -94,8 +95,8 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 
 	private List<UserGridItem> loadUsers() {
 		return Stream.of(
-			siteService.findAllAdministrators(siteId).stream().map(user -> new UserGridItem(user, SiteRole.ADMIN)),
-			siteService.findAllSupports(siteId).stream().map(user -> new UserGridItem(user, SiteRole.SUPPORT))
+			siteService.findAllAdministrators(siteId).stream().map(user -> new SiteUserGridItem(user, SiteRole.ADMIN)),
+			siteService.findAllSupportUsers(siteId).stream().map(user -> new SiteUserGridItem(user, SiteRole.SUPPORT))
 		)
 			.flatMap(Function.identity())
 			.collect(Collectors.toList());

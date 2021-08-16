@@ -22,7 +22,7 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +51,7 @@ class SiteServiceImplTest {
 	@Mock
 	private SiteRepository repository;
 	@Mock
-	private SiteWebClient webClient;
+	private SiteGroupDAO webClient;
 	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
 	@Mock

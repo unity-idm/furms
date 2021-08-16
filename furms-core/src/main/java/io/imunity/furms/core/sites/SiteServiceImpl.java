@@ -28,7 +28,7 @@ import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final SiteRepository siteRepository;
 	private final UserOperationRepository userOperationRepository;
 	private final SiteServiceValidator validator;
-	private final SiteWebClient webClient;
+	private final SiteGroupDAO webClient;
 	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
@@ -69,7 +69,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
-	                SiteWebClient webClient,
+	                SiteGroupDAO webClient,
 	                UsersDAO usersDAO,
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
@@ -232,7 +232,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<FURMSUser> findAllSupports(String id) {
+	public List<FURMSUser> findAllSupportUsers(String id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
 		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
 		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_SUPPORT));
@@ -315,13 +315,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public boolean isAdmin(String siteId) {
+	public boolean isCurrentUserAdminOf(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_ADMIN);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public boolean isSupport(String siteId) {
+	public boolean isCurrentUserSupportOf(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
 	}
 

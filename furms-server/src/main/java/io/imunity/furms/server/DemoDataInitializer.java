@@ -28,7 +28,7 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -47,7 +47,7 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final CommunityGroupsDAO communityGroupsDAO;
 
 	private final SiteRepository siteRepository;
-	private final SiteWebClient siteWebClient;
+	private final SiteGroupDAO siteGroupDAO;
 	private final UsersDAO usersDAO;
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
@@ -62,7 +62,7 @@ class DemoDataInitializer implements CommandLineRunner {
 	private String community2Id;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
-	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
+	                    SiteRepository siteRepository, SiteGroupDAO siteGroupDAO, UsersDAO usersDAO,
 	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
 	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
 	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
@@ -70,7 +70,7 @@ class DemoDataInitializer implements CommandLineRunner {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
-		this.siteWebClient = siteWebClient;
+		this.siteGroupDAO = siteGroupDAO;
 		this.usersDAO = usersDAO;
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
@@ -207,9 +207,9 @@ class DemoDataInitializer implements CommandLineRunner {
 			siteAgentService.initializeSiteConnection(fzjExternalId);
 			siteAgentService.initializeSiteConnection(bscExternalId);
 
-			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
-			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
-			siteWebClient.create(Site.builder().id(bscId).name(bsc.getName()).build());
+			siteGroupDAO.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
+			siteGroupDAO.create(Site.builder().id(fzjId).name(fzj.getName()).build());
+			siteGroupDAO.create(Site.builder().id(bscId).name(bsc.getName()).build());
 
 			InfraService infraServiceCineca = InfraService.builder()
 				.name("Virtual Machines")

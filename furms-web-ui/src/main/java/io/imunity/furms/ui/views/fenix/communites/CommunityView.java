@@ -111,7 +111,7 @@ public class CommunityView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = new UsersGridComponent(() -> communityService.findAllAdmins(communityId), userGrid);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> communityService.findAllAdmins(communityId), userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
 			grid.reloadGrid();
