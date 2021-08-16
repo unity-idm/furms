@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -99,7 +100,12 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	private Grid<PolicyDocumentGridModel> createPolicyDocumentGrid() {
 		Grid<PolicyDocumentGridModel> grid = new SparseGrid<>(PolicyDocumentGridModel.class);
 
-		grid.addComponentColumn(model -> new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString()))
+		grid.addComponentColumn(model -> {
+			if(editable)
+				return new RouterLink(model.name, PolicyDocumentFormView.class, model.id.id.toString());
+			else
+				return new Label(model.name);
+		})
 			.setHeader(getTranslation("view.site-admin.policy-documents.grid.1"))
 			.setSortable(true)
 			.setComparator(x -> x.name.toLowerCase());

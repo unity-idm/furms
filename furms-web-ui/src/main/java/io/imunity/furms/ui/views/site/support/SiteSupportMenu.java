@@ -19,7 +19,7 @@ public class SiteSupportMenu extends FurmsAppLayout {
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(
-				MenuComponent.builder(SignedPoliciesView.class).build()
+				MenuComponent.builder(PolicyDocumentsSupportView.class).build()
 			)
 		);
 		addToNavbar(false, furmsLayout.createNavbar());

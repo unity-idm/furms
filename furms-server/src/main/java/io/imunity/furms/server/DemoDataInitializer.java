@@ -5,6 +5,7 @@
 
 package io.imunity.furms.server;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -241,9 +242,7 @@ class DemoDataInitializer implements CommandLineRunner {
 			siteGroupDAO.create(Site.builder().id(fzjId).name(fzj.getName()).build());
 			siteGroupDAO.create(Site.builder().id(bscId).name(bsc.getName()).build());
 
-			siteWebClient.addAdmin(cinecaId, testAdminId);
-
-
+			siteGroupDAO.addSiteUser(cinecaId, testAdminId, Role.SITE_ADMIN);
 
 			PolicyDocument policyDocument = PolicyDocument.builder()
 				.name("Cineca site policy")

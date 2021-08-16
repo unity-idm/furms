@@ -14,6 +14,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROFILE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LEAVE;
