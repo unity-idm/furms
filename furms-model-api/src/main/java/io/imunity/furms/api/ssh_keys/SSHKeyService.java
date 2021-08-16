@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.SiteSSHKeys;
 
 public interface SSHKeyService {
 
@@ -19,6 +21,8 @@ public interface SSHKeyService {
 	Set<SSHKey> findOwned();
 
 	Set<SSHKey> findByOwnerId(String ownerId);
+
+	Set<SiteSSHKeys> findSiteSSHKeysByUserId(PersistentId userId);
 
 	String create(SSHKey sshKey);
 

@@ -15,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,8 @@ class PolicyDocumentServiceImplTest {
 	private AuthzService authzService;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private NotificationDAO notificationDAO;
 
 	private PolicyDocumentServiceImpl service;
 	private InOrder orderVerifier;
@@ -54,8 +57,8 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, publisher);
-		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO);
+		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, notificationDAO, publisher);
+		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO);
 	}
 
 	@Test
@@ -110,6 +113,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
+		orderVerifier.verify(notificationDAO).notifyAboutChangedPolicy(policyDocument);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 
@@ -131,7 +135,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build()
 		);
-		when(policyDocumentDAO.getPolicyAgreements(userId)).thenReturn(Set.of(
+		when(policyDocumentDAO.getyPolicyAcceptances(userId)).thenReturn(Set.of(
 			PolicyAcceptance.builder()
 				.policyDocumentId(policyId0)
 				.build(),
@@ -146,7 +150,7 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldFindAllUserWithoutPolicyAgreement() {
+	void shouldFindAllAllUserWithoutPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 
@@ -158,14 +162,14 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
-		when(policyDocumentDAO.getUserPolicyAgreements("siteId")).thenReturn(Set.of(
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of())
 		));
 
 		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAgreements("siteId");
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
 		assertEquals(1, users.size());
 		assertEquals(user, users.iterator().next());
@@ -187,7 +191,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
-		when(policyDocumentDAO.getUserPolicyAgreements("siteId")).thenReturn(Set.of(
+		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of(PolicyAcceptance.builder()
 				.policyDocumentId(policyId)
 				.policyDocumentRevision(1)
@@ -198,7 +202,7 @@ class PolicyDocumentServiceImplTest {
 		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAgreements("siteId");
+		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
 		assertEquals(1, users.size());
 		assertEquals(user, users.iterator().next());
@@ -219,7 +223,7 @@ class PolicyDocumentServiceImplTest {
 
 		service.addCurrentUserPolicyAcceptance(policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
 	@Test
@@ -237,6 +241,6 @@ class PolicyDocumentServiceImplTest {
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		orderVerifier.verify(policyDocumentDAO).addUserPolicyAgreement(userId, policyAcceptance);
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 }

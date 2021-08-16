@@ -10,17 +10,20 @@ import java.util.Objects;
 public class UserAdditionWithProject {
 
 	private final String siteName;
+	private final String projectId;
 	private final String projectName;
 	private final String userId;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
 
 	public UserAdditionWithProject(String siteName,
+	                               String projectId,
 	                               String projectName,
 	                               String userId,
 	                               UserStatus status,
 	                               UserAdditionErrorMessage errorMessage) {
 		this.siteName = siteName;
+		this.projectId = projectId;
 		this.projectName = projectName;
 		this.userId = userId;
 		this.status = status;
@@ -29,6 +32,10 @@ public class UserAdditionWithProject {
 
 	public String getSiteName() {
 		return siteName;
+	}
+
+	public String getProjectId() {
+		return projectId;
 	}
 
 	public String getProjectName() {
@@ -53,6 +60,7 @@ public class UserAdditionWithProject {
 		if (o == null || getClass() != o.getClass()) return false;
 		UserAdditionWithProject that = (UserAdditionWithProject) o;
 		return Objects.equals(siteName, that.siteName) &&
+				Objects.equals(projectId, that.projectId) &&
 				Objects.equals(projectName, that.projectName) &&
 				Objects.equals(userId, that.userId) &&
 				status == that.status &&
@@ -61,13 +69,14 @@ public class UserAdditionWithProject {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteName, projectName, userId, status, errorMessage);
+		return Objects.hash(siteName, projectId, projectName, userId, status, errorMessage);
 	}
 
 	@Override
 	public String toString() {
 		return "UserAdditionWithProject{" +
 				"siteName='" + siteName + '\'' +
+				", projectId='" + projectId + '\'' +
 				", projectName='" + projectName + '\'' +
 				", userId='" + userId + '\'' +
 				", status=" + status +
@@ -81,6 +90,7 @@ public class UserAdditionWithProject {
 
 	public static final class UserAdditionWithProjectBuilder {
 		private String siteName;
+		private String projectId;
 		private String projectName;
 		private String userId;
 		private UserStatus status;
@@ -96,6 +106,11 @@ public class UserAdditionWithProject {
 
 		public UserAdditionWithProjectBuilder projectName(String projectName) {
 			this.projectName = projectName;
+			return this;
+		}
+
+		public UserAdditionWithProjectBuilder projectId(String projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 
@@ -115,7 +130,7 @@ public class UserAdditionWithProject {
 		}
 
 		public UserAdditionWithProject build() {
-			return new UserAdditionWithProject(siteName, projectName, userId, status, errorMessage);
+			return new UserAdditionWithProject(siteName, projectId, projectName, userId, status, errorMessage);
 		}
 	}
 }

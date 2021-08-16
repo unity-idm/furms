@@ -6,9 +6,12 @@
 package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
@@ -17,22 +20,30 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
 import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
+import static java.util.Comparator.comparingInt;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.maxBy;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -42,32 +53,76 @@ public class UserOperationService implements UserAllocationsService {
 	private final SiteService siteService;
 	private final UserOperationRepository repository;
 	private final UsersDAO usersDAO;
+	private final PolicyDocumentService policyService;
+	private final SSHKeyService sshKeyService;
 
 	UserOperationService(AuthzService authzService,
-	                     SiteService siteService, UserOperationRepository repository,
+	                     SiteService siteService,
+	                     UserOperationRepository repository,
 	                     SiteAgentUserService siteAgentUserService,
-	                     UsersDAO usersDAO) {
+	                     UsersDAO usersDAO,
+	                     PolicyDocumentService policyService,
+	                     SSHKeyService sshKeyService) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
 		this.siteAgentUserService = siteAgentUserService;
 		this.usersDAO = usersDAO;
+		this.policyService = policyService;
+		this.sshKeyService = sshKeyService;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<UserSitesInstallationInfoData> findCurrentUserSitesInstallations() {
 		final PersistentId currentUserId = authzService.getCurrentUserId();
-		final String fenixUserId = Optional.ofNullable(usersDAO.getFenixUserId(currentUserId))
+		return findByUserId(currentUserId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
+		final Map<String, Optional<PolicyAcceptanceAtSite>> sitesPolicy =
+				policyService.findSitePolicyAcceptancesByUserId(userId).stream()
+						.collect(groupingBy(
+								policyAcceptance -> policyAcceptance.siteId,
+								maxBy(comparingInt(policyAcceptance -> policyAcceptance.policyDocumentRevision))));
+		final Map<String, Set<PolicyAcceptanceAtSite>> servicePolicies =
+				policyService.findServicesPolicyAcceptancesByUserId(userId).stream()
+						.collect(groupingBy(policyAcceptance -> policyAcceptance.siteId, toSet()));
+		return findByUserId(userId).stream()
+				.map(site -> SiteUser.builder()
+						.siteId(site.getSiteId())
+						.siteOauthClientId(site.getOauthClientId())
+						.projectSitesMemberships(site.getProjects().stream()
+								.map(project -> ProjectMembershipOnSite.builder()
+										.projectId(project.getProjectId())
+										.localUserId(project.getRemoteAccountName())
+										.build())
+								.collect(toSet()))
+						.sitePolicyAcceptance(sitesPolicy.getOrDefault(site.getSiteId(), empty()).orElse(null))
+						.servicesPolicyAcceptance(servicePolicies.getOrDefault(site.getSiteId(), Set.of()))
+						.sshKeys(sshKeyService.findSiteSSHKeysByUserId(userId))
+						.build())
+				.collect(toSet());
+	}
+
+	private Set<UserSitesInstallationInfoData> findByUserId(PersistentId userId) {
+		final String fenixUserId = ofNullable(usersDAO.getFenixUserId(userId))
 				.map(fenixUser -> fenixUser.id)
 				.orElse(null);
 
-		return siteService.findUserSites(currentUserId).stream()
-				.map(site -> UserSitesInstallationInfoData.builder()
-						.siteName(site.getName())
-						.connectionInfo(site.getConnectionInfo())
-						.projects(loadProjects(fenixUserId, site.getId()))
-						.build())
+		return siteService.findUserSites(userId).stream()
+				.map(site -> {
+					final Set<UserProjectsInstallationInfoData> projects = loadProjects(fenixUserId, site.getId());
+					return UserSitesInstallationInfoData.builder()
+							.siteId(site.getId())
+							.siteName(site.getName())
+							.oauthClientId(site.getOauthClientId())
+							.connectionInfo(site.getConnectionInfo())
+							.projects(projects)
+							.build();
+				})
 				.collect(toSet());
 	}
 
@@ -80,6 +135,7 @@ public class UserOperationService implements UserAllocationsService {
 	private Set<UserProjectsInstallationInfoData> loadProjects(String fenixUserId, String siteId) {
 		return repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId).stream()
 			.map(userAddition -> UserProjectsInstallationInfoData.builder()
+				.projectId(userAddition.getProjectId())
 				.name(userAddition.getProjectName())
 				.remoteAccountName(userAddition.getUserId())
 				.status(userAddition.getStatus())

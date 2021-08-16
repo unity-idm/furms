@@ -12,6 +12,7 @@ import java.util.Objects;
 class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 
 	public final String siteName;
+	public final String projectId;
 	public final String projectName;
 	public final String uid;
 	public final int status;
@@ -19,12 +20,14 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 	public final String message;
 
 	public UserAdditionReadWithProjectsEntity(String siteName,
+	                                          String projectId,
 	                                          String projectName,
 	                                          String uid,
 	                                          int status,
 	                                          String code,
 	                                          String message) {
 		this.siteName = siteName;
+		this.projectId = projectId;
 		this.projectName = projectName;
 		this.uid = uid;
 		this.status = status;
@@ -39,6 +42,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 		UserAdditionReadWithProjectsEntity that = (UserAdditionReadWithProjectsEntity) o;
 		return status == that.status &&
 				Objects.equals(siteName, that.siteName) &&
+				Objects.equals(projectId, that.projectId) &&
 				Objects.equals(projectName, that.projectName) &&
 				Objects.equals(uid, that.uid) &&
 				Objects.equals(code, that.code) &&
@@ -47,13 +51,14 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteName, projectName, uid, status, code, message);
+		return Objects.hash(siteName, projectId, projectName, uid, status, code, message);
 	}
 
 	@Override
 	public String toString() {
 		return "UserAdditionReadWithProjectsEntity{" +
 				"siteName='" + siteName + '\'' +
+				", projectId='" + projectId + '\'' +
 				", projectName='" + projectName + '\'' +
 				", uid='" + uid + '\'' +
 				", status=" + status +

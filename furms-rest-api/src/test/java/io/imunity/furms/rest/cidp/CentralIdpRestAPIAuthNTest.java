@@ -2,19 +2,19 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.furms.cidp;
+package io.imunity.furms.rest.cidp;
 
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UserStatus;
-import io.imunity.furms.rest.cidp.CentralIdPRestAPIController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -28,7 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {CentralIdPRestAPIController.class}, 
 	excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
 	includeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = SecurityProperties.class)})
-public class APIAuthNTest extends TestBeansRegistry {
+@Import(CentralIdpRestAPIConfiguration.class)
+public class CentralIdpRestAPIAuthNTest extends TestBeansRegistry {
 
 	@Autowired
 	private MockMvc mockMvc;

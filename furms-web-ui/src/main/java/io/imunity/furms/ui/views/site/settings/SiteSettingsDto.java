@@ -17,6 +17,7 @@ public class SiteSettingsDto implements Cloneable {
 	private String id;
 	private String name;
 	private FurmsImage logo;
+	private String oauthClientId;
 	private String connectionInfo;
 	private Boolean sshKeyFromOptionMandatory;
 	private Boolean prohibitOldsshKeys;
@@ -27,6 +28,7 @@ public class SiteSettingsDto implements Cloneable {
 		this.id = site.getId();
 		this.name = site.getName();
 		this.logo = site.getLogo();
+		this.oauthClientId = site.getOauthClientId();
 		this.connectionInfo = site.getConnectionInfo();
 		this.sshKeyFromOptionMandatory = site.isSshKeyFromOptionMandatory();
 		this.externalId = site.getExternalId();
@@ -34,11 +36,12 @@ public class SiteSettingsDto implements Cloneable {
 		this.policyId = site.getPolicyId();
 	}
 
-	SiteSettingsDto(String id, String name, FurmsImage logo, String connectionInfo,
+	SiteSettingsDto(String id, String name, FurmsImage logo, String oauthClientId, String connectionInfo,
 			Boolean sshKeyFromOptionMandatory, Boolean prohibitOldsshKeys, SiteExternalId externalId, PolicyId policyId) {
 		this.id = id;
 		this.name = name;
 		this.logo = logo;
+		this.oauthClientId = oauthClientId;
 		this.connectionInfo = connectionInfo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 		this.prohibitOldsshKeys = prohibitOldsshKeys;
@@ -68,6 +71,14 @@ public class SiteSettingsDto implements Cloneable {
 
 	public void setLogo(FurmsImage logo) {
 		this.logo = logo;
+	}
+
+	public String getOauthClientId() {
+		return oauthClientId;
+	}
+
+	public void setOauthClientId(String oauthClientId) {
+		this.oauthClientId = oauthClientId;
 	}
 
 	public String getConnectionInfo() {
@@ -112,8 +123,9 @@ public class SiteSettingsDto implements Cloneable {
 
 	@Override
 	public SiteSettingsDto clone() {
-		return new SiteSettingsDto(this.id, this.name, this.logo, this.connectionInfo,
-				this.sshKeyFromOptionMandatory, this.prohibitOldsshKeys, new SiteExternalId(externalId.id), new PolicyId(this.policyId.id));
+		return new SiteSettingsDto(this.id, this.name, this.logo, this.oauthClientId, this.connectionInfo,
+				this.sshKeyFromOptionMandatory, this.prohibitOldsshKeys, new SiteExternalId(externalId.id),
+				new PolicyId(this.policyId.id));
 	}
 	
 	@Override
@@ -134,6 +146,7 @@ public class SiteSettingsDto implements Cloneable {
 		return "SiteSettingsDto{" +
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
+				", oauthClientId='" + oauthClientId + '\'' +
 				", logo=" + logo +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
 				", prohibitOldsshKeys=" + prohibitOldsshKeys +

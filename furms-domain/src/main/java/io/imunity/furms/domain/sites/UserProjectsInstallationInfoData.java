@@ -12,19 +12,26 @@ import java.util.Objects;
 
 public class UserProjectsInstallationInfoData {
 
+	private final String projectId;
 	private final String name;
 	private final String remoteAccountName;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
 
-	public UserProjectsInstallationInfoData(String name,
+	public UserProjectsInstallationInfoData(String projectId,
+	                                        String name,
 	                                        String remoteAccountName,
 	                                        UserStatus status,
 	                                        UserAdditionErrorMessage errorMessage) {
+		this.projectId = projectId;
 		this.name = name;
 		this.remoteAccountName = remoteAccountName;
 		this.status = status;
 		this.errorMessage = errorMessage;
+	}
+
+	public String getProjectId() {
+		return projectId;
 	}
 
 	public String getName() {
@@ -48,7 +55,8 @@ public class UserProjectsInstallationInfoData {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserProjectsInstallationInfoData that = (UserProjectsInstallationInfoData) o;
-		return Objects.equals(name, that.name) &&
+		return Objects.equals(projectId, that.projectId) &&
+				Objects.equals(name, that.name) &&
 				Objects.equals(remoteAccountName, that.remoteAccountName) &&
 				status == that.status &&
 				Objects.equals(errorMessage, that.errorMessage);
@@ -56,13 +64,14 @@ public class UserProjectsInstallationInfoData {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, remoteAccountName, status, errorMessage);
+		return Objects.hash(name, projectId, remoteAccountName, status, errorMessage);
 	}
 
 	@Override
 	public String toString() {
 		return "UserProjectsInstallationInfoData{" +
 				"name='" + name + '\'' +
+				", projectId='" + projectId + '\'' +
 				", remoteAccountName='" + remoteAccountName + '\'' +
 				", status=" + status +
 				", errorMessage='" + errorMessage + '\'' +
@@ -74,12 +83,18 @@ public class UserProjectsInstallationInfoData {
 	}
 
 	public static final class UserProjectsInstallationInfoDataBuilder {
+		private String projectId;
 		private String name;
 		private String remoteAccountName;
 		private UserStatus status;
 		private UserAdditionErrorMessage errorMessage;
 
 		private UserProjectsInstallationInfoDataBuilder() {
+		}
+
+		public UserProjectsInstallationInfoDataBuilder projectId(String projectId) {
+			this.projectId = projectId;
+			return this;
 		}
 
 		public UserProjectsInstallationInfoDataBuilder name(String name) {
@@ -103,7 +118,7 @@ public class UserProjectsInstallationInfoData {
 		}
 
 		public UserProjectsInstallationInfoData build() {
-			return new UserProjectsInstallationInfoData(name, remoteAccountName, status, errorMessage);
+			return new UserProjectsInstallationInfoData(projectId, name, remoteAccountName, status, errorMessage);
 		}
 	}
 }

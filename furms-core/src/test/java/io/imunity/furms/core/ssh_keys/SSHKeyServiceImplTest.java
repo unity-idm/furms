@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,6 +79,9 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 
+	@Mock
+	private InstalledSSHKeyRepository installedSSHKeyRepository;
+
 	private SSHKeyServiceImpl service;
 
 	private SSHKeyServiceValidator validator;
@@ -88,8 +92,10 @@ public class SSHKeyServiceImplTest {
 
 		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
 				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
-		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository,
-				sshKeyOperationRepository, siteAgentSSHKeyInstallationService, usersDAO, new SSHKeyFromSiteRemover(repository, siteRepository, sshKeyOperationRepository, siteAgentSSHKeyInstallationService));
+		final SSHKeyFromSiteRemover sshKeyFromSiteRemover = new SSHKeyFromSiteRemover(repository, siteRepository,
+				sshKeyOperationRepository, siteAgentSSHKeyInstallationService);
+		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository, sshKeyOperationRepository,
+				siteAgentSSHKeyInstallationService, usersDAO, sshKeyFromSiteRemover, installedSSHKeyRepository);
 	}
 	
 	@AfterEach

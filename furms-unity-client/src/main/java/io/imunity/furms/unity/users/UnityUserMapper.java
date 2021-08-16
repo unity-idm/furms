@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
@@ -34,36 +35,31 @@ public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Optional<FURMSUser> map(GroupMember groupMember){
-		FURMSUser user = buildUser(groupMember);
-		if(user.id.isEmpty() || user.email == null) {
-			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
-			return Optional.empty();
-		}
-		return Optional.of(user);
+		return getFurmsUser(() -> buildUser(groupMember));
 	}
 
 	public static Optional<FURMSUser> map(PersistentId userId,  List<Identity> identities, List<Attribute> attributes){
-		FURMSUser user = buildUser(userId, getFenixId(identities), attributes);
-		if(user.id == null || user.email == null) {
-			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
-			return Optional.empty();
-		}
-		return Optional.of(user);
+		return getFurmsUser(() -> buildUser(userId, getFenixId(identities), attributes));
 	}
 
 	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes){
-		FURMSUser user = buildUser(identities, attributes);
-		if(user.id == null || user.email == null) {
-			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
-			return Optional.empty();
-		}
-		return Optional.of(user);
+		return getFurmsUser(() -> buildUser(identities, attributes));
 	}
 
 	public static Optional<FURMSUser> map(FenixUserId userId,  List<Identity> identities, List<Attribute> attributes){
-		FURMSUser user = buildUser(getPersistentId(identities), userId, attributes);
-		if(user.id == null || user.email == null) {
-			LOG.error("User " + user.id + " has skipped, because it doesn't have email property");
+		return getFurmsUser(() -> buildUser(getPersistentId(identities), userId, attributes));
+	}
+
+	private static Optional<FURMSUser> getFurmsUser(Supplier<FURMSUser> userGetter) {
+		FURMSUser user;
+		try {
+			user = userGetter.get();
+		} catch (IllegalArgumentException e) {
+			LOG.error("User has skipped, because it doesn't have email property");
+			return Optional.empty();
+		}
+		if (user.id.isEmpty()) {
+			LOG.error("User has skipped, because it doesn't have id property");
 			return Optional.empty();
 		}
 		return Optional.of(user);

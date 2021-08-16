@@ -96,6 +96,7 @@ public class SettingsView extends FurmsViewComponent {
 
 		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.id"));
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
+		formLayout.addFormItem(oauthClientIdRow(binder), getTranslation("view.site-admin.settings.form.oauth-client"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
 		formLayout.addFormItem(sshKeyFromMandatory(binder), "");
 		formLayout.addFormItem(prohibitOldSSHKey(binder), "");
@@ -124,6 +125,18 @@ public class SettingsView extends FurmsViewComponent {
 				.bind(SiteSettingsDto::getName, SiteSettingsDto::setName);
 
 		return name;
+	}
+
+	private TextField oauthClientIdRow(Binder<SiteSettingsDto> binder) {
+		final TextField oauthClientId = new TextField();
+		oauthClientId.setPlaceholder(getTranslation("view.site-admin.settings.form.oauth-client.placeholder"));
+		oauthClientId.setValueChangeMode(EAGER);
+		oauthClientId.setMaxLength(100);
+
+		binder.forField(oauthClientId)
+				.bind(SiteSettingsDto::getOauthClientId, SiteSettingsDto::setOauthClientId);
+
+		return oauthClientId;
 	}
 
 	private ComboBox<PolicyDto> policyRow(Binder<SiteSettingsDto> binder) {
@@ -229,6 +242,7 @@ public class SettingsView extends FurmsViewComponent {
 				siteService.update(Site.builder()
 						.id(settings.getId())
 						.name(settings.getName())
+						.oauthClientId(settings.getOauthClientId())
 						.connectionInfo(settings.getConnectionInfo())
 						.logo(settings.getLogo())
 						.sshKeyFromOptionMandatory(settings.isSshKeyFromOptionMandatory())
@@ -265,6 +279,7 @@ public class SettingsView extends FurmsViewComponent {
 	private boolean isChanged(SiteSettingsDto bean) {
 		return !Objects.equals(bufferedSettings.getName(), bean.getName())
 				|| !Objects.equals(bufferedSettings.getLogo(), bean.getLogo())
+				|| !Objects.equals(bufferedSettings.getOauthClientId(), bean.getOauthClientId())
 				|| !Objects.equals(bufferedSettings.getConnectionInfo(), bean.getConnectionInfo())
 				|| !Objects.equals(bufferedSettings.isSshKeyFromOptionMandatory(), bean.isSshKeyFromOptionMandatory())
 				|| !Objects.equals(bufferedSettings.isProhibitOldsshKeys(), bean.isProhibitOldsshKeys())
