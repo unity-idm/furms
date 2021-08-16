@@ -11,6 +11,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.springframework.stereotype.Repository;
 
@@ -70,6 +71,20 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(PolicyDocumentEntity::toPolicyDocument)
 			.collect(toSet());
+	}
+
+	@Override
+	public Set<PolicyDocument> findAllSitePoliciesByUserId(PersistentId userId) {
+		return repository.findAllSitePoliciesByUserId(userId.id).stream()
+				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
+				.collect(toSet());
+	}
+
+	@Override
+	public Set<PolicyDocument> findAllServicePoliciesByUserId(PersistentId userId) {
+		return repository.findAllServicePoliciesByUserId(userId.id).stream()
+				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
+				.collect(toSet());
 	}
 
 	@Override

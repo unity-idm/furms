@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-import io.imunity.furms.ui.FurmsSelectFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,13 +24,15 @@ public class FurmsLayout {
 	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
-	private final FurmsSelectFactory furmsSelectFactory;
+	private final FurmsSelect furmsSelect;
+	private final Component notificationBar;
 
-	public FurmsLayout(List<MenuComponent> menuContent, FurmsSelectFactory furmsSelectFactory){
+	public FurmsLayout(List<MenuComponent> menuContent, FurmsSelect furmsSelect, Component notificationBar){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
-		this.furmsSelectFactory = furmsSelectFactory;
+		this.furmsSelect = furmsSelect;
+		this.notificationBar = notificationBar;
 	}
 
 	public Component createDrawerContent() {
@@ -70,7 +71,7 @@ public class FurmsLayout {
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelectFactory.create(), logout);
+		rightNavbarSite.add(new Text(getTranslation("navbar.text")), furmsSelect, notificationBar, logout);
 		return rightNavbarSite;
 	}
 

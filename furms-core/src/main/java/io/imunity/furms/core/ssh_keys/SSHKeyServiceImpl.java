@@ -12,15 +12,18 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -30,11 +33,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nimbusds.oauth2.sdk.util.CollectionUtils.isNotEmpty;
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
@@ -42,6 +52,10 @@ import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.*;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 
 @SuppressWarnings("unused")
@@ -58,14 +72,17 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final AuthzService authzService;
 	private final UsersDAO userDao;
 	private final SSHKeyFromSiteRemover sshKeyRemover;
+	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 
-
-	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository, SSHKeyServiceValidator validator,
-			AuthzService authzService, SiteRepository siteRepository,
-			SSHKeyOperationRepository sshKeyOperationRepository,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, UsersDAO userDao,
-			SSHKeyFromSiteRemover sshKeyRemover) {
-
+	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository,
+	                  SSHKeyServiceValidator validator,
+	                  AuthzService authzService,
+	                  SiteRepository siteRepository,
+	                  SSHKeyOperationRepository sshKeyOperationRepository,
+	                  SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService,
+	                  UsersDAO userDao,
+	                  SSHKeyFromSiteRemover sshKeyRemover,
+	                  InstalledSSHKeyRepository installedSSHKeyRepository) {
 		this.userDao = userDao;
 		this.validator = validator;
 		this.authzService = authzService;
@@ -74,6 +91,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
 		this.sshKeyRemover = sshKeyRemover;
+		this.installedSSHKeyRepository = installedSSHKeyRepository;
 	}
 
 	@Override
@@ -100,6 +118,21 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	public Set<SSHKey> findByOwnerId(String ownerId) {
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
 		return sshKeysRepository.findAllByOwnerId(new PersistentId(ownerId));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	public Set<SiteSSHKeys> findSiteSSHKeysByUserId(PersistentId userId) {
+		return sshKeysRepository.findAllByOwnerId(userId).stream()
+				.map(key -> installedSSHKeyRepository.findBySSHKeyId(key.id))
+				.flatMap(Collection::parallelStream)
+				.collect(groupingBy(
+						key -> key.siteId,
+						mapping(key -> key.value, toSet())))
+				.entrySet().stream()
+				.filter(entry -> isNotEmpty(entry.getValue()))
+				.map(entry -> new SiteSSHKeys(entry.getKey(), entry.getValue()))
+				.collect(toSet());
 	}
 
 	@Transactional
@@ -198,7 +231,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	private void updateKeyOnSites(SSHKey oldKey, SSHKey newKey, Set<String> sitesIds, FenixUserId userId) {
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-				.collect(Collectors.toSet());
+				.collect(toSet());
 
 		for (Site site : sites) {
 
@@ -219,13 +252,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 			return (job.operation.equals(ADD) && job.status.equals(DONE))
 					|| (job.operation.equals(UPDATE))
 					|| (job.operation.equals(REMOVE));
-		}).collect(Collectors.toSet())) : null);
+		}).collect(toSet())) : null);
 
 		Set<String> toRemove = Sets.newHashSet(actualKey.sites);
 		toRemove.removeAll(newKey.sites);
 		toRemove.addAll(sshKeyOperationRepository.findBySSHKey(newKey.id).stream()
 				.filter(o -> o.operation.equals(REMOVE) && o.status.equals(FAILED)).map(o -> o.siteId)
-				.collect(Collectors.toSet()));
+				.collect(toSet()));
 
 		Set<String> toUpdate = Sets.newHashSet();
 		if (!actualKey.value.equals(newKey.value)) {
@@ -237,7 +270,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				SSHKeyOperationJob job = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id,
 						s);
 				return job.operation.equals(UPDATE) && job.status.equals(FAILED);
-			}).collect(Collectors.toSet()));
+			}).collect(toSet()));
 		}
 
 		return new SiteDiff(toAdd, toRemove, toUpdate);
@@ -258,7 +291,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 			return;
 		validator.assertUserIsInstalledOnSites(sitesIds, userId);
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
-				.collect(Collectors.toSet());
+				.collect(toSet());
 		for (Site site : sites) {
 			addKeyToSite(sshKey, site, userId);
 		}

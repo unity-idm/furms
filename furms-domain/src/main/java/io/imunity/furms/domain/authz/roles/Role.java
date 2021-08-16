@@ -34,7 +34,7 @@ public enum Role {
 		"-irrelevant-",
 		"-irrelevant-",
 		emptyList(),
-		List.of(USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT)
+		List.of(USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT, POLICY_ACCEPTANCE_MAINTENANCE)
 	),
 	FENIX_ADMIN(
 		"furmsFenixRole",

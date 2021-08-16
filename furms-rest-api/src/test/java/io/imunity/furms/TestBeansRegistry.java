@@ -7,6 +7,7 @@ package io.imunity.furms;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.rest.cidp.CentralIdPRestAPIController;
 import io.imunity.furms.spi.roles.RoleLoader;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

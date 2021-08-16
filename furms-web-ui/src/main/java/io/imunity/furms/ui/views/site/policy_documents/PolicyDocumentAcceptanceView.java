@@ -14,7 +14,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -51,13 +51,13 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 
 	protected PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
-		this.grid = createUserAgreementGrid();
+		this.grid = createUserAcceptanceGrid();
 		this.viewHeaderLayout = new ViewHeaderLayout("");
 
 		getContent().add(viewHeaderLayout, grid);
 	}
 
-	private Grid<FURMSUser> createUserAgreementGrid() {
+	private Grid<FURMSUser> createUserAcceptanceGrid() {
 		Grid<FURMSUser> grid = new SparseGrid<>(FURMSUser.class);
 
 		grid.addColumn(model -> model.firstName.orElse(""))
@@ -90,7 +90,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 				PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 					.policyDocumentId(policyDocument.id)
 					.policyDocumentRevision(policyDocument.revision)
-					.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+					.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 					.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 					.build();
 				policyDocumentService.addUserPolicyAcceptance(policyDocument.siteId, model.fenixUserId.get(), policyAcceptance);

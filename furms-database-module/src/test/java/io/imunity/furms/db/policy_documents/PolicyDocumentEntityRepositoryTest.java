@@ -284,7 +284,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	private GrantAccess initGrantAccess(UUID siteId, UUID projectId, UUID projectAllocationId, FenixUserId fenixUserId) {
 		return GrantAccess.builder()
 			.fenixUserId(fenixUserId)
-			.siteId(new SiteId(siteId.toString(), (String) null))
+			.siteId(new SiteId(siteId.toString()))
 			.projectId(projectId.toString())
 			.allocationId(projectAllocationId.toString())
 			.build();
