@@ -16,10 +16,10 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -106,19 +106,20 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<PolicyDocumentExtended> findAllByCurrentUser() {
-		FenixUserId userId = authzService.getCurrentAuthNUser().fenixUserId
-			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
+		Optional<FenixUserId> userId = authzService.getCurrentAuthNUser().fenixUserId;
+		if(userId.isEmpty())
+			return Set.of();
 
-		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+		LOG.debug("Getting all Policy Document for user id={}", userId.get().id);
 
-		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getyPolicyAcceptances(userId).stream()
-			.collect(toMap(policyAcceptance -> policyAcceptance.policyDocumentId, identity()));
+		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAcceptances(userId.get()).stream()
+			.collect(toMap(policyAgreement -> policyAgreement.policyDocumentId, identity()));
 
-		return policyDocumentRepository.findAllByUserId(userId, (policyId, revision) ->
+		return policyDocumentRepository.findAllByUserId(userId.get(), (policyId, revision) ->
 			Optional.ofNullable(collect.get(policyId))
-				.filter(policyAcceptance -> policyAcceptance.policyDocumentRevision == revision)
-				.map(policyAcceptance -> policyAcceptance.decisionTs)
-				.map(decisionTs -> LocalDateTime.ofInstant(decisionTs, ZoneOffset.UTC.normalized()))
+				.filter(policyAgreement -> policyAgreement.policyDocumentRevision == revision)
+				.map(policyAgreement -> policyAgreement.decisionTs)
+				.map(policyAgreement -> LocalDateTime.ofInstant(policyAgreement, ZoneOffset.UTC.normalized()))
 				.orElse(null)
 		);
 	}
@@ -160,7 +161,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 
 		LOG.debug("Getting all Policy Document for user id={}", userId.id);
-		return policyDocumentDAO.getyPolicyAcceptances(fenixUserId);
+		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);
 	}
 
 	@Override
@@ -170,6 +171,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
 	}
 
 	@Override
@@ -177,6 +179,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
 	}
 
 	@Override

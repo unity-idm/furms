@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +45,8 @@ class UserAllocationStatusUpdaterTest {
 	@Mock
 	private UserOperationService userOperationService;
 	@Mock
+	private ApplicationEventPublisher publisher;
+	@Mock
 	private NotificationDAO notificationDAO;
 
 	private UserAllocationStatusUpdaterImpl service;
@@ -52,7 +55,7 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, notificationDAO);
+		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, publisher, notificationDAO);
 		orderVerifier = inOrder(repository, userOperationService, notificationDAO);
 	}
 

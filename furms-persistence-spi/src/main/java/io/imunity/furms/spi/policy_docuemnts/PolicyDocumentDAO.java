@@ -13,6 +13,6 @@ import java.util.Set;
 
 public interface PolicyDocumentDAO {
 	void addUserPolicyAcceptance(FenixUserId userId, PolicyAcceptance policyAcceptance);
-	Set<PolicyAcceptance> getyPolicyAcceptances(FenixUserId userId);
+	Set<PolicyAcceptance> getPolicyAcceptances(FenixUserId userId);
 	Set<UserPolicyAcceptances> getUserPolicyAcceptances(String siteId);
 }
