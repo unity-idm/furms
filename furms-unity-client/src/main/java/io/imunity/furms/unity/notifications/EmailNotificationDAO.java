@@ -28,6 +28,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 	private static final String NEW_POLICY_ACCEPTANCE_TEMPLATE_ID = "policyAcceptanceNew";
 	private static final String NEW_POLICY_REVISION_TEMPLATE_ID = "policyAcceptanceRevision";
+	private static final String NAME_ATTRIBUTE = "custom.name";
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
@@ -47,11 +48,11 @@ class EmailNotificationDAO implements NotificationDAO {
 			.map(userPolicyAcceptances -> userPolicyAcceptances.user)
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.fenixUserId.isPresent())
 			.filter(user -> user.id.isPresent())
-			.forEach(user -> userService.sendUserNotification(user.id.get(), NEW_POLICY_REVISION_TEMPLATE_ID, Map.of("custom.name", policyDocument.name)));
+			.forEach(user -> userService.sendUserNotification(user.id.get(), NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name)));
 	}
 
 	@Override
-	public void notifyAboutNewPolicy(FenixUserId userId) {
+	public void notifyAboutAllNotAcceptedPolicies(FenixUserId userId) {
 		PersistentId persistentId = userService.getPersistentId(userId);
 
 		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = userService.getPolicyAgreements(userId).stream()
@@ -63,7 +64,7 @@ class EmailNotificationDAO implements NotificationDAO {
 					.filter(policyAcceptance -> policyDocument.revision == policyAcceptance.policyDocumentRevision).isEmpty()
 			)
 			.forEach(policyDocumentExtended ->
-				userService.sendUserNotification(persistentId, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of("custom.name", policyDocumentExtended.name))
+				userService.sendUserNotification(persistentId, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name))
 			);
 	}
 }

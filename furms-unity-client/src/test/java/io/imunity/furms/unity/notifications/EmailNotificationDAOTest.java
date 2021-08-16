@@ -126,7 +126,7 @@ class EmailNotificationDAOTest {
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 
 
-		emailNotificationDAO.notifyAboutNewPolicy(fenixUserId);
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId);
 
 		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
 	}
@@ -153,7 +153,7 @@ class EmailNotificationDAOTest {
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 
 
-		emailNotificationDAO.notifyAboutNewPolicy(fenixUserId);
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId);
 
 		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
 	}

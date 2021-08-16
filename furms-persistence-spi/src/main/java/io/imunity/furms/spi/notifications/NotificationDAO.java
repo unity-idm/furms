@@ -10,5 +10,5 @@ import io.imunity.furms.domain.users.FenixUserId;
 
 public interface NotificationDAO {
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
-	void notifyAboutNewPolicy(FenixUserId fenixUserId);
+	void notifyAboutAllNotAcceptedPolicies(FenixUserId fenixUserId);
 }

@@ -52,7 +52,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 		if(status.equals(AccessStatus.GRANTED)){
 			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
-			notificationDAO.notifyAboutNewPolicy(projectUserGrant.userId);
+			notificationDAO.notifyAboutAllNotAcceptedPolicies(projectUserGrant.userId);
 		}
 		LOG.info("UserAllocation status with correlation id {} was updated to {}", correlationId.id, status);
 	}
