@@ -135,7 +135,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build()
 		);
-		when(policyDocumentDAO.getyPolicyAcceptances(userId)).thenReturn(Set.of(
+		when(policyDocumentDAO.getPolicyAcceptances(userId)).thenReturn(Set.of(
 			PolicyAcceptance.builder()
 				.policyDocumentId(policyId0)
 				.build(),

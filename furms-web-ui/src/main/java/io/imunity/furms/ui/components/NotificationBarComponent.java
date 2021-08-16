@@ -18,7 +18,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
-import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.VaadinBroadcaster;
@@ -88,8 +87,7 @@ public class NotificationBarComponent extends Button {
 		broadcasterRegistration = vaadinBroadcaster.register(
 			VaadinListener.builder()
 				.consumer(event -> ui.access(this::loadData))
-				.predicate(event -> event instanceof PolicyDocumentUpdatedEvent)
-				.orPredicate(this::isCurrentUserPoliciesAcceptanceListChanged)
+				.predicate(this::isCurrentUserPoliciesAcceptanceListChanged)
 				.build()
 		);
 	}

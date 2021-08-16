@@ -21,7 +21,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.NotificationDAO;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.slf4j.Logger;
@@ -113,7 +112,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 		LOG.debug("Getting all Policy Document for user id={}", userId.get().id);
 
-		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAgreements(userId.get()).stream()
+		Map<PolicyId, PolicyAcceptance> collect = policyDocumentDAO.getPolicyAcceptances(userId.get()).stream()
 			.collect(toMap(policyAgreement -> policyAgreement.policyDocumentId, identity()));
 
 		return policyDocumentRepository.findAllByUserId(userId.get(), (policyId, revision) ->
@@ -162,7 +161,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 
 		LOG.debug("Getting all Policy Document for user id={}", userId.id);
-		return policyDocumentDAO.getyPolicyAcceptances(fenixUserId);
+		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);
 	}
 
 	@Override

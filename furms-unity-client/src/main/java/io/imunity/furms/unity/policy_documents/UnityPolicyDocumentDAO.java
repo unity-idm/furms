@@ -32,7 +32,7 @@ class UnityPolicyDocumentDAO implements PolicyDocumentDAO {
 		userService.addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
-	public Set<PolicyAcceptance> getyPolicyAcceptances(FenixUserId userId) {
+	public Set<PolicyAcceptance> getPolicyAcceptances(FenixUserId userId) {
 		return userService.getPolicyAcceptances(userId);
 	}
 

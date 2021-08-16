@@ -26,7 +26,7 @@ class PolicyDocumentNotificationProducer implements NotificationProducer {
 		return policyDocumentService.findAllByCurrentUser().stream()
 			.filter(policyDocumentExtended -> policyDocumentExtended.utcAcceptedTime.isEmpty())
 			.map(policyDocumentExtended ->
-				new NotificationBarElement(getTranslation("notifications.new.policy", policyDocumentExtended), PolicyDocumentsView.class)
+				new NotificationBarElement(getTranslation("notifications.new.policy", policyDocumentExtended.name), PolicyDocumentsView.class)
 			);
 	}
 }

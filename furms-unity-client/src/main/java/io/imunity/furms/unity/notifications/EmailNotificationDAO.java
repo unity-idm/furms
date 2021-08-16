@@ -8,12 +8,14 @@ package io.imunity.furms.unity.notifications;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.unity.client.users.UserService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -32,11 +34,14 @@ class EmailNotificationDAO implements NotificationDAO {
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
+	private final ApplicationEventPublisher publisher;
 
-	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository) {
+
+	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, ApplicationEventPublisher publisher) {
 		this.userService = userService;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.policyDocumentRepository = policyDocumentRepository;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -48,7 +53,10 @@ class EmailNotificationDAO implements NotificationDAO {
 			.map(userPolicyAcceptances -> userPolicyAcceptances.user)
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.fenixUserId.isPresent())
 			.filter(user -> user.id.isPresent())
-			.forEach(user -> userService.sendUserNotification(user.id.get(), NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name)));
+			.forEach(user -> {
+				userService.sendUserNotification(user.id.get(), NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+				publisher.publishEvent(new UserPendingPoliciesChangedEvent(user.fenixUserId.get()));
+			});
 	}
 
 	@Override

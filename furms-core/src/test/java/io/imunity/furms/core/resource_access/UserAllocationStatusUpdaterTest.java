@@ -56,7 +56,7 @@ class UserAllocationStatusUpdaterTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, publisher, notificationDAO);
-		orderVerifier = inOrder(repository, userOperationService);
+		orderVerifier = inOrder(repository, userOperationService, notificationDAO);
 	}
 
 	@ParameterizedTest
