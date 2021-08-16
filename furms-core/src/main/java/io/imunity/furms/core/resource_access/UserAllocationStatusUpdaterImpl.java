@@ -6,7 +6,7 @@
 package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.core.user_operation.UserOperationService;
-import io.imunity.furms.domain.policy_documents.UserWaitingPoliciesAcceptanceListChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -55,7 +55,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 		if(status.equals(AccessStatus.GRANTED)){
 			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
-			publisher.publishEvent(new UserWaitingPoliciesAcceptanceListChangedEvent(projectUserGrant.userId));
+			publisher.publishEvent(new UserPendingPoliciesChangedEvent(projectUserGrant.userId));
 		}
 		LOG.info("UserAllocation status with correlation id {} was updated to {}", correlationId.id, status);
 	}

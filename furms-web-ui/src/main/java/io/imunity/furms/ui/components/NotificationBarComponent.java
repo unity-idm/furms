@@ -19,12 +19,12 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
-import io.imunity.furms.domain.policy_documents.UserWaitingPoliciesAcceptanceListChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.notifications.NotificationBarElement;
-import io.imunity.furms.ui.notifications.NotificationService;
+import io.imunity.furms.ui.notifications.UINotificationService;
 
 import java.util.Set;
 
@@ -34,13 +34,13 @@ import static com.vaadin.flow.component.icon.VaadinIcon.BELL;
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 public class NotificationBarComponent extends Button {
 	private final VaadinBroadcaster vaadinBroadcaster;
-	private final NotificationService notificationService;
+	private final UINotificationService notificationService;
 	private final FURMSUser currentUser;
 	private final Span badge;
 	private final ContextMenu contextMenu;
 	private Registration broadcasterRegistration;
 
-	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, NotificationService notificationService, FURMSUser furmsUser) {
+	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, UINotificationService notificationService, FURMSUser furmsUser) {
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.notificationService = notificationService;
 		this.currentUser = furmsUser;
@@ -95,9 +95,9 @@ public class NotificationBarComponent extends Button {
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof UserWaitingPoliciesAcceptanceListChangedEvent))
+		if(!(furmsEvent instanceof UserPendingPoliciesChangedEvent))
 			return false;
-		UserWaitingPoliciesAcceptanceListChangedEvent event = (UserWaitingPoliciesAcceptanceListChangedEvent) furmsEvent;
+		UserPendingPoliciesChangedEvent event = (UserPendingPoliciesChangedEvent) furmsEvent;
 		return currentUser.fenixUserId
 			.filter(id -> id.equals(event.fenixUserId))
 			.isPresent();

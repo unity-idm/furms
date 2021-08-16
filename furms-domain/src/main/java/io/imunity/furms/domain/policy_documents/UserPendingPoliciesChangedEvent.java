@@ -9,10 +9,10 @@ import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class UserWaitingPoliciesAcceptanceListChangedEvent implements PolicyDocumentEvent {
+public class UserPendingPoliciesChangedEvent implements PolicyDocumentEvent {
 	public final FenixUserId fenixUserId;
 
-	public UserWaitingPoliciesAcceptanceListChangedEvent(FenixUserId fenixUserId) {
+	public UserPendingPoliciesChangedEvent(FenixUserId fenixUserId) {
 		this.fenixUserId = fenixUserId;
 	}
 
@@ -20,7 +20,7 @@ public class UserWaitingPoliciesAcceptanceListChangedEvent implements PolicyDocu
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserWaitingPoliciesAcceptanceListChangedEvent siteEvent = (UserWaitingPoliciesAcceptanceListChangedEvent) o;
+		UserPendingPoliciesChangedEvent siteEvent = (UserPendingPoliciesChangedEvent) o;
 			return Objects.equals(fenixUserId, siteEvent.fenixUserId);
 	}
 

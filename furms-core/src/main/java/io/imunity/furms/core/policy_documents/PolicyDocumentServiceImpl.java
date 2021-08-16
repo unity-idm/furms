@@ -15,7 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.UserWaitingPoliciesAcceptanceListChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
@@ -119,7 +119,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
 		policyDocumentDAO.addUserPolicyAgreement(userId, policyAcceptance);
-		publisher.publishEvent(new UserWaitingPoliciesAcceptanceListChangedEvent(userId));
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
 	}
 
 	@Override
@@ -127,7 +127,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
 		policyDocumentDAO.addUserPolicyAgreement(userId, policyAcceptance);
-		publisher.publishEvent(new UserWaitingPoliciesAcceptanceListChangedEvent(userId));
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
 	}
 
 	@Override
