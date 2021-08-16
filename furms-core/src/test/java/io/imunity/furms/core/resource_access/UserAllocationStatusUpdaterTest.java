@@ -68,6 +68,19 @@ class UserAllocationStatusUpdaterTest {
 		service.update(correlationId, GRANTED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANTED, "msg");
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED"})
+	void shouldNotifyAboutNewNotAcceptedPolicy(AccessStatus status) {
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		FenixUserId userId = new FenixUserId("userId");
+		when(repository.findUsersGrantsByCorrelationId(correlationId))
+			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
+		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		service.update(correlationId, GRANTED, "msg");
+
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(userId);
 	}
 
