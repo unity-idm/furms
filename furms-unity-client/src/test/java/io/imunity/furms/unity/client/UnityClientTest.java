@@ -15,6 +15,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,6 +50,8 @@ class UnityClientTest {
 
 	@MockBean
 	private SiteRepository siteRepository;
+	@MockBean
+	private NotificationDAO emailNotificationDAO;
 
 	@BeforeAll
 	static void init() {
