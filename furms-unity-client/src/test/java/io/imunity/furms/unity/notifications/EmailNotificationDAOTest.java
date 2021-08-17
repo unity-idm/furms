@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Map;
@@ -41,6 +42,8 @@ class EmailNotificationDAOTest {
 	private PolicyDocumentDAO policyDocumentDAO;
 	@Mock
 	private PolicyDocumentRepository policyDocumentRepository;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 	@InjectMocks
 	private EmailNotificationDAO emailNotificationDAO;
