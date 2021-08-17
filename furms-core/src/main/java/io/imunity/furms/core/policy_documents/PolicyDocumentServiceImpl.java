@@ -17,12 +17,14 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -55,6 +57,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final PolicyDocumentValidator validator;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final NotificationDAO notificationDAO;
+	private final UserOperationRepository userOperationRepository;
 	private final ApplicationEventPublisher publisher;
 
 	PolicyDocumentServiceImpl(PolicyDocumentRepository policyDocumentRepository,
@@ -62,12 +65,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	                          PolicyDocumentDAO policyDocumentDAO,
 	                          AuthzService authzService,
 	                          NotificationDAO notificationDAO,
+	                          UserOperationRepository userOperationRepository,
 	                          ApplicationEventPublisher publisher) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.authzService = authzService;
 		this.notificationDAO = notificationDAO;
+		this.userOperationRepository = userOperationRepository;
 		this.publisher = publisher;
 	}
 
@@ -93,6 +98,9 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
 
+		Map<FenixUserId, UserStatus> usersInstallationStatus = userOperationRepository.findAllUserAdditionsByUserId(siteId).stream()
+			.collect(toMap(x -> new FenixUserId(x.userId), x -> x.status));
+
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId).stream()
 			.filter(userAcceptance -> userAcceptance.policyAcceptances.stream()
 				.noneMatch(policyAcceptance -> policyAcceptance.policyDocumentId.equals(policyDocument.id)
@@ -100,6 +108,10 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			)
 			.filter(userAcceptance -> userAcceptance.user.fenixUserId.isPresent())
 			.map(userAcceptance -> userAcceptance.user)
+			.filter(user -> Optional.ofNullable(usersInstallationStatus.get(user.fenixUserId.get()))
+				.filter(UserStatus::isInstalled)
+				.isPresent()
+			)
 			.collect(toSet());
 	}
 
