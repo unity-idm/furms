@@ -17,6 +17,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -116,6 +117,12 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId) {
+		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<PolicyDocumentExtended> findAllByCurrentUser() {
 		Optional<FenixUserId> userId = authzService.getCurrentAuthNUser().fenixUserId;
@@ -189,9 +196,28 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
-		LOG.debug("Adding Policy Document id={} for user id={}", policyAcceptance.policyDocumentId.id, userId.id);
+		PolicyId policyDocumentId = policyAcceptance.policyDocumentId;
+		LOG.debug("Adding Policy Document id={} for user id={}", policyDocumentId.id, userId.id);
+		if(isPolicyRevisionNotSet(policyAcceptance)){
+			PolicyDocument policyDocument = policyDocumentRepository.findById(policyDocumentId)
+				.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Id %s doesn't exist", policyDocumentId)));
+			policyAcceptance = getPolicyWithCurrentRevision(policyAcceptance, policyDocumentId, policyDocument);
+		}
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
 		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
+	}
+
+	private PolicyAcceptance getPolicyWithCurrentRevision(PolicyAcceptance policyAcceptance, PolicyId policyDocumentId, PolicyDocument policyDocument) {
+		return PolicyAcceptance.builder()
+			.policyDocumentId(policyDocumentId)
+			.policyDocumentRevision(policyDocument.revision)
+			.acceptanceStatus(policyAcceptance.acceptanceStatus)
+			.decisionTs(policyAcceptance.decisionTs)
+			.build();
+	}
+
+	private boolean isPolicyRevisionNotSet(PolicyAcceptance policyAcceptance) {
+		return policyAcceptance.policyDocumentRevision < 1;
 	}
 
 	@Override
