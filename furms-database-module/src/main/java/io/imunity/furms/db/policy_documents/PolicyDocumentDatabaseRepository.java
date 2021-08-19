@@ -10,6 +10,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.policy_documents.ServicePolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -71,6 +72,11 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(PolicyDocumentEntity::toPolicyDocument)
 			.collect(toSet());
+	}
+
+	@Override
+	public Set<ServicePolicyDocument> findAllAssignPoliciesBySiteId(String siteId) {
+		return repository.findAllServicePoliciesBySiteId(UUID.fromString(siteId));
 	}
 
 	@Override

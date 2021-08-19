@@ -14,11 +14,11 @@ import java.util.Objects;
 @JsonTypeName("UserProjectAddRequest")
 public class UserProjectAddRequest implements Body {
 	public final AgentUser user;
-	public final List<PoliciesAcceptance> policiesAcceptance;
+	public final List<PolicyAcceptance> policiesAcceptance;
 	public final String projectIdentifier;
 
 	@JsonCreator
-	public UserProjectAddRequest(AgentUser user, List<PoliciesAcceptance> policiesAcceptance, String projectIdentifier) {
+	public UserProjectAddRequest(AgentUser user, List<PolicyAcceptance> policiesAcceptance, String projectIdentifier) {
 		this.user = user;
 		this.policiesAcceptance = policiesAcceptance;
 		this.projectIdentifier = projectIdentifier;

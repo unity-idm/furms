@@ -17,6 +17,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -68,12 +69,14 @@ class SiteServiceImplTest {
 	private UserOperationRepository userOperationRepository;
 	@Mock
 	private ProjectService projectService;
+	@Mock
+	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
-				siteAgentService, siteAgentStatusService, userOperationRepository);
+				siteAgentService, siteAgentStatusService, userOperationRepository, siteAgentPolicyDocumentService);
 	}
 
 	@Test

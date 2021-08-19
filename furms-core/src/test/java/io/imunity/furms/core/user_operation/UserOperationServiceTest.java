@@ -6,21 +6,22 @@
 package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.core.policy_documents.PolicyDocumentServiceHelper;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -64,7 +65,7 @@ class UserOperationServiceTest {
 	@Mock
 	private SiteService siteService;
 	@Mock
-	private PolicyDocumentService policyService;
+	private PolicyDocumentServiceHelper policyService;
 	@Mock
 	private SSHKeyService sshKeyService;
 
@@ -167,10 +168,11 @@ class UserOperationServiceTest {
 			.fenixUserId(fenixUserId)
 			.email("email")
 			.build();
+		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of());
 		//when
 		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
-		service.createUserAdditions(siteId, projectId, fenixUserId);
+		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of()));
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -178,7 +180,7 @@ class UserOperationServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(UserAddition.class));
-		orderVerifier.verify(siteAgentUserService).addUser(any(UserAddition.class), eq(user));
+		orderVerifier.verify(siteAgentUserService).addUser(any(UserAddition.class), eq(userPolicyAcceptancesWithServicePolicies));
 	}
 
 	@Test
@@ -198,7 +200,7 @@ class UserOperationServiceTest {
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, id));
+		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of())));
 	}
 
 	@ParameterizedTest

@@ -21,7 +21,7 @@ public class Header {
 	public final Error error;
 
 	@JsonCreator
-	public Header( String version, String messageCorrelationId, Status status, Error error) {
+	public Header(String version, String messageCorrelationId, Status status, Error error) {
 		this.version = version;
 		this.messageCorrelationId = messageCorrelationId;
 		this.status = status;

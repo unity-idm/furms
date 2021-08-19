@@ -5,16 +5,15 @@
 
 package io.imunity.furms.core.services;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.Set;
-
+import io.imunity.furms.domain.services.CreateServiceEvent;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.RemoveServiceEvent;
+import io.imunity.furms.domain.services.UpdateServiceEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
+import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -22,14 +21,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import io.imunity.furms.domain.services.CreateServiceEvent;
-import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.domain.services.RemoveServiceEvent;
-import io.imunity.furms.domain.services.UpdateServiceEvent;
-import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class InfraServiceServiceImplTest {
 	@Mock
@@ -42,6 +42,9 @@ class InfraServiceServiceImplTest {
 	private ResourceTypeRepository resourceTypeRepository;
 	@Mock
 	private ResourceCreditRepository resourceCreditRepository;
+	@Mock
+	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+
 
 	private InfraServiceServiceImpl service;
 	private InOrder orderVerifier;
@@ -50,7 +53,7 @@ class InfraServiceServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
-		service = new InfraServiceServiceImpl(infraServiceRepository, validator, publisher);
+		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, publisher);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
 	}
 

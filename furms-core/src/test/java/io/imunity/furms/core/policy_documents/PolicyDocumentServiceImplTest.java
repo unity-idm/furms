@@ -6,6 +6,8 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
@@ -17,10 +19,12 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
-import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -53,7 +57,15 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private NotificationDAO notificationDAO;
 	@Mock
-	private UserOperationRepository userOperationRepository;
+	private UserOperationService userOperationService;
+	@Mock
+	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+	@Mock
+	private ResourceAccessRepository resourceAccessRepository;
+	@Mock
+	private SiteRepository siteRepository;
+	@Mock
+	private UserService userService;
 
 	private PolicyDocumentServiceImpl service;
 	private InOrder orderVerifier;
@@ -62,7 +74,11 @@ class PolicyDocumentServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new PolicyDocumentServiceImpl(repository, validator, policyDocumentDAO, authzService, notificationDAO, userOperationRepository, publisher);
+		service = new PolicyDocumentServiceImpl(
+			authzService, repository, validator, policyDocumentDAO, notificationDAO,
+			userOperationService, siteAgentPolicyDocumentService, resourceAccessRepository, siteRepository,
+			userService, publisher
+		);
 		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO);
 	}
 
@@ -170,7 +186,7 @@ class PolicyDocumentServiceImplTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of())
 		));
-		when(userOperationRepository.findAllUserAdditionsByUserId("siteId")).thenReturn(Set.of(
+		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
 			UserAddition.builder()
 				.userId(userId.id)
 				.status(UserStatus.ADDED)
@@ -202,7 +218,7 @@ class PolicyDocumentServiceImplTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
 			new UserPolicyAcceptances(user, Set.of())
 		));
-		when(userOperationRepository.findAllUserAdditionsByUserId("siteId")).thenReturn(Set.of());
+		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of());
 
 		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
@@ -235,7 +251,7 @@ class PolicyDocumentServiceImplTest {
 				.build())
 			)
 		));
-		when(userOperationRepository.findAllUserAdditionsByUserId("siteId")).thenReturn(Set.of(
+		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
 			UserAddition.builder()
 				.userId(userId.id)
 				.status(UserStatus.ADDED)

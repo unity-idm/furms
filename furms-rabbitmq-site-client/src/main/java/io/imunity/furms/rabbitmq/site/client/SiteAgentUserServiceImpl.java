@@ -5,9 +5,9 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.AgentUser;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
@@ -18,9 +18,9 @@ import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import static io.imunity.furms.rabbitmq.site.client.PolicyAcceptancesMapper.getPolicyAcceptances;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
-import static java.util.Collections.emptyList;
 
 @Service
 class SiteAgentUserServiceImpl implements SiteAgentUserService {
@@ -31,10 +31,10 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	}
 
 	@Override
-	public void addUser(UserAddition userAddition, FURMSUser user) {
-		AgentUser agentUser = UserMapper.map(user);
+	public void addUser(UserAddition userAddition, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
+		AgentUser agentUser = UserMapper.map(userPolicyAcceptances.user);
 		try {
-			UserProjectAddRequest body = new UserProjectAddRequest(agentUser, emptyList(), userAddition.projectId);
+			UserProjectAddRequest body = new UserProjectAddRequest(agentUser, getPolicyAcceptances(userPolicyAcceptances), userAddition.projectId);
 			rabbitTemplate.convertAndSend(
 				getFurmsPublishQueueName(userAddition.siteId.externalId),
 				new Payload<>(new Header(VERSION, userAddition.correlationId.id), body)

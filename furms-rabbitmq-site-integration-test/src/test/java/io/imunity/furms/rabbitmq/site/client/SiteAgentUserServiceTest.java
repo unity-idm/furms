@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +55,7 @@ class SiteAgentUserServiceTest {
 			.fenixUserId(new FenixUserId("id"))
 			.email("email")
 			.build();
-		siteAgentUserService.addUser(userAddition, user);
+		siteAgentUserService.addUser(userAddition, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of()));
 
 		verify(userOperationStatusUpdater, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		verify(userOperationStatusUpdater, timeout(10000)).update(any());

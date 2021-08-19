@@ -12,6 +12,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
@@ -25,6 +26,7 @@ import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -66,6 +68,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
 	private final SiteAgentStatusService siteAgentStatusService;
+	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -75,7 +78,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
 	                SiteAgentStatusService siteAgentStatusService,
-	                UserOperationRepository userOperationRepository) {
+	                UserOperationRepository userOperationRepository,
+	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -85,6 +89,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.siteAgentService = siteAgentService;
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.userOperationRepository = userOperationRepository;
+		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 	}
 
 	@Override
@@ -162,22 +167,33 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "site.id")
 	public void update(Site site) {
 		validator.validateUpdate(site);
-
 		Site oldSite = siteRepository.findById(site.getId())
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site.getId()));
-
 		String siteId = siteRepository.update(merge(oldSite, site));
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
 		Site updatedSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
+			if(isPolicyDisengage(site, oldSite))
+				sendUpdateToSite(oldSite);
 			publisher.publishEvent(new UpdateSiteEvent(updatedSite.getId()));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
 			throw e;
 		}
+	}
+
+	private void sendUpdateToSite(Site oldSite) {
+		siteAgentPolicyDocumentService.updatePolicyDocument(oldSite.getExternalId(), PolicyDocument.builder()
+			.id(oldSite.getPolicyId())
+			.revision(0)
+			.build());
+	}
+
+	private boolean isPolicyDisengage(Site site, Site oldSite) {
+		return oldSite.getPolicyId() != null && site.getPolicyId() == null;
 	}
 
 	@Override
