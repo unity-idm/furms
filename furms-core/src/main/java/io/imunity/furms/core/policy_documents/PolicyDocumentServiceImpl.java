@@ -40,6 +40,8 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
@@ -85,6 +87,13 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
+	public Set<PolicyDocument> findAll() {
+		LOG.debug("Getting all Policy Documents");
+		return policyDocumentRepository.findAll();
+	}
+
+	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<PolicyDocument> findAllBySiteId(String siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
@@ -117,7 +126,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId) {
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
 	}
@@ -194,7 +203,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		PolicyId policyDocumentId = policyAcceptance.policyDocumentId;
 		LOG.debug("Adding Policy Document id={} for user id={}", policyDocumentId.id, userId.id);

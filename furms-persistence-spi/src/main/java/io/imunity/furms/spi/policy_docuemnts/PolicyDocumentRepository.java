@@ -20,6 +20,8 @@ import java.util.function.BiFunction;
 public interface PolicyDocumentRepository {
 	Optional<PolicyDocument> findById(PolicyId id);
 
+	Set<PolicyDocument> findAll();
+
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);

@@ -5,6 +5,7 @@
 package io.imunity.furms.rest.admin;
 
 import java.util.Objects;
+import java.util.Optional;
 
 class InfraService {
 	public final ServiceId id;
@@ -18,8 +19,7 @@ class InfraService {
 	}
 
 	InfraService(io.imunity.furms.domain.services.InfraService infraService) {
-		//TODO fill policy
-		this(new ServiceId(infraService.siteId, infraService.id), infraService.name, null);
+		this(new ServiceId(infraService.siteId, infraService.id), infraService.name, new PolicyId(infraService.siteId, Optional.ofNullable(infraService.policyId).map(service -> service.id.toString()).orElse(null)));
 	}
 
 	@Override

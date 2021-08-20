@@ -22,6 +22,8 @@ public interface PolicyDocumentService {
 
 	Optional<PolicyDocument> findById(String siteId, PolicyId id);
 
+	Set<PolicyDocument> findAll();
+
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 
 	Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId);
