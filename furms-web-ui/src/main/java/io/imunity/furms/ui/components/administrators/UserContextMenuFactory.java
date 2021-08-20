@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import com.google.common.base.Preconditions;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -112,13 +111,15 @@ public class UserContextMenuFactory {
 			MINUS_CIRCLE.create());
 		button.addThemeVariants(LUMO_TERTIARY);
 
-		contextMenu.addItem(button, event -> {
-			if(gridItem.getId().isPresent()
-				&& gridItem.getId().get().equals(currentUserId))
-				doRemoveYourself(gridReloader, gridSizeLoader);
-			else
-				doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
-		});
+		if(removeUserAction != null) {
+			contextMenu.addItem(button, event -> {
+				if (gridItem.getId().isPresent()
+					&& gridItem.getId().get().equals(currentUserId))
+					doRemoveYourself(gridReloader, gridSizeLoader);
+				else
+					doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
+			});
+		}
 		customContextMenuItems.forEach(item ->
 			contextMenu.addItem((Component)item.buttonProvider.apply(gridItem), event -> {
 				item.menuButtonHandler.accept(gridItem);
@@ -192,8 +193,6 @@ public class UserContextMenuFactory {
 		}
 
 		public UserContextMenuFactory build() {
-			Preconditions.checkNotNull(removeUserAction);
-			Preconditions.checkNotNull(currentUserId);
 			return new UserContextMenuFactory(removeUserAction, currentUserId,
 				redirectOnCurrentUserRemoval, allowRemovalOfLastUser, confirmRemovalMessageKey,
 				confirmSelfRemovalMessageKey, removalNotAllowedMessageKey, customContextMenuItems);

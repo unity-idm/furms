@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -177,7 +178,7 @@ class PolicyDocumentServiceImplTest {
 				.build()
 		));
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
@@ -204,7 +205,7 @@ class PolicyDocumentServiceImplTest {
 		));
 		when(userOperationRepository.findAllUserAdditionsByUserId("siteId")).thenReturn(Set.of());
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
@@ -242,7 +243,7 @@ class PolicyDocumentServiceImplTest {
 				.build()
 		));
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");

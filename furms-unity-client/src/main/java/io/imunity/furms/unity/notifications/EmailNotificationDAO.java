@@ -45,6 +45,14 @@ class EmailNotificationDAO implements NotificationDAO {
 	}
 
 	@Override
+	public void notifyUser(PersistentId id, PolicyDocument policyDocument) {
+		if(policyDocument.revision == 1)
+			userService.sendUserNotification(id, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+		else
+			userService.sendUserNotification(id, NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+	}
+
+	@Override
 	public void notifyAboutChangedPolicy(PolicyDocument policyDocument) {
 		policyDocumentDAO.getUserPolicyAcceptances(policyDocument.siteId).stream()
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.policyAcceptances.stream()
@@ -60,17 +68,19 @@ class EmailNotificationDAO implements NotificationDAO {
 	}
 
 	@Override
-	public void notifyAboutAllNotAcceptedPolicies(FenixUserId userId) {
+	public void notifyAboutAllNotAcceptedPolicies(FenixUserId userId, String grantId) {
 		PersistentId persistentId = userService.getPersistentId(userId);
 
 		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = userService.getPolicyAcceptances(userId).stream()
 			.collect(Collectors.toMap(x -> x.policyDocumentId, Function.identity()));
 
+		PolicyDocument servicePolicy = policyDocumentRepository.findByUserGrantId(grantId).get();
 		policyDocumentRepository.findAllByUserId(userId, (id, revision) -> LocalDateTime.MAX).stream()
 			.filter(policyDocument ->
 				ofNullable(policyAcceptanceMap.get(policyDocument.id))
 					.filter(policyAcceptance -> policyDocument.revision == policyAcceptance.policyDocumentRevision).isEmpty()
 			)
+			.filter(policyDocument -> policyDocument.id.equals(servicePolicy.id))
 			.forEach(policyDocumentExtended ->
 				userService.sendUserNotification(persistentId, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name))
 			);

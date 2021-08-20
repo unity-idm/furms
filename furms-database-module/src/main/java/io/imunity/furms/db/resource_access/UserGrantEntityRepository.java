@@ -25,7 +25,7 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 	Optional<UserGrantResolved> findByUserIdAndProjectAllocationId(@Param("user_id") String userId, @Param("project_allocation_id") UUID projectAllocationId);
 
 	@Query(
-		"select ua.user_id as user_id, pa.project_id as project_id " +
+		"select ua.id as grant_id, ua.user_id as user_id, pa.project_id as project_id " +
 			"from user_grant ua " +
 			"join project_allocation pa on pa.id = ua.project_allocation_id " +
 			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +

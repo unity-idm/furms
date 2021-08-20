@@ -40,6 +40,12 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
+	public Optional<PolicyDocument> findByUserGrantId(String userGrantId) {
+		return repository.findByUserGrantId(UUID.fromString(userGrantId))
+			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
 	public Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter) {
 		return Stream.of(
 			repository.findAllSitePoliciesByUserId(userId.id),
