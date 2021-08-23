@@ -22,6 +22,8 @@ public interface PolicyDocumentRepository {
 
 	Optional<PolicyDocument> findByUserGrantId(String userGrantId);
 
+	Set<PolicyDocument> findAll();
+
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);

@@ -25,6 +25,8 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.Capability.REST_API_KEY_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
@@ -41,7 +43,7 @@ public enum Role {
 		"furmsFenixRole",
 		"ADMIN",
 		List.of(
-			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
+			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_POLICY_ACCEPTANCE_READ, SITE_POLICY_ACCEPTANCE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE,
 			FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS, USERS_MAINTENANCE, OWNED_SSH_KEY_MANAGMENT
 		),
 		List.of(SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
@@ -58,7 +60,7 @@ public enum Role {
 		"furmsSiteRole",
 		"ADMIN",
 		List.of(
-			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, OWNED_SSH_KEY_MANAGMENT
+			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_POLICY_ACCEPTANCE_READ, SITE_POLICY_ACCEPTANCE_WRITE, OWNED_SSH_KEY_MANAGMENT
 		),
 		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
