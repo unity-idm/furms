@@ -169,7 +169,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	public void resendPolicyInfo(PersistentId persistentId, PolicyId policyId) {
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
+	public void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId) {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
 		notificationDAO.notifyUser(persistentId, policyDocument);

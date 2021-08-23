@@ -37,7 +37,7 @@ public interface PolicyDocumentService {
 
 	Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId);
 
-	void resendPolicyInfo(PersistentId persistentId, PolicyId policyId);
+	void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId);
 
 	void create(PolicyDocument policyDocument);
 

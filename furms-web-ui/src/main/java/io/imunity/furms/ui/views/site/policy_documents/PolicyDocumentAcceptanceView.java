@@ -71,18 +71,13 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 			builder.addCustomContextMenuItem(
 				x -> new MenuButton(getTranslation("view.site-admin.policy-documents-acceptance.menu.accept"), CHECK_CIRCLE),
 				(UserGridItem userGridItem) -> {
-					PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
-						.policyDocumentId(policyDocument.id)
-						.policyDocumentRevision(policyDocument.revision)
-						.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
-						.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
-						.build();
+					PolicyAcceptance policyAcceptance = createPolicyAcceptance();
 					policyDocumentService.addUserPolicyAcceptance(policyDocument.siteId, userGridItem.getFenixUserId().get(), policyAcceptance);
 				});
 		}
 		builder.addCustomContextMenuItem(
 				x -> new MenuButton(getTranslation("view.site-admin.policy-documents-acceptance.menu.resend"), PAPERPLANE),
-				(UserGridItem userGridItem) -> policyDocumentService.resendPolicyInfo(userGridItem.getId().get(), policyDocument.id)
+				(UserGridItem userGridItem) -> policyDocumentService.resendPolicyInfo(policyDocument.siteId, userGridItem.getId().get(), policyDocument.id)
 			);
 
 		UserContextMenuFactory userContextMenuFactory = builder.build();
@@ -96,6 +91,15 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 		);
 
 		getContent().add(viewHeaderLayout, grid);
+	}
+
+	private PolicyAcceptance createPolicyAcceptance() {
+		return PolicyAcceptance.builder()
+			.policyDocumentId(policyDocument.id)
+			.policyDocumentRevision(policyDocument.revision)
+			.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
+			.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
+			.build();
 	}
 
 	@Override
