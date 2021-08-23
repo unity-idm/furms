@@ -275,6 +275,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
 			.build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
@@ -284,6 +285,34 @@ class PolicyDocumentServiceImplTest {
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
+		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
+	}
+
+	@Test
+	void shouldAddPolicyToUserWithCurrentRevision() {
+		FenixUserId userId = new FenixUserId("userId");
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
+			.policyDocumentId(policyId)
+			.build();
+
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("email")
+			.fenixUserId(userId).build()
+		);
+		when(repository.findById(policyId)).thenReturn(Optional.of(
+			PolicyDocument.builder()
+				.id(policyId)
+				.revision(1)
+				.build()
+		));
+
+		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+
+		policyAcceptance = PolicyAcceptance.builder()
+			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
+			.build();
 		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 }

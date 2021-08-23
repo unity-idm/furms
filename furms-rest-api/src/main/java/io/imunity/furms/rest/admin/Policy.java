@@ -4,12 +4,20 @@
  */
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+
 import java.util.Objects;
 
 class Policy {
 	public final PolicyId id;
 	public final String name;
 	public final int revision;
+
+	Policy(PolicyDocument policyDocument) {
+		this.id = new PolicyId(policyDocument.siteId, policyDocument.id.id.toString());
+		this.name = policyDocument.name;
+		this.revision = policyDocument.revision;
+	}
 
 	Policy(PolicyId id, String name, int revision) {
 		this.id = id;

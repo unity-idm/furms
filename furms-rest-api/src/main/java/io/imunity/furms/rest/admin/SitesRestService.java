@@ -5,23 +5,7 @@
 
 package io.imunity.furms.rest.admin;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static java.lang.String.format;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Supplier;
-
-import org.springframework.stereotype.Service;
-
+import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
@@ -33,12 +17,32 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class SitesRestService {
@@ -55,6 +59,8 @@ class SitesRestService {
 	private final UserAllocationsService userAllocationsService;
 	private final SSHKeyService sshKeyService;
 	private final ResourceChecker resourceChecker;
+	private final PolicyDocumentService policyDocumentService;
+
 
 	SitesRestService(SiteService siteService,
 	                 ProjectService projectService,
@@ -65,7 +71,8 @@ class SitesRestService {
 	                 ProjectAllocationService projectAllocationService,
 	                 ProjectInstallationsService projectInstallationsService,
 	                 UserService userService, UserAllocationsService userAllocationsService,
-	                 SSHKeyService sshKeyService) {
+	                 SSHKeyService sshKeyService,
+	                 PolicyDocumentService policyDocumentService) {
 		this.siteService = siteService;
 		this.projectService = projectService;
 		this.resourceCreditService = resourceCreditService;
@@ -78,12 +85,14 @@ class SitesRestService {
 		this.userAllocationsService = userAllocationsService;
 		this.sshKeyService = sshKeyService;
 		this.resourceChecker = new ResourceChecker(siteService::existsById);
+		this.policyDocumentService = policyDocumentService;
 	}
 
 	List<Site> findAll() {
 		final Set<io.imunity.furms.domain.resource_credits.ResourceCredit> resourceCredits = resourceCreditService.findAll();
 		final Set<io.imunity.furms.domain.resource_types.ResourceType> resourceTypes = resourceTypeService.findAll();
 		final Set<io.imunity.furms.domain.services.InfraService> services = infraServiceService.findAll();
+		final Set<PolicyDocument> policies = policyDocumentService.findAll();
 
 		return siteService.findAll().stream()
 				.map(site -> new Site(
@@ -101,8 +110,11 @@ class SitesRestService {
 								.filter(service -> service.siteId.equals(site.getId()))
 								.map(InfraService::new)
 								.collect(toList()),
-						//TODO fill policy
-						List.of()))
+						policies.stream()
+							.filter(policy -> policy.siteId.equals(site.getId()))
+							.map(Policy::new)
+							.collect(toList())
+						))
 				.collect(toList());
 	}
 
@@ -122,8 +134,11 @@ class SitesRestService {
 								.filter(service -> service.siteId.equals(site.getId()))
 								.map(InfraService::new)
 								.collect(toList()),
-						//TODO fill policy
-						List.of()))
+						policyDocumentService.findAllBySiteId(siteId).stream()
+							.filter(policy -> policy.siteId.equals(site.getId()))
+							.map(Policy::new)
+							.collect(toList())
+						))
 				.get();
 	}
 
@@ -242,6 +257,42 @@ class SitesRestService {
 		return userUsages.stream()
 				.map(userUsage -> new ProjectUsageRecord(userUsage, findAllocation(userUsage.projectAllocationId, allocations)))
 				.collect(toList());
+	}
+
+	List<Policy> findAllPolicies(String siteId) {
+		return policyDocumentService.findAllBySiteId(siteId).stream()
+			.map(policyDocument -> new Policy(new PolicyId(siteId, policyDocument.id.id.toString()), policyDocument.name, policyDocument.revision))
+			.collect(Collectors.toList());
+	}
+
+	Policy findPolicy(String siteId, String policyId) {
+		PolicyDocument policyDocument = policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
+			.orElseThrow(() -> new IdNotFoundValidationError(String.format("Site id %s or policy id %s doesn't exist", siteId, policyId)));
+		return new Policy(new PolicyId(siteId, policyId), policyDocument.name, policyDocument.revision);
+	}
+
+	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
+		return policyDocumentService.findAllUsersPolicyAcceptances(siteId).stream()
+			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
+			.flatMap(userPolicyAcceptances -> userPolicyAcceptances.policyAcceptances.stream()
+				.map(policyAcceptance -> PolicyAcceptance.builder()
+					.policyId(policyAcceptance.policyDocumentId)
+					.revision(policyAcceptance.policyDocumentRevision)
+					.acceptanceStatus(policyAcceptance.acceptanceStatus)
+					.fenixUserId(userPolicyAcceptances.user.fenixUserId.get())
+					.decisionTs(policyAcceptance.decisionTs)
+					.build())
+			).collect(Collectors.toList());
+	}
+
+	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId, AcceptanceStatus status) {
+		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
+			.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
+			.policyDocumentRevision(0)
+			.acceptanceStatus(status.policyAcceptanceStatus)
+			.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
+			.build());
+		return findAllPoliciesAcceptances(siteId);
 	}
 
 	private ProjectAllocationResolved findAllocation(String projectAllocationId, Set<ProjectAllocationResolved> allocations) {

@@ -60,7 +60,7 @@ public class PolicyDocument {
 		private String siteId;
 		private String name;
 		private PolicyWorkflow workflow;
-		private int revision;
+		private int revision = 1;
 		private PolicyContentType contentType;
 		private String htmlText;
 		private PolicyFile policyFile = PolicyFile.empty();

@@ -4,9 +4,13 @@
  */
 package io.imunity.furms.rest.admin;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-
+import io.imunity.furms.rest.openapi.APIDocConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.imunity.furms.rest.openapi.APIDocConstants;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.ZonedDateTime;
+import java.util.List;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -36,7 +35,7 @@ public class SitesRestController {
 
 	private final SitesRestService sitesRestService;
 
-	public SitesRestController(SitesRestService sitesRestService) {
+	SitesRestController(SitesRestService sitesRestService) {
 		this.sitesRestService = sitesRestService;
 	}
 
@@ -185,7 +184,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/policies")
 	public List<Policy> getPolicies(
 			@PathVariable("siteId") String siteId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return sitesRestService.findAllPolicies(siteId);
 	}
 
 	@Operation(
@@ -198,8 +197,8 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/policies/{policyId}")
 	public Policy getPolicy(
 			@PathVariable("siteId") String siteId,
-			@PathVariable("policyId") String servicesId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+			@PathVariable("policyId") String policyId) {
+		return sitesRestService.findPolicy(siteId, policyId);
 	}
 
 	/********************************************************************************************
@@ -220,7 +219,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/policyAcceptances")
 	public List<PolicyAcceptance> getPoliciesAcceptance(
 			@PathVariable("siteId") String siteId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return sitesRestService.findAllPoliciesAcceptances(siteId);
 	}
 
 	@Operation(
@@ -236,8 +235,8 @@ public class SitesRestController {
 			@PathVariable("siteId") String siteId,
 			@PathVariable("policyId") String policyId, 
 			@PathVariable("fenixUserId") String fenixUserId,
-			@PathVariable("status") PolicyAcceptance status) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+			@PathVariable("status") AcceptanceStatus status) {
+		return sitesRestService.addPolicyAcceptance(siteId, policyId, fenixUserId, status);
 	}
 
 	/********************************************************************************************
