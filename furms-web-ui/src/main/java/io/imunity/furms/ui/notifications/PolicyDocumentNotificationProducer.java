@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.notifications;
 
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.user_settings.policy_documents.PolicyDocumentsView;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ class PolicyDocumentNotificationProducer implements NotificationProducer {
 		return policyDocumentService.findAllByCurrentUser().stream()
 			.filter(policyDocumentExtended -> policyDocumentExtended.utcAcceptedTime.isEmpty())
 			.map(policyDocumentExtended ->
-				new NotificationBarElement(getTranslation("notifications.new.policy", policyDocumentExtended.name), PolicyDocumentsView.class)
+				new NotificationBarElement(getTranslation("notifications.new.policy", policyDocumentExtended.name), ViewMode.USER, PolicyDocumentsView.class)
 			);
 	}
 }
