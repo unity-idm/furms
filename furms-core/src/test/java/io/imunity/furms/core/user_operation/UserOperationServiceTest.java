@@ -8,7 +8,6 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
-import io.imunity.furms.core.policy_documents.PolicyDocumentServiceHelper;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
@@ -168,11 +167,11 @@ class UserOperationServiceTest {
 			.fenixUserId(fenixUserId)
 			.email("email")
 			.build();
-		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of());
+		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
 		//when
 		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
-		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of()));
+		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -200,7 +199,7 @@ class UserOperationServiceTest {
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of())));
+		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of())));
 	}
 
 	@ParameterizedTest

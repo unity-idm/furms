@@ -5,7 +5,6 @@
 
 package io.imunity.furms.db.policy_documents;
 
-import io.imunity.furms.domain.policy_documents.ServicePolicyDocument;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -40,5 +39,5 @@ public interface PolicyDocumentEntityRepository extends CrudRepository<PolicyDoc
 		"from service s " +
 		"join policy_document pd on pd.id = s.policy_id " +
 		"where s.site_id = :site_id")
-	Set<ServicePolicyDocument> findAllServicePoliciesBySiteId(@Param("site_id") UUID siteId);
+	Set<ServicePolicyDocumentEntity> findAllServicePoliciesBySiteId(@Param("site_id") UUID siteId);
 }

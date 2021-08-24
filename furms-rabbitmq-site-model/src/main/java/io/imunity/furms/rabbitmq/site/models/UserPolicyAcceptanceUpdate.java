@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class UserPolicyAcceptanceUpdate implements Body {
 	@JsonCreator
 	public UserPolicyAcceptanceUpdate(String fenixUserId, List<PolicyAcceptance> policiesAcceptance) {
 		this.fenixUserId = fenixUserId;
-		this.policiesAcceptance = policiesAcceptance;
+		this.policiesAcceptance = Collections.unmodifiableList(policiesAcceptance);
 	}
 
 	@Override

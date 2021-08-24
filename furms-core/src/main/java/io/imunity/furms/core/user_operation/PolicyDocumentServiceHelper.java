@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.policy_documents;
+package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
@@ -27,8 +27,8 @@ import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.AC
 import static java.util.stream.Collectors.toSet;
 
 @Service
-public class PolicyDocumentServiceHelper {
-	private static final Logger LOG = LoggerFactory.getLogger(PolicyDocumentServiceImpl.class);
+class PolicyDocumentServiceHelper {
+	private static final Logger LOG = LoggerFactory.getLogger(PolicyDocumentServiceHelper.class);
 
 	private final AuthzService authzService;
 	private final PolicyDocumentRepository policyDocumentRepository;

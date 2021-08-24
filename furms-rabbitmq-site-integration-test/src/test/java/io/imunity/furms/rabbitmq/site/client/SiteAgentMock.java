@@ -7,6 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
@@ -39,6 +40,7 @@ import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessResult;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequest;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequestAck;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessResult;
+import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdate;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequest;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequestAck;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddResult;
@@ -66,11 +68,13 @@ public class SiteAgentMock {
 	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
-	private static final long OP_SLEEP_MS = 0; 
+	private final SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
+	private static final long OP_SLEEP_MS = 0;
 
-	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher){
+	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher, SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock){
 		this.rabbitTemplate = rabbitTemplate;
 		this.publisher = publisher;
+		this.siteAgentPolicyDocumentReceiverMock = siteAgentPolicyDocumentReceiverMock;
 	}
 
 	@RabbitHandler
@@ -84,6 +88,18 @@ public class SiteAgentMock {
 		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 		Header header = getHeader(message.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentPingAck()));
+	}
+
+	@EventListener
+	public void receiveAgentPolicyUpdate(Payload<AgentPolicyUpdate> message) throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
+		siteAgentPolicyDocumentReceiverMock.process(message.body);
+	}
+
+	@EventListener
+	public void receiveUserPolicyAcceptanceUpdate(Payload<UserPolicyAcceptanceUpdate> message) throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
+		siteAgentPolicyDocumentReceiverMock.process(message.body);
 	}
 
 	@EventListener

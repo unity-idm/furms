@@ -7,14 +7,14 @@ package io.imunity.furms.domain.policy_documents;
 
 import java.util.Objects;
 
-public class ServicePolicyDocument {
+public class AssignedPolicyDocument {
 
 	public final PolicyId id;
 	public final String serviceId;
 	public final String name;
 	public final int revision;
 
-	ServicePolicyDocument(PolicyId id, String serviceId, String name, int revision) {
+	public AssignedPolicyDocument(PolicyId id, String serviceId, String name, int revision) {
 		this.id = id;
 		this.serviceId = serviceId;
 		this.name = name;
@@ -25,7 +25,7 @@ public class ServicePolicyDocument {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ServicePolicyDocument that = (ServicePolicyDocument) o;
+		AssignedPolicyDocument that = (AssignedPolicyDocument) o;
 		return revision == that.revision &&
 			Objects.equals(id, that.id) &&
 			Objects.equals(serviceId, that.serviceId) &&
@@ -70,8 +70,8 @@ public class ServicePolicyDocument {
 			return this;
 		}
 
-		public ServicePolicyDocument build() {
-			return new ServicePolicyDocument(id, name, serviceId, revision);
+		public AssignedPolicyDocument build() {
+			return new AssignedPolicyDocument(id, serviceId, name, revision);
 		}
 	}
 }

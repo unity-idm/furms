@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ public class UserProjectAddRequest implements Body {
 	@JsonCreator
 	public UserProjectAddRequest(AgentUser user, List<PolicyAcceptance> policiesAcceptance, String projectIdentifier) {
 		this.user = user;
-		this.policiesAcceptance = policiesAcceptance;
+		this.policiesAcceptance = Collections.unmodifiableList(policiesAcceptance);
 		this.projectIdentifier = projectIdentifier;
 	}
 

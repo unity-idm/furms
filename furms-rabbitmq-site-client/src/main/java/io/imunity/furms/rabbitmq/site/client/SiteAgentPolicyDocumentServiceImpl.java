@@ -40,7 +40,7 @@ class SiteAgentPolicyDocumentServiceImpl implements SiteAgentPolicyDocumentServi
 		AgentPolicyUpdate request = AgentPolicyUpdate.builder()
 			.policyIdentifier(policyDocument.id.id.toString())
 			.policyName(policyDocument.name)
-			.currentVersion(policyDocument.revision == 0 ? null : policyDocument.revision)
+			.currentVersion(policyDocument.isRevisionDefined() ? policyDocument.revision : null)
 			.serviceIdentifier(serviceIdentifier)
 			.build();
 		String queueName = getFurmsPublishQueueName(siteExternalId);
