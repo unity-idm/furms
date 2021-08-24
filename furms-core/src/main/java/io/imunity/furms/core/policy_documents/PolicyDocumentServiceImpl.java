@@ -33,10 +33,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
@@ -102,7 +104,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
+	public List<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
 		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
 
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
@@ -122,7 +124,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				.filter(UserStatus::isInstalled)
 				.isPresent()
 			)
-			.collect(toSet());
+			.collect(Collectors.toList());
 	}
 
 	@Override
@@ -164,6 +166,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
+	public void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId) {
+		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
+		notificationDAO.notifyUser(persistentId, policyDocument);
 	}
 
 	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,

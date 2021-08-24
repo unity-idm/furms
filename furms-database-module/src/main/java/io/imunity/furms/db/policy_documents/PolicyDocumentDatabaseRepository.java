@@ -42,6 +42,12 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
+	public Optional<PolicyDocument> findByUserGrantId(String userGrantId) {
+		return repository.findByUserGrantId(UUID.fromString(userGrantId))
+			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
 	public Set<PolicyDocument> findAll() {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 			.map(PolicyDocumentEntity::toPolicyDocument)

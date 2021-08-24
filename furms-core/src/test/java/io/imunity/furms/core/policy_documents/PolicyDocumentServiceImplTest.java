@@ -17,6 +17,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -79,6 +81,19 @@ class PolicyDocumentServiceImplTest {
 		service.findAllBySiteId("siteId");
 
 		orderVerifier.verify(repository).findAllBySiteId("siteId");
+	}
+
+	@Test
+	void shouldResendPolicyInfo() {
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PersistentId persistentId = new PersistentId("id");
+		PolicyDocument policyDocument = PolicyDocument.builder().build();
+
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+
+		service.resendPolicyInfo("siteId", persistentId, policyId);
+
+		orderVerifier.verify(notificationDAO).notifyUser(persistentId, policyDocument);
 	}
 
 	@Test
@@ -177,7 +192,7 @@ class PolicyDocumentServiceImplTest {
 				.build()
 		));
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
@@ -204,7 +219,7 @@ class PolicyDocumentServiceImplTest {
 		));
 		when(userOperationRepository.findAllUserAdditionsByUserId("siteId")).thenReturn(Set.of());
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
@@ -242,7 +257,7 @@ class PolicyDocumentServiceImplTest {
 				.build()
 		));
 
-		Set<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
+		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
