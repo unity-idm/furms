@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -39,6 +40,19 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public Optional<PolicyDocument> findById(PolicyId policyId) {
 		return repository.findById(policyId.id)
 			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
+	public Optional<PolicyDocument> findByUserGrantId(String userGrantId) {
+		return repository.findByUserGrantId(UUID.fromString(userGrantId))
+			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
+	public Set<PolicyDocument> findAll() {
+		return StreamSupport.stream(repository.findAll().spliterator(), false)
+			.map(PolicyDocumentEntity::toPolicyDocument)
+			.collect(Collectors.toSet());
 	}
 
 	@Override

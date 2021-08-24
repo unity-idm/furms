@@ -25,6 +25,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 
+import static io.imunity.furms.ui.user_context.ViewMode.USER;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -49,7 +50,13 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
 	}
 
-	void reloadComponent(){
+	public void loadUserSettings(){
+		furmsSelectService.loadItems().stream()
+			.filter(x -> x.furmsViewUserContext.viewMode.equals(USER))
+			.forEach(x -> setValue(x));
+	}
+
+	private void reloadComponent(){
 		try {
 			String currentSelectedContextId = furmsSelectService.loadSelectedItem()
 					.orElseThrow(() -> new IllegalStateException("No context found for current user"))

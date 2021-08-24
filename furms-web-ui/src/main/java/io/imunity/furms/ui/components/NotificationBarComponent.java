@@ -11,9 +11,11 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
@@ -24,11 +26,14 @@ import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.notifications.NotificationBarElement;
 import io.imunity.furms.ui.notifications.UINotificationService;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
 
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.BELL;
 
+@CssImport("./styles/components/notification-bar.css")
 @CssImport(value = "./styles/custom-lumo-theme.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 public class NotificationBarComponent extends Button {
@@ -37,11 +42,14 @@ public class NotificationBarComponent extends Button {
 	private final FURMSUser currentUser;
 	private final Span badge;
 	private final ContextMenu contextMenu;
+	private final RoleTranslator roleTranslator;
 	private Registration broadcasterRegistration;
 
-	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, UINotificationService notificationService, FURMSUser furmsUser) {
+	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, UINotificationService notificationService,
+	                                FURMSUser furmsUser, RoleTranslator roleTranslator) {
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.notificationService = notificationService;
+		this.roleTranslator = roleTranslator;
 		this.currentUser = furmsUser;
 
 		badge = new Span();
@@ -76,8 +84,23 @@ public class NotificationBarComponent extends Button {
 		contextMenu.removeAll();
 		Set<NotificationBarElement> allCurrentUserNotification = notificationService.findAllCurrentUserNotification();
 		allCurrentUserNotification
-			.forEach(x -> contextMenu.addItem(x.text, y -> UI.getCurrent().navigate(x.redirect)));
+			.forEach(barElement -> {
+				MenuItem menuItem = contextMenu.addItem(createLabel(barElement.text), y -> {
+					roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
+						.get(barElement.viewMode).stream().findAny()
+						.ifPresent(FurmsViewUserContext::setAsCurrent);
+					UI.getCurrent().navigate(barElement.redirect);
+				});
+				menuItem.setId("context-menu-item-size");
+				contextMenu.add(new Hr());
+			});
 		setNumber(allCurrentUserNotification.size());
+	}
+
+	private Label createLabel(String text) {
+		Label label = new Label(text);
+		label.getStyle().set("font-size", "var(--lumo-font-size-s)");
+		return label;
 	}
 
 	@Override

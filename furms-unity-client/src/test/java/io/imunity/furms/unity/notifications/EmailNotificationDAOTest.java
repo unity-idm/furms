@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -118,18 +119,24 @@ class EmailNotificationDAOTest {
 
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
 			.build();
 
 		PolicyDocumentExtended policyDocumentExtended = PolicyDocumentExtended.builder()
+			.id(policyId)
 			.name("policyName")
+			.revision(2)
 			.build();
 
 		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
 		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
+		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+			.id(policyId)
+			.build()));
 
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId);
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId,"grantId");
 
 		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
 	}
@@ -154,9 +161,11 @@ class EmailNotificationDAOTest {
 		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
 		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
+		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+			.id(policyId)
+			.build()));
 
-
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId);
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId, "grantId");
 
 		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
 	}

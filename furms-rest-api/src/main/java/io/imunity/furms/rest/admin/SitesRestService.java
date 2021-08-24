@@ -17,6 +17,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
@@ -91,6 +92,7 @@ class SitesRestService {
 		final Set<io.imunity.furms.domain.resource_credits.ResourceCredit> resourceCredits = resourceCreditService.findAll();
 		final Set<io.imunity.furms.domain.resource_types.ResourceType> resourceTypes = resourceTypeService.findAll();
 		final Set<io.imunity.furms.domain.services.InfraService> services = infraServiceService.findAll();
+		final Set<PolicyDocument> policies = policyDocumentService.findAll();
 
 		return siteService.findAll().stream()
 				.map(site -> new Site(
@@ -108,8 +110,11 @@ class SitesRestService {
 								.filter(service -> service.siteId.equals(site.getId()))
 								.map(InfraService::new)
 								.collect(toList()),
-						//TODO fill policy
-						List.of()))
+						policies.stream()
+							.filter(policy -> policy.siteId.equals(site.getId()))
+							.map(Policy::new)
+							.collect(toList())
+						))
 				.collect(toList());
 	}
 
@@ -129,8 +134,11 @@ class SitesRestService {
 								.filter(service -> service.siteId.equals(site.getId()))
 								.map(InfraService::new)
 								.collect(toList()),
-						//TODO fill policy
-						List.of()))
+						policyDocumentService.findAllBySiteId(siteId).stream()
+							.filter(policy -> policy.siteId.equals(site.getId()))
+							.map(Policy::new)
+							.collect(toList())
+						))
 				.get();
 	}
 
@@ -258,20 +266,21 @@ class SitesRestService {
 	}
 
 	Policy findPolicy(String siteId, String policyId) {
-		PolicyDocument policyDocument = policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId)).get();
+		PolicyDocument policyDocument = policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
+			.orElseThrow(() -> new IdNotFoundValidationError(String.format("Site id %s or policy id %s doesn't exist", siteId, policyId)));
 		return new Policy(new PolicyId(siteId, policyId), policyDocument.name, policyDocument.revision);
 	}
 
 	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
 		return policyDocumentService.findAllUsersPolicyAcceptances(siteId).stream()
-			.filter(x -> x.user.fenixUserId.isPresent())
-			.flatMap(x -> x.policyAcceptances.stream()
-				.map(y -> PolicyAcceptance.builder()
-					.policyId(y.policyDocumentId)
-					.revision(y.policyDocumentRevision)
-					.acceptanceStatus(y.acceptanceStatus)
-					.fenixUserId(x.user.fenixUserId.get())
-					.decisionTs(y.decisionTs)
+			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
+			.flatMap(userPolicyAcceptances -> userPolicyAcceptances.policyAcceptances.stream()
+				.map(policyAcceptance -> PolicyAcceptance.builder()
+					.policyId(policyAcceptance.policyDocumentId)
+					.revision(policyAcceptance.policyDocumentRevision)
+					.acceptanceStatus(policyAcceptance.acceptanceStatus)
+					.fenixUserId(userPolicyAcceptances.user.fenixUserId.get())
+					.decisionTs(policyAcceptance.decisionTs)
 					.build())
 			).collect(Collectors.toList());
 	}

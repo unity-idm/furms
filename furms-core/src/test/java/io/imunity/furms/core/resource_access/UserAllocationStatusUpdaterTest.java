@@ -66,7 +66,7 @@ class UserAllocationStatusUpdaterTest {
 
 		FenixUserId userId = new FenixUserId("userId");
 		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
+			.thenReturn(Optional.of(new ProjectUserGrant("grantId", "projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
@@ -80,11 +80,11 @@ class UserAllocationStatusUpdaterTest {
 
 		FenixUserId userId = new FenixUserId("userId");
 		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("projectId", userId)));
+			.thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(userId);
+		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(userId, "grantId");
 	}
 
 	@Test
@@ -185,7 +185,7 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
@@ -198,7 +198,7 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
 		FenixUserId fenixUserId = new FenixUserId("userId");
 		when(repository.findUserGrantsByProjectIdAndFenixUserId("projectId", fenixUserId)).thenReturn(Set.of());
 		service.update(correlationId, REVOKED, "msg");

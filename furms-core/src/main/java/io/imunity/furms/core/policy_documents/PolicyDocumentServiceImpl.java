@@ -40,11 +40,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
@@ -81,6 +86,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
+		this.authzService = authzService;
 		this.notificationDAO = notificationDAO;
 		this.userOperationService = userOperationService;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
@@ -98,6 +104,13 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
+	public Set<PolicyDocument> findAll() {
+		LOG.debug("Getting all Policy Documents");
+		return policyDocumentRepository.findAll();
+	}
+
+	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<PolicyDocument> findAllBySiteId(String siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
@@ -106,7 +119,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
+	public List<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
 		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
 
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
@@ -126,11 +139,11 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				.filter(UserStatus::isInstalled)
 				.isPresent()
 			)
-			.collect(toSet());
+			.collect(Collectors.toList());
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId) {
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
 	}
@@ -158,6 +171,54 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
+	public Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(PersistentId userId) {
+		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllSitePoliciesByUserId(userId);
+		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
+	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
+		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
+		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
+	public void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId) {
+		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
+		notificationDAO.notifyUser(persistentId, policyDocument);
+	}
+
+	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
+	                                                                                  Set<PolicyDocument> userPolicies) {
+		return findPolicyAcceptancesByUserId(userId).stream()
+				.filter(policyAcceptance -> policyAcceptance.acceptanceStatus == ACCEPTED)
+				.map(policyAcceptance -> userPolicies.stream()
+								.filter(userPolicy -> isPolicyRelatedToAcceptance(userPolicy, policyAcceptance))
+								.findFirst()
+								.map(policyDocument -> new PolicyAcceptanceAtSite(policyAcceptance, policyDocument))
+								.orElse(null))
+				.filter(Objects::nonNull)
+				.collect(toSet());
+	}
+
+	private boolean isPolicyRelatedToAcceptance(PolicyDocument userPolicy, PolicyAcceptance policyAcceptance) {
+		return userPolicy.id.equals(policyAcceptance.policyDocumentId)
+				&& userPolicy.revision == policyAcceptance.policyDocumentRevision;
+	}
+
+	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(PersistentId userId) {
+		final FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
+				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
+
+		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public void addCurrentUserPolicyAcceptance(PolicyAcceptance policyAcceptance) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
@@ -166,7 +227,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		FURMSUser user = userService.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));

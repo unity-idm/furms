@@ -7,8 +7,10 @@ package io.imunity.furms.spi.notifications;
 
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 
 public interface NotificationDAO {
+	void notifyUser(PersistentId id, PolicyDocument policyDocument);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
-	void notifyAboutAllNotAcceptedPolicies(FenixUserId fenixUserId);
+	void notifyAboutAllNotAcceptedPolicies(FenixUserId fenixUserId, String grantId);
 }
