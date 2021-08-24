@@ -220,7 +220,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	private boolean isPolicyDisengage(Site site, Site oldSite) {
-		return oldSite.getPolicyId() != null && site.getPolicyId() == null;
+		return (oldSite.getPolicyId() != null && oldSite.getPolicyId().id != null) &&
+			(site.getPolicyId() == null || site.getPolicyId().id == null);
 	}
 
 	@Override

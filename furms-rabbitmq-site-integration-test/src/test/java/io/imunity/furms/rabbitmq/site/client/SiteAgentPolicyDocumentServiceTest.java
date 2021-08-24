@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -109,7 +110,7 @@ class SiteAgentPolicyDocumentServiceTest {
 			.build();
 
 		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies =
-			new UserPolicyAcceptancesWithServicePolicies(furmsUser, Set.of(policyAcceptance), Set.of(servicePolicyDocument));
+			new UserPolicyAcceptancesWithServicePolicies(furmsUser, Set.of(policyAcceptance), Optional.empty(), Set.of(servicePolicyDocument));
 		siteAgentPolicyDocumentService.updateUsersPolicyAcceptances(siteExternalId, userPolicyAcceptancesWithServicePolicies);
 
 		verify(receiverMock, timeout(10000)).process(

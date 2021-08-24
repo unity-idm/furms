@@ -15,14 +15,8 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
-import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
@@ -43,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
@@ -354,6 +347,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
 			.build();
 		FURMSUser furmsUser = FURMSUser.builder()
 			.email("email")
@@ -362,6 +356,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id((policyId))
 			.siteId("siteId")
+			.revision(1)
 			.build();
 		Site site = Site.builder()
 			.build();
@@ -378,18 +373,30 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldAddPolicyToUser() {
+	void shouldSendUserPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		Site site = Site.builder()
+			.id("siteId")
+			.policyId(policyId)
+			.build();
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
+			.revision(1)
+			.siteId("siteId")
+			.build();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
 			.policyDocumentRevision(1)
 			.build();
-
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+		FURMSUser user = FURMSUser.builder()
 			.email("email")
-			.fenixUserId(userId).build()
-		);
+			.fenixUserId(userId).build();
+
+		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(authzService.getCurrentAuthNUser()).thenReturn(user);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
@@ -400,20 +407,26 @@ class PolicyDocumentServiceImplTest {
 	void shouldAddPolicyToUserWithCurrentRevision() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		Site site = Site.builder()
+			.id("siteId")
+			.policyId(policyId)
+			.build();
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
+			.revision(1)
+			.siteId("siteId")
+			.build();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
 			.build();
-
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+		FURMSUser user = FURMSUser.builder()
 			.email("email")
-			.fenixUserId(userId).build()
-		);
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder()
-				.id(policyId)
-				.revision(1)
-				.build()
-		));
+			.fenixUserId(userId).build();
+
+		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(authzService.getCurrentAuthNUser()).thenReturn(user);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
@@ -430,6 +443,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
 			.build();
 		FURMSUser furmsUser = FURMSUser.builder()
 			.email("email")
@@ -438,6 +452,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id((policyId))
 			.siteId("siteId")
+			.revision(1)
 			.build();
 		Site site = Site.builder()
 			.id("siteId")
@@ -462,7 +477,7 @@ class PolicyDocumentServiceImplTest {
 		Mockito.verify(userOperationService).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
 			furmsUser,
 			Set.of(policyAcceptance),
-			Optional.empty(),
+			Optional.of(policyDocument),
 			Set.of(servicePolicyDocument)
 		));
 	}
@@ -473,6 +488,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
+			.policyDocumentRevision(1)
 			.build();
 		FURMSUser furmsUser = FURMSUser.builder()
 			.email("email")
@@ -481,6 +497,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id((policyId))
 			.siteId("siteId")
+			.revision(1)
 			.build();
 		Site site = Site.builder()
 			.id("siteId")

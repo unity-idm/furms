@@ -55,7 +55,7 @@ class SiteAgentUserServiceTest {
 			.fenixUserId(new FenixUserId("id"))
 			.email("email")
 			.build();
-		siteAgentUserService.addUser(userAddition, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Set.of()));
+		siteAgentUserService.addUser(userAddition, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
 
 		verify(userOperationStatusUpdater, timeout(10000)).updateStatus(correlationId, UserStatus.ADDING_ACKNOWLEDGED, Optional.empty());
 		verify(userOperationStatusUpdater, timeout(10000)).update(any());

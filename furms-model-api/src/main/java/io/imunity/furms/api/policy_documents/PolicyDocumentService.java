@@ -12,6 +12,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +31,6 @@ public interface PolicyDocumentService {
 	Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId);
 
 	Set<PolicyDocumentExtended> findAllByCurrentUser();
-
-	Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(PersistentId userId);
-
-	Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId);
 
 	void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId);
 

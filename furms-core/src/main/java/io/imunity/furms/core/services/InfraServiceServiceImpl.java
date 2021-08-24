@@ -140,7 +140,8 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	}
 
 	private boolean isPolicyDisengage(InfraService infraService, InfraService oldInfraService) {
-		return oldInfraService.policyId != null && infraService.policyId == null;
+		return (oldInfraService.policyId != null && oldInfraService.policyId.id != null) &&
+			(infraService.policyId == null || infraService.policyId.id == null);
 	}
 
 	@Override
