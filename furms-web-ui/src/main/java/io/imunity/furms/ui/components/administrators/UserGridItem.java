@@ -7,6 +7,7 @@ package io.imunity.furms.ui.components.administrators;
 
 import com.vaadin.flow.component.icon.Icon;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
 
@@ -15,16 +16,18 @@ import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
-public class AdministratorsGridItem {
+public class UserGridItem {
 	private final Optional<PersistentId> id;
+	private final Optional<FenixUserId> fenixUserId;
 	private final Optional<String> firstName;
 	private final Optional<String> lastName;
 	private final UserStatus status;
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
-	public AdministratorsGridItem(FURMSUser user){
+	public UserGridItem(FURMSUser user){
 		this.id = user.id;
+		this.fenixUserId = user.fenixUserId;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;
 		this.status = user.status;
@@ -59,11 +62,15 @@ public class AdministratorsGridItem {
 		this.icon = icon;
 	}
 
+	public Optional<FenixUserId> getFenixUserId() {
+		return fenixUserId;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AdministratorsGridItem that = (AdministratorsGridItem) o;
+		UserGridItem that = (UserGridItem) o;
 		return id.equals(that.id);
 	}
 

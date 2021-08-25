@@ -7,7 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -51,7 +51,16 @@ public class UserServiceTest {
 
 		userService.addUserToGroup(userId, group);
 
-		verify(unityClient, times(1)).post(eq(path), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
+		verify(unityClient, times(1)).post(eq(path));
+	}
+
+	@Test
+	void shouldSendUserNotification() {
+		PersistentId userId = new PersistentId("userId");
+
+		userService.sendUserNotification(userId, "templateId", Map.of("custom.name", "name"));
+
+		verify(unityClient).post("/userNotification-trigger/entity/userId/template/templateId", null, Map.of("custom.name", "name"));
 	}
 
 	@Test
@@ -76,7 +85,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldAddUserPolicyAgreement() {
+	void shouldAddUserPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		String group = "/";
 		String path = "/entity/" + userId.id + "/attribute";
@@ -87,27 +96,27 @@ public class UserServiceTest {
 		String id = UUID.randomUUID().toString();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(id))
-			.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+			.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 			.build();
-		userService.addUserPolicyAgreement(userId, policyAcceptance);
+		userService.addUserPolicyAcceptance(userId, policyAcceptance);
 
 		Attribute attribute = new Attribute(
-			FURMS_POLICY_AGREEMENT_STATE,
+				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
 			STRING,
 			group,
-			List.of(PolicyAgreementParser.parse(PolicyAgreementArgument.valueOf(policyAcceptance)))
+			List.of(PolicyAcceptanceParser.parse(PolicyAcceptanceArgument.valueOf(policyAcceptance)))
 		);
 		verify(unityClient, times(1)).put(eq(path), eq(attribute), eq(Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY)));
 	}
 
 	@Test
-	void shouldReturnUserEmptyPolicyAgreementsList() {
+	void shouldReturnUserEmptyPolicyAcceptancesList() {
 		FenixUserId userId = new FenixUserId("userId");
 		String getAttributesPath = "/entity/" + userId.id + "/attributes";
 
 		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
 			.thenReturn(emptyList());
-		userService.getPolicyAgreements(userId);
+		userService.getPolicyAcceptances(userId);
 
 		verify(unityClient, times(1)).get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
@@ -137,7 +146,7 @@ public class UserServiceTest {
 //		)
 //			.thenReturn(new MultiGroupMembers(List.of(), Map.of()));
 //
-//		Set<UserPolicyAgreements> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
+//		Set<UserPolicyAcceptances> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
 //
 //		assertThat(allUsersFromGroup).isEmpty();
 //	}

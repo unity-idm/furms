@@ -5,9 +5,18 @@
 
 package io.imunity.furms.server;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.policy_documents.PolicyContentType;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
@@ -15,6 +24,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -22,13 +32,16 @@ import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
+import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.sites.SiteWebClient;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -37,6 +50,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static java.util.function.Function.identity;
 
@@ -47,7 +61,7 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final CommunityGroupsDAO communityGroupsDAO;
 
 	private final SiteRepository siteRepository;
-	private final SiteWebClient siteWebClient;
+	private final SiteGroupDAO siteGroupDAO;
 	private final UsersDAO usersDAO;
 	private final ProjectRepository projectRepository;
 	private final ProjectGroupsDAO projectGroupsDAO;
@@ -57,20 +71,27 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final ResourceCreditRepository resourceCreditRepository;
 	private final CommunityAllocationRepository communityAllocationRepository;
 	private final SiteAgentService siteAgentService;
+	private final PolicyDocumentRepository policyDocumentRepository;
+	private final ProjectAllocationRepository projectAllocationRepository;
+	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 
 	private String communityId;
 	private String community2Id;
 
+	private String projectId;
+
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
-	                    SiteRepository siteRepository, SiteWebClient siteWebClient, UsersDAO usersDAO,
+	                    SiteRepository siteRepository, SiteGroupDAO siteGroupDAO, UsersDAO usersDAO,
 	                    ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO,
 	                    UnityServerDetector unityDetector, InfraServiceRepository infraServiceRepository,
 	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
-	                    CommunityAllocationRepository communityAllocationRepository, SiteAgentService siteAgentService) {
+	                    CommunityAllocationRepository communityAllocationRepository, SiteAgentService siteAgentService,
+	                    PolicyDocumentRepository policyDocumentRepository, ProjectAllocationRepository projectAllocationRepository,
+	                    ProjectAllocationInstallationRepository projectAllocationInstallationRepository) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
-		this.siteWebClient = siteWebClient;
+		this.siteGroupDAO = siteGroupDAO;
 		this.usersDAO = usersDAO;
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
@@ -80,6 +101,9 @@ class DemoDataInitializer implements CommandLineRunner {
 		this.resourceCreditRepository = resourceCreditRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.siteAgentService = siteAgentService;
+		this.policyDocumentRepository = policyDocumentRepository;
+		this.projectAllocationRepository = projectAllocationRepository;
+		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 	}
 
 	@Override
@@ -90,13 +114,8 @@ class DemoDataInitializer implements CommandLineRunner {
 	}
 
 	private void initCommunitiesAndProjects() throws IOException {
-		
-		PersistentId testAdminId = usersDAO.getAllUsers().stream()
-			.filter(user -> user.email.equals("admin@domain.com"))
-			.map(user -> user.id)
-			.findAny()
-			.flatMap(identity())
-			.orElse(null);
+
+		PersistentId testAdminId = getPersistentId();
 		if(communityRepository.findAll().isEmpty()) {
 			byte[] imgHBPFile = getClass().getClassLoader().getResourceAsStream("demo/HBP.png").readAllBytes();
 			Community community = Community.builder()
@@ -116,6 +135,7 @@ class DemoDataInitializer implements CommandLineRunner {
 			communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
 			community2Id = communityRepository.create(community2);
 			communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
+			communityGroupsDAO.addAdmin(communityId, testAdminId);
 
 			Project project = Project.builder()
 				.name("Neuroinforamtics")
@@ -141,7 +161,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.leaderId(testAdminId)
 				.build();
 
-			String projectId = projectRepository.create(project);
+			projectId = projectRepository.create(project);
 			projectGroupsDAO.create(new ProjectGroup(projectId, project.getName(), communityId));
 			String project2Id = projectRepository.create(project2);
 			projectGroupsDAO.create(new ProjectGroup(project2Id, project2.getName(), communityId));
@@ -183,8 +203,19 @@ class DemoDataInitializer implements CommandLineRunner {
 		}
 	}
 
+	private PersistentId getPersistentId() {
+		return usersDAO.getAllUsers().stream()
+			.filter(user -> user.email.equals("admin@domain.com"))
+			.map(user -> user.id)
+			.findAny()
+			.flatMap(identity())
+			.orElse(null);
+	}
+
 	private void initSites() {
 		if (siteRepository.findAll().isEmpty()) {
+			PersistentId testAdminId = getPersistentId();
+
 			Site cineca = Site.builder()
 					.name("CINECA")
 					.build();
@@ -207,19 +238,52 @@ class DemoDataInitializer implements CommandLineRunner {
 			siteAgentService.initializeSiteConnection(fzjExternalId);
 			siteAgentService.initializeSiteConnection(bscExternalId);
 
-			siteWebClient.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
-			siteWebClient.create(Site.builder().id(fzjId).name(fzj.getName()).build());
-			siteWebClient.create(Site.builder().id(bscId).name(bsc.getName()).build());
+			siteGroupDAO.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
+			siteGroupDAO.create(Site.builder().id(fzjId).name(fzj.getName()).build());
+			siteGroupDAO.create(Site.builder().id(bscId).name(bsc.getName()).build());
+
+			siteGroupDAO.addSiteUser(cinecaId, testAdminId, Role.SITE_ADMIN);
+
+			PolicyDocument policyDocument = PolicyDocument.builder()
+				.name("Cineca site policy")
+				.workflow(PolicyWorkflow.WEB_BASED)
+				.contentType(PolicyContentType.EMBEDDED)
+				.wysiwygText("<div><p>TEXT</p></div>")
+				.revision(1)
+				.siteId(cinecaId)
+				.build();
+
+			PolicyDocument policyDocument1 = PolicyDocument.builder()
+				.name("Service policy")
+				.workflow(PolicyWorkflow.PAPER_BASED)
+				.contentType(PolicyContentType.EMBEDDED)
+				.wysiwygText("<div><p>TEXT</p></div>")
+				.revision(1)
+				.siteId(cinecaId)
+				.build();
+
+			PolicyId policyId = policyDocumentRepository.create(policyDocument);
+			PolicyId policyId1 = policyDocumentRepository.create(policyDocument1);
+
+			Site updateCineca = Site.builder()
+				.id(cinecaId)
+				.externalId(ciencaExternalId)
+				.policyId(policyId)
+				.name("CINECA")
+				.build();
+			siteRepository.update(updateCineca);
 
 			InfraService infraServiceCineca = InfraService.builder()
 				.name("Virtual Machines")
 				.siteId(cinecaId)
 				.description("Service for deploying virtual machines")
+				.policyId(policyId1)
 				.build();
 			InfraService infraServiceCineca1 = InfraService.builder()
 				.name("Archive Cineca")
 				.siteId(cinecaId)
 				.description("Archive Cineca")
+				.policyId(policyId1)
 				.build();
 			InfraService infraServiceFzj = InfraService.builder()
 				.name("Cluster Fzj")
@@ -348,7 +412,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.utcEndTime(LocalDateTime.of(2024, 12, 8, 17, 32))
 				.build();
 
-			resourceCreditRepository.create(resourceCreditCineca);
+			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca);
 			resourceCreditRepository.create(resourceCreditCineca1);
 			resourceCreditRepository.create(resourceCreditFzj);
 			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
@@ -367,9 +431,72 @@ class DemoDataInitializer implements CommandLineRunner {
 				.name("Second Allocation")
 				.amount(new BigDecimal(500))
 				.build();
+			CommunityAllocation communityAllocation2 = CommunityAllocation.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditCinecaId1)
+				.name("HBP Cineca Allocation")
+				.amount(new BigDecimal(100))
+				.build();
 
 			communityAllocationRepository.create(communityAllocation);
 			communityAllocationRepository.create(communityAllocation1);
+			String communityAllocationId = communityAllocationRepository.create(communityAllocation2);
+
+			ProjectAllocation projectAllocation = ProjectAllocation.builder()
+				.projectId(projectId)
+				.name("Neuroinforamtics Cineca Allocation")
+				.amount(new BigDecimal(20))
+				.communityAllocationId(communityAllocationId)
+				.build();
+
+			String projectAllocationId = projectAllocationRepository.create(projectAllocation);
+
+			ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
+				.projectAllocationId(projectAllocationId)
+				.siteId(cinecaId)
+				.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+				.build();
+
+			projectAllocationInstallationRepository.create(projectAllocationInstallation);
+
+			ProjectAllocationChunk projectAllocationChunk = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(5))
+				.projectAllocationId(projectAllocationId)
+				.chunkId("1")
+				.validFrom(LocalDateTime.now().minusDays(10))
+				.validTo(LocalDateTime.now().plusDays(20))
+				.receivedTime(LocalDateTime.now())
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk);
+
+			ProjectAllocation projectAllocation1 = ProjectAllocation.builder()
+				.projectId(projectId)
+				.name("Neuroinforamtics Cineca Allocation 2")
+				.amount(new BigDecimal(20))
+				.communityAllocationId(communityAllocationId)
+				.build();
+
+			String projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
+
+			ProjectAllocationInstallation projectAllocationInstallation1 = ProjectAllocationInstallation.builder()
+				.projectAllocationId(projectAllocationId1)
+				.siteId(cinecaId)
+				.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+				.build();
+
+			projectAllocationInstallationRepository.create(projectAllocationInstallation1);
+
+			ProjectAllocationChunk projectAllocationChunk1 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(5))
+				.projectAllocationId(projectAllocationId1)
+				.chunkId("1")
+				.validFrom(LocalDateTime.now().minusDays(10))
+				.validTo(LocalDateTime.now().plusDays(20))
+				.receivedTime(LocalDateTime.now())
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk1);
 		}
 	}
 }

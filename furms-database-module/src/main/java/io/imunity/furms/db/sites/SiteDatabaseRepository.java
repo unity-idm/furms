@@ -101,6 +101,7 @@ class SiteDatabaseRepository implements SiteRepository {
 				.map(oldEntity -> SiteEntity.builder()
 						.id(oldEntity.getId())
 						.name(site.getName())
+						.oauthClientId(site.getOauthClientId())
 						.connectionInfo(site.getConnectionInfo())
 						.logo(site.getLogo())
 						.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory())

@@ -15,22 +15,32 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-class UnitySiteWebClientTest {
+class UnitySiteGroupDAOTest {
 
 	@Mock
 	private UnityClient unityClient;
@@ -39,7 +49,7 @@ class UnitySiteWebClientTest {
 	private UserService userService;
 
 	@InjectMocks
-	private UnitySiteWebClient unitySiteWebClient;
+	private UnitySiteGroupDAO unitySiteWebClient;
 
 	@BeforeEach
 	void setUp() {
@@ -134,7 +144,7 @@ class UnitySiteWebClientTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
-		when(userService.getAllUsersByRole(groupPath, SITE_ADMIN))
+		when(userService.getAllUsersByRoles(groupPath, Set.of(SITE_ADMIN)))
 			.thenReturn(List.of(
 				FURMSUser.builder()
 					.id(new PersistentId("1"))
@@ -152,7 +162,7 @@ class UnitySiteWebClientTest {
 			);
 
 		//when
-		List<FURMSUser> admins = unitySiteWebClient.getAllAdmins(siteId);
+		List<FURMSUser> admins = unitySiteWebClient.getAllSiteUsers(siteId, Set.of(SITE_ADMIN));
 
 		//then
 		assertThat(admins).hasSize(2);
@@ -167,7 +177,7 @@ class UnitySiteWebClientTest {
 		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 		//when
-		unitySiteWebClient.addAdmin(siteId, userId);
+		unitySiteWebClient.addSiteUser(siteId, userId, SITE_ADMIN);
 
 		//then
 		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
@@ -175,20 +185,16 @@ class UnitySiteWebClientTest {
 	}
 
 	@Test
-	void shouldRemoveAdminFromGroup() {
+	void shouldRemoveSiteRoleFromGroup() {
 		//given
 		String siteId = "siteId";
 		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
 		//when
-		when(userService.getRoleValues(Mockito.any(), Mockito.anyString(), Mockito.any()))
-			.thenReturn(Set.of("ADMIN"));
-		unitySiteWebClient.removeAdmin(siteId, userId);
+		unitySiteWebClient.removeSiteUser(siteId, userId);
 
 		//then
-		verify(userService, times(1)).getRoleValues(Mockito.eq(userId), Mockito.eq(groupPath), Mockito.eq(SITE_ADMIN));
-		verify(userService, times(0)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
 		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
 	}
 
@@ -201,10 +207,9 @@ class UnitySiteWebClientTest {
 
 		//when
 		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(SITE_ADMIN))).thenReturn(Set.of(SITE_ADMIN.unityRoleValue, SITE_SUPPORT.unityRoleValue));
-		unitySiteWebClient.removeAdmin(siteId, userId);
+		unitySiteWebClient.removeSiteUser(siteId, userId);
 
 		//then
-		verify(userService, times(1)).removeUserRole(eq(userId), eq(groupPath), eq(SITE_ADMIN));
-		verify(userService, times(0)).removeUserFromGroup(eq(userId), eq(groupPath));
+		verify(userService, times(1)).removeUserFromGroup(eq(userId), eq(groupPath));
 	}
 }

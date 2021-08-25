@@ -5,35 +5,21 @@
 
 package io.imunity.furms.ui.views.user_settings.policy_documents;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-
-import java.io.ByteArrayInputStream;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.UUID;
-
+import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.StreamResource;
-
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAgreementStatus;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
@@ -46,6 +32,20 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
+import java.io.ByteArrayInputStream;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.UUID;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
 public class PolicyDocumentsView extends FurmsViewComponent {
@@ -54,12 +54,12 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 
 	private final Grid<PolicyDocumentExtended> grid;
 
-	PolicyDocumentsView(AuthzService authzService, PolicyDocumentService service) {
+	PolicyDocumentsView(PolicyDocumentService service) {
 		this.policyDocumentService = service;
 		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
-		grid.addColumn(x -> x.name)
+		grid.addComponentColumn(this::getTooltipName)
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.1"))
 			.setSortable(true);
 		grid.addColumn(x -> getTranslation("view.user-settings.policy-documents.workflow." + x.workflow.getPersistentId()))
@@ -87,6 +87,15 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		getContent().add(layout, grid);
 	}
 
+	private Label getTooltipName(PolicyDocumentExtended policyDocument) {
+		Tooltip tooltip = new Tooltip();
+		tooltip.add(policyDocument.name);
+		Label label = new Label(policyDocument.name);
+		tooltip.attachToComponent(label);
+		getContent().add(tooltip);
+		return label;
+	}
+
 	private void loadGridContent() {
 		Set<PolicyDocumentExtended> policies = policyDocumentService.findAllByCurrentUser();
 		grid.setItems(policies.stream().sorted(Comparator.comparing(x -> x.name)));
@@ -107,7 +116,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 			PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 				.policyDocumentId(policyDocumentExtended.id)
 				.policyDocumentRevision(policyDocumentExtended.revision)
-				.acceptanceStatus(PolicyAgreementStatus.ACCEPTED)
+				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
 			policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);

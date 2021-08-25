@@ -9,7 +9,9 @@ package io.imunity.furms.spi.policy_docuemnts;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,9 +21,19 @@ import java.util.function.BiFunction;
 public interface PolicyDocumentRepository {
 	Optional<PolicyDocument> findById(PolicyId id);
 
+	Optional<PolicyDocument> findByUserGrantId(String userGrantId);
+
+	Set<PolicyDocument> findAll();
+
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
+
+	Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId);
+
+	Set<PolicyDocument> findAllSitePoliciesByUserId(PersistentId userId);
+
+	Set<PolicyDocument> findAllServicePoliciesByUserId(PersistentId userId);
 
 	PolicyId create(PolicyDocument projectAllocation);
 

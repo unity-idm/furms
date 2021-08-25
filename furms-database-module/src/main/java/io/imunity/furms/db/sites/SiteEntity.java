@@ -20,6 +20,7 @@ import java.util.UUID;
 public class SiteEntity extends UUIDIdentifiable {
 
 	private final String name;
+	private final String oauthClientId;
 	private final String connectionInfo;
 	private final byte[] logo;
 	private final String logoType;
@@ -29,10 +30,11 @@ public class SiteEntity extends UUIDIdentifiable {
 	private final UUID policyId;
 
 
-	SiteEntity(UUID id, String name, String connectionInfo, byte[] logo, String logoType,
-			Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, String externalId, UUID policyId) {
+	SiteEntity(UUID id, String name, String oauthClientId, String connectionInfo, byte[] logo, String logoType,
+	           Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, String externalId, UUID policyId) {
 		this.id = id;
 		this.name = name;
+		this.oauthClientId = oauthClientId;
 		this.connectionInfo = connectionInfo;
 		this.logo = logo;
 		this.logoType = logoType;
@@ -46,6 +48,7 @@ public class SiteEntity extends UUIDIdentifiable {
 		return Site.builder()
 				.id(id.toString())
 				.name(name)
+				.oauthClientId(oauthClientId)
 				.connectionInfo(connectionInfo)
 				.logo(new FurmsImage(logo, logoType))
 				.sshKeyFromOptionMandatory(sshKeyFromOptionMandatory)
@@ -78,6 +81,7 @@ public class SiteEntity extends UUIDIdentifiable {
 		SiteEntity entity = (SiteEntity) o;
 		return Objects.equals(id, entity.id) &&
 				Objects.equals(name, entity.name) &&
+				Objects.equals(oauthClientId, entity.oauthClientId) &&
 				Objects.equals(connectionInfo, entity.connectionInfo) &&
 				Arrays.equals(logo, entity.logo) &&
 				Objects.equals(logoType, entity.logoType)&&
@@ -89,7 +93,8 @@ public class SiteEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(id, name, connectionInfo, logoType, sshKeyFromOptionMandatory, externalId, sshKeyHistoryLength, policyId);
+		int result = Objects.hash(id, name, oauthClientId, connectionInfo, logoType, sshKeyFromOptionMandatory,
+				externalId, sshKeyHistoryLength, policyId);
 		result = 31 * result + Arrays.hashCode(logo);
 		return result;
 	}
@@ -99,6 +104,7 @@ public class SiteEntity extends UUIDIdentifiable {
 		return "SiteEntity{" +
 				"id='" + id + '\'' +
 				", name='" + name + '\'' +
+				", oauthClientId='" + oauthClientId + '\'' +
 				", logo=" + Arrays.toString(logo) +
 				", logoType='" + logoType + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
@@ -112,6 +118,7 @@ public class SiteEntity extends UUIDIdentifiable {
 
 		private UUID id;
 		private String name;
+		private String oauthClientId;
 		private String connectionInfo;
 		private byte[] logo;
 		private String logoType;
@@ -140,6 +147,11 @@ public class SiteEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public SiteEntityBuilder oauthClientId(String oauthClientId) {
+			this.oauthClientId = oauthClientId;
+			return this;
+		}
+
 		public SiteEntity.SiteEntityBuilder connectionInfo(String connectionInfo) {
 			this.connectionInfo = connectionInfo;
 			return this;
@@ -152,12 +164,12 @@ public class SiteEntity extends UUIDIdentifiable {
 			}
 			return this;
 		}
-		
+
 		public SiteEntity.SiteEntityBuilder sshKeyFromOptionMandatory(Boolean sshKeyFromMandatory) {
 			this.sshKeyFromOptionMandatory = sshKeyFromMandatory;
 			return this;
 		}
-		
+
 		public SiteEntity.SiteEntityBuilder sshKeyHistoryLength(Integer sshKeyHistoryLength) {
 			this.sshKeyHistoryLength = sshKeyHistoryLength;
 			return this;
@@ -165,7 +177,8 @@ public class SiteEntity extends UUIDIdentifiable {
 
 
 		public SiteEntity build() {
-			return new SiteEntity(id, name, connectionInfo, logo, logoType, sshKeyFromOptionMandatory, sshKeyHistoryLength, externalId, policyId);
+			return new SiteEntity(id, name, oauthClientId, connectionInfo, logo, logoType, sshKeyFromOptionMandatory,
+					sshKeyHistoryLength, externalId, policyId);
 		}
 	}
 }

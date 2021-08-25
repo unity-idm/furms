@@ -5,14 +5,16 @@
 
 package io.imunity.furms.spi.sites;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public interface SiteWebClient {
+public interface SiteGroupDAO {
 
 	Optional<Site> get(String id);
 
@@ -22,9 +24,9 @@ public interface SiteWebClient {
 
 	void delete(String id);
 
-	List<FURMSUser> getAllAdmins(String siteId);
+	List<FURMSUser> getAllSiteUsers(String siteId, Set<Role> roles);
 
-	void addAdmin(String siteId, PersistentId userId);
+	void addSiteUser(String siteId, PersistentId userId, Role role);
 
-	void removeAdmin(String siteId, PersistentId userId);
+	void removeSiteUser(String siteId, PersistentId userId);
 }

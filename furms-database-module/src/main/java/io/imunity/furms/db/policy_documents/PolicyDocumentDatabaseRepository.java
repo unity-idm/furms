@@ -10,7 +10,9 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +22,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -36,6 +40,19 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public Optional<PolicyDocument> findById(PolicyId policyId) {
 		return repository.findById(policyId.id)
 			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
+	public Optional<PolicyDocument> findByUserGrantId(String userGrantId) {
+		return repository.findByUserGrantId(UUID.fromString(userGrantId))
+			.map(PolicyDocumentEntity::toPolicyDocument);
+	}
+
+	@Override
+	public Set<PolicyDocument> findAll() {
+		return StreamSupport.stream(repository.findAll().spliterator(), false)
+			.map(PolicyDocumentEntity::toPolicyDocument)
+			.collect(Collectors.toSet());
 	}
 
 	@Override
@@ -70,6 +87,27 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(PolicyDocumentEntity::toPolicyDocument)
 			.collect(toSet());
+	}
+
+	@Override
+	public Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId) {
+		return repository.findAllServicePoliciesBySiteId(UUID.fromString(siteId)).stream()
+			.map(ServicePolicyDocumentEntity::toServicePolicyDocument)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<PolicyDocument> findAllSitePoliciesByUserId(PersistentId userId) {
+		return repository.findAllSitePoliciesByUserId(userId.id).stream()
+				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
+				.collect(toSet());
+	}
+
+	@Override
+	public Set<PolicyDocument> findAllServicePoliciesByUserId(PersistentId userId) {
+		return repository.findAllServicePoliciesByUserId(userId.id).stream()
+				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
+				.collect(toSet());
 	}
 
 	@Override

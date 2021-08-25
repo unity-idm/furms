@@ -51,6 +51,10 @@ public class PolicyDocument {
 		return Objects.hash(id, siteId, name, workflow, revision, contentType, htmlText, policyFile);
 	}
 
+	public boolean isRevisionDefined(){
+		return revision > 0;
+	}
+
 	public static PolicyDocumentEntityBuilder builder() {
 		return new PolicyDocumentEntityBuilder();
 	}
@@ -60,7 +64,7 @@ public class PolicyDocument {
 		private String siteId;
 		private String name;
 		private PolicyWorkflow workflow;
-		private int revision;
+		private int revision = 1;
 		private PolicyContentType contentType;
 		private String htmlText;
 		private PolicyFile policyFile = PolicyFile.empty();
@@ -91,6 +95,10 @@ public class PolicyDocument {
 		public PolicyDocumentEntityBuilder revision(int revision) {
 			this.revision = revision;
 			return this;
+		}
+
+		public PolicyDocumentEntityBuilder revisionUndefined() {
+			return revision(-1);
 		}
 
 		public PolicyDocumentEntityBuilder contentType(PolicyContentType contentType) {

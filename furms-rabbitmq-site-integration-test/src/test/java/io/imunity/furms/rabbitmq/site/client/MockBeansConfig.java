@@ -62,4 +62,7 @@ class MockBeansConfig {
 	private ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver;
 	@MockBean
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
+
+	@MockBean
+	private SiteAgentPolicyDocumentReceiverMock SiteAgentPolicyDocumentReceiverMock;
 }

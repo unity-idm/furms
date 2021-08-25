@@ -84,7 +84,7 @@ void initFurmsRestClient()
 	Identity base = entityManagement.addEntity(toAdd, EntityState.valid)
 	EntityParam entity = new EntityParam(base.getEntityId())
 
-	Attribute role = EnumAttribute.of("sys:AuthorizationRole", "/", "Contents Manager")
+	Attribute role = EnumAttribute.of("sys:AuthorizationRole", "/", "System Manager")
 	attributesManagement.createAttribute(entity, role)
 
 	Attribute name = StringAttribute.of(NAME_ATTR, "/", "FURMS client user")

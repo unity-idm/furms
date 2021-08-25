@@ -42,7 +42,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	@Override
 	public Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId) {
 		return userGrantEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.map(entity -> new ProjectUserGrant(entity.projectId, new FenixUserId(entity.userId)));
+			.map(entity -> new ProjectUserGrant(entity.grantId, entity.projectId, new FenixUserId(entity.userId)));
 	}
 
 	@Override
@@ -96,6 +96,18 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	@Override
 	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId) {
 		return userGrantEntityRepository.findByUserIdAndProjectIdAndSiteId(userId.id, UUID.fromString(projectId), UUID.fromString(siteId), AccessStatus.USER_INSTALLING.getPersistentId()).stream()
+			.map(x -> GrantAccess.builder()
+				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
+				.fenixUserId(new FenixUserId(x.userId))
+				.projectId(x.projectId.toString())
+				.allocationId(x.projectAllocationId.toString())
+				.build())
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String siteId) {
+		return userGrantEntityRepository.findByUserIdAndSiteId(userId.id, UUID.fromString(siteId), AccessStatus.USER_INSTALLING.getPersistentId()).stream()
 			.map(x -> GrantAccess.builder()
 				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
 				.fenixUserId(new FenixUserId(x.userId))
