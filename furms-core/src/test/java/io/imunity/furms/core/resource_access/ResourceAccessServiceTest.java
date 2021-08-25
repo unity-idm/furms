@@ -7,7 +7,6 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.SiteId;
@@ -34,15 +33,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ResourceAccessServiceTest {
 	@Mock
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
 	@Mock
 	private ResourceAccessRepository repository;
-	@Mock
-	private UserOperationService userOperationService;
 	@Mock
 	private UserOperationRepository userRepository;
 	@Mock
@@ -64,8 +64,8 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userOperationService, userRepository, authzService);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService, userOperationService);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService);
 	}
 
 	@Test
@@ -112,7 +112,6 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(AccessStatus.USER_INSTALLING));
-		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", fenixUserId);
 	}
 
 	@Test
@@ -136,7 +135,6 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(AccessStatus.USER_INSTALLING));
-		verify(userOperationService, times(0)).createUserAdditions(siteId, "projectId", fenixUserId);
 	}
 
 	@Test

@@ -12,40 +12,36 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@JsonTypeName("UserProjectAddRequest")
-public class UserProjectAddRequest implements Body {
-	public final AgentUser user;
+@JsonTypeName("UserPolicyAcceptanceUpdate")
+public class UserPolicyAcceptanceUpdate implements Body {
+	public final String fenixUserId;
 	public final List<PolicyAcceptance> policiesAcceptance;
-	public final String projectIdentifier;
 
 	@JsonCreator
-	public UserProjectAddRequest(AgentUser user, List<PolicyAcceptance> policiesAcceptance, String projectIdentifier) {
-		this.user = user;
+	public UserPolicyAcceptanceUpdate(String fenixUserId, List<PolicyAcceptance> policiesAcceptance) {
+		this.fenixUserId = fenixUserId;
 		this.policiesAcceptance = Collections.unmodifiableList(policiesAcceptance);
-		this.projectIdentifier = projectIdentifier;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserProjectAddRequest that = (UserProjectAddRequest) o;
-		return Objects.equals(user, that.user) &&
-			Objects.equals(policiesAcceptance, that.policiesAcceptance) &&
-			Objects.equals(projectIdentifier, that.projectIdentifier);
+		UserPolicyAcceptanceUpdate that = (UserPolicyAcceptanceUpdate) o;
+		return Objects.equals(fenixUserId, that.fenixUserId) &&
+			Objects.equals(policiesAcceptance, that.policiesAcceptance);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(user, policiesAcceptance, projectIdentifier);
+		return Objects.hash(fenixUserId, policiesAcceptance);
 	}
 
 	@Override
 	public String toString() {
-		return "UserProjectAddRequest{" +
-			"user=" + user +
+		return "UserPolicyAcceptanceUpdate{" +
+			"fenixUserId='" + fenixUserId + '\'' +
 			", policiesAcceptance=" + policiesAcceptance +
-			", projectIdentifier='" + projectIdentifier + '\'' +
 			'}';
 	}
 }

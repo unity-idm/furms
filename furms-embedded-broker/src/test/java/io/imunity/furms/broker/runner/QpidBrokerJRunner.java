@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class QpidBrokerJRunner {
 
-	 private static final String KEYSTORE_PATH = getKeystorePath();
+	private static final String KEYSTORE_PATH = getKeystorePath();
 
 	private static String getKeystorePath() {
 		try {

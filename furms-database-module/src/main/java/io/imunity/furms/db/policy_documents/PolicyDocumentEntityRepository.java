@@ -48,4 +48,10 @@ public interface PolicyDocumentEntityRepository extends CrudRepository<PolicyDoc
 		"join user_grant ua on ua.site_id = s.id " +
 		"where ua.user_id = :user_id")
 	Set<PolicyDocumentExtendedEntity> findAllSitePoliciesByUserId(@Param("user_id") String userId);
+
+	@Query("select pd.*, s.id as service_id " +
+		"from service s " +
+		"join policy_document pd on pd.id = s.policy_id " +
+		"where s.site_id = :site_id")
+	Set<ServicePolicyDocumentEntity> findAllServicePoliciesBySiteId(@Param("site_id") UUID siteId);
 }

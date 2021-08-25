@@ -6,23 +6,30 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.sites.*;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.sites.CreateSiteEvent;
+import io.imunity.furms.domain.sites.RemoveSiteEvent;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +50,13 @@ import java.util.stream.Stream;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SiteServiceImplTest {
@@ -67,13 +80,15 @@ class SiteServiceImplTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 	@Mock
-	private ProjectService projectService;
+	private PolicyDocumentRepository policyDocumentRepository;
+	@Mock
+	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
-				siteAgentService, siteAgentStatusService, userOperationRepository);
+				siteAgentService, siteAgentStatusService, userOperationRepository, policyDocumentRepository, siteAgentPolicyDocumentService);
 	}
 
 	@Test
@@ -185,6 +200,83 @@ class SiteServiceImplTest {
 		verify(repository, times(1)).update(request);
 		verify(webClient, times(1)).update(request);
 		verify(publisher, times(1)).publishEvent(new UpdateSiteEvent("id"));
+	}
+
+	@Test
+	void shouldSendUpdateToSiteAgent() {
+		//given
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		SiteExternalId siteExternalId = new SiteExternalId("id");
+		Site oldSite = Site.builder()
+			.id("id")
+			.name("name")
+			.externalId(siteExternalId)
+			.build();
+		Site newSite = Site.builder()
+			.id("id")
+			.name("name")
+			.policyId(policyId)
+			.externalId(siteExternalId)
+			.build();
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
+			.name("policyName")
+			.revision(1)
+			.build();
+		when(repository.exists(newSite.getId())).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(newSite.getName(), newSite.getId())).thenReturn(false);
+		when(repository.update(newSite)).thenReturn(newSite.getId());
+		when(repository.findById(newSite.getId())).thenReturn(Optional.of(oldSite));
+		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+
+		//when
+		service.update(newSite);
+
+		//then
+		verify(siteAgentPolicyDocumentService).updatePolicyDocument(siteExternalId, PolicyDocument.builder()
+			.id(policyId)
+			.name("policyName")
+			.revision(1)
+			.build());
+	}
+
+	@Test
+	void shouldSendUpdateToSiteAgentWhenPolicyIdIsSetToNull() {
+		//given
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		SiteExternalId siteExternalId = new SiteExternalId("id");
+		Site oldSite = Site.builder()
+			.id("id")
+			.name("name")
+			.policyId(policyId)
+			.externalId(siteExternalId)
+			.build();
+		Site newSite = Site.builder()
+			.id("id")
+			.name("name")
+			.policyId(null)
+			.externalId(siteExternalId)
+			.build();
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
+			.name("policyName")
+			.revision(1)
+			.build();
+		when(repository.exists(newSite.getId())).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(newSite.getName(), newSite.getId())).thenReturn(false);
+		when(repository.update(newSite)).thenReturn(newSite.getId());
+		when(repository.findById(newSite.getId())).thenReturn(Optional.of(oldSite));
+		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+
+		//when
+		service.update(newSite);
+
+		//then
+		verify(siteAgentPolicyDocumentService).updatePolicyDocument(siteExternalId, PolicyDocument.builder()
+			.id(policyId)
+			.name("policyName")
+			.revision(-1)
+			.build());
 	}
 
 	@Test

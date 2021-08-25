@@ -12,6 +12,8 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
@@ -25,8 +27,10 @@ import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
+import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -38,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,7 +70,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
+	private final PolicyDocumentRepository policyDocumentRepository;
 	private final SiteAgentStatusService siteAgentStatusService;
+	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -75,7 +82,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
 	                SiteAgentStatusService siteAgentStatusService,
-	                UserOperationRepository userOperationRepository) {
+	                UserOperationRepository userOperationRepository,
+	                PolicyDocumentRepository policyDocumentRepository,
+	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -85,6 +94,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.siteAgentService = siteAgentService;
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.userOperationRepository = userOperationRepository;
+		this.policyDocumentRepository = policyDocumentRepository;
+		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 	}
 
 	@Override
@@ -162,22 +173,55 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "site.id")
 	public void update(Site site) {
 		validator.validateUpdate(site);
-
 		Site oldSite = siteRepository.findById(site.getId())
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site.getId()));
-
 		String siteId = siteRepository.update(merge(oldSite, site));
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
 		Site updatedSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
+			if(isPolicyChange(site, oldSite))
+				sendUpdateToSite(site, oldSite);
 			publisher.publishEvent(new UpdateSiteEvent(updatedSite.getId()));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
 			throw e;
 		}
+	}
+
+	private void sendUpdateToSite(Site site, Site oldSite) {
+		int revision;
+		PolicyDocument policyDocument;
+		if(isPolicyDisengage(site, oldSite)){
+			revision = -1;
+			policyDocument = getPolicyDocument(oldSite.getPolicyId());
+		}
+		else {
+			policyDocument = getPolicyDocument(site.getPolicyId());
+			revision = policyDocument.revision;
+		}
+
+		siteAgentPolicyDocumentService.updatePolicyDocument(oldSite.getExternalId(), PolicyDocument.builder()
+			.id(policyDocument.id)
+			.name(policyDocument.name)
+			.revision(revision)
+			.build());
+	}
+
+	private PolicyDocument getPolicyDocument(PolicyId policyId) {
+		return policyDocumentRepository.findById(policyId)
+			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
+	}
+
+	private boolean isPolicyChange(Site site, Site oldSite) {
+		return !Objects.equals(oldSite.getPolicyId(), site.getPolicyId());
+	}
+
+	private boolean isPolicyDisengage(Site site, Site oldSite) {
+		return (oldSite.getPolicyId() != null && oldSite.getPolicyId().id != null) &&
+			(site.getPolicyId() == null || site.getPolicyId().id == null);
 	}
 
 	@Override
@@ -343,6 +387,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
 				.sshKeyHistoryLength(ofNullable(site.getSshKeyHistoryLength()).orElse(oldSite.getSshKeyHistoryLength()))
 				.policyId(site.getPolicyId())
+				.externalId(oldSite.getExternalId())
 				.build();
 	}
 	

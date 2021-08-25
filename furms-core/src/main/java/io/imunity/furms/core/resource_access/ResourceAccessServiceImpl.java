@@ -9,7 +9,6 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
@@ -42,16 +41,14 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final SiteAgentResourceAccessService siteAgentResourceAccessService;
 	private final ResourceAccessRepository repository;
 	private final UserOperationRepository userRepository;
-	private final UserOperationService userOperationService;
 	private final AuthzService authzService;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
-	                          ResourceAccessRepository repository, UserOperationService userOperationService,
+	                          ResourceAccessRepository repository,
 	                          UserOperationRepository userRepository, AuthzService authzService) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
-		this.userOperationService = userOperationService;
 		this.authzService = authzService;
 	}
 	@Override
@@ -90,8 +87,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		}
 		else {
 			repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
-			if(isUserNotProviding(userAdditionStatus))
-				userOperationService.createUserAdditions(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
 		}
 
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
@@ -99,10 +94,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	private boolean isUserProvided(Optional<UserStatus> userAdditionStatus) {
 		return !(userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_PENDING) || userAdditionStatus.get().equals(UserStatus.ADDING_ACKNOWLEDGED));
-	}
-
-	private boolean isUserNotProviding(Optional<UserStatus> userAdditionStatus) {
-		return userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_FAILED);
 	}
 
 	@Override

@@ -6,22 +6,22 @@
 package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.domain.sites.UserSitesInstallationInfoData;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.sites.SiteUser;
-import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
@@ -53,7 +54,7 @@ public class UserOperationService implements UserAllocationsService {
 	private final SiteService siteService;
 	private final UserOperationRepository repository;
 	private final UsersDAO usersDAO;
-	private final PolicyDocumentService policyService;
+	private final PolicyDocumentServiceHelper policyService;
 	private final SSHKeyService sshKeyService;
 
 	UserOperationService(AuthzService authzService,
@@ -61,7 +62,7 @@ public class UserOperationService implements UserAllocationsService {
 	                     UserOperationRepository repository,
 	                     SiteAgentUserService siteAgentUserService,
 	                     UsersDAO usersDAO,
-	                     PolicyDocumentService policyService,
+	                     PolicyDocumentServiceHelper policyService,
 	                     SSHKeyService sshKeyService) {
 		this.authzService = authzService;
 		this.siteService = siteService;
@@ -144,13 +145,10 @@ public class UserOperationService implements UserAllocationsService {
 			).collect(toSet());
 	}
 
-	public void createUserAdditions(SiteId siteId, String projectId, FenixUserId userId) {
-		Optional<FURMSUser> user = usersDAO.findById(userId);
-		if(user.isEmpty())
-			throw new IllegalArgumentException(String.format("User %s doesn't exist", userId));
-
+	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
+		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
 		if(repository.existsByUserIdAndProjectId(userId, projectId))
-			throw new IllegalArgumentException(String.format("User %s is already added to project %s", user, projectId));
+			throw new IllegalArgumentException(String.format("User %s is already added to project %s", userId, projectId));
 
 		UserAddition userAddition = UserAddition.builder()
 			.correlationId(CorrelationId.randomID())
@@ -161,7 +159,7 @@ public class UserOperationService implements UserAllocationsService {
 			.build();
 		repository.create(userAddition);
 		runAfterCommit(() ->
-			siteAgentUserService.addUser(userAddition, user.get())
+			siteAgentUserService.addUser(userAddition, userPolicyAcceptances)
 		);
 	}
 

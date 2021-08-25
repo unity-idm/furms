@@ -5,26 +5,11 @@
 
 package io.imunity.furms.core.users;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
-import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import io.imunity.furms.api.users.UserAllocationsService;
-import io.imunity.furms.domain.sites.SiteUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.InviteUserEvent;
@@ -37,6 +22,20 @@ import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 @Service
 class UserServiceImpl implements UserService {
@@ -126,6 +125,14 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
 	public Optional<FURMSUser> findById(PersistentId userId) {
+		checkNotNull(userId);
+		checkNotNull(userId.id);
+		return usersDAO.findById(userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	public Optional<FURMSUser> findById(FenixUserId userId) {
 		checkNotNull(userId);
 		checkNotNull(userId.id);
 		return usersDAO.findById(userId);
