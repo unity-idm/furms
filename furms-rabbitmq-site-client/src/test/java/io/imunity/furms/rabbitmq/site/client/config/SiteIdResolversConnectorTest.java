@@ -33,6 +33,7 @@ class SiteIdResolversConnectorTest {
 		scanner.addIncludeFilter(new AnnotationTypeFilter(JsonTypeName.class));
 		Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents("io.imunity.furms.rabbitmq.site.models").stream()
 			.filter(x -> !x.getBeanClassName().endsWith("Request"))
+			.filter(x -> !x.getBeanClassName().endsWith("Update"))
 			.filter(x -> !x.getBeanClassName().contains("AgentProjectRemoval"))
 			.collect(Collectors.toSet());
 
