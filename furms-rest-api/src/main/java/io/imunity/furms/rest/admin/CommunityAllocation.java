@@ -24,7 +24,7 @@ class CommunityAllocation {
 
 	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
 		this(communityAllocation.id, communityAllocation.resourceCredit.id, communityAllocation.name,
-				communityAllocation.amount);
+				communityAllocation.remaining);
 	}
 
 	@Override

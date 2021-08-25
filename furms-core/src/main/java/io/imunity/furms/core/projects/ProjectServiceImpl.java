@@ -6,11 +6,14 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.CreateProjectEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
@@ -32,7 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,8 +53,10 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class ProjectServiceImpl implements ProjectService {
@@ -63,12 +70,17 @@ class ProjectServiceImpl implements ProjectService {
 	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
 	private final ProjectInstallationService projectInstallationService;
+	private final CapabilityCollector capabilityCollector;
 
-
-	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectGroupsDAO projectGroupsDAO, UsersDAO usersDAO,
-	                          ProjectServiceValidator validator, ApplicationEventPublisher publisher,
-	                          AuthzService authzService, UserOperationService userOperationService,
-	                          ProjectInstallationService projectInstallationService) {
+	public ProjectServiceImpl(ProjectRepository projectRepository,
+	                          ProjectGroupsDAO projectGroupsDAO,
+	                          UsersDAO usersDAO,
+	                          ProjectServiceValidator validator,
+	                          ApplicationEventPublisher publisher,
+	                          AuthzService authzService,
+	                          UserOperationService userOperationService,
+	                          ProjectInstallationService projectInstallationService,
+	                          CapabilityCollector capabilityCollector) {
 		this.projectRepository = projectRepository;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.usersDAO = usersDAO;
@@ -77,6 +89,7 @@ class ProjectServiceImpl implements ProjectService {
 		this.authzService = authzService;
 		this.projectInstallationService = projectInstallationService;
 		this.userOperationService = userOperationService;
+		this.capabilityCollector = capabilityCollector;
 	}
 
 	@Override
@@ -107,6 +120,23 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
 	public Set<Project> findAll() {
 		return projectRepository.findAll();
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
+	public Set<Project> findAllByCurrentUserId() {
+		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
+		return projectRepository.findAll().stream()
+				.filter(project -> isProjectAdmin(project, currentUser.roles))
+				.collect(toSet());
+	}
+
+	private boolean isProjectAdmin(Project project, Map<ResourceId, Set<Role>> roles) {
+		final Set<Capability> capabilities = new HashSet<>();
+		capabilities.addAll(PROJECT_ADMIN.capabilities);
+		capabilities.addAll(COMMUNITY_ADMIN.capabilities);
+		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId(), PROJECT))
+				.stream().anyMatch(capabilities::contains);
 	}
 
 	@Override

@@ -15,11 +15,13 @@ import static java.util.stream.Collectors.toSet;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import io.imunity.furms.domain.users.FenixUserId;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
@@ -177,13 +179,8 @@ class SitesRestService {
 				userAddition -> userAddition.userId,
 				mapping(userAddition -> userAddition.projectId, toSet())));
 		return userAdditionsBySite.stream()
-				.map(userAddition -> new SiteUser(
-						findUser(userAddition.userId),
-						userAddition.uid,
-						sshKeyService.findByOwnerId(userAddition.userId).stream()
-								.map(sshKey -> sshKey.id)
-								.collect(toList()),
-						projectsGroupingByUserId.get(userAddition.userId)))
+				.map(userAddition -> createSiteUser(userAddition, projectsGroupingByUserId))
+				.filter(Objects::nonNull)
 				.collect(toList());
 	}
 
@@ -258,6 +255,18 @@ class SitesRestService {
 				.findFirst();
 	}
 
+	private SiteUser createSiteUser(UserAddition userAddition, Map<String, Set<String>> projectsGroupingByUserId) {
+		return findUserByFenixId(userAddition.userId)
+				.map(user -> new SiteUser(
+						user,
+						userAddition.uid,
+						sshKeyService.findByOwnerId(userAddition.userId).stream()
+								.map(sshKey -> sshKey.id)
+								.collect(toList()),
+						projectsGroupingByUserId.get(userAddition.userId)))
+				.orElse(null);
+	}
+
 	private ProjectInstallation convertToProject(SiteInstalledProject projectInstallation) {
 		final io.imunity.furms.domain.projects.Project projectBySiteId = projectService.findById(projectInstallation.projectId)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Project installations not found, " +
@@ -272,6 +281,11 @@ class SitesRestService {
 		return userService.findById(new PersistentId(userId))
 				.map(User::new)
 				.orElse(null);
+	}
+
+	private Optional<User> findUserByFenixId(String fenixUserId) {
+		return userService.findByFenixUserId(new FenixUserId(fenixUserId))
+				.map(User::new);
 	}
 
 }

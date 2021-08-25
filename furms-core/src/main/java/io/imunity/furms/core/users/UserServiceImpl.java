@@ -134,13 +134,21 @@ class UserServiceImpl implements UserService {
 			throw new UnknownUserException(fenixUserId);
 		}
 	}
-	
+
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
 	public Optional<FURMSUser> findById(PersistentId userId) {
 		checkNotNull(userId);
 		checkNotNull(userId.id);
 		return usersDAO.findById(userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	public Optional<FURMSUser> findByFenixUserId(FenixUserId fenixUserId) {
+		checkNotNull(fenixUserId);
+		checkNotNull(fenixUserId.id);
+		return usersDAO.findById(fenixUserId);
 	}
 
 	@Override

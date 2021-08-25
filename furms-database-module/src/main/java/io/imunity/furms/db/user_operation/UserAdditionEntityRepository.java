@@ -40,7 +40,7 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 				"join user_addition_job uaj on ua.id = uaj.user_addition_id " +
 				"join site s on ua.site_id = s.id " +
 			"where s.id = :siteId")
-	Set<UserAdditionReadEntity> findAllBySiteId(@Param("siteId") String siteId);
+	Set<UserAdditionReadEntity> findAllBySiteId(@Param("siteId") UUID siteId);
 	
 	@Query("SELECT ua.*," +
 			"       uaj.*," +
