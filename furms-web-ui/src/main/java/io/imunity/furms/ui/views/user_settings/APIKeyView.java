@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.user_settings;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.domain.users.PersistentId;
@@ -37,6 +38,7 @@ public class APIKeyView extends FurmsViewComponent {
 
 	private final CopyToClipboardStringComponent apiKeyFormItem;
 	private final Button generateRevokeButton;
+	private Registration generateRevokeButtonActualClickListener;
 	private final FormButtons formButtons;
 
 	private final PersistentId userId;
@@ -96,11 +98,6 @@ public class APIKeyView extends FurmsViewComponent {
 		generateRevokeButton.setEnabled(true);
 	}
 
-	private void generateAPIKeyAction() {
-		setApiKeyFormItemValue(UUID.randomUUID().toString());
-		generateRevokeButton.setEnabled(false);
-	}
-
 	private void saveApiKeyAction() {
 		try {
 			if (StringUtils.isBlank(apiKeyFormItem.getValue())) {
@@ -118,22 +115,30 @@ public class APIKeyView extends FurmsViewComponent {
 		}
 	}
 
+	private void generateAPIKeyAction() {
+		setApiKeyFormItemValue(UUID.randomUUID().toString());
+		generateRevokeButton.setEnabled(false);
+	}
+
 	private void revokeAPIKeyAction() {
 		setApiKeyFormItemValue(null);
 		generateRevokeButton.setEnabled(false);
 	}
 
 	private void setApiKeyFormItemValue(String apiKey) {
+		if (generateRevokeButtonActualClickListener != null) {
+			generateRevokeButtonActualClickListener.remove();
+		}
 		if (StringUtils.isBlank(apiKey)) {
 			apiKeyFormItem.setValue("");
 			apiKeyFormItem.setReadOnly(false);
 			generateRevokeButton.setText(getTranslation("view.user-settings.api-key.form.button.generate"));
-			generateRevokeButton.addClickListener(event -> generateAPIKeyAction());
+			generateRevokeButtonActualClickListener = generateRevokeButton.addClickListener(event -> generateAPIKeyAction());
 		} else {
 			apiKeyFormItem.setValue(apiKey);
 			apiKeyFormItem.setReadOnly(true);
 			generateRevokeButton.setText(getTranslation("view.user-settings.api-key.form.button.revoke"));
-			generateRevokeButton.addClickListener(event -> revokeAPIKeyAction());
+			generateRevokeButtonActualClickListener = generateRevokeButton.addClickListener(event -> revokeAPIKeyAction());
 		}
 		formButtons.setVisible(true);
 	}
