@@ -362,7 +362,7 @@ class PolicyDocumentServiceImplTest {
 			.build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
@@ -394,7 +394,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build();
 
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(user));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
@@ -424,7 +424,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build();
 
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(user));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
@@ -466,7 +466,7 @@ class PolicyDocumentServiceImplTest {
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
@@ -511,7 +511,7 @@ class PolicyDocumentServiceImplTest {
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
