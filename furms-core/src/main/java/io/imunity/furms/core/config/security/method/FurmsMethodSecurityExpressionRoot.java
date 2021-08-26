@@ -25,11 +25,11 @@ import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAG
 class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 	implements MethodSecurityExpressionOperations {
 
-	private final CapabilityCollector capabilityCollector;
+	private final UserCapabilityCollector userCapabilityCollector;
 
-	FurmsMethodSecurityExpressionRoot(Authentication authentication, CapabilityCollector capabilityCollector) {
+	FurmsMethodSecurityExpressionRoot(Authentication authentication, UserCapabilityCollector userCapabilityCollector) {
 		super(authentication);
-		this.capabilityCollector = capabilityCollector;
+		this.userCapabilityCollector = userCapabilityCollector;
 	}
 
 	public boolean hasCapabilityForResource(Capability capability, ResourceType resourceType) {
@@ -42,7 +42,7 @@ class FurmsMethodSecurityExpressionRoot extends SecurityExpressionRoot
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
-		Set<Capability> capabilities = capabilityCollector.getCapabilities(principal.roles, resourceId);
+		Set<Capability> capabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceId);
 		capabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT));
 		return capabilities.contains(capability);
 	}

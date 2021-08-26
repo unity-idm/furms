@@ -15,6 +15,8 @@ import java.util.Set;
 public interface CommunityAllocationService {
 	Optional<CommunityAllocation> findById(String id);
 
+	Optional<CommunityAllocationResolved> findByCommunityIdAndIdWithRelatedObjects(String communityId, String id);
+
 	Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id);
 
 	Set<CommunityAllocation> findAll();

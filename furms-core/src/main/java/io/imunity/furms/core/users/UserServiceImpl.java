@@ -132,10 +132,10 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
-	public Optional<FURMSUser> findById(FenixUserId userId) {
-		checkNotNull(userId);
-		checkNotNull(userId.id);
-		return usersDAO.findById(userId);
+	public Optional<FURMSUser> findByFenixUserId(FenixUserId fenixUserId) {
+		checkNotNull(fenixUserId);
+		checkNotNull(fenixUserId.id);
+		return usersDAO.findById(fenixUserId);
 	}
 
 	@Override

@@ -342,14 +342,14 @@ public class UserService {
 	public PersistentId getPersistentId(FenixUserId userId) {
 		return getEntity(userId).getIdentities().stream()
 				.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY)).findAny()
-				.map(Identity::getComparableValue).map(id -> new PersistentId(id)).orElse(null);
+				.map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
 
 	}
 	
 	public FenixUserId getFenixUserId(PersistentId userId) {
 		return getEntity(userId).getIdentities().stream()
 				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
-				.map(Identity::getComparableValue).map(id -> new FenixUserId(id)).orElse(null);
+				.map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
 
 	}
 }

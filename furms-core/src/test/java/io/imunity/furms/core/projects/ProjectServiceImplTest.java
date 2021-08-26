@@ -6,6 +6,7 @@
 package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -58,6 +59,8 @@ class ProjectServiceImplTest {
 	private ProjectInstallationService projectInstallationService;
 	@Mock
 	private UserOperationService userOperationService;
+	@Mock
+	private CapabilityCollector capabilityCollector;
 
 	private ProjectServiceImpl service;
 	private InOrder orderVerifier;
@@ -68,8 +71,8 @@ class ProjectServiceImplTest {
 		ProjectServiceValidator validator = new ProjectServiceValidator(projectRepository, communityRepository);
 		service = new ProjectServiceImpl(
 			projectRepository, projectGroupsDAO, usersDAO, validator,
-			publisher, authzService, userOperationService, projectInstallationService
-		);
+			publisher, authzService, userOperationService, projectInstallationService,
+				capabilityCollector);
 		orderVerifier = inOrder(projectRepository, projectGroupsDAO, publisher);
 	}
 

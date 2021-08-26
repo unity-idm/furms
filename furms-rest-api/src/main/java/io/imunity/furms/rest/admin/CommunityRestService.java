@@ -69,7 +69,7 @@ class CommunityRestService {
 
 	CommunityAllocation findAllocationByIdAndCommunityId(String communityAllocationId, String communityId) {
 		return resourceChecker.performIfExists(communityId,
-					() -> communityAllocationService.findByIdWithRelatedObjects(communityAllocationId))
+					() -> communityAllocationService.findByCommunityIdAndIdWithRelatedObjects(communityId, communityAllocationId))
 				.filter(allocation -> allocation.communityId.equals(communityId))
 				.map(CommunityAllocation::new)
 				.orElseThrow(() -> new CommunityAllocationRestNotFoundException(format(

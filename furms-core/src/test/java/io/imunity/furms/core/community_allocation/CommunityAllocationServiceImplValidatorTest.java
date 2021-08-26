@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationAmountNotEnoughException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +52,7 @@ class CommunityAllocationServiceImplValidatorTest {
 	private CommunityAllocationServiceValidator validator;
 	private static final ResourceCredit CREDIT_OF_TEN = ResourceCredit.builder()
 			.amount(BigDecimal.TEN)
-			.build();;
+			.build();
 
 	@Test
 	void shouldPassCreateForUniqueName() {
@@ -66,6 +67,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
 		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId)).thenReturn(BigDecimal.ONE);
 
 		//when+then
 		assertDoesNotThrow(() -> validator.validateCreate(communityAllocation));
@@ -154,6 +156,33 @@ class CommunityAllocationServiceImplValidatorTest {
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
 				() -> validator.validateCreate(communityAllocation));
 		assertThat(ex.getMessage()).isEqualTo("Cannot use expired Resource credit");
+	}
+
+
+	@Test
+	void shouldNotPassCreateForAmountGreaterThanResourceCreditAmount() {
+		//given
+		CommunityAllocation communityAllocation = CommunityAllocation.builder()
+				.communityId("id")
+				.resourceCreditId("id")
+				.name("name")
+				.amount(BigDecimal.TEN)
+				.build();
+
+		when(communityRepository.exists(communityAllocation.communityId)).thenReturn(true);
+		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
+		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
+		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId))
+				.thenReturn(Optional.of(ResourceCredit.builder()
+						.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+						.build()));
+		when(communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId)).thenReturn(BigDecimal.ONE);
+
+		//when+then
+		final CommunityAllocationAmountNotEnoughException ex = assertThrows(CommunityAllocationAmountNotEnoughException.class,
+				() -> validator.validateCreate(communityAllocation));
+		assertThat(ex.getMessage()).isEqualTo("There is no available Resource Credit amount to cover " +
+				"requested amount.");
 	}
 
 	@Test

@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.config.security.method;
 
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -22,14 +23,14 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static java.util.stream.Collectors.toMap;
 
 @Component
-class CapabilityCollector {
+class UserCapabilityCollector implements CapabilityCollector {
 	private final ProjectRepository projectRepository;
 
-	public CapabilityCollector(ProjectRepository projectRepository) {
+	public UserCapabilityCollector(ProjectRepository projectRepository) {
 		this.projectRepository = projectRepository;
 	}
 
-	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId){
+	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId) {
 		Set<Capability> capabilities = getAdditionalCapabilities(roles);
 
 		if(resourceId.type.equals(PROJECT))

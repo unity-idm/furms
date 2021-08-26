@@ -19,6 +19,6 @@ public interface UserService {
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
 	UserStatus getUserStatus(FenixUserId fenixUserId);
 	Optional<FURMSUser> findById(PersistentId userId);
-	Optional<FURMSUser> findById(FenixUserId userId);
+	Optional<FURMSUser> findByFenixUserId(FenixUserId fenixUserId);
 	UserRecord getUserRecord(FenixUserId fenixUserId);
 }

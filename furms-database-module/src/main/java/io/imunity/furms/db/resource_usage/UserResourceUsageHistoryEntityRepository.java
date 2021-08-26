@@ -19,7 +19,8 @@ public interface UserResourceUsageHistoryEntityRepository extends CrudRepository
 	@Query("SELECT * " +
 			"FROM user_resource_usage_history uruh " +
 			"WHERE uruh.project_allocation_id IN (:allocations) " +
-			"   AND uruh.consumed_until BETWEEN :from AND :to")
+			"    AND ((:from::timestamp IS NULL OR uruh.consumed_until >= :from) " +
+			"             AND (:to::timestamp IS NULL OR uruh.consumed_until <= :to))")
 	Set<UserResourceUsageHistoryEntity> findAllByProjectAllocationIdInAndInPeriod(@Param("allocations") Set<UUID> projectAllocations,
 	                                                                              @Param("from") LocalDateTime from,
 	                                                                              @Param("to") LocalDateTime to);

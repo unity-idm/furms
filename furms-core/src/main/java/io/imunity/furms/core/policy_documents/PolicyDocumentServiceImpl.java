@@ -217,7 +217,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Transactional
 	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
-		FURMSUser user = userService.findById(userId)
+		FURMSUser user = userService.findByFenixUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
 		addUserPolicyAcceptance(user, policyAcceptance);
 	}

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.invoke.MethodHandles;
 
 import static java.lang.String.format;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -60,6 +61,18 @@ class RestExceptionHandlers {
 				.body(RestExceptionData.builder()
 						.message(ex.getMessage())
 						.error(FORBIDDEN.getReasonPhrase())
+						.path(request.getRequestURI())
+						.build());
+	}
+
+	@ExceptionHandler({IllegalArgumentException.class})
+	ResponseEntity<RestExceptionData> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+		LOG.error(ex.getClass().getName() + " during REST operation: ", ex);
+		return ResponseEntity
+				.status(BAD_REQUEST)
+				.body(RestExceptionData.builder()
+						.message(ex.getMessage())
+						.error(BAD_REQUEST.getReasonPhrase())
 						.path(request.getRequestURI())
 						.build());
 	}

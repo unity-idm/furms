@@ -25,8 +25,7 @@ class ProjectAllocation {
 	}
 
 	ProjectAllocation(ProjectAllocationResolved allocation) {
-		this(allocation.id, allocation.communityAllocation.id, allocation.name, allocation.resourceType.id,
-				allocation.resourceCredit.amount);
+		this(allocation.id, allocation.communityAllocation.id, allocation.name, allocation.resourceType.id, allocation.amount);
 	}
 
 	@Override
