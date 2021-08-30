@@ -81,6 +81,11 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public void inviteFenixAdmin(String email) {
+		usersDAO.inviteFenixAdmin(email);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void addFenixAdminRole(PersistentId userId) {
 		usersDAO.addFenixAdminRole(userId);

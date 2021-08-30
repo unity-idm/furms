@@ -11,7 +11,16 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
+import pl.edu.icm.unity.types.I18nString
+import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector
 import pl.edu.icm.unity.types.basic.*
+import pl.edu.icm.unity.types.registration.*
+import pl.edu.icm.unity.types.translation.ProfileType
+import pl.edu.icm.unity.types.translation.TranslationAction
+import pl.edu.icm.unity.types.translation.TranslationProfile
+import pl.edu.icm.unity.types.translation.TranslationRule
+
+import java.time.Duration
 
 @Field final String NAME_ATTR = "name"
 @Field final String FIRSTNAME_ATTR = "firstname"
@@ -44,10 +53,93 @@ try
 	initOAuthClient()
 	initTestUsers()
 	initFurmsRestClient()
+	initRegistrationForms()
 
 } catch (Exception e)
 {
 	log.warn("Error loading data", e)
+}
+
+void initRegistrationForms()
+{
+	def identityParam = new IdentityRegistrationParam()
+	identityParam.setIdentityType('identifier')
+	identityParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+
+	def registrationFormNotifications = new RegistrationFormNotifications()
+	registrationFormNotifications.setInvitationTemplate('registrationFormAcceptance')
+
+	def form = new RegistrationFormBuilder()
+			.withName("fenixAdminForm")
+			.withPubliclyAvailable(true)
+			.withByInvitationOnly(true)
+			.withAutoLoginToRealm('main')
+			.withDefaultCredentialRequirement("user password")
+			.withNotificationsConfiguration(registrationFormNotifications)
+			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('oauth', 'registration')]))
+			.build()
+	form.setIdentityParams([identityParam])
+
+	def param1 = new AttributeRegistrationParam()
+	param1.setGroup('/')
+	param1.setAttributeType('surname')
+	param1.setOptional(true)
+
+	def param2 = new AttributeRegistrationParam()
+	param2.setGroup('/')
+	param2.setAttributeType('name')
+	param2.setOptional(true)
+
+	def param3 = new AttributeRegistrationParam()
+	param3.setGroup('/')
+	param3.setAttributeType('firstname')
+	param3.setOptional(true)
+
+	def param4 = new AttributeRegistrationParam()
+	param4.setGroup('/')
+	param4.setAttributeType('email')
+	param4.setConfirmationMode(ConfirmationMode.CONFIRMED)
+
+	form.setAttributeParams([
+	        param1, param2, param3, param4
+	])
+	form.setTranslationProfile(
+			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
+				new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[])),
+				new TranslationRule("true", new TranslationAction("addToGroup", ["/fenix/users"] as String[])),
+				new TranslationRule("true", new TranslationAction("addAttribute", ["furmsFenixRole", "/fenix/users", "[ADMIN]"] as String[]))
+			])
+	)
+	form.setWrapUpConfig([
+			new RegistrationWrapUpConfig(
+					RegistrationWrapUpConfig.TriggeringState.DEFAULT,
+					new I18nString('Default'),
+					new I18nString("ala"),
+					null,
+					false,
+					'https://localhost:3443/front/',
+					Duration.ZERO
+			),
+			new RegistrationWrapUpConfig(
+					RegistrationWrapUpConfig.TriggeringState.GENERAL_ERROR,
+					new I18nString('Default'),
+					new I18nString("ala"),
+					null,
+					false,
+					'https://localhost:3443/front/',
+					Duration.ZERO
+			),
+			new RegistrationWrapUpConfig(
+					RegistrationWrapUpConfig.TriggeringState.PRESET_USER_EXISTS,
+					new I18nString('Default'),
+					new I18nString("ala"),
+					null,
+					false,
+					'https://localhost:3443/front/',
+					Duration.ZERO
+			)
+	])
+	registrationsManagement.addForm(form)
 }
 
 

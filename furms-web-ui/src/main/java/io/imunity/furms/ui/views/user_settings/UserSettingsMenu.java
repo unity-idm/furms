@@ -12,6 +12,7 @@ import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.views.user_settings.invitations.InvitationsView;
 import io.imunity.furms.ui.views.user_settings.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.user_settings.projects.ProjectsView;
 import io.imunity.furms.ui.views.user_settings.sites.SitesView;
@@ -30,6 +31,7 @@ public class UserSettingsMenu extends FurmsAppLayout implements AfterNavigationO
 		setPrimarySection(Section.DRAWER);
 		final List<MenuComponent> menuComponents = Stream.of(
 					MenuComponent.builder(ProfileView.class).build(),
+					MenuComponent.builder(InvitationsView.class).build(),
 					MenuComponent.builder(SitesView.class).build(),
 					MenuComponent.builder(ProjectsView.class).build(),
 					MenuComponent.builder(PolicyDocumentsView.class).build(),

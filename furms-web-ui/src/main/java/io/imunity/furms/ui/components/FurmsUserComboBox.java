@@ -5,7 +5,9 @@
 
 package io.imunity.furms.ui.components;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.GeneratedVaadinComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
-	private final ComboBox<FurmsViewUserModel>  comboBox = new ComboBox<>();
+	private final CustomValueCheckBox<FurmsViewUserModel>  comboBox = new CustomValueCheckBox<>();
 
 	public FurmsUserComboBox(List<FurmsViewUserModel> userModels) {
 		comboBox.setItemLabelGenerator(user -> {
@@ -63,6 +65,16 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 				comboBox.getEmptyValue(),
 				false))
 		);
+	}
+
+	public Registration addCustomValueSetListener(ComponentEventListener<GeneratedVaadinComboBox.CustomValueSetEvent<ComboBox<FurmsViewUserModel>>> listener) {
+		return comboBox.addCustomValueSetListener(listener);
+	}
+
+	public String getEmail(){
+		return Optional.ofNullable(comboBox.getValue())
+			.map(x -> x.email)
+			.orElse(comboBox.getCustomValue());
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface UsersDAO {
 	List<FURMSUser> getAdminUsers();
 	List<FURMSUser> getAllUsers();
+	void inviteFenixAdmin(String email);
 	void addFenixAdminRole(PersistentId userId);
 	void removeFenixAdminRole(PersistentId userId);
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);

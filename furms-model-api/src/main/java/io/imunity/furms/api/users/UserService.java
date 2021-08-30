@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface UserService {
 	List<FURMSUser> getAllUsers();
 	List<FURMSUser> getFenixAdmins();
+	void inviteFenixAdmin(String email);
 	void inviteFenixAdmin(PersistentId userId);
 	void addFenixAdminRole(PersistentId userId);
 	void removeFenixAdminRole(PersistentId userId);

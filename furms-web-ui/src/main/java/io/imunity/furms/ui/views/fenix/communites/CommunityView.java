@@ -132,7 +132,7 @@ public class CommunityView extends FurmsViewComponent {
 			membershipLayout
 		);
 		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getUserId());
+			communityService.inviteAdmin(communityId, inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();

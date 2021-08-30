@@ -11,12 +11,15 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.EmailValidator;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
@@ -25,6 +28,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 public class InviteUserComponent extends HorizontalLayout {
 
 	private final Button inviteButton;
+	private final EmailValidator emailValidator = new EmailValidator("Not valid email");
 	private final FurmsUserComboBox furmsUserComboBox;
 
 	private final Supplier<List<FURMSUser>> fetchAllUsersAction;
@@ -42,7 +46,14 @@ public class InviteUserComponent extends HorizontalLayout {
 		inviteButton.setMinWidth("auto");
 		inviteButton.setEnabled(furmsUserComboBox.hasValue());
 		furmsUserComboBox.addValueChangeListener(event ->
-			inviteButton.setEnabled(furmsUserComboBox.hasValue()));
+			inviteButton.setEnabled(furmsUserComboBox.hasValue())
+		);
+		furmsUserComboBox.addValueChangeListener(event ->
+			inviteButton.setEnabled(furmsUserComboBox.hasValue())
+		);
+		furmsUserComboBox.addCustomValueSetListener(customValue ->
+			inviteButton.setEnabled(!emailValidator.apply(customValue.getDetail(), new ValueContext()).isError())
+		);
 		add(furmsUserComboBox, inviteButton);
 	}
 
@@ -50,8 +61,13 @@ public class InviteUserComponent extends HorizontalLayout {
 		inviteButton.addClickListener(inviteAction);
 	}
 
-	public PersistentId getUserId() {
-		return furmsUserComboBox.getValue().id.orElse(null);
+	public Optional<PersistentId> getUserId() {
+		return Optional.ofNullable(furmsUserComboBox.getValue())
+			.flatMap(model -> model.id);
+	}
+
+	public String getEmail() {
+		return furmsUserComboBox.getEmail();
 	}
 
 	public void reload() {

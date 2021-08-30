@@ -22,9 +22,12 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,6 +61,7 @@ import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS_MULTI;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -82,6 +86,20 @@ public class UserService {
 			.collect(toMap(Map.Entry::getKey, x -> URLEncoder.encode(x.getValue(), StandardCharsets.UTF_8)));
 
 		unityClient.post(path, null, encodedParams);
+	}
+
+	public String createInvitation(String email){
+		RegistrationInvitationParam fenixAdminForm = new RegistrationInvitationParam("fenixAdminForm", LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.UTC), email);
+		return unityClient.post("/invitation", fenixAdminForm, emptyMap(), new ParameterizedTypeReference<>(){});
+	}
+
+	public void sendInvitation(String code){
+		String path = UriComponentsBuilder.newInstance()
+			.path("/invitation/{code}/send")
+			.buildAndExpand(Map.of("code", code))
+			.encode()
+			.toUriString();
+		unityClient.post(path);
 	}
 
 	private String prepareGroupRequestPath(PersistentId userId, String group) {

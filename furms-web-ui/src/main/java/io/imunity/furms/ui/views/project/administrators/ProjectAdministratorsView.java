@@ -46,7 +46,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
 
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId());
+			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			inviteUser.reload();
 		});

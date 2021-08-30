@@ -50,7 +50,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		UsersGridComponent grid = UsersGridComponent.defaultInit(fetchUsersAction, userGrid);
 
 		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getUserId());
+			communityService.inviteAdmin(communityId, inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			inviteUser.reload();
 		});

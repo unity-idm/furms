@@ -56,6 +56,12 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
+	public void inviteFenixAdmin(String email) {
+		String code = userService.createInvitation(email);
+		userService.sendInvitation(code);
+	}
+
+	@Override
 	public void addFenixAdminRole(PersistentId userId) {
 		userService.addUserToGroup(userId, FENIX_PATTERN);
 		userService.addUserRole(userId, FENIX_PATTERN, FENIX_ADMIN);

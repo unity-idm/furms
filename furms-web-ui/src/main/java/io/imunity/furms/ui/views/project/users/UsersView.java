@@ -97,7 +97,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			membershipLayout.loadAppropriateButton();
 		});
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getUserId());
+			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
