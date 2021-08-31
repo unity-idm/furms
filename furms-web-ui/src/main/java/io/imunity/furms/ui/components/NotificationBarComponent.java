@@ -29,6 +29,7 @@ import io.imunity.furms.ui.notifications.UINotificationService;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.BELL;
@@ -83,17 +84,19 @@ public class NotificationBarComponent extends Button {
 	private void loadData() {
 		contextMenu.removeAll();
 		Set<NotificationBarElement> allCurrentUserNotification = notificationService.findAllCurrentUserNotification();
-		allCurrentUserNotification
-			.forEach(barElement -> {
-				MenuItem menuItem = contextMenu.addItem(createLabel(barElement.text), y -> {
-					roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-						.get(barElement.viewMode).stream().findAny()
-						.ifPresent(FurmsViewUserContext::setAsCurrent);
-					UI.getCurrent().navigate(barElement.redirect);
-				});
-				menuItem.setId("context-menu-item-size");
-				contextMenu.add(new Hr());
+		Iterator<NotificationBarElement> iterator = allCurrentUserNotification.iterator();
+		while (iterator.hasNext()) {
+			NotificationBarElement barElement = iterator.next();
+			MenuItem menuItem = contextMenu.addItem(createLabel(barElement.text), y -> {
+				roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
+					.get(barElement.viewMode).stream().findAny()
+					.ifPresent(FurmsViewUserContext::setAsCurrent);
+				UI.getCurrent().navigate(barElement.redirect);
 			});
+			menuItem.setId("context-menu-item-size");
+			if (iterator.hasNext())
+				contextMenu.add(new Hr());
+		}
 		setNumber(allCurrentUserNotification.size());
 	}
 
