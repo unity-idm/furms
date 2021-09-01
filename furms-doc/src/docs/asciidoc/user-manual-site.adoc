@@ -55,3 +55,6 @@ FURMS allows for multiple users with the site administrator role. Each site admi
 
 {versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
 
+=== REST API access credentials
+
+include::rest-api-access.adoc[]

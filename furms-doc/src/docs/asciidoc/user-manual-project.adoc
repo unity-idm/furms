@@ -48,3 +48,7 @@ FURMS project can have multiple administrators. Each project administrator can a
 NOTE: Project must have a single _project leader_ defined. Typically this is one of the administrators but this is not strictly necessary.  
 
 {versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.
+
+=== REST API access credentials
+
+include::rest-api-access.adoc[]
