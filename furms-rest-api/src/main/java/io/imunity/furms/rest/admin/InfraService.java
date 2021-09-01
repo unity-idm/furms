@@ -11,9 +11,9 @@ import java.util.UUID;
 class InfraService {
 	public final ServiceId id;
 	public final String name;
-	public final PolicyId policyId;
+	public final String policyId;
 
-	InfraService(ServiceId id, String name, PolicyId policyId) {
+	InfraService(ServiceId id, String name, String policyId) {
 		this.id = id;
 		this.name = name;
 		this.policyId = policyId;
@@ -23,10 +23,10 @@ class InfraService {
 		this(
 			new ServiceId(infraService.siteId, infraService.id),
 			infraService.name,
-			new PolicyId(infraService.siteId, Optional.ofNullable(infraService.policyId)
-				.flatMap(service -> Optional.ofNullable(service.id))
+			Optional.ofNullable(infraService.policyId)
+				.map(policy -> policy.id)
 				.map(UUID::toString)
-				.orElse(null)));
+				.orElse(null));
 	}
 
 	@Override

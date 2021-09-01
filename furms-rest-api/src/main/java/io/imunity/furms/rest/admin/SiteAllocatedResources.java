@@ -4,13 +4,12 @@
  */
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
 
 class SiteAllocatedResources {
 	public final String allocationId;

@@ -47,6 +47,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(siteId))
 				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.sitePolicyId").value("policyId2"))
 				.andExpect(jsonPath("$.resourceCredits", hasSize(2)))
 				.andExpect(jsonPath("$.resourceCredits[0].id.siteId").value(siteId))
 				.andExpect(jsonPath("$.resourceCredits[0].id.creditId").value("creditId1"))
@@ -66,11 +67,9 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.services[0].id.siteId").value(siteId))
 				.andExpect(jsonPath("$.services[0].id.serviceId").value("serviceId1"))
 				.andExpect(jsonPath("$.services[0].name").value("name"))
-				.andExpect(jsonPath("$.services[0].policyId.siteId").value(siteId))
-				.andExpect(jsonPath("$.services[0].policyId.policyId").value("policyId"))
+				.andExpect(jsonPath("$.services[0].policyId").value("policyId"))
 				.andExpect(jsonPath("$.policies", hasSize(2)))
-				.andExpect(jsonPath("$.policies[0].id.siteId").value(siteId))
-				.andExpect(jsonPath("$.policies[0].id.policyId").value("policyId1"))
+				.andExpect(jsonPath("$.policies[0].policyId").value("policyId1"))
 				.andExpect(jsonPath("$.policies[0].name").value("name"))
 				.andExpect(jsonPath("$.policies[0].revision").value(0));
 	}
@@ -178,8 +177,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.id.siteId").value(siteId))
 				.andExpect(jsonPath("$.id.serviceId").value(serviceId))
 				.andExpect(jsonPath("$.name").value("name"))
-				.andExpect(jsonPath("$.policyId.siteId").value(siteId))
-				.andExpect(jsonPath("$.policyId.policyId").value("policyId"));
+				.andExpect(jsonPath("$.policyId").value("policyId"));
 	}
 
 	@Test
@@ -304,12 +302,12 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private Site createSite(String id) {
-		return new Site(id,  "name",
+		return new Site(id,  "name", "policyId2",
 				List.of(createResourceCredit(id, "creditId1"), createResourceCredit(id, "creditId2")),
 				List.of(createResourceType(id, "typeId1"), createResourceType(id, "typeId1")),
 				List.of(createService(id, "serviceId1"),createService(id, "serviceId2")),
-				List.of(new Policy(new PolicyId(id, "policyId1"), "name", 0),
-						new Policy(new PolicyId(id, "policyId2"), "name", 1)));
+				List.of(new Policy("policyId1", "name", 0),
+						new Policy("policyId2", "name", 1)));
 	}
 
 	private ResourceCredit createResourceCredit(String siteId, String id) {
@@ -322,7 +320,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private InfraService createService(String siteId, String serviceId) {
-		return new InfraService(new ServiceId(siteId, serviceId), "name", new PolicyId(siteId, "policyId"));
+		return new InfraService(new ServiceId(siteId, serviceId), "name", "policyId");
 	}
 
 	private ResourceAmount createResourceAmount() {

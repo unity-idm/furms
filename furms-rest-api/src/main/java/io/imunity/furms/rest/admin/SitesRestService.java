@@ -100,6 +100,7 @@ class SitesRestService {
 				.map(site -> new Site(
 						site.getId(),
 						site.getName(),
+						site.getPolicyId() == null ? null : site.getPolicyId().id.toString(),
 						resourceCredits.stream()
 								.filter(credit -> credit.siteId.equals(site.getId()))
 								.map(credit -> new ResourceCredit(credit, findResource(resourceTypes, credit.resourceTypeId)))
@@ -125,6 +126,7 @@ class SitesRestService {
 				.map(site -> new Site(
 						site.getId(),
 						site.getName(),
+						site.getPolicyId() == null ? null : site.getPolicyId().id.toString(),
 						resourceCreditService.findAllWithAllocations(siteId).stream()
 								.map(ResourceCredit::new)
 								.collect(toList()),
@@ -258,14 +260,14 @@ class SitesRestService {
 
 	List<Policy> findAllPolicies(String siteId) {
 		return policyDocumentService.findAllBySiteId(siteId).stream()
-			.map(policyDocument -> new Policy(new PolicyId(siteId, policyDocument.id.id.toString()), policyDocument.name, policyDocument.revision))
+			.map(policyDocument -> new Policy(policyDocument.id.id.toString(), policyDocument.name, policyDocument.revision))
 			.collect(Collectors.toList());
 	}
 
 	Policy findPolicy(String siteId, String policyId) {
 		PolicyDocument policyDocument = policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
 			.orElseThrow(() -> new IdNotFoundValidationError(String.format("Site id %s or policy id %s doesn't exist", siteId, policyId)));
-		return new Policy(new PolicyId(siteId, policyId), policyDocument.name, policyDocument.revision);
+		return new Policy(policyId, policyDocument.name, policyDocument.revision);
 	}
 
 	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {

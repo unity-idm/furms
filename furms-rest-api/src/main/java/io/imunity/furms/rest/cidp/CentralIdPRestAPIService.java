@@ -4,34 +4,18 @@
  */
 package io.imunity.furms.rest.cidp;
 
+import static java.util.stream.Collectors.toSet;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
+
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
-import io.imunity.furms.rest.openapi.APIDocConstants;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toSet;
 
 @Service
 class CentralIdPRestAPIService {

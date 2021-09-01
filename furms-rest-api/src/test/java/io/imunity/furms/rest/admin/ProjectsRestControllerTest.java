@@ -5,14 +5,8 @@
 
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.math.BigDecimal.ONE;
-
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -26,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
