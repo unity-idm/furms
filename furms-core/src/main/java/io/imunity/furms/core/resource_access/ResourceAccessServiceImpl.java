@@ -105,14 +105,12 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		else if (policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id)) {
+		else if (policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id) && userAdditionStatus.isEmpty()) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
-			runAfterCommit(() ->
-				userOperationService.createUserAdditions(
-					grantAccess.siteId,
-					grantAccess.projectId,
-					policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
-				)
+			userOperationService.createUserAdditions(
+				grantAccess.siteId,
+				grantAccess.projectId,
+				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
 			);
 		}
 		else {

@@ -171,9 +171,9 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
+		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", userPolicyAcceptancesWithServicePolicies);
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(fenixUserId, grantId.toString());
 		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
-		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", userPolicyAcceptancesWithServicePolicies);
 	}
 
 	@Test
