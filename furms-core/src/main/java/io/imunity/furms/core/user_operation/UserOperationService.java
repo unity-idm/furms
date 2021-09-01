@@ -23,6 +23,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,8 @@ public class UserOperationService implements UserAllocationsService {
 	private final UsersDAO usersDAO;
 	private final PolicyDocumentServiceHelper policyService;
 	private final SSHKeyService sshKeyService;
+	private final ResourceAccessRepository resourceAccessRepository;
+
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService,
@@ -63,7 +66,8 @@ public class UserOperationService implements UserAllocationsService {
 	                     SiteAgentUserService siteAgentUserService,
 	                     UsersDAO usersDAO,
 	                     PolicyDocumentServiceHelper policyService,
-	                     SSHKeyService sshKeyService) {
+	                     SSHKeyService sshKeyService,
+	                     ResourceAccessRepository resourceAccessRepository) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
@@ -71,6 +75,7 @@ public class UserOperationService implements UserAllocationsService {
 		this.usersDAO = usersDAO;
 		this.policyService = policyService;
 		this.sshKeyService = sshKeyService;
+		this.resourceAccessRepository = resourceAccessRepository;
 	}
 
 	@Override
@@ -175,7 +180,8 @@ public class UserOperationService implements UserAllocationsService {
 
 	private void createUserRemovals(String projectId, FURMSUser user) {
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
-		repository.findAllUserAdditions(projectId, fenixUserId).stream()
+		Set<UserAddition> allUserAdditions = repository.findAllUserAdditions(projectId, fenixUserId);
+		allUserAdditions.stream()
 			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
 			.forEach(userAddition -> {
 				if(userAddition.status.equals(ADDING_FAILED)) {
@@ -196,6 +202,9 @@ public class UserOperationService implements UserAllocationsService {
 					siteAgentUserService.removeUser(addition)
 				);
 			});
+		if(allUserAdditions.isEmpty()){
+			resourceAccessRepository.deleteByUserAndProjectId(new FenixUserId(fenixUserId), projectId);
+		}
 	}
 
 }

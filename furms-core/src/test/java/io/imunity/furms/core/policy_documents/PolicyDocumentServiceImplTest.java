@@ -277,7 +277,7 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldNotFindUserWithoutPolicyAcceptanceIfUserIsNotInstalledOnSite() {
+	void shouldFindUserWithoutPolicyAcceptanceIfUserIsNotInstalledOnSite() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 
@@ -299,7 +299,7 @@ class PolicyDocumentServiceImplTest {
 		orderVerifier.verify(repository).findById(policyId);
 		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
 
-		assertEquals(0, users.size());
+		assertEquals(1, users.size());
 	}
 
 	@Test
