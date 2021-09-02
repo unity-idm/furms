@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
-import io.imunity.furms.server.FurmsServerApplication;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @AutoConfigureMockMvc
-@SpringBootTest(classes = FurmsServerApplication.class)
+@SpringBootTest(classes = FumrsIntegrationTestsServer.class)
 public class IntegrationTestBase extends DBTestManager {
 
 	private final static Integer SERVER_PORT = SocketUtils.findAvailableTcpPort();

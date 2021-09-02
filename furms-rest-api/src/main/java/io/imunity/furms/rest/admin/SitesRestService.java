@@ -24,6 +24,7 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -324,17 +326,22 @@ class SitesRestService {
 				.findFirst();
 	}
 
-	private SiteUser createSiteUser(String userId, Set<UserAddition> userAdditions) {
+	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions) {
 		final String uid = userAdditions.stream()
 				.filter(userAddition -> !StringUtils.isEmpty(userAddition.uid))
 				.findAny()
 				.map(userAddition -> userAddition.uid)
 				.orElseThrow(() -> new IllegalArgumentException("UID not found"));
-		return findUserByFenixId(userId)
-				.map(user -> new SiteUser(user, uid,
-						sshKeyService.findByOwnerId(userId).stream()
-								.map(sshKey -> sshKey.id)
-								.collect(toList()),
+		final Optional<FURMSUser> furmsUser = userService.findByFenixUserId(new FenixUserId(fenixUserId));
+		return findUserByFenixId(fenixUserId)
+				.map(user -> new SiteUser(
+						user,
+						uid,
+						furmsUser.map(persistedUser ->
+								sshKeyService.findByOwnerId(persistedUser.id.get().id).stream()
+									.map(sshKey -> sshKey.id)
+									.collect(toList()))
+								.orElse(List.of()),
 						userAdditions.stream()
 							.map(userAddition -> userAddition.projectId)
 							.collect(toSet())))
@@ -348,11 +355,7 @@ class SitesRestService {
 		final User projectLeader = findUser(projectBySiteId.getLeaderId().id);
 		final Project project = new Project(projectBySiteId, projectLeader, Set.of(projectInstallation));
 
-		return new ProjectInstallation(
-				project,
-				InstallationStatus.INSTALLED,
-				null,
-				projectInstallation.gid.id);
+		return new ProjectInstallation(project, INSTALLED, projectInstallation.gid.id);
 	}
 
 	private User findUser(String userId) {

@@ -5,7 +5,6 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
-import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
@@ -20,7 +19,6 @@ import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -28,12 +26,8 @@ import java.util.UUID;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
-import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultPolicy;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProject;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProjectInstallationJob;
-import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultResourceCredit;
-import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultResourceType;
-import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultService;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultSite;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultUserAddition;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
@@ -155,11 +149,13 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].projectIds").value(anyOf(
 						containsInAnyOrder(projectId1, projectId2, projectId3),
 						containsInAnyOrder(projectId1, projectId2))))
+				.andExpect(jsonPath("$.[0].sshKeys", hasSize(1)))
 				.andExpect(jsonPath("$.[1].user.fenixIdentifier", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].uid", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].projectIds").value(anyOf(
 						containsInAnyOrder(projectId1, projectId2, projectId3),
-						containsInAnyOrder(projectId1, projectId2))));
+						containsInAnyOrder(projectId1, projectId2))))
+				.andExpect(jsonPath("$.[0].sshKeys", hasSize(1)));
 	}
 
 

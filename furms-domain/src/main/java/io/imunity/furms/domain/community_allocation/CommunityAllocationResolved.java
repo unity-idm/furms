@@ -43,14 +43,14 @@ public class CommunityAllocationResolved {
 		if (o == null || getClass() != o.getClass()) return false;
 		CommunityAllocationResolved that = (CommunityAllocationResolved) o;
 		return Objects.equals(id, that.id) &&
-			Objects.equals(site, that.site) &&
-			Objects.equals(resourceType, that.resourceType) &&
-			Objects.equals(resourceCredit, that.resourceCredit) &&
-			Objects.equals(communityId, that.communityId) &&
-			Objects.equals(name, that.name) &&
-			Objects.equals(amount, that.amount) &&
-			Objects.equals(consumed, that.consumed) &&
-			Objects.equals(remaining, that.remaining);
+				Objects.equals(site, that.site) &&
+				Objects.equals(resourceType, that.resourceType) &&
+				Objects.equals(resourceCredit, that.resourceCredit) &&
+				Objects.equals(communityId, that.communityId) &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(amount, that.amount) &&
+				Objects.equals(consumed, that.consumed) &&
+				Objects.equals(remaining, that.remaining);
 	}
 
 	@Override
@@ -61,20 +61,33 @@ public class CommunityAllocationResolved {
 	@Override
 	public String toString() {
 		return "CommunityAllocation{" +
-			"id=" + id +
-			", site=" + site +
-			", resourceType=" + resourceType +
-			", resourceCredit=" + resourceCredit +
-			", communityId=" + communityId +
-			", name='" + name + '\'' +
-			", amount='" + amount + '\'' +
-			", consumed='" + consumed + '\'' +
-			", remaining='" + remaining + '\'' +
-			'}';
+				"id=" + id +
+				", site=" + site +
+				", resourceType=" + resourceType +
+				", resourceCredit=" + resourceCredit +
+				", communityId=" + communityId +
+				", name='" + name + '\'' +
+				", amount='" + amount + '\'' +
+				", consumed='" + consumed + '\'' +
+				", remaining='" + remaining + '\'' +
+				'}';
 	}
 
 	public static CommunityAllocationResolvedBuilder builder() {
 		return new CommunityAllocationResolvedBuilder();
+	}
+
+	public CommunityAllocationResolvedBuilder copyBuilder() {
+		return new CommunityAllocationResolvedBuilder()
+				.id(this.id)
+				.site(this.site)
+				.resourceType(this.resourceType)
+				.resourceCredit(this.resourceCredit)
+				.communityId(this.communityId)
+				.name(this.name)
+				.amount(this.amount)
+				.consumed(this.consumed)
+				.remaining(this.remaining);
 	}
 
 	public static final class CommunityAllocationResolvedBuilder {

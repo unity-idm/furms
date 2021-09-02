@@ -72,14 +72,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Optional<CommunityAllocationResolved> findByCommunityIdAndIdWithRelatedObjects(String communityId, String id) {
 		return communityAllocationRepository.findByIdWithRelatedObjects(id)
-				.map(credit -> CommunityAllocationResolved.builder()
-						.id(credit.id)
-						.site(credit.site)
-						.resourceType(credit.resourceType)
-						.resourceCredit(credit.resourceCredit)
-						.communityId(credit.communityId)
-						.name(credit.name)
-						.amount(credit.amount)
+				.map(credit -> credit.copyBuilder()
 						.remaining(projectAllocationService.getAvailableAmount(communityId, credit.id))
 						.consumed(resourceUsageRepository.findResourceUsagesSumsByCommunityId(communityId).get(credit.id))
 						.build());
@@ -102,14 +95,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
 		ResourceUsageByCommunityAllocation resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsByCommunityId(communityId);
 		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId).stream()
-			.map(credit -> CommunityAllocationResolved.builder()
-				.id(credit.id)
-				.site(credit.site)
-				.resourceType(credit.resourceType)
-				.resourceCredit(credit.resourceCredit)
-				.communityId(credit.communityId)
-				.name(credit.name)
-				.amount(credit.amount)
+			.map(credit -> credit.copyBuilder()
 				.remaining(projectAllocationService.getAvailableAmount(communityId, credit.id))
 				.consumed(resourceUsageSum.get(credit.id))
 				.build())

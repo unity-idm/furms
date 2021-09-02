@@ -85,24 +85,6 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[1].amount", equalTo(1)));
 	}
 
-//	@Test
-//  commented in follow to doubts about rights
-//	void shouldNotFindAllProjectAllocationsByProjectIdDueToLackOfCorrectRights() throws Exception {
-//		//given
-//		final String community = createCommunity();
-//		final String project1 = createProject(community);
-//		final String project2 = createProject(community);
-//
-//		projectAdmin.addProjectAdmin(community, project1);
-//		setupUser(projectAdmin);
-//
-//		//when
-//		mockMvc.perform(get("/rest-api/v1/projects/{projectId}/allocations", project2)
-//				.with(projectAdmin.getHttpBasic()))
-//				.andDo(print())
-//				.andExpect(status().isForbidden());
-//	}
-
 	@Test
 	void shouldNotFindAllProjectAllocationsByProjectIdProjectDoesNotExist() throws Exception {
 		//given

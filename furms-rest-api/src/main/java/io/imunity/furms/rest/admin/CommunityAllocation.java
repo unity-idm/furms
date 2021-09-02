@@ -9,8 +9,6 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import static java.util.Optional.ofNullable;
-
 class CommunityAllocation {
 	public final String id;
 	public final String creditId;
@@ -25,10 +23,8 @@ class CommunityAllocation {
 	}
 
 	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
-		this(communityAllocation.id,
-				communityAllocation.resourceCredit.id,
-				communityAllocation.name,
-				ofNullable(communityAllocation.remaining).orElse(communityAllocation.amount));
+		this(communityAllocation.id, communityAllocation.resourceCredit.id, communityAllocation.name,
+				communityAllocation.remaining);
 	}
 
 	@Override

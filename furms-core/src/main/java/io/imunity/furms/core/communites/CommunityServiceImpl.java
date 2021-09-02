@@ -85,8 +85,8 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public Set<Community> findAllByCurrentUser() {
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public Set<Community> findAllOfCurrentUser() {
 		final PersistentId currentUserId = authzService.getCurrentUserId();
 		return communityRepository.findAll().stream()
 				.filter(community -> findAllAdmins(community.getId()).stream()

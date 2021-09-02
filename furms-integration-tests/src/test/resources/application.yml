@@ -1,3 +1,5 @@
+app:
+   version: '@project.version@'
 server:
    ssl:
       key-store: classpath:keystore.p12
@@ -5,6 +7,10 @@ server:
       key-store-password: the!test
       key-password: the!test
       enabled-protocols: TLSv1.2
+   servlet:
+      context-path: /
+      session:
+         persistent: false
 
 furms:
    unity:
@@ -28,6 +34,8 @@ furms:
       cleanStaleRequestsAfter: 60S
 
 spring:
+   main:
+      banner-mode: 'off'
    datasource:
       url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
       username: sa
@@ -44,5 +52,35 @@ spring:
           trustStore: ${furms.unity.ssl.trust-store}
           trustStorePassword: ${furms.unity.ssl.trust-store-password}
           algorithm: TLSv1.2
+   flyway:
+      enabled: true
+   security:
+      oauth2:
+         client:
+            provider:
+               unity: unity
+               unity.authorization-uri: ${furms.unity.url}/oauth2-as/oauth2-authz
+               unity.revoke: ${furms.unity.url}/oauth2/revoke
+               unity.token-uri: ${furms.unity.url}/oauth2/token
+               unity.user-info-uri: ${furms.unity.url}/oauth2/userinfo
+               unity.user-name-attribute: sub
+            registration:
+               unity:
+                  authorization-grant-type: authorization_code
+                  client-authentication-method: basic
+                  clientId: ${furms.unity.oAuth.clientId}
+                  clientSecret: ${furms.unity.oAuth.clientSecret}
+                  redirect-uri: ${furms.url}/login/oauth2/code/unity
+                  scope: openid+profile+single-logout
 
-
+unity:
+   client:
+      ssl:
+         trust-store: ${furms.unity.ssl.trust-store}
+         trust-store-password: ${furms.unity.ssl.trust-store-password}
+vaadin:
+   closeIdleSessions: false
+   compatibilityMode: false
+   heartbeatInterval: 172800
+   urlMapping: /front/*
+   whitelisted-packages: io/imunity/furms/ui/views

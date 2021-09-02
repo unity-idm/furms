@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.communites.CommunityService;
@@ -39,15 +38,11 @@ class CommunityRestService {
 	}
 
 	List<Community> findAll() {
-		final List<Community> communities = communityService.findAllByCurrentUser().stream()
+		return communityService.findAllOfCurrentUser().stream()
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(community.getId())))
 				.collect(toList());
-		if (communities.size() == 0) {
-			throw new RestNotFoundException("Communities not found");
-		}
-		return communities;
 	}
 
 	Community findOneById(String communityId) {

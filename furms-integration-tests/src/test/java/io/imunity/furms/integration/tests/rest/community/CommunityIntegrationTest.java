@@ -103,14 +103,6 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldNotFindAllCommunitiesDueToLackOfRights() throws Exception {
-		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities"))
-				.andDo(print())
-				.andExpect(status().isNotFound());
-	}
-
-	@Test
 	void shouldFindCommunityById() throws Exception {
 		//given
 		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
