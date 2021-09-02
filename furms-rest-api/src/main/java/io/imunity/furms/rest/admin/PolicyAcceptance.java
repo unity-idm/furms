@@ -14,19 +14,31 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 class PolicyAcceptance {
-	final String fenixUserId;
-	final String policyId;
-	final AcceptanceStatus accepted;
-	final ZonedDateTime processedOn;
-	final int revision;
+	public final String fenixUserId;
+	public final String policyId;
+	public final AcceptanceStatus accepted;
+	public final ZonedDateTime processedOn;
+	public final int revision;
 
-	PolicyAcceptance(String policyId, int revision, String fenixUserId, AcceptanceStatus accepted,
-			ZonedDateTime processedOn) {
+	PolicyAcceptance(String policyId,
+	                 int revision,
+	                 String fenixUserId,
+	                 AcceptanceStatus accepted,
+	                 ZonedDateTime processedOn) {
 		this.policyId = policyId;
 		this.revision = revision;
 		this.fenixUserId = fenixUserId;
 		this.accepted = accepted;
 		this.processedOn = processedOn;
+	}
+
+	public PolicyAcceptance(io.imunity.furms.domain.policy_documents.PolicyAcceptance policyAcceptance,
+	                        FenixUserId fenixUserId) {
+		this(policyAcceptance.policyDocumentId.id.toString(),
+				policyAcceptance.policyDocumentRevision,
+				fenixUserId.id,
+				AcceptanceStatus.valeOf(policyAcceptance.acceptanceStatus),
+				policyAcceptance.decisionTs.atZone(ZoneOffset.UTC));
 	}
 
 	@Override

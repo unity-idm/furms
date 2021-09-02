@@ -83,8 +83,8 @@ public class Project {
 		return UTCTimeUtils.isExpired(utcEndTime);
 	}
 
-	public static ProjectEntityBuilder builder() {
-		return new ProjectEntityBuilder();
+	public static ProjectBuilder builder() {
+		return new ProjectBuilder();
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class Project {
 			'}';
 	}
 
-	public static class ProjectEntityBuilder {
+	public static class ProjectBuilder {
 		private String id;
 		private String communityId;
 		private String name;
@@ -136,60 +136,60 @@ public class Project {
 		private LocalDateTime utcEndTime;
 		private PersistentId leaderId;
 
-		private ProjectEntityBuilder() {
+		private ProjectBuilder() {
 		}
 
-		public ProjectEntityBuilder id(String id) {
+		public ProjectBuilder id(String id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectEntityBuilder communityId(String communityId) {
+		public ProjectBuilder communityId(String communityId) {
 			this.communityId = communityId;
 			return this;
 		}
 
-		public ProjectEntityBuilder name(String name) {
+		public ProjectBuilder name(String name) {
 			this.name = name;
 			return this;
 		}
 
-		public ProjectEntityBuilder description(String description) {
+		public ProjectBuilder description(String description) {
 			this.description = description;
 			return this;
 		}
 
-		public ProjectEntityBuilder logo(FurmsImage logo) {
+		public ProjectBuilder logo(FurmsImage logo) {
 			this.logo = logo;
 			return this;
 		}
 
-		public ProjectEntityBuilder logo(byte[] logoImage, String logoType) {
+		public ProjectBuilder logo(byte[] logoImage, String logoType) {
 			this.logo = new FurmsImage(logoImage, logoType);
 			return this;
 		}
 
-		public ProjectEntityBuilder acronym(String acronym) {
+		public ProjectBuilder acronym(String acronym) {
 			this.acronym = acronym;
 			return this;
 		}
 
-		public ProjectEntityBuilder researchField(String researchField) {
+		public ProjectBuilder researchField(String researchField) {
 			this.researchField = researchField;
 			return this;
 		}
 
-		public ProjectEntityBuilder utcStartTime(LocalDateTime start) {
+		public ProjectBuilder utcStartTime(LocalDateTime start) {
 			this.utcStartTime = start;
 			return this;
 		}
 
-		public ProjectEntityBuilder utcEndTime(LocalDateTime end) {
+		public ProjectBuilder utcEndTime(LocalDateTime end) {
 			this.utcEndTime = end;
 			return this;
 		}
 
-		public ProjectEntityBuilder leaderId(PersistentId projectLeaderId) {
+		public ProjectBuilder leaderId(PersistentId projectLeaderId) {
 			this.leaderId = projectLeaderId;
 			return this;
 		}

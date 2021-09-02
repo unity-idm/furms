@@ -54,41 +54,41 @@ public class UserResourceUsage {
 			'}';
 	}
 
-	public static UserProjectAllocationUsageBuilder builder() {
-		return new UserProjectAllocationUsageBuilder();
+	public static UserResourceUsageBuilder builder() {
+		return new UserResourceUsageBuilder();
 	}
 
-	public static final class UserProjectAllocationUsageBuilder {
+	public static final class UserResourceUsageBuilder {
 		private String projectId;
 		private String projectAllocationId;
 		private FenixUserId fenixUserId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime consumedUntil;
 
-		private UserProjectAllocationUsageBuilder() {
+		private UserResourceUsageBuilder() {
 		}
 
-		public UserProjectAllocationUsageBuilder projectId(String projectId) {
+		public UserResourceUsageBuilder projectId(String projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public UserProjectAllocationUsageBuilder projectAllocationId(String projectAllocationId) {
+		public UserResourceUsageBuilder projectAllocationId(String projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public UserProjectAllocationUsageBuilder fenixUserId(FenixUserId fenixUserId) {
+		public UserResourceUsageBuilder fenixUserId(FenixUserId fenixUserId) {
 			this.fenixUserId = fenixUserId;
 			return this;
 		}
 
-		public UserProjectAllocationUsageBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
+		public UserResourceUsageBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
 			this.cumulativeConsumption = cumulativeConsumption;
 			return this;
 		}
 
-		public UserProjectAllocationUsageBuilder consumedUntil(LocalDateTime consumedUntil) {
+		public UserResourceUsageBuilder consumedUntil(LocalDateTime consumedUntil) {
 			this.consumedUntil = consumedUntil;
 			return this;
 		}

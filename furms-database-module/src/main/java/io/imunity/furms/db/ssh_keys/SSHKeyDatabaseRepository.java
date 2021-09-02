@@ -48,7 +48,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 								? sshKey.sites.stream()
 										.map(s -> new SSHKeySiteReference(
 												UUID.fromString(s)))
-										.collect(Collectors.toSet())
+										.collect(toSet())
 								: Collections.emptySet())))
 				.getId().toString();
 	}
@@ -71,7 +71,9 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		if (isEmpty(ownerId)) {
 			return Collections.emptySet();
 		}
-		return repository.findAllByOwnerId(ownerId.id).map(SSHKeyEntity::toSSHKey).collect(Collectors.toSet());
+		return repository.findAllByOwnerId(ownerId.id).stream()
+				.map(SSHKeyEntity::toSSHKey)
+				.collect(toSet());
 	}
 
 	@Override

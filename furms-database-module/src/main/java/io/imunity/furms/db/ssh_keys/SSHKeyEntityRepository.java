@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.ssh_keys;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -12,7 +13,7 @@ import org.springframework.data.repository.CrudRepository;
 
 interface SSHKeyEntityRepository extends CrudRepository<SSHKeyEntity, UUID> {
 	
-	Stream<SSHKeyEntity> findAllByOwnerId(String id);
+	Set<SSHKeyEntity> findAllByOwnerId(String id);
 
 	boolean existsByName(String name);
 

@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.communites.CommunityService;
@@ -38,18 +39,15 @@ class CommunityRestService {
 	}
 
 	List<Community> findAll() {
-		return communityService.findAll().stream()
+		final List<Community> communities = communityService.findAllByCurrentUser().stream()
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(community.getId())))
 				.collect(toList());
-	}
-
-	List<Project> findAllProjectsByCommunityId(String communityId) {
-		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
-				.stream()
-				.map(projectsRestConverter::convert)
-				.collect(toList());
+		if (communities.size() == 0) {
+			throw new RestNotFoundException("Communities not found");
+		}
+		return communities;
 	}
 
 	Community findOneById(String communityId) {
@@ -58,6 +56,13 @@ class CommunityRestService {
 						community,
 						communityAllocationService.findAllByCommunityId(communityId)))
 				.get();
+	}
+
+	List<Project> findAllProjectsByCommunityId(String communityId) {
+		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
+				.stream()
+				.map(projectsRestConverter::convert)
+				.collect(toList());
 	}
 
 	List<CommunityAllocation> findAllocationByCommunityId(String communityId) {
@@ -78,6 +83,7 @@ class CommunityRestService {
 	}
 
 	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationAddRequest request) {
+		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		communityAllocationService.create(io.imunity.furms.domain.community_allocation.CommunityAllocation.builder()
 				.communityId(communityId)
 				.resourceCreditId(request.creditId)

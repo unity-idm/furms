@@ -13,16 +13,16 @@ class Policy {
 	public final String name;
 	public final int revision;
 
-	Policy(PolicyDocument policyDocument) {
-		this.policyId = policyDocument.id.id.toString();
-		this.name = policyDocument.name;
-		this.revision = policyDocument.revision;
-	}
-
 	Policy(String id, String name, int revision) {
 		this.policyId = id;
 		this.name = name;
 		this.revision = revision;
+	}
+
+	Policy(PolicyDocument policyDocument) {
+		this.policyId = policyDocument.id.id.toString();
+		this.name = policyDocument.name;
+		this.revision = policyDocument.revision;
 	}
 
 	@Override
@@ -43,7 +43,7 @@ class Policy {
 	@Override
 	public String toString() {
 		return "Policy{" +
-				"id=" + policyId +
+				"policyId=" + policyId +
 				", name='" + name + '\'' +
 				", revision=" + revision +
 				'}';

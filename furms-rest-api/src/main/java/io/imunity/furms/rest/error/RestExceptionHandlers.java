@@ -65,8 +65,8 @@ class RestExceptionHandlers {
 						.build());
 	}
 
-	@ExceptionHandler({IllegalArgumentException.class})
-	ResponseEntity<RestExceptionData> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+	@ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+	ResponseEntity<RestExceptionData> handleIllegalArgumentException(RuntimeException ex, HttpServletRequest request) {
 		LOG.error(ex.getClass().getName() + " during REST operation: ", ex);
 		return ResponseEntity
 				.status(BAD_REQUEST)

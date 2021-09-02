@@ -71,14 +71,14 @@ public class UserAddition {
 	}
 
 	public static final class UserAdditionBuilder {
-		public String id;
-		public SiteId siteId;
-		public String projectId;
-		public CorrelationId correlationId;
-		public String uid;
-		public String userId;
-		public UserStatus status;
-		public Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
+		private String id;
+		private SiteId siteId;
+		private String projectId;
+		private CorrelationId correlationId;
+		private String uid;
+		private String userId;
+		private UserStatus status;
+		private Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
 
 		private UserAdditionBuilder() {
 		}

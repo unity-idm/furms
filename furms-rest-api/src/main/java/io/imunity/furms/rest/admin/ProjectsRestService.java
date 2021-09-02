@@ -85,7 +85,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeaderId))
+				.leaderId(converter.convertToPersistentId(new FenixUserId(request.projectLeaderId)))
 				.build());
 
 		return projectService.findById(projectId)

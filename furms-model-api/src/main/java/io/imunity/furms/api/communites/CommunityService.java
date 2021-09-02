@@ -20,6 +20,8 @@ public interface CommunityService {
 
 	Set<Community> findAll();
 
+	Set<Community> findAllByCurrentUser();
+
 	void create(Community community);
 
 	void update(Community community);

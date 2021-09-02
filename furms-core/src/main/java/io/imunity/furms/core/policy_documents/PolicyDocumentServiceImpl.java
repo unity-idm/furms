@@ -219,6 +219,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		FURMSUser user = userService.findByFenixUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
+		final Optional<Site> site = siteRepository.findById(siteId);
+		assertPolicyBelongsToSite(policyAcceptance, site);
 		addUserPolicyAcceptance(user, policyAcceptance);
 	}
 
@@ -323,5 +325,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
 		policyDocumentRepository.deleteById(policyId);
 		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
+	}
+
+	private void assertPolicyBelongsToSite(PolicyAcceptance policyAcceptance, Optional<Site> site) {
+		if (site.isEmpty()
+				|| site.get().getPolicyId() != null
+				&& site.get().getPolicyId().id != null
+				&& !site.get().getPolicyId().equals(policyAcceptance.policyDocumentId)) {
+			throw new IllegalArgumentException("Policy doesn't belongs to Site.");
+		}
 	}
 }

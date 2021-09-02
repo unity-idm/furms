@@ -140,6 +140,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(new SiteId(userAddition.site.getId().toString(), userAddition.site.getExternalId()))
 				.userId(userAddition.userId)
 				.projectId(userAddition.projectId.toString())
+				.correlationId(new CorrelationId(userAddition.correlationId.toString()))
 				.build())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}
