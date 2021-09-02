@@ -14,12 +14,13 @@ import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public interface ResourceAccessRepository {
 	Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId);
 	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
 	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
-	void create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
+	UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
 	boolean exists(GrantAccess grantAccess);

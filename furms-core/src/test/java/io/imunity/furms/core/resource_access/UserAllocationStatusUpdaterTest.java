@@ -10,7 +10,6 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.Set;
@@ -44,10 +42,6 @@ class UserAllocationStatusUpdaterTest {
 	private ResourceAccessRepository repository;
 	@Mock
 	private UserOperationService userOperationService;
-	@Mock
-	private ApplicationEventPublisher publisher;
-	@Mock
-	private NotificationDAO notificationDAO;
 
 	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -55,8 +49,8 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService, publisher, notificationDAO);
-		orderVerifier = inOrder(repository, userOperationService, notificationDAO);
+		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService);
+		orderVerifier = inOrder(repository, userOperationService);
 	}
 
 	@ParameterizedTest
@@ -71,20 +65,6 @@ class UserAllocationStatusUpdaterTest {
 		service.update(correlationId, GRANTED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANTED, "msg");
-	}
-
-	@ParameterizedTest
-	@EnumSource(value = AccessStatus.class, names = {"GRANT_PENDING", "GRANT_ACKNOWLEDGED"})
-	void shouldNotifyAboutNewNotAcceptedPolicy(AccessStatus status) {
-		CorrelationId correlationId = CorrelationId.randomID();
-
-		FenixUserId userId = new FenixUserId("userId");
-		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", userId)));
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		service.update(correlationId, GRANTED, "msg");
-
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(userId, "grantId");
 	}
 
 	@Test
