@@ -6,7 +6,9 @@
 package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -23,15 +25,47 @@ class ResourceChecker {
 		assertUUID(resourceId);
 		try {
 			final T result = actionToPerform.get();
-			if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
-				throw new RestNotFoundException("Resource does not exist");
-			}
+			assertResultExists(result);
 			return result;
 		} catch (Exception e) {
-			if ((isNotRestNotFoundException(e) && isNotAvailable(resourceId))) {
-				throw new RestNotFoundException("Resource does not exist");
-			}
+			handleException(e, resourceId);
 			throw e;
+		}
+	}
+
+	<T> T performIfExistsAndMatching(String resourceId,
+	                                 Supplier<T> actionToPerform,
+	                                 Function<T, Boolean> matchingFilter) {
+		assertUUID(resourceId);
+		try {
+			final T result = actionToPerform.get();
+			assertResultExists(result);
+			assertMatching(matchingFilter, result);
+			return result;
+		} catch (Exception e) {
+			handleException(e, resourceId);
+			throw e;
+		}
+	}
+
+	private <T> void assertMatching(Function<T, Boolean> matchingFilter, T result) {
+		if (!matchingFilter.apply(result)) {
+			throw new AccessDeniedException("Access Denied to resource");
+		}
+	}
+
+	private void handleException(Exception e, String resourceId) {
+		if ((isNotRestNotFoundException(e) && isNotAvailable(resourceId))) {
+			throw new RestNotFoundException("Resource does not exist");
+		}
+	}
+
+	private <T> void assertResultExists(T result) {
+		if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
+			throw new RestNotFoundException("Resource does not exist");
+		}
+		if (result instanceof Collection && ((Collection<?>) result).isEmpty()) {
+			throw new RestNotFoundException("Resource does not exist");
 		}
 	}
 

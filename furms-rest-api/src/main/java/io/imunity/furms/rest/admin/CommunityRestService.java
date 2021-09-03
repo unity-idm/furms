@@ -38,17 +38,10 @@ class CommunityRestService {
 	}
 
 	List<Community> findAll() {
-		return communityService.findAll().stream()
+		return communityService.findAllOfCurrentUser().stream()
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(community.getId())))
-				.collect(toList());
-	}
-
-	List<Project> findAllProjectsByCommunityId(String communityId) {
-		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
-				.stream()
-				.map(projectsRestConverter::convert)
 				.collect(toList());
 	}
 
@@ -58,6 +51,13 @@ class CommunityRestService {
 						community,
 						communityAllocationService.findAllByCommunityId(communityId)))
 				.get();
+	}
+
+	List<Project> findAllProjectsByCommunityId(String communityId) {
+		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
+				.stream()
+				.map(projectsRestConverter::convert)
+				.collect(toList());
 	}
 
 	List<CommunityAllocation> findAllocationByCommunityId(String communityId) {
@@ -78,6 +78,7 @@ class CommunityRestService {
 	}
 
 	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationAddRequest request) {
+		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		communityAllocationService.create(io.imunity.furms.domain.community_allocation.CommunityAllocation.builder()
 				.communityId(communityId)
 				.resourceCreditId(request.creditId)

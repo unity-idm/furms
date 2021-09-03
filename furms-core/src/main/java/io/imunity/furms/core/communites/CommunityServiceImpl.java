@@ -11,6 +11,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -81,6 +82,16 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
 	public Set<Community> findAll() {
 		return communityRepository.findAll();
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public Set<Community> findAllOfCurrentUser() {
+		final PersistentId currentUserId = authzService.getCurrentUserId();
+		return communityRepository.findAll().stream()
+				.filter(community -> findAllAdmins(community.getId()).stream()
+										.anyMatch(admin -> currentUserId.equals(admin.id.get())))
+				.collect(toSet());
 	}
 
 	@Override

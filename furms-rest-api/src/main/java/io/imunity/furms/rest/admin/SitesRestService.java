@@ -5,7 +5,7 @@
 
 package io.imunity.furms.rest.admin;
 
-
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
@@ -18,31 +18,32 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -58,6 +59,7 @@ class SitesRestService {
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectInstallationsService projectInstallationsService;
 	private final UserService userService;
+	private final AuthzService authzService;
 	private final UserAllocationsService userAllocationsService;
 	private final SSHKeyService sshKeyService;
 	private final ResourceChecker resourceChecker;
@@ -72,7 +74,9 @@ class SitesRestService {
 	                 InfraServiceService infraServiceService,
 	                 ProjectAllocationService projectAllocationService,
 	                 ProjectInstallationsService projectInstallationsService,
-	                 UserService userService, UserAllocationsService userAllocationsService,
+	                 UserService userService,
+	                 AuthzService authzService,
+	                 UserAllocationsService userAllocationsService,
 	                 SSHKeyService sshKeyService,
 	                 PolicyDocumentService policyDocumentService) {
 		this.siteService = siteService;
@@ -84,6 +88,7 @@ class SitesRestService {
 		this.projectAllocationService = projectAllocationService;
 		this.projectInstallationsService = projectInstallationsService;
 		this.userService = userService;
+		this.authzService = authzService;
 		this.userAllocationsService = userAllocationsService;
 		this.sshKeyService = sshKeyService;
 		this.resourceChecker = new ResourceChecker(siteService::existsById);
@@ -96,11 +101,16 @@ class SitesRestService {
 		final Set<io.imunity.furms.domain.services.InfraService> services = infraServiceService.findAll();
 		final Set<PolicyDocument> policies = policyDocumentService.findAll();
 
-		return siteService.findAll().stream()
+		final PersistentId currentUserId = authzService.getCurrentUserId();
+		if (currentUserId == null) {
+			throw new AccessDeniedException("Bad Credentials");
+		}
+
+		return siteService.findUserSites(currentUserId).stream()
 				.map(site -> new Site(
 						site.getId(),
 						site.getName(),
-						site.getPolicyId() == null ? null : site.getPolicyId().id.toString(),
+						getSelectedPolicyId(site),
 						resourceCredits.stream()
 								.filter(credit -> credit.siteId.equals(site.getId()))
 								.map(credit -> new ResourceCredit(credit, findResource(resourceTypes, credit.resourceTypeId)))
@@ -126,7 +136,7 @@ class SitesRestService {
 				.map(site -> new Site(
 						site.getId(),
 						site.getName(),
-						site.getPolicyId() == null ? null : site.getPolicyId().id.toString(),
+						getSelectedPolicyId(site),
 						resourceCreditService.findAllWithAllocations(siteId).stream()
 								.map(ResourceCredit::new)
 								.collect(toList()),
@@ -165,7 +175,9 @@ class SitesRestService {
 	}
 
 	ResourceType findResourceTypesBySiteIdAndId(String siteId, String resourceTypeId) {
-		return resourceChecker.performIfExists(siteId, () -> resourceTypeService.findById(resourceTypeId, siteId))
+		return resourceChecker.performIfExistsAndMatching(siteId,
+					() -> resourceTypeService.findById(resourceTypeId, siteId),
+					resourceType -> resourceType.isPresent() && resourceType.get().siteId.equals(siteId))
 				.map(ResourceType::new)
 				.get();
 	}
@@ -177,9 +189,42 @@ class SitesRestService {
 	}
 
 	InfraService findServiceBySiteIdAndId(String siteId, String serviceId) {
-		return resourceChecker.performIfExists(siteId, () -> infraServiceService.findById(serviceId, siteId))
+		return resourceChecker.performIfExistsAndMatching(siteId,
+					() -> infraServiceService.findById(serviceId, siteId),
+					service -> service.isPresent() && service.get().siteId.equals(siteId))
 				.map(InfraService::new)
 				.get();
+	}
+
+	List<Policy> findAllPolicies(String siteId) {
+		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllBySiteId(siteId)).stream()
+				.map(Policy::new)
+				.collect(toList());
+	}
+
+	Policy findPolicy(String siteId, String policyId) {
+		return resourceChecker.performIfExistsAndMatching(siteId,
+					() -> policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId)),
+					policy -> policy.isPresent() && policy.get().siteId.equals(siteId))
+				.map(Policy::new)
+				.get();
+	}
+
+	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
+		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllUsersPolicyAcceptances(siteId)).stream()
+				.filter(policyAcceptances -> policyAcceptances.user.fenixUserId.isPresent())
+				.flatMap(this::createPolicyAcceptances)
+				.collect(toList());
+	}
+
+	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId, AcceptanceStatus status) {
+		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
+				.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
+				.policyDocumentRevision(0)
+				.acceptanceStatus(status.policyAcceptanceStatus)
+				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
+				.build());
+		return findAllPoliciesAcceptances(siteId);
 	}
 
 	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {
@@ -192,12 +237,10 @@ class SitesRestService {
 	List<SiteUser> findAllSiteUsersBySiteId(String siteId) {
 		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
 				() -> userAllocationsService.findAllBySiteId(siteId));
-		final Map<String, Set<String>> projectsGroupingByUserId = userAdditionsBySite.stream().collect(groupingBy(
-				userAddition -> userAddition.userId,
-				mapping(userAddition -> userAddition.projectId, toSet())));
 		return userAdditionsBySite.stream()
-				.map(userAddition -> createSiteUser(userAddition, projectsGroupingByUserId))
-				.filter(Objects::nonNull)
+				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
+				.entrySet().stream()
+				.map(entry -> createSiteUser(entry.getKey(), entry.getValue()))
 				.collect(toList());
 	}
 
@@ -258,40 +301,15 @@ class SitesRestService {
 				.collect(toList());
 	}
 
-	List<Policy> findAllPolicies(String siteId) {
-		return policyDocumentService.findAllBySiteId(siteId).stream()
-			.map(policyDocument -> new Policy(policyDocument.id.id.toString(), policyDocument.name, policyDocument.revision))
-			.collect(Collectors.toList());
+	private String getSelectedPolicyId(io.imunity.furms.domain.sites.Site site) {
+		return site.getPolicyId() == null || site.getPolicyId().id == null
+				? null
+				: site.getPolicyId().id.toString();
 	}
 
-	Policy findPolicy(String siteId, String policyId) {
-		PolicyDocument policyDocument = policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
-			.orElseThrow(() -> new IdNotFoundValidationError(String.format("Site id %s or policy id %s doesn't exist", siteId, policyId)));
-		return new Policy(policyId, policyDocument.name, policyDocument.revision);
-	}
-
-	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
-		return policyDocumentService.findAllUsersPolicyAcceptances(siteId).stream()
-			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
-			.flatMap(userPolicyAcceptances -> userPolicyAcceptances.policyAcceptances.stream()
-				.map(policyAcceptance -> PolicyAcceptance.builder()
-					.policyId(policyAcceptance.policyDocumentId)
-					.revision(policyAcceptance.policyDocumentRevision)
-					.acceptanceStatus(policyAcceptance.acceptanceStatus)
-					.fenixUserId(userPolicyAcceptances.user.fenixUserId.get())
-					.decisionTs(policyAcceptance.decisionTs)
-					.build())
-			).collect(Collectors.toList());
-	}
-
-	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId, AcceptanceStatus status) {
-		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
-			.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
-			.policyDocumentRevision(0)
-			.acceptanceStatus(status.policyAcceptanceStatus)
-			.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
-			.build());
-		return findAllPoliciesAcceptances(siteId);
+	private Stream<PolicyAcceptance> createPolicyAcceptances(UserPolicyAcceptances userInfo) {
+		return userInfo.policyAcceptances.stream()
+				.map(policyAcceptance -> new PolicyAcceptance(policyAcceptance, userInfo.user.fenixUserId.get()));
 	}
 
 	private ProjectAllocationResolved findAllocation(String projectAllocationId, Set<ProjectAllocationResolved> allocations) {
@@ -308,15 +326,25 @@ class SitesRestService {
 				.findFirst();
 	}
 
-	private SiteUser createSiteUser(UserAddition userAddition, Map<String, Set<String>> projectsGroupingByUserId) {
-		return findUserByFenixId(userAddition.userId)
+	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions) {
+		final String uid = userAdditions.stream()
+				.filter(userAddition -> !StringUtils.isEmpty(userAddition.uid))
+				.findAny()
+				.map(userAddition -> userAddition.uid)
+				.orElseThrow(() -> new IllegalArgumentException("UID not found"));
+		final Optional<FURMSUser> furmsUser = userService.findByFenixUserId(new FenixUserId(fenixUserId));
+		return findUserByFenixId(fenixUserId)
 				.map(user -> new SiteUser(
 						user,
-						userAddition.uid,
-						sshKeyService.findByOwnerId(userAddition.userId).stream()
-								.map(sshKey -> sshKey.id)
-								.collect(toList()),
-						projectsGroupingByUserId.get(userAddition.userId)))
+						uid,
+						furmsUser.map(persistedUser ->
+								sshKeyService.findByOwnerId(persistedUser.id.get().id).stream()
+									.map(sshKey -> sshKey.id)
+									.collect(toList()))
+								.orElse(List.of()),
+						userAdditions.stream()
+							.map(userAddition -> userAddition.projectId)
+							.collect(toSet())))
 				.orElse(null);
 	}
 
@@ -327,7 +355,7 @@ class SitesRestService {
 		final User projectLeader = findUser(projectBySiteId.getLeaderId().id);
 		final Project project = new Project(projectBySiteId, projectLeader, Set.of(projectInstallation));
 
-		return new ProjectInstallation(project, InstallationStatus.INSTALLED, null, projectInstallation.gid.id);
+		return new ProjectInstallation(project, INSTALLED, projectInstallation.gid.id);
 	}
 
 	private User findUser(String userId) {

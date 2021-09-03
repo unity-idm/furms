@@ -4,20 +4,16 @@
  */
 package io.imunity.furms.rest.admin;
 
-import java.time.ZonedDateTime;
 import java.util.Objects;
 
 class ProjectInstallation {
 	public final Project project;
 	public final InstallationStatus installationStatus;
-	public final ZonedDateTime lastStatusChangeOn;
 	public final String gid;
 	
-	ProjectInstallation(Project project, InstallationStatus installationStatus,
-			ZonedDateTime lastStatusChangeOn, String gid) {
+	ProjectInstallation(Project project, InstallationStatus installationStatus, String gid) {
 		this.project = project;
 		this.installationStatus = installationStatus;
-		this.lastStatusChangeOn = lastStatusChangeOn;
 		this.gid = gid;
 	}
 
@@ -28,13 +24,12 @@ class ProjectInstallation {
 		ProjectInstallation that = (ProjectInstallation) o;
 		return Objects.equals(project, that.project)
 				&& installationStatus == that.installationStatus
-				&& Objects.equals(lastStatusChangeOn, that.lastStatusChangeOn)
 				&& Objects.equals(gid, that.gid);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(project, installationStatus, lastStatusChangeOn, gid);
+		return Objects.hash(project, installationStatus, gid);
 	}
 
 	@Override
@@ -42,7 +37,6 @@ class ProjectInstallation {
 		return "ProjectInstallation{" +
 				"project=" + project +
 				", installationStatus=" + installationStatus +
-				", lastStatusChangeOn=" + lastStatusChangeOn +
 				", gid='" + gid + '\'' +
 				'}';
 	}

@@ -55,11 +55,11 @@ public class PolicyDocument {
 		return revision > 0;
 	}
 
-	public static PolicyDocumentEntityBuilder builder() {
-		return new PolicyDocumentEntityBuilder();
+	public static PolicyDocumentBuilder builder() {
+		return new PolicyDocumentBuilder();
 	}
 
-	public static final class PolicyDocumentEntityBuilder {
+	public static final class PolicyDocumentBuilder {
 		private PolicyId id;
 		private String siteId;
 		private String name;
@@ -69,54 +69,54 @@ public class PolicyDocument {
 		private String htmlText;
 		private PolicyFile policyFile = PolicyFile.empty();
 
-		private PolicyDocumentEntityBuilder() {
+		private PolicyDocumentBuilder() {
 		}
 
-		public PolicyDocumentEntityBuilder id(PolicyId id) {
+		public PolicyDocumentBuilder id(PolicyId id) {
 			this.id = id;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder siteId(String siteId) {
+		public PolicyDocumentBuilder siteId(String siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder name(String name) {
+		public PolicyDocumentBuilder name(String name) {
 			this.name = name;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder workflow(PolicyWorkflow workflow) {
+		public PolicyDocumentBuilder workflow(PolicyWorkflow workflow) {
 			this.workflow = workflow;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder revision(int revision) {
+		public PolicyDocumentBuilder revision(int revision) {
 			this.revision = revision;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder revisionUndefined() {
+		public PolicyDocumentBuilder revisionUndefined() {
 			return revision(-1);
 		}
 
-		public PolicyDocumentEntityBuilder contentType(PolicyContentType contentType) {
+		public PolicyDocumentBuilder contentType(PolicyContentType contentType) {
 			this.contentType = contentType;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder wysiwygText(String wysiwygText) {
+		public PolicyDocumentBuilder wysiwygText(String wysiwygText) {
 			this.htmlText = wysiwygText;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder file(PolicyFile policyFile) {
+		public PolicyDocumentBuilder file(PolicyFile policyFile) {
 			this.policyFile = policyFile;
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder file(byte[] file, String type, String name) {
+		public PolicyDocumentBuilder file(byte[] file, String type, String name) {
 			if(file == null && type == null)
 				this.policyFile = PolicyFile.empty();
 			else

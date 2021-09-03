@@ -22,9 +22,11 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 	public final UUID projectId;
 	public final UUID correlationId;
 	public final String userId;
+	public final String uid;
 	public final int status;
 
-	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, int status) {
+	UserAdditionReadEntity(UUID id, SiteEntity site, UUID projectId, UUID correlationId, String userId, String uid, int status) {
+		this.uid = uid;
 		this.id = id;
 		this.site = site;
 		this.projectId = projectId;
@@ -40,6 +42,7 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 			.projectId(projectId.toString())
 			.correlationId(new CorrelationId(correlationId.toString()))
 			.userId(userId)
+			.uid(uid)
 			.status(UserStatus.valueOf(status))
 			.build();
 	}
@@ -49,26 +52,28 @@ public class UserAdditionReadEntity extends UUIDIdentifiable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserAdditionReadEntity that = (UserAdditionReadEntity) o;
-		return Objects.equals(projectId, that.projectId) &&
-			Objects.equals(site, that.site) &&
-			Objects.equals(correlationId, that.correlationId) &&
-			Objects.equals(userId, that.userId);
+		return status == that.status
+				&& Objects.equals(site, that.site)
+				&& Objects.equals(projectId, that.projectId)
+				&& Objects.equals(correlationId, that.correlationId)
+				&& Objects.equals(userId, that.userId)
+				&& Objects.equals(uid, that.uid);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, site, correlationId, userId, status);
+		return Objects.hash(site, projectId, correlationId, userId, uid, status);
 	}
 
 	@Override
 	public String toString() {
 		return "UserAdditionReadEntity{" +
-			"id=" + id +
-			", site=" + site +
-			", projectId=" + projectId +
-			", correlationId=" + correlationId +
-			", userId='" + userId + '\'' +
-			", status=" + status +
-			'}';
+				"site=" + site +
+				", projectId=" + projectId +
+				", correlationId=" + correlationId +
+				", userId='" + userId + '\'' +
+				", uid='" + uid + '\'' +
+				", status=" + status +
+				'}';
 	}
 }
