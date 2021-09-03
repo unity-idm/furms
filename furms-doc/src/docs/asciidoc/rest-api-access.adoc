@@ -1,6 +1,6 @@
-To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against the REST API endpoints.
+To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against link:./openapi-static.html[FURMS REST API] endpoints.
 
-The token can be generated in User Settings -> API Key. The view also provides information about the fixed user identifier. 
+The token can be generated in User Settings -> API Key. The view also provides information about the fixed user identifier as well an option to revoke a previously generated token.  
 
 The user identifier and API key should be used with the HTTP Basic authorization scheme when accessing the REST API. For example using cURL:
 
