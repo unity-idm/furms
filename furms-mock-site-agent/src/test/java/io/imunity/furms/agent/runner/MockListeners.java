@@ -210,7 +210,7 @@ class MockListeners {
 
 		TimeUnit.SECONDS.sleep(5);
 
-		UserProjectAddResult result = new UserProjectAddResult(payload.body.user.fenixUserId);
+		UserProjectAddResult result = new UserProjectAddResult("unix-user" + payload.body.user.fenixUserId.hashCode());
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 
