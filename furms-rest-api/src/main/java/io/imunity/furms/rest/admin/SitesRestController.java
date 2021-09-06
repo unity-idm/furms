@@ -224,7 +224,7 @@ public class SitesRestController {
 
 	@Operation(
 			summary = "Accept sites policy on behalf of user",
-			description = "Performs opertion of accepting the policy on behalf of given user.",
+			description = "Performs operation of accepting the policy on behalf of given user.",
 			security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
