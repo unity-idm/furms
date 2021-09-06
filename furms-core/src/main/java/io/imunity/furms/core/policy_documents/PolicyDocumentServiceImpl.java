@@ -40,11 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
@@ -117,24 +115,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public List<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
-		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
-
-		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
-
-		return policyDocumentDAO.getUserPolicyAcceptances(siteId).stream()
-			.filter(userAcceptance -> userAcceptance.policyAcceptances.stream()
-				.noneMatch(policyAcceptance -> policyAcceptance.policyDocumentId.equals(policyDocument.id)
-						&& policyAcceptance.policyDocumentRevision == policyDocument.revision)
-			)
-			.filter(userAcceptance -> userAcceptance.user.fenixUserId.isPresent())
-			.map(userAcceptance -> userAcceptance.user)
-			.collect(Collectors.toList());
-	}
-
-	@Override
 	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId) {
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
@@ -183,8 +163,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		FURMSUser user = userService.findByFenixUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
-		final Optional<Site> site = siteRepository.findById(siteId);
-		assertPolicyBelongsToSite(policyAcceptance, site);
+		Optional<PolicyDocument> policyDocument = policyDocumentRepository.findById(policyAcceptance.policyDocumentId);
+		assertPolicyBelongsToSite(siteId, policyDocument);
 		addUserPolicyAcceptance(user, policyAcceptance);
 	}
 
@@ -296,11 +276,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
 	}
 
-	private void assertPolicyBelongsToSite(PolicyAcceptance policyAcceptance, Optional<Site> site) {
-		if (site.isEmpty()
-				|| site.get().getPolicyId() != null
-				&& site.get().getPolicyId().id != null
-				&& !site.get().getPolicyId().equals(policyAcceptance.policyDocumentId)) {
+	private void assertPolicyBelongsToSite(String siteId, Optional<PolicyDocument> policyDocument) {
+		if (policyDocument.isEmpty() || !policyDocument.get().siteId.equals(siteId)) {
 			throw new IllegalArgumentException("Policy doesn't belongs to Site.");
 		}
 	}

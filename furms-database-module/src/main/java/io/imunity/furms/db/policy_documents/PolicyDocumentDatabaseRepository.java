@@ -121,6 +121,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 				.wysiwygText(policyDocument.htmlText.isBlank() ? null : policyDocument.htmlText)
 				.file(policyDocument.policyFile.getFile().length == 0 ? null : policyDocument.policyFile.getFile())
 				.fileType(policyDocument.policyFile.getTypeExtension())
+				.revision(policyDocument.revision)
 				.build()
 		);
 		return new PolicyId(savedProjectAllocation.getId());

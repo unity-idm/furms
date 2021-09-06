@@ -108,7 +108,7 @@ public class UserGrid {
 		}
 
 		public Builder withContextMenuColumn(UserContextMenuFactory factory) {
-			grid.addComponentColumn(x -> factory.get(x, () -> grid.setItems(fetchUsersAction.get()), () -> fetchUsersAction.get().size()).getTarget())
+			grid.addComponentColumn(x -> factory.get(x, () -> grid.setItems(fetchUsersAction.get()), () -> fetchUsersAction.get().size()))
 				.setHeader(getTranslation("component.administrators.grid.column.4"))
 				.setWidth("6em")
 				.setTextAlign(ColumnTextAlign.END);
