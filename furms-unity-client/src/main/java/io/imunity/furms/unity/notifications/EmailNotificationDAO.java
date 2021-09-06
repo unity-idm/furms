@@ -28,28 +28,31 @@ import static java.util.Optional.ofNullable;
 @Component
 class EmailNotificationDAO implements NotificationDAO {
 
-	private static final String NEW_POLICY_ACCEPTANCE_TEMPLATE_ID = "policyAcceptanceNew";
-	private static final String NEW_POLICY_REVISION_TEMPLATE_ID = "policyAcceptanceRevision";
 	private static final String NAME_ATTRIBUTE = "custom.name";
+	private static final String URL_ATTRIBUTE = "custom.furms.url";
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
+	private final EmailNotificationProperties emailNotificationProperties;
 	private final ApplicationEventPublisher publisher;
 
 
-	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, ApplicationEventPublisher publisher) {
+	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
+	                     EmailNotificationProperties emailNotificationProperties, ApplicationEventPublisher publisher) {
 		this.userService = userService;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.policyDocumentRepository = policyDocumentRepository;
+		this.emailNotificationProperties = emailNotificationProperties;
 		this.publisher = publisher;
 	}
 
 	@Override
 	public void notifyUser(PersistentId id, PolicyDocument policyDocument) {
+		Map<String, String> attributes = Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
 		if(policyDocument.revision == 1)
-			userService.sendUserNotification(id, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+			userService.sendUserNotification(id, emailNotificationProperties.newPolicyAcceptanceTemplateId, attributes);
 		else
-			userService.sendUserNotification(id, NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+			userService.sendUserNotification(id, emailNotificationProperties.newPolicyRevisionTemplateId, attributes);
 	}
 
 	@Override
@@ -62,7 +65,11 @@ class EmailNotificationDAO implements NotificationDAO {
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.fenixUserId.isPresent())
 			.filter(user -> user.id.isPresent())
 			.forEach(user -> {
-				userService.sendUserNotification(user.id.get(), NEW_POLICY_REVISION_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocument.name));
+				userService.sendUserNotification(
+					user.id.get(),
+					emailNotificationProperties.newPolicyRevisionTemplateId,
+					Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL)
+				);
 				publisher.publishEvent(new UserPendingPoliciesChangedEvent(user.fenixUserId.get()));
 			});
 	}
@@ -82,7 +89,11 @@ class EmailNotificationDAO implements NotificationDAO {
 			)
 			.filter(policyDocument -> policyDocument.id.equals(servicePolicy.id))
 			.forEach(policyDocumentExtended ->
-				userService.sendUserNotification(persistentId, NEW_POLICY_ACCEPTANCE_TEMPLATE_ID, Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name))
+				userService.sendUserNotification(
+					persistentId,
+					emailNotificationProperties.newPolicyAcceptanceTemplateId,
+					Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL)
+				)
 			);
 	}
 }
