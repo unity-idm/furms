@@ -3,38 +3,34 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.users;
+package io.imunity.furms.domain.invitations;
 
 import java.util.Objects;
 
-public class FenixUserId {
-	public final String id;
+public class InvitationCode {
+	public final String code;
 
-	public FenixUserId(String id) {
-		this.id = id;
-	}
-
-	public static FenixUserId empty(){
-		return new FenixUserId(null);
+	public InvitationCode(String code) {
+		this.code = code;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		FenixUserId that = (FenixUserId) o;
-		return Objects.equals(id, that.id);
+		InvitationCode that = (InvitationCode) o;
+		return Objects.equals(code, that.code);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(code);
 	}
 
 	@Override
 	public String toString() {
-		return "FenixId{" +
-			"id='" + id + '\'' +
+		return "InvitationCode{" +
+			"code='" + code + '\'' +
 			'}';
 	}
 }

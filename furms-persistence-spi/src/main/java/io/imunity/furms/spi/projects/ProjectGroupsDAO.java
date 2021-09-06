@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.projects;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -22,11 +23,10 @@ public interface ProjectGroupsDAO {
 	void delete(String communityId, String projectId);
 
 	List<FURMSUser> getAllAdmins(String communityId, String projectId);
-	void addAdmin(String communityId, String projectId, PersistentId userId);
 	void removeAdmin(String communityId, String projectId, PersistentId userId);
 
 	List<FURMSUser> getAllUsers(String communityId, String projectId);
 	List<FURMSUser> getAllUsers(String communityId);
-	void addUser(String communityId, String projectId, PersistentId userId);
+	void addProjectUser(String communityId, String projectId, PersistentId userId, Role role);
 	void removeUser(String communityId, String projectId, PersistentId userId);
 }

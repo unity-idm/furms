@@ -10,7 +10,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.*;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;

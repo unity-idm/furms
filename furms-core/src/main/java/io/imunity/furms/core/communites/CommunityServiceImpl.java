@@ -33,7 +33,7 @@ import io.imunity.furms.domain.communities.CreateCommunityEvent;
 import io.imunity.furms.domain.communities.RemoveCommunityEvent;
 import io.imunity.furms.domain.communities.UpdateCommunityEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;

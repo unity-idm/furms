@@ -7,7 +7,13 @@ package io.imunity.furms.unity.users;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.*;
+import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.UnityClient;
@@ -23,12 +29,21 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityState;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
 import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
-import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
 import static java.util.Collections.emptyList;
@@ -56,9 +71,25 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public void inviteFenixAdmin(String email) {
-		String code = userService.createInvitation(email);
+	public InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration) {
+		String code = userService.createInvitation(email, invitationExpiration);
 		userService.sendInvitation(code);
+		return new InvitationCode(code);
+	}
+
+	@Override
+	public InvitationCode findByRegistrationId(String registrationId) {
+		return userService.findInvitationCode(registrationId);
+	}
+
+	@Override
+	public void removeFenixAdminInvitation(InvitationCode invitationCode) {
+		userService.removeInvitation(invitationCode.code);
+	}
+
+	@Override
+	public void resendFenixAdminInvitation(InvitationCode invitationCode) {
+		userService.sendInvitation(invitationCode.code);
 	}
 
 	@Override

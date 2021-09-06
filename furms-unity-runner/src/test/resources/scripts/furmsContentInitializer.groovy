@@ -62,6 +62,18 @@ try
 
 void initRegistrationForms()
 {
+	RegistrationForm form = createRegistrationForm()
+	form.setTranslationProfile(
+			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
+					new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[])),
+					new TranslationRule("true", new TranslationAction("addToGroup", "'/fenix/users'")),
+					new TranslationRule("true", new TranslationAction("addAttribute", ["furmsFenixRole", "/fenix/users", "['ADMIN']"] as String[]))
+			])
+	)
+	registrationsManagement.addForm(form)
+}
+
+private RegistrationForm createRegistrationForm() {
 	def identityParam = new IdentityRegistrationParam()
 	identityParam.setIdentityType('identifier')
 	identityParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
@@ -80,66 +92,64 @@ void initRegistrationForms()
 			.build()
 	form.setIdentityParams([identityParam])
 
-	def param1 = new AttributeRegistrationParam()
-	param1.setGroup('/')
-	param1.setAttributeType('surname')
-	param1.setOptional(true)
+	def surnameParam = new AttributeRegistrationParam()
+	surnameParam.setGroup('/')
+	surnameParam.setAttributeType('surname')
+	surnameParam.setOptional(true)
+	surnameParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 
-	def param2 = new AttributeRegistrationParam()
-	param2.setGroup('/')
-	param2.setAttributeType('name')
-	param2.setOptional(true)
+	def nameParam = new AttributeRegistrationParam()
+	nameParam.setGroup('/')
+	nameParam.setAttributeType('name')
+	nameParam.setOptional(true)
+	nameParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 
-	def param3 = new AttributeRegistrationParam()
-	param3.setGroup('/')
-	param3.setAttributeType('firstname')
-	param3.setOptional(true)
 
-	def param4 = new AttributeRegistrationParam()
-	param4.setGroup('/')
-	param4.setAttributeType('email')
-	param4.setConfirmationMode(ConfirmationMode.CONFIRMED)
+	def firstnameParam = new AttributeRegistrationParam()
+	firstnameParam.setGroup('/')
+	firstnameParam.setAttributeType('firstname')
+	firstnameParam.setOptional(true)
+	firstnameParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+
+	def emailParam = new AttributeRegistrationParam()
+	emailParam.setGroup('/')
+	emailParam.setAttributeType('email')
+	emailParam.setConfirmationMode(ConfirmationMode.CONFIRMED)
+	emailParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 
 	form.setAttributeParams([
-	        param1, param2, param3, param4
+			surnameParam, nameParam, firstnameParam, emailParam
 	])
-	form.setTranslationProfile(
-			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
-				new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[])),
-				new TranslationRule("true", new TranslationAction("addToGroup", ["/fenix/users"] as String[])),
-				new TranslationRule("true", new TranslationAction("addAttribute", ["furmsFenixRole", "/fenix/users", "[ADMIN]"] as String[]))
-			])
-	)
 	form.setWrapUpConfig([
 			new RegistrationWrapUpConfig(
 					RegistrationWrapUpConfig.TriggeringState.DEFAULT,
-					new I18nString('Default'),
-					new I18nString("ala"),
-					null,
-					false,
-					'https://localhost:3443/front/',
-					Duration.ZERO
+					new I18nString('Your account has been created.'),
+					new I18nString("You can log in now."),
+					new I18nString("Continue"),
+					true,
+					'https://localhost:3443/front/start/registration/role/chooser',
+					Duration.ofSeconds(5)
 			),
 			new RegistrationWrapUpConfig(
 					RegistrationWrapUpConfig.TriggeringState.GENERAL_ERROR,
-					new I18nString('Default'),
-					new I18nString("ala"),
-					null,
+					new I18nString('Error'),
+					new I18nString("Please contact with support."),
+					new I18nString("Continue"),
 					false,
-					'https://localhost:3443/front/',
+					'https://localhost:3443/front/start/role/chooser',
 					Duration.ZERO
 			),
 			new RegistrationWrapUpConfig(
 					RegistrationWrapUpConfig.TriggeringState.PRESET_USER_EXISTS,
-					new I18nString('Default'),
-					new I18nString("ala"),
-					null,
+					new I18nString('You have already the account.'),
+					new I18nString("You can log in and accept invitations."),
+					new I18nString("Continue"),
 					false,
-					'https://localhost:3443/front/',
+					'https://localhost:3443/front/users/settings/invitations',
 					Duration.ZERO
 			)
 	])
-	registrationsManagement.addForm(form)
+	form
 }
 
 

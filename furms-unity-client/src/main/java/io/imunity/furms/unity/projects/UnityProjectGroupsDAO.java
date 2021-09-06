@@ -154,23 +154,13 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void addAdmin(String communityId, String projectId, PersistentId userId) {
+	public void addProjectUser(String communityId, String projectId, PersistentId userId, Role role) {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
 		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
 		userService.addUserToGroup(userId, projectPath);
-		userService.addUserRole(userId, projectPath, PROJECT_ADMIN);
-	}
-
-	@Override
-	public void addUser(String communityId, String projectId, PersistentId userId) {
-		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
-			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
-
-		String projectPath = getProjectPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		userService.addUserToGroup(userId, projectPath);
-		userService.addUserRole(userId, projectPath, PROJECT_USER);
+		userService.addUserRole(userId, projectPath, role);
 	}
 
 	@Override

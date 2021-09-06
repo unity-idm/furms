@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
@@ -87,6 +88,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 			.withContextMenuColumn(userContextMenuFactory);
 		UsersGridComponent grid = UsersGridComponent.defaultInit(
 			() -> policyDocumentService.findAllUsersWithoutCurrentRevisionPolicyAcceptance(policyDocument.siteId, policyDocument.id),
+			Set::of,
 			userGrid
 		);
 

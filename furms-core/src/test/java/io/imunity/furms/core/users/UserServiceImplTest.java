@@ -38,7 +38,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;

@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -26,8 +27,7 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,9 +88,16 @@ public class UserService {
 		unityClient.post(path, null, encodedParams);
 	}
 
-	public String createInvitation(String email){
-		RegistrationInvitationParam fenixAdminForm = new RegistrationInvitationParam("fenixAdminForm", LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.UTC), email);
+	public String createInvitation(String email, Instant expiration){
+		RegistrationInvitationParam fenixAdminForm = new RegistrationInvitationParam("fenixAdminForm", expiration, email);
 		return unityClient.post("/invitation", fenixAdminForm, emptyMap(), new ParameterizedTypeReference<>(){});
+	}
+
+	public InvitationCode findInvitationCode(String registrationId){
+		String invitationCode = (String) unityClient.get("/registrationRequest/" + registrationId, new ParameterizedTypeReference<Map<String, Object>>() {
+		})
+			.get("RegistrationCode");
+		return new InvitationCode(invitationCode);
 	}
 
 	public void sendInvitation(String code){
@@ -100,6 +107,15 @@ public class UserService {
 			.encode()
 			.toUriString();
 		unityClient.post(path);
+	}
+
+	public void removeInvitation(String code) {
+		String path = UriComponentsBuilder.newInstance()
+			.path("/invitation/{code}")
+			.buildAndExpand(Map.of("code", code))
+			.encode()
+			.toUriString();
+		unityClient.delete(path, Map.of());
 	}
 
 	private String prepareGroupRequestPath(PersistentId userId, String group) {

@@ -8,7 +8,6 @@ package io.imunity.furms.ui.views.fenix.administrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -21,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
@@ -50,9 +48,15 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> {
 				userService.removeFenixAdminRole(userId);
 				inviteUser.reload();
-			}).build();
+			})
+			.withResendInvitationAction(userService::resendFenixAdminInvitation)
+			.withRemoveInvitationAction(code -> {
+				userService.removeFenixAdminInvitation(code);
+				inviteUser.reload();
+			})
+			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(userService::getFenixAdmins, userGrid);
+		grid = UsersGridComponent.defaultInit(userService::getFenixAdmins, userService::getFenixAdminsInvitations, userGrid);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
@@ -61,8 +65,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
-			Optional<PersistentId> userId = inviteUserComponent.getUserId();
-			userService.inviteFenixAdmin(inviteUserComponent.getEmail());
+			inviteUserComponent.getUserId().ifPresentOrElse(
+				userService::inviteFenixAdmin,
+				() -> userService.inviteFenixAdmin(inviteUserComponent.getEmail())
+			);
 			inviteUserComponent.reload();
 			grid.reloadGrid();
 		} catch (RuntimeException e) {

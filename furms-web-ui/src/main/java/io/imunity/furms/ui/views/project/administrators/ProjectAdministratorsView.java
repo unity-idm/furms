@@ -20,6 +20,8 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
+import java.util.Set;
+
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "project/admin/administrators", layout = ProjectAdminMenu.class)
@@ -43,7 +45,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), userGrid);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), Set::of, userGrid);
 
 		inviteUser.addInviteAction(event -> {
 			projectService.inviteAdmin(project.getCommunityId(), project.getId(), inviteUser.getUserId().orElse(null));

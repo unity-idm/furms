@@ -27,7 +27,7 @@
 					"name",
 					"/",
 					"attr['name']",
-					"UPDATE"
+					"CREATE_OR_UPDATE"
 				]
 			}			
 		},
@@ -41,7 +41,7 @@
 					"firstname",
 					"/",
 					"attr['given_name']",
-					"UPDATE"
+					"CREATE_OR_UPDATE"
 				]
 			}
 		},
@@ -55,7 +55,7 @@
 					"surname",
 					"/",
 					"attr['family_name']",
-					"UPDATE"
+					"CREATE_OR_UPDATE"
 				]
 			}
 		},
@@ -69,7 +69,7 @@
 					"email",
 					"/",
 					"attr['email']",
-					"UPDATE"
+					"CREATE_OR_UPDATE"
 				]
 			}
 		},

@@ -12,7 +12,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.*;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.InviteUserEvent;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;

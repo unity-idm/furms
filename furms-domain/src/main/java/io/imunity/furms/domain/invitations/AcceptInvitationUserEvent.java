@@ -3,17 +3,19 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.users;
+package io.imunity.furms.domain.invitations;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserEvent;
 
 import java.util.Objects;
 
-public class InviteUserEvent implements UserEvent{
+public class AcceptInvitationUserEvent implements UserEvent {
 	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public InviteUserEvent(PersistentId id, ResourceId resourceId) {
+	public AcceptInvitationUserEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}
@@ -27,7 +29,7 @@ public class InviteUserEvent implements UserEvent{
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		InviteUserEvent userEvent = (InviteUserEvent) o;
+		AcceptInvitationUserEvent userEvent = (AcceptInvitationUserEvent) o;
 		return Objects.equals(id, userEvent.id) &&
 			Objects.equals(resourceId, userEvent.resourceId);
 	}

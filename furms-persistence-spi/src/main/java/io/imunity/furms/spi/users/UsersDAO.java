@@ -5,8 +5,14 @@
 
 package io.imunity.furms.spi.users;
 
-import io.imunity.furms.domain.users.*;
+import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserStatus;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +20,10 @@ import java.util.Optional;
 public interface UsersDAO {
 	List<FURMSUser> getAdminUsers();
 	List<FURMSUser> getAllUsers();
-	void inviteFenixAdmin(String email);
+	InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration);
+	InvitationCode findByRegistrationId(String registrationId);
+	void removeFenixAdminInvitation(InvitationCode invitationCode);
+	void resendFenixAdminInvitation(InvitationCode invitationCode);
 	void addFenixAdminRole(PersistentId userId);
 	void removeFenixAdminRole(PersistentId userId);
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
