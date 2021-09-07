@@ -40,17 +40,19 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 @PageTitle(key = "view.site-admin.policy-documents-acceptance.page.title")
 public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
+	private final String siteId;
 	private PolicyDocument policyDocument;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	protected PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
+		this.siteId = getCurrentResourceId();
 	}
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter){
-		Optional<PolicyDocument> optionalPolicyDocument = policyDocumentService.findById(getCurrentResourceId(), new PolicyId(parameter));
+		Optional<PolicyDocument> optionalPolicyDocument = policyDocumentService.findById(siteId, new PolicyId(parameter));
 		if(optionalPolicyDocument.isPresent()) {
 			this.policyDocument = optionalPolicyDocument.get();
 			this.breadCrumbParameter = new BreadCrumbParameter(

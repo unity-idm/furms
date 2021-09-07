@@ -59,11 +59,13 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	private final Label revision = new Label();
 	private final Div buttonLayout = new Div();
 	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
+	private final String siteId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	PolicyDocumentFormView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
+		this.siteId = getCurrentResourceId();
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
@@ -211,10 +213,10 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		PolicyDocumentFormModel policyDocumentFormModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> policyDocumentService.findById(getCurrentResourceId(), new PolicyId(id))))
+			.flatMap(id -> handleExceptions(() -> policyDocumentService.findById(siteId, new PolicyId(id))))
 			.flatMap(Function.identity())
 			.map(PolicyDocumentFormModelMapper::map)
-			.orElseGet(() -> new PolicyDocumentFormModel(getCurrentResourceId()));
+			.orElseGet(() -> new PolicyDocumentFormModel(siteId));
 
 		String trans = parameter == null
 			? "view.site-admin.policy-documents.form.parameter.new"
