@@ -18,7 +18,6 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
@@ -28,7 +27,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -96,63 +94,14 @@ class SitesRestService {
 	}
 
 	List<Site> findAll() {
-		final Set<io.imunity.furms.domain.resource_credits.ResourceCredit> resourceCredits = resourceCreditService.findAll();
-		final Set<io.imunity.furms.domain.resource_types.ResourceType> resourceTypes = resourceTypeService.findAll();
-		final Set<io.imunity.furms.domain.services.InfraService> services = infraServiceService.findAll();
-		final Set<PolicyDocument> policies = policyDocumentService.findAll();
-
-		final PersistentId currentUserId = authzService.getCurrentUserId();
-		if (currentUserId == null) {
-			throw new AccessDeniedException("Bad Credentials");
-		}
-
-		return siteService.findUserSites(currentUserId).stream()
-				.map(site -> new Site(
-						site.getId(),
-						site.getName(),
-						getSelectedPolicyId(site),
-						resourceCredits.stream()
-								.filter(credit -> credit.siteId.equals(site.getId()))
-								.map(credit -> new ResourceCredit(credit, findResource(resourceTypes, credit.resourceTypeId)))
-								.collect(toList()),
-						resourceTypes.stream()
-								.filter(type -> type.siteId.equals(site.getId()))
-								.map(ResourceType::new)
-								.collect(toList()),
-						services.stream()
-								.filter(service -> service.siteId.equals(site.getId()))
-								.map(InfraService::new)
-								.collect(toList()),
-						policies.stream()
-							.filter(policy -> policy.siteId.equals(site.getId()))
-							.map(Policy::new)
-							.collect(toList())
-						))
+		return siteService.findAllOfCurrentUserId().stream()
+				.map(this::createSite)
 				.collect(toList());
 	}
 
 	Site findOneById(String siteId) {
 		return resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId))
-				.map(site -> new Site(
-						site.getId(),
-						site.getName(),
-						getSelectedPolicyId(site),
-						resourceCreditService.findAllWithAllocations(siteId).stream()
-								.map(ResourceCredit::new)
-								.collect(toList()),
-						resourceTypeService.findAll(siteId).stream()
-								.filter(type -> type.siteId.equals(site.getId()))
-								.map(ResourceType::new)
-								.collect(toList()),
-						infraServiceService.findAll(siteId).stream()
-								.filter(service -> service.siteId.equals(site.getId()))
-								.map(InfraService::new)
-								.collect(toList()),
-						policyDocumentService.findAllBySiteId(siteId).stream()
-							.filter(policy -> policy.siteId.equals(site.getId()))
-							.map(Policy::new)
-							.collect(toList())
-						))
+				.map(this::createSite)
 				.get();
 	}
 
@@ -299,6 +248,28 @@ class SitesRestService {
 		return userUsages.stream()
 				.map(userUsage -> new ProjectUsageRecord(userUsage, findAllocation(userUsage.projectAllocationId, allocations)))
 				.collect(toList());
+	}
+
+	private Site createSite(io.imunity.furms.domain.sites.Site site) {
+		return new Site(
+				site.getId(),
+				site.getName(),
+				getSelectedPolicyId(site),
+				resourceCreditService.findAllWithAllocations(site.getId()).stream()
+						.map(ResourceCredit::new)
+						.collect(toList()),
+				resourceTypeService.findAll(site.getId()).stream()
+						.filter(type -> type.siteId.equals(site.getId()))
+						.map(ResourceType::new)
+						.collect(toList()),
+				infraServiceService.findAll(site.getId()).stream()
+						.filter(service -> service.siteId.equals(site.getId()))
+						.map(InfraService::new)
+						.collect(toList()),
+				policyDocumentService.findAllBySiteId(site.getId()).stream()
+						.filter(policy -> policy.siteId.equals(site.getId()))
+						.map(Policy::new)
+						.collect(toList()));
 	}
 
 	private String getSelectedPolicyId(io.imunity.furms.domain.sites.Site site) {

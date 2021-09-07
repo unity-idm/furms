@@ -14,6 +14,7 @@ import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
@@ -27,6 +28,8 @@ import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defau
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -65,18 +68,23 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldGetAllSitesThatRelatedToCurrentUser() throws Exception {
+	void shouldGetAllSitesThatCurrentUserIsInstalledOnTheseSites() throws Exception {
 		//given
 		final Site notMySite = defaultSite().name("NotMySite").externalId(new SiteExternalId("nmsid")).build();
 		final String notMySiteId2 = siteRepository.create(notMySite, notMySite.getExternalId());
+		final TestUser testUser = basicUser();
+		testUser.addSiteSupport(site.getId());
+		setupUser(testUser);
+
 		userOperationRepository.create(defaultUserAddition()
-				.userId(ADMIN_USER.getFenixId())
+				.userId(testUser.getFenixId())
 				.siteId(new SiteId(site.getId()))
 				.projectId(projectId)
 				.build());
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/"))
+		mockMvc.perform(get("/rest-api/v1/sites/")
+				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
@@ -85,6 +93,50 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].resourceTypes", hasSize(1)))
 				.andExpect(jsonPath("$.[0].services", hasSize(1)))
 				.andExpect(jsonPath("$.[0].policies", hasSize(1)));
+	}
+
+	@Test
+	void shouldGetAllSitesForNonCentralIdpUser() throws Exception {
+		//given
+		final TestUser testUser = basicUser();
+		final Site siteWithAdmin = defaultSite().name("siteWithAdmin").externalId(new SiteExternalId("admid")).build();
+		final String siteWithAdminId = siteRepository.create(siteWithAdmin, siteWithAdmin.getExternalId());
+		testUser.addSiteSupport(siteWithAdminId);
+		final Site siteWithSupport = defaultSite().name("siteWithSupport").externalId(new SiteExternalId("supid")).build();
+		final String siteWithSupportId = siteRepository.create(siteWithSupport, siteWithSupport.getExternalId());
+		testUser.addSiteSupport(siteWithSupportId);
+
+		testUser.disableCentralIDPIdentity(server);
+		setupUser(testUser);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/sites/")
+				.with(testUser.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$.[0].id", not(site.getId())))
+				.andExpect(jsonPath("$.[1].id", not(site.getId())));
+	}
+
+	@Test
+	void shouldGetAllSitesForFenixAdmin() throws Exception {
+		//given
+		final Site extraSite = defaultSite().name("extraSite").externalId(new SiteExternalId("admid")).build();
+		final String extraSiteId = siteRepository.create(extraSite, extraSite.getExternalId());
+		final Site extraSite2 = defaultSite().name("extraSite2").externalId(new SiteExternalId("supid")).build();
+		final String extraSite2Id = siteRepository.create(extraSite2, extraSite2.getExternalId());
+
+		final Set<String> expectedSites = Set.of(extraSiteId, extraSite2Id, site.getId());
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/sites/"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(3)))
+				.andExpect(jsonPath("$.[0].id", in(expectedSites)))
+				.andExpect(jsonPath("$.[1].id", in(expectedSites)))
+				.andExpect(jsonPath("$.[2].id", in(expectedSites)));
 	}
 
 	@Test
