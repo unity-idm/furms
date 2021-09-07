@@ -29,7 +29,7 @@ import static java.util.Optional.ofNullable;
 class EmailNotificationDAO implements NotificationDAO {
 
 	private static final String NAME_ATTRIBUTE = "custom.name";
-	private static final String URL_ATTRIBUTE = "custom.furms.url";
+	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;

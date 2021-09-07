@@ -5,7 +5,11 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.select.Select;
@@ -25,7 +29,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.furms.ui.user_context.ViewMode.USER;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -48,12 +51,6 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
 
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
-	}
-
-	public void loadUserSettings(){
-		furmsSelectService.loadItems().stream()
-			.filter(x -> x.furmsViewUserContext.viewMode.equals(USER))
-			.forEach(x -> setValue(x));
 	}
 
 	private void reloadComponent(){

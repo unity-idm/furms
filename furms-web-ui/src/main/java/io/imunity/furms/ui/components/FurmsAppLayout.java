@@ -11,6 +11,9 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
@@ -19,4 +22,11 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @PreserveOnRefresh
 @Push
 public class FurmsAppLayout extends AppLayout {
+	protected FurmsAppLayout(RoleTranslator roleTranslator, ViewMode viewMode){
+		if(FurmsViewUserContext.getCurrent() == null) {
+			roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
+				.get(viewMode).stream().findAny()
+				.ifPresent(FurmsViewUserContext::setAsCurrent);
+		}
+	}
 }
