@@ -12,9 +12,26 @@ Site administrator may set a requirement on SSH keys installed by FURMS, to alwa
 
 What is more site administrator can require users not to reuse previously used SSH keys. 
 
+Site can have a policy document set. Accepting site policy is a prerequisite for any user, to be added to the site. Any policy defined for the site can be selected as a site-wide policy. 
+
 === Policy documents
 
-{versionlimit} This functionality is not available yet.
+Site can define multiple policy documents. A policy document can be used in two places: as a site-wide policy or as a service-specific policy. Policy documents can be provided either as an uploaded PDF file, or can be embedded inside FURMS using rich text editor. 
+
+Policy documents are defined in a single place (Policy Documents menu entry). Assigning policy document to a service is available in serivice's edit view, while selection of a site-wide policy can be performed in site's settings view.
+
+FURMS supports two types of policy document workflows:
+
+* `web based` policies are electronically processed documents, i.e. users can accept them on-line, from the FURMS app.
+* `paper` policies need to be printed and physically delivered to site authorities.
+
+Users are asked to check the policy whenever they get access to a resource, which is either on a new site or a new service, for which the policy is defined and was not accepted yet. Regardless of the policy type, user can always read & download its text. In the case of the web policies, direct acceptance is possible by the user. Contrary, the fact that the hand-signed paper policy document was received, must be recorded by site administrator. This functionality is available after entering into details of users policy acceptance status, in the Policy Documents view.
+
+Policy documents can be updated after creation. Update can be done in two ways:
+
+* As a `silent` update, useful for correcting typos and formatting. In such a case, users who previously accepted the policy won't be notified in any way.
+* As an `official` update. Official update triggers requests to users who previously accepted the policy, to review and accept the updated version. Official update is also tracked with a policy `revision number`, which is incremented each time the policy is officially updated.
+
 
 === Services
 
@@ -22,7 +39,7 @@ Services are used in FURMS to represent different offerings of a single site. Th
 
 Computing cluster, data store system or an OpenStack VM service can be examples of services.
 
-{versionlimit} Defining service policy is not yet supported. Therefore service definition is simplistic and consists of name and description only.
+Service can have its own policy document. Any of the policy documents defined for the site can be selected.
 
 === Resource types
 
@@ -52,6 +69,8 @@ Finally credits can be marked as _granted to all project members_. Allocation de
 === Managing site administrators
 
 FURMS allows for multiple users with the site administrator role. Each site administrator can add (and remove) other administrators from the "Site administrators" view. 
+
+Additionally the view allows for adding users with the `site support` role. Such users will be able to access only the Policy Documents view and record the fact that a hand-signed paper policy document was received.
 
 {versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
 

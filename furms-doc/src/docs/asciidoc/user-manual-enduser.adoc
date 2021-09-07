@@ -32,4 +32,14 @@ Format of SSH key is the same as used in the +authorized_keys+ file of SSH. See 
 
 Update of a key removes the old value from sites and then installs an updated one.
 
-NOTE: Some sites may require to set the 'from' option in the SSH key. Keys without that option can't be added to sites requiring the 'from' option. 
+NOTE: Some sites may require to set the 'from' option in the SSH key. Keys without that option can't be added to sites requiring the 'from' option.
+
+=== Policy documents
+
+Sites providing resources may require acceptance of their policy document(s). Typically there is a single document per site, and sometimes there are additional documents per a site-offered service.
+
+Typically the pending policy documents can be accepted from FURMS "User Settings" -> "Policy Documents" view. Site may also require delivery of physical paper document with a hand signature. In such case FURMS will provide the necessary document with an ability to download it.
+
+Note that lack of acceptance of the site's policy document will prevent user account creation on the site.
+
+In case when a previously accepted document is updated, a notification will be delivered asking for an acceptance of the updated version.
