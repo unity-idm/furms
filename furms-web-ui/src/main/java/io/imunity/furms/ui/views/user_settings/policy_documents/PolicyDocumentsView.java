@@ -9,6 +9,7 @@ import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
@@ -50,6 +51,7 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
+@CssImport(value = "./styles/views/user/user-policy.css", themeFor = "vaadin-grid")
 public class PolicyDocumentsView extends FurmsViewComponent {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final PolicyDocumentService policyDocumentService;
@@ -84,6 +86,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
+		grid.setClassNameGenerator(x -> x.utcAcceptedTime.isPresent() ? "usual-row" : "light-red-row");
 
 		getContent().add(layout, grid);
 	}

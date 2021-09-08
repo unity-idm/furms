@@ -22,6 +22,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -189,12 +190,12 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		Optional<PolicyDocument> sitePolicyDocument = policyDocumentRepository.findById(site.getPolicyId());
 
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
-		if(policyDocument.id.equals(site.getPolicyId()) && policyAcceptances.stream()
-			.noneMatch(acceptance ->
-				acceptance.policyDocumentId.equals(policyDocument.id) && acceptance.policyDocumentRevision == policyDocument.revision)
-		) {
-			policyAcceptances.add(policyAcceptance);
-			resourceAccessRepository.findWaitingGrantAccesses(userId, policyDocument.siteId)
+
+		Set<GrantAccess> waitingGrantAccesses = resourceAccessRepository.findWaitingGrantAccesses(userId, policyDocument.siteId);
+		policyAcceptances.add(policyAcceptance);
+
+		if(!waitingGrantAccesses.isEmpty()) {
+			waitingGrantAccesses
 				.stream()
 				.filter(distinctBy(grantAccess -> grantAccess.projectId))
 				.forEach(grantAccess ->
@@ -206,7 +207,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				);
 		}
 		else {
-			policyAcceptances.add(policyAcceptance);
 			siteAgentPolicyDocumentService.updateUsersPolicyAcceptances(
 				site.getExternalId(), new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignPoliciesBySiteId)
 			);

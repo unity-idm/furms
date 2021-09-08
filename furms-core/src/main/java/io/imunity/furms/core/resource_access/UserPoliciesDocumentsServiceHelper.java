@@ -22,17 +22,17 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Set;
 
-@Service("ResourceAccessPolicyDocumentServiceHelper")
-class PolicyDocumentServiceHelper {
+@Service
+class UserPoliciesDocumentsServiceHelper {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final SiteRepository siteRepository;
 	private final UserService userService;
 
-	PolicyDocumentServiceHelper(PolicyDocumentRepository policyDocumentRepository,
-	                            PolicyDocumentDAO policyDocumentDAO,
-	                            SiteRepository siteRepository,
-	                            UserService userService) {
+	UserPoliciesDocumentsServiceHelper(PolicyDocumentRepository policyDocumentRepository,
+	                                   PolicyDocumentDAO policyDocumentDAO,
+	                                   SiteRepository siteRepository,
+	                                   UserService userService) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.siteRepository = siteRepository;
@@ -43,12 +43,21 @@ class PolicyDocumentServiceHelper {
 		Site site = siteRepository.findById(siteId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", siteId)));
 
-		PolicyDocument policyDocument = policyDocumentRepository.findById(site.getPolicyId())
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", site.getPolicyId())));
+		if(site.getPolicyId().id == null)
+			return false;
 
+		Optional<PolicyDocument> policyDocument = policyDocumentRepository.findById(site.getPolicyId());
 		return policyDocumentDAO.getPolicyAcceptances(userId)
 			.stream()
-			.anyMatch(x -> x.policyDocumentId.equals(policyDocument.id) && x.policyDocumentRevision == policyDocument.revision);
+			.anyMatch(
+				policyAcceptance -> policyAcceptance.policyDocumentId.equals(policyDocument.get().id) &&
+				policyAcceptance.policyDocumentRevision == policyDocument.get().revision
+			);
+	}
+
+	boolean hasSitePolicy(String siteId) {
+		return siteRepository.findById(siteId).stream()
+			.anyMatch(site -> site.getPolicyId().id != null);
 	}
 
 	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(String siteId, FenixUserId fenixUserId) {
@@ -59,9 +68,9 @@ class PolicyDocumentServiceHelper {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", siteId)));
 
 		Set<PolicyAcceptance> policyAcceptances = policyDocumentDAO.getPolicyAcceptances(fenixUserId);
-		Set<AssignedPolicyDocument> allAssignPoliciesBySiteId = policyDocumentRepository.findAllAssignPoliciesBySiteId(site.getId());
-		Optional<PolicyDocument> sitePolicyDocument = policyDocumentRepository.findById(site.getPolicyId());
+		Set<AssignedPolicyDocument> allAssignedPoliciesBySiteId = policyDocumentRepository.findAllAssignPoliciesBySiteId(site.getId());
+		Optional<PolicyDocument> sitePolicyDocument = site.getPolicyId().id != null ? policyDocumentRepository.findById(site.getPolicyId()) : Optional.empty();
 
-		return new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignPoliciesBySiteId);
+		return new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignedPoliciesBySiteId);
 	}
 }

@@ -38,7 +38,7 @@ public class AgentUser {
 
 	@Override
 	public String toString() {
-		return "LeaderUser{" +
+		return "AgentUser{" +
 			"fenixUserId='" + fenixUserId + '\'' +
 			", firstName='" + firstName + '\'' +
 			", lastName='" + lastName + '\'' +
