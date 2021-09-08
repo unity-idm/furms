@@ -5,7 +5,6 @@
 
 package io.imunity.furms.integration.tests.tools.users;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -21,6 +20,8 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
@@ -67,9 +69,10 @@ public class TestUser {
 		this.attributes.put("/fenix/users", new HashSet<>(Set.of(
 				new Attribute("sys:AuthorizationRole", ENUMERATION, "/fenix/users", List.of("Regular User")))));
 		this.entity = new Entity(
-				List.of(new Identity(PERSISTENT_IDENTITY, userId, entityId, userId),
+				new ArrayList<>(List.of(
+						new Identity(PERSISTENT_IDENTITY, userId, entityId, userId),
 						new Identity(IDENTIFIER_IDENTITY, userId, entityId, fenixId),
-						new Identity("username", userId, entityId, userId)),
+						new Identity("username", userId, entityId, userId))),
 				new EntityInformation(entityId),
 				new CredentialInfo("sys:all", Map.of(
 						"userPassword", new CredentialPublicInformation(correct, ""),
@@ -99,6 +102,10 @@ public class TestUser {
 
 	public void addSiteAdmin(String siteId) {
 		addRole("/fenix/sites/"+siteId+"/users", SITE_ADMIN);
+	}
+
+	public void addSiteSupport(String siteId) {
+		addRole("/fenix/sites/"+siteId+"/users", SITE_SUPPORT);
 	}
 
 	public void addProjectAdmin(String communityId, String projectId) {
@@ -139,6 +146,21 @@ public class TestUser {
 		createEntityMock(wireMockServer);
 		createFenixAttributeMock(wireMockServer);
 		createFenixIdentifierMock(wireMockServer);
+	}
+
+	public void disableCentralIDPIdentity(WireMockServer wireMockServer) {
+		entity.getIdentities().stream()
+				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)
+												&& identity.getComparableValue().equals(fenixId))
+				.findFirst()
+				.ifPresent(identity -> {
+					try {
+						entity.getIdentities().remove(identity);
+						registerUserMock(wireMockServer);
+					} catch (JsonProcessingException e) {
+						e.printStackTrace();
+					}
+				});
 	}
 
 	private void createAttributeMock(WireMockServer wireMockServer) throws JsonProcessingException {

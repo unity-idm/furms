@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import io.imunity.furms.api.authz.CapabilityCollector;
+import io.imunity.furms.domain.authz.roles.Capability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,19 +53,22 @@ class CommunityServiceImpl implements CommunityService {
 	private final CommunityServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
+	private final CapabilityCollector capabilityCollector;
 
 	CommunityServiceImpl(CommunityRepository communityRepository,
-			CommunityGroupsDAO communityGroupsDAO,
-			UsersDAO usersDAO,
-			CommunityServiceValidator validator,
-			AuthzService authzService,
-			ApplicationEventPublisher publisher) {
+	                     CommunityGroupsDAO communityGroupsDAO,
+	                     UsersDAO usersDAO,
+	                     CommunityServiceValidator validator,
+	                     AuthzService authzService,
+	                     ApplicationEventPublisher publisher,
+	                     CapabilityCollector capabilityCollector) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.authzService = authzService;
+		this.capabilityCollector = capabilityCollector;
 	}
 
 	@Override
@@ -87,10 +92,9 @@ class CommunityServiceImpl implements CommunityService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<Community> findAllOfCurrentUser() {
-		final PersistentId currentUserId = authzService.getCurrentUserId();
+		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
 		return communityRepository.findAll().stream()
-				.filter(community -> findAllAdmins(community.getId()).stream()
-										.anyMatch(admin -> currentUserId.equals(admin.id.get())))
+				.filter(community -> isBelongToCommunity(community, currentUser))
 				.collect(toSet());
 	}
 
@@ -165,5 +169,11 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
 	public boolean isAdmin(String communityId) {
 		return authzService.isResourceMember(communityId, COMMUNITY_ADMIN);
+	}
+
+	private boolean isBelongToCommunity(Community community, FURMSUser user) {
+		final Set<Capability> capabilities = Set.of(COMMUNITY_READ, COMMUNITY_WRITE);
+		return capabilityCollector.getCapabilities(user.roles, new ResourceId(community.getId(), COMMUNITY)).stream()
+				.anyMatch(capabilities::contains);
 	}
 }

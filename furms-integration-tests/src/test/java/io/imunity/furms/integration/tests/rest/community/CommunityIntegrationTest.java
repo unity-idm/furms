@@ -5,7 +5,6 @@
 
 package io.imunity.furms.integration.tests.rest.community;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.PersistentId;
@@ -13,15 +12,11 @@ import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunityAllocation;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultPolicy;
@@ -32,8 +27,6 @@ import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defau
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultSite;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
 import static java.math.BigDecimal.ONE;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -46,7 +39,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 public class CommunityIntegrationTest extends IntegrationTestBase {
 
@@ -73,25 +65,14 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
 		final String communityAllocation3 = createCommunityAllocation(community2, resourceCredit);
 
-		ADMIN_USER.addCommunityAdmin(community1);
-		server.stubFor(WireMock.get("/unity/group-members/%2Ffenix%2Fcommunities%2F"+community1+"%2Fusers")
-				.willReturn(aResponse()
-						.withStatus(200)
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBody(objectMapper.writeValueAsString(Set.of(new GroupMember(
-								"/fenix/communities/"+community1+"/users", ADMIN_USER.getEntity(),
-								ADMIN_USER.getAttributes().values().stream()
-										.flatMap(Collection::stream)
-										.map(attribute -> new AttributeExt(attribute, false))
-										.collect(toSet())))))));
-		server.stubFor(WireMock.get("/unity/group-members/%2Ffenix%2Fcommunities%2F"+community2+"%2Fusers")
-				.willReturn(aResponse()
-						.withStatus(200)
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBody(objectMapper.writeValueAsString(Set.of()))));
+		final TestUser user = basicUser();
+		user.addCommunityAdmin(community1);
+
+		setupUser(user);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities"))
+		mockMvc.perform(get("/rest-api/v1/communities")
+				.with(user.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
@@ -100,6 +81,21 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].allocations", hasSize(2)))
 				.andExpect(jsonPath("$.[0].allocations").value(anyOf(
 						containsInAnyOrder(communityAllocation1, communityAllocation2))));
+	}
+
+	@Test
+	void shouldGetAllCommunitiesAsFenixAdmin() throws Exception {
+		//given
+		final String community1 = createCommunity();
+		final String community2 = createCommunity();
+		final String community3 = createCommunity();
+		final String community4 = createCommunity();
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/communities"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(4)));
 	}
 
 	@Test

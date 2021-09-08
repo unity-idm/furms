@@ -268,7 +268,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId) {
-		return installationRepository.findAllInstalledByProjectId(UUID.fromString(projectId)).stream()
+		return installationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 				.map(this::convertToSiteInstalledProject)
 				.collect(Collectors.toSet());
 	}

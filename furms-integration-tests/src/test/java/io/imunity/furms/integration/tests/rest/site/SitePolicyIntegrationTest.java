@@ -48,9 +48,9 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllPoliciesForSpecificSite() throws Exception {
 		//given
-		final String policy1 = createPolicy(site.getId(), "Test 1");
-		final String policy2 = createPolicy(site.getId(),"Test 2");
-		createPolicy(darkSite.getId(),"Test 3");
+		final String policy1 = createPolicy(site.getId(), "Test 1", 0);
+		final String policy2 = createPolicy(site.getId(),"Test 2", 0);
+		createPolicy(darkSite.getId(),"Test 3", 1);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId()))
@@ -93,8 +93,8 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindPolicyThatBelongsToSite() throws Exception {
 		//given
-		final String policy = createPolicy(site.getId(), "Test 1");
-		createPolicy(darkSite.getId(),"Test 2");
+		final String policy = createPolicy(site.getId(), "Test 1", 0);
+		createPolicy(darkSite.getId(),"Test 2", 1);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", site.getId(), policy))
@@ -108,8 +108,8 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnForbiddenIfPolicyNotBelongsToSite() throws Exception {
 		//given
-		final String service = createPolicy(site.getId(), "Test 1");
-		createPolicy(darkSite.getId(),"Test 2");
+		final String service = createPolicy(site.getId(), "Test 1", 1);
+		createPolicy(darkSite.getId(),"Test 2", 1);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", darkSite.getId(), service))
@@ -128,17 +128,18 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 
 	@Test
 	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicies() throws Exception {
-		final String polic = createPolicy(site.getId(), "Test 1");
+		final String polic = createPolicy(site.getId(), "Test 1", 1);
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", UUID.randomUUID().toString(), polic))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
-	private String createPolicy(String siteId, String name) {
+	private String createPolicy(String siteId, String name, int revision) {
 		return policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.name(name)
+				.revision(revision)
 				.build())
 				.id.toString();
 	}

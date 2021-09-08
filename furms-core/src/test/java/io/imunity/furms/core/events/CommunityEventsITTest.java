@@ -6,6 +6,7 @@
 package io.imunity.furms.core.events;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.PersistentId;
@@ -40,6 +41,8 @@ class CommunityEventsITTest {
 	private ServiceMock serviceMock;
 	@MockBean
 	private AuthzService authzService;
+	@MockBean
+	private CapabilityCollector capabilityCollector;
 
 	@Autowired
 	private CommunityService communityService;

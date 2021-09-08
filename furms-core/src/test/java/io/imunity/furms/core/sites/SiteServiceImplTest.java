@@ -6,6 +6,7 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -83,12 +84,15 @@ class SiteServiceImplTest {
 	private PolicyDocumentRepository policyDocumentRepository;
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+	@Mock
+	private CapabilityCollector capabilityCollector;
 	
 	@BeforeEach
 	void setUp() {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
-				siteAgentService, siteAgentStatusService, userOperationRepository, policyDocumentRepository, siteAgentPolicyDocumentService);
+				siteAgentService, siteAgentStatusService, userOperationRepository, policyDocumentRepository,
+				siteAgentPolicyDocumentService, capabilityCollector);
 	}
 
 	@Test
