@@ -151,7 +151,7 @@ class UserServiceImpl implements UserService {
 					.filterExposedAttribtues(userAttributes.rootAttributes);
 			final Set<SiteUser> siteUsers = userAllocationsService.findUserSitesInstallations(userId);
 
-			return new UserRecord(userStatus, rootAttributes, siteUsers);
+			return new UserRecord(userStatus, rootAttributes, userAttributes.attributesByResource, siteUsers);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);

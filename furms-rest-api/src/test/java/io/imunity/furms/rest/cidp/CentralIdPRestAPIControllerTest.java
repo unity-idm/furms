@@ -7,6 +7,8 @@ package io.imunity.furms.rest.cidp;
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -26,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,7 +41,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(controllers = {CentralIdPRestAPIController.class}, 
 	excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = WebAppSecurityConfiguration.class)},
@@ -53,9 +55,12 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 	void shouldGetUserRecord() throws Exception {
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
+		final UUID resource1 = UUID.randomUUID();
 		when(userService.getUserRecord(new FenixUserId("F_ID"))).thenReturn(new UserRecord(
 				UserStatus.ENABLED,
 				Set.of(new UserAttribute("attr1", "attr1val")),
+				Map.of(new ResourceId(resource1, ResourceType.COMMUNITY),
+						Set.of(new UserAttribute("role", "admin"))),
 				Set.of(new SiteUser(
 						"siteId",
 						"siteOauthClientId",
@@ -73,6 +78,10 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
 				.andExpect(jsonPath("$.attributes[0].name").value("attr1"))
 				.andExpect(jsonPath("$.attributes[0].values[0]").value("attr1val"))
+				.andExpect(jsonPath("$.resourceAttributes[0].resource.id").value(resource1.toString()))
+				.andExpect(jsonPath("$.resourceAttributes[0].resource.type").value(ResourceType.COMMUNITY.name()))
+				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].name").value("role"))
+				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].values[0]").value("admin"))
 				.andExpect(jsonPath("$.siteInstallations[0].siteId").value("siteId"))
 				.andExpect(jsonPath("$.siteInstallations[0].siteOauthClientId").value("siteOauthClientId"))
 				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].localUserId").value("localUserId"))
@@ -92,9 +101,12 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 	void shouldGetUserRecordOnlyForSpecificSite() throws Exception {
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
+		final UUID resource1 = UUID.randomUUID();
 		when(userService.getUserRecord(new FenixUserId("F_ID"))).thenReturn(new UserRecord(
 				UserStatus.ENABLED,
 				Set.of(new UserAttribute("attr1", "attr1val")),
+				Map.of(new ResourceId(resource1, ResourceType.SITE),
+						Set.of(new UserAttribute("role", "admin"))),
 				Set.of(new SiteUser(
 						"siteId",
 						"siteOauthClientId",
@@ -122,6 +134,10 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.attributes[0].name").value("attr1"))
 				.andExpect(jsonPath("$.attributes[0].values[0]").value("attr1val"))
 				.andExpect(jsonPath("$.siteInstallations", hasSize(1)))
+				.andExpect(jsonPath("$.resourceAttributes[0].resource.id").value(resource1.toString()))
+				.andExpect(jsonPath("$.resourceAttributes[0].resource.type").value(ResourceType.SITE.name()))
+				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].name").value("role"))
+				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].values[0]").value("admin"))
 				.andExpect(jsonPath("$.siteInstallations[0].siteId").value("siteId"))
 				.andExpect(jsonPath("$.siteInstallations[0].siteOauthClientId").value("siteOauthClientId"))
 				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].localUserId").value("localUserId"))
