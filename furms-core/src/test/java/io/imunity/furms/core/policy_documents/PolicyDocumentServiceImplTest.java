@@ -16,14 +16,11 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -41,12 +38,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -242,103 +237,6 @@ class PolicyDocumentServiceImplTest {
 		service.findAllByCurrentUser();
 
 		orderVerifier.verify(repository).findAllByUserId(eq(userId), any());
-	}
-
-	@Test
-	void shouldFindAllAllUserWithoutPolicyAcceptance() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder().build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of())
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
-			UserAddition.builder()
-				.userId(userId.id)
-				.status(UserStatus.ADDED)
-				.build()
-		));
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(1, users.size());
-		assertEquals(user, users.iterator().next());
-	}
-
-	@Test
-	void shouldFindUserWithoutPolicyAcceptanceIfUserIsNotInstalledOnSite() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder().build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of())
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of());
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(1, users.size());
-	}
-
-	@Test
-	void shouldFindAllUserWithoutCurrentRevisionPolicyAgreement() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder()
-				.id(policyId)
-				.revision(2)
-				.build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of(PolicyAcceptance.builder()
-				.policyDocumentId(policyId)
-				.policyDocumentRevision(1)
-				.build())
-			)
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
-			UserAddition.builder()
-				.userId(userId.id)
-				.status(UserStatus.ADDED)
-				.build()
-		));
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(1, users.size());
-		assertEquals(user, users.iterator().next());
 	}
 
 	@Test

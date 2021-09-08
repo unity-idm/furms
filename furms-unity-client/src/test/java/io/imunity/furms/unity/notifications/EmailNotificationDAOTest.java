@@ -16,9 +16,9 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.unity.client.users.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class EmailNotificationDAOTest {
-
+	private static final String furmsServerBaseURL = "https://localhost:333";
 	@Mock
 	private UserService userService;
 	@Mock
@@ -46,8 +46,13 @@ class EmailNotificationDAOTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 
-	@InjectMocks
 	private EmailNotificationDAO emailNotificationDAO;
+
+	@BeforeEach
+	void setUp() {
+		EmailNotificationProperties emailNotificationProperties = new EmailNotificationProperties("policyAcceptanceNew", "policyAcceptanceRevision", furmsServerBaseURL);
+		emailNotificationDAO = new EmailNotificationDAO(userService, policyDocumentDAO, policyDocumentRepository, emailNotificationProperties, publisher);
+	}
 
 	@Test
 	void shouldNotifyAboutChangedPolicy() {
@@ -77,7 +82,7 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutChangedPolicy(policyDocument);
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName"));
+		verify(userService).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName", "custom.furms.url", furmsServerBaseURL));
 	}
 
 	@Test
@@ -108,7 +113,7 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutChangedPolicy(policyDocument);
 
-		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName"));
+		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName", "custom.furms.url", furmsServerBaseURL));
 	}
 
 	@Test
@@ -138,7 +143,7 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId,"grantId");
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furms.url", furmsServerBaseURL));
 	}
 
 	@Test
@@ -167,6 +172,6 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId, "grantId");
 
-		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName"));
+		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furms.url", furmsServerBaseURL));
 	}
 }

@@ -14,6 +14,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.StreamResource;
@@ -83,8 +85,12 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
 
-		loadGridContent();
 		getContent().add(layout, grid);
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		loadGridContent();
 	}
 
 	private Label getTooltipName(PolicyDocumentExtended policyDocument) {

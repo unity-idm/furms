@@ -8,6 +8,7 @@ package io.imunity.furms.ui.components.administrators;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
@@ -104,7 +106,7 @@ public class UserContextMenuFactory {
 		return allowRemovalOfLastUser || gridSizeLoader.get() > 1;
 	}
 
-	public GridActionMenu get(UserGridItem gridItem, Runnable gridReloader, Supplier<Integer> gridSizeLoader){
+	public Component get(UserGridItem gridItem, Runnable gridReloader, Supplier<Integer> gridSizeLoader){
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		Button button = new Button(getTranslation("component.administrators.context.menu.remove"),
@@ -120,13 +122,17 @@ public class UserContextMenuFactory {
 					doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
 			});
 		}
-		customContextMenuItems.forEach(item ->
+		customContextMenuItems.stream()
+			.filter(item -> item.confirmer.test(gridItem))
+			.forEach(item ->
 			contextMenu.addItem((Component)item.buttonProvider.apply(gridItem), event -> {
 				item.menuButtonHandler.accept(gridItem);
 				gridReloader.run();
 			})
 		);
-		return contextMenu;
+		if(contextMenu.getChildren().count() == 0)
+			return new Div();
+		return contextMenu.getTarget();
 	}
 
 	private static String getFullName(UserGridItem c) {
@@ -183,7 +189,12 @@ public class UserContextMenuFactory {
 		}
 
 		public <T> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action) {
-			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action));
+			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action, x -> true));
+			return this;
+		}
+
+		public <T> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action, Predicate<T> predicate) {
+			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action, predicate));
 			return this;
 		}
 
