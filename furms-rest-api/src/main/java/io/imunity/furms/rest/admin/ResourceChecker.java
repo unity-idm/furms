@@ -9,6 +9,7 @@ import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -65,6 +66,9 @@ class ResourceChecker {
 			throw new RestNotFoundException("Resource does not exist");
 		}
 		if (result instanceof Collection && ((Collection<?>) result).isEmpty()) {
+			throw new RestNotFoundException("Resource does not exist");
+		}
+		if (result instanceof Map && ((Map<?, ?>) result).isEmpty()) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
 	}

@@ -10,8 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunityAllocation;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultPolicy;
@@ -43,6 +48,8 @@ import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defau
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultSite;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
 import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static java.util.stream.Collectors.toList;
@@ -83,11 +90,12 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldFindAllPolicyAcceptancesForSpecificSite() throws Exception {
+	void shouldFindAllAcceptedPolicyAcceptancesForSpecificSiteAndEmptyServicePolicy() throws Exception {
 		//given
 		final TestUser basicUser = basicUser();
-		final String sitePath = createPolicyAcceptanceBase(site);
-		final String darkSitePath = createPolicyAcceptanceBase(darkSite);
+		final String sitePath = createPolicyAcceptanceBase(site, ADMIN_USER, PolicyId.empty());
+		createPolicyAcceptanceBase(site, basicUser);
+		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, PolicyId.empty());
 
 		createPolicyAcceptancesMock(sitePath, List.of(
 				new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
@@ -102,12 +110,97 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 				.andExpect(jsonPath("$.[0].policyId", equalTo(site.getPolicyId().id.toString())))
+				.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(1)))
+				.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(1)))
 				.andExpect(jsonPath("$.[0].accepted", equalTo(ACCEPTED.name())))
-				.andExpect(jsonPath("$.[0].revision", equalTo(0)))
 				.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].policyId", equalTo(site.getPolicyId().id.toString())))
 				.andExpect(jsonPath("$.[1].accepted", equalTo(ACCEPTED.name())))
-				.andExpect(jsonPath("$.[1].revision", equalTo(0)));
+				.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(1)))
+				.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(1)));
+	}
+
+	@Test
+	void shouldFindAllAcceptedFormerRevisionPolicyAcceptancesForSpecificSite() throws Exception {
+		//given
+		final TestUser basicUser = basicUser();
+		createPolicy(site.getId());
+		final String sitePath = createPolicyAcceptanceBase(site, ADMIN_USER);
+		createPolicyAcceptanceBase(site, basicUser);
+		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER);
+
+		createPolicyAcceptancesMock(sitePath, List.of(
+			new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
+			new PolicyUser(site.getPolicyId().id.toString(), basicUser)));
+		createPolicyAcceptancesMock(darkSitePath, List.of(
+			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
+
+		updatePolicyRevision(site.getPolicyId());
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", hasSize(2)))
+			.andExpect(jsonPath("$.[0].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[0].policyId", equalTo(site.getPolicyId().id.toString())))
+			.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(1)))
+			.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(2)))
+			.andExpect(jsonPath("$.[0].accepted", equalTo(ACCEPTED_FORMER_REVISION.name())))
+			.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[1].policyId", equalTo(site.getPolicyId().id.toString())))
+			.andExpect(jsonPath("$.[1].accepted", equalTo(ACCEPTED_FORMER_REVISION.name())))
+			.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(1)))
+			.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(2)));
+	}
+
+	private void updatePolicyRevision(PolicyId policyId) {
+		policyDocumentRepository.update(
+			policyDocumentRepository.findById(policyId).get(),
+			true
+		);
+	}
+
+	@Test
+	void shouldFindAllNotAcceptedPolicyAcceptancesForSpecificSite() throws Exception {
+		//given
+		final TestUser basicUser = basicUser();
+		PolicyId policyId = createPolicy(site.getId());
+		final String sitePath = createPolicyAcceptanceBase(site, ADMIN_USER, policyId);
+		createPolicyAcceptanceBase(site, basicUser, policyId);
+
+		PolicyId darkPolicyId = createPolicy(site.getId());
+		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, darkPolicyId);
+
+		createPolicyAcceptancesMock(sitePath, List.of());
+		createPolicyAcceptancesMock(darkSitePath, List.of(
+			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", hasSize(4)))
+			.andExpect(jsonPath("$.[0].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[0].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
+			.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(null)))
+			.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(1)))
+			.andExpect(jsonPath("$.[0].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[1].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
+			.andExpect(jsonPath("$.[1].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(null)))
+			.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(1)))
+			.andExpect(jsonPath("$.[2].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[2].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
+			.andExpect(jsonPath("$.[2].acceptedRevision", equalTo(null)))
+			.andExpect(jsonPath("$.[2].currentPolicyRevision", equalTo(1)))
+			.andExpect(jsonPath("$.[2].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[3].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
+			.andExpect(jsonPath("$.[3].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
+			.andExpect(jsonPath("$.[3].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[3].acceptedRevision", equalTo(null)))
+			.andExpect(jsonPath("$.[3].currentPolicyRevision", equalTo(1)));
 	}
 
 	@Test
@@ -142,7 +235,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)));
 
-		createPolicyAcceptancesMock(createPolicyAcceptanceBase(site),
+		createPolicyAcceptancesMock(createPolicyAcceptanceBase(site, ADMIN_USER),
 				List.of(new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER)));
 
 		//when
@@ -201,14 +294,18 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	}
 
 	private PolicyId assignPolicy(Site.SiteBuilder siteBuilder) {
-		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
-				.siteId(siteBuilder.build().getId())
-				.name(UUID.randomUUID().toString())
-				.build());
+		final PolicyId policyId = createPolicy(siteBuilder.build().getId());
 		siteRepository.update(siteBuilder
 				.policyId(policyId)
 				.build());
 		return policyId;
+	}
+
+	private PolicyId createPolicy(String siteId) {
+		return policyDocumentRepository.create(defaultPolicy()
+			.siteId(siteId)
+			.name(UUID.randomUUID().toString())
+			.build());
 	}
 
 	private void createPolicyAcceptancesMock(String path, List<PolicyUser> policies) throws JsonProcessingException {
@@ -238,7 +335,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 					path,
 					List.of(objectMapper.writeValueAsString(new PolicyAcceptanceUnityMock(
 							policyAcceptance.policyId,
-							0,
+							1,
 							ACCEPTED.name(),
 							LocalDateTime.now().toInstant(ZoneOffset.UTC))))),
 					true));
@@ -248,7 +345,11 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		}
 	}
 
-	private String createPolicyAcceptanceBase(Site site) {
+	private String createPolicyAcceptanceBase(Site site, TestUser testUser) {
+		return createPolicyAcceptanceBase(site, testUser, site.getPolicyId());
+	}
+
+	private String createPolicyAcceptanceBase(Site site, TestUser testUser, PolicyId servicePolicyId) {
 		final String communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
@@ -258,7 +359,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.build());
 		final String serviceId = infraServiceRepository.create(defaultService()
 				.siteId(site.getId())
-				.policyId(site.getPolicyId())
+				.policyId(servicePolicyId)
 				.name(UUID.randomUUID().toString())
 				.build());
 		final String resourceTypeId = resourceTypeRepository.create(defaultResourceType()
@@ -278,12 +379,20 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.amount(BigDecimal.valueOf(5))
 				.name(UUID.randomUUID().toString())
 				.build());
-		projectAllocationRepository.create(defaultProjectAllocation()
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.amount(BigDecimal.ONE)
-				.name(UUID.randomUUID().toString())
-				.build());
+		String projectAllocationId = projectAllocationRepository.create(defaultProjectAllocation()
+			.communityAllocationId(communityAllocationId)
+			.projectId(projectId)
+			.amount(BigDecimal.ONE)
+			.name(UUID.randomUUID().toString())
+			.build());
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(new SiteId(site.getId(), "mock"))
+			.allocationId(projectAllocationId)
+			.projectId(projectId)
+			.fenixUserId(new FenixUserId(testUser.getFenixId()))
+			.build();
+
+		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), grantAccess, GRANT_PENDING);
 		return "/fenix/communities/"+communityId+"/projects/"+projectId+"/users";
 	}
 

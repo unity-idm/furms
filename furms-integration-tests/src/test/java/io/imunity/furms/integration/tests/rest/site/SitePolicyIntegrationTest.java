@@ -48,8 +48,8 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllPoliciesForSpecificSite() throws Exception {
 		//given
-		final String policy1 = createPolicy(site.getId(), "Test 1", 0);
-		final String policy2 = createPolicy(site.getId(),"Test 2", 0);
+		final String policy1 = createPolicy(site.getId(), "Test 1", 1);
+		final String policy2 = createPolicy(site.getId(),"Test 2", 1);
 		createPolicy(darkSite.getId(),"Test 3", 1);
 
 		//when
@@ -59,10 +59,10 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].policyId", in(Set.of(policy1, policy2))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
-				.andExpect(jsonPath("$.[0].revision", equalTo(0)))
+				.andExpect(jsonPath("$.[0].revision", equalTo(1)))
 				.andExpect(jsonPath("$.[1].policyId", in(Set.of(policy1, policy2))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
-				.andExpect(jsonPath("$.[1].revision", equalTo(0)));
+				.andExpect(jsonPath("$.[1].revision", equalTo(1)));
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindPolicyThatBelongsToSite() throws Exception {
 		//given
-		final String policy = createPolicy(site.getId(), "Test 1", 0);
+		final String policy = createPolicy(site.getId(), "Test 1", 1);
 		createPolicy(darkSite.getId(),"Test 2", 1);
 
 		//when
@@ -102,7 +102,7 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.policyId", equalTo(policy)))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
-				.andExpect(jsonPath("$.revision", equalTo(0)));
+				.andExpect(jsonPath("$.revision", equalTo(1)));
 	}
 
 	@Test

@@ -13,6 +13,7 @@ import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,6 +22,8 @@ public interface PolicyDocumentService {
 	Optional<PolicyDocument> findById(String siteId, PolicyId id);
 
 	Set<PolicyDocument> findAll();
+
+	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);
 
