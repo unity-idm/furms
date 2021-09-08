@@ -43,6 +43,8 @@ import java.util.UUID;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
@@ -119,8 +121,14 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
-			policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);
-			loadGridContent();
+			try {
+				policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);
+				loadGridContent();
+				showSuccessNotification(getTranslation("view.user-settings.policy-documents.accepted.message"));
+			} catch (Exception e){
+				showErrorNotification(getTranslation("base.error.message"));
+				throw e;
+			}
 		});
 		return iconApproveButton;
 	}
