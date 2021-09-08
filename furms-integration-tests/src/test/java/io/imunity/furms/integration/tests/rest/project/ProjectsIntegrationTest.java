@@ -8,10 +8,14 @@ package io.imunity.furms.integration.tests.rest.project;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
@@ -22,10 +26,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProject;
@@ -68,10 +74,17 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldGetAllProjectsWithInstallationsForCurrentUser() throws Exception {
 		//given
+		final Site.SiteBuilder siteBuilder = defaultSite();
+		final Site site2 = siteBuilder
+				.name("site2")
+				.externalId(new SiteExternalId("s2id"))
+				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.build();
 		final String community = createCommunity();
 		final String project1 = createProject(community);
 		final String project2 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
+		createProjectInstallation(project1, site2.getId(), ACKNOWLEDGED);
 		createProjectInstallation(project2, site.getId(), INSTALLED);
 
 		projectAdmin.addProjectAdmin(community, project1);
@@ -89,7 +102,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].name", equalTo(expectedProject.getName())))
 				.andExpect(jsonPath("$.[0].communityId", equalTo(expectedProject.getCommunityId())))
 				.andExpect(jsonPath("$.[0].researchField", equalTo(expectedProject.getResearchField())))
-				.andExpect(jsonPath("$.[0].installations", hasSize(1)))
+				.andExpect(jsonPath("$.[0].installations", hasSize(2)))
 				.andExpect(jsonPath("$.[0].description", equalTo(expectedProject.getDescription())))
 				.andExpect(jsonPath("$.[0].validity", notNullValue()))
 				.andExpect(jsonPath("$.[0].projectLeader.fenixIdentifier", equalTo(ADMIN_USER.getFenixId())));
@@ -422,11 +435,15 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	}
 
 	private void createProjectInstallation(String projectId, String siteId, ProjectInstallationStatus status) {
-		projectOperationRepository.create(defaultProjectInstallationJob()
+		final String id = projectOperationRepository.create(defaultProjectInstallationJob()
 				.projectId(projectId)
 				.siteId(siteId)
 				.status(status)
 				.build());
+		if (status == INSTALLED) {
+			projectOperationRepository.update(id, new ProjectInstallationResult(Map.of(
+					"gid", UUID.randomUUID().toString()), INSTALLED, new Error("", "")));
+		}
 	}
 
 	private String createUserAddition(String projectId, String siteId, TestUser testUser) {

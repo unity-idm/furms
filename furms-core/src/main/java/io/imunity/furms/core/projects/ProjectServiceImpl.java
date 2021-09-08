@@ -132,9 +132,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	private boolean isProjectAdmin(Project project, Map<ResourceId, Set<Role>> roles) {
-		final Set<Capability> capabilities = new HashSet<>();
-		capabilities.addAll(PROJECT_ADMIN.capabilities);
-		capabilities.addAll(COMMUNITY_ADMIN.capabilities);
+		final Set<Capability> capabilities = Set.of(PROJECT_READ, PROJECT_WRITE);
 		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId(), PROJECT))
 				.stream().anyMatch(capabilities::contains);
 	}

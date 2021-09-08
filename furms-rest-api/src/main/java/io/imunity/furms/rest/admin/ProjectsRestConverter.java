@@ -40,7 +40,7 @@ class ProjectsRestConverter {
 
 	public Project convert(io.imunity.furms.domain.projects.Project project) {
 		final Set<SiteInstalledProject> projectInstallations =
-				projectInstallationsService.findAllSiteInstalledProjectsByProjectId(project.getId());
+				projectInstallationsService.findAllSiteInstallionProjectsByProjectId(project.getId());
 		final User user = findUser(project.getLeaderId());
 		return new Project(project, user, projectInstallations);
 	}
