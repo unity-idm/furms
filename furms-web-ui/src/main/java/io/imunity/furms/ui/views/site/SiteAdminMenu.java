@@ -10,6 +10,8 @@ import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
 import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.resource_credits.ResourceCreditsView;
@@ -22,7 +24,9 @@ import java.util.List;
 public class SiteAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
-	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory) {
+	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
+		super(roleTranslator, ViewMode.SITE);
+
 		setPrimarySection(AppLayout.Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(
