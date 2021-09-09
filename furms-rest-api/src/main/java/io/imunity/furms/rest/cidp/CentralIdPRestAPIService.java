@@ -37,6 +37,7 @@ class CentralIdPRestAPIService {
 		final UserRecord userRecord = userService.getUserRecord(new FenixUserId(fenixUserId));
 		return new UserRecordJson(new UserRecord(userRecord.userStatus,
 				userRecord.attributes,
+				userRecord.resourceAttributes,
 				userRecord.siteInstallations.stream()
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId != null)
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId.equals(oauthClientId))
