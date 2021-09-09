@@ -8,6 +8,9 @@ springdoc:
    pathsToMatch: /rest-api/v1/**
    
 furms:
+   notification:
+      new-policy-template-id: testTemplate
+      new-policy-revision-template-id: testTemplate
    unity:
       admin-url: ${furms.unity.url}/rest-admin/v1
       admin-user: furms-rest-client
