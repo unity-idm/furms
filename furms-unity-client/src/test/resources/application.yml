@@ -1,4 +1,8 @@
 furms:
+  url: https://localhost:3443
+  notification:
+    new-policy-template-id: testTemplate
+    new-policy-revision-template-id: testTemplate
   unity:
     admin-url: https://unity-furms/rest-admin/v1
     admin-user: test

@@ -17,12 +17,12 @@ public class Validity {
 	public final ZonedDateTime to;
 
 	@JsonCreator
-	Validity(ZonedDateTime from, ZonedDateTime to) {
+	public Validity(ZonedDateTime from, ZonedDateTime to) {
 		this.from = from;
 		this.to = to;
 	}
 
-	Validity(LocalDateTime from, LocalDateTime to) {
+	public Validity(LocalDateTime from, LocalDateTime to) {
 		this(convertToUTCZoned(from), convertToUTCZoned(to));
 	}
 

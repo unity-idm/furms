@@ -5,12 +5,12 @@
 
 package io.imunity.furms.db.policy_documents;
 
+import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
-import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toSet;
 
 @Repository
@@ -53,6 +56,23 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 			.map(PolicyDocumentEntity::toPolicyDocument)
 			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
+		return Stream.of(
+			repository.findAllUsersWithSitePolicy(siteId),
+			repository.findAllUsersWithServicesPolicies(siteId)
+		)
+			.flatMap(Collection::stream)
+			.collect(groupingBy(
+				userWithPolicy -> new FenixUserId(userWithPolicy.userId),
+				mapping(userWithBasePolicy -> PolicyDocument.builder()
+					.id(new PolicyId(userWithBasePolicy.policyId))
+					.revision(userWithBasePolicy.revision)
+					.build(), toSet())
+			)
+		);
 	}
 
 	@Override
@@ -121,6 +141,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 				.wysiwygText(policyDocument.htmlText.isBlank() ? null : policyDocument.htmlText)
 				.file(policyDocument.policyFile.getFile().length == 0 ? null : policyDocument.policyFile.getFile())
 				.fileType(policyDocument.policyFile.getTypeExtension())
+				.revision(policyDocument.revision)
 				.build()
 		);
 		return new PolicyId(savedProjectAllocation.getId());

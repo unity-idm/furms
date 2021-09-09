@@ -73,6 +73,9 @@ public class Community {
 		private String description;
 		private FurmsImage logo;
 
+		private CommunityBuilder() {
+		}
+
 		public CommunityBuilder id(String id) {
 			this.id = id;
 			return this;

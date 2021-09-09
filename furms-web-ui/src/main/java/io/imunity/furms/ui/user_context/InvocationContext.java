@@ -22,7 +22,7 @@ public class InvocationContext {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InvocationContext.class);
 
-	private static final int ZONE_INIT_TIMEOUT_S = 20;
+	private static final int ZONE_INIT_TIMEOUT_S = 4;
 
 	private final Future<ZoneId> zone;
 

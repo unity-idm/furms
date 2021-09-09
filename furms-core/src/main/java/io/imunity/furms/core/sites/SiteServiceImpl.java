@@ -6,10 +6,12 @@
 package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
+import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -41,6 +43,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +54,9 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
@@ -73,6 +79,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+	private final CapabilityCollector capabilityCollector;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -84,7 +91,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                SiteAgentStatusService siteAgentStatusService,
 	                UserOperationRepository userOperationRepository,
 	                PolicyDocumentRepository policyDocumentRepository,
-	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService) {
+	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
+	                CapabilityCollector capabilityCollector) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -96,6 +104,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.userOperationRepository = userOperationRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
+		this.capabilityCollector = capabilityCollector;
 	}
 
 	@Override
@@ -132,10 +141,26 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(userId);
 		if (fenixUserId == null) {
 			throw new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP");
-		}	
+		}
 		return siteRepository.findAll().stream()
 				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
 				.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public Set<Site> findAllOfCurrentUserId() {
+		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
+		return siteRepository.findAll().stream()
+				.filter(site -> isBelongToSite(site, currentUser))
+				.collect(toSet());
+	}
+
+	private boolean isBelongToSite(Site site, FURMSUser user) {
+		final Set<Capability> capabilities = Set.of(SITE_READ, SITE_WRITE);
+		return capabilityCollector.getCapabilities(user.roles, new ResourceId(site.getId(), SITE))
+				.stream().anyMatch(capabilities::contains)
+				|| (user.fenixUserId.isPresent() && userOperationRepository.isUserAdded(site.getId(), user.fenixUserId.get().id));
 	}
 
 	@Override

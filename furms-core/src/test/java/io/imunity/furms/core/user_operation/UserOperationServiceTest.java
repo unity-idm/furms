@@ -22,6 +22,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -67,6 +68,9 @@ class UserOperationServiceTest {
 	private PolicyDocumentServiceHelper policyService;
 	@Mock
 	private SSHKeyService sshKeyService;
+	@Mock
+	private ResourceAccessRepository resourceAccessRepository;
+
 
 	private UserOperationService service;
 	private InOrder orderVerifier;
@@ -85,7 +89,7 @@ class UserOperationServiceTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
-				policyService, sshKeyService);
+				policyService, sshKeyService, resourceAccessRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 
@@ -246,5 +250,23 @@ class UserOperationServiceTest {
 		//then
 		verify(repository, times(0)).update(any(UserAddition.class));
 		verify(siteAgentUserService, times(0)).removeUser(any(UserAddition.class));
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = UserStatus.class, names = {"REMOVAL_FAILED", "ADDED"}, mode = EXCLUDE)
+	void shouldRemoveResourceAccess(UserStatus status) {
+		String projectId = "projectId";
+		PersistentId userId = new PersistentId("userId");
+		FenixUserId fenixUserId = new FenixUserId("userId");
+
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.email("email")
+			.fenixUserId(fenixUserId)
+			.build()));
+		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of());
+		service.createUserRemovals(projectId, userId);
+
+		//then
+		verify(resourceAccessRepository).deleteByUserAndProjectId(fenixUserId, "projectId");
 	}
 }

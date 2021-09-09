@@ -14,17 +14,17 @@ import org.springframework.security.core.Authentication;
 
 class FurmsMethodSecurityExpressionHandler extends DefaultMethodSecurityExpressionHandler {
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-	private final CapabilityCollector capabilityCollector;
+	private final UserCapabilityCollector userCapabilityCollector;
 
-	public FurmsMethodSecurityExpressionHandler(CapabilityCollector capabilityCollector) {
-		this.capabilityCollector = capabilityCollector;
+	public FurmsMethodSecurityExpressionHandler(UserCapabilityCollector userCapabilityCollector) {
+		this.userCapabilityCollector = userCapabilityCollector;
 	}
 
 	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
 		Authentication authentication, MethodInvocation invocation) {
 		FurmsMethodSecurityExpressionRoot root =
-			new FurmsMethodSecurityExpressionRoot(authentication, capabilityCollector);
+			new FurmsMethodSecurityExpressionRoot(authentication, userCapabilityCollector);
 		root.setPermissionEvaluator(getPermissionEvaluator());
 		root.setTrustResolver(this.trustResolver);
 		root.setRoleHierarchy(getRoleHierarchy());

@@ -11,8 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -100,10 +100,10 @@ public class SSHKeyRepositoryTest {
 				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build());
 
 		// when
-		Stream<SSHKeyEntity> byOwner = sshKeyEntityRepository.findAllByOwnerId("o1");
+		Set<SSHKeyEntity> byOwner = sshKeyEntityRepository.findAllByOwnerId("o1");
 
 		// then
-		assertThat(byOwner.findFirst().get().getId()).isEqualTo(toFind.getId());
+		assertThat(byOwner.stream().findFirst().get().getId()).isEqualTo(toFind.getId());
 	}
 
 	@Test

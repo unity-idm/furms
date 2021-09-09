@@ -16,14 +16,11 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -41,12 +38,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -245,103 +240,6 @@ class PolicyDocumentServiceImplTest {
 	}
 
 	@Test
-	void shouldFindAllAllUserWithoutPolicyAcceptance() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder().build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of())
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
-			UserAddition.builder()
-				.userId(userId.id)
-				.status(UserStatus.ADDED)
-				.build()
-		));
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(1, users.size());
-		assertEquals(user, users.iterator().next());
-	}
-
-	@Test
-	void shouldNotFindUserWithoutPolicyAcceptanceIfUserIsNotInstalledOnSite() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder().build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of())
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of());
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(0, users.size());
-	}
-
-	@Test
-	void shouldFindAllUserWithoutCurrentRevisionPolicyAgreement() {
-		FenixUserId userId = new FenixUserId("userId");
-		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
-		when(repository.findById(policyId)).thenReturn(Optional.of(
-			PolicyDocument.builder()
-				.id(policyId)
-				.revision(2)
-				.build()
-			)
-		);
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(userId)
-			.email("email")
-			.build();
-		when(policyDocumentDAO.getUserPolicyAcceptances("siteId")).thenReturn(Set.of(
-			new UserPolicyAcceptances(user, Set.of(PolicyAcceptance.builder()
-				.policyDocumentId(policyId)
-				.policyDocumentRevision(1)
-				.build())
-			)
-		));
-		when(userOperationService.findAllBySiteId("siteId")).thenReturn(Set.of(
-			UserAddition.builder()
-				.userId(userId.id)
-				.status(UserStatus.ADDED)
-				.build()
-		));
-
-		List<FURMSUser> users = service.findAllUsersWithoutCurrentRevisionPolicyAcceptance("siteId", policyId);
-
-		orderVerifier.verify(repository).findById(policyId);
-		orderVerifier.verify(policyDocumentDAO).getUserPolicyAcceptances("siteId");
-
-		assertEquals(1, users.size());
-		assertEquals(user, users.iterator().next());
-	}
-
-	@Test
 	void shouldAddPolicyToUser() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
@@ -362,7 +260,7 @@ class PolicyDocumentServiceImplTest {
 			.build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
@@ -394,7 +292,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build();
 
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(user));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
@@ -424,7 +322,7 @@ class PolicyDocumentServiceImplTest {
 			.fenixUserId(userId).build();
 
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(userService.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(user));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
@@ -466,7 +364,7 @@ class PolicyDocumentServiceImplTest {
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
@@ -504,18 +402,15 @@ class PolicyDocumentServiceImplTest {
 			.externalId(new SiteExternalId("id"))
 			.build();
 		SiteId siteId = new SiteId("siteId");
-		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(siteId)
-			.projectId("projectId")
-			.build();
+
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
-		when(userService.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(userService.findByFenixUserId(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
+		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of());
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 

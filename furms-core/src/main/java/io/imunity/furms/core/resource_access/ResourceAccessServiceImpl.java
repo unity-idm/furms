@@ -9,22 +9,27 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
@@ -42,15 +47,29 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final ResourceAccessRepository repository;
 	private final UserOperationRepository userRepository;
 	private final AuthzService authzService;
+	private final NotificationDAO notificationDAO;
+	private final ApplicationEventPublisher publisher;
+	private final UserPoliciesDocumentsServiceHelper policyDocumentService;
+	private final UserOperationService userOperationService;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                          ResourceAccessRepository repository,
-	                          UserOperationRepository userRepository, AuthzService authzService) {
+	                          UserOperationRepository userRepository,
+	                          AuthzService authzService,
+	                          NotificationDAO notificationDAO,
+	                          ApplicationEventPublisher publisher,
+	                          UserPoliciesDocumentsServiceHelper policyDocumentService,
+	                          UserOperationService userOperationService) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
 		this.authzService = authzService;
+		this.notificationDAO = notificationDAO;
+		this.policyDocumentService = policyDocumentService;
+		this.userOperationService = userOperationService;
+		this.publisher = publisher;
 	}
+
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<String> findAddedUser(String projectId) {
@@ -79,21 +98,41 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 
 		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
-		if(isUserProvided(userAdditionStatus)){
-			repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
+		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
+		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.fenixUserId, grantId.toString());
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
+		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
+	}
+
+	private UUID createGrant(GrantAccess grantAccess, CorrelationId correlationId, Optional<UserStatus> userAdditionStatus) {
+		UUID grantId;
+		if(isUserProvisioned(userAdditionStatus)) {
+			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
 			runAfterCommit(() ->
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		else {
-			repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
+		else if (userAdditionStatus.isEmpty() && hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess)) {
+			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
+			userOperationService.createUserAdditions(
+				grantAccess.siteId,
+				grantAccess.projectId,
+				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
+			);
 		}
-
-		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
+		else {
+			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
+		}
+		return grantId;
 	}
 
-	private boolean isUserProvided(Optional<UserStatus> userAdditionStatus) {
-		return !(userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_PENDING) || userAdditionStatus.get().equals(UserStatus.ADDING_ACKNOWLEDGED));
+	private boolean hasUserSitePolicyAcceptanceOrSiteHasntPolicy(GrantAccess grantAccess) {
+		return policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id)
+			|| !policyDocumentService.hasSitePolicy(grantAccess.siteId.id);
+	}
+
+	private boolean isUserProvisioned(Optional<UserStatus> userAdditionStatus) {
+		return userAdditionStatus.isPresent() && userAdditionStatus.get().isInstalled();
 	}
 
 	@Override

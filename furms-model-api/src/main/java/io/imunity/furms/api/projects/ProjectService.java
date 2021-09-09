@@ -26,6 +26,8 @@ public interface ProjectService {
 
 	Set<Project> findAll();
 
+	Set<Project> findAllByCurrentUserId();
+
 	boolean isProjectInTerminalState(String projectId);
 
 	boolean isProjectInTerminalState(String communityId, String projectId);

@@ -10,14 +10,17 @@ import io.imunity.furms.ui.components.MenuButton;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 class CustomContextMenuItem<T> {
 	public final Function<T, MenuButton> buttonProvider;
 	public final Consumer<T> menuButtonHandler;
+	public final Predicate<T> confirmer;
 
-	CustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> menuButtonHandler) {
+	CustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> menuButtonHandler, Predicate<T> confirmer) {
 		this.buttonProvider = buttonProvider;
 		this.menuButtonHandler = menuButtonHandler;
+		this.confirmer = confirmer;
 	}
 
 	@Override

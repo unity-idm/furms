@@ -176,7 +176,9 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteIdAndProjectId(String siteId, String projectId) {
-		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
+		return projectAllocationRepository.findAllWithRelatedObjects(projectId).stream()
+				.filter(projectAllocation -> projectAllocation.site.getId().equals(siteId))
+				.collect(toSet());
 	}
 
 	@Override

@@ -38,17 +38,10 @@ class CommunityRestService {
 	}
 
 	List<Community> findAll() {
-		return communityService.findAll().stream()
+		return communityService.findAllOfCurrentUser().stream()
 				.map(community -> new Community(
 						community,
 						communityAllocationService.findAllByCommunityId(community.getId())))
-				.collect(toList());
-	}
-
-	List<Project> findAllProjectsByCommunityId(String communityId) {
-		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
-				.stream()
-				.map(projectsRestConverter::convert)
 				.collect(toList());
 	}
 
@@ -60,6 +53,13 @@ class CommunityRestService {
 				.get();
 	}
 
+	List<Project> findAllProjectsByCommunityId(String communityId) {
+		return resourceChecker.performIfExists(communityId, () -> projectService.findAllByCommunityId(communityId))
+				.stream()
+				.map(projectsRestConverter::convert)
+				.collect(toList());
+	}
+
 	List<CommunityAllocation> findAllocationByCommunityId(String communityId) {
 		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		return communityAllocationService.findAllWithRelatedObjects(communityId).stream()
@@ -69,7 +69,7 @@ class CommunityRestService {
 
 	CommunityAllocation findAllocationByIdAndCommunityId(String communityAllocationId, String communityId) {
 		return resourceChecker.performIfExists(communityId,
-					() -> communityAllocationService.findByIdWithRelatedObjects(communityAllocationId))
+					() -> communityAllocationService.findByCommunityIdAndIdWithRelatedObjects(communityId, communityAllocationId))
 				.filter(allocation -> allocation.communityId.equals(communityId))
 				.map(CommunityAllocation::new)
 				.orElseThrow(() -> new CommunityAllocationRestNotFoundException(format(
@@ -78,6 +78,7 @@ class CommunityRestService {
 	}
 
 	List<CommunityAllocation> addAllocation(String communityId, CommunityAllocationAddRequest request) {
+		resourceChecker.performIfExists(communityId, () -> communityService.findById(communityId));
 		communityAllocationService.create(io.imunity.furms.domain.community_allocation.CommunityAllocation.builder()
 				.communityId(communityId)
 				.resourceCreditId(request.creditId)

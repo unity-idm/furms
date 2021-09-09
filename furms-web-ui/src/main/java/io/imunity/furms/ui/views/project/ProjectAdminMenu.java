@@ -11,6 +11,8 @@ import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsView;
 import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsView;
 import io.imunity.furms.ui.views.project.resource_access.ResourceAccessView;
@@ -23,7 +25,8 @@ import java.util.List;
 public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory) {
+	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
+		super(roleTranslator, ViewMode.PROJECT);
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(

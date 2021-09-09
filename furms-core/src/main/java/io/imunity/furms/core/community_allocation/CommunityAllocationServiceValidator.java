@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationAmountNotEnoughException;
 import org.springframework.stereotype.Component;
 
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationHasProjectAllocationsRemoveValidationError;
@@ -52,7 +53,7 @@ class CommunityAllocationServiceValidator {
 		assertResourceCreditExists(communityAllocation.resourceCreditId);
 		assertResourceCreditNotExpired(communityAllocation.resourceCreditId);
 		validateName(communityAllocation);
-		notNull(communityAllocation.amount, "CommunityAllocation amount cannot be null.");
+		assertAmountNotGreaterThanCreditAvailableAmount(communityAllocation);
 	}
 
 	void validateUpdate(CommunityAllocation updatedAllocation) {
@@ -65,6 +66,14 @@ class CommunityAllocationServiceValidator {
 		assertNotUpdatedAboveCreditAvailableAmount(updatedAllocation, existingAllocation);
 		validateName(updatedAllocation);
 		notNull(updatedAllocation.amount, "CommunityAllocation amount cannot be null.");
+	}
+
+	private void assertAmountNotGreaterThanCreditAvailableAmount(CommunityAllocation communityAllocation) {
+		notNull(communityAllocation.amount, "CommunityAllocation amount cannot be null.");
+		BigDecimal remainingAmount = communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId);
+		assertTrue(communityAllocation.amount.compareTo(remainingAmount) <= 0,
+				() -> new CommunityAllocationAmountNotEnoughException("There is no available Resource Credit amount to cover " +
+						"requested amount."));
 	}
 
 	private void assertNotUpdatedAboveCreditAvailableAmount(CommunityAllocation updatedAllocation,

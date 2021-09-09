@@ -62,7 +62,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
+	public UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
 		UserGrantEntity save = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
 				.siteId(UUID.fromString(grantAccess.siteId.id))
@@ -77,6 +77,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.status(accessStatus)
 			.build()
 		);
+		return save.getId();
 	}
 
 	public boolean exists(GrantAccess grantAccess) {

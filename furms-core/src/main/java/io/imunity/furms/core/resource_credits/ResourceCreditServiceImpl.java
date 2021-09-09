@@ -100,8 +100,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 				.utcCreateTime(credit.utcCreateTime)
 				.utcStartTime(credit.utcStartTime)
 				.utcEndTime(credit.utcEndTime)
-			.build()
-		)
+				.build())
 			.collect(toSet());
 	}
 

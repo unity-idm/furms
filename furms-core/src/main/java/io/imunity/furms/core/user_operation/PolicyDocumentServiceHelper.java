@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.user_operation;
 
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
@@ -14,6 +13,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,14 +30,16 @@ import static java.util.stream.Collectors.toSet;
 class PolicyDocumentServiceHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(PolicyDocumentServiceHelper.class);
 
-	private final AuthzService authzService;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
+	private final UsersDAO usersDAO;
 
-	PolicyDocumentServiceHelper(AuthzService authzService, PolicyDocumentRepository policyDocumentRepository, PolicyDocumentDAO policyDocumentDAO) {
-		this.authzService = authzService;
+	PolicyDocumentServiceHelper(PolicyDocumentRepository policyDocumentRepository,
+	                            PolicyDocumentDAO policyDocumentDAO,
+	                            UsersDAO usersDAO) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.policyDocumentDAO = policyDocumentDAO;
+		this.usersDAO = usersDAO;
 	}
 
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
@@ -71,8 +73,9 @@ class PolicyDocumentServiceHelper {
 	}
 
 	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(PersistentId userId) {
-		final FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
-			.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
+		final FenixUserId fenixUserId = usersDAO.findById(userId)
+				.flatMap(user -> user.fenixUserId)
+				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
 
 		LOG.debug("Getting all Policy Document for user id={}", userId.id);
 		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);

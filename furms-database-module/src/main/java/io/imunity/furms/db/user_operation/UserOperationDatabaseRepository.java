@@ -57,7 +57,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 
 	@Override
 	public Set<UserAddition> findAllUserAdditionsByUserId(String siteId) {
-		return userAdditionEntityRepository.findAllBySiteId(siteId).stream()
+		return userAdditionEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
 				.map(UserAdditionReadEntity::toUserAddition)
 				.collect(toSet());
 	}
@@ -140,6 +140,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.siteId(new SiteId(userAddition.site.getId().toString(), userAddition.site.getExternalId()))
 				.userId(userAddition.userId)
 				.projectId(userAddition.projectId.toString())
+				.correlationId(new CorrelationId(userAddition.correlationId.toString()))
 				.build())
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
 	}

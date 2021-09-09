@@ -192,10 +192,10 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
-	public Optional<FURMSUser> findById(FenixUserId userId) {
-		checkNotNull(userId);
-		checkNotNull(userId.id);
-		return usersDAO.findById(userId);
+	public Optional<FURMSUser> findByFenixUserId(FenixUserId fenixUserId) {
+		checkNotNull(fenixUserId);
+		checkNotNull(fenixUserId.id);
+		return usersDAO.findById(fenixUserId);
 	}
 
 	@Override
@@ -211,7 +211,7 @@ class UserServiceImpl implements UserService {
 					.filterExposedAttribtues(userAttributes.rootAttributes);
 			final Set<SiteUser> siteUsers = userAllocationsService.findUserSitesInstallations(userId);
 
-			return new UserRecord(userStatus, rootAttributes, siteUsers);
+			return new UserRecord(userStatus, rootAttributes, userAttributes.attributesByResource, siteUsers);
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);

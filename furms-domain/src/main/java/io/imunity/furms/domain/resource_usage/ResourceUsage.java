@@ -40,7 +40,7 @@ public class ResourceUsage {
 
 	@Override
 	public String toString() {
-		return "ProjectAllocationUsage{" +
+		return "ResourceUsage{" +
 			"projectId='" + projectId + '\'' +
 			", projectAllocationId='" + projectAllocationId + '\'' +
 			", cumulativeConsumption=" + cumulativeConsumption +
@@ -48,35 +48,35 @@ public class ResourceUsage {
 			'}';
 	}
 
-	public static ProjectAllocationUsageBuilder builder() {
-		return new ProjectAllocationUsageBuilder();
+	public static ResourceUsageBuilder builder() {
+		return new ResourceUsageBuilder();
 	}
 
-	public static final class ProjectAllocationUsageBuilder {
+	public static final class ResourceUsageBuilder {
 		private String projectId;
 		private String projectAllocationId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime probedAt;
 
-		private ProjectAllocationUsageBuilder() {
+		private ResourceUsageBuilder() {
 		}
 
-		public ProjectAllocationUsageBuilder projectId(String projectId) {
+		public ResourceUsageBuilder projectId(String projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public ProjectAllocationUsageBuilder projectAllocationId(String projectAllocationId) {
+		public ResourceUsageBuilder projectAllocationId(String projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
-		public ProjectAllocationUsageBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
+		public ResourceUsageBuilder cumulativeConsumption(BigDecimal cumulativeConsumption) {
 			this.cumulativeConsumption = cumulativeConsumption;
 			return this;
 		}
 
-		public ProjectAllocationUsageBuilder probedAt(LocalDateTime probedAt) {
+		public ResourceUsageBuilder probedAt(LocalDateTime probedAt) {
 			this.probedAt = probedAt;
 			return this;
 		}

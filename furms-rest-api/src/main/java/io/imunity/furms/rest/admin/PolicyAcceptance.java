@@ -4,7 +4,6 @@
  */
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FenixUserId;
 
@@ -14,16 +13,22 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 class PolicyAcceptance {
-	final String fenixUserId;
-	final String policyId;
-	final AcceptanceStatus accepted;
-	final ZonedDateTime processedOn;
-	final int revision;
+	public final String fenixUserId;
+	public final String policyId;
+	public final AcceptanceStatus accepted;
+	public final ZonedDateTime processedOn;
+	public final int currentPolicyRevision;
+	public final Integer acceptedRevision;
 
-	PolicyAcceptance(String policyId, int revision, String fenixUserId, AcceptanceStatus accepted,
-			ZonedDateTime processedOn) {
+	PolicyAcceptance(String policyId,
+	                 int currentPolicyRevision,
+	                 Integer acceptedRevision,
+	                 String fenixUserId,
+	                 AcceptanceStatus accepted,
+	                 ZonedDateTime processedOn) {
 		this.policyId = policyId;
-		this.revision = revision;
+		this.currentPolicyRevision = currentPolicyRevision;
+		this.acceptedRevision = acceptedRevision;
 		this.fenixUserId = fenixUserId;
 		this.accepted = accepted;
 		this.processedOn = processedOn;
@@ -34,7 +39,7 @@ class PolicyAcceptance {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PolicyAcceptance that = (PolicyAcceptance) o;
-		return revision == that.revision &&
+		return acceptedRevision == that.acceptedRevision &&
 			Objects.equals(fenixUserId, that.fenixUserId) &&
 			Objects.equals(policyId, that.policyId) &&
 			accepted == that.accepted &&
@@ -43,7 +48,7 @@ class PolicyAcceptance {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, policyId, accepted, processedOn, revision);
+		return Objects.hash(fenixUserId, policyId, accepted, processedOn, acceptedRevision);
 	}
 
 	@Override
@@ -53,7 +58,7 @@ class PolicyAcceptance {
 			", policyId='" + policyId + '\'' +
 			", accepted=" + accepted +
 			", processedOn=" + processedOn +
-			", revision=" + revision +
+			", revision=" + acceptedRevision +
 			'}';
 	}
 
@@ -63,7 +68,8 @@ class PolicyAcceptance {
 
 	public static final class PolicyAcceptanceBuilder {
 		private String policyId;
-		private int revision;
+		private int currentPolicyRevision;
+		private Integer acceptedRevision;
 		private String fenixUserId;
 		private AcceptanceStatus accepted;
 		private ZonedDateTime processedOn;
@@ -81,8 +87,13 @@ class PolicyAcceptance {
 			return this;
 		}
 
-		public PolicyAcceptance.PolicyAcceptanceBuilder revision(int revision) {
-			this.revision = revision;
+		public PolicyAcceptance.PolicyAcceptanceBuilder revision(int currentPolicyRevision) {
+			this.currentPolicyRevision = currentPolicyRevision;
+			return this;
+		}
+
+		public PolicyAcceptance.PolicyAcceptanceBuilder acceptedRevision(Integer acceptedRevision) {
+			this.acceptedRevision = acceptedRevision;
 			return this;
 		}
 
@@ -93,11 +104,6 @@ class PolicyAcceptance {
 
 		public PolicyAcceptance.PolicyAcceptanceBuilder fenixUserId(String fenixUserId) {
 			this.fenixUserId = fenixUserId;
-			return this;
-		}
-
-		public PolicyAcceptance.PolicyAcceptanceBuilder acceptanceStatus(PolicyAcceptanceStatus acceptanceStatus) {
-			this.accepted = AcceptanceStatus.valeOf(acceptanceStatus);
 			return this;
 		}
 
@@ -117,7 +123,7 @@ class PolicyAcceptance {
 		}
 
 		public PolicyAcceptance build() {
-			return new PolicyAcceptance(policyId, revision, fenixUserId, accepted, processedOn);
+			return new PolicyAcceptance(policyId, currentPolicyRevision, acceptedRevision, fenixUserId, accepted, processedOn);
 		}
 	}
 

@@ -13,6 +13,8 @@ import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.views.user_settings.invitations.InvitationsView;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.user_settings.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.user_settings.projects.ProjectsView;
 import io.imunity.furms.ui.views.user_settings.sites.SitesView;
@@ -27,7 +29,8 @@ import static java.util.stream.Collectors.toList;
 public class UserSettingsMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	UserSettingsMenu(FurmsLayoutFactory furmsLayoutFactory, AuthzService authzService) {
+	UserSettingsMenu(FurmsLayoutFactory furmsLayoutFactory, AuthzService authzService, RoleTranslator roleTranslator) {
+		super(roleTranslator, ViewMode.USER);
 		setPrimarySection(Section.DRAWER);
 		final List<MenuComponent> menuComponents = Stream.of(
 					MenuComponent.builder(ProfileView.class).build(),

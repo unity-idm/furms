@@ -16,15 +16,15 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-	private final CapabilityCollector capabilityCollector;
+	private final UserCapabilityCollector userCapabilityCollector;
 
-	public MethodSecurityConfig(CapabilityCollector capabilityCollector) {
-		this.capabilityCollector = capabilityCollector;
+	public MethodSecurityConfig(UserCapabilityCollector userCapabilityCollector) {
+		this.userCapabilityCollector = userCapabilityCollector;
 	}
 
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
-		return new FurmsMethodSecurityExpressionHandler(capabilityCollector);
+		return new FurmsMethodSecurityExpressionHandler(userCapabilityCollector);
 	}
 
 	@Override

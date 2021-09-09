@@ -13,7 +13,6 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
@@ -23,8 +22,8 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -42,12 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
@@ -56,7 +52,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.utils.StreamUtils.distinctBy;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -114,34 +110,16 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<PolicyDocument> findAllBySiteId(String siteId) {
-		LOG.debug("Getting all Policy Document for site id={}", siteId);
-		return policyDocumentRepository.findAllBySiteId(siteId);
+	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
+		LOG.debug("Getting all user's Policy Document for site id={}", siteId);
+		return policyDocumentRepository.findAllUsersPolicies(siteId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public List<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId) {
-		LOG.debug("Getting all users who not accepted Policy Document {}", policyId.id);
-
-		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy Document %s doesn't exist", policyId.id)));
-
-		Map<FenixUserId, UserStatus> usersInstallationStatus = userOperationService.findAllBySiteId(siteId).stream()
-			.collect(toMap(x -> new FenixUserId(x.userId), x -> x.status));
-
-		return policyDocumentDAO.getUserPolicyAcceptances(siteId).stream()
-			.filter(userAcceptance -> userAcceptance.policyAcceptances.stream()
-				.noneMatch(policyAcceptance -> policyAcceptance.policyDocumentId.equals(policyDocument.id)
-						&& policyAcceptance.policyDocumentRevision == policyDocument.revision)
-			)
-			.filter(userAcceptance -> userAcceptance.user.fenixUserId.isPresent())
-			.map(userAcceptance -> userAcceptance.user)
-			.filter(user -> Optional.ofNullable(usersInstallationStatus.get(user.fenixUserId.get()))
-				.filter(UserStatus::isInstalled)
-				.isPresent()
-			)
-			.collect(Collectors.toList());
+	public Set<PolicyDocument> findAllBySiteId(String siteId) {
+		LOG.debug("Getting all Policy Document for site id={}", siteId);
+		return policyDocumentRepository.findAllBySiteId(siteId);
 	}
 
 	@Override
@@ -179,32 +157,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		notificationDAO.notifyUser(persistentId, policyDocument);
 	}
 
-	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
-	                                                                                  Set<PolicyDocument> userPolicies) {
-		return findPolicyAcceptancesByUserId(userId).stream()
-				.filter(policyAcceptance -> policyAcceptance.acceptanceStatus == ACCEPTED)
-				.map(policyAcceptance -> userPolicies.stream()
-								.filter(userPolicy -> isPolicyRelatedToAcceptance(userPolicy, policyAcceptance))
-								.findFirst()
-								.map(policyDocument -> new PolicyAcceptanceAtSite(policyAcceptance, policyDocument))
-								.orElse(null))
-				.filter(Objects::nonNull)
-				.collect(toSet());
-	}
-
-	private boolean isPolicyRelatedToAcceptance(PolicyDocument userPolicy, PolicyAcceptance policyAcceptance) {
-		return userPolicy.id.equals(policyAcceptance.policyDocumentId)
-				&& userPolicy.revision == policyAcceptance.policyDocumentRevision;
-	}
-
-	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(PersistentId userId) {
-		final FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
-				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
-
-		LOG.debug("Getting all Policy Document for user id={}", userId.id);
-		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);
-	}
-
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
@@ -217,8 +169,10 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Transactional
 	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
-		FURMSUser user = userService.findById(userId)
+		FURMSUser user = userService.findByFenixUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
+		Optional<PolicyDocument> policyDocument = policyDocumentRepository.findById(policyAcceptance.policyDocumentId);
+		assertPolicyBelongsToSite(siteId, policyDocument);
 		addUserPolicyAcceptance(user, policyAcceptance);
 	}
 
@@ -243,9 +197,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		Optional<PolicyDocument> sitePolicyDocument = policyDocumentRepository.findById(site.getPolicyId());
 
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
-		if(policyDocument.id.equals(site.getPolicyId()) && policyAcceptances.stream().noneMatch(x -> x.policyDocumentId.equals(policyDocument.id))) {
-			policyAcceptances.add(policyAcceptance);
-			resourceAccessRepository.findWaitingGrantAccesses(userId, policyDocument.siteId)
+
+		Set<GrantAccess> waitingGrantAccesses = resourceAccessRepository.findWaitingGrantAccesses(userId, policyDocument.siteId);
+		policyAcceptances.add(policyAcceptance);
+
+		if(!waitingGrantAccesses.isEmpty()) {
+			waitingGrantAccesses
+				.stream()
+				.filter(distinctBy(grantAccess -> grantAccess.projectId))
 				.forEach(grantAccess ->
 					userOperationService.createUserAdditions(
 						grantAccess.siteId,
@@ -255,7 +214,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				);
 		}
 		else {
-			policyAcceptances.add(policyAcceptance);
 			siteAgentPolicyDocumentService.updateUsersPolicyAcceptances(
 				site.getExternalId(), new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignPoliciesBySiteId)
 			);
@@ -323,5 +281,11 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
 		policyDocumentRepository.deleteById(policyId);
 		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
+	}
+
+	private void assertPolicyBelongsToSite(String siteId, Optional<PolicyDocument> policyDocument) {
+		if (policyDocument.isEmpty() || !policyDocument.get().siteId.equals(siteId)) {
+			throw new IllegalArgumentException("Policy doesn't belongs to Site.");
+		}
 	}
 }

@@ -41,3 +41,6 @@ The typical way to distribute credits starts at the Fenix administrator dashboar
 
 The other way to create allocations from credits is to start from a target community, in the Communities view. After selecting a community and navigating to its _Allocations_ tab, Fenix administrator can create an allocation for that community. When creating allocation this way, the resource credit needs to be selected. Interface allows for using multiple level of filters to easily find the desired credit.    
 
+=== REST API access credentials
+
+include::rest-api-access.adoc[]

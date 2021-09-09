@@ -7,6 +7,7 @@ package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import io.imunity.furms.utils.UTCTimeUtils;
@@ -34,7 +35,7 @@ class ProjectsRestService {
 	}
 
 	List<Project> findAll() {
-		return projectService.findAll().stream()
+		return projectService.findAllByCurrentUserId().stream()
 				.map(converter::convert)
 				.collect(toList());
 	}
@@ -66,7 +67,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeaderId))
+				.leaderId(converter.convertToPersistentId(new FenixUserId(request.projectLeaderId)))
 				.build());
 
 		return projectService.findById(projectId)
@@ -84,7 +85,7 @@ class ProjectsRestService {
 				.researchField(request.researchField)
 				.utcStartTime(UTCTimeUtils.convertToUTCTime(request.validity.from))
 				.utcEndTime(UTCTimeUtils.convertToUTCTime(request.validity.to))
-				.leaderId(new PersistentId(request.projectLeaderId))
+				.leaderId(converter.convertToPersistentId(new FenixUserId(request.projectLeaderId)))
 				.build());
 
 		return projectService.findById(projectId)

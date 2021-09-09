@@ -9,11 +9,14 @@ import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.StreamResource;
@@ -43,11 +46,14 @@ import java.util.UUID;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
+@CssImport(value = "./styles/views/user/user-policy.css", themeFor = "vaadin-grid")
 public class PolicyDocumentsView extends FurmsViewComponent {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final PolicyDocumentService policyDocumentService;
@@ -82,9 +88,14 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
+		grid.setClassNameGenerator(x -> x.utcAcceptedTime.isPresent() ? "usual-row" : "light-red-row");
 
-		loadGridContent();
 		getContent().add(layout, grid);
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		loadGridContent();
 	}
 
 	private Label getTooltipName(PolicyDocumentExtended policyDocument) {
@@ -119,8 +130,14 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build();
-			policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);
-			loadGridContent();
+			try {
+				policyDocumentService.addCurrentUserPolicyAcceptance(policyAcceptance);
+				loadGridContent();
+				showSuccessNotification(getTranslation("view.user-settings.policy-documents.accepted.message"));
+			} catch (Exception e){
+				showErrorNotification(getTranslation("base.error.message"));
+				throw e;
+			}
 		});
 		return iconApproveButton;
 	}

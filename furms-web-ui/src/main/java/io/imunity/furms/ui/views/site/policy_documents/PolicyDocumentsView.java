@@ -18,7 +18,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -127,10 +126,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnWithoutContextMenu(PolicyDocumentGridModel model) {
-		if(model.workflow.equals(PolicyWorkflow.PAPER_BASED))
 			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), acceptanceView));
-		else
-			return new HorizontalLayout();
 	}
 
 	private Component createContextMenu(PolicyId policyDocumentId, String policyDocumentName, String siteId) {

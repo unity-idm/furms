@@ -179,8 +179,10 @@ class ProjectEntity extends UUIDIdentifiable {
 		}
 
 		public ProjectEntityBuilder logo(FurmsImage furmsImage) {
-			this.logoImage = furmsImage.getImage();
-			this.logoType = furmsImage.getType();
+			if (furmsImage != null) {
+				this.logoImage = furmsImage.getImage();
+				this.logoType = furmsImage.getType();
+			}
 			return this;
 		}
 

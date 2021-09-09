@@ -10,11 +10,10 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
-import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,9 +23,9 @@ public interface PolicyDocumentService {
 
 	Set<PolicyDocument> findAll();
 
-	Set<PolicyDocument> findAllBySiteId(String siteId);
+	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);
 
-	List<FURMSUser> findAllUsersWithoutCurrentRevisionPolicyAcceptance(String siteId, PolicyId policyId);
+	Set<PolicyDocument> findAllBySiteId(String siteId);
 
 	Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId);
 

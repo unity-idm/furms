@@ -128,6 +128,9 @@ public class Site {
 		private Integer sshKeyHistoryLength;
 		private PolicyId policyId = PolicyId.empty();
 
+		private SiteBuilder() {
+		}
+
 		public SiteBuilder id(String id) {
 			this.id = id;
 			return this;
