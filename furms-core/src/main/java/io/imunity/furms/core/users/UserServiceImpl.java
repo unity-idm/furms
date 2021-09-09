@@ -144,6 +144,7 @@ class UserServiceImpl implements UserService {
 			);
 		} catch (Exception e){
 			usersDAO.removeFenixAdminInvitation(invitationCode);
+			throw e;
 		}
 	}
 

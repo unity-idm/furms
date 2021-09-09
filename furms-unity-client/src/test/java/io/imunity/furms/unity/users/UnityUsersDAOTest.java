@@ -9,13 +9,18 @@ import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import pl.edu.icm.unity.types.basic.Attribute;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,13 +34,14 @@ public class UnityUsersDAOTest {
 	public void shouldParseRootAttributes() {
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
+		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"),
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "string", "/", List.of("val1")))));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -48,6 +54,7 @@ public class UnityUsersDAOTest {
 	public void shouldParseCommunityResourceAttributes() {
 		UUID id = UUID.randomUUID();
 		String idStr = id.toString();
+		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
@@ -58,7 +65,7 @@ public class UnityUsersDAOTest {
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
 					"/fenix/communities/" + id, "/fenix/communities/" + id + "/users"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -72,6 +79,7 @@ public class UnityUsersDAOTest {
 		UUID id = UUID.randomUUID();
 		UUID idC = UUID.randomUUID();
 		String idStr = id.toString();
+		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
@@ -85,7 +93,7 @@ public class UnityUsersDAOTest {
 					"/fenix/communities/" + idC + "/projects",
 					"/fenix/communities/" + idC + "/projects/" + id, 
 					"/fenix/communities/" + idC + "/projects/" + id + "/users"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -99,6 +107,7 @@ public class UnityUsersDAOTest {
 	public void shouldAppendGroupsWithoutAttributes() {
 		UUID id = UUID.randomUUID();
 		String idStr = id.toString();
+		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
@@ -108,7 +117,7 @@ public class UnityUsersDAOTest {
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
 					"/fenix/communities/" + id));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -121,6 +130,7 @@ public class UnityUsersDAOTest {
 	public void shouldConvertEmailAttribute() {
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
+		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "verifiableEmail", "/", 
@@ -128,7 +138,7 @@ public class UnityUsersDAOTest {
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService);
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		

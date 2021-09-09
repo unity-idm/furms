@@ -62,15 +62,15 @@ try
 
 void initRegistrationForms()
 {
-	RegistrationForm form = createRegistrationForm()
-	form.setTranslationProfile(
+	RegistrationForm fenixAdminForm = createRegistrationForm()
+	fenixAdminForm.setTranslationProfile(
 			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
 					new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[])),
 					new TranslationRule("true", new TranslationAction("addToGroup", "'/fenix/users'")),
 					new TranslationRule("true", new TranslationAction("addAttribute", ["furmsFenixRole", "/fenix/users", "['ADMIN']"] as String[]))
 			])
 	)
-	registrationsManagement.addForm(form)
+	registrationsManagement.addForm(fenixAdminForm)
 }
 
 private RegistrationForm createRegistrationForm() {
@@ -79,7 +79,7 @@ private RegistrationForm createRegistrationForm() {
 	identityParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 
 	def registrationFormNotifications = new RegistrationFormNotifications()
-	registrationFormNotifications.setInvitationTemplate('registrationFormAcceptance')
+	registrationFormNotifications.setInvitationTemplate('registrationInvitation')
 
 	def form = new RegistrationFormBuilder()
 			.withName("fenixAdminForm")
@@ -88,7 +88,7 @@ private RegistrationForm createRegistrationForm() {
 			.withAutoLoginToRealm('main')
 			.withDefaultCredentialRequirement("user password")
 			.withNotificationsConfiguration(registrationFormNotifications)
-			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('oauth', 'registration')]))
+			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('registration', 'registration')]))
 			.build()
 	form.setIdentityParams([identityParam])
 
@@ -127,7 +127,7 @@ private RegistrationForm createRegistrationForm() {
 					new I18nString("You can log in now."),
 					new I18nString("Continue"),
 					true,
-					'https://localhost:3443/front/start/registration/role/chooser',
+					'https://localhost:3443/publi/registration',
 					Duration.ofSeconds(5)
 			),
 			new RegistrationWrapUpConfig(

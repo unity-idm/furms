@@ -6,7 +6,6 @@
 package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -23,11 +22,9 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,7 +58,6 @@ import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS_MULTI;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -88,35 +84,6 @@ public class UserService {
 		unityClient.post(path, null, encodedParams);
 	}
 
-	public String createInvitation(String email, Instant expiration){
-		RegistrationInvitationParam fenixAdminForm = new RegistrationInvitationParam("fenixAdminForm", expiration, email);
-		return unityClient.post("/invitation", fenixAdminForm, emptyMap(), new ParameterizedTypeReference<>(){});
-	}
-
-	public InvitationCode findInvitationCode(String registrationId){
-		String invitationCode = (String) unityClient.get("/registrationRequest/" + registrationId, new ParameterizedTypeReference<Map<String, Object>>() {
-		})
-			.get("RegistrationCode");
-		return new InvitationCode(invitationCode);
-	}
-
-	public void sendInvitation(String code){
-		String path = UriComponentsBuilder.newInstance()
-			.path("/invitation/{code}/send")
-			.buildAndExpand(Map.of("code", code))
-			.encode()
-			.toUriString();
-		unityClient.post(path);
-	}
-
-	public void removeInvitation(String code) {
-		String path = UriComponentsBuilder.newInstance()
-			.path("/invitation/{code}")
-			.buildAndExpand(Map.of("code", code))
-			.encode()
-			.toUriString();
-		unityClient.delete(path, Map.of());
-	}
 
 	private String prepareGroupRequestPath(PersistentId userId, String group) {
 		Map<String, String> uriVariables = Map.of(GROUP_PATH, group, ID, userId.id);

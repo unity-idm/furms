@@ -11,11 +11,11 @@ import io.imunity.furms.domain.users.UserEvent;
 
 import java.util.Objects;
 
-public class AcceptInvitationUserEvent implements UserEvent {
+public class InvitationAcceptedEvent implements UserEvent {
 	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public AcceptInvitationUserEvent(PersistentId id, ResourceId resourceId) {
+	public InvitationAcceptedEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}
@@ -29,7 +29,7 @@ public class AcceptInvitationUserEvent implements UserEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AcceptInvitationUserEvent userEvent = (AcceptInvitationUserEvent) o;
+		InvitationAcceptedEvent userEvent = (InvitationAcceptedEvent) o;
 		return Objects.equals(id, userEvent.id) &&
 			Objects.equals(resourceId, userEvent.resourceId);
 	}

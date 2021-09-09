@@ -8,7 +8,7 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.invitations.InvitationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.invitations.AcceptInvitationUserEvent;
+import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
@@ -76,7 +76,7 @@ class InvitationServiceImpl implements InvitationService {
 				break;
 		}
 		invitationRepository.deleteBy(invitation.id);
-		publisher.publishEvent(new AcceptInvitationUserEvent(user.id.get(), invitation.resourceId));
+		publisher.publishEvent(new InvitationAcceptedEvent(user.id.get(), invitation.resourceId));
 	}
 
 	@Override

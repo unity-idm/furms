@@ -15,6 +15,7 @@ import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.UnityGroupParser;
@@ -54,10 +55,12 @@ class UnityUsersDAO implements UsersDAO {
 
 	private final UnityClient unityClient;
 	private final UserService userService;
+	private final InvitationDAO invitationDAO;
 
-	UnityUsersDAO(UnityClient unityClient, UserService userService) {
+	UnityUsersDAO(UnityClient unityClient, UserService userService, InvitationDAO invitationDAO) {
 		this.unityClient = unityClient;
 		this.userService = userService;
+		this.invitationDAO = invitationDAO;
 	}
 
 	@Override
@@ -72,24 +75,24 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration) {
-		String code = userService.createInvitation(email, invitationExpiration);
-		userService.sendInvitation(code);
+		String code = invitationDAO.createInvitation(email, invitationExpiration);
+		invitationDAO.sendInvitation(code);
 		return new InvitationCode(code);
 	}
 
 	@Override
 	public InvitationCode findByRegistrationId(String registrationId) {
-		return userService.findInvitationCode(registrationId);
+		return invitationDAO.findInvitationCode(registrationId);
 	}
 
 	@Override
 	public void removeFenixAdminInvitation(InvitationCode invitationCode) {
-		userService.removeInvitation(invitationCode.code);
+		invitationDAO.removeInvitation(invitationCode.code);
 	}
 
 	@Override
 	public void resendFenixAdminInvitation(InvitationCode invitationCode) {
-		userService.sendInvitation(invitationCode.code);
+		invitationDAO.sendInvitation(invitationCode.code);
 	}
 
 	@Override
