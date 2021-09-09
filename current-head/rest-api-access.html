@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Fenix federation management</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,114 +437,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="book toc2 toc-left">
+<body class="book">
 <div id="header">
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#fenix-federation-management">Fenix federation management</a>
-<ul class="sectlevel2">
-<li><a href="#managing-sites">Managing sites</a></li>
-<li><a href="#managing-communities">Managing communities</a></li>
-<li><a href="#managing-fenix-administrators">Managing Fenix administrators</a></li>
-<li><a href="#distributing-resources-to-communities">Distributing resources to communities</a></li>
-<li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="fenix-federation-management"><a class="anchor" href="#fenix-federation-management"></a>Fenix federation management</h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="paragraph">
-<p>Fenix administrator is responsible for:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>creating sites,</p>
-</li>
-<li>
-<p>creating communities,</p>
-</li>
-<li>
-<p>distributing site provided resource credits to communities.</p>
-</li>
-</ul>
-</div>
-<div class="sect2">
-<h3 id="managing-sites"><a class="anchor" href="#managing-sites"></a>Managing sites</h3>
-<div class="paragraph">
-<p>Fenix admin can create sites providing only the basic information: site name. Additional site attributes are supposed to be setup by the site admin.</p>
-</div>
-<div class="paragraph">
-<p>After creating a site, Fenix admin should provide at least a single administrator for the site. The appropriate view can be activated from the site&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove site administrators.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Site administrators can also themselves manage administrators of their site, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial site admin must be always performed by the Fenix admin.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-communities"><a class="anchor" href="#managing-communities"></a>Managing communities</h3>
-<div class="paragraph">
-<p>Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.</p>
-</div>
-<div class="paragraph">
-<p>After creating a community, Fenix admin should provide at least a single administrator for it. The appropriate view can be activated from the community&#8217;s context menu "Administrators". From there the Fenix admin can freely add and remove community administrators.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Community administrators can also themselves manage administrators of their community, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial community admin must be always performed by the Fenix admin.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>{versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-fenix-administrators"><a class="anchor" href="#managing-fenix-administrators"></a>Managing Fenix administrators</h3>
-<div class="paragraph">
-<p>FURMS allows for having multiple users with the Fenix administrator role. Each Fenix admin can add (and remove) other administrators from the "Fenix administrators" view.</p>
-</div>
-<div class="paragraph">
-<p>{versionlimit} Adding Fenix administrators is currently limited to users who has signed in to FURMS at least once.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="distributing-resources-to-communities"><a class="anchor" href="#distributing-resources-to-communities"></a>Distributing resources to communities</h3>
-<div class="paragraph">
-<p>Distribution of resource credits provided by sites can be performed from two parts of the FURMS user interface.</p>
-</div>
-<div class="paragraph">
-<p>The typical way to distribute credits starts at the Fenix administrator dashboard. Dashboard shows all resource credits. By default only the not-fully distributed and valid credits are shown, though it is possible to show also all excluded ones. Fenix admin can use the (+) button on each credit to create an allocation from it. When creating allocation this way, the target community has to be selected.</p>
-</div>
-<div class="paragraph">
-<p>The other way to create allocations from credits is to start from a target community, in the Communities view. After selecting a community and navigating to its <em>Allocations</em> tab, Fenix administrator can create an allocation for that community. When creating allocation this way, the resource credit needs to be selected. Interface allows for using multiple level of filters to easily find the desired credit.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="rest-api-access-credentials"><a class="anchor" href="#rest-api-access-credentials"></a>REST API access credentials</h3>
 <div class="paragraph">
 <p>To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against <a href="./openapi-static.html">FURMS REST API</a> endpoints.</p>
 </div>
@@ -561,7 +459,6 @@ Community administrators can also themselves manage administrators of their comm
 </div>
 <div class="paragraph">
 <p>Note that the generated key is bound to a user, so a user who has multiple roles (e.g. admin of a site and a project) should use the same token, regardless of the role. The generated credential is authorized to perform the same operations as its owner.</p>
-</div>
 </div>
 </div>
 </div>
