@@ -49,7 +49,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final AuthzService authzService;
 	private final NotificationDAO notificationDAO;
 	private final ApplicationEventPublisher publisher;
-	private final PolicyDocumentServiceHelper policyDocumentService;
+	private final UserPoliciesDocumentsServiceHelper policyDocumentService;
 	private final UserOperationService userOperationService;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
@@ -58,7 +58,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	                          AuthzService authzService,
 	                          NotificationDAO notificationDAO,
 	                          ApplicationEventPublisher publisher,
-	                          PolicyDocumentServiceHelper policyDocumentService,
+	                          UserPoliciesDocumentsServiceHelper policyDocumentService,
 	                          UserOperationService userOperationService) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
@@ -98,14 +98,21 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 
 		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
+		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.fenixUserId, grantId.toString());
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
+		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
+	}
+
+	private UUID createGrant(GrantAccess grantAccess, CorrelationId correlationId, Optional<UserStatus> userAdditionStatus) {
 		UUID grantId;
-		if(isUserProvided(userAdditionStatus)){
+		if(isUserProvisioned(userAdditionStatus)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
 			runAfterCommit(() ->
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		else if (policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id) && userAdditionStatus.isEmpty()) {
+		else if (userAdditionStatus.isEmpty() && hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
 			userOperationService.createUserAdditions(
 				grantAccess.siteId,
@@ -116,13 +123,16 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		else {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
 		}
-		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.fenixUserId, grantId.toString());
-		publisher.publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
-		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
+		return grantId;
 	}
 
-	private boolean isUserProvided(Optional<UserStatus> userAdditionStatus) {
-		return !(userAdditionStatus.isEmpty() || userAdditionStatus.get().equals(UserStatus.ADDING_PENDING) || userAdditionStatus.get().equals(UserStatus.ADDING_ACKNOWLEDGED));
+	private boolean hasUserSitePolicyAcceptanceOrSiteHasntPolicy(GrantAccess grantAccess) {
+		return policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id)
+			|| !policyDocumentService.hasSitePolicy(grantAccess.siteId.id);
+	}
+
+	private boolean isUserProvisioned(Optional<UserStatus> userAdditionStatus) {
+		return userAdditionStatus.isPresent() && userAdditionStatus.get().isInstalled();
 	}
 
 	@Override

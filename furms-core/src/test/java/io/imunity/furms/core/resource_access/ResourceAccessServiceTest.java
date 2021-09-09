@@ -62,7 +62,7 @@ class ResourceAccessServiceTest {
 	@Mock
 	private NotificationDAO notificationDAO;
 	@Mock
-	private PolicyDocumentServiceHelper policyDocumentService;
+	private UserPoliciesDocumentsServiceHelper policyDocumentService;
 	@Mock
 	private UserOperationService userOperationService;
 
@@ -177,6 +177,43 @@ class ResourceAccessServiceTest {
 	}
 
 	@Test
+	void shouldGrantAccessForNonInstalledUserWithSiteWithoutPolicy() {
+		UUID grantId = UUID.randomUUID();
+		FenixUserId fenixUserId = new FenixUserId("userId");
+		SiteId siteId = new SiteId("siteId", "externalId");
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(siteId)
+			.projectId("projectId")
+			.fenixUserId(fenixUserId)
+			.build();
+		FURMSUser user = FURMSUser.builder()
+			.fenixUserId(fenixUserId)
+			.email("email")
+			.build();
+		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
+
+		//when
+		when(repository.exists(grantAccess)).thenReturn(false);
+		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
+		when(policyDocumentService.hasUserSitePolicyAcceptance(fenixUserId, "siteId")).thenReturn(true);
+		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(false);
+		when(policyDocumentService.getUserPolicyAcceptancesWithServicePolicies("siteId", fenixUserId)).thenReturn(userPolicyAcceptancesWithServicePolicies);
+
+		service.grantAccess(grantAccess);
+		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
+			.getSynchronizations()) {
+			transactionSynchronization.afterCommit();
+		}
+
+		//then
+		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
+		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", userPolicyAcceptancesWithServicePolicies);
+		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies(fenixUserId, grantId.toString());
+		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
+	}
+
+	@Test
 	void shouldGrantAccessForInstallingUser() {
 		UUID grantId = UUID.randomUUID();
 		FenixUserId fenixUserId = new FenixUserId("userId");
@@ -190,6 +227,7 @@ class ResourceAccessServiceTest {
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(true);
 
 		service.grantAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager

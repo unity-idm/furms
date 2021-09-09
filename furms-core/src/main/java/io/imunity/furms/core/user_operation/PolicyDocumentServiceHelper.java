@@ -26,7 +26,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
 import static java.util.stream.Collectors.toSet;
 
-@Service("UserOperationPolicyDocumentServiceHelper")
+@Service
 class PolicyDocumentServiceHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(PolicyDocumentServiceHelper.class);
 

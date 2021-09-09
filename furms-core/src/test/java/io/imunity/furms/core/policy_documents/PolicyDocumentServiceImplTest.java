@@ -402,10 +402,7 @@ class PolicyDocumentServiceImplTest {
 			.externalId(new SiteExternalId("id"))
 			.build();
 		SiteId siteId = new SiteId("siteId");
-		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(siteId)
-			.projectId("projectId")
-			.build();
+
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
@@ -413,7 +410,7 @@ class PolicyDocumentServiceImplTest {
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
+		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of());
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
