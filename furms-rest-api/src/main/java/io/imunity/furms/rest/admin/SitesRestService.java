@@ -18,6 +18,9 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
@@ -33,16 +36,25 @@ import org.springframework.util.StringUtils;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
 import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static java.util.Optional.*;
+import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -160,17 +172,58 @@ class SitesRestService {
 	}
 
 	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllUsersPolicyAcceptances(siteId)).stream()
-				.filter(policyAcceptances -> policyAcceptances.user.fenixUserId.isPresent())
-				.flatMap(this::createPolicyAcceptances)
-				.collect(toList());
+		Set<UserPolicyAcceptances> allUsersPolicyAcceptances = policyDocumentService.findAllUsersPolicyAcceptances(siteId);
+		Map<FenixUserId, Map<PolicyId, io.imunity.furms.domain.policy_documents.PolicyAcceptance>> lastPoliciesAcceptanceByUserIdAndPolicyId = allUsersPolicyAcceptances.stream()
+			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
+			.collect(groupingBy(
+				userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.get(),
+				flatMapping(
+					userPolicyAcceptances -> userPolicyAcceptances.policyAcceptances.stream(),
+					toMap(
+						policyAcceptance -> policyAcceptance.policyDocumentId,
+						Function.identity(),
+						BinaryOperator.maxBy(Comparator.comparing(policyAcceptance -> policyAcceptance.policyDocumentRevision))
+					))
+			));
+		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllUsersPolicies(siteId)).entrySet().stream()
+			.flatMap(entry -> entry.getValue().stream()
+				.map(policy -> {
+					FenixUserId fenixUserId = entry.getKey();
+					return getPolicyAcceptance(
+						policy,
+						fenixUserId,
+						ofNullable(lastPoliciesAcceptanceByUserIdAndPolicyId.get(fenixUserId))
+							.map(map -> map.get(policy.id))
+							.orElse(null)
+					);
+				}))
+			.collect(toList());
+	}
+
+	private PolicyAcceptance getPolicyAcceptance(PolicyDocument policy, FenixUserId fenixUserId, io.imunity.furms.domain.policy_documents.PolicyAcceptance lastPolicyAcceptance) {
+		if (lastPolicyAcceptance != null) {
+			return PolicyAcceptance.builder()
+				.policyId(policy.id.id.toString())
+				.revision(policy.revision)
+				.acceptedRevision(lastPolicyAcceptance.policyDocumentRevision)
+				.fenixUserId(fenixUserId)
+				.acceptanceStatus(lastPolicyAcceptance.policyDocumentRevision == policy.revision ? ACCEPTED : ACCEPTED_FORMER_REVISION)
+				.decisionTs(lastPolicyAcceptance.decisionTs)
+				.build();
+		}
+		return PolicyAcceptance.builder()
+			.policyId(policy.id.id.toString())
+			.revision(policy.revision)
+			.fenixUserId(fenixUserId)
+			.acceptanceStatus(NOT_ACCEPTED)
+			.build();
 	}
 
 	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId, AcceptanceStatus status) {
 		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
 				.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
 				.policyDocumentRevision(0)
-				.acceptanceStatus(status.policyAcceptanceStatus)
+				.acceptanceStatus(PolicyAcceptanceStatus.ACCEPTED)
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build());
 		return findAllPoliciesAcceptances(siteId);
@@ -276,11 +329,6 @@ class SitesRestService {
 		return site.getPolicyId() == null || site.getPolicyId().id == null
 				? null
 				: site.getPolicyId().id.toString();
-	}
-
-	private Stream<PolicyAcceptance> createPolicyAcceptances(UserPolicyAcceptances userInfo) {
-		return userInfo.policyAcceptances.stream()
-				.map(policyAcceptance -> new PolicyAcceptance(policyAcceptance, userInfo.user.fenixUserId.get()));
 	}
 
 	private ProjectAllocationResolved findAllocation(String projectAllocationId, Set<ProjectAllocationResolved> allocations) {

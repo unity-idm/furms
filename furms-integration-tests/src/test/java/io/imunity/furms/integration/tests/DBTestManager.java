@@ -51,6 +51,7 @@ public abstract class DBTestManager {
 	@Autowired protected AccessTokenRepository accessTokenRepository;
 	@Autowired protected UserOperationRepository userOperationRepository;
 	@Autowired protected UserApiKeyRepository userApiKeyRepository;
+	@Autowired protected ResourceAccessRepository resourceAccessDatabaseRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;

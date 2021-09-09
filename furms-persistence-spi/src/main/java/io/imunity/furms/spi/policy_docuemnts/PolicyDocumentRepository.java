@@ -14,6 +14,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -24,6 +25,8 @@ public interface PolicyDocumentRepository {
 	Optional<PolicyDocument> findByUserGrantId(String userGrantId);
 
 	Set<PolicyDocument> findAll();
+
+	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);
 
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 

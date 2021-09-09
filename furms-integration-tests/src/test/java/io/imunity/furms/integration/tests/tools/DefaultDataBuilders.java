@@ -172,7 +172,7 @@ public class DefaultDataBuilders {
 				.name("Default Service Name")
 				.description("Default Service Description")
 				.siteId(UUID.randomUUID().toString())
-				.policyId(new PolicyId(UUID.randomUUID()));
+				.policyId(PolicyId.empty());
 	}
 
 	public static PolicyDocument.PolicyDocumentBuilder defaultPolicy() {

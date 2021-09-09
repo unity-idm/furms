@@ -109,6 +109,13 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
+		LOG.debug("Getting all user's Policy Document for site id={}", siteId);
+		return policyDocumentRepository.findAllUsersPolicies(siteId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<PolicyDocument> findAllBySiteId(String siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllBySiteId(siteId);
