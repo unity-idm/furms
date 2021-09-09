@@ -22,32 +22,39 @@
         <graalvm.version>21.2.0</graalvm.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.oracle.substratevm</groupId>
-                <artifactId>native-image-maven-plugin</artifactId>
-                <version>19.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>native-image</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>false</skip>
-                    <imageName>furms</imageName>
-                    <mainClass>io.imunity.furms.cli.CLIApplication</mainClass>
-                    <buildArgs>
-                        --no-fallback
-                        --allow-incomplete-classpath
-                    </buildArgs>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.oracle.substratevm</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <version>19.2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <skip>false</skip>
+                            <imageName>furms</imageName>
+                            <mainClass>io.imunity.furms.cli.CLIApplication</mainClass>
+                            <buildArgs>
+                                --no-fallback
+                                --allow-incomplete-classpath
+                                -H:ReflectionConfigurationFiles=classes/logback-extra.json
+                                -H:IncludeResources=.*
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -57,23 +64,34 @@
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
-            <artifactId>picocli-spring-boot-starter</artifactId>
-            <version>4.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>info.picocli</groupId>
             <artifactId>picocli-codegen</artifactId>
             <version>4.6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <!-- Web -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
 
         <dependency>
@@ -87,8 +105,6 @@
             <version>2.27.2</version>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
 </project>

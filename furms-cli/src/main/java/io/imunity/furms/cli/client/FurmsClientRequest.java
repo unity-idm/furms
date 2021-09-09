@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -41,6 +42,29 @@ public class FurmsClientRequest {
 				.queryParams(queryParams)
 				.build(pathParams.toArray(String[]::new))
 				.toString();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		FurmsClientRequest that = (FurmsClientRequest) o;
+		return Objects.equals(path, that.path) && Objects.equals(body, that.body) && Objects.equals(pathParams, that.pathParams) && Objects.equals(queryParams, that.queryParams);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(path, body, pathParams, queryParams);
+	}
+
+	@Override
+	public String toString() {
+		return "Request{" +
+				"path='" + path + '\'' +
+				", body='" + body + '\'' +
+				", pathParams=" + pathParams +
+				", queryParams=" + queryParams +
+				'}';
 	}
 
 	public static FurmsClientRequestBuilder path(String path) {

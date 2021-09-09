@@ -11,6 +11,7 @@ public class FurmsClientBuilder {
 	private String apiKey;
 	private String trustStore;
 	private String trustStorePassword;
+	private boolean silentMode;
 
 	FurmsClientBuilder() {
 	}
@@ -40,7 +41,12 @@ public class FurmsClientBuilder {
 		return this;
 	}
 
+	public FurmsClientBuilder silentMode(boolean silentMode) {
+		this.silentMode = silentMode;
+		return this;
+	}
+
 	public FurmsClient build() {
-		return new FurmsClient(url, username, apiKey, trustStore, trustStorePassword);
+		return new FurmsClient(url, username, apiKey, trustStore, trustStorePassword, silentMode);
 	}
 }

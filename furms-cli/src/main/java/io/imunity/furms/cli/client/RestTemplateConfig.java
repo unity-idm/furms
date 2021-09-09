@@ -8,9 +8,9 @@ package io.imunity.furms.cli.client;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.net.ssl.SSLContext;
 import java.util.Base64;
@@ -36,7 +36,7 @@ public class RestTemplateConfig {
 
 		final RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
-		restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(url + FURMS_REST_BASE_PATH));
+		restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(url + FURMS_REST_BASE_PATH));
 
 		restTemplate.getInterceptors().add((request, bytes, execution) -> {
 			request.getHeaders().add(AUTHORIZATION, createAuthorizationKey(username, apiKey));

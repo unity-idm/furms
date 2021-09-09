@@ -6,14 +6,12 @@
 package io.imunity.furms.cli.command.site;
 
 import io.imunity.furms.cli.command.FurmsCommand;
-import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
-@Component
 @Command(name = "policy",
 		subcommands = {
 				SitePolicyCommand.List.class,

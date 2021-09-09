@@ -22,18 +22,21 @@ import static org.springframework.http.HttpMethod.PUT;
 
 
 public class FurmsClient {
-	protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	protected final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final RestTemplate webClient;
 	private final ObjectMapper objectMapper;
+	private final boolean silentMode;
 
 	FurmsClient(String url,
 	            String username,
-                String apiKey,
-                String trustStore,
-                String trustStorePassword) {
+	            String apiKey,
+	            String trustStore,
+	            String trustStorePassword,
+	            boolean silentMode) {
 		this.webClient = createClient(url, username, apiKey, trustStore, trustStorePassword);
 		this.objectMapper = new ObjectMapper();
+		this.silentMode = silentMode;
 	}
 
 	public static FurmsClientBuilder builder() {
@@ -41,6 +44,7 @@ public class FurmsClient {
 	}
 
 	public void get(FurmsClientRequest request) {
+		LOG.debug("Executing {} with client {}", request, webClient);
 		of(webClient
 				.getForEntity(request.getPath(), String.class))
 				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
@@ -48,18 +52,21 @@ public class FurmsClient {
 	}
 
 	public void post(FurmsClientRequest request) {
+		LOG.debug("Executing {} with client {}", request, webClient);
 		of(webClient
 				.exchange(request.getPath(), POST, entity(request.getBody()), String.class))
 				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
 	}
 
 	public void put(FurmsClientRequest request) {
+		LOG.debug("Executing {} with client {}", request, webClient);
 		of(webClient
 				.exchange(request.getPath(), PUT, entity(request.getBody()), String.class))
 				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
 	}
 
 	public void delete(FurmsClientRequest request) {
+		LOG.debug("Executing {} with client {}", request, webClient);
 		of(webClient
 				.exchange(request.getPath(), DELETE, entity(request.getBody()), String.class))
 				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
@@ -72,11 +79,18 @@ public class FurmsClient {
 	private void printResponse(ResponseEntity<String> response) {
 		try {
 			final Object object = objectMapper.readValue(response.getBody(), Object.class);
-			LOG.info("Response: {}\n{}",
-					response.getStatusCode(),
-					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Response: {}", response);
+			} else {
+				LOG.info("Response: {}\n{}",
+						response.getStatusCode(),
+						objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			}
+			if (silentMode) {
+				System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			}
 		} catch (Exception e) {
-			LOG.error("Unable to parse and print response: {}", response.getBody());
+			LOG.error("Unable to parse and print response: {}", response);
 		}
 	}
 
