@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.fenix.administrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
@@ -52,7 +54,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.withResendInvitationAction(userService::resendFenixAdminInvitation)
 			.withRemoveInvitationAction(code -> {
 				userService.removeFenixAdminInvitation(code);
-				inviteUser.reload();
+				gridReload();
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
@@ -63,6 +65,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		getContent().add(headerLayout, inviteUser, grid);
 	}
 
+	private void gridReload() {
+		grid.reloadGrid();
+	}
+
 	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
 			inviteUserComponent.getUserId().ifPresentOrElse(
@@ -70,7 +76,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				() -> userService.inviteFenixAdmin(inviteUserComponent.getEmail())
 			);
 			inviteUserComponent.reload();
-			grid.reloadGrid();
+			showSuccessNotification(getTranslation("view.fenix-admin.invite.successful.added"));
+			gridReload();
+		} catch (DuplicatedInvitationError e) {
+				showErrorNotification(getTranslation("view.fenix-admin.invite.error.duplicate"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);

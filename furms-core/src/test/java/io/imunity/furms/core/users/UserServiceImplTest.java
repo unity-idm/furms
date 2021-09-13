@@ -5,29 +5,21 @@
 
 package io.imunity.furms.core.users;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
-import static io.imunity.furms.domain.users.UserStatus.ENABLED;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.core.invitations.InvitationInternalService;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserRecord;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,14 +27,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserAttributes;
-import io.imunity.furms.domain.users.UserRecord;
-import io.imunity.furms.spi.users.UsersDAO;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -58,21 +55,19 @@ class UserServiceImplTest {
 	private MembershipResolver resolver;
 	@Mock
 	private UserAllocationsService userAllocationsService;
+	@Mock
+	private InvitationInternalService invitationInternalService;
 
 	@Test
 	void shouldAllowToInviteUser() {
 		// given
 		PersistentId id = new PersistentId("userId");
-		when(usersDAO.findById(eq(id)))
-				.thenReturn(Optional.of(FURMSUser.builder().id(id).email("email").build()));
 
 		// when
 		service.inviteFenixAdmin(id);
 
 		// then
-		verify(usersDAO, times(1)).addFenixAdminRole(eq(id));
-		verify(publisher, times(1))
-				.publishEvent(new InviteUserEvent(id, new ResourceId((String) null, APP_LEVEL)));
+		verify(invitationInternalService, times(1)).inviteUser(id, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
 	}
 
 	@Test

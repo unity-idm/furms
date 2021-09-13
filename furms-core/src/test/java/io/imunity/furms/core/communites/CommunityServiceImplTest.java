@@ -9,9 +9,12 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.communities.*;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CreateCommunityEvent;
+import io.imunity.furms.domain.communities.RemoveCommunityEvent;
+import io.imunity.furms.domain.communities.UpdateCommunityEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -28,14 +31,21 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CommunityServiceImplTest {
 	@Mock
@@ -213,7 +223,6 @@ class CommunityServiceImplTest {
 		//then
 		verify(communityGroupsDAO, times(1)).addAdmin(communityId, userId);
 		verify(communityGroupsDAO, times(1)).addAdmin(communityId, userId);
-		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test
@@ -239,7 +248,6 @@ class CommunityServiceImplTest {
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeAdmin(communityId, userId));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent(new PersistentId("id"), new ResourceId(communityId, COMMUNITY))));
 	}
 
 	@Test

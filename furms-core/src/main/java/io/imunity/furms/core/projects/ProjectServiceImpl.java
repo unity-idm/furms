@@ -14,6 +14,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.projects.CreateProjectEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
@@ -21,7 +22,6 @@ import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.projects.RemoveProjectEvent;
 import io.imunity.furms.domain.projects.UpdateProjectEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,7 +52,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 import static java.util.stream.Collectors.toSet;
@@ -247,7 +245,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void addAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -258,7 +255,7 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
 		}
 		projectGroupsDAO.addProjectUser(communityId, projectId, user.get().id.orElse(null), PROJECT_ADMIN);
-		publisher.publishEvent(new InviteUserEvent(user.get().id.orElse(null), new ResourceId(projectId, PROJECT)));
+		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.orElse(null), new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -291,7 +288,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override
@@ -303,7 +299,7 @@ class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		projectGroupsDAO.addProjectUser(communityId, projectId, user.get().id.orElse(null), PROJECT_USER);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(projectId, PROJECT)));
+		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.get(), new ResourceId(projectId, PROJECT)));
 	}
 
 	@Override

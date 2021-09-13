@@ -127,7 +127,7 @@ private RegistrationForm createRegistrationForm() {
 					new I18nString("You can log in now."),
 					new I18nString("Continue"),
 					true,
-					'https://localhost:3443/publi/registration',
+					'https://localhost:3443/public/registration',
 					Duration.ofSeconds(5)
 			),
 			new RegistrationWrapUpConfig(

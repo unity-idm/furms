@@ -50,7 +50,7 @@ class EmailNotificationDAOTest {
 
 	@BeforeEach
 	void setUp() {
-		EmailNotificationProperties emailNotificationProperties = new EmailNotificationProperties("policyAcceptanceNew", "policyAcceptanceRevision", furmsServerBaseURL);
+		EmailNotificationProperties emailNotificationProperties = new EmailNotificationProperties("policyAcceptanceNew", "policyAcceptanceRevision", "newInvitation", furmsServerBaseURL);
 		emailNotificationDAO = new EmailNotificationDAO(userService, policyDocumentDAO, policyDocumentRepository, emailNotificationProperties, publisher);
 	}
 

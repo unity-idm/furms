@@ -15,7 +15,7 @@ CREATE TABLE invitation (
     resource_type INT NOT NULL,
     code VARCHAR(255),
     expired_at TIMESTAMP NOT NULL,
-    CONSTRAINT user_id_resource_id_invitation_unique UNIQUE (resource_id, user_id),
+    CONSTRAINT user_id_resource_id_invitation_unique UNIQUE (resource_id, user_id, role_value),
     CONSTRAINT user_id_code_invitation_unique UNIQUE (user_id, code),
     CONSTRAINT invitation_consistency CHECK (user_id IS NOT NULL OR code IS NOT NULL)
 );

@@ -42,7 +42,9 @@ class InvitationServiceImpl implements InvitationService {
 	private final ProjectRepository projectRepository;
 	private final ApplicationEventPublisher publisher;
 
-	InvitationServiceImpl(InvitationRepository invitationRepository, AuthzService authzService, UsersDAO usersDAO, SiteGroupDAO siteGroupDAO, CommunityGroupsDAO communityGroupsDAO, ProjectGroupsDAO projectGroupsDAO, ProjectRepository projectRepository, ApplicationEventPublisher publisher) {
+	InvitationServiceImpl(InvitationRepository invitationRepository, AuthzService authzService, UsersDAO usersDAO,
+	                      SiteGroupDAO siteGroupDAO, CommunityGroupsDAO communityGroupsDAO, ProjectGroupsDAO projectGroupsDAO,
+	                      ProjectRepository projectRepository, ApplicationEventPublisher publisher) {
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
 		this.usersDAO = usersDAO;
@@ -57,32 +59,34 @@ class InvitationServiceImpl implements InvitationService {
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public void acceptBy(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
-		Invitation invitation = invitationRepository.findBy(id, user.fenixUserId.get())
+		Invitation invitation = invitationRepository.findBy(id)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Invitation id %s doesn't exist for user %s", id, user.fenixUserId)));
 		switch (invitation.resourceId.type){
 			case APP_LEVEL:
 				usersDAO.addFenixAdminRole(user.id.get());
 				break;
 			case SITE:
-				siteGroupDAO.addSiteUser(invitation.resourceId.toString(), user.id.get(), invitation.role);
+				siteGroupDAO.addSiteUser(invitation.resourceId.id.toString(), user.id.get(), invitation.role);
 				break;
 			case COMMUNITY:
-				communityGroupsDAO.addAdmin(invitation.resourceId.toString(), user.id.get());
+				communityGroupsDAO.addAdmin(invitation.resourceId.id.toString(), user.id.get());
 				break;
 			case PROJECT:
-				String projectId = invitation.resourceId.toString();
+				String projectId = invitation.resourceId.id.toString();
 				String communityId = projectRepository.findById(projectId).get().getCommunityId();
 				projectGroupsDAO.addProjectUser(communityId, projectId, user.id.get(), invitation.role);
 				break;
 		}
 		invitationRepository.deleteBy(invitation.id);
-		publisher.publishEvent(new InvitationAcceptedEvent(user.id.get(), invitation.resourceId));
+		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), invitation.resourceId));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<Invitation> findAllByCurrentUser() {
 		FURMSUser user = authzService.getCurrentAuthNUser();
+		if(user.fenixUserId.isEmpty())
+			return Set.of();
 		Optional<FenixUserId> fenixUserId = user.fenixUserId;
 		return invitationRepository.findAllBy(fenixUserId.get(), user.email);
 	}
@@ -90,17 +94,19 @@ class InvitationServiceImpl implements InvitationService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public void deleteBy(InvitationId id) {
-		invitationRepository.deleteBy(id);
 		FURMSUser user = authzService.getCurrentAuthNUser();
-		publisher.publishEvent(new RemoveInvitationUserEvent(user.id.get(), id));
+		invitationRepository.findBy(id, user.fenixUserId.get()).ifPresent(invitation -> {
+			invitationRepository.deleteBy(id);
+			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.id, invitation.code));
+		});
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public void deleteBy(String registrationId) {
 		InvitationCode invitationCode = usersDAO.findByRegistrationId(registrationId);
-		invitationRepository.deleteBy(invitationCode);
-		FURMSUser user = authzService.getCurrentAuthNUser();
-		publisher.publishEvent(new RemoveInvitationUserEvent(user.id.get(), invitationCode));
+		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
+			invitationRepository.deleteBy(invitationCode);
+			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.id, invitation.code));
+		});
 	}
 }

@@ -16,6 +16,8 @@ import java.util.UUID;
 
 public interface InvitationEntityRepository extends CrudRepository<InvitationEntity, UUID> {
 	Optional<InvitationEntity> findByIdAndUserId(UUID id, String userId);
+	Optional<InvitationEntity> findByCode(String code);
+	Optional<InvitationEntity> findByEmailAndRoleAttributeAndRoleValueAndResourceId(String email, String roleAttribute, String roleVale, UUID resourceId);
 	Set<InvitationEntity> findByUserIdOrEmail(String userId, String email);
 	Set<InvitationEntity> findByRoleAttributeAndRoleValueAndResourceId(String roleAttribute, String roleVale, UUID resourceId);
 	@Modifying

@@ -83,7 +83,7 @@ public class Invitation {
 		public FenixUserId userId = FenixUserId.empty();
 		public String email;
 		public Role role;
-		public InvitationCode code;
+		public InvitationCode code = InvitationCode.empty();
 		public LocalDateTime utcExpiredAt;
 
 		private InvitationBuilder() {

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
-import static io.imunity.furms.domain.constant.RoutesConst.ROLE_CHOOSER_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LANDING_PAGE_URL;
 
 @Controller
 class RegistrationView {
@@ -34,6 +34,6 @@ class RegistrationView {
 			invitationService.deleteBy(requestId);
 		else
 			LOG.warn("No unity code to removing invitation");
-		return "redirect:" + "/front/" + ROLE_CHOOSER_URL;
+		return "redirect:" + "/front/" + LANDING_PAGE_URL;
 	}
 }

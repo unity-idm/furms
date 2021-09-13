@@ -23,7 +23,7 @@ public interface UsersDAO {
 	InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration);
 	InvitationCode findByRegistrationId(String registrationId);
 	void removeFenixAdminInvitation(InvitationCode invitationCode);
-	void resendFenixAdminInvitation(InvitationCode invitationCode);
+	void resendFenixAdminInvitation(String email, InvitationCode invitationCode, Instant instant);
 	void addFenixAdminRole(PersistentId userId);
 	void removeFenixAdminRole(PersistentId userId);
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);

@@ -5,6 +5,7 @@
 
 package io.imunity.furms.unity.notifications;
 
+import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -29,6 +30,7 @@ import static java.util.Optional.ofNullable;
 class EmailNotificationDAO implements NotificationDAO {
 
 	private static final String NAME_ATTRIBUTE = "custom.name";
+	private static final String ROLE_ATTRIBUTE = "custom.role";
 	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
@@ -53,6 +55,12 @@ class EmailNotificationDAO implements NotificationDAO {
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyAcceptanceTemplateId, attributes);
 		else
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyRevisionTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyUser(PersistentId id, Invitation invitation) {
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, invitation.role.name().toLowerCase().replace("_", " "), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
 	}
 
 	@Override

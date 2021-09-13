@@ -9,7 +9,6 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -21,9 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.UUID;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -46,12 +45,6 @@ class CommunityEventsITTest {
 
 	@Autowired
 	private CommunityService communityService;
-
-	@Test
-	void shouldRunUserChangeEvent() {
-		communityService.addAdmin(UUID.randomUUID().toString(), new PersistentId("id"));
-		verify(serviceMock, times(1)).handleEventUserAction();
-	}
 
 	@Test
 	void shouldRunCommunityRemoveEvent() {

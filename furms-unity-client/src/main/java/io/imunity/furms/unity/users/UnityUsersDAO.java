@@ -75,9 +75,9 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration) {
-		String code = invitationDAO.createInvitation(email, invitationExpiration);
+		InvitationCode code = invitationDAO.createInvitation("fenixAdminForm", email, invitationExpiration, FENIX_ADMIN);
 		invitationDAO.sendInvitation(code);
-		return new InvitationCode(code);
+		return code;
 	}
 
 	@Override
@@ -87,12 +87,13 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void removeFenixAdminInvitation(InvitationCode invitationCode) {
-		invitationDAO.removeInvitation(invitationCode.code);
+		invitationDAO.removeInvitation(invitationCode);
 	}
 
 	@Override
-	public void resendFenixAdminInvitation(InvitationCode invitationCode) {
-		invitationDAO.sendInvitation(invitationCode.code);
+	public void resendFenixAdminInvitation(String email, InvitationCode invitationCode, Instant instant) {
+		invitationDAO.updateInvitation("fenixAdminForm", email, invitationCode, instant, FENIX_ADMIN);
+		invitationDAO.sendInvitation(invitationCode);
 	}
 
 	@Override

@@ -14,6 +14,14 @@ public class InvitationCode {
 		this.code = code;
 	}
 
+	public static InvitationCode empty() {
+		return new InvitationCode(null);
+	}
+
+	public boolean isPresent() {
+		return code != null;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

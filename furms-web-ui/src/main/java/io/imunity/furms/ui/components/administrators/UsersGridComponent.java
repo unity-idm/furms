@@ -70,7 +70,7 @@ public class UsersGridComponent extends VerticalLayout {
 		return handleExceptions(fetchUsersAction)
 			.orElseGet(Collections::emptySet)
 			.stream()
-			.map(invitation -> new UserGridItem(invitation.email, invitation.code))
+			.map(invitation -> new UserGridItem(invitation.email, invitation.id))
 			.sorted(Comparator.comparing(UserGridItem::getEmail))
 			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout));
 	}

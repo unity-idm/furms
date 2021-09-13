@@ -6,22 +6,21 @@
 package io.imunity.furms.domain.invitations;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class InvitationAcceptedEvent implements UserEvent {
-	public final PersistentId id;
+public class InvitationAcceptedEvent implements InvitationEvent {
+	public final FenixUserId id;
 	public final ResourceId resourceId;
 
-	public InvitationAcceptedEvent(PersistentId id, ResourceId resourceId) {
+	public InvitationAcceptedEvent(FenixUserId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}
 
 	@Override
-	public PersistentId getId() {
+	public FenixUserId getId() {
 		return id;
 	}
 

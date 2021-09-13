@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
+import io.imunity.furms.domain.invitations.InvitationEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.VaadinBroadcaster;
@@ -114,8 +115,18 @@ public class NotificationBarComponent extends Button {
 			VaadinListener.builder()
 				.consumer(event -> ui.access(this::loadData))
 				.predicate(this::isCurrentUserPoliciesAcceptanceListChanged)
+				.orPredicate(this::isCurrentUserInvitationsListChanged)
 				.build()
 		);
+	}
+
+	private boolean isCurrentUserInvitationsListChanged(FurmsEvent furmsEvent) {
+		if(!(furmsEvent instanceof InvitationEvent))
+			return false;
+		InvitationEvent event = (InvitationEvent) furmsEvent;
+		return currentUser.fenixUserId
+			.filter(id -> id.equals(event.getId()))
+			.isPresent();
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {

@@ -28,7 +28,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
@@ -99,9 +98,6 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 					return getTranslation("view.site-admin.policy-documents-acceptance.status.not.accepted");
 			}, getTranslation("view.site-admin.policy-documents-acceptance.status"))
 			.withContextMenuColumn(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(
-			() -> policyDocumentService.findAllUsersWithoutCurrentRevisionPolicyAcceptance(policyDocument.siteId, policyDocument.id),
-			Set::of,
 		UsersGridComponent grid = UsersGridComponent.init(
 			() -> policyDocumentService.findAllUsersPolicyAcceptances(policyDocument.siteId).stream()
 				.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())

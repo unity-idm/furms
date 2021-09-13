@@ -111,7 +111,7 @@ public class InvitationsView extends FurmsViewComponent {
 			.stream()
 			.map(invitation -> new InvitationGridModel(
 				invitation.id,
-				Optional.ofNullable(invitation.resourceName).map(y -> "'" + y + "'").orElse("") +
+				Optional.ofNullable(invitation.resourceName).map(name -> "'" + name + "'").orElse("") +
 					" " +
 					getTranslation("view.user-settings.invitations.grid.invitation.resource.type." + invitation.resourceId.type) +
 					" " +

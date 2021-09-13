@@ -5,30 +5,22 @@
 
 package io.imunity.furms.domain.invitations;
 
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class RemoveInvitationUserEvent implements UserEvent {
-	public final PersistentId id;
+public class RemoveInvitationUserEvent implements InvitationEvent {
+	public final FenixUserId id;
 	public final InvitationId invitationId;
 	public final InvitationCode code;
 
-	public RemoveInvitationUserEvent(PersistentId id, InvitationId invitationId) {
+	public RemoveInvitationUserEvent(FenixUserId id, InvitationId invitationId, InvitationCode code) {
 		this.id = id;
 		this.invitationId = invitationId;
-		this.code = null;
+		this.code = code;
 	}
 
-	public RemoveInvitationUserEvent(PersistentId id, InvitationCode invitationCode) {
-		this.id = id;
-		this.code = invitationCode;
-		this.invitationId = null;
-	}
-
-	@Override
-	public PersistentId getId() {
+	public FenixUserId getId() {
 		return id;
 	}
 
@@ -36,21 +28,23 @@ public class RemoveInvitationUserEvent implements UserEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		RemoveInvitationUserEvent userEvent = (RemoveInvitationUserEvent) o;
-		return Objects.equals(id, userEvent.id) &&
-			Objects.equals(invitationId, userEvent.invitationId);
+		RemoveInvitationUserEvent that = (RemoveInvitationUserEvent) o;
+		return Objects.equals(id, that.id) &&
+			Objects.equals(invitationId, that.invitationId) &&
+			Objects.equals(code, that.code);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, invitationId);
+		return Objects.hash(id, invitationId, code);
 	}
 
 	@Override
 	public String toString() {
-		return "InviteUserEvent{" +
-			"id='" + id + '\'' +
+		return "RemoveInvitationUserEvent{" +
+			"id=" + id +
 			", invitationId=" + invitationId +
+			", code=" + code +
 			'}';
 	}
 }

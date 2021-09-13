@@ -5,6 +5,35 @@
 
 package io.imunity.furms.core.communites;
 
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.authz.CapabilityCollector;
+import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CreateCommunityEvent;
+import io.imunity.furms.domain.communities.RemoveCommunityEvent;
+import io.imunity.furms.domain.communities.UpdateCommunityEvent;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.communites.CommunityRepository;
+import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
@@ -12,36 +41,6 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static java.util.stream.Collectors.toSet;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import io.imunity.furms.api.authz.CapabilityCollector;
-import io.imunity.furms.domain.authz.roles.Capability;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.communities.CreateCommunityEvent;
-import io.imunity.furms.domain.communities.RemoveCommunityEvent;
-import io.imunity.furms.domain.communities.UpdateCommunityEvent;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
-import io.imunity.furms.spi.communites.CommunityGroupsDAO;
-import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 
 @Service
 class CommunityServiceImpl implements CommunityService {
@@ -146,7 +145,7 @@ class CommunityServiceImpl implements CommunityService {
 		}
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
+		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.get(), new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override
@@ -154,7 +153,6 @@ class CommunityServiceImpl implements CommunityService {
 	public void addAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override

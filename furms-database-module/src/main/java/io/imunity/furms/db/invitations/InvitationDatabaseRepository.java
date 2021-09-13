@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.invitations;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
@@ -13,6 +14,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -27,8 +29,26 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
+	public Optional<Invitation> findBy(InvitationId id) {
+		return repository.findById(id.id)
+			.map(InvitationEntity::toInvitation);
+	}
+
+	@Override
 	public Optional<Invitation> findBy(InvitationId id, FenixUserId userId) {
 		return repository.findByIdAndUserId(id.id, userId.id)
+			.map(InvitationEntity::toInvitation);
+	}
+
+	@Override
+	public Optional<Invitation> findBy(InvitationCode code) {
+		return repository.findByCode(code.code)
+			.map(InvitationEntity::toInvitation);
+	}
+
+	@Override
+	public Optional<Invitation> findBy(String email, Role role, ResourceId resourceId) {
+		return repository.findByEmailAndRoleAttributeAndRoleValueAndResourceId(email, role.unityRoleAttribute, role.unityRoleValue, resourceId.id)
 			.map(InvitationEntity::toInvitation);
 	}
 
@@ -47,7 +67,7 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
-	public void create(Invitation invitation) {
+	public InvitationId create(Invitation invitation) {
 		InvitationEntity invitationEntity = InvitationEntity.builder()
 			.resourceId(invitation.resourceId.id)
 			.resourceType(invitation.resourceId.type)
@@ -60,7 +80,29 @@ class InvitationDatabaseRepository implements InvitationRepository {
 			.code(Optional.ofNullable(invitation.code).map(code -> code.code).orElse(null))
 			.expiredAt(invitation.utcExpiredAt)
 			.build();
-		repository.save(invitationEntity);
+		InvitationEntity saved = repository.save(invitationEntity);
+		return new InvitationId(saved.getId());
+	}
+
+	@Override
+	public void updateExpiredAt(InvitationId id, LocalDateTime utcExpiredAt) {
+		repository.findById(id.id).ifPresent(invitation ->
+			repository.save(
+				InvitationEntity.builder()
+					.id(invitation.getId())
+					.resourceId(invitation.resourceId)
+					.resourceType(invitation.resourceType)
+					.resourceName(invitation.resourceName)
+					.originator(invitation.originator)
+					.userId(invitation.userId)
+					.email(invitation.email)
+					.roleAttribute(invitation.roleAttribute)
+					.roleValue(invitation.roleValue)
+					.code(invitation.code)
+					.expiredAt(utcExpiredAt)
+					.build()
+				)
+		);
 	}
 
 	@Override

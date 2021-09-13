@@ -20,7 +20,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
@@ -427,7 +426,6 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).addSiteUser(siteId, userId, Role.SITE_ADMIN);
-		verify(publisher, times(1)).publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Test

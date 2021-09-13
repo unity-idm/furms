@@ -5,15 +5,14 @@
 
 package io.imunity.furms.core.users;
 
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.invitations.InvitationInternalService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
-import io.imunity.furms.domain.invitations.InvitationCode;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -25,18 +24,13 @@ import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import io.imunity.furms.utils.UTCTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,27 +46,23 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 class UserServiceImpl implements UserService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
-	private static final int EXPIRATION_TIME_IN_DAYS = 7;
 
 	private final UsersDAO usersDAO;
 	private final UserAllocationsService userAllocationsService;
 	private final MembershipResolver membershipResolver;
-	private final InvitationRepository invitationRepository;
-	private final AuthzService authzService;
+	private final InvitationInternalService invitationInternalService;
 	private final ApplicationEventPublisher publisher;
 
 	public UserServiceImpl(UsersDAO usersDAO,
 	                       MembershipResolver membershipResolver,
 	                       ApplicationEventPublisher publisher,
 	                       UserAllocationsService userAllocationsService,
-	                       AuthzService authzService,
-	                       InvitationRepository invitationRepository) {
+	                       InvitationInternalService invitationInternalService) {
 		this.usersDAO = usersDAO;
 		this.membershipResolver = membershipResolver;
 		this.publisher = publisher;
 		this.userAllocationsService = userAllocationsService;
-		this.invitationRepository = invitationRepository;
-		this.authzService = authzService;
+		this.invitationInternalService = invitationInternalService;
 	}
 
 	@Override
@@ -90,62 +80,33 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public Set<Invitation> getFenixAdminsInvitations(){
-		return invitationRepository.findAllBy(Role.FENIX_ADMIN, null);
+		return invitationInternalService.getInvitations(Role.FENIX_ADMIN, null);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void inviteFenixAdmin(PersistentId userId) {
-		FURMSUser user = usersDAO.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("Could not invite user due to wrong email address."));
-		invitationRepository.create(
-			Invitation.builder()
-				.resourceId(new ResourceId((UUID) null, APP_LEVEL))
-				.role(Role.FENIX_ADMIN)
-				.userId(user.fenixUserId.get())
-				.originator(authzService.getCurrentAuthNUser().email)
-				.email(user.email)
-				.utcExpiredAt(UTCTimeUtils.convertToUTCTime(ZonedDateTime.now().plusDays(EXPIRATION_TIME_IN_DAYS)))
-				.build()
-		);
-		LOG.info("Inviting FENIX admin role to {}", userId);
-		publisher.publishEvent(new InviteUserEvent(userId, new ResourceId((String) null, APP_LEVEL)));
-	}
-
-	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
-	public void resendFenixAdminInvitation(InvitationCode code) {
-		usersDAO.resendFenixAdminInvitation(code);
+		invitationInternalService.inviteUser(userId, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
-	public void removeFenixAdminInvitation(InvitationCode code) {
-		invitationRepository.deleteBy(code);
-		usersDAO.removeFenixAdminInvitation(code);
+	public void resendFenixAdminInvitation(InvitationId id) {
+		invitationInternalService.resendInvitation(id);
+	}
+
+	@Override
+	@Transactional
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	public void removeFenixAdminInvitation(InvitationId id) {
+		invitationInternalService.removeInvitation(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void inviteFenixAdmin(String email) {
-		LocalDateTime expiredAt = UTCTimeUtils.convertToUTCTime(ZonedDateTime.now().plusDays(EXPIRATION_TIME_IN_DAYS));
-		InvitationCode invitationCode = usersDAO.inviteFenixAdmin(email, expiredAt.toInstant(ZoneOffset.UTC));
-		try {
-			invitationRepository.create(
-				Invitation.builder()
-					.resourceId(new ResourceId((UUID) null, APP_LEVEL))
-					.role(Role.FENIX_ADMIN)
-					.email(email)
-					.originator(authzService.getCurrentAuthNUser().email)
-					.code(invitationCode)
-					.utcExpiredAt(expiredAt)
-					.build()
-			);
-		} catch (Exception e){
-			usersDAO.removeFenixAdminInvitation(invitationCode);
-			throw e;
-		}
+		invitationInternalService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
 	}
 
 	@Override

@@ -6,7 +6,7 @@
 package io.imunity.furms.api.users;
 
 import io.imunity.furms.domain.invitations.Invitation;
-import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -23,8 +23,8 @@ public interface UserService {
 	Set<Invitation> getFenixAdminsInvitations();
 	void inviteFenixAdmin(String email);
 	void inviteFenixAdmin(PersistentId userId);
-	void resendFenixAdminInvitation(InvitationCode code);
-	void removeFenixAdminInvitation(InvitationCode code);
+	void resendFenixAdminInvitation(InvitationId id);
+	void removeFenixAdminInvitation(InvitationId id);
 	void removeFenixAdminRole(PersistentId userId);
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
 	UserStatus getUserStatus(FenixUserId fenixUserId);
