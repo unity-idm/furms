@@ -7,7 +7,6 @@ package io.imunity.furms.ui.views.user_settings.policy_documents;
 
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -146,12 +145,11 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		Anchor anchor = new Anchor( "" ,  EYE.create());
 		anchor.getStyle().set("align-self", "center");
 		if(policyDocumentExtended.contentType.equals(PolicyContentType.EMBEDDED)){
-			Html html = new Html("<div>" + policyDocumentExtended.htmlText + "</div>");
 			anchor.setTarget( "_blank" );
 			String id = UUID.randomUUID().toString();
 			String url = RouteConfiguration.forSessionScope().getUrl(EmbeddedPolicyDocumentView.class, id);
 			anchor.setHref(url);
-			UI.getCurrent().getSession().setAttribute(id, html);
+			UI.getCurrent().getSession().setAttribute(id, "<div>" + policyDocumentExtended.htmlText + "</div>");
 		}
 		else {
 			anchor.getElement().setAttribute("download", true);

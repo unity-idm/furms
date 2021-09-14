@@ -223,7 +223,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 			: "view.site-admin.policy-documents.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
 		binder.setBean(policyDocumentFormModel);
-		revision.setText(String.valueOf(policyDocumentFormModel.revision + 1));
+		revision.setText(String.valueOf(policyDocumentFormModel.revision));
 		if(policyDocumentFormModel.id == null)
 			addCreateButtons();
 		else {

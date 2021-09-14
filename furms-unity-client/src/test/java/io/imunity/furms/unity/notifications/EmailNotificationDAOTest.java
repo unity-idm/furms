@@ -127,6 +127,12 @@ class EmailNotificationDAOTest {
 			.policyDocumentRevision(1)
 			.build();
 
+		PolicyDocument sitePolicy = PolicyDocument.builder()
+			.id(policyId)
+			.name("policyName")
+			.revision(2)
+			.build();
+
 		PolicyDocumentExtended policyDocumentExtended = PolicyDocumentExtended.builder()
 			.id(policyId)
 			.name("policyName")
@@ -136,14 +142,55 @@ class EmailNotificationDAOTest {
 		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
 		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
+		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
 		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(policyId)
 			.build()));
 
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId,"grantId");
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
 		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furmsUrl", furmsServerBaseURL));
+	}
+
+	@Test
+	void shouldNotifyAboutNewSitePolicyAndServicePolicy() {
+		PolicyId sitePolicyId = new PolicyId(UUID.randomUUID());
+		PolicyId servicePolicyId = new PolicyId(UUID.randomUUID());
+		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
+		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+
+		PolicyDocument sitePolicy = PolicyDocument.builder()
+			.id(sitePolicyId)
+			.name("sitePolicyName")
+			.revision(2)
+			.build();
+
+		PolicyDocumentExtended sitePolicyExtended = PolicyDocumentExtended.builder()
+			.id(sitePolicyId)
+			.name("sitePolicyName")
+			.revision(2)
+			.build();
+
+		PolicyDocumentExtended servicePolicyExtended = PolicyDocumentExtended.builder()
+			.id(servicePolicyId)
+			.name("servicePolicyName")
+			.revision(2)
+			.build();
+
+		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
+		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of());
+		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(sitePolicyExtended, servicePolicyExtended));
+		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
+		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+			.id(servicePolicyId)
+			.build()));
+
+
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "sitePolicyName", "custom.furmsUrl", furmsServerBaseURL));
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "servicePolicyName", "custom.furmsUrl", furmsServerBaseURL));
 	}
 
 	@Test
@@ -170,7 +217,7 @@ class EmailNotificationDAOTest {
 			.id(policyId)
 			.build()));
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies(fenixUserId, "grantId");
+		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
 
 		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furmsUrl", furmsServerBaseURL));
 	}

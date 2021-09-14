@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,19 +76,23 @@ class EmailNotificationDAO implements NotificationDAO {
 	}
 
 	@Override
-	public void notifyAboutAllNotAcceptedPolicies(FenixUserId userId, String grantId) {
+	public void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId userId, String grantId) {
 		PersistentId persistentId = userService.getPersistentId(userId);
 
 		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = userService.getPolicyAcceptances(userId).stream()
 			.collect(Collectors.toMap(x -> x.policyDocumentId, Function.identity()));
 
-		PolicyDocument servicePolicy = policyDocumentRepository.findByUserGrantId(grantId).get();
+		Optional<PolicyDocument> servicePolicy = policyDocumentRepository.findByUserGrantId(grantId);
+		Optional<PolicyDocument> sitePolicy = policyDocumentRepository.findSitePolicy(siteId);
+
 		policyDocumentRepository.findAllByUserId(userId, (id, revision) -> LocalDateTime.MAX).stream()
 			.filter(policyDocument ->
 				ofNullable(policyAcceptanceMap.get(policyDocument.id))
 					.filter(policyAcceptance -> policyDocument.revision == policyAcceptance.policyDocumentRevision).isEmpty()
 			)
-			.filter(policyDocument -> policyDocument.id.equals(servicePolicy.id))
+			.filter(policyDocument ->
+				servicePolicy.filter(policy -> policy.id.equals(policyDocument.id)).isPresent() ||
+				sitePolicy.filter(policy -> policy.id.equals(policyDocument.id)).isPresent())
 			.forEach(policyDocumentExtended ->
 				userService.sendUserNotification(
 					persistentId,

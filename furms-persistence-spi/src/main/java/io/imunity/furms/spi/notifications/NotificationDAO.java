@@ -12,5 +12,5 @@ import io.imunity.furms.domain.users.PersistentId;
 public interface NotificationDAO {
 	void notifyUser(PersistentId id, PolicyDocument policyDocument);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
-	void notifyAboutAllNotAcceptedPolicies(FenixUserId fenixUserId, String grantId);
+	void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId fenixUserId, String grantId);
 }
