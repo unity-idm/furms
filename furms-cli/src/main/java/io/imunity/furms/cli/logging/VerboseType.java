@@ -3,10 +3,9 @@
  *  See LICENSE file for licensing information.
  */
 
-.usual-row {
-    background-color: inherit;
-}
+package io.imunity.furms.cli.logging;
 
-.light-red-row {
-    background-color: #ffe5e5;
+public enum VerboseType {
+	COMMAND,
+	ALL;
 }

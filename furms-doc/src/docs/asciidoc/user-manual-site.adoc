@@ -25,7 +25,7 @@ FURMS supports two types of policy document workflows:
 * `web based` policies are electronically processed documents, i.e. users can accept them on-line, from the FURMS app.
 * `paper` policies need to be printed and physically delivered to site authorities.
 
-Users are asked to check the policy whenever they get access to a resource, which is either on a new site or a new service, for which the policy is defined and was not accepted yet. Regardless of the policy type, user can always read & download its text. In the case of the web policies, direct acceptance is possible by the user. Contrary, the fact that the hand-signed paper policy document was received, must be recorded by site administrator. This functionality is available after entering into details of users policy acceptance status, in the Policy Documents view.
+Users are asked to check the policy whenever they get access to a resource, which is either on a new site or a new service, for which the policy is defined and was not accepted yet. Regardless of the policy type, user can always read & download its text. In the case of the web policies, direct acceptance is possible by the user. Contrary, the fact that the hand-signed paper policy document was received, must be recorded by site administrator or site support (see <<managing-site-admins>>). This functionality is available after entering into details of users policy acceptance status, in the Policy Documents view.
 
 Policy documents can be updated after creation. Update can be done in two ways:
 
@@ -66,6 +66,7 @@ Finally credits can be marked as _granted to all project members_. Allocation de
 
 {versionlimit} This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.
 
+[[managing-site-admins]]
 === Managing site administrators
 
 FURMS allows for multiple users with the site administrator role. Each site administrator can add (and remove) other administrators from the "Site administrators" view. 

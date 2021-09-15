@@ -182,7 +182,9 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Community or group not found", content = { @Content }) })
 	@PutMapping("/{communityId}/groups/{groupId}")
-	public Group updateGroup(@RequestBody GroupDefinition request) {
+	public Group updateGroup(@PathVariable("communityId") String communityId,
+	                         @PathVariable("groupId") String groupId,
+	                         @RequestBody GroupDefinitionRequest request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
@@ -195,7 +197,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@PostMapping("/{communityId}/groups")
-	public Group addGroup(@RequestBody GroupDefinition request) {
+	public Group addGroup(@RequestBody GroupDefinitionRequest request) {
 		throw new UnsupportedOperationException("Not implemented yet"); // TODO
 	}
 
