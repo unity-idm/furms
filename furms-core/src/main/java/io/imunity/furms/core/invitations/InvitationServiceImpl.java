@@ -8,11 +8,13 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.invitations.InvitationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
+import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -79,6 +81,7 @@ class InvitationServiceImpl implements InvitationService {
 		}
 		invitationRepository.deleteBy(invitation.id);
 		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), invitation.resourceId));
+		publisher.publishEvent(new AddUserEvent(user.id.get(), invitation.resourceId));
 	}
 
 	@Override
@@ -93,7 +96,7 @@ class InvitationServiceImpl implements InvitationService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
-	public void deleteBy(InvitationId id) {
+	public void acceptInvitationByRegistration(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		invitationRepository.findBy(id, user.fenixUserId.get()).ifPresent(invitation -> {
 			invitationRepository.deleteBy(id);
@@ -102,11 +105,18 @@ class InvitationServiceImpl implements InvitationService {
 	}
 
 	@Override
-	public void deleteBy(String registrationId) {
+	@FurmsPublicAccess
+	public void acceptInvitationByRegistration(String registrationId) {
 		InvitationCode invitationCode = usersDAO.findByRegistrationId(registrationId);
 		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
 			invitationRepository.deleteBy(invitationCode);
-			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.id, invitation.code));
+			FenixUserId fenixUserId = usersDAO.getAllUsers().stream()
+				.filter(user -> user.email.equals(invitation.email))
+				.map(user -> user.fenixUserId.get())
+				.findAny()
+				.get();
+			invitationRepository.findAllBy(invitation.userId, invitation.email)
+				.forEach(invit -> invitationRepository.updateUserId(invit, fenixUserId));
 		});
 	}
 }

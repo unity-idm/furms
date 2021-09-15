@@ -20,7 +20,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,7 @@ class EmailNotificationDAO implements NotificationDAO {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final EmailNotificationProperties emailNotificationProperties;
 	private final ApplicationEventPublisher publisher;
+	private final ResourceBundle bundle;
 
 
 	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
@@ -46,6 +49,7 @@ class EmailNotificationDAO implements NotificationDAO {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.emailNotificationProperties = emailNotificationProperties;
 		this.publisher = publisher;
+		this.bundle = ResourceBundle.getBundle("messages", new Locale("en", "US"));
 	}
 
 	@Override
@@ -59,7 +63,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 	@Override
 	public void notifyUser(PersistentId id, Invitation invitation) {
-		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, invitation.role.name().toLowerCase().replace("_", " "), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(invitation.role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
 		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
 	}
 

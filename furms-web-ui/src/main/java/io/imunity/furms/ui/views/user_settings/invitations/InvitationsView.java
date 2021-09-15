@@ -77,7 +77,7 @@ public class InvitationsView extends FurmsViewComponent {
 			event -> {
 				checkboxes.entrySet().stream()
 					.filter(x -> x.getValue().getValue())
-					.forEach(x -> invitationService.deleteBy(x.getKey()));
+					.forEach(x -> invitationService.acceptInvitationByRegistration(x.getKey()));
 				loadGrid();
 			}
 		);
@@ -146,7 +146,7 @@ public class InvitationsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(InvitationId invitationId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.invitations.page.removal.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			invitationService.deleteBy(invitationId);
+			invitationService.acceptInvitationByRegistration(invitationId);
 			loadGrid();
 		});
 		return furmsDialog;

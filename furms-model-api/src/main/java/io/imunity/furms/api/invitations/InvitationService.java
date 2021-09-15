@@ -13,6 +13,6 @@ import java.util.Set;
 public interface InvitationService {
 	void acceptBy(InvitationId id);
 	Set<Invitation> findAllByCurrentUser();
-	void deleteBy(InvitationId id);
-	void deleteBy(String registrationId);
+	void acceptInvitationByRegistration(InvitationId id);
+	void acceptInvitationByRegistration(String registrationId);
 }

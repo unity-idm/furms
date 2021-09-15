@@ -17,6 +17,7 @@ import io.imunity.furms.domain.communities.CreateCommunityEvent;
 import io.imunity.furms.domain.communities.RemoveCommunityEvent;
 import io.imunity.furms.domain.communities.UpdateCommunityEvent;
 import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
@@ -153,13 +154,14 @@ class CommunityServiceImpl implements CommunityService {
 	public void addAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
+		publisher.publishEvent(new AddUserEvent(userId,  new ResourceId(communityId, COMMUNITY)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
-		LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, communityId);
+		LOG.info("Removed Community Administrator ({}) from Unity for Site ID={}", userId, communityId);
 		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));
 	}
 

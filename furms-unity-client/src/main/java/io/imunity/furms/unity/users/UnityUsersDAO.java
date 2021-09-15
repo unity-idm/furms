@@ -23,6 +23,7 @@ import io.imunity.furms.unity.client.users.UserService;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import io.imunity.furms.unity.common.UnityConst;
 import io.imunity.furms.unity.common.UnityPaths;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -56,11 +57,14 @@ class UnityUsersDAO implements UsersDAO {
 	private final UnityClient unityClient;
 	private final UserService userService;
 	private final InvitationDAO invitationDAO;
+	private final String fenixAdminFormName;
 
-	UnityUsersDAO(UnityClient unityClient, UserService userService, InvitationDAO invitationDAO) {
+	UnityUsersDAO(UnityClient unityClient, UserService userService, InvitationDAO invitationDAO,
+	              @Value("${furms.invitations.fenix-admin-form}") String fenixAdminFormName) {
 		this.unityClient = unityClient;
 		this.userService = userService;
 		this.invitationDAO = invitationDAO;
+		this.fenixAdminFormName = fenixAdminFormName;
 	}
 
 	@Override
@@ -75,7 +79,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration) {
-		InvitationCode code = invitationDAO.createInvitation("fenixAdminForm", email, invitationExpiration, FENIX_ADMIN);
+		InvitationCode code = invitationDAO.createInvitation(fenixAdminFormName, email, invitationExpiration, FENIX_ADMIN);
 		invitationDAO.sendInvitation(code);
 		return code;
 	}
@@ -92,7 +96,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void resendFenixAdminInvitation(String email, InvitationCode invitationCode, Instant instant) {
-		invitationDAO.updateInvitation("fenixAdminForm", email, invitationCode, instant, FENIX_ADMIN);
+		invitationDAO.updateInvitation(fenixAdminFormName, email, invitationCode, instant, FENIX_ADMIN);
 		invitationDAO.sendInvitation(invitationCode);
 	}
 

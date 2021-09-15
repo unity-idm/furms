@@ -36,6 +36,8 @@ public interface InvitationRepository {
 
 	void updateExpiredAt(InvitationId id, LocalDateTime utcExpiredAt);
 
+	void updateUserId(Invitation invitation, FenixUserId id);
+
 	void deleteBy(InvitationId id);
 
 	void deleteBy(InvitationCode unityCode);

@@ -31,7 +31,7 @@ class RegistrationView {
 	public String removeInvitationAndRedirect(@RequestParam Map<String, String> params) {
 		String requestId = params.get("request_id");
 		if(requestId != null)
-			invitationService.deleteBy(requestId);
+			invitationService.acceptInvitationByRegistration(requestId);
 		else
 			LOG.warn("No unity code to removing invitation");
 		return "redirect:" + "/front/" + LANDING_PAGE_URL;
