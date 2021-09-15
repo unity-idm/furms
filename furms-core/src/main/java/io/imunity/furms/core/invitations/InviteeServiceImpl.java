@@ -6,7 +6,7 @@
 package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.invitations.InvitationService;
+import io.imunity.furms.api.invitations.InviteeService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
@@ -22,6 +22,7 @@ import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
+import io.imunity.furms.spi.users.FenixUsersDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -33,10 +34,11 @@ import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 @Service
-class InvitationServiceImpl implements InvitationService {
+class InviteeServiceImpl implements InviteeService {
 
 	private final InvitationRepository invitationRepository;
 	private final AuthzService authzService;
+	private final FenixUsersDAO fenixUsersDAO;
 	private final UsersDAO usersDAO;
 	private final SiteGroupDAO siteGroupDAO;
 	private final CommunityGroupsDAO communityGroupsDAO;
@@ -44,12 +46,13 @@ class InvitationServiceImpl implements InvitationService {
 	private final ProjectRepository projectRepository;
 	private final ApplicationEventPublisher publisher;
 
-	InvitationServiceImpl(InvitationRepository invitationRepository, AuthzService authzService, UsersDAO usersDAO,
-	                      SiteGroupDAO siteGroupDAO, CommunityGroupsDAO communityGroupsDAO, ProjectGroupsDAO projectGroupsDAO,
-	                      ProjectRepository projectRepository, ApplicationEventPublisher publisher) {
+	InviteeServiceImpl(InvitationRepository invitationRepository, AuthzService authzService, UsersDAO usersDAO,
+	                   SiteGroupDAO siteGroupDAO, CommunityGroupsDAO communityGroupsDAO, ProjectGroupsDAO projectGroupsDAO,
+	                   ProjectRepository projectRepository, ApplicationEventPublisher publisher, FenixUsersDAO fenixUsersDAO) {
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
 		this.usersDAO = usersDAO;
+		this.fenixUsersDAO = fenixUsersDAO;
 		this.siteGroupDAO = siteGroupDAO;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.projectGroupsDAO = projectGroupsDAO;
@@ -65,7 +68,7 @@ class InvitationServiceImpl implements InvitationService {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Invitation id %s doesn't exist for user %s", id, user.fenixUserId)));
 		switch (invitation.resourceId.type){
 			case APP_LEVEL:
-				usersDAO.addFenixAdminRole(user.id.get());
+				fenixUsersDAO.addFenixAdminRole(user.id.get());
 				break;
 			case SITE:
 				siteGroupDAO.addSiteUser(invitation.resourceId.id.toString(), user.id.get(), invitation.role);
@@ -96,7 +99,7 @@ class InvitationServiceImpl implements InvitationService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
-	public void acceptInvitationByRegistration(InvitationId id) {
+	public void removeBy(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		invitationRepository.findBy(id, user.fenixUserId.get()).ifPresent(invitation -> {
 			invitationRepository.deleteBy(id);
@@ -110,13 +113,6 @@ class InvitationServiceImpl implements InvitationService {
 		InvitationCode invitationCode = usersDAO.findByRegistrationId(registrationId);
 		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
 			invitationRepository.deleteBy(invitationCode);
-			FenixUserId fenixUserId = usersDAO.getAllUsers().stream()
-				.filter(user -> user.email.equals(invitation.email))
-				.map(user -> user.fenixUserId.get())
-				.findAny()
-				.get();
-			invitationRepository.findAllBy(invitation.userId, invitation.email)
-				.forEach(invit -> invitationRepository.updateUserId(invit, fenixUserId));
 		});
 	}
 }

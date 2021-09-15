@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.users;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -18,14 +19,11 @@ import java.util.Optional;
 
 
 public interface UsersDAO {
-	List<FURMSUser> getAdminUsers();
 	List<FURMSUser> getAllUsers();
-	InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration);
+	InvitationCode inviteUser(String email, Instant invitationExpiration, Role role);
 	InvitationCode findByRegistrationId(String registrationId);
-	void removeFenixAdminInvitation(InvitationCode invitationCode);
-	void resendFenixAdminInvitation(String email, InvitationCode invitationCode, Instant instant);
-	void addFenixAdminRole(PersistentId userId);
-	void removeFenixAdminRole(PersistentId userId);
+	void removeInvitation(InvitationCode invitationCode);
+	void resendInvitation(String email, InvitationCode invitationCode, Instant instant, Role role);
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
 	UserStatus getUserStatus(FenixUserId fenixUserId);
 	Optional<FURMSUser> findById(PersistentId userId);

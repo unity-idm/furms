@@ -23,6 +23,7 @@ import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
+import io.imunity.furms.spi.users.FenixUsersDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
@@ -44,7 +44,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-class InvitationServiceImplTest {
+class InviteeServiceImplTest {
 
 	@Mock
 	private InvitationRepository invitationRepository;
@@ -61,9 +61,11 @@ class InvitationServiceImplTest {
 	@Mock
 	private ProjectRepository projectRepository;
 	@Mock
+	private FenixUsersDAO fenixUsersDAO;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
-	private InvitationServiceImpl invitationService;
+	private InviteeServiceImpl invitationService;
 
 	private InOrder orderVerifier;
 
@@ -71,9 +73,9 @@ class InvitationServiceImplTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		invitationService = new InvitationServiceImpl(
+		invitationService = new InviteeServiceImpl(
 			invitationRepository, authzService, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO,
-			projectRepository, publisher
+			projectRepository, publisher, fenixUsersDAO
 		);
 		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher);
 	}
@@ -105,7 +107,7 @@ class InvitationServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(usersDAO).addFenixAdminRole(persistentId);
+		orderVerifier.verify(fenixUsersDAO).addFenixAdminRole(persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
@@ -250,7 +252,7 @@ class InvitationServiceImplTest {
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId, userId)).thenReturn(Optional.of(invitation));
 
-		invitationService.acceptInvitationByRegistration(invitationId);
+		invitationService.removeBy(invitationId);
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(publisher).publishEvent(new RemoveInvitationUserEvent(user.fenixUserId.get(), invitationId, InvitationCode.empty()));
@@ -276,11 +278,9 @@ class InvitationServiceImplTest {
 		when(usersDAO.getAllUsers()).thenReturn(List.of(user));
 		when(usersDAO.findByRegistrationId("registrationId")).thenReturn(invitationCode);
 		when(invitationRepository.findBy(invitationCode)).thenReturn(Optional.of(invitation));
-		when(invitationRepository.findAllBy(FenixUserId.empty(), "email")).thenReturn(Set.of(invitation));
 
 		invitationService.acceptInvitationByRegistration("registrationId");
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationCode);
-		orderVerifier.verify(invitationRepository).updateUserId(invitation, userId);
 	}
 }

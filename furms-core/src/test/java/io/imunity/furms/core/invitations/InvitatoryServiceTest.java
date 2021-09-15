@@ -16,6 +16,7 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -32,6 +33,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class InvitationInternalServiceTest {
+class InvitatoryServiceTest {
 
 	private final static Instant LOCAL_DATE = Instant.now();
 	private final static int EXPIRATION_TIME = 1000;
@@ -57,14 +59,14 @@ class InvitationInternalServiceTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 
-	private InvitationInternalService invitationInternalService;
+	private InvitatoryService invitatoryService;
 	private Clock fixedClock;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
-		invitationInternalService = new InvitationInternalService(usersDAO, invitationRepository, authzService,
+		invitatoryService = new InvitatoryService(usersDAO, invitationRepository, authzService,
 			notificationDAO, publisher, fixedClock, String.valueOf(EXPIRATION_TIME));
 	}
 
@@ -78,7 +80,7 @@ class InvitationInternalServiceTest {
 
 		when(invitationRepository.findAllBy(role, id)).thenReturn(Set.of(invitation));
 
-		Set<Invitation> invitations = invitationInternalService.getInvitations(role, id);
+		Set<Invitation> invitations = invitatoryService.getInvitations(role, id);
 
 		assertEquals(Set.of(invitation), invitations);
 	}
@@ -88,9 +90,10 @@ class InvitationInternalServiceTest {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
-			.fenixUserId(new FenixUserId("fenixId"))
+			.fenixUserId(fenixId)
 			.email("email")
 			.build();
 		Invitation invitation = Invitation.builder()
@@ -103,13 +106,14 @@ class InvitationInternalServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
+		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
 		);
 
-		invitationInternalService.inviteUser(persistentId, resourceId, role);
+		invitatoryService.inviteUser(persistentId, resourceId, role);
 
 		verify(invitationRepository).create(invitation);
 		verify(notificationDAO).notifyUser(persistentId, invitation);
@@ -141,7 +145,7 @@ class InvitationInternalServiceTest {
 			.build()
 		);
 
-		assertThrows(DuplicatedInvitationError.class, () -> invitationInternalService.inviteUser(persistentId, resourceId, role));
+		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role));
 
 	}
 
@@ -150,9 +154,10 @@ class InvitationInternalServiceTest {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
-			.fenixUserId(new FenixUserId("fenixId"))
+			.fenixUserId(fenixId)
 			.email("email")
 			.build();
 		Invitation invitation = Invitation.builder()
@@ -166,13 +171,14 @@ class InvitationInternalServiceTest {
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
+		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
 		);
 
-		invitationInternalService.inviteUser("email", resourceId, role);
+		invitatoryService.inviteUser("email", resourceId, role);
 
 		verify(invitationRepository).create(invitation);
 		verify(notificationDAO).notifyUser(persistentId, invitation);
@@ -198,7 +204,7 @@ class InvitationInternalServiceTest {
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
-		when(usersDAO.inviteFenixAdmin("email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
+		when(usersDAO.inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role)).thenReturn(code);
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
@@ -206,10 +212,10 @@ class InvitationInternalServiceTest {
 			.build()
 		);
 
-		invitationInternalService.inviteUser("email", resourceId, role);
+		invitatoryService.inviteUser("email", resourceId, role);
 
 		verify(invitationRepository).create(invitation);
-		verify(usersDAO).inviteFenixAdmin("email", getExpiredAt().toInstant(ZoneOffset.UTC));
+		verify(usersDAO).inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role);
 	}
 
 	@Test
@@ -237,7 +243,7 @@ class InvitationInternalServiceTest {
 			.build()
 		);
 
-		assertThrows(DuplicatedInvitationError.class, () -> invitationInternalService.inviteUser("email", resourceId, role));
+		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email", resourceId, role));
 	}
 
 	@Test
@@ -262,7 +268,7 @@ class InvitationInternalServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.inviteFenixAdmin("email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(invitationCode);
+		when(usersDAO.inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role)).thenReturn(invitationCode);
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
@@ -270,9 +276,9 @@ class InvitationInternalServiceTest {
 		);
 		when(invitationRepository.create(invitation)).thenThrow(new RuntimeException());
 
-		assertThrows(RuntimeException.class, () -> invitationInternalService.inviteUser("email", resourceId, role));
+		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email", resourceId, role));
 
-		verify(usersDAO).removeFenixAdminInvitation(invitationCode);
+		verify(usersDAO).removeInvitation(invitationCode);
 	}
 
 	private LocalDateTime getExpiredAt() {
@@ -298,9 +304,9 @@ class InvitationInternalServiceTest {
 
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
-		invitationInternalService.resendInvitation(invitationId);
+		invitatoryService.resendInvitation(invitationId);
 
-		verify(usersDAO).resendFenixAdminInvitation("email", invitationCode, getExpiredAt().toInstant(ZoneOffset.UTC));
+		verify(usersDAO).resendInvitation("email", invitationCode, getExpiredAt().toInstant(ZoneOffset.UTC), role);
 	}
 
 	@Test
@@ -327,9 +333,9 @@ class InvitationInternalServiceTest {
 			.build();
 
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
-		when(usersDAO.findById(fenixId)).thenReturn(Optional.of(furmsUser));
+		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
 
-		invitationInternalService.resendInvitation(invitationId);
+		invitatoryService.resendInvitation(invitationId);
 
 		verify(notificationDAO).notifyUser(persistentId, invitation);
 	}
@@ -351,7 +357,7 @@ class InvitationInternalServiceTest {
 
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
-		invitationInternalService.removeInvitation(invitationId);
+		invitatoryService.removeInvitation(invitationId);
 
 		verify(invitationRepository).deleteBy(invitationId);
 	}
@@ -375,10 +381,10 @@ class InvitationInternalServiceTest {
 
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
-		invitationInternalService.removeInvitation(invitationId);
+		invitatoryService.removeInvitation(invitationId);
 
 		verify(invitationRepository).deleteBy(invitationId);
-		verify(usersDAO).removeFenixAdminInvitation(invitationCode);
+		verify(usersDAO).removeInvitation(invitationCode);
 	}
 
 }

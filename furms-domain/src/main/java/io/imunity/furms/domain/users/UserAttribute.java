@@ -4,6 +4,8 @@
  */
 package io.imunity.furms.domain.users;
 
+import io.imunity.furms.domain.authz.roles.Role;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +20,10 @@ public class UserAttribute {
 
 	public UserAttribute(String name, String value) {
 		this(name, List.of(value));
+	}
+
+	public UserAttribute(Role role) {
+		this(role.unityRoleAttribute, List.of(role.unityRoleValue));
 	}
 
 	@Override

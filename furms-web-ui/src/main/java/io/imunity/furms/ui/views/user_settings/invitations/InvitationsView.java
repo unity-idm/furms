@@ -13,7 +13,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.invitations.InvitationService;
+import io.imunity.furms.api.invitations.InviteeService;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -24,7 +24,10 @@ import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.InvocationContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -35,23 +38,25 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.CLOSE_CIRCLE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "users/settings/invitations", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.invitations.page.title")
 public class InvitationsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final Grid<InvitationGridModel> grid;
 	private final ZoneId browserZoneId;
-	private final InvitationService invitationService;
+	private final InviteeService inviteeService;
 
-	InvitationsView(InvitationService invitationService) {
-		this.invitationService = invitationService;
+	InvitationsView(InviteeService inviteeService) {
+		this.inviteeService = inviteeService;
 		this.browserZoneId = InvocationContext.getCurrent().getZone();
 
 		Map<InvitationId, Checkbox> checkboxes = new HashMap<>();
-		Component mainContextMenu = createMainContextMenu(invitationService, checkboxes);
+		Component mainContextMenu = createMainContextMenu(inviteeService, checkboxes);
 		grid = createInvitationGrid(checkboxes, mainContextMenu);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.user-settings.invitations.page.header"));
@@ -61,23 +66,33 @@ public class InvitationsView extends FurmsViewComponent {
 		loadGrid();
 	}
 
-	private Component createMainContextMenu(InvitationService invitationService, Map<InvitationId, Checkbox> checkboxes) {
+	private Component createMainContextMenu(InviteeService inviteeService, Map<InvitationId, Checkbox> checkboxes) {
 		GridActionMenu contextMenu = new GridActionMenu();
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.user-settings.invitations.main.context-menu.confirm"), CHECK_CIRCLE),
 			event -> {
+			try {
 				checkboxes.entrySet().stream()
 					.filter(x -> x.getValue().getValue())
-					.forEach(x -> invitationService.acceptBy(x.getKey()));
+					.forEach(x -> inviteeService.acceptBy(x.getKey()));
+			} catch (Exception e){
+				LOG.warn("Could not accept Invitations. ", e);
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 				loadGrid();
 			}
 		);
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.user-settings.invitations.main.context-menu.reject"), CLOSE_CIRCLE),
 			event -> {
+			try {
 				checkboxes.entrySet().stream()
 					.filter(x -> x.getValue().getValue())
-					.forEach(x -> invitationService.acceptInvitationByRegistration(x.getKey()));
+					.forEach(x -> inviteeService.removeBy(x.getKey()));
+			} catch (Exception e){
+				LOG.warn("Could not reject Invitations. ", e);
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 				loadGrid();
 			}
 		);
@@ -107,7 +122,7 @@ public class InvitationsView extends FurmsViewComponent {
 	}
 
 	private void loadGrid() {
-		Set<InvitationGridModel> collect = invitationService.findAllByCurrentUser()
+		Set<InvitationGridModel> collect = inviteeService.findAllByCurrentUser()
 			.stream()
 			.map(invitation -> new InvitationGridModel(
 				invitation.id,
@@ -129,7 +144,12 @@ public class InvitationsView extends FurmsViewComponent {
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.user-settings.invitations.grid.context-menu.confirm"), CHECK_CIRCLE),
 			event -> {
-				invitationService.acceptBy(id);
+			try {
+				inviteeService.acceptBy(id);
+			} catch (Exception e){
+				LOG.warn("Could not accept Invitation. ", e);
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 				loadGrid();
 			}
 		);
@@ -146,7 +166,12 @@ public class InvitationsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(InvitationId invitationId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.invitations.page.removal.confirm"));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			invitationService.acceptInvitationByRegistration(invitationId);
+			try {
+			inviteeService.removeBy(invitationId);
+			} catch (Exception e){
+				LOG.warn("Could not reject Invitation. ", e);
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 			loadGrid();
 		});
 		return furmsDialog;

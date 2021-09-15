@@ -5,7 +5,7 @@
 
 package io.imunity.furms.ui.mvc;
 
-import io.imunity.furms.api.invitations.InvitationService;
+import io.imunity.furms.api.invitations.InviteeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -21,17 +21,17 @@ import static io.imunity.furms.domain.constant.RoutesConst.LANDING_PAGE_URL;
 class RegistrationView {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final InvitationService invitationService;
+	private final InviteeService inviteeService;
 
-	RegistrationView(InvitationService invitationService) {
-		this.invitationService = invitationService;
+	RegistrationView(InviteeService inviteeService) {
+		this.inviteeService = inviteeService;
 	}
 
 	@GetMapping(path = "/public/registration")
 	public String removeInvitationAndRedirect(@RequestParam Map<String, String> params) {
 		String requestId = params.get("request_id");
 		if(requestId != null)
-			invitationService.acceptInvitationByRegistration(requestId);
+			inviteeService.acceptInvitationByRegistration(requestId);
 		else
 			LOG.warn("No unity code to removing invitation");
 		return "redirect:" + "/front/" + LANDING_PAGE_URL;

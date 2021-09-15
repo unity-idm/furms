@@ -7,8 +7,10 @@ package io.imunity.furms.ui.views.fenix.administrators;
 
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -31,16 +33,16 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final UserService userService;
+	private final FenixUserService fenixUserService;
 
 	private final UsersGridComponent grid;
 
-	FenixAdministratorsView(UserService userService, AuthzService authzService) {
-		this.userService = userService;
+	FenixAdministratorsView(UserService userService, FenixUserService fenixUserService, AuthzService authzService) {
+		this.fenixUserService = fenixUserService;
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
 			userService::getAllUsers,
-			userService::getFenixAdmins
+			fenixUserService::getFenixAdmins
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
@@ -48,17 +50,17 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.withCurrentUserId(authzService.getCurrentUserId())
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> {
-				userService.removeFenixAdminRole(userId);
+				fenixUserService.removeFenixAdminRole(userId);
 				inviteUser.reload();
 			})
-			.withResendInvitationAction(userService::resendFenixAdminInvitation)
+			.withResendInvitationAction(fenixUserService::resendFenixAdminInvitation)
 			.withRemoveInvitationAction(code -> {
-				userService.removeFenixAdminInvitation(code);
+				fenixUserService.removeFenixAdminInvitation(code);
 				gridReload();
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(userService::getFenixAdmins, userService::getFenixAdminsInvitations, userGrid);
+		grid = UsersGridComponent.defaultInit(fenixUserService::getFenixAdmins, fenixUserService::getFenixAdminsInvitations, userGrid);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
@@ -72,14 +74,16 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	private void doInviteAction(InviteUserComponent inviteUserComponent) {
 		try {
 			inviteUserComponent.getUserId().ifPresentOrElse(
-				userService::inviteFenixAdmin,
-				() -> userService.inviteFenixAdmin(inviteUserComponent.getEmail())
+				fenixUserService::inviteFenixAdmin,
+				() -> fenixUserService.inviteFenixAdmin(inviteUserComponent.getEmail())
 			);
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("view.fenix-admin.invite.successful.added"));
 			gridReload();
 		} catch (DuplicatedInvitationError e) {
 				showErrorNotification(getTranslation("view.fenix-admin.invite.error.duplicate"));
+		} catch (UserAlreadyHasRoleError e) {
+			showErrorNotification(getTranslation("view.fenix-admin.invite.error.role.own"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);

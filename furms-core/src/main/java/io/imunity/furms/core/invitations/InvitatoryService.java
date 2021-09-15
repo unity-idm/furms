@@ -8,14 +8,17 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -37,8 +40,8 @@ import java.util.UUID;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 @Service
-public class InvitationInternalService {
-	private static final Logger LOG = LoggerFactory.getLogger(InvitationInternalService.class);
+public class InvitatoryService {
+	private static final Logger LOG = LoggerFactory.getLogger(InvitatoryService.class);
 
 	private final UsersDAO usersDAO;
 	private final InvitationRepository invitationRepository;
@@ -48,9 +51,9 @@ public class InvitationInternalService {
 	private final Clock clock;
 	private final int expirationTimeInSeconds;
 
-	InvitationInternalService(UsersDAO usersDAO, InvitationRepository invitationRepository, AuthzService authzService,
-	                          NotificationDAO notificationDAO, ApplicationEventPublisher publisher, Clock clock,
-	                          @Value("${furms.invitations.expiration-time-in-seconds}") String expirationTime) {
+	InvitatoryService(UsersDAO usersDAO, InvitationRepository invitationRepository, AuthzService authzService,
+	                  NotificationDAO notificationDAO, ApplicationEventPublisher publisher, Clock clock,
+	                  @Value("${furms.invitations.expiration-time-in-seconds}") String expirationTime) {
 		this.usersDAO = usersDAO;
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
@@ -68,10 +71,12 @@ public class InvitationInternalService {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("Could not invite user due to wrong email address."));
 
-		if(invitationRepository.findBy(user.email, role, resourceId).isPresent())
-			throw new DuplicatedInvitationError("This invitation already exists");
 		if(user.fenixUserId.isEmpty())
 			throw new UnsupportedUserException("Only fenix users supported");
+		if(invitationRepository.findBy(user.email, role, resourceId).isPresent())
+			throw new DuplicatedInvitationError("This invitation already exists");
+		if(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role)))
+			throw new UserAlreadyHasRoleError("User already has this role");
 
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -92,11 +97,13 @@ public class InvitationInternalService {
 		invitationRepository.findBy(id).ifPresent(invitation -> {
 			LocalDateTime expiredAt = getExpiredAtTime();
 			invitationRepository.updateExpiredAt(invitation.id, expiredAt);
-			if(invitation.code.isPresent())
-				usersDAO.resendFenixAdminInvitation(invitation.email, invitation.code, expiredAt.toInstant(ZoneOffset.UTC));
+			Optional<FURMSUser> furmsUser = usersDAO.getAllUsers().stream()
+				.filter(user -> user.email.equals(invitation.email))
+				.findAny();
+			if(invitation.code.isPresent() && furmsUser.isEmpty())
+				usersDAO.resendInvitation(invitation.email, invitation.code, expiredAt.toInstant(ZoneOffset.UTC), invitation.role);
 			else {
-				FURMSUser furmsUser = usersDAO.findById(invitation.userId).get();
-				notificationDAO.notifyUser(furmsUser.id.get(), invitation);
+				notificationDAO.notifyUser(furmsUser.get().id.get(), invitation);
 			}
 		});
 	}
@@ -105,7 +112,8 @@ public class InvitationInternalService {
 		invitationRepository.findBy(id).ifPresent(invitation -> {
 			invitationRepository.deleteBy(id);
 			if(invitation.code.isPresent())
-				usersDAO.removeFenixAdminInvitation(invitation.code);
+				usersDAO.removeInvitation(invitation.code);
+			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.id, invitation.code));
 		});
 	}
 
@@ -122,7 +130,7 @@ public class InvitationInternalService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 
 		LocalDateTime expiredAt = getExpiredAtTime();
-		InvitationCode invitationCode = usersDAO.inviteFenixAdmin(email, expiredAt.toInstant(ZoneOffset.UTC));
+		InvitationCode invitationCode = usersDAO.inviteUser(email, expiredAt.toInstant(ZoneOffset.UTC), role);
 
 		try {
 			invitationRepository.create(
@@ -136,7 +144,7 @@ public class InvitationInternalService {
 					.build()
 			);
 		} catch (Exception e) {
-			usersDAO.removeFenixAdminInvitation(invitationCode);
+			usersDAO.removeInvitation(invitationCode);
 			throw e;
 		}
 	}

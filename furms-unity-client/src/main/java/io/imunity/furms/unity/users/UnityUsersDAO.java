@@ -7,6 +7,7 @@ package io.imunity.furms.unity.users;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -41,10 +42,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
 import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
 import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
@@ -68,18 +67,13 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAdminUsers() {
-		return userService.getAllUsersByRole(FENIX_PATTERN, FENIX_ADMIN);
-	}
-
-	@Override
 	public List<FURMSUser> getAllUsers() {
 		return userService.getAllUsersFromGroup(FENIX_GROUP, attr -> true);
 	}
 
 	@Override
-	public InvitationCode inviteFenixAdmin(String email, Instant invitationExpiration) {
-		InvitationCode code = invitationDAO.createInvitation(fenixAdminFormName, email, invitationExpiration, FENIX_ADMIN);
+	public InvitationCode inviteUser(String email, Instant invitationExpiration, Role role) {
+		InvitationCode code = invitationDAO.createInvitation(getFormName(role), email, invitationExpiration, role);
 		invitationDAO.sendInvitation(code);
 		return code;
 	}
@@ -90,25 +84,14 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public void removeFenixAdminInvitation(InvitationCode invitationCode) {
+	public void removeInvitation(InvitationCode invitationCode) {
 		invitationDAO.removeInvitation(invitationCode);
 	}
 
 	@Override
-	public void resendFenixAdminInvitation(String email, InvitationCode invitationCode, Instant instant) {
-		invitationDAO.updateInvitation(fenixAdminFormName, email, invitationCode, instant, FENIX_ADMIN);
+	public void resendInvitation(String email, InvitationCode invitationCode, Instant instant, Role role) {
+		invitationDAO.updateInvitation(getFormName(role), email, invitationCode, instant, role);
 		invitationDAO.sendInvitation(invitationCode);
-	}
-
-	@Override
-	public void addFenixAdminRole(PersistentId userId) {
-		userService.addUserToGroup(userId, FENIX_PATTERN);
-		userService.addUserRole(userId, FENIX_PATTERN, FENIX_ADMIN);
-	}
-
-	@Override
-	public void removeFenixAdminRole(PersistentId userId) {
-		userService.removeUserFromGroup(userId, FENIX_PATTERN);
 	}
 	
 	@Override
@@ -246,6 +229,14 @@ class UnityUsersDAO implements UsersDAO {
 			.filter(mapEntry -> !mapEntry.getValue().isEmpty())
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
-	
+
+	private String getFormName(Role role) {
+		switch (role){
+			case FENIX_ADMIN :
+				return fenixAdminFormName;
+			default:
+				return null;
+		}
+	}
 
 }

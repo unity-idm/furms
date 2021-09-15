@@ -106,25 +106,6 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
-	public void updateUserId(Invitation invitation, FenixUserId userId) {
-		repository.save(
-			InvitationEntity.builder()
-				.id(invitation.id.id)
-				.resourceId(invitation.resourceId.id)
-				.resourceType(invitation.resourceId.type)
-				.resourceName(invitation.resourceName)
-				.originator(invitation.originator)
-				.userId(userId.id)
-				.email(invitation.email)
-				.roleAttribute(invitation.role.unityRoleAttribute)
-				.roleValue(invitation.role.unityRoleValue)
-				.code(null)
-				.expiredAt(invitation.utcExpiredAt)
-				.build()
-		);
-	}
-
-	@Override
 	public void deleteBy(InvitationId id) {
 		repository.deleteById(id.id);
 	}

@@ -10,9 +10,9 @@ import io.imunity.furms.domain.invitations.InvitationId;
 
 import java.util.Set;
 
-public interface InvitationService {
+public interface InviteeService {
 	void acceptBy(InvitationId id);
 	Set<Invitation> findAllByCurrentUser();
-	void acceptInvitationByRegistration(InvitationId id);
+	void removeBy(InvitationId id);
 	void acceptInvitationByRegistration(String registrationId);
 }

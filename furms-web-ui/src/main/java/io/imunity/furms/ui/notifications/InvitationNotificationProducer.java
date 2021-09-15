@@ -5,7 +5,7 @@
 
 package io.imunity.furms.ui.notifications;
 
-import io.imunity.furms.api.invitations.InvitationService;
+import io.imunity.furms.api.invitations.InviteeService;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.user_settings.invitations.InvitationsView;
 import org.springframework.stereotype.Component;
@@ -17,15 +17,15 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 @Component
 class InvitationNotificationProducer implements NotificationProducer{
-	private final InvitationService invitationService;
+	private final InviteeService inviteeService;
 
-	InvitationNotificationProducer(InvitationService invitationService) {
-		this.invitationService = invitationService;
+	InvitationNotificationProducer(InviteeService inviteeService) {
+		this.inviteeService = inviteeService;
 	}
 
 	@Override
 	public Stream<NotificationBarElement> findAllCurrentUserNotifications() {
-		return invitationService.findAllByCurrentUser().stream()
+		return inviteeService.findAllByCurrentUser().stream()
 			.map(invitation ->
 				new NotificationBarElement(
 					getTranslation(
