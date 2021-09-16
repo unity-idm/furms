@@ -14,5 +14,5 @@ public interface NotificationDAO {
 	void notifyUser(PersistentId id, PolicyDocument policyDocument);
 	void notifyUser(PersistentId id, Invitation invitation);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
-	void notifyAboutAllNotAcceptedPolicies(FenixUserId fenixUserId, String grantId);
+	void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId fenixUserId, String grantId);
 }

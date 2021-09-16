@@ -19,7 +19,8 @@ class EmbeddedPolicyDocumentView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		Html data = (Html) UI.getCurrent().getSession().getAttribute(parameter);
-		getContent().add(data);
+		getContent().removeAll();
+		String html = (String) UI.getCurrent().getSession().getAttribute(parameter);
+		getContent().add(new Html(html));
 	}
 }

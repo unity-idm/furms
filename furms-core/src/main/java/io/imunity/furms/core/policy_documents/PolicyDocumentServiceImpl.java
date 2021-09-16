@@ -7,7 +7,6 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
@@ -33,6 +32,7 @@ import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -72,7 +72,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final ResourceAccessRepository resourceAccessRepository;
 	private final SiteRepository siteRepository;
-	private final UserService userService;
+	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
 
 	PolicyDocumentServiceImpl(AuthzService authzService, PolicyDocumentRepository policyDocumentRepository,
@@ -80,7 +80,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	                          NotificationDAO notificationDAO, UserOperationService userOperationService,
 	                          SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                          ResourceAccessRepository resourceAccessRepository, SiteRepository siteRepository,
-	                          UserService userService, ApplicationEventPublisher publisher) {
+	                          UsersDAO usersDAO, ApplicationEventPublisher publisher) {
 		this.authzService = authzService;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
@@ -90,7 +90,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.resourceAccessRepository = resourceAccessRepository;
 		this.siteRepository = siteRepository;
-		this.userService = userService;
+		this.usersDAO = usersDAO;
 		this.publisher = publisher;
 	}
 
@@ -169,7 +169,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@Transactional
 	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
-		FURMSUser user = userService.findByFenixUserId(userId)
+		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
 		Optional<PolicyDocument> policyDocument = policyDocumentRepository.findById(policyAcceptance.policyDocumentId);
 		assertPolicyBelongsToSite(siteId, policyDocument);

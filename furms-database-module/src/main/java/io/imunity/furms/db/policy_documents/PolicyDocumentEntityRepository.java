@@ -30,6 +30,14 @@ public interface PolicyDocumentEntityRepository extends CrudRepository<PolicyDoc
 	)
 	Optional<PolicyDocumentEntity> findByUserGrantId(@Param("user_grant_id") UUID userGrantId);
 
+	@Query(
+		"select pd.* " +
+			"from policy_document pd " +
+			"join site s on s.policy_id = pd.id " +
+			"where s.id = :site_id"
+	)
+	Optional<PolicyDocumentEntity> findSitePolicy(@Param("site_id") UUID siteId);
+
 	@Query("select pd.*, s.name as site_name, se.name as service_name " +
 		"from policy_document pd " +
 		"join service se on pd.id = se.policy_id " +
