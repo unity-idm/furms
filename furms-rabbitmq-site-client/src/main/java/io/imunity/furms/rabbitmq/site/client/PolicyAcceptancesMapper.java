@@ -36,7 +36,9 @@ class PolicyAcceptancesMapper {
 					.serviceIdentifier(servicePolicyDocument.serviceId)
 					.acceptanceStatus(getAcceptanceStatus(policyAcceptance.acceptanceStatus))
 					.build())
-			).collect(Collectors.toList());
+			)
+			.distinct()
+			.collect(Collectors.toList());
 	}
 
 	private static List<AssignedPolicyDocument> getAssignedPolicyDocument(Optional<AssignedPolicyDocument> sitePolicyDocument, io.imunity.furms.domain.policy_documents.PolicyAcceptance policyAcceptance) {

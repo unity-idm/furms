@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -18,8 +19,10 @@ import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
+import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
@@ -69,6 +72,11 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 
 	private Site site;
 	private Site darkSite;
+
+	@MockBean
+	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+	@MockBean
+	private UserOperationService userOperationService;
 
 	@BeforeEach
 	void setUp() {

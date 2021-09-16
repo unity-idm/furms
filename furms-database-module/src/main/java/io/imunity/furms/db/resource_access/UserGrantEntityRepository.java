@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntity, UUID> {
+	Set<UserGrantEntity> findAllBySiteId(UUID siteId);
+
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +
 		"ua.project_allocation_id as allocation_project_allocation_id, ua.user_id as allocation_user_id, " +

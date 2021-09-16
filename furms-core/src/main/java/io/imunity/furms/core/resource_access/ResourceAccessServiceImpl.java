@@ -99,7 +99,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
 		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
-		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.fenixUserId, grantId.toString());
+		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId.id, grantAccess.fenixUserId, grantId.toString());
 		publisher.publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 	}
