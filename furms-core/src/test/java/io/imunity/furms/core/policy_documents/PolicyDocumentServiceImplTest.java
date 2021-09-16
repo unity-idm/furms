@@ -5,6 +5,23 @@
 
 package io.imunity.furms.core.policy_documents;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
@@ -30,22 +47,6 @@ import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
 
 class PolicyDocumentServiceImplTest {
 
@@ -401,7 +402,6 @@ class PolicyDocumentServiceImplTest {
 			.id("siteId")
 			.externalId(new SiteExternalId("id"))
 			.build();
-		SiteId siteId = new SiteId("siteId");
 
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 

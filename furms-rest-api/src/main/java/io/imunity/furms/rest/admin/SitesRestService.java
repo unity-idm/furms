@@ -5,7 +5,33 @@
 
 package io.imunity.furms.rest.admin;
 
-import io.imunity.furms.api.authz.AuthzService;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
+import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.flatMapping;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
@@ -30,32 +56,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-
-import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
-import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
-import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
-import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static java.util.Optional.*;
-import static java.util.stream.Collectors.flatMapping;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 
 @Service
 class SitesRestService {
@@ -69,7 +69,6 @@ class SitesRestService {
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectInstallationsService projectInstallationsService;
 	private final UserService userService;
-	private final AuthzService authzService;
 	private final UserAllocationsService userAllocationsService;
 	private final SSHKeyService sshKeyService;
 	private final ResourceChecker resourceChecker;
@@ -85,7 +84,6 @@ class SitesRestService {
 	                 ProjectAllocationService projectAllocationService,
 	                 ProjectInstallationsService projectInstallationsService,
 	                 UserService userService,
-	                 AuthzService authzService,
 	                 UserAllocationsService userAllocationsService,
 	                 SSHKeyService sshKeyService,
 	                 PolicyDocumentService policyDocumentService) {
@@ -98,7 +96,6 @@ class SitesRestService {
 		this.projectAllocationService = projectAllocationService;
 		this.projectInstallationsService = projectInstallationsService;
 		this.userService = userService;
-		this.authzService = authzService;
 		this.userAllocationsService = userAllocationsService;
 		this.sshKeyService = sshKeyService;
 		this.resourceChecker = new ResourceChecker(siteService::existsById);
@@ -336,13 +333,6 @@ class SitesRestService {
 				.filter(allocation -> allocation.id.equals(projectAllocationId))
 				.findFirst()
 				.get();
-	}
-
-	private Optional<io.imunity.furms.domain.resource_types.ResourceType> findResource(
-			Set<io.imunity.furms.domain.resource_types.ResourceType> resourceTypes, String resourceTypeId) {
-		return resourceTypes.stream()
-				.filter(resourceType -> resourceTypeId.equals(resourceType.id))
-				.findFirst();
 	}
 
 	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions) {

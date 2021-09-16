@@ -5,12 +5,12 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import io.imunity.furms.ui.components.MenuButton;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import io.imunity.furms.ui.components.MenuButton;
 
 class CustomContextMenuItem<T> {
 	public final Function<T, MenuButton> buttonProvider;
@@ -27,7 +27,7 @@ class CustomContextMenuItem<T> {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		CustomContextMenuItem that = (CustomContextMenuItem) o;
+		CustomContextMenuItem<?> that = (CustomContextMenuItem<?>) o;
 		return Objects.equals(buttonProvider, that.buttonProvider) && Objects.equals(menuButtonHandler, that.menuButtonHandler);
 	}
 

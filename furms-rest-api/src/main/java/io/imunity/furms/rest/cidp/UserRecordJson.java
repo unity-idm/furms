@@ -5,7 +5,6 @@
 package io.imunity.furms.rest.cidp;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.List;

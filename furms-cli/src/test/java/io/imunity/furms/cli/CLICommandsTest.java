@@ -5,15 +5,10 @@
 
 package io.imunity.furms.cli;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.util.SocketUtils;
-import org.springframework.web.util.UriComponentsBuilder;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.status;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static io.imunity.furms.cli.client.RestTemplateConfig.FURMS_REST_BASE_PATH;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,10 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.status;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static io.imunity.furms.cli.client.RestTemplateConfig.FURMS_REST_BASE_PATH;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.util.SocketUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 
 
 public abstract class CLICommandsTest {
@@ -67,7 +68,7 @@ public abstract class CLICommandsTest {
 		CLIApplication.main(params.toArray(new String[params.size()]));
 	}
 
-	protected UrlPattern restPath(String path, String... params) {
+	protected UrlPattern restPath(String path, Object... params) {
 		return urlMatching(UriComponentsBuilder
 				.fromPath(FURMS_REST_BASE_PATH + path)
 				.build(params)
