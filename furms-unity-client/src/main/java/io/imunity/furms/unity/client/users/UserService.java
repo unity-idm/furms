@@ -84,6 +84,7 @@ public class UserService {
 		unityClient.post(path, null, encodedParams);
 	}
 
+
 	private String prepareGroupRequestPath(PersistentId userId, String group) {
 		Map<String, String> uriVariables = Map.of(GROUP_PATH, group, ID, userId.id);
 		return UriComponentsBuilder.newInstance()

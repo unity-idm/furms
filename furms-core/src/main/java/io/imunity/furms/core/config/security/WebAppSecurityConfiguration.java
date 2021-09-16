@@ -4,18 +4,8 @@
  */
 package io.imunity.furms.core.config.security;
 
-import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_SUCCESS_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.PUBLIC_URL;
-
-import java.lang.invoke.MethodHandles;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-
+import io.imunity.furms.core.config.security.oauth.FurmsOAuth2UserService;
+import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +20,16 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
 
-import io.imunity.furms.core.config.security.oauth.FurmsOAuth2UserService;
-import io.imunity.furms.spi.roles.RoleLoader;
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_SUCCESS_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.PUBLIC_URL;
 
 @EnableWebSecurity
 @Configuration
@@ -106,7 +104,11 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			FRONT + "/manifest.webmanifest", FRONT + "/sw.js", FRONT + "/offline-page.html",
 
 			// icons and images
-			FRONT + "/icons/**", FRONT + "/images/**");
+			FRONT + "/icons/**", FRONT + "/images/**",
+
+			// endpoint for registration flow
+			PUBLIC_URL + "/registration"
+			);
 	}
 
 	private DefaultAuthorizationCodeTokenResponseClient getAuthorizationTokenResponseClient(RestTemplate restTemplate) {

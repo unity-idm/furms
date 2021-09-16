@@ -166,8 +166,8 @@ class DemoDataInitializer implements CommandLineRunner {
 			String project2Id = projectRepository.create(project2);
 			projectGroupsDAO.create(new ProjectGroup(project2Id, project2.getName(), communityId));
 
-			projectGroupsDAO.addAdmin(communityId, projectId, testAdminId);
-			projectGroupsDAO.addAdmin(communityId, project2Id, testAdminId);
+			projectGroupsDAO.addProjectUser(communityId, projectId, testAdminId, Role.PROJECT_ADMIN);
+			projectGroupsDAO.addProjectUser(communityId, project2Id, testAdminId, Role.PROJECT_ADMIN);
 
 			Project project3 = Project.builder()
 				.name("Neuroinforamtics2")
@@ -198,8 +198,8 @@ class DemoDataInitializer implements CommandLineRunner {
 			String project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
 
-			projectGroupsDAO.addAdmin(community2Id, project3Id, testAdminId);
-			projectGroupsDAO.addAdmin(community2Id, project4Id, testAdminId);
+			projectGroupsDAO.addProjectUser(community2Id, project3Id, testAdminId, Role.PROJECT_ADMIN);
+			projectGroupsDAO.addProjectUser(community2Id, project4Id, testAdminId, Role.PROJECT_ADMIN);
 		}
 	}
 

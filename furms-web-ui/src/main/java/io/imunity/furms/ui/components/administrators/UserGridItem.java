@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components.administrators;
 
 import com.vaadin.flow.component.icon.Icon;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -21,6 +22,7 @@ public class UserGridItem {
 	private final Optional<FenixUserId> fenixUserId;
 	private final Optional<String> firstName;
 	private final Optional<String> lastName;
+	private final Optional<InvitationId> invitationId;
 	private final UserStatus status;
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
@@ -32,6 +34,17 @@ public class UserGridItem {
 		this.lastName = user.lastName;
 		this.status = user.status;
 		this.email = user.email;
+		this.invitationId = Optional.empty();
+	}
+
+	public UserGridItem(String email, InvitationId invitationId) {
+		this.id = Optional.empty();
+		this.fenixUserId = Optional.empty();
+		this.firstName = Optional.empty();
+		this.lastName = Optional.empty();
+		this.status = UserStatus.DISABLED;
+		this.email = email;
+		this.invitationId = Optional.of(invitationId);
 	}
 
 	public Optional<PersistentId> getId() {
@@ -54,6 +67,10 @@ public class UserGridItem {
 		return email;
 	}
 
+	Optional<InvitationId> getInvitationId() {
+		return invitationId;
+	}
+
 	public Icon getIcon() {
 		return icon;
 	}
@@ -71,7 +88,7 @@ public class UserGridItem {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserGridItem that = (UserGridItem) o;
-		return id.equals(that.id);
+		return id.equals(that.id) && Objects.equals(email, that.email);
 	}
 
 	@Override

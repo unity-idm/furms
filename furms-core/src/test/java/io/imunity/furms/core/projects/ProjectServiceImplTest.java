@@ -9,11 +9,14 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
-import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.*;
+import io.imunity.furms.domain.projects.CreateProjectEvent;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.RemoveProjectEvent;
+import io.imunity.furms.domain.projects.UpdateProjectEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -34,12 +37,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class ProjectServiceImplTest {
@@ -139,7 +143,6 @@ class ProjectServiceImplTest {
 		orderVerifier.verify(projectRepository).create(eq(request));
 		orderVerifier.verify(projectGroupsDAO).create(eq(groupRequest));
 
-		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
 		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectEvent(id)));
 	}
 
@@ -157,8 +160,6 @@ class ProjectServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(projectRepository, times(0)).create(eq(request));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateProjectEvent("id")));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
-
 	}
 
 	@Test
@@ -190,7 +191,6 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).update(eq(request));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new InviteUserEvent(request.getLeaderId(), new ResourceId(id, PROJECT))));
 		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent(id)));
 	}
 

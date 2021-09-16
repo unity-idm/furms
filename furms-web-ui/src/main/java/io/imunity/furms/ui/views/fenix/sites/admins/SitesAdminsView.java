@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -102,7 +103,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			}).build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(() -> siteService.findAllAdministrators(siteId), userGrid);
+		grid = UsersGridComponent.defaultInit(() -> siteService.findAllAdministrators(siteId), Set::of, userGrid);
 
 		Site site = handleExceptions(() -> siteService.findById(siteId))
 				.flatMap(identity())
@@ -115,7 +116,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	private void doInviteAction(String siteId, InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
-			siteService.inviteAdmin(siteId, inviteUserComponent.getUserId());
+			siteService.inviteAdmin(siteId, inviteUserComponent.getUserId().orElse(null));
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			grid.reloadGrid();

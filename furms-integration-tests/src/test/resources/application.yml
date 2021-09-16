@@ -16,10 +16,15 @@ furms:
    notification:
       new-policy-template-id: testTemplate
       new-policy-revision-template-id: testTemplate
+      new-invitation-template-id: testTemplate
+   invitations:
+      expiration-time-in-seconds: 604800
+      fenix-admin-form: fenixAdminForm
    unity:
       admin-url: ${furms.unity.url}/rest-admin/v1
       admin-user: password
       admin-password: password
+      url: https://localhost:2222
       ssl:
          trust-store: classpath:demoTruststore.jks
          trust-store-password: unicore

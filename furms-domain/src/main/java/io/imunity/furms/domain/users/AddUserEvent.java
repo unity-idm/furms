@@ -9,11 +9,11 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 
 import java.util.Objects;
 
-public class InviteUserEvent implements UserEvent{
+public class AddUserEvent implements UserEvent{
 	public final PersistentId id;
 	public final ResourceId resourceId;
 
-	public InviteUserEvent(PersistentId id, ResourceId resourceId) {
+	public AddUserEvent(PersistentId id, ResourceId resourceId) {
 		this.id = id;
 		this.resourceId = resourceId;
 	}
@@ -27,7 +27,7 @@ public class InviteUserEvent implements UserEvent{
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		InviteUserEvent userEvent = (InviteUserEvent) o;
+		AddUserEvent userEvent = (AddUserEvent) o;
 		return Objects.equals(id, userEvent.id) &&
 			Objects.equals(resourceId, userEvent.resourceId);
 	}
@@ -39,7 +39,7 @@ public class InviteUserEvent implements UserEvent{
 
 	@Override
 	public String toString() {
-		return "InviteUserEvent{" +
+		return "AddUserEvent{" +
 			"id='" + id + '\'' +
 			", resourceId=" + resourceId +
 			'}';

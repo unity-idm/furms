@@ -9,7 +9,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.MenuButton;
@@ -24,6 +26,8 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -31,6 +35,8 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class UserContextMenuFactory {
 	private final Consumer<PersistentId> removeUserAction;
+	private final Consumer<InvitationId> resendInvitationAction;
+	private final Consumer<InvitationId> removeInvitationAction;
 	private final PersistentId currentUserId;
 	private final boolean redirectOnCurrentUserRemoval;
 	private final boolean allowRemovalOfLastUser;
@@ -48,7 +54,9 @@ public class UserContextMenuFactory {
 	                       String confirmRemovalMessageKey,
 	                       String confirmSelfRemovalMessageKey,
 	                       String removalNotAllowedMessageKey,
-	                       Set<CustomContextMenuItem> customContextMenuItems) {
+	                       Set<CustomContextMenuItem> customContextMenuItems,
+	                       Consumer<InvitationId> resendInvitationAction,
+	                       Consumer<InvitationId> removeInvitationAction) {
 		this.removeUserAction = removeUserAction;
 		this.currentUserId = currentUserId;
 		this.redirectOnCurrentUserRemoval = redirectOnCurrentUserRemoval;
@@ -63,6 +71,8 @@ public class UserContextMenuFactory {
 			? "component.administrators.error.validation.remove"
 			: removalNotAllowedMessageKey;
 		this.customContextMenuItems = customContextMenuItems;
+		this.resendInvitationAction = resendInvitationAction;
+		this.removeInvitationAction = removeInvitationAction;
 	}
 
 	private void doRemoveYourself(Runnable gridReloader, Supplier<Integer> gridSizeLoader){
@@ -109,17 +119,32 @@ public class UserContextMenuFactory {
 	public Component get(UserGridItem gridItem, Runnable gridReloader, Supplier<Integer> gridSizeLoader){
 		GridActionMenu contextMenu = new GridActionMenu();
 
-		Button button = new Button(getTranslation("component.administrators.context.menu.remove"),
-			MINUS_CIRCLE.create());
-		button.addThemeVariants(LUMO_TERTIARY);
-
-		if(removeUserAction != null) {
+		if(removeUserAction != null && gridItem.getStatus().equals(UserStatus.ENABLED)) {
+			Button button = new Button(getTranslation("component.administrators.context.menu.remove"),
+				MINUS_CIRCLE.create());
+			button.addThemeVariants(LUMO_TERTIARY);
 			contextMenu.addItem(button, event -> {
 				if (gridItem.getId().isPresent()
 					&& gridItem.getId().get().equals(currentUserId))
 					doRemoveYourself(gridReloader, gridSizeLoader);
 				else
 					doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
+			});
+		}
+		if(resendInvitationAction != null && gridItem.getStatus().equals(UserStatus.DISABLED)){
+			Button button = new Button(getTranslation("component.administrators.context.menu.resend.invitation"),
+				PAPERPLANE.create());
+			button.addThemeVariants(LUMO_TERTIARY);
+			contextMenu.addItem(button, event -> {
+				resendInvitationAction.accept(gridItem.getInvitationId().get());
+			});
+		}
+		if(removeInvitationAction != null && gridItem.getStatus().equals(UserStatus.DISABLED)){
+			Button button = new Button(getTranslation("component.administrators.context.menu.remove.invitation"),
+				TRASH.create());
+			button.addThemeVariants(LUMO_TERTIARY);
+			contextMenu.addItem(button, event -> {
+				removeInvitationAction.accept(gridItem.getInvitationId().get());
 			});
 		}
 		customContextMenuItems.stream()
@@ -154,6 +179,8 @@ public class UserContextMenuFactory {
 		private String confirmSelfRemovalMessageKey;
 		private String removalNotAllowedMessageKey;
 		private final Set<CustomContextMenuItem> customContextMenuItems = new HashSet<>();
+		private Consumer<InvitationId> resendInvitationAction;
+		private Consumer<InvitationId> removeInvitationAction;
 
 		private Builder() {
 		}
@@ -198,6 +225,16 @@ public class UserContextMenuFactory {
 			return this;
 		}
 
+		public Builder withRemoveInvitationAction(Consumer<InvitationId> removeInvitationAction) {
+			this.removeInvitationAction = removeInvitationAction;
+			return this;
+		}
+
+		public Builder withResendInvitationAction(Consumer<InvitationId> resendInvitationAction) {
+			this.resendInvitationAction = resendInvitationAction;
+			return this;
+		}
+
 		public Builder withRemovalNotAllowedMessageKey(String key) {
 			this.removalNotAllowedMessageKey = key;
 			return this;
@@ -206,7 +243,8 @@ public class UserContextMenuFactory {
 		public UserContextMenuFactory build() {
 			return new UserContextMenuFactory(removeUserAction, currentUserId,
 				redirectOnCurrentUserRemoval, allowRemovalOfLastUser, confirmRemovalMessageKey,
-				confirmSelfRemovalMessageKey, removalNotAllowedMessageKey, customContextMenuItems);
+				confirmSelfRemovalMessageKey, removalNotAllowedMessageKey, customContextMenuItems,
+				resendInvitationAction, removeInvitationAction);
 		}
 	}
 }

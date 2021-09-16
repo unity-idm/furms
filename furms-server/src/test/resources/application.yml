@@ -34,6 +34,10 @@ furms:
    notification:
       new-policy-template-id: policyAcceptanceNew
       new-policy-revision-template-id: policyAcceptanceRevision
+      new-invitation-template-id: invitationNew
+   invitations:
+      expiration-time-in-seconds: 604800
+      fenix-admin-form: fenixAdminForm
 
 
 spring:

@@ -1,0 +1,89 @@
+{
+	"ver": "2",
+	"name": "oauth-registration",
+	"description": "For translation of CentralIdP",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "attr contains 'sub'"
+			}, 
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['sub']",
+					"sys:all",
+					"MATCH"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'name'"
+			}, 
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"name",
+					"/",
+					"attr['name']",
+					"CREATE_OR_UPDATE"
+				]
+			}			
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'given_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"firstname",
+					"/",
+					"attr['given_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'family_name'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"surname",
+					"/",
+					"attr['family_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'email'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"attr['email']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": true
+			},
+			"action": {
+				"name": "mapGroup",
+				"parameters": [
+					"'/fenix'",
+					"REQUIRE_EXISTING_GROUP"
+				]
+			}
+		}
+	]
+}

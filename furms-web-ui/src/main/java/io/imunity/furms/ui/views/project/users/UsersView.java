@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				membershipLayout.loadAppropriateButton();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()), userGrid);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllUsers(project.getCommunityId(), project.getId()), Set::of, userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
@@ -97,7 +98,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			membershipLayout.loadAppropriateButton();
 		});
 		inviteUser.addInviteAction(event -> {
-			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getUserId());
+			projectService.inviteUser(project.getCommunityId(), project.getId(), inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();

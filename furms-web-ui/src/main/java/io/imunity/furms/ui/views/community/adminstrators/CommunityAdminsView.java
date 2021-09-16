@@ -21,6 +21,7 @@ import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -47,10 +48,10 @@ public class CommunityAdminsView extends FurmsViewComponent {
 				inviteUser.reload();
 			}).build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(fetchUsersAction, userGrid);
+		UsersGridComponent grid = UsersGridComponent.defaultInit(fetchUsersAction, Set::of, userGrid);
 
 		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getUserId());
+			communityService.inviteAdmin(communityId, inviteUser.getUserId().orElse(null));
 			grid.reloadGrid();
 			inviteUser.reload();
 		});

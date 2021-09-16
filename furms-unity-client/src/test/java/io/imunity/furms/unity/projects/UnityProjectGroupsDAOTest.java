@@ -19,13 +19,23 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class UnityProjectGroupsDAOTest {
@@ -151,7 +161,7 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		PersistentId userId = new PersistentId("userId");
 		//when
-		unityProjectGroupsDAO.addAdmin(communityId, projectId, userId);
+		unityProjectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
 
 		//then
 		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(PROJECT_ADMIN));
@@ -233,7 +243,7 @@ class UnityProjectGroupsDAOTest {
 		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
 		PersistentId userId = new PersistentId("userId");
 		//when
-		unityProjectGroupsDAO.addUser(communityId, projectId, userId);
+		unityProjectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
 
 		//then
 		verify(userService, times(1)).addUserRole(eq(userId), eq(groupPath), eq(PROJECT_USER));

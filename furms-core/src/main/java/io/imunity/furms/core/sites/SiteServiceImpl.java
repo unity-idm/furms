@@ -14,6 +14,7 @@ import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.site_agent.PendingJob;
@@ -25,7 +26,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.InviteUserEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
@@ -33,8 +33,8 @@ import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
@@ -43,7 +43,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,9 +53,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
@@ -334,7 +330,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
 		}
 		inviter.run();
-		publisher.publishEvent(new InviteUserEvent(user.get().id.orElse(null), new ResourceId(siteId, SITE)));
+		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.get(), new ResourceId(siteId, SITE)));
 	}
 
 	@Override
@@ -354,7 +350,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 		try {
 			adder.run();
-			publisher.publishEvent(new InviteUserEvent(userId, new ResourceId(siteId, SITE)));
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not add Site Administrator: ", e);

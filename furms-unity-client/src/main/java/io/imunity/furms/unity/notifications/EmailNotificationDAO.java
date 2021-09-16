@@ -5,6 +5,7 @@
 
 package io.imunity.furms.unity.notifications;
 
+import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -19,23 +20,25 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.Optional.ofNullable;
 
 @Component
 class EmailNotificationDAO implements NotificationDAO {
 
 	private static final String NAME_ATTRIBUTE = "custom.name";
+	private static final String ROLE_ATTRIBUTE = "custom.role";
 	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final EmailNotificationProperties emailNotificationProperties;
 	private final ApplicationEventPublisher publisher;
+	private final ResourceBundle bundle;
 
 
 	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
@@ -45,6 +48,7 @@ class EmailNotificationDAO implements NotificationDAO {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.emailNotificationProperties = emailNotificationProperties;
 		this.publisher = publisher;
+		this.bundle = ResourceBundle.getBundle("messages", new Locale("en", "US"));
 	}
 
 	@Override
@@ -54,6 +58,12 @@ class EmailNotificationDAO implements NotificationDAO {
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyAcceptanceTemplateId, attributes);
 		else
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyRevisionTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyUser(PersistentId id, Invitation invitation) {
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(invitation.role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
 	}
 
 	@Override
