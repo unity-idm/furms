@@ -5,6 +5,17 @@
 
 package io.imunity.furms.unity.notifications;
 
+import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -16,16 +27,6 @@ import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.unity.client.users.UserService;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
 class EmailNotificationDAO implements NotificationDAO {
@@ -97,7 +98,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 		policyDocumentRepository.findAllByUserId(userId, (id, revision) -> LocalDateTime.MAX).stream()
 			.filter(policyDocument ->
-				ofNullable(policyAcceptanceMap.get(policyDocument.id))
+				Optional.ofNullable(policyAcceptanceMap.get(policyDocument.id))
 					.filter(policyAcceptance -> policyDocument.revision == policyAcceptance.policyDocumentRevision).isEmpty()
 			)
 			.filter(policyDocument ->
