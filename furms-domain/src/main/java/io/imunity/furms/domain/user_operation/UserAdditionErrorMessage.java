@@ -21,7 +21,8 @@ public class UserAdditionErrorMessage {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserAdditionErrorMessage that = (UserAdditionErrorMessage) o;
-		return code == that.code && Objects.equals(message, that.message);
+		return Objects.equals(code, that.code) 
+				&& Objects.equals(message, that.message);
 	}
 
 	@Override
