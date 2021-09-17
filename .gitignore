@@ -18,5 +18,7 @@
 **/webpack.generated.js
 
 furms-doc/.asciidoctorconfig.adoc
-furms-unity-runner/src/test/resources/MYmail.properties
+**/MYmail.properties
+**/MYremoteRegistartion.properties
+
 
