@@ -58,9 +58,9 @@ public abstract class CLICommandsTest {
 
 	protected void runCLI(String... args) {
 		final List<String> defaultParams = List.of(
-				"--furmsurl", "http://localhost:"+PORT,
+				"--furms-url", "http://localhost:"+PORT,
 				"--truststore", loadResourcePath("testTruststore.jks"),
-				"--configfile", loadResourcePath("config.properties"));
+				"--config-file", loadResourcePath("config.properties"));
 		final List<String> params = new ArrayList<>();
 		params.addAll(List.of(args));
 		params.addAll(defaultParams);
@@ -71,7 +71,7 @@ public abstract class CLICommandsTest {
 	protected UrlPattern restPath(String path, Object... params) {
 		return urlMatching(UriComponentsBuilder
 				.fromPath(FURMS_REST_BASE_PATH + path)
-				.build(params)
+				.build((Object[])params)
 				.toString());
 	}
 

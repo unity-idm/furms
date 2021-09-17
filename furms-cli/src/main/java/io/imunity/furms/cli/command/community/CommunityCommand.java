@@ -32,8 +32,7 @@ public class CommunityCommand extends FurmsCommand {
 		@Override
 		protected void executeCommand() {
 			LOG.info("Executing community list");
-			furmsClient.get(path("/communities")
-					.build());
+			furmsClient.get(path("/communities").build());
 		}
 	}
 

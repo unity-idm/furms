@@ -13,10 +13,11 @@ import javax.net.ssl.SSLContext;
 
 class SSLContextManager {
 
-	static SSLContext createSSLContext(String trustStore, String trustStorePassword) {
+	static SSLContext createSSLContext(String trustStore, String trustStorePassword, String keyStoreType) {
 		try {
 			final Resource resource = new FileSystemResource(trustStore);
 			return new SSLContextBuilder()
+					.setKeyStoreType(keyStoreType)
 					.loadTrustMaterial(resource.getFile(), trustStorePassword.toCharArray())
 					.build();
 		} catch (Exception e) {

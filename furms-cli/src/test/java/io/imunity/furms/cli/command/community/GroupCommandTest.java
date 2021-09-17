@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.imunity.furms.cli.CLICommandsTest;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
