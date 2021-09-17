@@ -17,4 +17,6 @@ include::user-manual-community.adoc[]
 
 include::user-manual-project.adoc[]
 
+include::user-manual-cli.adoc[]
+
 include::user-manual-enduser.adoc[]
