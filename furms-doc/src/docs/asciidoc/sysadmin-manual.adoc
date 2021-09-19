@@ -292,6 +292,48 @@ NOTE: The redirect URL configured at Central IdP OAuth client side should be set
 |Central IdP OpenID Connect Discovery endpoint address, for production environment https://central-proxy.fenix-ri.eu/.well-known/openid-configuration and for the acceptance environment https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration
 
 
+
+|unity.mail
+2+a| Configuration of Unity-IdM mail notifications subsystem, used by FURMS to send invitations, applications, policy acceptance information etc. Mail configuration is optional.
+
+NOTE: The SSL for SMTP connections is enabled by default.
+
+|unity.mail.from
+|string
+|User name which will be used for From: field of the email. It is also used as SMTP envelope return address.
+
+|unity.mail.smtp.host
+|string
+|The SMTP server to connect to.
+
+|unity.mail.smtp.port
+|integer [0-65535]
+|The SMTP server port to connect to.
+
+|unity.mail.smtp.username
+|string
+|User name to authenticate SMTP connection.
+
+|unity.mail.smtp.password
+|string
+|Password to authenticate SMTP connection.
+
+
+|unity.msgTemplates
+2+a| Configuration of email templates used by FURMS to send notifications. This configuration is optional, FURMS comes with default config file and default email template files.
+
+NOTE: For more information on email templates configuration, please refer to <<Email templates configuration>> section.
+
+|unity.msgTemplates.configuration
+|filesystem path on Ansible management host
+|Unity message templates configuration file.
+
+|unity.msgTemplates.files
+|filesystem path on Ansible management host
+|Path to directory with HTML body files used by message templates.
+
+
+
 3+^e| --- FURMS service configuration ---
 
 
@@ -393,6 +435,89 @@ NOTE: The redirect URL configured at Central IdP OAuth client side should be set
 NOTE: Any reconfiguration of aforementioned options in the case of FURMS installation from scratch, is currently supported only by reinstallation from scratch. You have to update the settings, drop databases (if stack was already started), and install FURMS stack again.
 
 
+=== Email templates configuration
+FURMS utilize Unity-IdM notification subsystem, therefore in order to setup email templates used by FURMS, administrator has to create the Unity-IdM configuration files, descried in the next subsections, and put a reference to those in the Ansible group variable file.
+
+==== Message templates configuration
+This particular configuration file is parsable by Unity-IdM and defines all email template definitions, here is the default content:
+
+```
+master-furms-header.subject.en=
+master-furms-header.consumer=Generic
+master-furms-header.type=HTML
+master-furms-header.bodyFile.en=${CONF}/msgTemplates/masterTemplate-furms-head.html
+
+master-furms-footer.subject.en=
+master-furms-footer.consumer=Generic
+master-furms-footer.type=HTML
+master-furms-footer.bodyFile.en=${CONF}/msgTemplates/masterTemplate-furms-footer.html
+
+policyAcceptanceNew.subject.en=Fenix policy document awaits acceptance
+policyAcceptanceNew.consumer=UserNotification
+policyAcceptanceNew.notificationChannel=default_email
+policyAcceptanceNew.type=HTML
+policyAcceptanceNew.bodyFile.en=${CONF}/msgTemplates/policyAcceptanceNew.html
+
+policyAcceptanceRevision.subject.en=Fenix policy document was updated
+policyAcceptanceRevision.consumer=UserNotification
+policyAcceptanceRevision.notificationChannel=default_email
+policyAcceptanceRevision.type=HTML
+policyAcceptanceRevision.bodyFile.en=${CONF}/msgTemplates/policyAcceptanceRevision.html
+
+invitationNew.subject.en=New role to accept
+invitationNew.consumer=UserNotification
+invitationNew.notificationChannel=default_email
+invitationNew.type=HTML
+invitationNew.bodyFile.en=${CONF}/msgTemplates/invitationNew.html
+
+registrationInvitation.subject.en=You have been invited to the FURMS app
+registrationInvitation.consumer=InvitationWithCode
+registrationInvitation.notificationChannel=default_email
+registrationInvitation.type=HTML
+registrationInvitation.bodyFile.en=${CONF}/msgTemplates/registrationInvitation.html
+```
+
+The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definition are used by FURMS:
+
+* `policyAcceptanceNew` - utilized to notify user about new policy document to accept,
+* `policyAcceptanceRevision` - utilized to notify user that existing policy has been updated and waits approval,
+* `invitationNew` - utilized to notify user about invitation to accept new role in FURMS,
+* `registrationInvitation` - utilized to notify user about invitation to become user in FURMS with particular role.
+
+Most of the configuration in the default message template file is fixed. Only the template subject is allowed to be changed by the FURMS system administrator.
+
+==== Email template body files
+Given the default template configuration file, FURMS system administrator has to create the following email template body files:
+
+* `policyAcceptanceNew.html` - used by `policyAcceptanceNew` template definition, 
+* `policyAcceptanceRevision.html` - used by `policyAcceptanceRevision` template definition,
+* `invitationNew.html` - used by `invitationNew` template definition,
+* `registrationInvitation.html` - used by `registrationInvitation` template definition,
+* `masterTemplate-furms-head.html` - header that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-head}` tag is replaced with the header content.
+* `masterTemplate-furms-footer.html`- footer that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-footer}` tag is replaced with the footer content.
+
+The path to the directory that stores the aforementioned HTML template files, shall be provided in the `unity.msgTemplates.files` property value in the Ansible groups variable file.
+
+Example of `policyAcceptanceNew.html` file:
+
+```
+${include:master-furms-header}
+<p>Dear User,</p>
+<p>There is a new policy document awaiting your acceptance.</p>
+<p>Please read the '${custom.name}' document available <a href="${custom.furmsUrl}">here</a>.
+</p>
+${include:master-furms-footer}
+
+```
+
+Email templates use custom variables that defines dynamic data set by FURMS when sending notifications. The following provides information on custom variables, its description and where are used:
+
+* `${custom.name}` - can be used in `policyAcceptanceNew` or `policyAcceptanceRevision` HTML template files, and is resolved to the policy document name,
+* `${custom.role}` - can be used in `invitationNew` or `registrationInvitation` HTML template files, and is resolved to the FURMS role that invited user is about to accept,
+* `${custom.furmsUrl}` - can be used by all of the HTML templates except `registrationInvitation`, and points to the FURMS application,
+* `${url}` - can be used in `registrationInvitation` HTML template file and points to the Unity-IdM registration form.
+
+
 === Install FURMS stack
 Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service:
 ```
@@ -406,12 +531,12 @@ After installation the services are available in directory pointed out in `insta
 == FURMS system minor update procedure
 Minor FURMS updates are performed whenever a newly installed software version differs only with the last number when compared to the currently installed one. Database backup is advised, however in the minor update case the risk is minimal - revision releases typically do not introduce database content migrations. The following steps provide example how to update the FURMS service into `1.0.1` version, assuming `1.0.0` is installed:
 
-* <<Stop FURMS stack>>
+* <<Stopping FURMS stack,Stop FURMS stack>>.
 * Install minor update:
 ** enter the `$FURMS_ROOT_DIR` directory,
 ** update the `furmsVersion` property defined in `group_vars/all.yml` file, change its value to `1.0.1` 
 ** execute: `ansible-playbook -i inventory furms-devops-tooling/install-minor-update.yml`
-* <<Start FURMS stack>>
+* <<Starting FURMS stack,Start FURMS stack>>.
 
 == Upgrade from 1.0 to 2.0 release
 
@@ -441,6 +566,38 @@ This section describes the FURMS 2.0 release installation steps basing on 1.0 re
 	        secondsBeforeShowingLogoutWarning: -- set -- me -- #optional: default 120
 
 * <<Install FURMS stack>>
+
+== Upgrade from 2.0 to 3.0 release
+
+This section describes the FURMS 3.0 release installation steps basing on 2.0 release configuration. This procedure does not require dropping any of the databases, and all of the Ansible related configuration is reused.
+
+* Make a backup of PostgreSQL database used by Unity-IdM instance.
+* Make a backup of PostgreSQL database used by FURMS service instance.
+* Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
+* Update your existing `groups_var/all.yml` Ansible configuration file:
+
+** change the version of furmsVersion to `3.0.0`
+
+** add the following configuration under the unity:
+
+	unity: 
+		...
+	  mail:
+	    from:                -- set -- me --
+	    smtp:
+	      host:              -- set -- me --
+	      port:              -- set -- me --
+	      username:          -- set -- me --
+	      password:          -- set -- me --
+	  msgTemplates:          # this section is optional, if not provided the default configuration is delivered
+	    files:               -- set -- me --
+	    configuration:       -- set -- me --
+
+** To customize the default message templates used by FURMS to send email notifications, please refer to the <<Email templates configuration>> section.
+* <<Stopping FURMS stack,Stop FURMS stack>>.
+* <<Install FURMS stack>>.
+* Make sure that RabbitMQ broker is up and running.
+* <<Starting FURMS stack,Start FURMS stack>>.
 
 == Operating the system
 
