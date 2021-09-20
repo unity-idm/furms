@@ -14,6 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "group",
+		description = "Using to handle Community Groups.",
 		subcommands = {
 				GroupCommand.List.class,
 				GroupCommand.Show.class,
@@ -32,7 +33,8 @@ public class GroupCommand extends FurmsCommand {
 			description = "Returns information about all groups in a community.")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID to list Groups.")
 		private String communityId;
 
 		@Override
@@ -48,10 +50,12 @@ public class GroupCommand extends FurmsCommand {
 			description = "Returns complete information about a group, including membership information.")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID related to Group.")
 		private String communityId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Group ID to find Group.")
 		private String groupId;
 
 		@Override
@@ -67,10 +71,12 @@ public class GroupCommand extends FurmsCommand {
 			description = "Removes a group from a community.")
 	static class Delete extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID related to Group.")
 		private String communityId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Group ID of Group to delete.")
 		private String groupId;
 
 		@Override
@@ -86,16 +92,17 @@ public class GroupCommand extends FurmsCommand {
 			description = "Creates a new group in a community.")
 	static class Create extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID to add Group.")
 		private String communityId;
 
 		@Option(names = {"--name"},
-				description = "group name",
+				description = "Group name",
 				required = true)
 		private String name;
 
 		@Option(names = {"--description"},
-				description = "description attached to group",
+				description = "Description attached to group",
 				required = true)
 		private String description;
 
@@ -113,19 +120,21 @@ public class GroupCommand extends FurmsCommand {
 			description = "Update mutable elements of a group.")
 	static class Update extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID related to Group.")
 		private String communityId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Group ID to update.")
 		private String groupId;
 
 		@Option(names = {"--name"},
-				description = "new group name",
+				description = "New group name",
 				required = true)
 		private String name;
 
 		@Option(names = {"--description"},
-				description = "new description attached to group",
+				description = "New description attached to group",
 				required = true)
 		private String description;
 

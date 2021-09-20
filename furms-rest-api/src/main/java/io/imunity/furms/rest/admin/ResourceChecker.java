@@ -56,7 +56,7 @@ class ResourceChecker {
 	}
 
 	private void handleException(Exception e, String resourceId) {
-		if ((isNotRestNotFoundException(e) && isNotAvailable(resourceId))) {
+		if (isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
 	}

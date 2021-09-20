@@ -17,6 +17,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "site",
+		description = "Using to handle Sites",
 		subcommands = {
 				SiteCommand.List.class,
 				SiteCommand.Show.class,
@@ -56,7 +57,8 @@ public class SiteCommand extends FurmsCommand {
 					+ "resource types, services and policies")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to find")
 		private String siteId;
 
 		@Override
@@ -74,16 +76,20 @@ public class SiteCommand extends FurmsCommand {
 					+ "Caller can limit time range of records.")
 	static class UsageRecords extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to show usage records")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to show usage records")
 		private String projectId;
 
-		@Option(names = {"--from"})
+		@Option(names = {"--from"},
+				description = "Start of period to limit the results")
 		private String from;
 
-		@Option(names = {"--until"})
+		@Option(names = {"--until"},
+				description = "End of period to limit the results")
 		private String until;
 
 		@Override
@@ -106,10 +112,12 @@ public class SiteCommand extends FurmsCommand {
 					+ "a given project on a site.")
 	static class CumulativeResourcesConsumption extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to show cumulative resource consumption")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to show cumulative resource consumption")
 		private String projectId;
 
 		@Override

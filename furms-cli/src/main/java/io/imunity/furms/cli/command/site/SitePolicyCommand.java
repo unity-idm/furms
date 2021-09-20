@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "policy",
+		description = "Using to handle Site Policies",
 		subcommands = {
 				SitePolicyCommand.List.class,
 				SitePolicyCommand.Show.class,
@@ -29,7 +30,8 @@ class SitePolicyCommand extends FurmsCommand {
 			description = "Retrieve site policies")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to list Policies")
 		private String siteId;
 
 		@Override
@@ -45,10 +47,12 @@ class SitePolicyCommand extends FurmsCommand {
 			description = "Retrieve a given site policy")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site related to Policy")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Policy ID of Policy to find")
 		private String policyId;
 
 		@Override

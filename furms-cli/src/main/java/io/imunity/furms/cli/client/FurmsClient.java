@@ -12,15 +12,16 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 public class FurmsClient {
 	protected final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -40,31 +41,40 @@ public class FurmsClient {
 
 	public void get(FurmsClientRequest request) {
 		LOG.debug("Executing {} with client {}", request, webClient);
-		of(webClient
-				.getForEntity(request.getPath(), String.class))
-				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
+		handleRequest(() -> webClient
+				.getForEntity(request.getPath(), String.class));
 
 	}
 
 	public void post(FurmsClientRequest request) {
 		LOG.debug("Executing {} with client {}", request, webClient);
-		of(webClient
-				.exchange(request.getPath(), POST, entity(request.getBody()), String.class))
-				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
+		handleRequest(() -> webClient
+				.exchange(request.getPath(), POST, entity(request.getBody()), String.class));
 	}
 
 	public void put(FurmsClientRequest request) {
 		LOG.debug("Executing {} with client {}", request, webClient);
-		of(webClient
-				.exchange(request.getPath(), PUT, entity(request.getBody()), String.class))
-				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
+		handleRequest(() -> webClient
+				.exchange(request.getPath(), PUT, entity(request.getBody()), String.class));
 	}
 
 	public void delete(FurmsClientRequest request) {
 		LOG.debug("Executing {} with client {}", request, webClient);
-		of(webClient
-				.exchange(request.getPath(), DELETE, entity(request.getBody()), String.class))
-				.ifPresentOrElse(this::printResponse, this::printEmptyResponse);
+		handleRequest(() -> webClient
+				.exchange(request.getPath(), DELETE, entity(request.getBody()), String.class));
+	}
+
+	private void handleRequest(Supplier<ResponseEntity<String>> request) {
+		try {
+			of(request.get()).ifPresentOrElse(this::printResponse, this::printEmptyResponse);
+		} catch (HttpClientErrorException ex) {
+			try {
+				final Object object = objectMapper.readValue(ex.getResponseBodyAsString(), Object.class);
+				System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			} catch (Exception e) {
+				LOG.error("Unable to parse and print response: {}", ex.getMessage());
+			}
+		}
 	}
 
 	private HttpEntity<String> entity(String body) {

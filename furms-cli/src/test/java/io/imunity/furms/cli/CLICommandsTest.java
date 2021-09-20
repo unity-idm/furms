@@ -8,6 +8,8 @@ package io.imunity.furms.cli;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.status;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static io.imunity.furms.cli.ConfigParameterNames.FURMS_URL;
+import static io.imunity.furms.cli.ConfigParameterNames.TRUSTSTORE_PATH;
 import static io.imunity.furms.cli.client.RestTemplateConfig.FURMS_REST_BASE_PATH;
 
 import java.io.File;
@@ -58,8 +60,8 @@ public abstract class CLICommandsTest {
 
 	protected void runCLI(String... args) {
 		final List<String> defaultParams = List.of(
-				"--furms-url", "http://localhost:"+PORT,
-				"--truststore", loadResourcePath("testTruststore.jks"),
+				FURMS_URL, "http://localhost:"+PORT,
+				TRUSTSTORE_PATH, loadResourcePath("testTruststore.jks"),
 				"--config-file", loadResourcePath("config.properties"));
 		final List<String> params = new ArrayList<>();
 		params.addAll(List.of(args));

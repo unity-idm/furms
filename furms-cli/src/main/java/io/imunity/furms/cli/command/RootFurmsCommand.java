@@ -23,7 +23,7 @@ import java.util.List;
 				SiteCommand.class
 		}
 )
-public class RootFurmsCommand implements Runnable {
+class RootFurmsCommand implements Runnable {
 
 	@Unmatched
 	private List<String> ignoredParams;
