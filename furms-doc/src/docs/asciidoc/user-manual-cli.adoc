@@ -116,8 +116,10 @@ Output of the operation is printed in JSON format.
 
 === Diagnostic messages 
 
-All FURMS CLI commands share several options:
+By default FURMS client prints command result in JSON, and can also print (rather rarely) some extra information prefixed with the `[INFO]` label. 
 
- * `-s, --silent` will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format.
+What is more all FURMS CLI commands share several options:
+
+ * `-s, --silent` will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format. Note that typically even without this option no extra messages are printed anyway; this option sets up the client not to print anything extra in any case. 
  * `-v, --verbose` contrary to `--silent` will instruct the app to print more diagnostic data on standard output.
  * `-d, --debug` as above but even more diagnostic output can be printed.
