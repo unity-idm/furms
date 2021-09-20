@@ -3,43 +3,43 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components;
-
-import com.vaadin.flow.component.UI;
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+package io.imunity.furms.ui.view_picker;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
-public class FurmsSelectService {
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.UI;
+
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+
+class FurmsRoleSelectService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final RoleTranslator roleTranslator;
 	private FurmsViewUserContext savedUserContext;
 	
-	FurmsSelectService(RoleTranslator roleTranslator) {
+	FurmsRoleSelectService(RoleTranslator roleTranslator) {
 		this.roleTranslator = roleTranslator;
 	}
 
-	List<FurmsSelectText> loadItems() {
+	List<FurmsRolePickerText> loadItems() {
 		return roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts().values().stream()
-			.map(values -> values.stream()
-					.sorted(Comparator.comparing(role -> role.name)))
+			.map(values -> values.stream().sorted())
 			.flatMap(Stream::distinct)
-			.map(FurmsSelectText::new)
+			.map(FurmsRolePickerText::new)
 			.collect(toList());
 	}
 
-	void manageSelectedItemRedirects(FurmsSelectText value){
+	void manageSelectedItemRedirects(FurmsRolePickerText value){
 		LOG.debug("Manage selected item redirects: {}", value);
 		if(value == null)
 			return;

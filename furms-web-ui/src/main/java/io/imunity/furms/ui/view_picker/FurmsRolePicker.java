@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components;
+package io.imunity.furms.ui.view_picker;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -20,6 +20,7 @@ import io.imunity.furms.domain.sites.SiteEvent;
 import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
+import io.imunity.furms.ui.components.LabeledHr;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import org.slf4j.Logger;
@@ -33,22 +34,22 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
 @CssImport("./styles/components/furms-select.css")
-public class FurmsSelect extends Select<FurmsSelectText> {
+public class FurmsRolePicker extends Select<FurmsRolePickerText> {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	private final FurmsSelectService furmsSelectService;
+	private final FurmsRoleSelectService furmsSelectService;
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private Registration broadcasterRegistration;
 
-	public FurmsSelect(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
-		this.furmsSelectService = new FurmsSelectService(roleTranslator);
+	public FurmsRolePicker(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+		this.furmsSelectService = new FurmsRoleSelectService(roleTranslator);
 		this.vaadinBroadcaster = vaadinBroadcaster;
-		final List<FurmsSelectText> items = furmsSelectService.loadItems();
+		final List<FurmsRolePickerText> items = furmsSelectService.loadItems();
 
 		addItems(items);
 
 		furmsSelectService.loadSelectedItem()
-			.ifPresent(userContext -> setValue(new FurmsSelectText(userContext)));
+			.ifPresent(userContext -> setValue(new FurmsRolePickerText(userContext)));
 
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
 	}
@@ -58,7 +59,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 			String currentSelectedContextId = furmsSelectService.loadSelectedItem()
 					.orElseThrow(() -> new IllegalStateException("No context found for current user"))
 					.id;
-			List<FurmsSelectText> items = furmsSelectService.loadItems();
+			List<FurmsRolePickerText> items = furmsSelectService.loadItems();
 			addItems(items);
 			items.stream()
 				.filter(selectText -> selectText.furmsViewUserContext.id.equals(currentSelectedContextId))
@@ -93,26 +94,26 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		broadcasterRegistration = null;
 	}
 
-	private void addItems(final List<FurmsSelectText> items) {
+	private void addItems(final List<FurmsRolePickerText> items) {
 		setClassName("furms-select");
 		setItems(items);
 		setTextRenderer(Text::getText);
 		addSeparators(items);
 	}
 
-	private void addSeparators(List<FurmsSelectText> items) {
+	private void addSeparators(List<FurmsRolePickerText> items) {
 		if (items.size() <= 1) {
 			return;
 		}
-		final Map<Integer, List<FurmsSelectText>> itemsGroupedByOrder = items.stream()
+		final Map<Integer, List<FurmsRolePickerText>> itemsGroupedByOrder = items.stream()
 				.collect(groupingBy(x -> x.furmsViewUserContext.viewMode.order));
 		itemsGroupedByOrder.keySet().stream()
 				.sorted()
 				.forEach(order -> addSeparator(itemsGroupedByOrder, order));
 	}
 
-	private void addSeparator(Map<Integer, List<FurmsSelectText>> items, Integer order) {
-		final List<FurmsSelectText> block = items.get(order);
+	private void addSeparator(Map<Integer, List<FurmsRolePickerText>> items, Integer order) {
+		final List<FurmsRolePickerText> block = items.get(order);
 		final ViewMode blockViewMode = getBlockViewMode(block);
 		if (shouldHaveSeparator(blockViewMode.order)) {
 			final Component separator = blockViewMode.hasHeader()
@@ -127,7 +128,7 @@ public class FurmsSelect extends Select<FurmsSelectText> {
 		return order != 1;
 	}
 
-	private ViewMode getBlockViewMode(List<FurmsSelectText> block) {
+	private ViewMode getBlockViewMode(List<FurmsRolePickerText> block) {
 		return block.stream().findFirst()
 					.map(select -> select.furmsViewUserContext.viewMode)
 					.orElse(ViewMode.FENIX);

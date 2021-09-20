@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components;
+package io.imunity.furms.ui.view_picker;
 
 import java.util.Objects;
 
@@ -12,10 +12,10 @@ import com.vaadin.flow.component.Text;
 
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 
-public class FurmsSelectText extends Text {
-	public final FurmsViewUserContext furmsViewUserContext;
+class FurmsRolePickerText extends Text {
+	final FurmsViewUserContext furmsViewUserContext;
 
-	public FurmsSelectText(FurmsViewUserContext furmsViewUserContext) {
+	FurmsRolePickerText(FurmsViewUserContext furmsViewUserContext) {
 		super(furmsViewUserContext.name);
 		this.furmsViewUserContext = furmsViewUserContext;
 	}
@@ -24,7 +24,7 @@ public class FurmsSelectText extends Text {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		FurmsSelectText furmsSelectText = (FurmsSelectText) o;
+		FurmsRolePickerText furmsSelectText = (FurmsRolePickerText) o;
 		return Objects.equals(furmsViewUserContext, furmsSelectText.furmsViewUserContext);
 	}
 

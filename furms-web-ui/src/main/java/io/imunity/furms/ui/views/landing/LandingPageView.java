@@ -42,7 +42,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 
 		final VerticalLayout[] linksBlocks = data.keySet().stream()
 				.sorted()
-				.map(viewMode -> addSelectBlock(viewMode, data))
+				.map(viewMode -> addSelectBlock(viewMode, data.get(viewMode)))
 				.toArray(VerticalLayout[]::new);
 
 		final VerticalLayout layout = new VerticalLayout();
@@ -55,9 +55,8 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 		getContent().setClassName("landing-page");
 	}
 
-	private VerticalLayout addSelectBlock(ViewMode viewMode, Map<ViewMode, List<FurmsViewUserContext>> data) {
+	private VerticalLayout addSelectBlock(ViewMode viewMode, List<FurmsViewUserContext> userContexts) {
 		final VerticalLayout selectBlock = new VerticalLayout();
-		final List<FurmsViewUserContext> userContexts = data.get(viewMode);
 
 		if (viewMode.hasHeader()) {
 			final H4 label = new H4(getTranslation(format("view.landing.role.%s", viewMode.name())));
@@ -65,6 +64,7 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 		}
 
 		final Button[] buttons = userContexts.stream()
+				.sorted()
 				.map(this::createLink)
 				.toArray(Button[]::new);
 		selectBlock.add(buttons);

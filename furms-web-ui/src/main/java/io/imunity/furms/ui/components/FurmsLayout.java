@@ -15,6 +15,8 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 
+import io.imunity.furms.ui.view_picker.FurmsRolePicker;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +26,10 @@ public class FurmsLayout {
 	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
-	private final FurmsSelect furmsSelect;
+	private final FurmsRolePicker furmsSelect;
 	private final Component notificationBar;
 
-	public FurmsLayout(List<MenuComponent> menuContent, FurmsSelect furmsSelect, Component notificationBar){
+	public FurmsLayout(List<MenuComponent> menuContent, FurmsRolePicker furmsSelect, Component notificationBar){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();

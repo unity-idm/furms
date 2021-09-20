@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 
-public class FurmsViewUserContext {
+public class FurmsViewUserContext implements Comparable<FurmsViewUserContext>{
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	public final String id;
@@ -51,6 +51,11 @@ public class FurmsViewUserContext {
 		return ComponentUtil.getData(ui, FurmsViewUserContext.class);
 	}
 
+	@Override
+	public int compareTo(FurmsViewUserContext o)
+	{
+		return name.compareToIgnoreCase(o.name);
+	}
 	
 	@Override
 	public boolean equals(Object o) {

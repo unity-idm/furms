@@ -3,23 +3,23 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui;
+package io.imunity.furms.ui.view_picker;
 
-import io.imunity.furms.ui.components.FurmsSelect;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FurmsSelectFactory {
+public class FurmsRolePickerFactory {
 	private final RoleTranslator roleTranslator;
 	private final VaadinBroadcaster vaadinBroadcaster;
 
-	FurmsSelectFactory(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
+	FurmsRolePickerFactory(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster) {
 		this.roleTranslator = roleTranslator;
 		this.vaadinBroadcaster = vaadinBroadcaster;
 	}
 
-	public FurmsSelect create(){
-		return new FurmsSelect(roleTranslator, vaadinBroadcaster);
+	public FurmsRolePicker create(){
+		return new FurmsRolePicker(roleTranslator, vaadinBroadcaster);
 	}
 }
