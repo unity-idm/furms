@@ -21,7 +21,7 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationDashboardFormView;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
@@ -55,7 +55,7 @@ public class DashboardView extends FurmsLandingViewComponent {
 
 	DashboardView(CommunityAllocationService allocationService) {
 		this.allocationService = allocationService;
-		this.browserZoneId = InvocationContext.getCurrent().getZone();
+		this.browserZoneId = UIContext.getCurrent().getZone();
 		this.filters = initializeFilters();
 		loadPageContent();
 	}

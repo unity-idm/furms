@@ -31,7 +31,7 @@ import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 import java.io.ByteArrayInputStream;
@@ -61,7 +61,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 
 	PolicyDocumentsView(PolicyDocumentService service) {
 		this.policyDocumentService = service;
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
 		grid.addComponentColumn(this::getTooltipName)

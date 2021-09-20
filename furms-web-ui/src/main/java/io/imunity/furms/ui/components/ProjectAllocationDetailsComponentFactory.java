@@ -11,7 +11,7 @@ import com.vaadin.flow.dom.Element;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +28,7 @@ public class ProjectAllocationDetailsComponentFactory {
 	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public static Component create(Set<ProjectAllocationChunk> allocationChunks, ResourceMeasureUnit unit) {
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		Element tableElement = new Element("table");
 		tableElement.getStyle().set("width", "90%");
 		tableElement.getStyle().set("text-align", "left");

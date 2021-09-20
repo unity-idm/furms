@@ -31,7 +31,7 @@ import com.vaadin.flow.component.icon.Icon;
 
 import io.imunity.furms.ui.components.FurmsProgressBar;
 import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
 @CssImport("./styles/components/resource-allocation-grid.css")
@@ -54,7 +54,7 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 		this.allocateButtonAction = allocateButtonAction;
 		this.fetchItems = fetchItems;
 
-		this.zoneId = InvocationContext.getCurrent().getZone();
+		this.zoneId = UIContext.getCurrent().getZone();
 
 		addClassName("resource-allocation-grid");
 

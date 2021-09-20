@@ -22,7 +22,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class InvitationsView extends FurmsViewComponent {
 
 	InvitationsView(InviteeService inviteeService) {
 		this.inviteeService = inviteeService;
-		this.browserZoneId = InvocationContext.getCurrent().getZone();
+		this.browserZoneId = UIContext.getCurrent().getZone();
 
 		Map<InvitationId, Checkbox> checkboxes = new HashMap<>();
 		Component mainContextMenu = createMainContextMenu(inviteeService, checkboxes);

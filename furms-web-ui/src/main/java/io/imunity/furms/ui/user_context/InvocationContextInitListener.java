@@ -15,7 +15,7 @@ class InvocationContextInitListener implements VaadinServiceInitListener
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
 		serviceInitEvent.getSource().addUIInitListener(uiInitEvent ->
-			InvocationContext.init(uiInitEvent.getUI())
+			UIContext.init(uiInitEvent.getUI())
 		);
 	}
 }

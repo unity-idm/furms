@@ -69,7 +69,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
@@ -98,7 +98,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			//ok
 		}
 		this.resolver = new SiteComboBoxModelResolver(sites);
-		zoneId = InvocationContext.getCurrent().getZone();
+		zoneId = UIContext.getCurrent().getZone();
 		Button addButton = createAddButton();
 		getContent().add(createHeaderLayout(addButton), new HorizontalLayout(grid));
 	}

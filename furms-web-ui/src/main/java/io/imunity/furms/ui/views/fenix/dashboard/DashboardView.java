@@ -26,7 +26,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.components.support.models.CheckboxModel;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 import java.math.BigDecimal;
@@ -61,7 +61,7 @@ public class DashboardView extends FurmsViewComponent {
 		this.creditService = creditService;
 		this.resourceTypeService = resourceTypeService;
 		this.siteService = siteService;
-		this.browserZoneId = InvocationContext.getCurrent().getZone();
+		this.browserZoneId = UIContext.getCurrent().getZone();
 
 		this.filters = initializeFilters();
 		this.grid = new ResourceAllocationsGrid(
