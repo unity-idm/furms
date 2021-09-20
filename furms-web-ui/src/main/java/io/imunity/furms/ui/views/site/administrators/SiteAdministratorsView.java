@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
@@ -20,10 +21,7 @@ import io.imunity.furms.ui.components.administrators.UserGridItem;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -31,14 +29,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EXCHANGE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 
 @Route(value = "site/admin/administrators", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.administrators.page.title")
 public class SiteAdministratorsView extends FurmsViewComponent {
-	
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final SiteService siteService;
 
 	private final UsersGridComponent grid;
@@ -62,6 +56,13 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 							.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 						EXCHANGE),
 				(SiteUserGridItem userGridItem) -> {
+					if(userGridItem.getStatus().equals(UserStatus.DISABLED)){
+						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT))
+							siteService.changeInvitationRoleToAdmin(siteId, userGridItem.getInvitationId().get());
+						else if(userGridItem.getSiteRole().get().equals(SiteRole.ADMIN))
+							siteService.changeInvitationRoleToSupport(siteId, userGridItem.getInvitationId().get());
+						return;
+					}
 					if(userGridItem.getId().isPresent() && userGridItem.getSiteRole().isPresent()){
 						siteService.removeSiteUser(siteId, userGridItem.getId().get());
 						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT))
@@ -74,7 +75,16 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> {
 				siteService.removeSiteUser(siteId, userId);
 				inviteUser.reload();
-			}).build();
+			})
+			.withRemoveInvitationAction(invitationId -> {
+				siteService.removeInvitation(siteId, invitationId);
+				gridReload();
+			})
+			.withResendInvitationAction(invitationId -> {
+				siteService.resendInvitation(siteId, invitationId);
+				gridReload();
+			})
+			.build();
 
 		UserGrid.Builder userGrid = UserGrid.builder()
 			.withFullNameColumn()
@@ -85,11 +95,15 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			.withEmailColumn()
 			.withStatusColumn()
 			.withContextMenuColumn(userContextMenuFactory);
-		grid = UsersGridComponent.init(this::loadUsers, userGrid);
+		grid = UsersGridComponent.init(this::loadUsers, this::loadInvitations, userGrid);
 		doInviteAction(inviteUser);
 
 		ViewHeaderLayout header = new ViewHeaderLayout(getTranslation("view.site-admin.administrators.title"));
 		getContent().add(header, inviteUser, grid);
+	}
+
+	private void gridReload() {
+		grid.reloadGrid();
 	}
 
 	private List<UserGridItem> loadUsers() {
@@ -100,16 +114,29 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 			.flatMap(Function.identity())
 			.collect(Collectors.toList());
 	}
+
+	private List<UserGridItem> loadInvitations() {
+		return Stream.of(
+			siteService.findSiteAdminInvitations(siteId).stream()
+				.map(invitation -> new SiteUserGridItem(invitation.email, SiteRole.ADMIN, invitation.id)),
+			siteService.findSiteSupportInvitations(siteId).stream()
+				.map(invitation -> new SiteUserGridItem(invitation.email, SiteRole.SUPPORT, invitation.id))
+		)
+			.flatMap(Function.identity())
+			.collect(Collectors.toList());
+	}
+
 	private void doInviteAction(SiteRoleInviteUserComponent inviteUser) {
-		try {
-			inviteUser.addInviteAction(Map.of(
-				SiteRole.ADMIN, (PersistentId id) -> siteService.inviteAdmin(siteId, id),
-				SiteRole.SUPPORT, (PersistentId id) -> siteService.inviteSupport(siteId, id)
-			), grid::reloadGrid);
-		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("view.site-admin.administrators.invite.error.unexpected"));
-			LOG.warn("Could not invite Site Administrator. ", e);
-		}
+			inviteUser.addInviteAction(
+				Map.of(
+					SiteRole.ADMIN, (PersistentId id) -> siteService.inviteAdmin(siteId, id),
+					SiteRole.SUPPORT, (PersistentId id) -> siteService.inviteSupport(siteId, id)
+				),
+				Map.of(
+					SiteRole.ADMIN, (String email) -> siteService.inviteAdmin(siteId, email),
+					SiteRole.SUPPORT, (String email) -> siteService.inviteSupport(siteId, email)
+				),
+				grid::reloadGrid);
 	}
 
 }

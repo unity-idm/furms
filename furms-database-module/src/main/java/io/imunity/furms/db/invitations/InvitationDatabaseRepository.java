@@ -106,6 +106,27 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
+	public void updateExpiredAtAndRole(InvitationId id, LocalDateTime utcExpiredAt, Role role) {
+		repository.findById(id.id).ifPresent(invitation ->
+			repository.save(
+				InvitationEntity.builder()
+					.id(invitation.getId())
+					.resourceId(invitation.resourceId)
+					.resourceType(invitation.resourceType)
+					.resourceName(invitation.resourceName)
+					.originator(invitation.originator)
+					.userId(invitation.userId)
+					.email(invitation.email)
+					.roleAttribute(role.unityRoleAttribute)
+					.roleValue(role.unityRoleValue)
+					.code(invitation.code)
+					.expiredAt(utcExpiredAt)
+					.build()
+			)
+		);
+	}
+
+	@Override
 	public void deleteBy(InvitationId id) {
 		repository.deleteById(id.id);
 	}

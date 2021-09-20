@@ -67,7 +67,7 @@ public class UserGridItem {
 		return email;
 	}
 
-	Optional<InvitationId> getInvitationId() {
+	public Optional<InvitationId> getInvitationId() {
 		return invitationId;
 	}
 

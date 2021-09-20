@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.users.FURMSUser;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,9 +53,17 @@ public class UsersGridComponent extends VerticalLayout {
 			.collect(Collectors.toList())), searchLayout);
 	}
 
-	public static UsersGridComponent init(Supplier<List<UserGridItem>> fetchUsersAction, UserGrid.Builder userGridBuilder){
+	public static UsersGridComponent init(Supplier<List<UserGridItem>> fetchUsersAction,
+	                                      Supplier<List<UserGridItem>> fetchInvitationsAction,
+	                                      UserGrid.Builder userGridBuilder){
 		SearchLayout searchLayout = new SearchLayout();
-		return new UsersGridComponent(userGridBuilder.build(() -> loadPreparedUsers(fetchUsersAction, searchLayout)), searchLayout);
+		return new UsersGridComponent(userGridBuilder.build(() -> loadPreparedUsers(fetchUsersAction, fetchInvitationsAction, searchLayout)), searchLayout);
+	}
+
+	public static UsersGridComponent init(Supplier<List<UserGridItem>> fetchUsersAction,
+	                                      UserGrid.Builder userGridBuilder){
+		SearchLayout searchLayout = new SearchLayout();
+		return new UsersGridComponent(userGridBuilder.build(() -> loadPreparedUsers(fetchUsersAction, List::of, searchLayout)), searchLayout);
 	}
 
 	private static Stream<UserGridItem> loadUsers(Supplier<List<FURMSUser>> fetchUsersAction, SearchLayout searchLayout) {
@@ -75,10 +84,12 @@ public class UsersGridComponent extends VerticalLayout {
 			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout));
 	}
 
-	private static List<UserGridItem> loadPreparedUsers(Supplier<List<UserGridItem>> fetchUsersAction, SearchLayout searchLayout) {
-		return handleExceptions(fetchUsersAction)
-			.orElseGet(Collections::emptyList)
-			.stream()
+	private static List<UserGridItem> loadPreparedUsers(Supplier<List<UserGridItem>> fetchUsersAction,
+	                                                    Supplier<List<UserGridItem>> fetchInvitationsAction,
+	                                                    SearchLayout searchLayout) {
+		return Stream.of(handleExceptions(fetchUsersAction), handleExceptions(fetchInvitationsAction))
+			.flatMap(Optional::stream)
+			.flatMap(Collection::stream)
 			.sorted(Comparator.comparing(UserGridItem::getEmail))
 			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout))
 			.collect(toList());

@@ -19,7 +19,10 @@ furms:
       new-invitation-template-id: testTemplate
    invitations:
       expiration-time-in-seconds: 604800
-      fenix-admin-form: fenixAdminForm
+      fenix-form: fenixForm
+      site-form: siteForm
+      community-form: communityForm
+      project-form: projectForm
    unity:
       admin-url: ${furms.unity.url}/rest-admin/v1
       admin-user: password

@@ -78,7 +78,7 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL)
-				.defaultSuccessUrl(LOGIN_SUCCESS_URL, true)
+				.defaultSuccessUrl(LOGIN_SUCCESS_URL, false)
 				.failureUrl(LOGIN_ERROR_URL).permitAll()
 
 			// Configure rest client template.

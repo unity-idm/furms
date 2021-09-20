@@ -6,6 +6,8 @@
 package io.imunity.furms.api.communites;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -30,7 +32,15 @@ public interface CommunityService {
 
 	List<FURMSUser> findAllAdmins(String communityId);
 
+	Set<Invitation> findAllInvitations(String communityId);
+
 	void inviteAdmin(String communityId, PersistentId userId);
+
+	void inviteAdmin(String communityId, String email);
+
+	void resendInvitation(String communityId, InvitationId invitationId);
+
+	void removeInvitation(String communityId, InvitationId invitationId);
 
 	void addAdmin(String communityId, PersistentId userId);
 

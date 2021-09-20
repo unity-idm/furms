@@ -36,6 +36,8 @@ public interface InvitationRepository {
 
 	void updateExpiredAt(InvitationId id, LocalDateTime utcExpiredAt);
 
+	void updateExpiredAtAndRole(InvitationId id, LocalDateTime utcExpiredAt, Role role);
+
 	void deleteBy(InvitationId id);
 
 	void deleteBy(InvitationCode unityCode);

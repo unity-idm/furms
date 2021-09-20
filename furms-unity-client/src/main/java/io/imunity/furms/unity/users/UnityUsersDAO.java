@@ -8,6 +8,7 @@ package io.imunity.furms.unity.users;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -24,7 +25,6 @@ import io.imunity.furms.unity.client.users.UserService;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import io.imunity.furms.unity.common.UnityConst;
 import io.imunity.furms.unity.common.UnityPaths;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -56,14 +56,11 @@ class UnityUsersDAO implements UsersDAO {
 	private final UnityClient unityClient;
 	private final UserService userService;
 	private final InvitationDAO invitationDAO;
-	private final String fenixAdminFormName;
 
-	UnityUsersDAO(UnityClient unityClient, UserService userService, InvitationDAO invitationDAO,
-	              @Value("${furms.invitations.fenix-admin-form}") String fenixAdminFormName) {
+	UnityUsersDAO(UnityClient unityClient, UserService userService, InvitationDAO invitationDAO) {
 		this.unityClient = unityClient;
 		this.userService = userService;
 		this.invitationDAO = invitationDAO;
-		this.fenixAdminFormName = fenixAdminFormName;
 	}
 
 	@Override
@@ -72,8 +69,8 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public InvitationCode inviteUser(String email, Instant invitationExpiration, Role role) {
-		InvitationCode code = invitationDAO.createInvitation(getFormName(role), email, invitationExpiration, role);
+	public InvitationCode inviteUser(ResourceId resourceId, Role role, String email, Instant invitationExpiration) {
+		InvitationCode code = invitationDAO.createInvitation(resourceId, role, email, invitationExpiration);
 		invitationDAO.sendInvitation(code);
 		return code;
 	}
@@ -89,11 +86,17 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	@Override
-	public void resendInvitation(String email, InvitationCode invitationCode, Instant instant, Role role) {
-		invitationDAO.updateInvitation(getFormName(role), email, invitationCode, instant, role);
-		invitationDAO.sendInvitation(invitationCode);
+	public void resendInvitation(Invitation invitation, Instant invitationExpiration) {
+		invitationDAO.updateInvitation(invitation.resourceId, invitation.role, invitation.email, invitation.code, invitationExpiration);
+		invitationDAO.sendInvitation(invitation.code);
 	}
-	
+
+	@Override
+	public void resendInvitation(Invitation invitation, Instant invitationExpiration, Role role) {
+		invitationDAO.updateInvitation(invitation.resourceId, role, invitation.email, invitation.code, invitationExpiration);
+		invitationDAO.sendInvitation(invitation.code);
+	}
+
 	@Override
 	public void setUserStatus(FenixUserId fenixUserId, UserStatus status) {
 		EntityState unityStatus = status == UserStatus.ENABLED ? EntityState.valid : EntityState.disabled;
@@ -229,14 +232,4 @@ class UnityUsersDAO implements UsersDAO {
 			.filter(mapEntry -> !mapEntry.getValue().isEmpty())
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
-
-	private String getFormName(Role role) {
-		switch (role){
-			case FENIX_ADMIN :
-				return fenixAdminFormName;
-			default:
-				return null;
-		}
-	}
-
 }

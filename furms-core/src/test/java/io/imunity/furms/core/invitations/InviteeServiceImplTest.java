@@ -77,7 +77,7 @@ class InviteeServiceImplTest {
 			invitationRepository, authzService, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO,
 			projectRepository, publisher, fenixUsersDAO
 		);
-		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher);
+		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher, fenixUsersDAO);
 	}
 
 	@Test

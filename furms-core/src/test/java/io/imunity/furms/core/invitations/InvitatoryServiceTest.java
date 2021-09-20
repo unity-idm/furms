@@ -39,7 +39,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,6 +88,36 @@ class InvitatoryServiceTest {
 	}
 
 	@Test
+	void shouldFindInvitationAssociationWithResourceId() {
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		Invitation invitation = Invitation.builder()
+			.id(new InvitationId(UUID.randomUUID()))
+			.resourceId(resourceId)
+			.build();
+
+		when(invitationRepository.findBy(invitation.id)).thenReturn(Optional.of(invitation));
+
+		boolean associated = invitatoryService.checkAssociation(resourceId.id.toString(), invitation.id);
+
+		assertTrue(associated);
+	}
+
+	@Test
+	void shouldNotFindInvitationAssociationWithResourceId() {
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		Invitation invitation = Invitation.builder()
+			.id(new InvitationId(UUID.randomUUID()))
+			.resourceId(resourceId)
+			.build();
+
+		when(invitationRepository.findBy(invitation.id)).thenReturn(Optional.of(invitation));
+
+		boolean associated = invitatoryService.checkAssociation(UUID.randomUUID().toString(), invitation.id);
+
+		assertFalse(associated);
+	}
+
+	@Test
 	void shouldInviteExistingUser() {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
@@ -116,7 +148,7 @@ class InvitatoryServiceTest {
 		invitatoryService.inviteUser(persistentId, resourceId, role);
 
 		verify(invitationRepository).create(invitation);
-		verify(notificationDAO).notifyUser(persistentId, invitation);
+		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
 	}
 
 	@Test
@@ -181,7 +213,7 @@ class InvitatoryServiceTest {
 		invitatoryService.inviteUser("email", resourceId, role);
 
 		verify(invitationRepository).create(invitation);
-		verify(notificationDAO).notifyUser(persistentId, invitation);
+		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
 	}
 
 	@Test
@@ -204,7 +236,7 @@ class InvitatoryServiceTest {
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
-		when(usersDAO.inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role)).thenReturn(code);
+		when(usersDAO.inviteUser(resourceId, role, "email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
@@ -215,7 +247,7 @@ class InvitatoryServiceTest {
 		invitatoryService.inviteUser("email", resourceId, role);
 
 		verify(invitationRepository).create(invitation);
-		verify(usersDAO).inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role);
+		verify(usersDAO).inviteUser(resourceId, role,"email", getExpiredAt().toInstant(ZoneOffset.UTC));
 	}
 
 	@Test
@@ -268,7 +300,7 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.inviteUser("email", getExpiredAt().toInstant(ZoneOffset.UTC), role)).thenReturn(invitationCode);
+		when(usersDAO.inviteUser(resourceId, role,"email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(invitationCode);
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
@@ -306,7 +338,32 @@ class InvitatoryServiceTest {
 
 		invitatoryService.resendInvitation(invitationId);
 
-		verify(usersDAO).resendInvitation("email", invitationCode, getExpiredAt().toInstant(ZoneOffset.UTC), role);
+		verify(usersDAO).resendInvitation(invitation, getExpiredAt().toInstant(ZoneOffset.UTC));
+	}
+
+	@Test
+	void shouldUpdateInvitationRoleForNewUser() {
+		Role role = Role.SITE_SUPPORT;
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		InvitationCode invitationCode = new InvitationCode("code");
+		InvitationId invitationId = new InvitationId(UUID.randomUUID());
+
+		Invitation invitation = Invitation.builder()
+			.id(invitationId)
+			.resourceId(resourceId)
+			.role(role)
+			.code(invitationCode)
+			.originator("originator")
+			.email("email")
+			.utcExpiredAt(getExpiredAt())
+			.build();
+
+		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
+
+		invitatoryService.updateInvitationRole(invitationId, Role.SITE_ADMIN);
+
+		verify(invitationRepository).updateExpiredAtAndRole(invitationId, getExpiredAt(), Role.SITE_ADMIN);
+		verify(usersDAO).resendInvitation(invitation, getExpiredAt().toInstant(ZoneOffset.UTC), Role.SITE_ADMIN);
 	}
 
 	@Test
@@ -337,7 +394,39 @@ class InvitatoryServiceTest {
 
 		invitatoryService.resendInvitation(invitationId);
 
-		verify(notificationDAO).notifyUser(persistentId, invitation);
+		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
+	}
+
+	@Test
+	void shouldUpdateInvitationRoleForExistingUser() {
+		Role role = Role.SITE_ADMIN;
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		InvitationId invitationId = new InvitationId(UUID.randomUUID());
+		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = new FenixUserId("fenixId");
+
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(fenixId)
+			.email("email")
+			.build();
+		Invitation invitation = Invitation.builder()
+			.id(invitationId)
+			.resourceId(resourceId)
+			.userId(fenixId)
+			.role(role)
+			.originator("originator")
+			.email("email")
+			.utcExpiredAt(getExpiredAt())
+			.build();
+
+		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
+		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
+
+		invitatoryService.updateInvitationRole(invitationId, Role.SITE_SUPPORT);
+
+		verify(invitationRepository).updateExpiredAtAndRole(invitationId, getExpiredAt(), Role.SITE_SUPPORT);
+		verify(notificationDAO).notifyUserAboutNewRole(persistentId, Role.SITE_SUPPORT);
 	}
 
 	@Test

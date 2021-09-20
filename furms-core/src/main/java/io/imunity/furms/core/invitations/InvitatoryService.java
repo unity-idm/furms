@@ -67,6 +67,12 @@ public class InvitatoryService {
 		return invitationRepository.findAllBy(role, resourceId);
 	}
 
+	public boolean checkAssociation(String resourceId, InvitationId invitationId) {
+		return invitationRepository.findBy(invitationId)
+			.filter(invitation -> invitation.resourceId.id.toString().equals(resourceId))
+			.isPresent();
+	}
+
 	public void inviteUser(PersistentId userId, ResourceId resourceId, Role role) {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("Could not invite user due to wrong email address."));
@@ -75,12 +81,17 @@ public class InvitatoryService {
 			throw new UnsupportedUserException("Only fenix users supported");
 		if(invitationRepository.findBy(user.email, role, resourceId).isPresent())
 			throw new DuplicatedInvitationError("This invitation already exists");
+		if(isSupportRoleCheckExistingAlsoForAdminRole(resourceId, role, user.email))
+			throw new DuplicatedInvitationError("This invitation already exists");
+		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
+			throw new DuplicatedInvitationError("This invitation already exists");
+
 		if(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role)))
 			throw new UserAlreadyHasRoleError("User already has this role");
 
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
-			.role(Role.FENIX_ADMIN)
+			.role(role)
 			.userId(user.fenixUserId.get())
 			.originator(authzService.getCurrentAuthNUser().email)
 			.email(user.email)
@@ -89,8 +100,16 @@ public class InvitatoryService {
 
 		invitationRepository.create(invitation);
 		LOG.info("Inviting FENIX admin role to {}", userId);
-		notificationDAO.notifyUser(user.id.get(), invitation);
+		notificationDAO.notifyUserAboutNewRole(user.id.get(), invitation.role);
 		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), new ResourceId((String) null, APP_LEVEL)));
+	}
+
+	private boolean isSiteAdminRoleCheckExistingAlsoForSupportRole(ResourceId resourceId, Role role, String email) {
+		return role.equals(Role.SITE_ADMIN) && invitationRepository.findBy(email, Role.SITE_SUPPORT, resourceId).isPresent();
+	}
+
+	private boolean isSupportRoleCheckExistingAlsoForAdminRole(ResourceId resourceId, Role role, String email) {
+		return role.equals(Role.SITE_SUPPORT) && invitationRepository.findBy(email, Role.SITE_ADMIN, resourceId).isPresent();
 	}
 
 	public void resendInvitation(InvitationId id) {
@@ -101,10 +120,24 @@ public class InvitatoryService {
 				.filter(user -> user.email.equals(invitation.email))
 				.findAny();
 			if(invitation.code.isPresent() && furmsUser.isEmpty())
-				usersDAO.resendInvitation(invitation.email, invitation.code, expiredAt.toInstant(ZoneOffset.UTC), invitation.role);
-			else {
-				notificationDAO.notifyUser(furmsUser.get().id.get(), invitation);
+				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC));
+			else
+				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), invitation.role);
+		});
+	}
+
+	public void updateInvitationRole(InvitationId id, Role role) {
+		invitationRepository.findBy(id).ifPresent(invitation -> {
+			LocalDateTime expiredAt = getExpiredAtTime();
+			invitationRepository.updateExpiredAtAndRole(invitation.id, expiredAt, role);
+			Optional<FURMSUser> furmsUser = usersDAO.getAllUsers().stream()
+				.filter(user -> user.email.equals(invitation.email))
+				.findAny();
+			if(invitation.code.isPresent() && furmsUser.isEmpty()){
+				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC), role);
 			}
+			else
+				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), role);
 		});
 	}
 
@@ -128,15 +161,19 @@ public class InvitatoryService {
 
 		if(invitationRepository.findBy(email, role, resourceId).isPresent())
 			throw new DuplicatedInvitationError("This invitation already exists");
+		if(isSupportRoleCheckExistingAlsoForAdminRole(resourceId, role, email))
+			throw new DuplicatedInvitationError("This invitation already exists");
+		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, email))
+			throw new DuplicatedInvitationError("This invitation already exists");
 
 		LocalDateTime expiredAt = getExpiredAtTime();
-		InvitationCode invitationCode = usersDAO.inviteUser(email, expiredAt.toInstant(ZoneOffset.UTC), role);
+		InvitationCode invitationCode = usersDAO.inviteUser(resourceId, role, email, expiredAt.toInstant(ZoneOffset.UTC));
 
 		try {
 			invitationRepository.create(
 				Invitation.builder()
 					.resourceId(resourceId)
-					.role(Role.FENIX_ADMIN)
+					.role(role)
 					.email(email)
 					.originator(authzService.getCurrentAuthNUser().email)
 					.code(invitationCode)
