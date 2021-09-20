@@ -4,7 +4,7 @@ FURMS ecosystem provides a command line executable, which can be used to conveni
 
 FURMS CLI is designed in the first place for the Fenix and site level admins. It can be used as well by community and project admins.
 
-Access credentials of the FURMS CLI are the same as the ones used for the REST API access and can be generated in the FURMS web UI under User Settings.
+Access credentials of the FURMS CLI are the same as the ones used for the REST API access and can be generated in the FURMS web UI under User Settings -> API Key view.
 
 === Configuring the CLI
 
