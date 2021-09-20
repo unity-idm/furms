@@ -436,10 +436,10 @@ NOTE: Any reconfiguration of aforementioned options in the case of FURMS install
 
 
 === Email templates configuration
-FURMS utilize Unity-IdM notification subsystem, therefore in order to setup email templates used by FURMS, administrator has to create the Unity-IdM configuration files, descried in the next subsections, and put a reference to those in the Ansible group variable file.
+FURMS utilizes Unity-IdM notification subsystem, therefore in order to setup email templates used by FURMS, administrator has to create the Unity-IdM configuration files, descried in the next subsections, and put a reference to those in the Ansible group variable file.
 
 ==== Message templates configuration
-This particular configuration file is parsable by Unity-IdM and defines all email template definitions, here is the default content:
+This particular configuration file is parsed by Unity-IdM and defines all email template definitions. Below is the default content:
 
 ```
 master-furms-header.subject.en=
@@ -477,11 +477,11 @@ registrationInvitation.type=HTML
 registrationInvitation.bodyFile.en=${CONF}/msgTemplates/registrationInvitation.html
 ```
 
-The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definition are used by FURMS:
+The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definitions are used by FURMS:
 
 * `policyAcceptanceNew` - utilized to notify user about new policy document to accept,
-* `policyAcceptanceRevision` - utilized to notify user that existing policy has been updated and waits approval,
-* `invitationNew` - utilized to notify user about invitation to accept new role in FURMS,
+* `policyAcceptanceRevision` - utilized to notify user that existing policy has been updated and awaits approval,
+* `invitationNew` - utilized to notify user about invitation to accept a new role in FURMS,
 * `registrationInvitation` - utilized to notify user about invitation to become user in FURMS with particular role.
 
 Most of the configuration in the default message template file is fixed. Only the template subject is allowed to be changed by the FURMS system administrator.
@@ -510,7 +510,7 @@ ${include:master-furms-footer}
 
 ```
 
-Email templates use custom variables that defines dynamic data set by FURMS when sending notifications. The following provides information on custom variables, its description and where are used:
+Email templates can use custom variables that define dynamic contents set by FURMS when sending notifications. The following variables are available:
 
 * `${custom.name}` - can be used in `policyAcceptanceNew` or `policyAcceptanceRevision` HTML template files, and is resolved to the policy document name,
 * `${custom.role}` - can be used in `invitationNew` or `registrationInvitation` HTML template files, and is resolved to the FURMS role that invited user is about to accept,
