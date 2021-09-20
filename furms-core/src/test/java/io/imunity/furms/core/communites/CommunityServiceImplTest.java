@@ -8,6 +8,7 @@ package io.imunity.furms.core.communites;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
@@ -21,7 +22,6 @@ import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -55,13 +55,13 @@ class CommunityServiceImplTest {
 	@Mock
 	private ProjectRepository projectRepository;
 	@Mock
-	private UsersDAO usersDAO;
-	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private AuthzService authzService;
 	@Mock
 	private CapabilityCollector capabilityCollector;
+	@Mock
+	private InvitatoryService invitatoryService;
 
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
@@ -70,8 +70,8 @@ class CommunityServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
-		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, usersDAO, validator, authzService,
-				publisher, capabilityCollector);
+		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator, authzService,
+				publisher, capabilityCollector, invitatoryService);
 		orderVerifier = inOrder(communityRepository, communityGroupsDAO, publisher);
 	}
 

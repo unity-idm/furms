@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.Community;
@@ -16,14 +17,14 @@ import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CreateCommunityEvent;
 import io.imunity.furms.domain.communities.RemoveCommunityEvent;
 import io.imunity.furms.domain.communities.UpdateCommunityEvent;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,6 +35,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -49,26 +51,26 @@ class CommunityServiceImpl implements CommunityService {
 
 	private final CommunityRepository communityRepository;
 	private final CommunityGroupsDAO communityGroupsDAO;
-	private final UsersDAO usersDAO;
 	private final CommunityServiceValidator validator;
 	private final ApplicationEventPublisher publisher;
 	private final AuthzService authzService;
 	private final CapabilityCollector capabilityCollector;
+	private final InvitatoryService invitatoryService;
 
 	CommunityServiceImpl(CommunityRepository communityRepository,
 	                     CommunityGroupsDAO communityGroupsDAO,
-	                     UsersDAO usersDAO,
 	                     CommunityServiceValidator validator,
 	                     AuthzService authzService,
 	                     ApplicationEventPublisher publisher,
-	                     CapabilityCollector capabilityCollector) {
+	                     CapabilityCollector capabilityCollector,
+						 InvitatoryService invitatoryService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
-		this.usersDAO = usersDAO;
 		this.validator = validator;
 		this.publisher = publisher;
 		this.authzService = authzService;
 		this.capabilityCollector = capabilityCollector;
+		this.invitatoryService = invitatoryService;
 	}
 
 	@Override
@@ -139,14 +141,36 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
+	public Set<Invitation> findAllInvitations(String communityId) {
+		return invitatoryService.getInvitations(COMMUNITY_ADMIN, UUID.fromString(communityId));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(String communityId, PersistentId userId) {
-		Optional<FURMSUser> user = usersDAO.findById(userId);
-		if (user.isEmpty()) {
-			throw new IllegalArgumentException("Could not invite user due to wrong email address.");
-		}
-		communityGroupsDAO.addAdmin(communityId, userId);
-		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.get(), new ResourceId(communityId, COMMUNITY)));
+		invitatoryService.inviteUser(userId, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
+	public void inviteAdmin(String communityId, String email) {
+		invitatoryService.inviteUser(email, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
+	public void resendInvitation(String communityId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(communityId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
+		invitatoryService.resendInvitation(invitationId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
+	public void removeInvitation(String communityId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(communityId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
+		invitatoryService.removeInvitation(invitationId);
 	}
 
 	@Override

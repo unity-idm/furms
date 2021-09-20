@@ -78,14 +78,14 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				() -> fenixUserService.inviteFenixAdmin(inviteUserComponent.getEmail())
 			);
 			inviteUserComponent.reload();
-			showSuccessNotification(getTranslation("view.fenix-admin.invite.successful.added"));
+			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (DuplicatedInvitationError e) {
-				showErrorNotification(getTranslation("view.fenix-admin.invite.error.duplicate"));
+				showErrorNotification(getTranslation("invite.error.duplicate"));
 		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("view.fenix-admin.invite.error.role.own"));
+			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("view.fenix-admin.invite.error.unexpected"));
+			showErrorNotification(getTranslation("invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);
 		}
 	}

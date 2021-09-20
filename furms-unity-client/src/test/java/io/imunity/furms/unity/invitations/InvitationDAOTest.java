@@ -5,6 +5,8 @@
 
 package io.imunity.furms.unity.invitations;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.unity.client.UnityClient;
@@ -19,8 +21,11 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,26 +34,34 @@ class InvitationDAOTest {
 
 	@Mock
 	private UnityClient unityClient;
+	@Mock
+	private InvitationFormIdResolver invitationFormIdResolver;
+	@Mock
+	private GroupResolver groupResolver;
 
 	private InvitationDAOImpl invitationDAO;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
-		invitationDAO = new InvitationDAOImpl(unityClient, "url");
+		invitationDAO = new InvitationDAOImpl(unityClient, invitationFormIdResolver, groupResolver,"url");
 	}
 
 	@Test
 	void shouldCreateInvitation() {
 		//given
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
 		Instant instant = Instant.now();
+		Role fenixAdmin = Role.FENIX_ADMIN;
+
 		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam("fenixAdminForm", instant, "email");
-		registrationInvitationParam.getMessageParams().put("custom.role", Role.FENIX_ADMIN.toString().toLowerCase().replace("_", " "));
-		registrationInvitationParam.getMessageParams().put("custom.unityUrl", "url");
-		when(unityClient.post("/invitation", registrationInvitationParam, Map.of(), new ParameterizedTypeReference<String>(){})).thenReturn("code");
+
+		when(invitationFormIdResolver.getFormId(fenixAdmin)).thenReturn("formId");
+		when(groupResolver.resolveGroup(resourceId, fenixAdmin)).thenReturn("group");
+		when(unityClient.post(eq("/invitation"), any(), eq(Map.of()), eq(new ParameterizedTypeReference<String>(){}))).thenReturn("code");
 
 		//when
-		InvitationCode invitationCode = invitationDAO.createInvitation("fenixAdminForm","email", instant, Role.FENIX_ADMIN);
+		InvitationCode invitationCode = invitationDAO.createInvitation(resourceId, fenixAdmin, "email", instant);
 
 		//then
 		assertEquals("code", invitationCode.code);
@@ -57,16 +70,20 @@ class InvitationDAOTest {
 	@Test
 	void shouldUpdateInvitation() {
 		//given
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
 		Instant instant = Instant.now();
-		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam("fenixAdminForm", instant, "email");
-		registrationInvitationParam.getMessageParams().put("custom.role", Role.FENIX_ADMIN.toString().toLowerCase().replace("_", " "));
-		registrationInvitationParam.getMessageParams().put("custom.unityUrl", "url");
+		Role role = Role.SITE_SUPPORT;
+		String email = "email";
+		InvitationCode invitationCode = new InvitationCode("code");
 
 		//when
-		invitationDAO.updateInvitation("fenixAdminForm","email",  new InvitationCode("code"), instant, Role.FENIX_ADMIN);
+		when(invitationFormIdResolver.getFormId(role)).thenReturn("formId");
+		when(groupResolver.resolveGroup(resourceId, role)).thenReturn("group");
+
+		invitationDAO.updateInvitation(resourceId, role, email, invitationCode, instant);
 
 		//then
-		verify(unityClient).put("/invitation/code", registrationInvitationParam);
+		verify(unityClient).put(eq("/invitation/code"), any());
 	}
 
 	@Test

@@ -9,6 +9,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -19,20 +21,30 @@ import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
 public class CommunityAdminsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final CommunityService communityService;
+	private final UsersGridComponent grid;
+	private final String communityId;
 
 	public CommunityAdminsView(CommunityService communityService, AuthzService authzService, UserService userService) {
+		this.communityService = communityService;
+		communityId = getCurrentResourceId();
 		PersistentId currentUserId = authzService.getCurrentUserId();
-		String communityId = getCurrentResourceId();
 
 		Supplier<List<FURMSUser>> fetchUsersAction = () -> communityService.findAllAdmins(communityId);
 		InviteUserComponent inviteUser = new InviteUserComponent(
@@ -46,18 +58,46 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> {
 				communityService.removeAdmin(communityId, userId);
 				inviteUser.reload();
-			}).build();
+			})
+			.withResendInvitationAction(invitationId -> {
+				communityService.resendInvitation(communityId, invitationId);
+				gridReload();
+			})
+			.withRemoveInvitationAction(invitationId -> {
+				communityService.removeInvitation(communityId, invitationId);
+				gridReload();
+			})
+			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(fetchUsersAction, Set::of, userGrid);
+		grid = UsersGridComponent.defaultInit(fetchUsersAction, () -> communityService.findAllInvitations(communityId), userGrid);
 
-		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getUserId().orElse(null));
-			grid.reloadGrid();
-			inviteUser.reload();
-		});
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 				getTranslation("view.community-admin.administrators.page.header"));
 		getContent().add(headerLayout, inviteUser, grid);
+	}
+
+	private void doInviteAction(InviteUserComponent inviteUserComponent) {
+		try {
+			inviteUserComponent.getUserId().ifPresentOrElse(
+				id -> communityService.inviteAdmin(communityId, id),
+				() -> communityService.inviteAdmin(communityId, inviteUserComponent.getEmail())
+			);
+			inviteUserComponent.reload();
+			showSuccessNotification(getTranslation("invite.successful.added"));
+			gridReload();
+		} catch (DuplicatedInvitationError e) {
+			showErrorNotification(getTranslation("invite.error.duplicate"));
+		} catch (UserAlreadyHasRoleError e) {
+			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (RuntimeException e) {
+			showErrorNotification(getTranslation("invite.error.unexpected"));
+			LOG.error("Could not invite user. ", e);
+		}
+	}
+
+	private void gridReload() {
+		grid.reloadGrid();
 	}
 
 }

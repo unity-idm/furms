@@ -8,11 +8,11 @@ package io.imunity.furms.core.events;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class CommunityEventsITTest {
 	@MockBean
 	private CommunityGroupsDAO communityGroupsDAO;
 	@MockBean
-	private UsersDAO usersDAO;
+	private InvitatoryService invitatoryService;
 	@MockBean
 	private ProjectRepository projectRepository;
 
@@ -42,6 +42,7 @@ class CommunityEventsITTest {
 	private AuthzService authzService;
 	@MockBean
 	private CapabilityCollector capabilityCollector;
+
 
 	@Autowired
 	private CommunityService communityService;

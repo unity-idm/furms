@@ -5,6 +5,8 @@
 
 package io.imunity.furms.api.sites;
 
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.site_agent.PendingJob;
 import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.Site;
@@ -43,9 +45,25 @@ public interface SiteService {
 
 	List<FURMSUser> findAllSupportUsers(String siteId);
 
+	Set<Invitation> findSiteAdminInvitations(String siteId);
+
+	Set<Invitation> findSiteSupportInvitations(String siteId);
+
 	void inviteAdmin(String siteId, PersistentId userId);
 
+	void inviteAdmin(String siteId, String email);
+
 	void inviteSupport(String siteId, PersistentId userId);
+
+	void inviteSupport(String siteId, String email);
+
+	void resendInvitation(String siteId, InvitationId invitationId);
+
+	void changeInvitationRoleToSupport(String siteId, InvitationId invitationId);
+
+	void changeInvitationRoleToAdmin(String siteId, InvitationId invitationId);
+
+	void removeInvitation(String siteId, InvitationId invitationId);
 
 	void addAdmin(String siteId, PersistentId userId);
 

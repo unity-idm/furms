@@ -62,18 +62,56 @@ try
 
 void initRegistrationForms()
 {
-	RegistrationForm fenixAdminForm = createRegistrationForm()
-	fenixAdminForm.setTranslationProfile(
-			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
-					new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[])),
-					new TranslationRule("true", new TranslationAction("addToGroup", "'/fenix/users'")),
-					new TranslationRule("true", new TranslationAction("addAttribute", ["furmsFenixRole", "/fenix/users", "['ADMIN']"] as String[]))
-			])
-	)
+	def fenixGroupParam = new GroupRegistrationParam()
+	fenixGroupParam.setGroupPath("/fenix/users")
+
+	def fenixRoleParam = new AttributeRegistrationParam()
+	fenixRoleParam.setGroup('/fenix/users')
+	fenixRoleParam.setAttributeType('furmsFenixRole')
+	fenixRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
+	fenixRoleParam.setGroup('DYN:/fenix/users')
+
+	RegistrationForm fenixAdminForm = createRegistrationForm("fenixForm", fenixGroupParam, fenixRoleParam)
 	registrationsManagement.addForm(fenixAdminForm)
+
+	def siteGroupParam = new GroupRegistrationParam()
+	siteGroupParam.setGroupPath("/fenix/sites/*/users")
+
+	def siteRoleParam = new AttributeRegistrationParam()
+	siteRoleParam.setGroup('/')
+	siteRoleParam.setAttributeType('furmsSiteRole')
+	siteRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
+	siteRoleParam.setGroup('DYN:/fenix/sites/*/users')
+
+	RegistrationForm siteAdminForm = createRegistrationForm("siteForm", siteGroupParam, siteRoleParam)
+	registrationsManagement.addForm(siteAdminForm)
+
+	def communityGroupParam = new GroupRegistrationParam()
+	communityGroupParam.setGroupPath("/fenix/communities/*/users")
+
+	def communityRoleParam = new AttributeRegistrationParam()
+	communityRoleParam.setGroup('/')
+	communityRoleParam.setAttributeType('furmsCommunityRole')
+	communityRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
+	communityRoleParam.setGroup('DYN:/fenix/communities/*/users')
+
+	RegistrationForm communityForm = createRegistrationForm("communityForm", communityGroupParam, communityRoleParam)
+	registrationsManagement.addForm(communityForm)
+
+	def projectGroupParam = new GroupRegistrationParam()
+	projectGroupParam.setGroupPath("/fenix/communities/*/projects/*/users")
+
+	def projectRoleParam = new AttributeRegistrationParam()
+	projectRoleParam.setGroup('/')
+	projectRoleParam.setAttributeType('furmsProjectRole')
+	projectRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
+	projectRoleParam.setGroup('DYN:/fenix/communities/*/projects/*/users')
+
+	RegistrationForm projectForm = createRegistrationForm("projectForm", projectGroupParam, projectRoleParam)
+	registrationsManagement.addForm(projectForm)
 }
 
-private RegistrationForm createRegistrationForm() {
+private RegistrationForm createRegistrationForm(String name, GroupRegistrationParam groupParam, AttributeRegistrationParam roleParam) {
 	def identityParam = new IdentityRegistrationParam()
 	identityParam.setIdentityType('identifier')
 	identityParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
@@ -82,7 +120,7 @@ private RegistrationForm createRegistrationForm() {
 	registrationFormNotifications.setInvitationTemplate('registrationInvitation')
 
 	def form = new RegistrationFormBuilder()
-			.withName("fenixAdminForm")
+			.withName(name)
 			.withPubliclyAvailable(true)
 			.withByInvitationOnly(true)
 			.withAutoLoginToRealm('main')
@@ -91,6 +129,8 @@ private RegistrationForm createRegistrationForm() {
 			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('registration', 'registration')]))
 			.build()
 	form.setIdentityParams([identityParam])
+
+	form.setGroupParams([groupParam])
 
 	def surnameParam = new AttributeRegistrationParam()
 	surnameParam.setGroup('/')
@@ -118,7 +158,7 @@ private RegistrationForm createRegistrationForm() {
 	emailParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
 
 	form.setAttributeParams([
-			surnameParam, nameParam, firstnameParam, emailParam
+			roleParam, surnameParam, nameParam, firstnameParam, emailParam
 	])
 	form.setWrapUpConfig([
 			new RegistrationWrapUpConfig(
@@ -149,6 +189,12 @@ private RegistrationForm createRegistrationForm() {
 					Duration.ZERO
 			)
 	])
+	form.setTranslationProfile(
+			new TranslationProfile('registrationProfile', '', ProfileType.REGISTRATION, [
+					new TranslationRule("true", new TranslationAction("autoProcess", ["accept"] as String[]))
+			])
+	)
+
 	form
 }
 

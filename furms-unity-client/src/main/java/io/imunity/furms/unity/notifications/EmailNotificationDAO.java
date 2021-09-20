@@ -5,6 +5,7 @@
 
 package io.imunity.furms.unity.notifications;
 
+import io.imunity.furms.domain.authz.roles.Role;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
@@ -62,8 +63,8 @@ class EmailNotificationDAO implements NotificationDAO {
 	}
 
 	@Override
-	public void notifyUser(PersistentId id, Invitation invitation) {
-		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(invitation.role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+	public void notifyUserAboutNewRole(PersistentId id, Role role) {
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
 		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
 	}
 

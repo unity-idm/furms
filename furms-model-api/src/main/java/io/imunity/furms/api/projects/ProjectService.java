@@ -5,6 +5,8 @@
 
 package io.imunity.furms.api.projects;
 
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -48,7 +50,17 @@ public interface ProjectService {
 
 	void addAdmin(String communityId, String projectId, PersistentId userId);
 
-	void inviteAdmin(String communityId, String projectId, PersistentId userId);
+	Set<Invitation> findAllAdminsInvitations(String projectId);
+
+	Set<Invitation> findAllUsersInvitations(String projectId);
+
+	void inviteAdmin(String projectId, PersistentId userId);
+
+	void inviteAdmin(String projectId, String email);
+
+	void removeInvitation(String projectId, InvitationId id);
+
+	void resendInvitation(String projectId, InvitationId id);
 
 	void removeAdmin(String communityId, String projectId, PersistentId userId);
 
@@ -60,7 +72,9 @@ public interface ProjectService {
 
 	void addUser(String communityId, String projectId, PersistentId userId);
 
-	void inviteUser(String communityId, String projectId, PersistentId userId);
+	void inviteUser(String projectId, PersistentId userId);
+
+	void inviteUser(String projectId, String email);
 
 	void removeUser(String communityId, String projectId, PersistentId userId);
 

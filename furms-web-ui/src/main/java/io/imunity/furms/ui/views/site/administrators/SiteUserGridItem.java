@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.site.administrators;
 
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
 
@@ -15,6 +16,11 @@ public class SiteUserGridItem extends UserGridItem {
 
 	SiteUserGridItem(FURMSUser user, SiteRole role){
 		super(user);
+		this.siteRole = Optional.of(role);
+	}
+
+	SiteUserGridItem(String email, SiteRole role, InvitationId invitationId){
+		super(email, invitationId);
 		this.siteRole = Optional.of(role);
 	}
 

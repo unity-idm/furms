@@ -10,11 +10,13 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.invitations.InviteUserEvent;
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.site_agent.PendingJob;
@@ -24,6 +26,7 @@ import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -47,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
@@ -76,6 +80,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final CapabilityCollector capabilityCollector;
+	private final InvitatoryService invitatoryService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -88,7 +93,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                UserOperationRepository userOperationRepository,
 	                PolicyDocumentRepository policyDocumentRepository,
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
-	                CapabilityCollector capabilityCollector) {
+	                CapabilityCollector capabilityCollector,
+	                InvitatoryService invitatoryService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -101,6 +107,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.capabilityCollector = capabilityCollector;
+		this.invitatoryService = invitatoryService;
 	}
 
 	@Override
@@ -314,23 +321,70 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
-		inviteUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
+		invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void inviteAdmin(String siteId, String email) {
+		invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, PersistentId userId) {
-		inviteUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
+		invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_SUPPORT);
 	}
 
-	private void inviteUser(String siteId, PersistentId userId, Runnable inviter) {
-		assertNotEmpty(siteId, userId);
-		Optional<FURMSUser> user = usersDAO.findById(userId);
-		if (user.isEmpty()) {
-			throw new IllegalArgumentException("Could not invite user due to wrong email adress.");
-		}
-		inviter.run();
-		publisher.publishEvent(new InviteUserEvent(user.get().fenixUserId.get(), new ResourceId(siteId, SITE)));
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void inviteSupport(String siteId, String email) {
+		invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT);
+
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public Set<Invitation> findSiteAdminInvitations(String siteId) {
+		return invitatoryService.getInvitations(Role.SITE_ADMIN, UUID.fromString(siteId));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public Set<Invitation> findSiteSupportInvitations(String siteId) {
+		return invitatoryService.getInvitations(Role.SITE_SUPPORT, UUID.fromString(siteId));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void resendInvitation(String siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+		invitatoryService.resendInvitation(invitationId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void changeInvitationRoleToSupport(String siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+		invitatoryService.updateInvitationRole(invitationId, Role.SITE_SUPPORT);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void changeInvitationRoleToAdmin(String siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+		invitatoryService.updateInvitationRole(invitationId, Role.SITE_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void removeInvitation(String siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId, invitationId))
+			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+		invitatoryService.removeInvitation(invitationId);
 	}
 
 	@Override
@@ -347,7 +401,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	private void addUser(String siteId, PersistentId userId, Runnable adder) {
 		assertNotEmpty(siteId, userId);
-
 		try {
 			adder.run();
 			LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, siteId);
@@ -355,6 +408,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			LOG.error("Could not add Site Administrator: ", e);
 			try {
 				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeSiteUser(siteId, userId));
+				publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
 			} catch (RuntimeException ex) {
 				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", ex);
 			}

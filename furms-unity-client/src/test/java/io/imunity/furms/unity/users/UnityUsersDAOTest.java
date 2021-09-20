@@ -41,7 +41,7 @@ public class UnityUsersDAOTest {
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO, "fenixAdminForm");
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -65,7 +65,7 @@ public class UnityUsersDAOTest {
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
 					"/fenix/communities/" + id, "/fenix/communities/" + id + "/users"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO, "fenixAdminForm");
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -93,7 +93,7 @@ public class UnityUsersDAOTest {
 					"/fenix/communities/" + idC + "/projects",
 					"/fenix/communities/" + idC + "/projects/" + id, 
 					"/fenix/communities/" + idC + "/projects/" + id + "/users"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO, "fenixAdminForm");
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -117,7 +117,7 @@ public class UnityUsersDAOTest {
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
 					"/fenix/communities/" + id));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO, "fenixAdminForm");
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
@@ -138,7 +138,7 @@ public class UnityUsersDAOTest {
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));
-		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO, "fenixAdminForm");
+		UnityUsersDAO unityUsersDAO = new UnityUsersDAO(unityClient, userService, invitationDAO);
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
