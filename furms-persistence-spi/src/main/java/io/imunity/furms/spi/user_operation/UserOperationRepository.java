@@ -8,9 +8,9 @@ package io.imunity.furms.spi.user_operation;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
-import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Optional;

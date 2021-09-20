@@ -7,7 +7,6 @@ package io.imunity.furms.ui.views.user_settings.policy_documents;
 
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -32,7 +31,7 @@ import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 import java.io.ByteArrayInputStream;
@@ -62,7 +61,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 
 	PolicyDocumentsView(PolicyDocumentService service) {
 		this.policyDocumentService = service;
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
 		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
 		grid.addComponentColumn(this::getTooltipName)
@@ -146,12 +145,11 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		Anchor anchor = new Anchor( "" ,  EYE.create());
 		anchor.getStyle().set("align-self", "center");
 		if(policyDocumentExtended.contentType.equals(PolicyContentType.EMBEDDED)){
-			Html html = new Html("<div>" + policyDocumentExtended.htmlText + "</div>");
 			anchor.setTarget( "_blank" );
 			String id = UUID.randomUUID().toString();
 			String url = RouteConfiguration.forSessionScope().getUrl(EmbeddedPolicyDocumentView.class, id);
 			anchor.setHref(url);
-			UI.getCurrent().getSession().setAttribute(id, html);
+			UI.getCurrent().getSession().setAttribute(id, "<div>" + policyDocumentExtended.htmlText + "</div>");
 		}
 		else {
 			anchor.getElement().setAttribute("download", true);

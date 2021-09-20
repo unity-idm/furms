@@ -35,7 +35,7 @@ import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.project.ProjectViewModelMapper;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.utils.ResourceGetter;
@@ -102,7 +102,7 @@ class ProjectFormView extends FurmsViewComponent {
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		
 		ProjectViewModel projectViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> resolver.resolve(id, InvocationContext.getCurrent().getZone())))
+			.flatMap(id -> handleExceptions(() -> resolver.resolve(id, UIContext.getCurrent().getZone())))
 			.orElseGet(() -> new ProjectViewModel(ResourceGetter.getCurrentResourceId()));
 		
 		String trans = parameter == null 

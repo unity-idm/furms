@@ -47,7 +47,7 @@
                                 --no-fallback
                                 --allow-incomplete-classpath
                                 -H:ReflectionConfigurationFiles=classes/logback-extra.json
-                                -H:IncludeResources=.*
+                                -H:IncludeResources=.*/logback-extra.json$
                             </buildArgs>
                         </configuration>
                     </plugin>

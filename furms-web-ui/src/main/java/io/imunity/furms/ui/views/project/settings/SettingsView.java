@@ -21,7 +21,7 @@ import io.imunity.furms.ui.project.ProjectModelResolver;
 import io.imunity.furms.ui.project.ProjectViewModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 import java.time.ZoneId;
@@ -53,7 +53,7 @@ public class SettingsView extends FurmsViewComponent {
 		this.resolver = resolver;
 		List<FurmsViewUserModel> users = FurmsViewUserModelMapper.mapList(userService.getAllUsers());
 		this.projectFormComponent = new ProjectFormComponent(binder, true, users);
-		zoneId = InvocationContext.getCurrent().getZone();
+		zoneId = UIContext.getCurrent().getZone();
 
 		projectFormComponent.getUpload().addFinishedListener(x -> enableEditorMode());
 		projectFormComponent.getUpload().addFileRemovedListener(x -> enableEditorMode());

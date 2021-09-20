@@ -33,7 +33,7 @@ class SiteAllocationsCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site allocations list {}", siteId);
+			LOG.debug("Executing site allocations list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/siteAllocations")
 					.pathParams(siteId)
 					.build());
@@ -52,7 +52,7 @@ class SiteAllocationsCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site allocations show {} {}", siteId, projectId);
+			LOG.debug("Executing site allocations show {} {}", siteId, projectId);
 			furmsClient.get(path("/sites/{siteId}/siteAllocations/{projectId}")
 					.pathParams(siteId, projectId)
 					.build());

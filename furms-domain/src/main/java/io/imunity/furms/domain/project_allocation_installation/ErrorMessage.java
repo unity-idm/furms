@@ -21,7 +21,8 @@ public class ErrorMessage {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ErrorMessage that = (ErrorMessage) o;
-		return code == that.code && Objects.equals(message, that.message);
+		return Objects.equals(code, that.code) 
+				&& Objects.equals(message, that.message);
 	}
 
 	@Override

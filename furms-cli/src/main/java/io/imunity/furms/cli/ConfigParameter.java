@@ -6,29 +6,33 @@
 package io.imunity.furms.cli;
 
 public enum ConfigParameter {
-
-	URL ("--furmsurl",
-			"connection.url",
+	
+	URL (ConfigParameterNames.FURMS_URL,
+			"url",
 			"FURMS_URL",
 			null),
-	USERNAME ("--user",
-			"connection.username",
+	USERNAME (ConfigParameterNames.USERNAME,
+			"username",
 			"FURMS_USER",
 			null),
-	APIKEY ("--apikey",
-			"connection.apikey",
+	APIKEY (ConfigParameterNames.API_KEY,
+			"apikey",
 			"FURMS_APIKEY",
 			null),
-	TRUSTSTORE("--truststore",
-			"security.truststore",
+	TRUSTSTORE(ConfigParameterNames.TRUSTSTORE_PATH,
+			"truststore",
 			"FURMS_TRUSTSTORE",
-			System.getProperty("sun.boot.library.path") + "/security/cacerts"),
-	TRUSTSTORE_PASS("--truststorepass",
-			"security.truststore.pass",
+			getDefaultTruststore()),
+	TRUSTSTORE_TYPE(ConfigParameterNames.TRUSTSTORE_TYPE,
+			"truststoreType",
+			"FURMS_TRUSTSTORE_TYPE",
+			"JKS"),
+	TRUSTSTORE_PASS(ConfigParameterNames.TRUSTSTORE_PASS,
+			"truststorePass",
 			"FURMS_TRUSTSTORE_PASS",
 			"changeit");
-
-	private final String option;
+	
+	public final String option;
 	private final String property;
 	private final String environmentVariable;
 	private final String defaultValue;
@@ -54,5 +58,10 @@ public enum ConfigParameter {
 
 	public String getDefaultValue() {
 		return defaultValue;
+	}
+	
+	private static String getDefaultTruststore() {
+		String javaHome = System.getenv("JAVA_HOME");
+		return javaHome == null ? null : javaHome + "/lib/security/cacerts";
 	}
 }

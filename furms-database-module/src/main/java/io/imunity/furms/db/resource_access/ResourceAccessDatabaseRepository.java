@@ -40,6 +40,13 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
+	public Set<FenixUserId> findUsersBySiteId(String siteId) {
+		return userGrantEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+			.map(grant -> new FenixUserId(grant.userId))
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	public Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId) {
 		return userGrantEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(entity -> new ProjectUserGrant(entity.grantId, entity.projectId, new FenixUserId(entity.userId)));

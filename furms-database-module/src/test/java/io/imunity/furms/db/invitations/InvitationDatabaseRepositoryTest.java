@@ -6,17 +6,11 @@
 package io.imunity.furms.db.invitations;
 
 
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.invitations.Invitation;
-import io.imunity.furms.domain.invitations.InvitationCode;
-import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.users.FenixUserId;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,11 +18,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.Invitation;
+import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 @SpringBootTest
 class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -428,19 +429,6 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.roleAttribute("roleAttribute")
 			.roleValue("roleValue")
 			.code("code")
-			.expiredAt(LocalDate.now().atStartOfDay())
-			.build();
-
-		InvitationEntity invitationEntity1 = InvitationEntity.builder()
-			.resourceId(UUID.randomUUID())
-			.resourceName("resourceName")
-			.originator("originator")
-			.userId("userId1")
-			.email("email")
-			.resourceType(APP_LEVEL)
-			.roleAttribute("roleAttribute")
-			.roleValue("roleValue")
-			.code("code1")
 			.expiredAt(LocalDate.now().atStartOfDay())
 			.build();
 

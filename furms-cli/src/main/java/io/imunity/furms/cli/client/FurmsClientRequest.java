@@ -5,15 +5,15 @@
 
 package io.imunity.furms.cli.client;
 
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.stream.Collectors.toMap;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public class FurmsClientRequest {
 
@@ -40,7 +40,7 @@ public class FurmsClientRequest {
 		return UriComponentsBuilder
 				.fromPath(path)
 				.queryParams(queryParams)
-				.build(pathParams.toArray(String[]::new))
+				.build(pathParams.toArray(Object[]::new))
 				.toString();
 	}
 

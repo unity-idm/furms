@@ -29,8 +29,9 @@ public class RestTemplateConfig {
 	                                 String username,
 	                                 String apiKey,
 	                                 String trustStore,
+	                                 String trustStoreType,
 	                                 String trustStorePassword) {
-		SSLContext sslContext = createSSLContext(trustStore, trustStorePassword);
+		SSLContext sslContext = createSSLContext(trustStore, trustStorePassword, trustStoreType);
 		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
 		HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
 

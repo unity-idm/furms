@@ -18,30 +18,27 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 
-public class InvocationContext {
+public class UIContext {
+	
+	private static final ZoneId DEFAULT_ZONE_ID = ZoneId.of("UTC");
 
-	private static final Logger LOG = LoggerFactory.getLogger(InvocationContext.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UIContext.class);
 
-	private static final int ZONE_INIT_TIMEOUT_S = 4;
+	private static final int ZONE_INIT_TIMEOUT_S = 3;
 
 	private final Future<ZoneId> zone;
 
-	public InvocationContext(Future<ZoneId> zone) {
+	public UIContext(Future<ZoneId> zone) {
 		this.zone = zone;
 	}
 
-	public void setAsCurrent() {
+	public static UIContext getCurrent() {
 		UI ui = UI.getCurrent();
-		ComponentUtil.setData(ui, InvocationContext.class, this);
-	}
-
-	public static InvocationContext getCurrent() {
-		UI ui = UI.getCurrent();
-		InvocationContext ret = ComponentUtil.getData(ui, InvocationContext.class);
+		UIContext ret = ComponentUtil.getData(ui, UIContext.class);
 		if (ret == null) {
 			LOG.debug("Recreate invocation context");
 			init(ui);
-			ret = ComponentUtil.getData(ui, InvocationContext.class);
+			ret = ComponentUtil.getData(ui, UIContext.class);
 		}
 		return ret;
 	}
@@ -50,17 +47,23 @@ public class InvocationContext {
 		try {
 			return zone.get(ZONE_INIT_TIMEOUT_S, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			LOG.error("Can not get user zone", e);
+			LOG.warn("Can not get user zone, falling back to UTC", e);
 		}
-		return ZoneId.of("UTC");
+		return DEFAULT_ZONE_ID;
 	}
-
+	
 	public static void init(UI ui) {
+		LOG.debug("Initializing zone");
 		CompletableFuture<ZoneId> zone = new CompletableFuture<>();
 		ui.getPage().retrieveExtendedClientDetails(cd -> {
-			zone.complete(ZoneId.of(cd.getTimeZoneId()));
+			LOG.debug("Zone initialized to {}", cd.getTimeZoneId());
+			zone.complete(zone == null ? DEFAULT_ZONE_ID : ZoneId.of(cd.getTimeZoneId()));
 		});
 
-		new InvocationContext(zone).setAsCurrent();
+		new UIContext(zone).setAsCurrent(ui);
+	}
+	
+	private void setAsCurrent(UI ui) {
+		ComponentUtil.setData(ui, UIContext.class, this);
 	}
 }

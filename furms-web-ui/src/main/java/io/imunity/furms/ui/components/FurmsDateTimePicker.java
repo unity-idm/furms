@@ -28,7 +28,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.shared.Registration;
 
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 
 /**
  * Works on dates aligned to browser's zone.
@@ -108,7 +108,7 @@ public class FurmsDateTimePicker
 
 	@Override
 	public ZonedDateTime getValue() {
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		return ZonedDateTime.of(
 				ofNullable(datePicker.getValue()).orElse(now(browserZoneId)),
 				ofNullable(timePicker.getValue()).orElse(defaultTimeProvider.get()),
@@ -116,7 +116,7 @@ public class FurmsDateTimePicker
 	}
 	
 	private LocalDate nowWithBrowserZone() {
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		return now(browserZoneId);
 	}
 	

@@ -1,0 +1,125 @@
+== FURMS Command Line Interface (CLI)
+
+FURMS ecosystem provides a command line executable, which can be used to conveniently access FURMS. The CLI application simplifies the use of the FURMS REST API, on which it is based.
+
+FURMS CLI is designed in the first place for the Fenix and site level admins. It can be used as well by community and project admins.
+
+Access credentials of the FURMS CLI are the same as the ones used for the REST API access and can be generated in the FURMS web UI under User Settings.
+
+=== Configuring the CLI
+
+FURMS CLI can be run an a Linux AMD64 platform. There are no external dependencies, however it might be good to have an installation of Java Runtime Environment (of any recent version) in order to more quickly setup a truststore (see below).
+
+To run FURMS CLI the following parameters have to be provided:
+
+. FURMS server URL
+. Access credentials: user is and API key
+. TLS/HTTPS truststore
+
+The options can be set in number of ways, enumerated here in priority order:   
+
+. Provided as a command line parameter
+. Provided as an environmental variable
+. Loaded from a configuration file
+
+The following table lists all mandatory parameters:
+
+[cols="1,1,1,1,1"]
+|===
+|Setting |Config file property|Env variable|Command line|Default value
+
+|FURMS URL
+|`url`
+|`FURMS_URL`
+|`--furms-url`
+|-
+
+|Username
+|`username`
+|`FURMS_USER`
+|`--user`
+|-
+
+|API key
+|`apikey`
+|`FURMS_APIKEY`
+|`--api-key`
+|-
+
+|Truststore path
+|`truststore`
+|`FURMS_TRUSTSTORE`
+|`--truststore`
+|
+
+|Truststore type
+|`truststoreType`
+|`FURMS_TRUSTSTORE_TYPE`
+|`--truststore-type`
+|`JKS`
+
+|Truststore password
+|`truststorePass`
+|`FURMS_TRUSTSTORE_PASS`
+|`--truststore-pass`
+|`changeit`
+|=== 
+
+==== Configuration file
+Using the configuration file is typically a preferred way to configure the client. Configuration file location can be either set as a command line parameter `--config-file` or placed in the default location which is `.furms.properties` in user's home directory.
+
+Example configuration file contents:
+
+----
+apikey=12345678-b9b9-4444-5555-71123d000820
+username=12345678-daaa-6666-7777-28324ec7ac88
+url=https://furms.example.com
+---- 
+
+==== Configuring truststore
+The most easy way to configure HTTPS (TLS) trusted certificates is to have an installation of JRE. It includes a truststore which will be automatically picked by FURMS CLI, if only `$JAVA_HOME` environment variable is properly pointing to the root of the JRE installation.
+
+Otherwise a JKS or PKCS12 file needs to be created, including a CA certificate, which was used to issue a certificate of the FURMS server. In such case truststore needs to be configured with the three options shown in the table above. 
+
+=== Using the client
+
+All CLI main commands are listed with the `-h` switch, e.g.:
+
+----
+[user001@examplebox]$ ./furms -h
+Usage: furms [-hV] [COMMAND]
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+Commands:
+  community
+  group
+  project
+  site
+----
+
+Each main command can have a subcommand (and sometimes even sub-sub command). In each case typing the `-h` switch after all commands provides contextual help:
+
+----
+[user001@examplebox]$ ./furms site policy list -h
+Usage: furms site policy list [-dhsvV] [--api-key=<apiKey>]
+                                     [--config-file=<configFile>]
+                                     [--furms-url=<furmsurl>]
+                                     [--truststore=<truststore>]
+                                     [--truststore-pass=<truststorepass>]
+                                     [--truststore-type=<truststoreType>]
+                                     [--user=<username>] <siteId>
+Retrieve site policies
+[...]
+---- 
+
+Output of the operation is printed in JSON format.
+
+=== Diagnostic messages 
+
+By default FURMS client prints command result in JSON, and can also print (rather rarely) some extra information prefixed with the `[INFO]` label. 
+
+What is more all FURMS CLI commands share several options:
+
+ * `-s, --silent` will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format. Note that typically even without this option no extra messages are printed anyway; this option sets up the client not to print anything extra in any case. 
+ * `-v, --verbose` contrary to `--silent` will instruct the app to print more diagnostic data on standard output.
+ * `-d, --debug` as above but even more diagnostic output can be printed.

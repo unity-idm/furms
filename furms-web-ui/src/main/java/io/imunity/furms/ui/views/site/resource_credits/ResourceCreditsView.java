@@ -26,7 +26,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 import java.time.ZoneId;
@@ -55,7 +55,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	public ResourceCreditsView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
 		this.grid = createResourceCreditGrid();
-		zoneId = InvocationContext.getCurrent().getZone();
+		zoneId = UIContext.getCurrent().getZone();
 
 		Button addButton = createAddButton();
 		loadGridContent();

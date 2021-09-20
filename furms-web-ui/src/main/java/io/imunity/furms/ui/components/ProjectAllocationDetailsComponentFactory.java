@@ -9,7 +9,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.dom.Element;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
-import io.imunity.furms.ui.user_context.InvocationContext;
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.user_context.UIContext;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -25,8 +27,8 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 public class ProjectAllocationDetailsComponentFactory {
 	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	public static Component create(Set<ProjectAllocationChunk> allocationChunks) {
-		ZoneId browserZoneId = InvocationContext.getCurrent().getZone();
+	public static Component create(Set<ProjectAllocationChunk> allocationChunks, ResourceMeasureUnit unit) {
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		Element tableElement = new Element("table");
 		tableElement.getStyle().set("width", "90%");
 		tableElement.getStyle().set("text-align", "left");
@@ -52,7 +54,8 @@ public class ProjectAllocationDetailsComponentFactory {
 		for(ProjectAllocationChunk chunk: orderedChunks){
 			Tr row = new Tr();
 			Td amountField = new Td();
-			amountField.setText(Optional.ofNullable(chunk.amount).map(Object::toString).orElse(""));
+			amountField.setText(Optional.ofNullable(chunk.amount)
+					.map(a -> new AmountWithUnit(a, unit).toString()).orElse(""));
 			Td receivedField = new Td();
 			receivedField.setText(Optional.ofNullable(chunk.receivedTime)
 				.map(t -> convertToZoneTime(t, browserZoneId))

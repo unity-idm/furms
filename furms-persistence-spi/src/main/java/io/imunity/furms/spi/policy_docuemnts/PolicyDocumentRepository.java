@@ -24,6 +24,8 @@ public interface PolicyDocumentRepository {
 
 	Optional<PolicyDocument> findByUserGrantId(String userGrantId);
 
+	Optional<PolicyDocument> findSitePolicy(String siteId);
+
 	Set<PolicyDocument> findAll();
 
 	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);

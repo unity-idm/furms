@@ -33,7 +33,7 @@ class SiteResourceTypeCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site resourceType list {}", siteId);
+			LOG.debug("Executing site resourceType list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/resourceTypes")
 					.pathParams(siteId)
 					.build());
@@ -52,7 +52,7 @@ class SiteResourceTypeCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site resourceType show {} {}", siteId, resourceTypeId);
+			LOG.debug("Executing site resourceType show {} {}", siteId, resourceTypeId);
 			furmsClient.get(path("/sites/{siteId}/resourceTypes/{resourceTypeId}")
 					.pathParams(siteId, resourceTypeId)
 					.build());

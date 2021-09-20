@@ -33,7 +33,7 @@ class SiteServiceCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site service list {}", siteId);
+			LOG.debug("Executing site service list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/services")
 					.pathParams(siteId)
 					.build());
@@ -52,7 +52,7 @@ class SiteServiceCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site service show {} {}", siteId, serviceId);
+			LOG.debug("Executing site service show {} {}", siteId, serviceId);
 			furmsClient.get(path("/sites/{siteId}/services/{serviceId}")
 					.pathParams(siteId, serviceId)
 					.build());

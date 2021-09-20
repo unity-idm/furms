@@ -33,7 +33,7 @@ class SiteUsersCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site users list {} {}", siteId);
+			LOG.debug("Executing site users list {} {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/users")
 					.pathParams(siteId)
 					.build());

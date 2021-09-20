@@ -18,6 +18,7 @@ import java.util.UUID;
 
 public interface ResourceAccessRepository {
 	Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId);
+	Set<FenixUserId> findUsersBySiteId(String siteId);
 	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
 	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
 	UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);

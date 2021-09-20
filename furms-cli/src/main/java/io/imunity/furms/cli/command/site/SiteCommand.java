@@ -45,7 +45,7 @@ public class SiteCommand extends FurmsCommand {
 	static class List extends FurmsCommand {
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site list");
+			LOG.debug("Executing site list");
 			furmsClient.get(path("/sites")
 					.build());
 		}
@@ -61,7 +61,7 @@ public class SiteCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site show {}", siteId);
+			LOG.debug("Executing site show {}", siteId);
 			furmsClient.get(path("/sites/{siteId}")
 					.pathParams(siteId)
 					.build());
@@ -88,7 +88,7 @@ public class SiteCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site usageRecords {} {} {} {}", siteId, projectId, from, until);
+			LOG.debug("Executing site usageRecords {} {} {} {}", siteId, projectId, from, until);
 
 			final Map<String, String> queryParams = new HashMap<>();
 			queryParams.put("from", from);
@@ -114,7 +114,7 @@ public class SiteCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site cumulativeResourcesConsumption {} {}", siteId, projectId);
+			LOG.debug("Executing site cumulativeResourcesConsumption {} {}", siteId, projectId);
 			furmsClient.get(path("/sites/{siteId}/cumulativeResourcesConsumption/{projectId}")
 					.pathParams(siteId,projectId)
 					.build());

@@ -10,22 +10,26 @@ import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.unity.client.users.UserService;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 class UnityPolicyDocumentDAO implements PolicyDocumentDAO {
 
 	private final UserService userService;
 	private final SiteRepository siteRepository;
+	private final ResourceAccessRepository resourceAccessRepository;
 
-	UnityPolicyDocumentDAO(UserService userService, SiteRepository siteRepository) {
+	UnityPolicyDocumentDAO(UserService userService, SiteRepository siteRepository, ResourceAccessRepository resourceAccessRepository) {
 		this.userService = userService;
 		this.siteRepository = siteRepository;
+		this.resourceAccessRepository = resourceAccessRepository;
 	}
 
 	public void addUserPolicyAcceptance(FenixUserId userId, PolicyAcceptance policyAcceptance){
@@ -40,6 +44,11 @@ class UnityPolicyDocumentDAO implements PolicyDocumentDAO {
 		Map<String, Set<String>> relatedCommunityAndProjectIds = siteRepository.findRelatedProjectIds(new SiteId(siteId));
 		if(relatedCommunityAndProjectIds.isEmpty())
 			return Set.of();
-		return userService.getAllUsersPolicyAcceptanceFromGroups("/", relatedCommunityAndProjectIds);
+
+		Set<FenixUserId> userIds = resourceAccessRepository.findUsersBySiteId(siteId);
+		return userService.getAllUsersPolicyAcceptanceFromGroups("/", relatedCommunityAndProjectIds).stream()
+			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
+			.filter(userPolicyAcceptances -> userIds.contains(userPolicyAcceptances.user.fenixUserId.get()))
+			.collect(Collectors.toSet());
 	}
 }
