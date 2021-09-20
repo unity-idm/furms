@@ -35,7 +35,7 @@ public class ProjectCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project list");
+			LOG.debug("Executing project list");
 			furmsClient.get(path("/projects")
 					.build());
 		}
@@ -50,7 +50,7 @@ public class ProjectCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project show {}", projectId);
+			LOG.debug("Executing project show {}", projectId);
 			furmsClient.get(path("/projects/{projectId}")
 					.pathParams(projectId)
 					.build());
@@ -66,7 +66,7 @@ public class ProjectCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project delete {}", projectId);
+			LOG.debug("Executing project delete {}", projectId);
 			furmsClient.delete(path("/projects/{projectId}")
 					.pathParams(projectId)
 					.build());
@@ -84,7 +84,7 @@ public class ProjectCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project create {}", definitionFilePath);
+			LOG.debug("Executing project create {}", definitionFilePath);
 			furmsClient.post(path("/projects")
 					.body(readFile(definitionFilePath))
 					.build());
@@ -105,7 +105,7 @@ public class ProjectCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project update {} {}", projectId, definitionFilePath);
+			LOG.debug("Executing project update {} {}", projectId, definitionFilePath);
 			furmsClient.put(path("/projects/{projectId}")
 					.pathParams(projectId)
 					.body(readFile(definitionFilePath))

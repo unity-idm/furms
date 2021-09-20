@@ -34,7 +34,7 @@ class SitePolicyCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site policy list {}", siteId);
+			LOG.debug("Executing site policy list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/policies")
 					.pathParams(siteId)
 					.build());
@@ -53,7 +53,7 @@ class SitePolicyCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site show {} {}", siteId, policyId);
+			LOG.debug("Executing site show {} {}", siteId, policyId);
 			furmsClient.get(path("/sites/{siteId}/policies/{policyId}")
 					.pathParams(siteId, policyId)
 					.build());

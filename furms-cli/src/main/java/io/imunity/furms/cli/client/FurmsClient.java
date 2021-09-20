@@ -75,7 +75,7 @@ public class FurmsClient {
 		try {
 			final Object object = objectMapper.readValue(response.getBody(), Object.class);
 			LOG.debug("Raw response: {}", response);
-			LOG.info("Result {}", response.getStatusCode());
+			LOG.debug("Result {}", response.getStatusCode());
 			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
 		} catch (Exception e) {
 			LOG.error("Unable to parse and print response: {}", response);

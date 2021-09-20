@@ -81,15 +81,6 @@ The most easy way to configure HTTPS (TLS) trusted certificates is to have an in
 
 Otherwise a JKS or PKCS12 file needs to be created, including a CA certificate, which was used to issue a certificate of the FURMS server. In such case truststore needs to be configured with the three options shown in the table above. 
 
-=== Diagnostic output 
-
-All FURMS CLI commands share several options:
-
- * `-s, --silent` will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format.
- * `-v, --verbose` contrary to `--silent` will instruct the app to print more diagnostic data on standard output.
- * `-d, --debug` as above but even more diagnostic output can be printed.
-
-
 === Using the client
 
 All CLI main commands are listed with the `-h` switch, e.g.:
@@ -122,3 +113,11 @@ Retrieve site policies
 ---- 
 
 Output of the operation is printed in JSON format.
+
+=== Diagnostic messages 
+
+All FURMS CLI commands share several options:
+
+ * `-s, --silent` will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format.
+ * `-v, --verbose` contrary to `--silent` will instruct the app to print more diagnostic data on standard output.
+ * `-d, --debug` as above but even more diagnostic output can be printed.

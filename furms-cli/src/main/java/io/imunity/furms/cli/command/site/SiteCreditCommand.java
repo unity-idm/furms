@@ -33,7 +33,7 @@ class SiteCreditCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site credit list {}", siteId);
+			LOG.debug("Executing site credit list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/credits")
 					.pathParams(siteId)
 					.build());
@@ -52,7 +52,7 @@ class SiteCreditCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site credit show {} {}", siteId, creditId);
+			LOG.debug("Executing site credit show {} {}", siteId, creditId);
 			furmsClient.get(path("/sites/{siteId}/credits/{creditId}")
 					.pathParams(siteId, creditId)
 					.build());

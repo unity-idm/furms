@@ -34,7 +34,7 @@ class SiteProtocolMessageCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site protocolMsg list {}", siteId);
+			LOG.debug("Executing site protocolMsg list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/protocolMessages")
 					.pathParams(siteId)
 					.build());
@@ -54,7 +54,7 @@ class SiteProtocolMessageCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site protocolMsg delete {} {}", siteId, messageId);
+			LOG.debug("Executing site protocolMsg delete {} {}", siteId, messageId);
 			furmsClient.delete(path("/sites/{siteId}/protocolMessages/{messageId}")
 					.pathParams(siteId, messageId)
 					.build());
@@ -73,7 +73,7 @@ class SiteProtocolMessageCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site protocolMsg retry {} {}", siteId, messageId);
+			LOG.debug("Executing site protocolMsg retry {} {}", siteId, messageId);
 			furmsClient.post(path("/sites/{siteId}/protocolMessages/{messageId}")
 					.pathParams(siteId, messageId)
 					.build());

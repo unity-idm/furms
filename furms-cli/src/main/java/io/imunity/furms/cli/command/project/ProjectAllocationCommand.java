@@ -35,7 +35,7 @@ class ProjectAllocationCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project allocation list {}", projectId);
+			LOG.debug("Executing project allocation list {}", projectId);
 			furmsClient.get(path("/projects/{projectId}/allocations")
 					.pathParams(projectId)
 					.build());
@@ -54,7 +54,7 @@ class ProjectAllocationCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project allocation get {} {}", projectId, allocationId);
+			LOG.debug("Executing project allocation get {} {}", projectId, allocationId);
 			furmsClient.get(path("/projects/{projectId}/allocations/{projectAllocationId}")
 					.pathParams(projectId, allocationId)
 					.build());
@@ -75,7 +75,7 @@ class ProjectAllocationCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing project allocation create {}, {}", projectId, definitionFilePath);
+			LOG.debug("Executing project allocation create {}, {}", projectId, definitionFilePath);
 			furmsClient.post(path("/projects/{projectId}/allocations")
 					.pathParams(projectId)
 					.body(readFile(definitionFilePath))

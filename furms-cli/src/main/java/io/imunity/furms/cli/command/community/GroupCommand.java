@@ -37,7 +37,7 @@ public class GroupCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing group list {}", communityId);
+			LOG.debug("Executing group list {}", communityId);
 			furmsClient.get(path("/communities/{communityId}/groups")
 					.pathParams(communityId)
 					.build());
@@ -56,7 +56,7 @@ public class GroupCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing group show {} {}", communityId, groupId);
+			LOG.debug("Executing group show {} {}", communityId, groupId);
 			furmsClient.get(path("/communities/{communityId}/groups/{groupId}")
 					.pathParams(communityId, groupId)
 					.build());
@@ -75,7 +75,7 @@ public class GroupCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing group delete {} {}", communityId, groupId);
+			LOG.debug("Executing group delete {} {}", communityId, groupId);
 			furmsClient.delete(path("/communities/{communityId}/groups/{groupId}")
 					.pathParams(communityId, groupId)
 					.build());
@@ -101,7 +101,7 @@ public class GroupCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() throws Exception {
-			LOG.info("Executing group create {} {} {}", communityId, name, description);
+			LOG.debug("Executing group create {} {} {}", communityId, name, description);
 			furmsClient.post(path("/communities/{communityId}/groups")
 					.pathParams(communityId)
 					.body(toJson(new GroupRequestJson(name, description)))
@@ -131,7 +131,7 @@ public class GroupCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() throws Exception {
-			LOG.info("Executing group update {} {} {} {}", communityId, groupId, name, description);
+			LOG.debug("Executing group update {} {} {} {}", communityId, groupId, name, description);
 			furmsClient.put(path("/communities/{communityId}/groups/{groupId}")
 					.pathParams(communityId, groupId)
 					.body(toJson(new GroupRequestJson(name, description)))

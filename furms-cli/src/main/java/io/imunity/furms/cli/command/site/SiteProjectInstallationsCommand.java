@@ -33,7 +33,7 @@ class SiteProjectInstallationsCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site credit projectInstallations list {}", siteId);
+			LOG.debug("Executing site credit projectInstallations list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/projectInstallations")
 					.pathParams(siteId)
 					.build());

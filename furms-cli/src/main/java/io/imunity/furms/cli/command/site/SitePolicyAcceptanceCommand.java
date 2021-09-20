@@ -34,7 +34,7 @@ class SitePolicyAcceptanceCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site policy acceptance list {}", siteId);
+			LOG.debug("Executing site policy acceptance list {}", siteId);
 			furmsClient.get(path("/sites/{siteId}/policyAcceptances")
 					.pathParams(siteId)
 					.build());
@@ -59,7 +59,7 @@ class SitePolicyAcceptanceCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing site policy acceptance ack {} {} {} {}", siteId, policyId, fenixUserId, status);
+			LOG.debug("Executing site policy acceptance ack {} {} {} {}", siteId, policyId, fenixUserId, status);
 			furmsClient.post(path("/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}")
 					.pathParams(siteId, policyId, fenixUserId, status)
 					.build());

@@ -36,7 +36,7 @@ class CommunityAllocationCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing community allocation list {}", communityId);
+			LOG.debug("Executing community allocation list {}", communityId);
 			furmsClient.get(path("/communities/{communityId}/allocations")
 					.pathParams(communityId)
 					.build());
@@ -55,7 +55,7 @@ class CommunityAllocationCommand extends FurmsCommand {
 
 		@Override
 		protected void executeCommand() {
-			LOG.info("Executing community allocation show {} {}", communityId, allocationId);
+			LOG.debug("Executing community allocation show {} {}", communityId, allocationId);
 			furmsClient.get(path("/communities/{communityId}/allocations/{communityAllocationId}")
 					.pathParams(communityId, allocationId)
 					.build());
@@ -79,7 +79,7 @@ class CommunityAllocationCommand extends FurmsCommand {
 			if (isBlank(communityId)) {
 				throw new IllegalArgumentException("Please define communityId as program argument or type --help.");
 			}
-			LOG.info("Executing community allocation create {}, {}", communityId, definitionFilePath);
+			LOG.debug("Executing community allocation create {}, {}", communityId, definitionFilePath);
 			furmsClient.post(path("/communities/{communityId}/allocations")
 					.pathParams(communityId)
 					.body(readFile(definitionFilePath))
