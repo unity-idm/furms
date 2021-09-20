@@ -144,7 +144,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setTextAlign(ColumnTextAlign.END);
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(x -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getChunks(x.id))));
+			.create(projectDataSnapshot.getChunks(x.id), x.amountWithUnit.unit)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;

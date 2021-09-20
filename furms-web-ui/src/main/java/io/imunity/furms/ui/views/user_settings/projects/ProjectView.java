@@ -125,7 +125,7 @@ class ProjectView extends FurmsViewComponent {
 
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getParent().getChunks(c.id))));
+			.create(projectDataSnapshot.getParent().getChunks(c.id), c.amountWithUnit.unit)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;

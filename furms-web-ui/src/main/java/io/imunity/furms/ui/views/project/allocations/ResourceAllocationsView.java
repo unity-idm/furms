@@ -108,7 +108,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 
 
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getChunks(c.id))));
+			.create(projectDataSnapshot.getChunks(c.id), c.amountWithUnit.unit)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
