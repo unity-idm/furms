@@ -8,10 +8,12 @@ package io.imunity.furms.rest.admin;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.in;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,8 +51,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.name").value("name"))
 				.andExpect(jsonPath("$.sitePolicyId").value("policyId2"))
 				.andExpect(jsonPath("$.resourceCredits", hasSize(2)))
-				.andExpect(jsonPath("$.resourceCredits[0].id.siteId").value(siteId))
-				.andExpect(jsonPath("$.resourceCredits[0].id.creditId").value("creditId1"))
+				.andExpect(jsonPath("$.resourceCredits[0].creditId").value("creditId1"))
 				.andExpect(jsonPath("$.resourceCredits[0].name").value("name"))
 				.andExpect(jsonPath("$.resourceCredits[0].validity.from").isNotEmpty())
 				.andExpect(jsonPath("$.resourceCredits[0].validity.to").isNotEmpty())
@@ -58,14 +59,11 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.resourceCredits[0].amount.amount").value("1"))
 				.andExpect(jsonPath("$.resourceCredits[0].amount.unit").value("unit"))
 				.andExpect(jsonPath("$.resourceTypes", hasSize(2)))
-				.andExpect(jsonPath("$.resourceTypes[0].id.siteId").value(siteId))
-				.andExpect(jsonPath("$.resourceTypes[0].id.typeId").value("typeId1"))
+				.andExpect(jsonPath("$.resourceTypes[0].typeId").value("typeId1"))
 				.andExpect(jsonPath("$.resourceTypes[0].name").value("name"))
-				.andExpect(jsonPath("$.resourceTypes[0].serviceId.siteId").value(siteId))
-				.andExpect(jsonPath("$.resourceTypes[0].serviceId.serviceId").value("serviceId"))
+				.andExpect(jsonPath("$.resourceTypes[0].serviceId").value("serviceId"))
 				.andExpect(jsonPath("$.services", hasSize(2)))
-				.andExpect(jsonPath("$.services[0].id.siteId").value(siteId))
-				.andExpect(jsonPath("$.services[0].id.serviceId").value("serviceId1"))
+				.andExpect(jsonPath("$.services[0].serviceId").value("serviceId1"))
 				.andExpect(jsonPath("$.services[0].name").value("name"))
 				.andExpect(jsonPath("$.services[0].policyId").value("policyId"))
 				.andExpect(jsonPath("$.policies", hasSize(2)))
@@ -85,8 +83,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/credits", siteId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.[0].id.creditId").value("id1"))
-				.andExpect(jsonPath("$.[1].id.creditId").value("id2"))
+				.andExpect(jsonPath("$.[0].creditId").value("id1"))
+				.andExpect(jsonPath("$.[1].creditId").value("id2"))
 				.andExpect(jsonPath("$", hasSize(2)));
 	}
 
@@ -102,8 +100,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/credits/{creditId}", siteId, creditId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.siteId").value(siteId))
-				.andExpect(jsonPath("$.id.creditId").value(creditId))
+				.andExpect(jsonPath("$.creditId").value(creditId))
 				.andExpect(jsonPath("$.name").value("name"))
 				.andExpect(jsonPath("$.validity.from").isNotEmpty())
 				.andExpect(jsonPath("$.validity.to").isNotEmpty())
@@ -124,8 +121,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id.typeId").value("id1"))
-				.andExpect(jsonPath("$.[1].id.typeId").value("id2"));
+				.andExpect(jsonPath("$.[0].typeId").value("id1"))
+				.andExpect(jsonPath("$.[1].typeId").value("id2"));
 	}
 
 	@Test
@@ -140,11 +137,9 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/resourceTypes/{typeId}", siteId, typeId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.siteId").value(siteId))
-				.andExpect(jsonPath("$.id.typeId").value(typeId))
+				.andExpect(jsonPath("$.typeId").value(typeId))
 				.andExpect(jsonPath("$.name").value("name"))
-				.andExpect(jsonPath("$.serviceId.siteId").value(siteId))
-				.andExpect(jsonPath("$.serviceId.serviceId").value("serviceId"));
+				.andExpect(jsonPath("$.serviceId").value("serviceId"));
 	}
 
 	@Test
@@ -159,8 +154,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id.serviceId").value("id1"))
-				.andExpect(jsonPath("$.[1].id.serviceId").value("id2"));
+				.andExpect(jsonPath("$.[0].serviceId").value(in(Set.of("id1", "id2"))))
+				.andExpect(jsonPath("$.[1].serviceId").value(in(Set.of("id1", "id2"))));
 	}
 
 	@Test
@@ -174,8 +169,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/services/{serviceId}", siteId, serviceId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.siteId").value(siteId))
-				.andExpect(jsonPath("$.id.serviceId").value(serviceId))
+				.andExpect(jsonPath("$.serviceId").value(serviceId))
 				.andExpect(jsonPath("$.name").value("name"))
 				.andExpect(jsonPath("$.policyId").value("policyId"));
 	}
@@ -313,16 +307,16 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ResourceCredit createResourceCredit(String siteId, String id) {
-		return new ResourceCredit(new SiteCreditId(siteId, id), "name", new Validity(sampleFrom, sampleTo),
+		return new ResourceCredit(id, "name", new Validity(sampleFrom, sampleTo),
 				"resourceTypeId", createResourceAmount());
 	}
 
 	private ResourceType createResourceType(String siteId, String typeId) {
-		return new ResourceType(new ResourceTypeId(siteId, typeId), "name", new ServiceId(siteId, "serviceId"));
+		return new ResourceType(typeId, "name", "serviceId");
 	}
 
 	private InfraService createService(String siteId, String serviceId) {
-		return new InfraService(new ServiceId(siteId, serviceId), "name", "policyId");
+		return new InfraService(serviceId, "name", "policyId");
 	}
 
 	private ResourceAmount createResourceAmount() {

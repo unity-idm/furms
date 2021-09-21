@@ -60,12 +60,10 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[0].id.serviceId", in(Set.of(service1, service2))))
+				.andExpect(jsonPath("$.[0].serviceId", in(Set.of(service1, service2))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[0].policyId", notNullValue()))
-				.andExpect(jsonPath("$.[1].id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[1].id.serviceId", in(Set.of(service1, service2))))
+				.andExpect(jsonPath("$.[1].serviceId", in(Set.of(service1, service2))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[1].policyId", notNullValue()));
 	}
@@ -105,8 +103,7 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", site.getId(), service))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.id.serviceId", equalTo(service)))
+				.andExpect(jsonPath("$.serviceId", equalTo(service)))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
 				.andExpect(jsonPath("$.policyId", notNullValue()));
 	}

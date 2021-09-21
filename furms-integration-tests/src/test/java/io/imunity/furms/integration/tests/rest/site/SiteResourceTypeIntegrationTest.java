@@ -61,16 +61,12 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[0].id.typeId", in(Set.of(resourceType1, resourceType2))))
+				.andExpect(jsonPath("$.[0].typeId", in(Set.of(resourceType1, resourceType2))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
-				.andExpect(jsonPath("$.[0].serviceId.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[0].serviceId.serviceId", notNullValue()))
-				.andExpect(jsonPath("$.[1].id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[1].id.typeId", in(Set.of(resourceType1, resourceType2))))
+				.andExpect(jsonPath("$.[0].serviceId", notNullValue()))
+				.andExpect(jsonPath("$.[1].typeId", in(Set.of(resourceType1, resourceType2))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
-				.andExpect(jsonPath("$.[1].serviceId.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[1].serviceId.serviceId", notNullValue()));
+				.andExpect(jsonPath("$.[1].serviceId", notNullValue()));
 	}
 
 	@Test
@@ -109,11 +105,9 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", site.getId(), resourceType))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.id.typeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.typeId", equalTo(resourceType)))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
-				.andExpect(jsonPath("$.serviceId.siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.serviceId.serviceId", notNullValue()));
+				.andExpect(jsonPath("$.serviceId", notNullValue()));
 	}
 
 	@Test
