@@ -7,13 +7,12 @@ package io.imunity.furms.rest.cidp;
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
-import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
@@ -28,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,12 +53,17 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 	void shouldGetUserRecord() throws Exception {
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
-		final UUID resource1 = UUID.randomUUID();
-		when(userService.getUserRecord(new FenixUserId("F_ID"))).thenReturn(new UserRecord(
-				UserStatus.ENABLED,
-				Set.of(new UserAttribute("attr1", "attr1val")),
-				Map.of(new ResourceId(resource1, ResourceType.COMMUNITY),
-						Set.of(new UserAttribute("role", "admin"))),
+		final FenixUserId fenixUserId = new FenixUserId("F_ID");
+		final PersistentId persistentId = new PersistentId("ID");
+		when(userService.getUserRecord(fenixUserId)).thenReturn(new UserRecord(
+				FURMSUser.builder()
+						.id(persistentId)
+						.fenixUserId(fenixUserId)
+						.firstName("firstName")
+						.lastName("lastName")
+						.email("email@domain.com")
+						.status(UserStatus.ENABLED)
+						.build(),
 				Set.of(new SiteUser(
 						"siteId",
 						"siteOauthClientId",
@@ -75,38 +78,50 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.with(httpBasic("cidp", "cidppass"))
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.user.fenixIdentifier").value(fenixUserId.id))
+				.andExpect(jsonPath("$.user.title").isEmpty())
+				.andExpect(jsonPath("$.user.firstname").value("firstName"))
+				.andExpect(jsonPath("$.user.lastname").value("lastName"))
+				.andExpect(jsonPath("$.user.email").value("email@domain.com"))
+				.andExpect(jsonPath("$.user.affiliation.name").value("firstName"))
+				.andExpect(jsonPath("$.user.affiliation.email").value("email@domain.com"))
+				.andExpect(jsonPath("$.user.affiliation.country").isEmpty())
+				.andExpect(jsonPath("$.user.affiliation.postalAddress").isEmpty())
+				.andExpect(jsonPath("$.user.nationality").isEmpty())
+				.andExpect(jsonPath("$.user.phone").isEmpty())
+				.andExpect(jsonPath("$.user.dateOfBirth").isEmpty())
+				.andExpect(jsonPath("$.user.placeOfBirth").isEmpty())
+				.andExpect(jsonPath("$.user.postalAddress").isEmpty())
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.attributes[0].name").value("attr1"))
-				.andExpect(jsonPath("$.attributes[0].values[0]").value("attr1val"))
-				.andExpect(jsonPath("$.resourceAttributes[0].resource.id").value(resource1.toString()))
-				.andExpect(jsonPath("$.resourceAttributes[0].resource.type").value(ResourceType.COMMUNITY.name()))
-				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].name").value("role"))
-				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].values[0]").value("admin"))
-				.andExpect(jsonPath("$.siteInstallations[0].siteId").value("siteId"))
-				.andExpect(jsonPath("$.siteInstallations[0].siteOauthClientId").value("siteOauthClientId"))
-				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].localUserId").value("localUserId"))
-				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].projectId").value("projId"))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.revision").value(1))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].revision").value(2))
-				.andExpect(jsonPath("$.siteInstallations[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
+				.andExpect(jsonPath("$.siteAccess[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.siteAccess[0].siteOauthClientId").value("siteOauthClientId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].localUserId").value("localUserId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value("projId"))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.revision").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].revision").value(2))
+				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
 	}
 
 	@Test
 	void shouldGetUserRecordOnlyForSpecificSite() throws Exception {
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
-		final UUID resource1 = UUID.randomUUID();
-		when(userService.getUserRecord(new FenixUserId("F_ID"))).thenReturn(new UserRecord(
-				UserStatus.ENABLED,
-				Set.of(new UserAttribute("attr1", "attr1val")),
-				Map.of(new ResourceId(resource1, ResourceType.SITE),
-						Set.of(new UserAttribute("role", "admin"))),
+		final FenixUserId fenixUserId = new FenixUserId("F_ID");
+		when(userService.getUserRecord(fenixUserId)).thenReturn(new UserRecord(
+				FURMSUser.builder()
+						.id(new PersistentId("ID"))
+						.fenixUserId(fenixUserId)
+						.firstName("firstName")
+						.lastName("lastName")
+						.email("email@domain.com")
+						.status(UserStatus.ENABLED)
+						.build(),
 				Set.of(new SiteUser(
 						"siteId",
 						"siteOauthClientId",
@@ -130,27 +145,35 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.with(httpBasic("cidp", "cidppass"))
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.user.fenixIdentifier").value(fenixUserId.id))
+				.andExpect(jsonPath("$.user.title").isEmpty())
+				.andExpect(jsonPath("$.user.firstname").value("firstName"))
+				.andExpect(jsonPath("$.user.lastname").value("lastName"))
+				.andExpect(jsonPath("$.user.email").value("email@domain.com"))
+				.andExpect(jsonPath("$.user.affiliation.name").value("firstName"))
+				.andExpect(jsonPath("$.user.affiliation.email").value("email@domain.com"))
+				.andExpect(jsonPath("$.user.affiliation.country").isEmpty())
+				.andExpect(jsonPath("$.user.affiliation.postalAddress").isEmpty())
+				.andExpect(jsonPath("$.user.nationality").isEmpty())
+				.andExpect(jsonPath("$.user.phone").isEmpty())
+				.andExpect(jsonPath("$.user.dateOfBirth").isEmpty())
+				.andExpect(jsonPath("$.user.placeOfBirth").isEmpty())
+				.andExpect(jsonPath("$.user.postalAddress").isEmpty())
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.attributes[0].name").value("attr1"))
-				.andExpect(jsonPath("$.attributes[0].values[0]").value("attr1val"))
-				.andExpect(jsonPath("$.siteInstallations", hasSize(1)))
-				.andExpect(jsonPath("$.resourceAttributes[0].resource.id").value(resource1.toString()))
-				.andExpect(jsonPath("$.resourceAttributes[0].resource.type").value(ResourceType.SITE.name()))
-				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].name").value("role"))
-				.andExpect(jsonPath("$.resourceAttributes[0].attributes[0].values[0]").value("admin"))
-				.andExpect(jsonPath("$.siteInstallations[0].siteId").value("siteId"))
-				.andExpect(jsonPath("$.siteInstallations[0].siteOauthClientId").value("siteOauthClientId"))
-				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].localUserId").value("localUserId"))
-				.andExpect(jsonPath("$.siteInstallations[0].projectMemberships[0].projectId").value("projId"))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteInstallations[0].sitePolicyAcceptance.revision").value(1))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteInstallations[0].servicesPolicyAcceptance[0].revision").value(2))
-				.andExpect(jsonPath("$.siteInstallations[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
+				.andExpect(jsonPath("$.siteAccess", hasSize(1)))
+				.andExpect(jsonPath("$.siteAccess[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.siteAccess[0].siteOauthClientId").value("siteOauthClientId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].localUserId").value("localUserId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value("projId"))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.revision").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].revision").value(2))
+				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
 	}
 
 	@Test

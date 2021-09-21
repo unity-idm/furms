@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
+import io.imunity.furms.rest.user.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

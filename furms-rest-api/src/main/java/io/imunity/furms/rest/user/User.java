@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.furms.rest.admin;
+package io.imunity.furms.rest.user;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 import io.imunity.furms.domain.users.FURMSUser;
 
-class User {
+public class User {
 	public final String fenixIdentifier;
 	public final String title;
 	public final String firstname;
@@ -21,8 +21,8 @@ class User {
 	public final LocalDate dateOfBirth;
 	public final String placeOfBirth;
 	public final String postalAddress;
-	
-	User(String fenixIdentifier, String title, String firstname, String lastname, String email,
+
+	public User(String fenixIdentifier, String title, String firstname, String lastname, String email,
 			Affiliation affiliation, String nationality, String phone, LocalDate dateOfBirth,
 			String placeOfBirth, String postalAddress) {
 		this.fenixIdentifier = fenixIdentifier;
@@ -38,7 +38,7 @@ class User {
 		this.postalAddress = postalAddress;
 	}
 
-	User(FURMSUser user) {
+	public User(FURMSUser user) {
 		this(user.fenixUserId
 				.map(fenixId -> fenixId.id)
 				.orElse(null),

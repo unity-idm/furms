@@ -11,13 +11,20 @@ import java.util.Objects;
 
 class ProjectAllocation {
 	public final String id;
+	public final String projectId;
 	public final String communityAllocationId;
 	public final String name;
 	public final String resourceTypeId;
 	public final BigDecimal amount;
 
-	ProjectAllocation(String id, String communityAllocationId, String name, String resourceTypeId, BigDecimal amount) {
+	ProjectAllocation(String id,
+	                  String projectId,
+	                  String communityAllocationId,
+	                  String name,
+	                  String resourceTypeId,
+	                  BigDecimal amount) {
 		this.id = id;
+		this.projectId = projectId;
 		this.communityAllocationId = communityAllocationId;
 		this.name = name;
 		this.resourceTypeId = resourceTypeId;
@@ -25,7 +32,8 @@ class ProjectAllocation {
 	}
 
 	ProjectAllocation(ProjectAllocationResolved allocation) {
-		this(allocation.id, allocation.communityAllocation.id, allocation.name, allocation.resourceType.id, allocation.amount);
+		this(allocation.id, allocation.projectId, allocation.communityAllocation.id, allocation.name,
+				allocation.resourceType.id, allocation.amount);
 	}
 
 	@Override
@@ -34,6 +42,7 @@ class ProjectAllocation {
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectAllocation that = (ProjectAllocation) o;
 		return Objects.equals(id, that.id)
+				&& Objects.equals(projectId, that.projectId)
 				&& Objects.equals(communityAllocationId, that.communityAllocationId)
 				&& Objects.equals(name, that.name)
 				&& Objects.equals(resourceTypeId, that.resourceTypeId)
@@ -42,13 +51,14 @@ class ProjectAllocation {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, communityAllocationId, name, resourceTypeId, amount);
+		return Objects.hash(id, projectId, communityAllocationId, name, resourceTypeId, amount);
 	}
 
 	@Override
 	public String toString() {
 		return "ProjectAllocation{" +
 				"id=" + id +
+				", projectId=" + projectId +
 				", communityAllocationId=" + communityAllocationId +
 				", name='" + name + '\'' +
 				", resourceTypeId='" + resourceTypeId + '\'' +

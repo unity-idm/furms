@@ -35,9 +35,8 @@ class CentralIdPRestAPIService {
 			throw new RestNotFoundException("Incorrect userId or siteId format.");
 		}
 		final UserRecord userRecord = userService.getUserRecord(new FenixUserId(fenixUserId));
-		return new UserRecordJson(new UserRecord(userRecord.userStatus,
-				userRecord.attributes,
-				userRecord.resourceAttributes,
+		return new UserRecordJson(new UserRecord(
+				userRecord.user,
 				userRecord.siteInstallations.stream()
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId != null)
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId.equals(oauthClientId))

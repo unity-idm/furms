@@ -194,6 +194,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[1].id").value("id2"))
 				.andExpect(jsonPath("$.[0].id").value("id1"))
+				.andExpect(jsonPath("$.[0].projectId").value("projectId"))
 				.andExpect(jsonPath("$.[0].communityAllocationId").value("id1"))
 				.andExpect(jsonPath("$.[0].name").value("name"))
 				.andExpect(jsonPath("$.[0].resourceTypeId").value("typeId"))
@@ -232,6 +233,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.[0].allocationId").value("id1"))
 				.andExpect(jsonPath("$.[1].allocationId").value("id2"))
 				.andExpect(jsonPath("$.[1].siteId").value(siteId))
+				.andExpect(jsonPath("$.[1].projectId").value("projectId"))
 				.andExpect(jsonPath("$.[1].amount").value("1"))
 				.andExpect(jsonPath("$.[1].validity.from").isNotEmpty())
 				.andExpect(jsonPath("$.[1].validity.to").isNotEmpty());
@@ -328,11 +330,11 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ProjectAllocation createProjectAllocation(String allocationId) {
-		return new ProjectAllocation(allocationId, allocationId, "name", "typeId", ONE);
+		return new ProjectAllocation(allocationId, "projectId", allocationId, "name", "typeId", ONE);
 	}
 
 	private SiteAllocatedResources createSiteAllocatedResources(String siteId, String id) {
-		return new SiteAllocatedResources(id, siteId, ONE, new Validity(sampleFrom, sampleTo));
+		return new SiteAllocatedResources(id, siteId, "projectId", ONE, new Validity(sampleFrom, sampleTo));
 	}
 
 	private ProjectCumulativeResourceConsumption createProjectCumulativeResourceConsumption(String siteId, String id) {

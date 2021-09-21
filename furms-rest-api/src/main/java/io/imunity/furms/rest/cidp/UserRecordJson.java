@@ -6,33 +6,27 @@ package io.imunity.furms.rest.cidp;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.rest.user.User;
 
 public class UserRecordJson {
+	public final User user;
 	public final UserStatus userStatus;
-	public final List<AttributeJson> attributes;
-	public final List<ResourceAttributeJson> resourceAttributes;
-	public final List<SiteUserJson> siteInstallations;
+	public final List<SiteUserJson> siteAccess;
 
-	UserRecordJson(UserStatus userStatus,
-	               Collection<AttributeJson> attributes,
-	               List<ResourceAttributeJson> resourceAttributes,
-	               Collection<SiteUserJson> siteInstallations) {
+	UserRecordJson(User user, UserStatus userStatus, List<SiteUserJson> siteAccess) {
+		this.user = user;
 		this.userStatus = userStatus;
-		this.attributes = List.copyOf(attributes);
-		this.resourceAttributes = resourceAttributes;
-		this.siteInstallations = List.copyOf(siteInstallations);
+		this.siteAccess = siteAccess;
 	}
-	
+
 	UserRecordJson(UserRecord record) {
-		this(record.userStatus,
-				record.attributes.stream().map(AttributeJson::new).collect(toList()),
-				record.resourceAttributes.entrySet().stream().map(ResourceAttributeJson::new).collect(toList()),
+		this(new User(record.user),
+				record.user.status,
 				record.siteInstallations.stream().map(SiteUserJson::new).collect(toList()));
 	}
 
@@ -41,22 +35,20 @@ public class UserRecordJson {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserRecordJson that = (UserRecordJson) o;
-		return userStatus == that.userStatus
-				&& Objects.equals(attributes, that.attributes)
-				&& Objects.equals(siteInstallations, that.siteInstallations);
+		return Objects.equals(user, that.user) && userStatus == that.userStatus && Objects.equals(siteAccess, that.siteAccess);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(userStatus, attributes, siteInstallations);
+		return Objects.hash(user, userStatus, siteAccess);
 	}
 
 	@Override
 	public String toString() {
 		return "UserRecordJson{" +
-				"userStatus=" + userStatus +
-				", attributes=" + attributes +
-				", siteInstallations=" + siteInstallations +
+				"user=" + user +
+				", userStatus=" + userStatus +
+				", siteAccess=" + siteAccess +
 				'}';
 	}
 }
