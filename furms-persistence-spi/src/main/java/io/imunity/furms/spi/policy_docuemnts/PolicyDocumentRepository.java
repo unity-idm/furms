@@ -30,6 +30,8 @@ public interface PolicyDocumentRepository {
 
 	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);
 
+	Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId);
+
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
 	Set<PolicyDocument> findAllBySiteId(String siteId);

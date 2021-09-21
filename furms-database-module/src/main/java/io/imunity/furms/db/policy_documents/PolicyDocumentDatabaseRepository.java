@@ -82,6 +82,18 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
+	public Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId) {
+		return Stream.of(
+			repository.findAllUsersWithSitePolicy(siteId),
+			repository.findAllUsersWithServicesPolicies(siteId)
+		)
+			.flatMap(Collection::stream)
+			.filter(userWithBasePolicy -> userWithBasePolicy.policyId.equals(policyId.id.toString()))
+			.map(userWithBasePolicy -> new FenixUserId(userWithBasePolicy.userId))
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter) {
 		return Stream.of(
 			repository.findAllSitePoliciesByUserId(userId.id),

@@ -29,6 +29,8 @@ public interface PolicyDocumentService {
 
 	Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId);
 
+	Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(PolicyId policyId, String siteId);
+
 	Set<PolicyDocumentExtended> findAllByCurrentUser();
 
 	void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId);

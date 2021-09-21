@@ -15,17 +15,30 @@ import io.imunity.furms.rabbitmq.site.models.PolicyAcceptance;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.function.BinaryOperator.maxBy;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 class PolicyAcceptancesMapper {
 
 	static List<PolicyAcceptance> getPolicyAcceptances(UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		Map<PolicyId, List<AssignedPolicyDocument>> servicePolicyDocumentMap = userPolicyAcceptances.servicePolicyDocuments.stream()
-			.collect(Collectors.groupingBy(x -> x.id));
+			.collect(groupingBy(x -> x.id));
 
 		Optional<AssignedPolicyDocument> sitePolicyDocument = userPolicyAcceptances.sitePolicy
 			.map(policyDocument -> new AssignedPolicyDocument(policyDocument.id, null, policyDocument.name, policyDocument.revision));
 		return userPolicyAcceptances.policyAcceptances.stream()
+			.collect(
+				toMap(
+					policyAcceptance -> policyAcceptance.policyDocumentId,
+					identity(),
+					maxBy(comparing(policyAcceptance -> policyAcceptance.policyDocumentRevision)))
+			)
+			.values().stream()
 			.flatMap(policyAcceptance ->
 				servicePolicyDocumentMap.getOrDefault(policyAcceptance.policyDocumentId, getAssignedPolicyDocument(sitePolicyDocument, policyAcceptance))
 				.stream()
@@ -38,13 +51,13 @@ class PolicyAcceptancesMapper {
 					.build())
 			)
 			.distinct()
-			.collect(Collectors.toList());
+			.collect(toList());
 	}
 
 	private static List<AssignedPolicyDocument> getAssignedPolicyDocument(Optional<AssignedPolicyDocument> sitePolicyDocument, io.imunity.furms.domain.policy_documents.PolicyAcceptance policyAcceptance) {
 		return sitePolicyDocument.stream()
 			.filter(sitePolicy -> sitePolicy.id.equals(policyAcceptance.policyDocumentId))
-			.collect(Collectors.toList());
+			.collect(toList());
 	}
 
 	private static Acceptance getAcceptanceStatus(PolicyAcceptanceStatus status) {

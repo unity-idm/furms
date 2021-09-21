@@ -17,6 +17,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
@@ -39,6 +40,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -150,8 +152,14 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	private Dialog createConfirmDialog(PolicyId policyDocumentId, String policyDocumentName, String siteId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.policy-documents.dialog.text", policyDocumentName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> policyDocumentService.delete(siteId, policyDocumentId));
-			loadGridContent();
+			try {
+				policyDocumentService.delete(siteId, policyDocumentId);
+				loadGridContent();
+			} catch (AssignedPolicyRemovingException e) {
+				showErrorNotification(getTranslation("policy.document.assigned.removing"));
+			} catch (Exception e) {
+				showErrorNotification(getTranslation("base.error.message"));
+			}
 		});
 		return furmsDialog;
 	}

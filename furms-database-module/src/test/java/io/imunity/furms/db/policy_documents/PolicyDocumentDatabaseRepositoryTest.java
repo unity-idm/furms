@@ -45,10 +45,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -144,6 +146,70 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllPolicyUsers() {
+		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("wysiwygText")
+			.build();
+		PolicyDocumentEntity servicePolicy = policyDocumentEntityRepository.save(policyDocumentEntity);
+
+		PolicyDocumentEntity policyDocumentEntity2 = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("sdsadas")
+			.build();
+		PolicyDocumentEntity sitePolicy = policyDocumentEntityRepository.save(policyDocumentEntity2);
+
+		FenixUserId fenixUserId = initUserWithAccessToSiteAndServicePolicies(servicePolicy, sitePolicy);
+
+
+		Set<FenixUserId> userIds = repository.findAllPolicyUsers(siteId.toString(), new PolicyId(sitePolicy.getId()));
+
+		assertThat(userIds.size()).isEqualTo(1);
+		assertThat(userIds.iterator().next()).isEqualTo(fenixUserId);
+	}
+
+	@Test
+	void shouldFindAllUsersPolicies() {
+		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("wysiwygText")
+			.build();
+		PolicyDocumentEntity servicePolicy = policyDocumentEntityRepository.save(policyDocumentEntity);
+
+		PolicyDocumentEntity policyDocumentEntity2 = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("sdsadas")
+			.build();
+		PolicyDocumentEntity sitePolicy = policyDocumentEntityRepository.save(policyDocumentEntity2);
+
+		FenixUserId fenixUserId = initUserWithAccessToSiteAndServicePolicies(servicePolicy, sitePolicy);
+
+
+		Map<FenixUserId, Set<PolicyDocument>> allUsersPolicies = repository.findAllUsersPolicies(siteId.toString());
+
+		assertThat(allUsersPolicies.size()).isEqualTo(1);
+		assertThat(allUsersPolicies.containsKey(fenixUserId)).isTrue();
+		assertThat(allUsersPolicies.get(fenixUserId).size()).isEqualTo(2);
+		assertThat(allUsersPolicies.get(fenixUserId).stream().map(pd -> pd.id.id).collect(toSet())).contains(servicePolicy.getId(), sitePolicy.getId());
+	}
+
+	@Test
 	void shouldFindAllByUserId() {
 		FenixUserId fenixUserId = initUserWithAccessToSiteAndServicePolicies();
 		LocalDateTime now = LocalDateTime.now();
@@ -153,12 +219,29 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	private FenixUserId initUserWithAccessToSiteAndServicePolicies() {
-		Site site = Site.builder()
-			.name("name2")
-			.connectionInfo("alala")
+		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("wysiwygText")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id2")));
+		PolicyDocumentEntity servicePolicy = policyDocumentEntityRepository.save(policyDocumentEntity);
 
+		PolicyDocumentEntity policyDocumentEntity2 = PolicyDocumentEntity.builder()
+			.siteId(siteId)
+			.name("name")
+			.workflow(0)
+			.revision(0)
+			.contentType(0)
+			.wysiwygText("sdsadas")
+			.build();
+		PolicyDocumentEntity sitePolicy = policyDocumentEntityRepository.save(policyDocumentEntity2);
+		return initUserWithAccessToSiteAndServicePolicies(servicePolicy, sitePolicy);
+	}
+
+	private FenixUserId initUserWithAccessToSiteAndServicePolicies(PolicyDocumentEntity servicePolicy, PolicyDocumentEntity sitePolicy) {
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
@@ -178,20 +261,10 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 
 		UUID projectId = UUID.fromString(projectRepository.create(project));
 
-		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
-			.name("name")
-			.workflow(0)
-			.revision(0)
-			.contentType(0)
-			.wysiwygText("wysiwygText")
-			.build();
-		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
-
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("serviceName")
-			.policyId(new PolicyId(saved.getId()))
+			.policyId(new PolicyId(servicePolicy.getId()))
 			.build();
 
 		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
@@ -243,21 +316,11 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		resourceAccessRepository.create(CorrelationId.randomID(), grantAccess, AccessStatus.GRANTED);
 
-		PolicyDocumentEntity policyDocumentEntity2 = PolicyDocumentEntity.builder()
-			.siteId(siteId)
-			.name("name")
-			.workflow(0)
-			.revision(0)
-			.contentType(0)
-			.wysiwygText("sdsadas")
-			.build();
-		PolicyDocumentEntity saved2 = policyDocumentEntityRepository.save(policyDocumentEntity2);
-
 		Site updateSite = Site.builder()
 			.id(siteId.toString())
 			.name("name2")
 			.connectionInfo("alala")
-			.policyId(new PolicyId(saved2.getId()))
+			.policyId(new PolicyId(sitePolicy.getId()))
 			.externalId(new SiteExternalId("id2"))
 			.build();
 		siteRepository.update(updateSite);
@@ -450,4 +513,6 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 
 		assertThat(repository.isNamePresent(siteId.toString(), "name")).isFalse();
 	}
+
+
 }

@@ -7,6 +7,7 @@ package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
@@ -44,6 +45,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_READ;
@@ -129,6 +131,16 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
+	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(PolicyId policyId, String siteId) {
+		Set<FenixUserId> allPolicyUsers = policyDocumentRepository.findAllPolicyUsers(siteId, policyId);
+		return policyDocumentDAO.getUserPolicyAcceptances(siteId)
+			.stream()
+			.filter(x -> allPolicyUsers.contains(x.user.fenixUserId.get()))
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<PolicyDocumentExtended> findAllByCurrentUser() {
 		Optional<FenixUserId> userId = authzService.getCurrentAuthNUser().fenixUserId;
@@ -201,7 +213,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		Set<GrantAccess> waitingGrantAccesses = resourceAccessRepository.findWaitingGrantAccesses(userId, policyDocument.siteId);
 		policyAcceptances.add(policyAcceptance);
 
-		if(!waitingGrantAccesses.isEmpty()) {
+		if(site.getPolicyId().equals(policyDocumentId) && !waitingGrantAccesses.isEmpty()) {
 			waitingGrantAccesses
 				.stream()
 				.filter(distinctBy(grantAccess -> grantAccess.projectId))
@@ -213,7 +225,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 					)
 				);
 		}
-		else {
+		else if(waitingGrantAccesses.isEmpty()) {
 			siteAgentPolicyDocumentService.updateUsersPolicyAcceptances(
 				site.getExternalId(), new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignPoliciesBySiteId)
 			);
@@ -259,17 +271,18 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, true);
+		PolicyDocument updatedPolicyDocument = policyDocumentRepository.findById(policyId).get();
 
 		Site site = siteRepository.findById(policyDocument.siteId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", policyDocument.siteId)));
 		if(policyId.equals(site.getPolicyId()))
-			siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), policyDocument);
+			siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument);
 
 		Map<PolicyId, Set<String>> policyIdToRelatedServiceIds = policyDocumentRepository.findAllAssignPoliciesBySiteId(policyDocument.siteId).stream()
 			.collect(groupingBy(policy -> policy.id, mapping(policy -> policy.serviceId, toSet())));
 		Optional.ofNullable(policyIdToRelatedServiceIds.get(policyDocument.id))
 			.orElseGet(Set::of)
-			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), policyDocument, serviceId));
+			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument, serviceId));
 
 		notificationDAO.notifyAboutChangedPolicy(policyDocument);
 		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
@@ -279,6 +292,10 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(String siteId, PolicyId policyId) {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
+		boolean isAssigned = policyDocumentRepository.findAllAssignPoliciesBySiteId(siteId).stream()
+			.anyMatch(policy -> policy.id.equals(policyId));
+		if(isAssigned)
+			throw new AssignedPolicyRemovingException(String.format("Policy %s removing error. Only not assigned policy can be removed", policyId.id));
 		policyDocumentRepository.deleteById(policyId);
 		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
 	}

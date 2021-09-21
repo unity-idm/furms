@@ -5,23 +5,6 @@
 
 package io.imunity.furms.core.policy_documents;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
@@ -32,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
@@ -47,6 +31,24 @@ import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class PolicyDocumentServiceImplTest {
 
@@ -147,12 +149,14 @@ class PolicyDocumentServiceImplTest {
 	void shouldUpdateWithRevision() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
 			.siteId("siteId")
 			.build();
 		Site site = Site.builder()
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
@@ -168,6 +172,7 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		SiteExternalId externalId = new SiteExternalId("id");
 		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
 			.siteId("siteId")
 			.build();
 		Site site = Site.builder()
@@ -176,6 +181,7 @@ class PolicyDocumentServiceImplTest {
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
@@ -200,6 +206,7 @@ class PolicyDocumentServiceImplTest {
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
@@ -215,6 +222,35 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(repository).deleteById(policyId);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyId));
+	}
+
+	@Test
+	void shouldFindAllUsersPolicyAcceptances() {
+		String siteId = "siteId";
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		FenixUserId fenixUserId = new FenixUserId("id");
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
+			.policyDocumentId(policyId)
+			.build();
+		FURMSUser firstUser = FURMSUser.builder()
+			.fenixUserId(fenixUserId)
+			.email("email")
+			.build();
+		FURMSUser secondUser = FURMSUser.builder()
+			.fenixUserId(new FenixUserId("secondUserId"))
+			.email("email")
+			.build();
+		UserPolicyAcceptances firstUserPolicyAcceptances = new UserPolicyAcceptances(firstUser, Set.of(policyAcceptance));
+		UserPolicyAcceptances secondUserPolicyAcceptances = new UserPolicyAcceptances(secondUser, Set.of(policyAcceptance));
+
+		when(repository.findAllPolicyUsers(siteId, policyId)).thenReturn(Set.of(fenixUserId));
+		when(policyDocumentDAO.getUserPolicyAcceptances(siteId)).thenReturn(Set.of(firstUserPolicyAcceptances, secondUserPolicyAcceptances));
+
+		Set<UserPolicyAcceptances> usersPolicyAcceptances = service.findAllUsersPolicyAcceptances(policyId, "siteId");
+
+		assertEquals(1, usersPolicyAcceptances.size());
+		assertEquals(firstUserPolicyAcceptances, usersPolicyAcceptances.iterator().next());
+
 	}
 
 	@Test
@@ -377,6 +413,57 @@ class PolicyDocumentServiceImplTest {
 			furmsUser,
 			Set.of(policyAcceptance),
 			Optional.of(policyDocument),
+			Set.of(servicePolicyDocument)
+		));
+	}
+
+	@Test
+	void shouldNotCreateUserAdditionWhenAcceptingServicePolicy() {
+		FenixUserId userId = new FenixUserId("userId");
+		PolicyId sitePolicyId = new PolicyId(UUID.randomUUID());
+		PolicyId servicePolicyId = new PolicyId(UUID.randomUUID());
+		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
+			.policyDocumentId(servicePolicyId)
+			.policyDocumentRevision(1)
+			.build();
+		FURMSUser furmsUser = FURMSUser.builder()
+			.email("email")
+			.fenixUserId(userId)
+			.build();
+		PolicyDocument servicePolicy = PolicyDocument.builder()
+			.id((servicePolicyId))
+			.siteId("siteId")
+			.revision(1)
+			.build();
+		PolicyDocument sitePolicy = PolicyDocument.builder()
+			.id((sitePolicyId))
+			.siteId("siteId")
+			.revision(1)
+			.build();
+		Site site = Site.builder()
+			.id("siteId")
+			.policyId(sitePolicy.id)
+			.build();
+		SiteId siteId = new SiteId("siteId");
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(siteId)
+			.projectId("projectId")
+			.build();
+		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
+
+		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(furmsUser));
+		when(repository.findById(servicePolicyId)).thenReturn(Optional.of(servicePolicy));
+		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
+		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
+
+		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+
+		Mockito.verify(userOperationService, times(0)).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
+			furmsUser,
+			Set.of(policyAcceptance),
+			Optional.of(servicePolicy),
 			Set.of(servicePolicyDocument)
 		));
 	}
