@@ -26,7 +26,7 @@ class ResourceChecker {
 		assertUUID(resourceId);
 		try {
 			final T result = actionToPerform.get();
-			assertResultExists(result);
+			assertResultExists(result, resourceId);
 			return result;
 		} catch (Exception e) {
 			handleException(e, resourceId);
@@ -40,7 +40,7 @@ class ResourceChecker {
 		assertUUID(resourceId);
 		try {
 			final T result = actionToPerform.get();
-			assertResultExists(result);
+			assertResultExists(result, resourceId);
 			assertMatching(matchingFilter, result);
 			return result;
 		} catch (Exception e) {
@@ -56,19 +56,22 @@ class ResourceChecker {
 	}
 
 	private void handleException(Exception e, String resourceId) {
-		if (isNotAvailable(resourceId)) {
+		if (isNotRestNotFoundException(e) && isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
 	}
 
-	private <T> void assertResultExists(T result) {
+	private <T> void assertResultExists(T result, String resourceId) {
+		if (result == null && !isNotAvailable(resourceId)) {
+			throw new RestNotFoundException("Searched object does not exists.");
+		}
 		if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
+			throw new RestNotFoundException("Searched object does not exists.");
+		}
+		if (result instanceof Collection && ((Collection<?>) result).isEmpty() && isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
-		if (result instanceof Collection && ((Collection<?>) result).isEmpty()) {
-			throw new RestNotFoundException("Resource does not exist");
-		}
-		if (result instanceof Map && ((Map<?, ?>) result).isEmpty()) {
+		if (result instanceof Map && ((Map<?, ?>) result).isEmpty() && isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
 	}

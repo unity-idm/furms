@@ -69,15 +69,23 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReturnNotFoundIfSiteDoesNotExistsOrThereAreNoBelongsServices() throws Exception {
+	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingServices() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", UUID.randomUUID().toString()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
+	}
 
+	@Test
+	void shouldReturnEmptyArrayWhenThereAreNoBelongsServices() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", site.getId()))
 				.andDo(print())
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
 	}
+
 
 	@Test
 	void shouldReturnForbiddenIfUserDoesNotBelongsToSite() throws Exception {

@@ -212,14 +212,21 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReturnNotFoundIfSiteDoesNotExistsOrThereAreNoBelongsPolicies() throws Exception {
+	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicyAcceptances() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", UUID.randomUUID().toString()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
+	}
 
+	@Test
+	void shouldReturnEmptyArrayWhenThereAreNoBelongsPolicyAcceptances() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
 				.andDo(print())
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test

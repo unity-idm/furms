@@ -66,14 +66,21 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReturnNotFoundIfSiteDoesNotExistsOrThereAreNoBelongsPolicies() throws Exception {
+	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicies() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", UUID.randomUUID().toString()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
+	}
 
+	@Test
+	void shouldReturnEmptyArrayWhenThereAreNoBelongsPolicies() throws Exception {
+		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId()))
 				.andDo(print())
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test
@@ -127,10 +134,10 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicies() throws Exception {
-		final String polic = createPolicy(site.getId(), "Test 1", 1);
+	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicy() throws Exception {
+		final String policy = createPolicy(site.getId(), "Test 1", 1);
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", UUID.randomUUID().toString(), polic))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", UUID.randomUUID().toString(), policy))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}

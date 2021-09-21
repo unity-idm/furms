@@ -70,15 +70,21 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReturnNotFoundIfSiteDoesNotExistsOrThereAreNoBelongsResourceTypes() throws Exception {
+	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingResourceTypes() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId()))
-				.andDo(print())
-				.andExpect(status().isNotFound());
-
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", UUID.randomUUID().toString()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void shouldReturnEmptyArrayWhenThereAreNoBelongsResourceTypes() throws Exception {
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test
