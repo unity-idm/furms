@@ -17,6 +17,8 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
@@ -35,6 +37,7 @@ import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -74,11 +77,15 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
+	private final ProjectOperationRepository projectOperationRepository;
 
 	private String communityId;
 	private String community2Id;
 
 	private String projectId;
+	private String project2Id;
+	private String project3Id;
+	private String project4Id;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
 	                    SiteRepository siteRepository, SiteGroupDAO siteGroupDAO, UsersDAO usersDAO,
@@ -87,7 +94,8 @@ class DemoDataInitializer implements CommandLineRunner {
 	                    ResourceTypeRepository resourceTypeRepository, ResourceCreditRepository resourceCreditRepository,
 	                    CommunityAllocationRepository communityAllocationRepository, SiteAgentService siteAgentService,
 	                    PolicyDocumentRepository policyDocumentRepository, ProjectAllocationRepository projectAllocationRepository,
-	                    ProjectAllocationInstallationRepository projectAllocationInstallationRepository) {
+	                    ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
+	                    ProjectOperationRepository projectOperationRepository) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
@@ -104,6 +112,7 @@ class DemoDataInitializer implements CommandLineRunner {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
+		this.projectOperationRepository = projectOperationRepository;
 	}
 
 	@Override
@@ -163,7 +172,7 @@ class DemoDataInitializer implements CommandLineRunner {
 
 			projectId = projectRepository.create(project);
 			projectGroupsDAO.create(new ProjectGroup(projectId, project.getName(), communityId));
-			String project2Id = projectRepository.create(project2);
+			project2Id = projectRepository.create(project2);
 			projectGroupsDAO.create(new ProjectGroup(project2Id, project2.getName(), communityId));
 
 			projectGroupsDAO.addProjectUser(communityId, projectId, testAdminId, Role.PROJECT_ADMIN);
@@ -193,9 +202,9 @@ class DemoDataInitializer implements CommandLineRunner {
 				.leaderId(testAdminId)
 				.build();
 
-			String project3Id = projectRepository.create(project3);
+			project3Id = projectRepository.create(project3);
 			projectGroupsDAO.create(new ProjectGroup(project3Id, project3.getName(), community2Id));
-			String project4Id = projectRepository.create(project4);
+			project4Id = projectRepository.create(project4);
 			projectGroupsDAO.create(new ProjectGroup(project4Id, project4.getName(), community2Id));
 
 			projectGroupsDAO.addProjectUser(community2Id, project3Id, testAdminId, Role.PROJECT_ADMIN);
@@ -435,12 +444,19 @@ class DemoDataInitializer implements CommandLineRunner {
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditCinecaId1)
 				.name("HBP Cineca Allocation")
-				.amount(new BigDecimal(100))
+				.amount(new BigDecimal(50))
+				.build();
+			CommunityAllocation communityAllocation3 = CommunityAllocation.builder()
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditCinecaId1)
+				.name("HBP Cineca Allocation 2")
+				.amount(new BigDecimal(50))
 				.build();
 
 			communityAllocationRepository.create(communityAllocation);
 			communityAllocationRepository.create(communityAllocation1);
 			String communityAllocationId = communityAllocationRepository.create(communityAllocation2);
+			String communityAllocationId1 = communityAllocationRepository.create(communityAllocation3);
 
 			ProjectAllocation projectAllocation = ProjectAllocation.builder()
 				.projectId(projectId)
@@ -474,7 +490,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.projectId(projectId)
 				.name("Neuroinforamtics Cineca Allocation 2")
 				.amount(new BigDecimal(20))
-				.communityAllocationId(communityAllocationId)
+				.communityAllocationId(communityAllocationId1)
 				.build();
 
 			String projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
@@ -497,6 +513,43 @@ class DemoDataInitializer implements CommandLineRunner {
 				.receivedTime(LocalDateTime.now())
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk1);
+
+
+			ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
+				.gid("gid")
+				.siteId(cinecaId)
+				.projectId(projectId)
+				.correlationId(CorrelationId.randomID())
+				.status(ProjectInstallationStatus.INSTALLED)
+				.build();
+			projectOperationRepository.create(projectInstallationJob);
+
+			ProjectInstallationJob projectInstallationJob2 = ProjectInstallationJob.builder()
+				.gid("gid")
+				.siteId(cinecaId)
+				.projectId(project2Id)
+				.correlationId(CorrelationId.randomID())
+				.status(ProjectInstallationStatus.INSTALLED)
+				.build();
+			projectOperationRepository.create(projectInstallationJob2);
+
+			ProjectInstallationJob projectInstallationJob3 = ProjectInstallationJob.builder()
+				.gid("gid")
+				.siteId(cinecaId)
+				.projectId(project3Id)
+				.correlationId(CorrelationId.randomID())
+				.status(ProjectInstallationStatus.INSTALLED)
+				.build();
+			projectOperationRepository.create(projectInstallationJob3);
+
+			ProjectInstallationJob projectInstallationJob4 = ProjectInstallationJob.builder()
+				.gid("gid")
+				.siteId(cinecaId)
+				.projectId(project4Id)
+				.correlationId(CorrelationId.randomID())
+				.status(ProjectInstallationStatus.INSTALLED)
+				.build();
+			projectOperationRepository.create(projectInstallationJob4);
 		}
 	}
 }
