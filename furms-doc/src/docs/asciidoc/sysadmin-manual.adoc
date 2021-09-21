@@ -481,8 +481,8 @@ The path to this file shall be provided in the  `unity.msgTemplates.configuratio
 
 * `policyAcceptanceNew` - utilized to notify user about new policy document to accept,
 * `policyAcceptanceRevision` - utilized to notify user that existing policy has been updated and awaits approval,
-* `invitationNew` - utilized to send applications,
-* `registrationInvitation` - utilized to send registration requests.
+* `invitationNew` - utilized to send invitations to existing users who were invited to new roles,
+* `registrationInvitation` - utilized to send invitations to create a new account in FURMS to prospective users.
 
 Most of the configuration in the default message template file should not be changed.
 It is recommended for system administrator to adjust the template subject only. 
