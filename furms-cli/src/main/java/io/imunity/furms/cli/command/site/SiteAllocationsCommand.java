@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "allocations",
+		description = "Using to handle Site Allocations",
 		subcommands = {
 				SiteAllocationsCommand.List.class,
 				SiteAllocationsCommand.Show.class
@@ -28,7 +29,8 @@ class SiteAllocationsCommand extends FurmsCommand {
 			description = "Retrieve all project allocations at the site as assigned by the site")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to list Allocations")
 		private String siteId;
 
 		@Override
@@ -44,10 +46,12 @@ class SiteAllocationsCommand extends FurmsCommand {
 			description = "Retrieve given project allocations at the site as assigned by the site")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to show related Allocation")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to show")
 		private String projectId;
 
 		@Override

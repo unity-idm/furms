@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "service",
+		description = "Using to handle Site Services",
 		subcommands = {
 				SiteServiceCommand.List.class,
 				SiteServiceCommand.Show.class
@@ -28,7 +29,8 @@ class SiteServiceCommand extends FurmsCommand {
 			description = "Retrieve all services")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to list related Services")
 		private String siteId;
 
 		@Override
@@ -44,10 +46,12 @@ class SiteServiceCommand extends FurmsCommand {
 			description = "Retrieve a given site service")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site related to Service")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Service ID of Service to find")
 		private String serviceId;
 
 		@Override

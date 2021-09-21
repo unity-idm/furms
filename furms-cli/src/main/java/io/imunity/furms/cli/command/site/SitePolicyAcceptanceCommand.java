@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "acceptance",
+		description = "Using to handle Site Policy Acceptances",
 		subcommands = {
 				SitePolicyAcceptanceCommand.List.class,
 				SitePolicyAcceptanceCommand.Ack.class
@@ -29,7 +30,8 @@ class SitePolicyAcceptanceCommand extends FurmsCommand {
 					+ "is accepcted or not.")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to list related Policy Acceptances")
 		private String siteId;
 
 		@Override
@@ -45,16 +47,20 @@ class SitePolicyAcceptanceCommand extends FurmsCommand {
 			description = "Performs operation of accepting the policy on behalf of given user.")
 	static class Ack extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to ACK related Policy Acceptance")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Policy ID of Policy to ACK")
 		private String policyId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Fenix User ID of Acceptor")
 		private String fenixUserId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Status to set (ACCEPTED, NOT_ACCEPTED, ACCEPTED_FORMER_REVISION)")
 		private String status;
 
 		@Override

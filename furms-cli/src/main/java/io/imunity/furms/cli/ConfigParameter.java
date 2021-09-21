@@ -32,7 +32,7 @@ public enum ConfigParameter {
 			"FURMS_TRUSTSTORE_PASS",
 			"changeit");
 	
-	public final String option;
+	private final String option;
 	private final String property;
 	private final String environmentVariable;
 	private final String defaultValue;

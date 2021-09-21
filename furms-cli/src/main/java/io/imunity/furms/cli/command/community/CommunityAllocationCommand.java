@@ -15,6 +15,7 @@ import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessag
 import static org.apache.http.util.TextUtils.isBlank;
 
 @Command(name = "allocation",
+		description = "Using to handle Community Allocations.",
 		subcommands = {
 				CommunityAllocationCommand.List.class,
 				CommunityAllocationCommand.Show.class,
@@ -31,7 +32,8 @@ class CommunityAllocationCommand extends FurmsCommand {
 			description = "Retrieve all allocations of a community.")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID to list related allocations.")
 		private String communityId;
 
 		@Override
@@ -47,10 +49,12 @@ class CommunityAllocationCommand extends FurmsCommand {
 			description = "Retrieve a particular allocation of a community.")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID that have to be related to allocation.")
 		private String communityId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Allocation ID to show.")
 		private String allocationId;
 
 		@Override
@@ -66,11 +70,12 @@ class CommunityAllocationCommand extends FurmsCommand {
 			description = "Create a new allocation for a community.")
 	static class Create extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID to which allocation will be added.")
 		private String communityId;
 
 		@Option(names = {"--file"},
-				description = "path to json file that defines allocation",
+				description = "Path to json file that defines allocation",
 				required = true)
 		private String definitionFilePath;
 

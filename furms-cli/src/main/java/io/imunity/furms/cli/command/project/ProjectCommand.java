@@ -14,6 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "project",
+		description = "Using to handle Projects",
 		subcommands = {
 			ProjectCommand.List.class,
 			ProjectCommand.Show.class,
@@ -45,7 +46,8 @@ public class ProjectCommand extends FurmsCommand {
 			description = "Returns complete information about project including its allocations and its members.")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to find")
 		private String projectId;
 
 		@Override
@@ -61,7 +63,8 @@ public class ProjectCommand extends FurmsCommand {
 			description = "Removes project from community.")
 	static class Delete extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to delete")
 		private String projectId;
 
 		@Override
@@ -78,7 +81,7 @@ public class ProjectCommand extends FurmsCommand {
 	static class Create extends FurmsCommand {
 
 		@Option(names = {"--file"},
-				description = "path to json file that defines project",
+				description = "Path to json file that defines project",
 				required = true)
 		private String definitionFilePath;
 
@@ -95,7 +98,8 @@ public class ProjectCommand extends FurmsCommand {
 			description = "Update particular project.")
 	static class Update extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project to Update")
 		private String projectId;
 
 		@Option(names = {"--file"},

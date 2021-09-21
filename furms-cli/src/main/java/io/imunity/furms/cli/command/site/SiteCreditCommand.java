@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "credit",
+		description = "Using to handle Site Credits",
 		subcommands = {
 				SiteCreditCommand.List.class,
 				SiteCreditCommand.Show.class
@@ -28,7 +29,8 @@ class SiteCreditCommand extends FurmsCommand {
 			description = "Retrieve all resource credits of a site.")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of site to list related Site Credits")
 		private String siteId;
 
 		@Override
@@ -44,10 +46,12 @@ class SiteCreditCommand extends FurmsCommand {
 			description = "Retrieve details of a given resource credit.")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of site related to Site Credit")
 		private String siteId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Credit ID of Site Credit to find")
 		private String creditId;
 
 		@Override

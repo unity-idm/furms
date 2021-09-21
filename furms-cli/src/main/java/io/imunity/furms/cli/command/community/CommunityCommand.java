@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "community",
+		description = "Using to handle Communities.",
 		subcommands = {
 				CommunityCommand.List.class,
 				CommunityCommand.Show.class,
@@ -40,7 +41,8 @@ public class CommunityCommand extends FurmsCommand {
 			description = "Returns complete information about community including its allocation")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Community ID to find Community.")
 		private String communityId;
 
 		@Override

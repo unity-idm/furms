@@ -9,18 +9,16 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
-import io.imunity.furms.cli.command.RootFurmsCommand;
 import org.slf4j.LoggerFactory;
-import picocli.CommandLine;
 
 import static ch.qos.logback.classic.Level.INFO;
+import static io.imunity.furms.cli.command.FurmsCommandSpecFactory.commandLine;
 
 public class CLIApplication {
 
 	public static void main(String[] args) {
 		initLogger();
-		new CommandLine(new RootFurmsCommand())
-				.execute(args);
+		commandLine().execute(args);
 	}
 
 	private static void initLogger() {

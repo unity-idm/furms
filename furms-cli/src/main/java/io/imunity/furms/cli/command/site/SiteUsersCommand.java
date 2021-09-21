@@ -13,6 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "users",
+		description = "Using to handle Site Users",
 		subcommands = {
 				SiteUsersCommand.List.class
 		})
@@ -28,7 +29,8 @@ class SiteUsersCommand extends FurmsCommand {
 					+ "one of their projects. SSH key of each user is provided as well.")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Site ID of Site to list related Users")
 		private String siteId;
 
 		@Override

@@ -14,6 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "allocation",
+		description = "Using to handle Project Allocations",
 		subcommands = {
 			ProjectAllocationCommand.List.class,
 			ProjectAllocationCommand.Show.class,
@@ -30,7 +31,8 @@ class ProjectAllocationCommand extends FurmsCommand {
 			description = "Retrieve all project's allocations information")
 	static class List extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID to list related Project Allocations")
 		private String projectId;
 
 		@Override
@@ -46,10 +48,12 @@ class ProjectAllocationCommand extends FurmsCommand {
 			description = "Retrieve project's allocation information")
 	static class Show extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID of Project related to Allocation")
 		private String projectId;
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project Allocation ID to find Allocation")
 		private String allocationId;
 
 		@Override
@@ -65,11 +69,12 @@ class ProjectAllocationCommand extends FurmsCommand {
 			description = "Allocate resources to a project.")
 	static class Create extends FurmsCommand {
 
-		@Parameters(type = String.class)
+		@Parameters(type = String.class,
+				description = "Project ID to attach Allocation")
 		private String projectId;
 
 		@Option(names = {"--file"},
-				description = "path to json file that defines allocation",
+				description = "Path to json file that defines allocation",
 				required = true)
 		private String definitionFilePath;
 

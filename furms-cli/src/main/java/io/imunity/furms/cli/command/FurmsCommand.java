@@ -143,14 +143,14 @@ public abstract class FurmsCommand implements Runnable {
 
 	private String findRequiredPropertyValue(String argument, ConfigParameter param) {
 		String value = findPropertyValue(argument, param);
-		if (isEmpty(value))
-		{
+		if (isEmpty(value)) {
 			LOG.error("Required parameter is not provided: provide either '{}' command line param, "
 					+ "set it in config file under '{}' property or define environment variable '{}'",
 					param.getOption(), param.getProperty(), param.getEnvironmentVariable());
 			return null;
-		} else
-			LOG.debug("Config param {}='{}'", param.option, value);
+		} else {
+			LOG.debug("Config param {}='{}'", param.getOption(), value);
+		}
 		return value;
 	}
 	
@@ -159,9 +159,7 @@ public abstract class FurmsCommand implements Runnable {
 				.or(findInEnvironmentVariables(param))
 				.or(findInConfigFile(param))
 				.or(findDefaultValue(param))
-				.or(() -> {
-					return Optional.empty();
-				})
+				.or(Optional::empty)
 				.orElse(null);
 	}
 

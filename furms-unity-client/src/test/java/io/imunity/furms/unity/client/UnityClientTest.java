@@ -53,6 +53,10 @@ class UnityClientTest {
 	@MockBean
 	private SiteRepository siteRepository;
 	@MockBean
+	private ProjectRepository projectRepository;
+	@MockBean
+	private ResourceAccessRepository resourceAccessRepository;
+	@MockBean
 	private NotificationDAO emailNotificationDAO;
 	@MockBean
 	private ProjectRepository projectRepository;

@@ -4,8 +4,7 @@
  */
 package io.imunity.furms.cli;
 
-public class ConfigParameterNames
-{
+public class ConfigParameterNames {
 	public static final String USERNAME = "--user";
 	public static final String FURMS_URL = "--furms-url";
 	public static final String API_KEY = "--api-key";
