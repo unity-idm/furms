@@ -6,18 +6,6 @@
 package io.imunity.furms.unity.notifications;
 
 import io.imunity.furms.domain.authz.roles.Role;
-import java.time.LocalDateTime;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
-
-import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -28,6 +16,16 @@ import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.unity.client.users.UserService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 class EmailNotificationDAO implements NotificationDAO {
@@ -35,6 +33,9 @@ class EmailNotificationDAO implements NotificationDAO {
 	private static final String NAME_ATTRIBUTE = "custom.name";
 	private static final String ROLE_ATTRIBUTE = "custom.role";
 	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
+	private static final String POLICY_DOCUMENTS_URL = "/front/users/settings/policy/documents";
+	private static final String INVITATIONS_URL = "/front/users/settings/invitations";
+
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
@@ -55,7 +56,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 	@Override
 	public void notifyUser(PersistentId id, PolicyDocument policyDocument) {
-		Map<String, String> attributes = Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+		Map<String, String> attributes = Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL);
 		if(policyDocument.revision == 1)
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyAcceptanceTemplateId, attributes);
 		else
@@ -64,7 +65,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 	@Override
 	public void notifyUserAboutNewRole(PersistentId id, Role role) {
-		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL);
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + INVITATIONS_URL);
 		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
 	}
 
@@ -81,7 +82,7 @@ class EmailNotificationDAO implements NotificationDAO {
 				userService.sendUserNotification(
 					user.id.get(),
 					emailNotificationProperties.newPolicyRevisionTemplateId,
-					Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL)
+					Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL)
 				);
 				publisher.publishEvent(new UserPendingPoliciesChangedEvent(user.fenixUserId.get()));
 			});
@@ -109,7 +110,7 @@ class EmailNotificationDAO implements NotificationDAO {
 				userService.sendUserNotification(
 					persistentId,
 					emailNotificationProperties.newPolicyAcceptanceTemplateId,
-					Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL)
+					Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL)
 				)
 			);
 	}

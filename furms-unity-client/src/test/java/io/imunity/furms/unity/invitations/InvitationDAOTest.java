@@ -44,7 +44,7 @@ class InvitationDAOTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
-		invitationDAO = new InvitationDAOImpl(unityClient, invitationFormIdResolver, groupResolver,"url");
+		invitationDAO = new InvitationDAOImpl(unityClient, invitationFormIdResolver, groupResolver);
 	}
 
 	@Test

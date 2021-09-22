@@ -10,7 +10,6 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.unity.client.UnityClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,14 +28,11 @@ class InvitationDAOImpl implements InvitationDAO {
 	private final UnityClient unityClient;
 	private final InvitationFormIdResolver invitationFormIdResolver;
 	private final GroupResolver groupResolver;
-	private final String unityUrl;
 
-	InvitationDAOImpl(UnityClient unityClient, InvitationFormIdResolver invitationFormIdResolver, GroupResolver groupResolver,
-	                  @Value("${furms.unity.url}") String unityUrl) {
+	InvitationDAOImpl(UnityClient unityClient, InvitationFormIdResolver invitationFormIdResolver, GroupResolver groupResolver) {
 		this.unityClient = unityClient;
 		this.invitationFormIdResolver = invitationFormIdResolver;
 		this.groupResolver = groupResolver;
-		this.unityUrl = unityUrl;
 	}
 
 	@Override
@@ -44,7 +40,7 @@ class InvitationDAOImpl implements InvitationDAO {
 		String group = groupResolver.resolveGroup(resourceId, role);
 		String formId = invitationFormIdResolver.getFormId(role);
 		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam(formId, expiration, email);
-		addMessageParameters(formId, role, registrationInvitationParam);
+		addMessageParameters(role, registrationInvitationParam);
 		addGroupAndAttributes(role, group, registrationInvitationParam);
 		String code = unityClient.post("/invitation", registrationInvitationParam, Map.of(), new ParameterizedTypeReference<>() {});
 		return new InvitationCode(code);
@@ -55,10 +51,8 @@ class InvitationDAOImpl implements InvitationDAO {
 		registrationInvitationParam.getAttributes().put(0, new PrefilledEntry<>(new Attribute(role.unityRoleAttribute, "enumeration", group, List.of(role.unityRoleValue)), PrefilledEntryMode.HIDDEN));
 	}
 
-	private void addMessageParameters(String formId, Role role, RegistrationInvitationParam registrationInvitationParam) {
+	private void addMessageParameters(Role role, RegistrationInvitationParam registrationInvitationParam) {
 		registrationInvitationParam.getMessageParams().put("custom.role", role.toString().toLowerCase().replace("_", " "));
-		registrationInvitationParam.getMessageParams().put("custom.unityUrl", unityUrl);
-		registrationInvitationParam.getMessageParams().put("custom.formId", formId);
 	}
 
 	@Override
@@ -66,7 +60,7 @@ class InvitationDAOImpl implements InvitationDAO {
 		String group = groupResolver.resolveGroup(resourceId, role);
 		String formId = invitationFormIdResolver.getFormId(role);
 		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam(formId, expiration, email);
-		addMessageParameters(formId, role, registrationInvitationParam);
+		addMessageParameters(role, registrationInvitationParam);
 		addGroupAndAttributes(role, group, registrationInvitationParam);
 		unityClient.put("/invitation/" + code.code, registrationInvitationParam);
 	}

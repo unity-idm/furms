@@ -359,7 +359,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void resendInvitation(String siteId, InvitationId invitationId) {
 		if(!invitatoryService.checkAssociation(siteId, invitationId))
-			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.resendInvitation(invitationId);
 	}
 
@@ -367,7 +367,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void changeInvitationRoleToSupport(String siteId, InvitationId invitationId) {
 		if(!invitatoryService.checkAssociation(siteId, invitationId))
-			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.updateInvitationRole(invitationId, Role.SITE_SUPPORT);
 	}
 
@@ -375,7 +375,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void changeInvitationRoleToAdmin(String siteId, InvitationId invitationId) {
 		if(!invitatoryService.checkAssociation(siteId, invitationId))
-			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
+			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.updateInvitationRole(invitationId, Role.SITE_ADMIN);
 	}
 
