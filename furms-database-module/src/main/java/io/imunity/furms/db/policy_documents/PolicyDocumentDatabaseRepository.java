@@ -67,8 +67,8 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	@Override
 	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
 		return Stream.of(
-			repository.findAllUsersWithSitePolicy(siteId),
-			repository.findAllUsersWithServicesPolicies(siteId)
+			repository.findAllUsersWithSitePolicy(UUID.fromString(siteId)),
+			repository.findAllUsersWithServicesPolicies(UUID.fromString(siteId))
 		)
 			.flatMap(Collection::stream)
 			.collect(groupingBy(
@@ -84,8 +84,8 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	@Override
 	public Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId) {
 		return Stream.of(
-			repository.findAllUsersWithSitePolicy(siteId),
-			repository.findAllUsersWithServicesPolicies(siteId)
+			repository.findAllUsersWithSitePolicy(UUID.fromString(siteId)),
+			repository.findAllUsersWithServicesPolicies(UUID.fromString(siteId))
 		)
 			.flatMap(Collection::stream)
 			.filter(userWithBasePolicy -> userWithBasePolicy.policyId.equals(policyId.id.toString()))
