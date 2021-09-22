@@ -1,0 +1,31 @@
+:host(.dense-grid) [part~="header-cell"] ::slotted(vaadin-grid-cell-content) {
+    font-weight: bold;
+}
+
+:host(.dense-grid) [part="row"] {
+	min-height: 3em;
+}
+
+:host(.dense-grid) [part="row"] [part~="cell"]:not([part~="details-cell"]) {
+	min-height: 3em !important;
+}
+
+:host(.dense-grid) [part~="cell"] ::slotted(vaadin-grid-cell-content), [part~="header-cell"] ::slotted(vaadin-grid-cell-content) {
+	font-size: var(--lumo-font-size-xs);
+}
+
+:host(.dense-grid) [part~="cell"] ::slotted(vaadin-grid-cell-content) {
+    padding: var(--lumo-space-xs) var(--lumo-space-xs);
+}
+
+.dense-grid {
+    word-wrap: break-word;
+    font-size: var(--lumo-font-size-xs);
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.dense-grid > vaadin-grid-cell-content {
+    padding-left: 0;
+    padding-right: 0;
+}
