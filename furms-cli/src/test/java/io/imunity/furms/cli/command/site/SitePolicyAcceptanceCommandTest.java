@@ -26,10 +26,9 @@ class SitePolicyAcceptanceCommandTest extends CLICommandsTest {
 		final String siteId = "siteId";
 		final String policyId = "policyId";
 		final String fenixUserId = "fenixUserId";
-		final String status = "status";
-		runCLI("site", "policy", "acceptance", "ack", siteId, policyId, fenixUserId, status);
+		runCLI("site", "policy", "acceptance", "ack", siteId, policyId, fenixUserId);
 
-		server.verify(postRequestedFor(restPath("/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-				siteId, policyId, fenixUserId, status)));
+		server.verify(postRequestedFor(restPath("/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+				siteId, policyId, fenixUserId)));
 	}
 }

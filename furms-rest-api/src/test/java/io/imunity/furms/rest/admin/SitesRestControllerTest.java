@@ -7,15 +7,19 @@ package io.imunity.furms.rest.admin;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
 import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.in;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -175,6 +179,84 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllPoliciesBySiteId() throws Exception {
+		//given
+		final String siteId = "siteId";
+		final String policyId1 = UUID.randomUUID().toString();
+		final String policyId2 = UUID.randomUUID().toString();
+		when(sitesRestService.findAllPolicies(siteId)).thenReturn(List.of(
+				createPolicyDocument(policyId1), createPolicyDocument(policyId2)));
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/policies", siteId)
+				.header(AUTHORIZATION, authKey()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$.[0].policyId").value(in(Set.of(policyId1, policyId2))))
+				.andExpect(jsonPath("$.[1].policyId").value(in(Set.of(policyId1, policyId2))));
+	}
+
+	@Test
+	void shouldFindAllPoliciesBySiteIdAndPolicyId() throws Exception {
+		//given
+		final String siteId = "siteId";
+		final Policy policy1 = createPolicyDocument(UUID.randomUUID().toString());
+		final Policy policy2 = createPolicyDocument(UUID.randomUUID().toString());
+		when(sitesRestService.findPolicy(siteId, policy1.policyId)).thenReturn(policy1);
+		when(sitesRestService.findPolicy(siteId, policy2.policyId)).thenReturn(policy2);
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/policies/{policyId}", siteId, policy1.policyId)
+				.header(AUTHORIZATION, authKey()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.policyId").value(policy1.policyId))
+				.andExpect(jsonPath("$.name").value(policy1.name))
+				.andExpect(jsonPath("$.revision").value(policy1.revision));
+	}
+
+	@Test
+	void shouldFindAllPolicyAcceptancesBySiteId() throws Exception {
+		//given
+		final String siteId = "siteId";
+		final String policyId1 = UUID.randomUUID().toString();
+		final String policyId2 = UUID.randomUUID().toString();
+		when(sitesRestService.findAllPoliciesAcceptances(siteId)).thenReturn(List.of(
+				createPolicyAcceptance(policyId1, "f1"), createPolicyAcceptance(policyId2, "f2")));
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/policyAcceptances", siteId)
+				.header(AUTHORIZATION, authKey()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andExpect(jsonPath("$.[0].policyId").value(in(Set.of(policyId1, policyId2))))
+				.andExpect(jsonPath("$.[0].fenixUserId").value(in(Set.of("f1", "f2"))))
+				.andExpect(jsonPath("$.[1].policyId").value(in(Set.of(policyId1, policyId2))))
+				.andExpect(jsonPath("$.[1].fenixUserId").value(in(Set.of("f1", "f2"))));
+	}
+
+	@Test
+	void shouldAcceptPolicyForUserOnSite() throws Exception {
+		//given
+		final String siteId = "siteId";
+		final String policyId = UUID.randomUUID().toString();
+		final String fenixId = "fx1";
+		final PolicyAcceptance policyAcceptance = createPolicyAcceptance(policyId, fenixId);
+		when(sitesRestService.addPolicyAcceptance(siteId, policyId, fenixId)).thenReturn(List.of(policyAcceptance));
+
+		//when + then
+		mockMvc.perform(post(BASE_URL_SITES + "/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+					siteId, policyId, fenixId)
+				.header(AUTHORIZATION, authKey()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].policyId").value(policyId))
+				.andExpect(jsonPath("$.[0].fenixUserId").value(fenixId))
+				.andExpect(jsonPath("$.[0].acceptanceStatus").value("ACCEPTED"))
+				.andExpect(jsonPath("$.[0].processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.[0].currentPolicyRevision").value(policyAcceptance.currentPolicyRevision))
+				.andExpect(jsonPath("$.[0].acceptedRevision").value(policyAcceptance.acceptedRevision));
+	}
+
+	@Test
 	void shouldFindAllProjectAllocationsBySiteId() throws Exception {
 		//given
 		final String siteId = "siteId";
@@ -282,7 +364,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/usageRecords/{projectId}",
-					siteId, projectId)
+				siteId, projectId)
 				.queryParam("from", sampleFrom.toString())
 				.queryParam("until", sampleTo.toString())
 				.header(AUTHORIZATION, authKey()))
@@ -317,6 +399,14 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 	private InfraService createService(String siteId, String serviceId) {
 		return new InfraService(serviceId, "name", "policyId");
+	}
+
+	private Policy createPolicyDocument(String policyId) {
+		return new Policy(policyId, "name", 1);
+	}
+
+	private PolicyAcceptance createPolicyAcceptance(String policyId, String fenixId) {
+		return new PolicyAcceptance(policyId, 1, 1,fenixId, ACCEPTED, ZonedDateTime.now());
 	}
 
 	private ResourceAmount createResourceAmount() {
