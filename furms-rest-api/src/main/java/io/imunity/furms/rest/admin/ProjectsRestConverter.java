@@ -12,6 +12,7 @@ import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.FenixIdNotFoundException;
+import io.imunity.furms.rest.user.User;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -7,20 +7,18 @@ package io.imunity.furms.rest.admin;
 import java.util.Objects;
 
 class ResourceType {
-	public final ResourceTypeId id;
+	public final String typeId;
 	public final String name;
-	public final ServiceId serviceId;
+	public final String serviceId;
 
-	ResourceType(ResourceTypeId id, String name, ServiceId serviceId) {
-		this.id = id;
+	ResourceType(String typeId, String name, String serviceId) {
+		this.typeId = typeId;
 		this.name = name;
 		this.serviceId = serviceId;
 	}
 
 	ResourceType(io.imunity.furms.domain.resource_types.ResourceType resourceType) {
-		this(new ResourceTypeId(resourceType.siteId, resourceType.id),
-				resourceType.name,
-				new ServiceId(resourceType.siteId, resourceType.serviceId));
+		this(resourceType.id, resourceType.name, resourceType.serviceId);
 	}
 
 	@Override
@@ -28,22 +26,22 @@ class ResourceType {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ResourceType that = (ResourceType) o;
-		return Objects.equals(id, that.id)
+		return Objects.equals(typeId, that.typeId)
 				&& Objects.equals(name, that.name)
 				&& Objects.equals(serviceId, that.serviceId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, serviceId);
+		return Objects.hash(typeId, name, serviceId);
 	}
 
 	@Override
 	public String toString() {
 		return "ResourceType{" +
-				"id=" + id +
+				"typeId='" + typeId + '\'' +
 				", name='" + name + '\'' +
-				", serviceId=" + serviceId +
+				", serviceId='" + serviceId + '\'' +
 				'}';
 	}
 }

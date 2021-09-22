@@ -9,19 +9,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 class InfraService {
-	public final ServiceId id;
+	public final String serviceId;
 	public final String name;
 	public final String policyId;
 
-	InfraService(ServiceId id, String name, String policyId) {
-		this.id = id;
+	InfraService(String serviceId, String name, String policyId) {
+		this.serviceId = serviceId;
 		this.name = name;
 		this.policyId = policyId;
 	}
 
 	InfraService(io.imunity.furms.domain.services.InfraService infraService) {
-		this(
-			new ServiceId(infraService.siteId, infraService.id),
+		this(infraService.id,
 			infraService.name,
 			Optional.ofNullable(infraService.policyId)
 				.map(policy -> policy.id)
@@ -34,20 +33,20 @@ class InfraService {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		InfraService that = (InfraService) o;
-		return Objects.equals(id, that.id)
+		return Objects.equals(serviceId, that.serviceId)
 				&& Objects.equals(name, that.name)
 				&& Objects.equals(policyId, that.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, policyId);
+		return Objects.hash(serviceId, name, policyId);
 	}
 
 	@Override
 	public String toString() {
 		return "InfraService{" +
-				"id=" + id +
+				"serviceId=" + serviceId +
 				", name='" + name + '\'' +
 				", policyId=" + policyId +
 				'}';

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
- * See LICENCE.txt file for licensing information.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ *  See LICENCE.txt file for licensing information.
  */
-package io.imunity.furms.rest.admin;
+package io.imunity.furms.rest.user;
 
 import java.util.Objects;
 
-class Affiliation {
+public class Affiliation {
 
 	public final String name;
 	public final String email;
 	public final String country;
 	public final String postalAddress;
-	
-	Affiliation(String name, String email, String country, String postalAddress) {
+
+	public Affiliation(String name, String email, String country, String postalAddress) {
 		this.name = name;
 		this.email = email;
 		this.country = country;

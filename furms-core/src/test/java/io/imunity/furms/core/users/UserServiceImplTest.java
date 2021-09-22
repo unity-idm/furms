@@ -6,16 +6,14 @@
 package io.imunity.furms.core.users;
 
 import io.imunity.furms.api.users.UserAllocationsService;
-import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
-import io.imunity.furms.domain.users.UserAttribute;
-import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
@@ -25,11 +23,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,8 +41,6 @@ class UserServiceImplTest {
 	@Mock
 	private UsersDAO usersDAO;
 	@Mock
-	private MembershipResolver resolver;
-	@Mock
 	private UserAllocationsService userAllocationsService;
 
 	@Test
@@ -55,11 +50,14 @@ class UserServiceImplTest {
 		final PersistentId pid = new PersistentId("id");
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
-		final Map<ResourceId, Set<UserAttribute>> resourceAttributes = Map.of(
-				new ResourceId(UUID.randomUUID().toString(), SITE),
-				Set.of(new UserAttribute("site", "attr")));
-		final Set<UserAttribute> rootAttributes = Set.of(new UserAttribute("root", "attr"));
-		final UserAttributes userAttribute = new UserAttributes(rootAttributes, resourceAttributes);
+		final FURMSUser furmsUser = FURMSUser.builder()
+				.id(pid)
+				.fenixUserId(fid)
+				.firstName("firstName")
+				.lastName("lastName")
+				.email("email@domain.com")
+				.status(ENABLED)
+				.build();
 		final Set<SiteUser> siteUser = Set.of(new SiteUser(
 				"siteId",
 				"siteOauthClientId",
@@ -70,18 +68,15 @@ class UserServiceImplTest {
 						ACCEPTED, Instant.now())),
 				Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))));
 
-		when(usersDAO.getUserAttributes(fid)).thenReturn(userAttribute);
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
-		when(usersDAO.getUserStatus(fid)).thenReturn(ENABLED);
-		when(resolver.filterExposedAttribtues(rootAttributes)).thenReturn(rootAttributes);
+		when(usersDAO.findById(fid)).thenReturn(Optional.of(furmsUser));
 		when(userAllocationsService.findUserSitesInstallations(pid)).thenReturn(siteUser);
 
 		// when
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
 
 		// then
-		assertThat(userRecord.userStatus).isEqualTo(ENABLED);
-		assertThat(userRecord.attributes).containsAll(rootAttributes);
+		assertThat(userRecord.user).isEqualTo(furmsUser);
 		assertThat(userRecord.siteInstallations).containsAll(siteUser);
 	}
 }

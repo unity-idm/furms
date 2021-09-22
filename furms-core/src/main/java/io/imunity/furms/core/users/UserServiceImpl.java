@@ -13,8 +13,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UnknownUserException;
-import io.imunity.furms.domain.users.UserAttribute;
-import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -39,13 +37,10 @@ class UserServiceImpl implements UserService {
 
 	private final UsersDAO usersDAO;
 	private final UserAllocationsService userAllocationsService;
-	private final MembershipResolver membershipResolver;
 
 	public UserServiceImpl(UsersDAO usersDAO,
-	                       MembershipResolver membershipResolver,
 	                       UserAllocationsService userAllocationsService) {
 		this.usersDAO = usersDAO;
-		this.membershipResolver = membershipResolver;
 		this.userAllocationsService = userAllocationsService;
 	}
 
@@ -100,18 +95,15 @@ class UserServiceImpl implements UserService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserRecord getUserRecord(FenixUserId fenixUserId) {
-		checkNotNull(fenixUserId);
 		try {
-			final PersistentId userId = usersDAO.getPersistentId(fenixUserId);
+			final FURMSUser user = findByFenixUserId(fenixUserId)
+					.orElseThrow(() -> new UnknownUserException(fenixUserId));
 
-			final UserAttributes userAttributes = usersDAO.getUserAttributes(fenixUserId);
-			final UserStatus userStatus = usersDAO.getUserStatus(fenixUserId);
-			final Set<UserAttribute> rootAttributes = membershipResolver
-					.filterExposedAttribtues(userAttributes.rootAttributes);
+			final PersistentId userId = usersDAO.getPersistentId(fenixUserId);
 			final Set<SiteUser> siteUsers = userAllocationsService.findUserSitesInstallations(userId);
 
-			return new UserRecord(userStatus, rootAttributes, userAttributes.attributesByResource, siteUsers);
-		} catch (UnityFailureException e) {
+			return new UserRecord(user, siteUsers);
+		} catch (Exception e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
 		}

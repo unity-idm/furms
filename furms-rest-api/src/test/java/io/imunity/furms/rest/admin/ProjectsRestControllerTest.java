@@ -185,6 +185,7 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(allocationId))
+				.andExpect(jsonPath("$.projectId").value("projectId"))
 				.andExpect(jsonPath("$.communityAllocationId").value("allocationId"))
 				.andExpect(jsonPath("$.name").value("name"))
 				.andExpect(jsonPath("$.resourceTypeId").value("typeId"))
@@ -219,7 +220,7 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ProjectAllocation createProjectAllocation(String id) {
-		return new ProjectAllocation(id, "allocationId", "name", "typeId", ONE);
+		return new ProjectAllocation(id, "projectId", "allocationId", "name", "typeId", ONE);
 	}
 
 }

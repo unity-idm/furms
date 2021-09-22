@@ -11,6 +11,8 @@ import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.rest.user.Affiliation;
+import io.imunity.furms.rest.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

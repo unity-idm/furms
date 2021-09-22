@@ -5,6 +5,7 @@
 package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.domain.sites.SiteInstalledProject;
+import io.imunity.furms.rest.user.User;
 
 import java.util.Objects;
 import java.util.Set;

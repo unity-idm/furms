@@ -185,7 +185,7 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	}
 
 	@Test
-	void shouldNotFindFurmsAllocationsAndReturnNotFoundWhenProjectDoesNotExists() throws Exception {
+	void shouldNotFindFurmsAllocationsAndReturnEmptyArrayWhenProjectDoesNotExists() throws Exception {
 		//given
 		final String communityId = createCommunity();
 		final String projectId = createProject(communityId);
@@ -197,7 +197,9 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId(), UUID.randomUUID().toString())
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test
