@@ -99,7 +99,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 			}, getTranslation("view.site-admin.policy-documents-acceptance.status"))
 			.withContextMenuColumn(userContextMenuFactory);
 		UsersGridComponent grid = UsersGridComponent.init(
-			() -> policyDocumentService.findAllUsersPolicyAcceptances(policyDocument.siteId).stream()
+			() -> policyDocumentService.findAllUsersPolicyAcceptances(policyDocument.id, policyDocument.siteId).stream()
 				.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
 				.map(userPolicyAcceptances -> new PolicyUserGridItem(
 					userPolicyAcceptances.user,

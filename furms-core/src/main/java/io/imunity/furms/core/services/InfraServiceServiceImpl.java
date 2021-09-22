@@ -80,7 +80,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 		validator.validateCreate(infraService);
 		String id = infraServiceRepository.create(infraService);
 		if(infraService.policyId != null && infraService.policyId.id != null)
-			sendUpdateToSite(infraService);
+			sendUpdateToSite(id, infraService);
 		publisher.publishEvent(new CreateServiceEvent(infraService.id));
 		LOG.info("InfraService with given ID: {} was created: {}", id, infraService);
 	}
@@ -110,7 +110,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 			revision = policyDocument.revision;
 		}
 
-		sendUpdateToSite(infraService, revision, policyDocument);
+		sendUpdateToSite(infraService.id, infraService, revision, policyDocument);
 	}
 
 	private PolicyDocument getPolicyDocument(PolicyId policyId) {
@@ -118,13 +118,13 @@ class InfraServiceServiceImpl implements InfraServiceService {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
 	}
 
-	private void sendUpdateToSite(InfraService infraService) {
+	private void sendUpdateToSite(String infraId, InfraService infraService) {
 		PolicyDocument policyDocument = getPolicyDocument(infraService.policyId);
 
-		sendUpdateToSite(infraService, policyDocument.revision, policyDocument);
+		sendUpdateToSite(infraId, infraService, policyDocument.revision, policyDocument);
 	}
 
-	private void sendUpdateToSite(InfraService infraService, int revision, PolicyDocument policyDocument) {
+	private void sendUpdateToSite(String siteId, InfraService infraService, int revision, PolicyDocument policyDocument) {
 		siteAgentPolicyDocumentService.updatePolicyDocument(
 			siteRepository.findByIdExternalId(infraService.siteId),
 			PolicyDocument.builder()
@@ -132,7 +132,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 				.name(policyDocument.name)
 				.revision(revision)
 				.build(),
-			infraService.id);
+			siteId);
 	}
 
 	private boolean isPolicyChange(InfraService infraService, InfraService oldInfraService) {
