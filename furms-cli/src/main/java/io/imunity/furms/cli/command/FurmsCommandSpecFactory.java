@@ -17,7 +17,10 @@ public class FurmsCommandSpecFactory {
 		commandSpec.name(findAppName());
 		commandSpec.version(FurmsCommandSpecFactory.class.getPackage().getImplementationVersion());
 
-		return new CommandLine(commandSpec);
+		final CommandLine commandLine = new CommandLine(commandSpec);
+		commandLine.setUnmatchedArgumentsAllowed(false);
+
+		return commandLine;
 	}
 
 	private static String findAppName() {
