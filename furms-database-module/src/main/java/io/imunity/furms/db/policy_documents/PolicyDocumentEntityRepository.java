@@ -60,14 +60,14 @@ public interface PolicyDocumentEntityRepository extends CrudRepository<PolicyDoc
 		"join project_allocation pa on ca.id = pa.community_allocation_id " +
 		"join user_grant ua on ua.project_allocation_id = pa.id " +
 		"where s.id = :site_id")
-	Set<UserWithBasePolicy> findAllUsersWithServicesPolicies(@Param("site_id") String siteId);
+	Set<UserWithBasePolicy> findAllUsersWithServicesPolicies(@Param("site_id") UUID siteId);
 
 	@Query("select pd.id as policy_id, ua.user_id as user_id, pd.revision as revision " +
 		"from site s " +
 		"join policy_document pd on s.policy_id = pd.id " +
 		"join user_grant ua on pd.site_id = ua.site_id " +
 		"where s.id = :site_id")
-	Set<UserWithBasePolicy> findAllUsersWithSitePolicy(@Param("site_id") String siteId);
+	Set<UserWithBasePolicy> findAllUsersWithSitePolicy(@Param("site_id") UUID siteId);
 
 	@Query("select pd.*, s.name as site_name " +
 		"from policy_document pd " +
