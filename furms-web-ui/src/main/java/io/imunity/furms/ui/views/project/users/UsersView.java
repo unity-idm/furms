@@ -45,7 +45,6 @@ public class UsersView extends FurmsLandingViewComponent {
 	private final ProjectService projectService;
 	private final AuthzService authzService;
 	private final UserService userService;
-	private final String projectId;
 	private Project project;
 	private PersistentId currentUserId;
 	private MembershipChangerComponent membershipLayout;
@@ -55,13 +54,13 @@ public class UsersView extends FurmsLandingViewComponent {
 		this.projectService = projectService;
 		this.authzService = authzService;
 		this.userService = userService;
-		this.projectId = getCurrentResourceId();
 
 		loadPageContent();
 	}
 
 	private void loadPageContent() {
-		project = projectService.findById(getCurrentResourceId())
+		String projectId = getCurrentResourceId();
+		project = projectService.findById(projectId)
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
@@ -116,13 +115,13 @@ public class UsersView extends FurmsLandingViewComponent {
 			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
 		});
-		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
+		inviteUser.addInviteAction(event -> doInviteAction(inviteUser, projectId));
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 				getTranslation("view.project-admin.users.header", project.getName()), membershipLayout);
 		getContent().add(headerLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(InviteUserComponent inviteUserComponent) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent, String projectId) {
 		try {
 			inviteUserComponent.getUserId().ifPresentOrElse(
 				id -> projectService.inviteUser(projectId, id),

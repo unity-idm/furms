@@ -82,7 +82,10 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutChangedPolicy(policyDocument);
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName", "custom.furmsUrl", furmsServerBaseURL));
+		verify(userService).sendUserNotification(id, "policyAcceptanceRevision",
+			Map.of("custom.name", "policyName",
+				"custom.furmsUrl", furmsServerBaseURL + "/front/users/settings/policy/documents")
+		);
 	}
 
 	@Test
@@ -150,7 +153,10 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furmsUrl", furmsServerBaseURL));
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
+			Map.of("custom.name", "policyName",
+				"custom.furmsUrl", furmsServerBaseURL + "/front/users/settings/policy/documents")
+		);
 	}
 
 	@Test
@@ -189,8 +195,14 @@ class EmailNotificationDAOTest {
 
 		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "sitePolicyName", "custom.furmsUrl", furmsServerBaseURL));
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "servicePolicyName", "custom.furmsUrl", furmsServerBaseURL));
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
+			Map.of("custom.name", "sitePolicyName",
+				"custom.furmsUrl", furmsServerBaseURL + "/front/users/settings/policy/documents")
+		);
+		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
+			Map.of("custom.name", "servicePolicyName",
+				"custom.furmsUrl", furmsServerBaseURL + "/front/users/settings/policy/documents")
+		);
 	}
 
 	@Test
