@@ -24,18 +24,15 @@ import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsProgressBar;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
 
-@CssImport("./styles/components/resource-allocation-grid.css")
-public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridItem>{
+public class ResourceAllocationsGrid extends DenseGrid<ResourceAllocationsGridItem>{
 
 	private final Consumer<ResourceAllocationsGridItem> allocateButtonAction;
 	private final Supplier<Stream<ResourceAllocationsGridItem>> fetchItems;
@@ -56,49 +53,55 @@ public class ResourceAllocationsGrid extends SparseGrid<ResourceAllocationsGridI
 
 		this.zoneId = UIContext.getCurrent().getZone();
 
-		addClassName("resource-allocation-grid");
-
-		addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
-
 		addColumn(ResourceAllocationsGridItem::getSiteName)
 				.setHeader(columnName(columnPrefixes, "site-name"))
 				.setSortable(true)
 				.setComparator(defaultGridSort)
-				.setWidth("10%");
+				.setFlexGrow(1)
+				.setWidth("6%");
 		addColumn(ResourceAllocationsGridItem::getName)
 				.setHeader(columnName(columnPrefixes, "name"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getName))
-				.setWidth("10%");
+				.setFlexGrow(1)
+				.setWidth("11%");
 		addColumn(item -> showResource(item.getCredit()))
 				.setHeader(columnName(columnPrefixes, "credit"))
 				.setComparator(comparing(item -> item.getCredit().getAmount()))
-				.setWidth("10%");
+				.setFlexGrow(0)
+				.setAutoWidth(true);
 		addColumn(item -> showResource(item.getDistributed()))
 				.setHeader(columnName(columnPrefixes, "distributed"))
 				.setComparator(comparing(item -> item.getDistributed().getAmount()))
-				.setWidth("10%");
+				.setFlexGrow(0)
+				.setAutoWidth(true);
 		addColumn(item -> showResource(item.getRemaining()))
 				.setHeader(columnName(columnPrefixes, "remaining"))
 				.setComparator(comparing(item -> item.getRemaining().getAmount()))
-				.setWidth("10%");
+				.setFlexGrow(0)
+				.setAutoWidth(true);
 		addColumn(item -> extractLocalDate(item.getCreated()))
 				.setHeader(columnName(columnPrefixes, "created"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getCreated))
+				.setFlexGrow(0)
 				.setWidth("10%");
 		addColumn(item -> extractLocalDate(item.getValidFrom()))
 				.setHeader(columnName(columnPrefixes, "valid-from"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getValidFrom))
+				.setFlexGrow(0)
 				.setWidth("10%");
 		addColumn(item -> extractLocalDate(item.getValidTo()))
 				.setHeader(columnName(columnPrefixes, "valid-to"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getValidTo))
+				.setFlexGrow(0)
 				.setWidth("10%");
 		addComponentColumn(this::showAvailability)
 				.setHeader(columnName(columnPrefixes, "availability"))
 				.setComparator(comparing(this::calcAvailability))
-				.setWidth("15%");
+				.setFlexGrow(4)
+				.setAutoWidth(true);
 		addComponentColumn(this::showAllocateButton)
-				.setWidth("3%");
+				.setFlexGrow(0)
+				.setWidth("4%");
 
 		reloadGrid();
 	}

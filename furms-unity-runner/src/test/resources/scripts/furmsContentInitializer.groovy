@@ -53,14 +53,17 @@ try
 	initOAuthClient()
 	initTestUsers()
 	initFurmsRestClient()
-	initRegistrationForms()
+	initFenixAdminRegistrationForms()
+	initSiteUserRegistrationForms()
+	initCommunityAdminRegistrationForms()
+	initProjectUserRegistrationForms()
 
 } catch (Exception e)
 {
 	log.warn("Error loading data", e)
 }
 
-void initRegistrationForms()
+void initFenixAdminRegistrationForms()
 {
 	def fenixGroupParam = new GroupRegistrationParam()
 	fenixGroupParam.setGroupPath("/fenix/users")
@@ -73,7 +76,10 @@ void initRegistrationForms()
 
 	RegistrationForm fenixAdminForm = createRegistrationForm("fenixForm", fenixGroupParam, fenixRoleParam)
 	registrationsManagement.addForm(fenixAdminForm)
+}
 
+void initSiteUserRegistrationForms()
+{
 	def siteGroupParam = new GroupRegistrationParam()
 	siteGroupParam.setGroupPath("/fenix/sites/*/users")
 
@@ -85,7 +91,10 @@ void initRegistrationForms()
 
 	RegistrationForm siteAdminForm = createRegistrationForm("siteForm", siteGroupParam, siteRoleParam)
 	registrationsManagement.addForm(siteAdminForm)
+}
 
+void initCommunityAdminRegistrationForms()
+{
 	def communityGroupParam = new GroupRegistrationParam()
 	communityGroupParam.setGroupPath("/fenix/communities/*/users")
 
@@ -97,7 +106,10 @@ void initRegistrationForms()
 
 	RegistrationForm communityForm = createRegistrationForm("communityForm", communityGroupParam, communityRoleParam)
 	registrationsManagement.addForm(communityForm)
+}
 
+void initProjectUserRegistrationForms()
+{
 	def projectGroupParam = new GroupRegistrationParam()
 	projectGroupParam.setGroupPath("/fenix/communities/*/projects/*/users")
 
