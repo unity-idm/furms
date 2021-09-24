@@ -10,7 +10,6 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
@@ -35,7 +33,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
@@ -46,12 +43,13 @@ import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAlloca
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
-import io.imunity.furms.ui.components.SparseGrid;
+import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 
@@ -92,7 +90,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	}
 
 	private Grid<ProjectAllocationGridModel> createCommunityGrid() {
-		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
+		Grid<ProjectAllocationGridModel> grid = new DenseGrid<>(ProjectAllocationGridModel.class);
 
 		grid.addComponentColumn(model -> {
 				Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
@@ -124,19 +122,25 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setSortable(true)
 			.setComparator(comparing(c -> c.remainingWithUnit.amount));
 		grid.addComponentColumn(c -> {
-			Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
-			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
-			if(deallocation.isPresent()) {
-				int statusId = deallocation.get().status.getPersistentId();
-				return getStatusLayout(
-					getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
-					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
-				);
-			}
-			return projectAllocationInstallations
-				.map(installation -> getStatusLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()), installation.errorMessage.map(x -> x.message).orElse(null)))
-				.orElseGet(HorizontalLayout::new);
-		})
+				Optional<ProjectAllocationInstallation> projectAllocationInstallations = projectDataSnapshot.getAllocation(c.id);
+				Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getDeallocationStatus(c.id);
+				if(deallocation.isPresent()) {
+					int statusId = deallocation.get().status.getPersistentId();
+					return new StatusLayout(
+						getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
+						deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null),
+						getContent()
+					);
+				}
+				return projectAllocationInstallations.map(installation -> {
+						final int statusId = installation.status.getPersistentId();
+						return new StatusLayout(
+								getTranslation("view.community-admin.project-allocation.status." + statusId), 
+								installation.errorMessage.map(x -> x.message).orElse(null), 
+								getContent());
+					})
+					.orElseGet(StatusLayout::new);
+			})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
@@ -148,21 +152,6 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
-	}
-
-	private HorizontalLayout getStatusLayout(String status, String message) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		Text text = new Text(status);
-		horizontalLayout.add(text);
-		if(message != null) {
-			Tooltip tooltip = new Tooltip();
-			Icon icon = WARNING.create();
-			tooltip.attachToComponent(icon);
-			tooltip.add(message);
-			getContent().add(tooltip);
-			horizontalLayout.add(icon);
-		}
-		return horizontalLayout;
 	}
 
 	private Component createLastColumnContent(ProjectAllocationGridModel model) {

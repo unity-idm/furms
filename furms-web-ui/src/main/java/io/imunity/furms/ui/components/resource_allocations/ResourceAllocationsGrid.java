@@ -58,26 +58,26 @@ public class ResourceAllocationsGrid extends DenseGrid<ResourceAllocationsGridIt
 				.setSortable(true)
 				.setComparator(defaultGridSort)
 				.setFlexGrow(1)
-				.setWidth("6%");
+				.setWidth("7%");
 		addColumn(ResourceAllocationsGridItem::getName)
 				.setHeader(columnName(columnPrefixes, "name"))
 				.setComparator(comparing(ResourceAllocationsGridItem::getName))
 				.setFlexGrow(1)
-				.setWidth("11%");
+				.setWidth("10%");
 		addColumn(item -> showResource(item.getCredit()))
 				.setHeader(columnName(columnPrefixes, "credit"))
 				.setComparator(comparing(item -> item.getCredit().getAmount()))
-				.setFlexGrow(0)
+				.setFlexGrow(1)
 				.setAutoWidth(true);
 		addColumn(item -> showResource(item.getDistributed()))
 				.setHeader(columnName(columnPrefixes, "distributed"))
 				.setComparator(comparing(item -> item.getDistributed().getAmount()))
-				.setFlexGrow(0)
+				.setFlexGrow(1)
 				.setAutoWidth(true);
 		addColumn(item -> showResource(item.getRemaining()))
 				.setHeader(columnName(columnPrefixes, "remaining"))
 				.setComparator(comparing(item -> item.getRemaining().getAmount()))
-				.setFlexGrow(0)
+				.setFlexGrow(1)
 				.setAutoWidth(true);
 		addColumn(item -> extractLocalDate(item.getCreated()))
 				.setHeader(columnName(columnPrefixes, "created"))

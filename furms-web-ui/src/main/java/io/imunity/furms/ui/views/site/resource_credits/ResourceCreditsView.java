@@ -5,35 +5,6 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.resource_credits.ResourceCreditService;
-import io.imunity.furms.api.resource_types.ResourceTypeService;
-import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
-import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsProgressBar;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.UIContext;
-import io.imunity.furms.ui.views.site.SiteAdminMenu;
-
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
@@ -43,6 +14,36 @@ import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.math.RoundingMode.HALF_UP;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
+
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
+import io.imunity.furms.api.resource_credits.ResourceCreditService;
+import io.imunity.furms.api.resource_types.ResourceTypeService;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
+import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsProgressBar;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.UIContext;
+import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 @Route(value = "site/admin/resource/credits", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.resource-credits.page.title")
@@ -74,7 +75,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	}
 
 	private Grid<ResourceCreditViewModel> createResourceCreditGrid() {
-		Grid<ResourceCreditViewModel> grid = new SparseGrid<>(ResourceCreditViewModel.class);
+		Grid<ResourceCreditViewModel> grid = new DenseGrid<>(ResourceCreditViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceCreditFormView.class, c.getId()))
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.name"))
@@ -109,15 +110,16 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.validTo"))
 			.setSortable(true);
 		grid.addComponentColumn(model -> {
-			double value = model.getConsumed()
-				.divide(model.getAmount().amount, 4, HALF_UP)
-				.doubleValue();
-			return new FurmsProgressBar(value);
-		})
+				double value = model.getConsumed()
+					.divide(model.getAmount().amount, 4, HALF_UP)
+					.doubleValue();
+				return new FurmsProgressBar(value);
+			})
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.consumption"))
 			.setComparator(comparing(ResourceCreditViewModel::getConsumed));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.actions"))
+			.setWidth("4em")
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;

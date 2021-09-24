@@ -5,49 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
-import com.vaadin.componentfactory.Tooltip;
-import com.vaadin.componentfactory.TooltipAlignment;
-import com.vaadin.componentfactory.TooltipPosition;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.project_installation.ProjectInstallationsService;
-import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
-import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.GridActionsButtonLayout;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.RouterGridLink;
-import io.imunity.furms.ui.components.StatusLayout;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-import io.imunity.furms.utils.UTCTimeUtils;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
@@ -68,6 +25,50 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import com.vaadin.componentfactory.Tooltip;
+import com.vaadin.componentfactory.TooltipAlignment;
+import com.vaadin.componentfactory.TooltipPosition;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
+import io.imunity.furms.api.project_installation.ProjectInstallationsService;
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.StatusLayout;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+import io.imunity.furms.utils.UTCTimeUtils;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.projects.page.title")
@@ -112,7 +113,7 @@ public class ProjectsView extends FurmsViewComponent {
 		grid.addColumn(c -> c.siteName)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
 			.setSortable(true);
-		grid.addComponentColumn(c -> new StatusLayout(c.status, c.message))
+		grid.addComponentColumn(c -> new StatusLayout(c.status, c.message, getContent()))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.4"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)

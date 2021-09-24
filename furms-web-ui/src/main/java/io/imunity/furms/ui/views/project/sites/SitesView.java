@@ -5,9 +5,18 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -17,14 +26,6 @@ import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "project/admin/sites", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.sites.page.title")
@@ -60,10 +61,10 @@ public class SitesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.sites.grid.1"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message))
+		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message, getContent()))
 			.setHeader(getTranslation("view.project-admin.sites.grid.2"))
 			.setSortable(true)
-			.setFlexGrow(2);
+			.setFlexGrow(6);
 		grid.addComponentColumn(resourceAccessModel -> {
 			IconButton iconButton = new IconButton(REFRESH.create());
 			iconButton.addClickListener(event -> grid.setItems(loadData()));

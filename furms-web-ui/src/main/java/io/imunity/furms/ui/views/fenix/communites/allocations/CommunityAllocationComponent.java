@@ -5,6 +5,18 @@
 
 package io.imunity.furms.ui.views.fenix.communites.allocations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.math.RoundingMode.HALF_UP;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -15,20 +27,16 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.ui.components.*;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.math.RoundingMode.HALF_UP;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
+import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsProgressBar;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 
 public class CommunityAllocationComponent extends Composite<Div> {
 
@@ -61,7 +69,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 	}
 
 	private Grid<CommunityAllocationGridModel> createCommunityGrid() {
-		Grid<CommunityAllocationGridModel> grid = new SparseGrid<>(CommunityAllocationGridModel.class);
+		Grid<CommunityAllocationGridModel> grid = new DenseGrid<>(CommunityAllocationGridModel.class);
 
 		grid.addColumn(model -> model.siteName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.1"))

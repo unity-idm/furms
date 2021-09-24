@@ -11,7 +11,6 @@ import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static com.vaadin.flow.component.icon.VaadinIcon.WARNING;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static java.util.Collections.emptyList;
 
@@ -22,13 +21,9 @@ import java.util.stream.Collectors;
 
 import org.vaadin.gatanaso.MultiselectComboBox;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -44,6 +39,7 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
@@ -61,7 +57,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 	ResourceAccessView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {
 		this.projectId = getCurrentResourceId();
 		this.resourceAccessViewService = new ResourceAccessViewService(projectService, projectAllocationService, resourceAccessService, projectId);
-		this.treeGrid = new TreeGrid<>();
+		this.treeGrid = new DenseTreeGrid<>();
 		fillTreeGrid();
 
 		getContent().add(createHeaderLayout(), createSearchFilterLayout(), treeGrid);
@@ -157,7 +153,6 @@ public class ResourceAccessView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.7"))
 			.setWidth("6em");
 		treeGrid.setItems(resourceAccessViewService.getData().keySet(), key -> resourceAccessViewService.getData().getOrDefault(key, emptyList()));
-		treeGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 	}
 
 	private boolean isRootNode(ResourceAccessModel resourceAccessModel) {
@@ -173,18 +168,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout getStatusLayout(ResourceAccessModel resourceAccessModel) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		if(resourceAccessModel.getStatus() != null)
-			horizontalLayout.add(new Text(resourceAccessModel.getStatus()));
-		if(resourceAccessModel.getMessage() != null){
-			Tooltip tooltip = new Tooltip();
-			Icon icon = WARNING.create();
-			tooltip.attachToComponent(icon);
-			tooltip.add(resourceAccessModel.getMessage());
-			getContent().add(tooltip);
-			horizontalLayout.add(icon);
-		}
-		return horizontalLayout;
+		return new StatusLayout(resourceAccessModel.getStatus(), resourceAccessModel.getMessage(), getContent());
 	}
 
 

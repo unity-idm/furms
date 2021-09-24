@@ -5,9 +5,23 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
-import com.vaadin.componentfactory.Tooltip;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED_STATUES;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -18,6 +32,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
@@ -27,23 +42,18 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.UserGrant;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.StatusLayout;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED_STATUES;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 @Route(value = "users/settings/project", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
@@ -71,7 +81,7 @@ class ProjectView extends FurmsViewComponent {
 	}
 
 	private Grid<ProjectAllocationGridModel> createCommunityGrid() {
-		Grid<ProjectAllocationGridModel> grid = new SparseGrid<>(ProjectAllocationGridModel.class);
+		Grid<ProjectAllocationGridModel> grid = new DenseGrid<>(ProjectAllocationGridModel.class);
 
 		grid.addComponentColumn(allocation -> {
 			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
@@ -103,24 +113,26 @@ class ProjectView extends FurmsViewComponent {
 			Optional<ProjectDeallocation> deallocation = projectDataSnapshot.getParent().getDeallocationStatus(c.id);
 			if(deallocation.isPresent()) {
 				int statusId = deallocation.get().status.getPersistentId();
-				return getStatusLayout(
+				return new StatusLayout(
 					getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
-					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
+					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null),
+					getContent()
 				);
 			}
-			return projectAllocationInstallations
-				.map(installation ->
-					getStatusLayout(getTranslation("view.community-admin.project-allocation.status." + installation.status.getPersistentId()),
-						installation.errorMessage.map(x -> x.message).orElse(null))
-				).orElseGet(HorizontalLayout::new);
+			return projectAllocationInstallations.map(installation -> {
+					final int statusId = installation.status.getPersistentId();
+					return new StatusLayout(getTranslation("view.community-admin.project-allocation.status." + statusId),
+						installation.errorMessage.map(x -> x.message).orElse(null),
+						getContent());
+				}).orElseGet(StatusLayout::new);
 		})
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
 			.setSortable(true);
 		grid.addColumn(x -> getEnabledValue(x.id, x.accessibleForAllProjectMembers))
 			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.5"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
 
@@ -138,21 +150,6 @@ class ProjectView extends FurmsViewComponent {
 		if(userGrant != null && GRANTED_STATUES.contains(userGrant.status))
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		return getTranslation("view.project-admin.resource-access.grid.access.disabled");
-	}
-
-	private HorizontalLayout getStatusLayout(String status, String message) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		Text text = new Text(status);
-		horizontalLayout.add(text);
-		if(message != null){
-			Tooltip tooltip = new Tooltip();
-			Icon icon = WARNING.create();
-			tooltip.attachToComponent(icon);
-			tooltip.add(message);
-			getContent().add(tooltip);
-			horizontalLayout.add(icon);
-		}
-		return horizontalLayout;
 	}
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
