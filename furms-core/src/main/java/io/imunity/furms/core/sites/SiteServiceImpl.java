@@ -391,12 +391,28 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addAdmin(String siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
+		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addSupport(String siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
+		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void changeRoleToAdmin(String siteId, PersistentId userId) {
+		webClient.removeSiteUser(siteId, userId);
+		addAdmin(siteId, userId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
+	public void changeRoleToSupport(String siteId, PersistentId userId) {
+		webClient.removeSiteUser(siteId, userId);
+		addSupport(siteId, userId);
 	}
 
 	private void addUser(String siteId, PersistentId userId, Runnable adder) {

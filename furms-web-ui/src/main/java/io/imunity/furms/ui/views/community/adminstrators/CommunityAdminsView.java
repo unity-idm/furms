@@ -55,10 +55,8 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
-			.withRemoveUserAction(userId -> {
-				communityService.removeAdmin(communityId, userId);
-				inviteUser.reload();
-			})
+			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
+			.withPostRemoveUserAction(userId -> inviteUser.reload())
 			.withResendInvitationAction(invitationId -> {
 				communityService.resendInvitation(communityId, invitationId);
 				gridReload();

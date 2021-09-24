@@ -49,10 +49,8 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(authzService.getCurrentUserId())
 			.redirectOnCurrentUserRemoval()
-			.withRemoveUserAction(userId -> {
-				fenixUserService.removeFenixAdminRole(userId);
-				inviteUser.reload();
-			})
+			.withRemoveUserAction(fenixUserService::removeFenixAdminRole)
+			.withPostRemoveUserAction(userId -> inviteUser.reload())
 			.withResendInvitationAction(fenixUserService::resendFenixAdminInvitation)
 			.withRemoveInvitationAction(code -> {
 				fenixUserService.removeFenixAdminInvitation(code);

@@ -35,6 +35,7 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class UserContextMenuFactory {
 	private final Consumer<PersistentId> removeUserAction;
+	private final Consumer<PersistentId> postRemoveUserAction;
 	private final Consumer<InvitationId> resendInvitationAction;
 	private final Consumer<InvitationId> removeInvitationAction;
 	private final PersistentId currentUserId;
@@ -48,6 +49,7 @@ public class UserContextMenuFactory {
 	private final Set<CustomContextMenuItem> customContextMenuItems;
 
 	UserContextMenuFactory(Consumer<PersistentId> removeUserAction,
+	                       Consumer<PersistentId> postRemoveUserAction,
 	                       PersistentId currentUserId,
 	                       boolean redirectOnCurrentUserRemoval,
 	                       boolean allowRemovalOfLastUser,
@@ -58,6 +60,7 @@ public class UserContextMenuFactory {
 	                       Consumer<InvitationId> resendInvitationAction,
 	                       Consumer<InvitationId> removeInvitationAction) {
 		this.removeUserAction = removeUserAction;
+		this.postRemoveUserAction = postRemoveUserAction;
 		this.currentUserId = currentUserId;
 		this.redirectOnCurrentUserRemoval = redirectOnCurrentUserRemoval;
 		this.allowRemovalOfLastUser = allowRemovalOfLastUser;
@@ -80,10 +83,10 @@ public class UserContextMenuFactory {
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval(gridSizeLoader)) {
 				getResultOrException(() -> removeUserAction.accept(currentUserId))
-					.getException().ifPresentOrElse(
-					e -> showErrorNotification(getTranslation(e.getMessage())),
-					() -> refreshUserRoles(gridReloader)
-				);
+						.getException()
+						.ifPresentOrElse(
+								e -> showErrorNotification(getTranslation(e.getMessage())),
+								() -> refreshUserRoles(gridReloader));
 			} else {
 				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
 			}
@@ -96,7 +99,13 @@ public class UserContextMenuFactory {
 			getFullName(removedItem)));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval(gridSizeLoader)) {
-				handleExceptions(() -> removeUserAction.accept(removedItem.getId().orElse(null)));
+				final PersistentId persistentId = removedItem.getId().orElse(null);
+				handleExceptions(() -> {
+					removeUserAction.accept(persistentId);
+					if (postRemoveUserAction != null) {
+						postRemoveUserAction.accept(persistentId);
+					}
+				});
 				gridReloader.run();
 			} else {
 				showErrorNotification(getTranslation(removalNotAllowedMessageKey));
@@ -152,7 +161,6 @@ public class UserContextMenuFactory {
 			.forEach(item ->
 			contextMenu.addItem((Component)item.buttonProvider.apply(gridItem), event -> {
 				item.menuButtonHandler.accept(gridItem);
-				gridReloader.run();
 			})
 		);
 		if(contextMenu.getChildren().count() == 0)
@@ -172,6 +180,7 @@ public class UserContextMenuFactory {
 
 	public static final class Builder {
 		private Consumer<PersistentId> removeUserAction;
+		private Consumer<PersistentId> postRemoveUserAction;
 		private PersistentId currentUserId;
 		private boolean redirectOnCurrentUserRemoval = false;
 		private boolean allowRemovalOfLastUser = false;
@@ -187,6 +196,14 @@ public class UserContextMenuFactory {
 
 		public Builder withRemoveUserAction(Consumer<PersistentId> removeUserAction) {
 			this.removeUserAction = removeUserAction;
+			return this;
+		}
+
+		public Builder withPostRemoveUserAction(Consumer<PersistentId> postRemoveUserAction) {
+			if (this.removeUserAction == null) {
+				throw new IllegalArgumentException("Post Remove Action required Remove User Action declared");
+			}
+			this.postRemoveUserAction = postRemoveUserAction;
 			return this;
 		}
 
@@ -241,7 +258,7 @@ public class UserContextMenuFactory {
 		}
 
 		public UserContextMenuFactory build() {
-			return new UserContextMenuFactory(removeUserAction, currentUserId,
+			return new UserContextMenuFactory(removeUserAction, postRemoveUserAction, currentUserId,
 				redirectOnCurrentUserRemoval, allowRemovalOfLastUser, confirmRemovalMessageKey,
 				confirmSelfRemovalMessageKey, removalNotAllowedMessageKey, customContextMenuItems,
 				resendInvitationAction, removeInvitationAction);

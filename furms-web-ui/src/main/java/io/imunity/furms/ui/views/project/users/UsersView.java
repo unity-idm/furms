@@ -93,11 +93,12 @@ public class UsersView extends FurmsLandingViewComponent {
 				projectService.resendInvitation(projectId, invitationId);
 				gridReload();
 			})
-			.withRemoveUserAction(userId -> {
-				projectService.removeUser(project.getCommunityId(), project.getId(), userId);
-				inviteUser.reload();
+			.withRemoveUserAction(userId -> projectService.removeUser(project.getCommunityId(), project.getId(), userId))
+			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
-			}).build();
+				inviteUser.reload();
+			})
+			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
