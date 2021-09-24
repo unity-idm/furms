@@ -40,7 +40,7 @@ public class FurmsClientRequest {
 		return UriComponentsBuilder
 				.fromPath(path)
 				.queryParams(queryParams)
-				.build(pathParams.toArray(Object[]::new))
+				.buildAndExpand(pathParams.toArray(Object[]::new))
 				.toString();
 	}
 

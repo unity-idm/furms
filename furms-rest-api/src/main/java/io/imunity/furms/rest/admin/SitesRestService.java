@@ -217,7 +217,7 @@ class SitesRestService {
 			.build();
 	}
 
-	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId, AcceptanceStatus status) {
+	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId) {
 		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
 				.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
 				.policyDocumentRevision(0)

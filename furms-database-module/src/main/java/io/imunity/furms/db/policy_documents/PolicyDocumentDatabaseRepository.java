@@ -61,16 +61,12 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public Set<PolicyDocument> findAll() {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 			.map(PolicyDocumentEntity::toPolicyDocument)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 	}
 
 	@Override
 	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
-		return Stream.of(
-			repository.findAllUsersWithSitePolicy(UUID.fromString(siteId)),
-			repository.findAllUsersWithServicesPolicies(UUID.fromString(siteId))
-		)
-			.flatMap(Collection::stream)
+		return findAllUsersWithAnyPolicyBySiteId(UUID.fromString(siteId)).stream()
 			.collect(groupingBy(
 				userWithPolicy -> new FenixUserId(userWithPolicy.userId),
 				mapping(userWithBasePolicy -> PolicyDocument.builder()
@@ -83,11 +79,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 
 	@Override
 	public Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId) {
-		return Stream.of(
-			repository.findAllUsersWithSitePolicy(UUID.fromString(siteId)),
-			repository.findAllUsersWithServicesPolicies(UUID.fromString(siteId))
-		)
-			.flatMap(Collection::stream)
+		return findAllUsersWithAnyPolicyBySiteId(UUID.fromString(siteId)).stream()
 			.filter(userWithBasePolicy -> userWithBasePolicy.policyId.equals(policyId.id.toString()))
 			.map(userWithBasePolicy -> new FenixUserId(userWithBasePolicy.userId))
 			.collect(toSet());
@@ -131,7 +123,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId) {
 		return repository.findAllServicePoliciesBySiteId(UUID.fromString(siteId)).stream()
 			.map(ServicePolicyDocumentEntity::toServicePolicyDocument)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 	}
 
 	@Override
@@ -199,6 +191,14 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private Set<UserWithBasePolicy> findAllUsersWithAnyPolicyBySiteId(UUID siteId) {
+		return Stream.of(
+				repository.findAllUsersWithSitePolicy(siteId),
+				repository.findAllUsersWithServicesPolicies(siteId))
+			.flatMap(Collection::stream)
+			.collect(toSet());
 	}
 }
 

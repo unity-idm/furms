@@ -75,7 +75,6 @@ public abstract class FurmsCommand implements Runnable {
 	@Option(names = {"-d", "--debug"}, description = "Enables all logs for debugging purposes, overrides -v and -s.")
 	protected boolean debugMode;
 
-
 	protected abstract void executeCommand() throws Exception;
 
 	@Override

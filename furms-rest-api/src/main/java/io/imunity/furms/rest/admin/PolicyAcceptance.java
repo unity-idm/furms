@@ -15,7 +15,7 @@ import java.util.Objects;
 class PolicyAcceptance {
 	public final String fenixUserId;
 	public final String policyId;
-	public final AcceptanceStatus accepted;
+	public final AcceptanceStatus acceptanceStatus;
 	public final ZonedDateTime processedOn;
 	public final int currentPolicyRevision;
 	public final Integer acceptedRevision;
@@ -24,13 +24,13 @@ class PolicyAcceptance {
 	                 int currentPolicyRevision,
 	                 Integer acceptedRevision,
 	                 String fenixUserId,
-	                 AcceptanceStatus accepted,
+	                 AcceptanceStatus acceptanceStatus,
 	                 ZonedDateTime processedOn) {
 		this.policyId = policyId;
 		this.currentPolicyRevision = currentPolicyRevision;
 		this.acceptedRevision = acceptedRevision;
 		this.fenixUserId = fenixUserId;
-		this.accepted = accepted;
+		this.acceptanceStatus = acceptanceStatus;
 		this.processedOn = processedOn;
 	}
 
@@ -42,13 +42,13 @@ class PolicyAcceptance {
 		return acceptedRevision == that.acceptedRevision &&
 			Objects.equals(fenixUserId, that.fenixUserId) &&
 			Objects.equals(policyId, that.policyId) &&
-			accepted == that.accepted &&
+				acceptanceStatus == that.acceptanceStatus &&
 			Objects.equals(processedOn, that.processedOn);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fenixUserId, policyId, accepted, processedOn, acceptedRevision);
+		return Objects.hash(fenixUserId, policyId, acceptanceStatus, processedOn, acceptedRevision);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ class PolicyAcceptance {
 		return "PolicyAcceptance{" +
 			"fenixUserId='" + fenixUserId + '\'' +
 			", policyId='" + policyId + '\'' +
-			", accepted=" + accepted +
+			", acceptanceStatus=" + acceptanceStatus +
 			", processedOn=" + processedOn +
 			", revision=" + acceptedRevision +
 			'}';
@@ -71,7 +71,7 @@ class PolicyAcceptance {
 		private int currentPolicyRevision;
 		private Integer acceptedRevision;
 		private String fenixUserId;
-		private AcceptanceStatus accepted;
+		private AcceptanceStatus acceptanceStatus;
 		private ZonedDateTime processedOn;
 
 		private PolicyAcceptanceBuilder() {
@@ -108,7 +108,7 @@ class PolicyAcceptance {
 		}
 
 		public PolicyAcceptance.PolicyAcceptanceBuilder acceptanceStatus(AcceptanceStatus acceptanceStatus) {
-			this.accepted = acceptanceStatus;
+			this.acceptanceStatus = acceptanceStatus;
 			return this;
 		}
 
@@ -123,7 +123,8 @@ class PolicyAcceptance {
 		}
 
 		public PolicyAcceptance build() {
-			return new PolicyAcceptance(policyId, currentPolicyRevision, acceptedRevision, fenixUserId, accepted, processedOn);
+			return new PolicyAcceptance(policyId, currentPolicyRevision, acceptedRevision, fenixUserId, acceptanceStatus,
+					processedOn);
 		}
 	}
 

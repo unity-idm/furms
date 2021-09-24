@@ -120,10 +120,10 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].policyId", equalTo(site.getPolicyId().id.toString())))
 				.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(1)))
 				.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(1)))
-				.andExpect(jsonPath("$.[0].accepted", equalTo(ACCEPTED.name())))
+				.andExpect(jsonPath("$.[0].acceptanceStatus", equalTo(ACCEPTED.name())))
 				.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].policyId", equalTo(site.getPolicyId().id.toString())))
-				.andExpect(jsonPath("$.[1].accepted", equalTo(ACCEPTED.name())))
+				.andExpect(jsonPath("$.[1].acceptanceStatus", equalTo(ACCEPTED.name())))
 				.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(1)))
 				.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(1)));
 	}
@@ -154,10 +154,10 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 			.andExpect(jsonPath("$.[0].policyId", equalTo(site.getPolicyId().id.toString())))
 			.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(1)))
 			.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(2)))
-			.andExpect(jsonPath("$.[0].accepted", equalTo(ACCEPTED_FORMER_REVISION.name())))
+			.andExpect(jsonPath("$.[0].acceptanceStatus", equalTo(ACCEPTED_FORMER_REVISION.name())))
 			.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 			.andExpect(jsonPath("$.[1].policyId", equalTo(site.getPolicyId().id.toString())))
-			.andExpect(jsonPath("$.[1].accepted", equalTo(ACCEPTED_FORMER_REVISION.name())))
+			.andExpect(jsonPath("$.[1].acceptanceStatus", equalTo(ACCEPTED_FORMER_REVISION.name())))
 			.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(1)))
 			.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(2)));
 	}
@@ -193,20 +193,20 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 			.andExpect(jsonPath("$.[0].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
 			.andExpect(jsonPath("$.[0].acceptedRevision", equalTo(null)))
 			.andExpect(jsonPath("$.[0].currentPolicyRevision", equalTo(1)))
-			.andExpect(jsonPath("$.[0].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[0].acceptanceStatus", equalTo(NOT_ACCEPTED.name())))
 			.andExpect(jsonPath("$.[1].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 			.andExpect(jsonPath("$.[1].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
-			.andExpect(jsonPath("$.[1].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[1].acceptanceStatus", equalTo(NOT_ACCEPTED.name())))
 			.andExpect(jsonPath("$.[1].acceptedRevision", equalTo(null)))
 			.andExpect(jsonPath("$.[1].currentPolicyRevision", equalTo(1)))
 			.andExpect(jsonPath("$.[2].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 			.andExpect(jsonPath("$.[2].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
 			.andExpect(jsonPath("$.[2].acceptedRevision", equalTo(null)))
 			.andExpect(jsonPath("$.[2].currentPolicyRevision", equalTo(1)))
-			.andExpect(jsonPath("$.[2].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[2].acceptanceStatus", equalTo(NOT_ACCEPTED.name())))
 			.andExpect(jsonPath("$.[3].fenixUserId", in(Set.of(ADMIN_USER.getFenixId(), basicUser.getFenixId()))))
 			.andExpect(jsonPath("$.[3].policyId", in(Set.of(site.getPolicyId().id.toString(), policyId.id.toString()))))
-			.andExpect(jsonPath("$.[3].accepted", equalTo(NOT_ACCEPTED.name())))
+			.andExpect(jsonPath("$.[3].acceptanceStatus", equalTo(NOT_ACCEPTED.name())))
 			.andExpect(jsonPath("$.[3].acceptedRevision", equalTo(null)))
 			.andExpect(jsonPath("$.[3].currentPolicyRevision", equalTo(1)));
 	}
@@ -244,7 +244,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldAddPolicyAcceptance() throws Exception {
+	void shouldAcceptPolicyAcceptance() throws Exception {
 		//given
 		server.stubFor(WireMock.put("/unity/entity/"+ADMIN_USER.getFenixId()+"/attribute?identityType=identifier")
 				.willReturn(aResponse().withStatus(200)
@@ -254,8 +254,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				List.of(new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER)));
 
 		//when
-		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId(), ACCEPTED.name()))
+		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId()))
 				.andDo(print())
 				.andExpect(status().isOk());
 	}
@@ -267,8 +267,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId(), ACCEPTED.name())
+		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId())
 				.with(basicUser().getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isUnauthorized());
@@ -277,8 +277,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToAddPolicyAcceptanceWhenPolicyDoesNotExists() throws Exception {
 		//when
-		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-				site.getId(), UUID.randomUUID().toString(), ADMIN_USER.getFenixId(), ACCEPTED.name()))
+		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+				site.getId(), UUID.randomUUID().toString(), ADMIN_USER.getFenixId()))
 				.andDo(print())
 				.andExpect(status().isBadRequest());
 	}
@@ -291,8 +291,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-				UUID.randomUUID().toString(), site.getPolicyId().id, ADMIN_USER.getFenixId(), ACCEPTED.name())
+		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+				UUID.randomUUID().toString(), site.getPolicyId().id, ADMIN_USER.getFenixId())
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -302,8 +302,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)));
 
-		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}",
-				UUID.randomUUID().toString(), site.getPolicyId().id, ADMIN_USER.getFenixId(), ACCEPTED.name()))
+		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
+				UUID.randomUUID().toString(), site.getPolicyId().id, ADMIN_USER.getFenixId()))
 				.andDo(print())
 				.andExpect(status().isBadRequest());
 	}

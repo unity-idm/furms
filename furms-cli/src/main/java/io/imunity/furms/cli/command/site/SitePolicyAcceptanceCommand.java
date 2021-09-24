@@ -59,15 +59,11 @@ class SitePolicyAcceptanceCommand extends FurmsCommand {
 				description = "Fenix User ID of Acceptor")
 		private String fenixUserId;
 
-		@Parameters(type = String.class,
-				description = "Status to set (ACCEPTED, NOT_ACCEPTED, ACCEPTED_FORMER_REVISION)")
-		private String status;
-
 		@Override
 		protected void executeCommand() {
-			LOG.debug("Executing site policy acceptance ack {} {} {} {}", siteId, policyId, fenixUserId, status);
-			furmsClient.post(path("/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}")
-					.pathParams(siteId, policyId, fenixUserId, status)
+			LOG.debug("Executing site policy acceptance ack {} {} {}", siteId, policyId, fenixUserId);
+			furmsClient.post(path("/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}")
+					.pathParams(siteId, policyId, fenixUserId)
 					.build());
 		}
 	}

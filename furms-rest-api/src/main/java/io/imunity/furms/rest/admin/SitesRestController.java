@@ -230,13 +230,12 @@ public class SitesRestController {
 			@ApiResponse(responseCode = "200", description = "Successful operation"),
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Site, policy or user not found", content = { @Content }) })
-	@PostMapping("/{siteId}/policies/{policyId}/acceptance/{fenixUserId}/{status}")
+	@PostMapping("/{siteId}/policies/{policyId}/acceptance/{fenixUserId}")
 	public List<PolicyAcceptance> addPolicyAcceptance(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("policyId") String policyId, 
-			@PathVariable("fenixUserId") String fenixUserId,
-			@PathVariable("status") AcceptanceStatus status) {
-		return sitesRestService.addPolicyAcceptance(siteId, policyId, fenixUserId, status);
+			@PathVariable("fenixUserId") String fenixUserId) {
+		return sitesRestService.addPolicyAcceptance(siteId, policyId, fenixUserId);
 	}
 
 	/********************************************************************************************

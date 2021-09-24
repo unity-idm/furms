@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +67,7 @@ public class FurmsClient {
 	private void handleRequest(Supplier<ResponseEntity<String>> request) {
 		try {
 			of(request.get()).ifPresentOrElse(this::printResponse, this::printEmptyResponse);
-		} catch (HttpClientErrorException ex) {
+		} catch (HttpStatusCodeException ex) {
 			try {
 				final Object object = objectMapper.readValue(ex.getResponseBodyAsString(), Object.class);
 				System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
