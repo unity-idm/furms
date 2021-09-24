@@ -6,6 +6,15 @@ FURMS CLI is designed in the first place for the Fenix and site level admins. It
 
 Access credentials of the FURMS CLI are the same as the ones used for the REST API access and can be generated in the FURMS web UI under User Settings -> API Key view.
 
+=== Downloading
+
+FURMS CLI releases are published on GitHub. Please navigate to:
+ 
+https://github.com/unity-idm/furms/releases
+
+and select the version of the CLI for download. Usually the latest release should be used.
+
+
 === Configuring the CLI
 
 FURMS CLI can be run an a Linux AMD64 platform. There are no external dependencies, however it might be good to have an installation of Java Runtime Environment (of any recent version) in order to more quickly setup a truststore (see below).
