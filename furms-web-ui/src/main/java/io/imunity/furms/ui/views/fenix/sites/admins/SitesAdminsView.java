@@ -96,11 +96,12 @@ public class SitesAdminsView extends FurmsViewComponent {
 		inviteUser.addInviteAction(event -> doInviteAction(siteId, inviteUser, membershipLayout));
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
-			.withRemoveUserAction(userId -> {
-				siteService.removeSiteUser(siteId, userId);
+			.withRemoveUserAction(userId -> siteService.removeSiteUser(siteId, userId))
+			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
-			}).build();
+			})
+			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(() -> siteService.findAllAdministrators(siteId), Set::of, userGrid);

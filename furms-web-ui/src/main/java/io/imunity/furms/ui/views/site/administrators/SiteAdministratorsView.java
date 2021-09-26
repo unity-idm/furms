@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.site.administrators;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
@@ -20,6 +21,7 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.views.landing.LandingPageView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
 import java.util.List;
@@ -56,26 +58,29 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 							.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 						EXCHANGE),
 				(SiteUserGridItem userGridItem) -> {
-					if(userGridItem.getStatus().equals(UserStatus.DISABLED)){
-						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT))
+					if (userGridItem.getStatus().equals(UserStatus.DISABLED)) {
+						if (userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT)) {
 							siteService.changeInvitationRoleToAdmin(siteId, userGridItem.getInvitationId().get());
-						else if(userGridItem.getSiteRole().get().equals(SiteRole.ADMIN))
+						} else if (userGridItem.getSiteRole().get().equals(SiteRole.ADMIN)) {
 							siteService.changeInvitationRoleToSupport(siteId, userGridItem.getInvitationId().get());
-						return;
+						}
+					} else if (userGridItem.getId().isPresent() && userGridItem.getSiteRole().isPresent()){
+						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT)) {
+							siteService.changeRoleToAdmin(siteId, userGridItem.getId().get());
+						} else if(userGridItem.getSiteRole().get().equals(SiteRole.ADMIN)) {
+							siteService.changeRoleToSupport(siteId, userGridItem.getId().get());
+							if (userGridItem.getId().get().equals(currentUserId)) {
+								UI.getCurrent().navigate(LandingPageView.class);
+								return;
+							}
+						}
 					}
-					if(userGridItem.getId().isPresent() && userGridItem.getSiteRole().isPresent()){
-						siteService.removeSiteUser(siteId, userGridItem.getId().get());
-						if(userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT))
-							siteService.addAdmin(siteId, userGridItem.getId().get());
-						else if(userGridItem.getSiteRole().get().equals(SiteRole.ADMIN))
-							siteService.addSupport(siteId, userGridItem.getId().get());
-					}
+					inviteUser.reload();
+					gridReload();
 				}
 			)
-			.withRemoveUserAction(userId -> {
-				siteService.removeSiteUser(siteId, userId);
-				inviteUser.reload();
-			})
+			.withRemoveUserAction(userId -> siteService.removeSiteUser(siteId, userId))
+			.withPostRemoveUserAction(userId -> inviteUser.reload())
 			.withRemoveInvitationAction(invitationId -> {
 				siteService.removeInvitation(siteId, invitationId);
 				gridReload();

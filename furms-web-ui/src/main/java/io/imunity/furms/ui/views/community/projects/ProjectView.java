@@ -123,11 +123,12 @@ public class ProjectView extends FurmsViewComponent {
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
-			.withRemoveUserAction(userId -> {
-				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
+			.withRemoveUserAction(userId -> projectService.removeAdmin(project.getCommunityId(), project.getId(), userId))
+			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
-			}).build();
+			})
+			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), Set::of, userGrid);

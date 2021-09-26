@@ -62,10 +62,9 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				projectService.resendInvitation(projectId, invitationId);
 				gridReload();
 			})
-			.withRemoveUserAction(userId -> {
-				projectService.removeAdmin(project.getCommunityId(), project.getId(), userId);
-				inviteUser.reload();
-			}).build();
+			.withRemoveUserAction(userId -> projectService.removeAdmin(project.getCommunityId(), project.getId(), userId))
+			.withPostRemoveUserAction(userId -> inviteUser.reload())
+			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
 			() -> projectService.findAllAdminsInvitations(projectId),

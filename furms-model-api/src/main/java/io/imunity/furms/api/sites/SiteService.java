@@ -69,6 +69,10 @@ public interface SiteService {
 
 	void addSupport(String siteId, PersistentId userId);
 
+	void changeRoleToAdmin(String siteId, PersistentId userId);
+
+	void changeRoleToSupport(String siteId, PersistentId userId);
+
 	void removeSiteUser(String siteId, PersistentId userId);
 
 	boolean isCurrentUserAdminOf(String siteId);

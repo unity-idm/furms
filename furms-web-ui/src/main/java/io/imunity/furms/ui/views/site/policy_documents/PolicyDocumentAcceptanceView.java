@@ -42,6 +42,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
 	private final String siteId;
 	private PolicyDocument policyDocument;
+	private UsersGridComponent grid;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
@@ -75,13 +76,17 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 				(PolicyUserGridItem userGridItem) -> {
 					PolicyAcceptance policyAcceptance = createPolicyAcceptance();
 					policyDocumentService.addUserPolicyAcceptance(policyDocument.siteId, userGridItem.getFenixUserId().get(), policyAcceptance);
+					grid.reloadGrid();
 				},
 				policyUserGridItem -> !policyUserGridItem.isAccepted()
 			);
 		}
 		builder.addCustomContextMenuItem(
 				x -> new MenuButton(getTranslation("view.site-admin.policy-documents-acceptance.menu.resend"), PAPERPLANE),
-				(PolicyUserGridItem userGridItem) -> policyDocumentService.resendPolicyInfo(policyDocument.siteId, userGridItem.getId().get(), policyDocument.id),
+				(PolicyUserGridItem userGridItem) -> {
+					policyDocumentService.resendPolicyInfo(policyDocument.siteId, userGridItem.getId().get(), policyDocument.id);
+					grid.reloadGrid();
+				},
 				policyUserGridItem -> !policyUserGridItem.isAccepted()
 			);
 
@@ -98,7 +103,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 					return getTranslation("view.site-admin.policy-documents-acceptance.status.not.accepted");
 			}, getTranslation("view.site-admin.policy-documents-acceptance.status"))
 			.withContextMenuColumn(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.init(
+		grid = UsersGridComponent.init(
 			() -> policyDocumentService.findAllUsersPolicyAcceptances(policyDocument.id, policyDocument.siteId).stream()
 				.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
 				.map(userPolicyAcceptances -> new PolicyUserGridItem(

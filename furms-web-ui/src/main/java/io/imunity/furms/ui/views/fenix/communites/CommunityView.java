@@ -105,11 +105,12 @@ public class CommunityView extends FurmsViewComponent {
 		);
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
-			.withRemoveUserAction(userId -> {
-				communityService.removeAdmin(communityId, userId);
+			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
+			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
-			}).build();
+			})
+			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> communityService.findAllAdmins(communityId), Set::of, userGrid);
 		membershipLayout.addJoinButtonListener(event -> {
