@@ -12,11 +12,11 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 
-class SearchLayout extends HorizontalLayout {
+public class SearchLayout extends HorizontalLayout {
 	private TextField textField;
 	private String searchText = "";
 
-	SearchLayout() {
+	public SearchLayout() {
 		textField = new TextField();
 		textField.setPlaceholder(getTranslation("component.administrators.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
@@ -30,11 +30,11 @@ class SearchLayout extends HorizontalLayout {
 		add(search);
 	}
 
-	String getSearchText() {
+	public String getSearchText() {
 		return searchText;
 	}
 
-	void addValueChangeGridReloader(Runnable gridReloader){
+	public void addValueChangeGridReloader(Runnable gridReloader){
 		textField.addValueChangeListener(event -> {
 				textField.blur();
 				searchText = event.getValue().toLowerCase();
