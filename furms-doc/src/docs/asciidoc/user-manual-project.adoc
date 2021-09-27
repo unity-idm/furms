@@ -15,6 +15,7 @@ What is more, FURMS collects resource usage information from sites on which reso
 
 Under the Users menu entry, project administrator can view, add and remove project users. Note that project administrator needs not to be (and does not become by default) a regular project user. Administrator can however assign him/her-self project user role with a dedicated action button. 
 
+A new project user can be invited by providing his or her email address. Note that the invited person must possess a Fenix infrastructure account. 
 
 === Project settings
 
@@ -47,7 +48,8 @@ FURMS project can have multiple administrators. Each project administrator can a
 
 NOTE: Project must have a single _project leader_ defined. Typically this is one of the administrators but this is not strictly necessary.  
 
-{versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
+Selection of existing users is limited to the users already belonging to the project.
 
 === REST API access credentials
 

@@ -10,14 +10,17 @@ When creating a project, community administrator needs to setup project leader, 
 
 NOTE: Project administrators can also themselves manage administrators of their project, and so community administrator is not the only person controlling the set of administrators.
 
-{versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
+Selection of existing users is limited to the users already belonging to the community.
 
 === Managing community administrators
 
 FURMS allows for having multiple users with the community administrator role. Each community administrator can add (and remove) other administrators from the "Community Administrators" view. 
 
-{versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
+Selection of existing users is limited to the users already belonging to the community.
 
+Note that removing the last administrator is not allowed.
 
 === Managing community metadata
 

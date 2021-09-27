@@ -73,7 +73,9 @@ FURMS allows for multiple users with the site administrator role. Each site admi
 
 Additionally the view allows for adding users with the `site support` role. Such users will be able to access only the Policy Documents view and record the fact that a hand-signed paper policy document was received.
 
-{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
+A new administrator can be invited by providing an email address of the invitation recipient. The invited person must possess a Fenix infrastructure account. 
+
+Note that removing the last administrator is not allowed.
 
 === REST API access credentials
 

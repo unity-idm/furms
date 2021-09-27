@@ -16,11 +16,11 @@ Table shows the local user identifier at the site as well as the site-provided i
 
 === Projects
 
-The projects view provides a list of projects. By default only the projects where the user is a member are shown. 
-
-{versionlimit} It is also possible to see all projects, as in future FURMS will support project applications.
+The projects view provides a list of all FURMS projects. By default only the projects where the user is a member are shown. 
 
 For each project of the user, it is possible to drill down and check available allocations in that project.
+
+It is possible to apply for a membership in a project. In order to do so, first the filter to include "Remaining projects" must be selected. Then after locating a project of interest an access application can be submitted.    
 
 === SSH keys management
 

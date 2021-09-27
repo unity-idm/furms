@@ -14,7 +14,7 @@ After creating a site, Fenix admin should provide at least a single administrato
 
 NOTE: Site administrators can also themselves manage administrators of their site, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial site admin must be always performed by the Fenix admin.
 
-{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
 
 === Managing communities
 
@@ -24,14 +24,15 @@ After creating a community, Fenix admin should provide at least a single adminis
 
 NOTE: Community administrators can also themselves manage administrators of their community, so the Fenix admin is not the only person controlling the set of administrators. However, setting the initial community admin must be always performed by the Fenix admin.
 
-{versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
 
 === Managing Fenix administrators
 
 FURMS allows for having multiple users with the Fenix administrator role. Each Fenix admin can add (and remove) other administrators from the "Fenix administrators" view. 
 
-{versionlimit} Adding Fenix administrators is currently limited to users who has signed in to FURMS at least once.
+include::snippets/invite-admin-generic.adoc[]
 
+Note that removing the last administrator is not allowed.
 
 === Distributing resources to communities
 
