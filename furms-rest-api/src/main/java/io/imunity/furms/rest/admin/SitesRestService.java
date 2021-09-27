@@ -349,7 +349,7 @@ class SitesRestService {
 						uid,
 						furmsUser.map(persistedUser ->
 								sshKeyService.findByOwnerId(persistedUser.id.get().id).stream()
-									.map(sshKey -> sshKey.id)
+									.map(sshKey -> sshKey.value)
 									.collect(toList()))
 								.orElse(List.of()),
 						userAdditions.stream()

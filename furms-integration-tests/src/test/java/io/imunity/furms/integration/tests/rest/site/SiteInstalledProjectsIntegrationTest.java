@@ -136,8 +136,10 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 		createUserSite(projectId4, darkSite.getId(), ADMIN_USER);
 		createUserSite(projectId4, darkSite.getId(), otherUser);
 
-		final String sshKey1 = createSSHKey(site.getId(), ADMIN_USER);
-		final String sshKey2 = createSSHKey(site.getId(), otherUser);
+		final String sshKey1Value = "ssh-rsa " + UUID.randomUUID();
+		final String sshKey2Value = "ssh-rsa " + UUID.randomUUID();
+		final String sshKey1 = createSSHKey(site.getId(), sshKey1Value, ADMIN_USER);
+		final String sshKey2 = createSSHKey(site.getId(), sshKey2Value, otherUser);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/users", site.getId()))
@@ -150,12 +152,14 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 						containsInAnyOrder(projectId1, projectId2, projectId3),
 						containsInAnyOrder(projectId1, projectId2))))
 				.andExpect(jsonPath("$.[0].sshKeys", hasSize(1)))
+				.andExpect(jsonPath("$.[0].sshKeys.[0]", in(Set.of(sshKey1Value, sshKey2Value))))
 				.andExpect(jsonPath("$.[1].user.fenixIdentifier", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].uid", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].projectIds").value(anyOf(
 						containsInAnyOrder(projectId1, projectId2, projectId3),
 						containsInAnyOrder(projectId1, projectId2))))
-				.andExpect(jsonPath("$.[0].sshKeys", hasSize(1)));
+				.andExpect(jsonPath("$.[1].sshKeys", hasSize(1)))
+				.andExpect(jsonPath("$.[1].sshKeys.[0]", in(Set.of(sshKey1Value, sshKey2Value))));
 	}
 
 
@@ -195,12 +199,12 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createSSHKey(String siteId, TestUser user) {
+	private String createSSHKey(String siteId, String value, TestUser user) {
 		return sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
 				.ownerId(new PersistentId(user.getUserId()))
-				.value(UUID.randomUUID().toString())
+				.value(value)
 				.createTime(LocalDateTime.now())
 				.build());
 	}
