@@ -211,14 +211,14 @@ public class UserService {
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		Entity entity  = getEntity(userId);
 		
-		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
+		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
 	public Optional<FURMSUser> getUser(FenixUserId userId){
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		Entity entity  = getEntity(userId);
 
-		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
+		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
 	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
