@@ -61,13 +61,13 @@ import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
@@ -124,7 +124,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 	}
 
 	private Grid<SSHKeyViewModel> createSSHKeysGrid() {
-		Grid<SSHKeyViewModel> grid = new SparseGrid<>(SSHKeyViewModel.class);
+		Grid<SSHKeyViewModel> grid = new DenseGrid<>(SSHKeyViewModel.class);
 
 		grid.addComponentColumn(k -> gridNameComponent(grid, k))
 				.setHeader(getTranslation("view.user-settings.ssh-keys.grid.column.name"))

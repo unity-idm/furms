@@ -19,10 +19,10 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
@@ -35,7 +35,7 @@ public class SitesView extends FurmsViewComponent {
 
 	SitesView(ProjectInstallationsService projectInstallationsService) {
 		this.projectInstallationsService = projectInstallationsService;
-		this.grid = new SparseGrid<>(SiteGridModel.class);
+		this.grid = new DenseGrid<>(SiteGridModel.class);
 		fillGrid();
 		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
