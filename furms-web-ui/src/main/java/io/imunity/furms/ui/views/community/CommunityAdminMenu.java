@@ -14,6 +14,7 @@ import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.community.adminstrators.CommunityAdminsView;
+import io.imunity.furms.ui.views.community.groups.GroupsView;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 import io.imunity.furms.ui.views.community.projects.ProjectsView;
 import io.imunity.furms.ui.views.community.settings.SettingsView;

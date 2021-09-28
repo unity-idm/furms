@@ -7,6 +7,7 @@ package io.imunity.furms.integration.tests;
 
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
+import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -52,6 +53,7 @@ public abstract class DBTestManager {
 	@Autowired protected UserOperationRepository userOperationRepository;
 	@Autowired protected UserApiKeyRepository userApiKeyRepository;
 	@Autowired protected ResourceAccessRepository resourceAccessDatabaseRepository;
+	@Autowired protected GenericGroupRepository genericGroupRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;

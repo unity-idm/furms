@@ -4,18 +4,17 @@
  */
 package io.imunity.furms.rest.cidp;
 
-import static java.util.stream.Collectors.toSet;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
-
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
+
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class CentralIdPRestAPIService {
@@ -40,7 +39,9 @@ class CentralIdPRestAPIService {
 				userRecord.siteInstallations.stream()
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId != null)
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId.equals(oauthClientId))
-					.collect(toSet())));
+					.collect(toSet()),
+			userRecord.groupAccesses
+		));
 	}
 	
 	void setUserStatus(String fenixUserId, UserStatusHolder userStatus) {

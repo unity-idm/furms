@@ -8,6 +8,7 @@ package io.imunity.furms.core.users;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -16,6 +17,7 @@ import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +39,14 @@ class UserServiceImpl implements UserService {
 
 	private final UsersDAO usersDAO;
 	private final UserAllocationsService userAllocationsService;
+	private final GenericGroupRepository genericGroupRepository;
 
 	public UserServiceImpl(UsersDAO usersDAO,
-	                       UserAllocationsService userAllocationsService) {
+	                       UserAllocationsService userAllocationsService,
+	                       GenericGroupRepository genericGroupRepository) {
 		this.usersDAO = usersDAO;
 		this.userAllocationsService = userAllocationsService;
+		this.genericGroupRepository = genericGroupRepository;
 	}
 
 	@Override
@@ -96,13 +101,14 @@ class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public UserRecord getUserRecord(FenixUserId fenixUserId) {
 		try {
-			final FURMSUser user = findByFenixUserId(fenixUserId)
-					.orElseThrow(() -> new UnknownUserException(fenixUserId));
+			FURMSUser user = findByFenixUserId(fenixUserId)
+				.orElseThrow(() -> new UnknownUserException(fenixUserId));
 
-			final PersistentId userId = usersDAO.getPersistentId(fenixUserId);
-			final Set<SiteUser> siteUsers = userAllocationsService.findUserSitesInstallations(userId);
+			PersistentId userId = usersDAO.getPersistentId(fenixUserId);
+			Set<SiteUser> siteUsers = userAllocationsService.findUserSitesInstallations(userId);
+			Set<GroupAccess> userGroupsAccesses = genericGroupRepository.findAllBy(fenixUserId);
 
-			return new UserRecord(user, siteUsers);
+			return new UserRecord(user, siteUsers, userGroupsAccesses);
 		} catch (Exception e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);
