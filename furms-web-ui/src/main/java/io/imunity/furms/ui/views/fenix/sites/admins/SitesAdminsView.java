@@ -11,6 +11,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -28,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -79,13 +80,13 @@ public class SitesAdminsView extends FurmsViewComponent {
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);
-			grid.reloadGrid();
+			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (siteService.findAllAdministrators(siteId).size() > 1) {
 				handleExceptions(() -> siteService.removeSiteUser(siteId, currentUserId));
-				grid.reloadGrid();
+				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
@@ -101,10 +102,21 @@ public class SitesAdminsView extends FurmsViewComponent {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			})
+			.withRemoveInvitationAction(invitationId -> {
+				siteService.removeInvitation(siteId, invitationId);
+				gridReload();
+			})
+			.withResendInvitationAction(invitationId -> {
+				siteService.resendInvitation(siteId, invitationId);
+				gridReload();
+			})
 			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(() -> siteService.findAllAdministrators(siteId), Set::of, userGrid);
+		grid = UsersGridComponent.defaultInit(
+			() -> siteService.findAllAdministrators(siteId),
+			() -> siteService.findSiteAdminInvitations(siteId),
+			userGrid);
 
 		Site site = handleExceptions(() -> siteService.findById(siteId))
 				.flatMap(identity())
@@ -117,14 +129,25 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 	private void doInviteAction(String siteId, InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
 		try {
-			siteService.inviteAdmin(siteId, inviteUserComponent.getUserId().orElse(null));
+			inviteUserComponent.getUserId().ifPresentOrElse(
+				id -> siteService.inviteAdmin(siteId, id),
+				() -> siteService.inviteAdmin(siteId, inviteUserComponent.getEmail())
+			);
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
-			grid.reloadGrid();
+			gridReload();
+		} catch (DuplicatedInvitationError e) {
+			showErrorNotification(getTranslation("invite.error.duplicate"));
+		} catch (UserAlreadyHasRoleError e) {
+			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);
 		}
+	}
+
+	private void gridReload() {
+		grid.reloadGrid();
 	}
 
 }

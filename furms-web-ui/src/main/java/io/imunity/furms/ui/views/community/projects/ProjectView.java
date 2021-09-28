@@ -18,6 +18,8 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -32,13 +34,15 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -50,6 +54,8 @@ import static java.util.function.Function.identity;
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
 public class ProjectView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final ProjectService projectService;
 	private final UserService userService;
 	private final PersistentId currentUserId;
@@ -64,6 +70,8 @@ public class ProjectView extends FurmsViewComponent {
 
 	private Div page1;
 	private Div page2;
+
+	private UsersGridComponent grid;
 
 	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService,
 	            ProjectAllocationService projectAllocationService) {
@@ -124,6 +132,14 @@ public class ProjectView extends FurmsViewComponent {
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> projectService.removeAdmin(project.getCommunityId(), project.getId(), userId))
+			.withRemoveInvitationAction(invitationId -> {
+				projectService.removeInvitation(project.getId(), invitationId);
+				gridReload();
+			})
+			.withResendInvitationAction(invitationId -> {
+				projectService.resendInvitation(project.getId(), invitationId);
+				gridReload();
+			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
@@ -131,17 +147,21 @@ public class ProjectView extends FurmsViewComponent {
 			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()), Set::of, userGrid);
+		grid = UsersGridComponent.defaultInit(
+			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
+			() -> projectService.findAllAdminsInvitations(project.getId()),
+			userGrid
+		);
 
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
-			grid.reloadGrid();
+			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (projectService.findAllAdmins(project.getCommunityId(), project.getId()).size() > 1) {
 				handleExceptions(() -> projectService.removeAdmin(project.getCommunityId(), project.getId(), currentUserId));
-				grid.reloadGrid();
+				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
@@ -152,13 +172,31 @@ public class ProjectView extends FurmsViewComponent {
 			getTranslation("view.community-admin.project.page.header", project.getName()),
 			membershipLayout
 		);
-		inviteUser.addInviteAction(event -> {
-			projectService.inviteAdmin(project.getId(), inviteUser.getUserId().orElse(null));
-			grid.reloadGrid();
+		inviteUser.addInviteAction(event -> doInviteAction(project, inviteUser, membershipLayout));
+		page1.add(headerLayout, inviteUser, grid);
+	}
+
+	private void doInviteAction(Project project, InviteUserComponent inviteUser, MembershipChangerComponent membershipLayout) {
+		try {
+			inviteUser.getUserId().ifPresentOrElse(
+				id -> projectService.inviteAdmin(project.getId(), id),
+				() -> projectService.inviteAdmin(project.getId(), inviteUser.getEmail())
+			);
+			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
-		});
-		page1.add(headerLayout, inviteUser, grid);
+		} catch (DuplicatedInvitationError e) {
+			showErrorNotification(getTranslation("invite.error.duplicate"));
+		} catch (UserAlreadyHasRoleError e) {
+			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (RuntimeException e) {
+			showErrorNotification(getTranslation("invite.error.unexpected"));
+			LOG.error("Could not invite user. ", e);
+		}
+	}
+
+	private void gridReload() {
+		grid.reloadGrid();
 	}
 
 	@Override
