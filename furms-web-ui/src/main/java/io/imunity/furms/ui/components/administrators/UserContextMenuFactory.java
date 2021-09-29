@@ -78,7 +78,7 @@ public class UserContextMenuFactory {
 		this.removeInvitationAction = removeInvitationAction;
 	}
 
-	private void doRemoveYourself(Runnable gridReloader, Supplier<Integer> gridSizeLoader){
+	private void doRemoveYourself(Runnable gridReloader, Supplier<Long> gridSizeLoader){
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmSelfRemovalMessageKey));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval(gridSizeLoader)) {
@@ -94,7 +94,7 @@ public class UserContextMenuFactory {
 		furmsDialog.open();
 	}
 
-	private void doRemoveItemAction(UserGridItem removedItem, Runnable gridReloader, Supplier<Integer> gridSizeLoader) {
+	private void doRemoveItemAction(UserGridItem removedItem, Runnable gridReloader, Supplier<Long> gridSizeLoader) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmRemovalMessageKey,
 			getFullName(removedItem)));
 		furmsDialog.addConfirmButtonClickListener(event -> {
@@ -121,11 +121,11 @@ public class UserContextMenuFactory {
 			gridReloader.run();
 	}
 
-	private boolean allowRemoval(Supplier<Integer> gridSizeLoader) {
+	private boolean allowRemoval(Supplier<Long> gridSizeLoader) {
 		return allowRemovalOfLastUser || gridSizeLoader.get() > 1;
 	}
 
-	public Component get(UserGridItem gridItem, Runnable gridReloader, Supplier<Integer> gridSizeLoader){
+	public Component get(UserGridItem gridItem, Runnable gridReloader, Supplier<Long> gridSizeLoader){
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		if(removeUserAction != null && gridItem.getStatus().equals(UserStatus.ENABLED)) {
@@ -140,7 +140,7 @@ public class UserContextMenuFactory {
 					doRemoveItemAction(gridItem, gridReloader, gridSizeLoader);
 			});
 		}
-		if(resendInvitationAction != null && gridItem.getStatus().equals(UserStatus.DISABLED)){
+		if(resendInvitationAction != null && gridItem.getStatus().equals(UserStatus.AWAITS_APPROVAL)){
 			Button button = new Button(getTranslation("component.administrators.context.menu.resend.invitation"),
 				PAPERPLANE.create());
 			button.addThemeVariants(LUMO_TERTIARY);
@@ -148,7 +148,7 @@ public class UserContextMenuFactory {
 				resendInvitationAction.accept(gridItem.getInvitationId().get());
 			});
 		}
-		if(removeInvitationAction != null && gridItem.getStatus().equals(UserStatus.DISABLED)){
+		if(removeInvitationAction != null && gridItem.getStatus().equals(UserStatus.AWAITS_APPROVAL)){
 			Button button = new Button(getTranslation("component.administrators.context.menu.remove.invitation"),
 				TRASH.create());
 			button.addThemeVariants(LUMO_TERTIARY);

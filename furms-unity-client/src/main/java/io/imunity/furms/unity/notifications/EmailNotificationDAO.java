@@ -32,6 +32,7 @@ class EmailNotificationDAO implements NotificationDAO {
 
 	private static final String NAME_ATTRIBUTE = "custom.name";
 	private static final String ROLE_ATTRIBUTE = "custom.role";
+	private static final String EMAIL_ATTRIBUTE = "custom.email";
 	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
 	private static final String POLICY_DOCUMENTS_URL = "/front/users/settings/policy/documents";
 	private static final String INVITATIONS_URL = "/front/users/settings/invitations";
@@ -67,6 +68,18 @@ class EmailNotificationDAO implements NotificationDAO {
 	public void notifyUserAboutNewRole(PersistentId id, Role role) {
 		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + INVITATIONS_URL);
 		userService.sendUserNotification(id, emailNotificationProperties.newInvitationTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail) {
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), EMAIL_ATTRIBUTE, acceptanceUserEmail);
+		userService.sendUserNotification(id, emailNotificationProperties.acceptedInvitationTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail) {
+		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), EMAIL_ATTRIBUTE, rejectionUserEmail);
+		userService.sendUserNotification(id, emailNotificationProperties.rejectedInvitationTemplateId, attributes);
 	}
 
 	@Override

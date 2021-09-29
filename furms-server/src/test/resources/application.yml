@@ -35,6 +35,8 @@ furms:
       new-policy-template-id: policyAcceptanceNew
       new-policy-revision-template-id: policyAcceptanceRevision
       new-invitation-template-id: invitationNew
+      accepted-invitation-template-id: invitationAccepted
+      rejected-invitation-template-id: invitationRejected
    invitations:
       expiration-time-in-seconds: 604800
       fenix-form: fenixForm

@@ -10,4 +10,5 @@ import io.imunity.furms.domain.users.FenixUserId;
 
 public interface InvitationEvent extends FurmsEvent {
 	FenixUserId getId();
+	String getEmail();
 }

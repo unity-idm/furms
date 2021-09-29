@@ -15,9 +15,9 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
@@ -57,7 +57,7 @@ public class ProjectView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectService projectService;
-	private final UserService userService;
+	private final CommunityService communityService;
 	private final PersistentId currentUserId;
 	private final ProjectAllocationService projectAllocationService;
 
@@ -73,10 +73,10 @@ public class ProjectView extends FurmsViewComponent {
 
 	private UsersGridComponent grid;
 
-	ProjectView(ProjectService projectService, AuthzService authzService, UserService userService,
+	ProjectView(ProjectService projectService, AuthzService authzService, CommunityService communityService,
 	            ProjectAllocationService projectAllocationService) {
 		this.projectService = projectService;
-		this.userService = userService;
+		this.communityService = communityService;
 		this.currentUserId = authzService.getCurrentUserId();
 		this.projectAllocationService = projectAllocationService;
 	}
@@ -120,7 +120,7 @@ public class ProjectView extends FurmsViewComponent {
 
 	private void loadPage1Content(Project project) {
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
+			() -> communityService.findAllUsers(project.getCommunityId()),
 			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
 		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(

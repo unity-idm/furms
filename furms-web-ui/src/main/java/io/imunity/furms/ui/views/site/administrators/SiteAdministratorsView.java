@@ -9,7 +9,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -24,6 +23,7 @@ import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.landing.LandingPageView;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,14 +40,11 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 	private final UsersGridComponent grid;
 	private final String siteId;
 
-	SiteAdministratorsView(SiteService siteService, UserService userService, AuthzService authzService) {
+	SiteAdministratorsView(SiteService siteService, AuthzService authzService) {
 		this.siteService = siteService;
 		this.siteId = FurmsViewUserContext.getCurrent().id;
 		PersistentId currentUserId = authzService.getCurrentUserId();
-		SiteRoleInviteUserComponent inviteUser = new SiteRoleInviteUserComponent(
-			userService::getAllUsers,
-			() -> siteService.findAllSiteUsers(siteId)
-		);
+		SiteRoleInviteUserComponent inviteUser = new SiteRoleInviteUserComponent(ArrayList::new, ArrayList::new);
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
@@ -58,7 +55,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 							.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 						EXCHANGE),
 				(SiteUserGridItem userGridItem) -> {
-					if (userGridItem.getStatus().equals(UserStatus.DISABLED)) {
+					if (userGridItem.getStatus().equals(UserStatus.AWAITS_APPROVAL)) {
 						if (userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT)) {
 							siteService.changeInvitationRoleToAdmin(siteId, userGridItem.getInvitationId().get());
 						} else if (userGridItem.getSiteRole().get().equals(SiteRole.ADMIN)) {

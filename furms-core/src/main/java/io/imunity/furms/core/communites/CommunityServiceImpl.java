@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -140,6 +141,14 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
+	public List<FURMSUser> findAllUsers(String id) {
+		return communityGroupsDAO.getAllUsers(id).stream()
+			.filter(furmsUser -> furmsUser.fenixUserId.isPresent())
+			.collect(Collectors.toList());
+	}
+
+	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public Set<Invitation> findAllInvitations(String communityId) {
 		return invitatoryService.getInvitations(COMMUNITY_ADMIN, UUID.fromString(communityId));
@@ -148,13 +157,17 @@ class CommunityServiceImpl implements CommunityService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(String communityId, PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN);
+		communityRepository.findById(communityId).ifPresent(community ->
+			invitatoryService.inviteUser(userId, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN, community.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(String communityId, String email) {
-		invitatoryService.inviteUser(email, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN);
+		communityRepository.findById(communityId).ifPresent(community ->
+			invitatoryService.inviteUser(email, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN, community.getName())
+		);
 	}
 
 	@Override

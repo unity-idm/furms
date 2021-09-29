@@ -64,7 +64,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> userService.getAllUsers().stream()
+			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()).stream()
 				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
 				.collect(Collectors.toList()),
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())

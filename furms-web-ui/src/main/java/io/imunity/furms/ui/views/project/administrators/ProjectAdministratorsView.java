@@ -8,7 +8,6 @@ package io.imunity.furms.ui.views.project.administrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
@@ -39,7 +38,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 	private final String projectId;
 	private final UsersGridComponent grid;
 
-	public ProjectAdministratorsView(ProjectService projectService, AuthzService authzService, UserService userService) {
+	public ProjectAdministratorsView(ProjectService projectService, AuthzService authzService) {
 		this.projectService = projectService;
 		this.projectId = getCurrentResourceId();
 
@@ -48,7 +47,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + projectId));
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
+			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
 			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
 		);
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()

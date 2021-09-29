@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.invitations.InviteeService;
+import io.imunity.furms.api.validation.exceptions.InvitationNotExistError;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -75,6 +76,8 @@ public class InvitationsView extends FurmsViewComponent {
 				checkboxes.entrySet().stream()
 					.filter(x -> x.getValue().getValue())
 					.forEach(x -> inviteeService.acceptBy(x.getKey()));
+			} catch (InvitationNotExistError e){
+				showErrorNotification(getTranslation("invitation.already.removed"));
 			} catch (Exception e){
 				LOG.warn("Could not accept Invitations. ", e);
 				showErrorNotification(getTranslation("base.error.message"));
@@ -85,15 +88,8 @@ public class InvitationsView extends FurmsViewComponent {
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.user-settings.invitations.main.context-menu.reject"), CLOSE_CIRCLE),
 			event -> {
-			try {
-				checkboxes.entrySet().stream()
-					.filter(x -> x.getValue().getValue())
-					.forEach(x -> inviteeService.removeBy(x.getKey()));
-			} catch (Exception e){
-				LOG.warn("Could not reject Invitations. ", e);
-				showErrorNotification(getTranslation("base.error.message"));
-			}
-				loadGrid();
+			if(checkboxes.entrySet().stream().anyMatch(x -> x.getValue().getValue()))
+				createMainConfirmDialog(checkboxes).open();
 			}
 		);
 		return contextMenu.getTarget();
@@ -106,16 +102,19 @@ public class InvitationsView extends FurmsViewComponent {
 		grid.addComponentColumn(invitationGridModel -> {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(invitationGridModel.id ,checkbox);
-			return new HorizontalLayout(checkbox, new Label(invitationGridModel.invitationText));
+			return new HorizontalLayout(checkbox, new Label(invitationGridModel.resourceName));
 		}).setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.user-settings.invitations.grid.1"))));
-		grid.addColumn(x -> x.originator)
+		grid.addColumn(x -> x.role)
 			.setHeader(getTranslation("view.user-settings.invitations.grid.2"))
 			.setSortable(true);
-		grid.addColumn(x -> x.expiration.format(dateTimeFormatter))
+		grid.addColumn(x -> x.originator)
 			.setHeader(getTranslation("view.user-settings.invitations.grid.3"))
 			.setSortable(true);
-		grid.addComponentColumn(x -> createContextMenu(x.id))
+		grid.addColumn(x -> x.expiration.format(dateTimeFormatter))
 			.setHeader(getTranslation("view.user-settings.invitations.grid.4"))
+			.setSortable(true);
+		grid.addComponentColumn(x -> createContextMenu(x.id))
+			.setHeader(getTranslation("view.user-settings.invitations.grid.5"))
 			.setTextAlign(ColumnTextAlign.END);
 
 		return grid;
@@ -126,11 +125,8 @@ public class InvitationsView extends FurmsViewComponent {
 			.stream()
 			.map(invitation -> new InvitationGridModel(
 				invitation.id,
-				Optional.ofNullable(invitation.resourceName).map(name -> "'" + name + "'").orElse("") +
-					" " +
-					getTranslation("view.user-settings.invitations.grid.invitation.resource.type." + invitation.resourceId.type) +
-					" " +
-					getTranslation("view.user-settings.invitations.grid.invitation.role." + invitation.role.unityRoleValue),
+				Optional.ofNullable(invitation.resourceName).orElse(""),
+				getTranslation("view.user-settings.invitations.grid.invitation.role." + invitation.role.unityRoleValue),
 				invitation.originator,
 				convertToZoneTime(invitation.utcExpiredAt, browserZoneId).toLocalDateTime()
 			))
@@ -146,6 +142,8 @@ public class InvitationsView extends FurmsViewComponent {
 			event -> {
 			try {
 				inviteeService.acceptBy(id);
+			} catch (InvitationNotExistError e){
+				showErrorNotification(getTranslation("invitation.already.removed"));
 			} catch (Exception e){
 				LOG.warn("Could not accept Invitation. ", e);
 				showErrorNotification(getTranslation("base.error.message"));
@@ -170,6 +168,22 @@ public class InvitationsView extends FurmsViewComponent {
 			inviteeService.removeBy(invitationId);
 			} catch (Exception e){
 				LOG.warn("Could not reject Invitation. ", e);
+				showErrorNotification(getTranslation("base.error.message"));
+			}
+			loadGrid();
+		});
+		return furmsDialog;
+	}
+
+	private Dialog createMainConfirmDialog(Map<InvitationId, Checkbox> checkboxes) {
+		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.invitations.page.removal.confirm.bulk"));
+		furmsDialog.addConfirmButtonClickListener(event -> {
+			try {
+				checkboxes.entrySet().stream()
+					.filter(x -> x.getValue().getValue())
+					.forEach(x -> inviteeService.removeBy(x.getKey()));
+			} catch (Exception e){
+				LOG.warn("Could not reject Invitations. ", e);
 				showErrorNotification(getTranslation("base.error.message"));
 			}
 			loadGrid();
