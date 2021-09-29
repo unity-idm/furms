@@ -55,6 +55,12 @@ class Project {
 				user);
 	}
 
+	public Project(io.imunity.furms.domain.projects.Project project,
+	               User user,
+	               SiteInstalledProject projectInstallation) {
+		this(project, user, Set.of(projectInstallation));
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

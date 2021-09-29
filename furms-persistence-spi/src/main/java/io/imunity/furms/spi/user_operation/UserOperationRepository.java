@@ -20,7 +20,7 @@ public interface UserOperationRepository {
 	Set<String> findUserIds(String projectId);
 	Set<UserAddition> findAllUserAdditions(String projectId, String userId);
 	Set<UserAddition> findAllUserAdditions(String userId);
-	Set<UserAddition> findAllUserAdditionsByUserId(String siteId);
+	Set<UserAddition> findAllUserAdditionsBySiteId(String siteId);
 	Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId);
 	String create(UserAddition userAddition);
 	void update(UserAddition userAddition);

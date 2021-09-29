@@ -10,31 +10,44 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
+import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
+import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.*;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class ProjectInstallationsServiceImpl implements ProjectInstallationsService {
 	private final ProjectOperationRepository projectOperationRepository;
+	private final ProjectRepository projectRepository;
 
-	ProjectInstallationsServiceImpl(ProjectOperationRepository projectOperationRepository) {
+	ProjectInstallationsServiceImpl(ProjectOperationRepository projectOperationRepository,
+	                                ProjectRepository projectRepository) {
 		this.projectOperationRepository = projectOperationRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId) {
-		return projectOperationRepository.findAllSiteInstalledProjectsBySiteId(siteId);
+	public Set<SiteInstalledProjectResolved> findAllSiteInstalledProjectsBySiteId(String siteId) {
+		return projectOperationRepository.findAllSiteInstalledProjectsBySiteId(siteId).stream()
+				.map(installation -> SiteInstalledProjectResolved.builder()
+						.siteId(installation.siteId)
+						.siteName(installation.siteName)
+						.project(projectRepository.findById(installation.projectId).get())
+						.gid(installation.gid)
+						.build())
+				.collect(toSet());
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
-	public Set<SiteInstalledProject> findAllSiteInstallionProjectsByProjectId(String projectId) {
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId) {
 		return projectOperationRepository.findAllSiteInstalledProjectsByProjectId(projectId);
 	}
 

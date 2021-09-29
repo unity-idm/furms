@@ -109,6 +109,32 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
+	void shouldFindProjectsWhenUserIsAlreadyInstalledEvenHeIsNotAProjectAdmin() throws Exception {
+		//given
+		final Site.SiteBuilder siteBuilder = defaultSite();
+		final Site site2 = siteBuilder
+				.name("site2")
+				.externalId(new SiteExternalId("s2id"))
+				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.build();
+		final String community = createCommunity();
+		final String project1 = createProject(community);
+		createProjectInstallation(project1, site.getId(), INSTALLED);
+		createProjectInstallation(project1, site2.getId(), INSTALLED);
+
+		final TestUser siteAdmin = basicUser();
+		siteAdmin.addSiteAdmin(site.getId());
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(MockMvcRequestBuilders.get("/rest-api/v1/projects")
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)));
+	}
+
+	@Test
 	void shouldFindProjectByProjectId() throws Exception {
 		//given
 		final String community = createCommunity();
@@ -140,6 +166,56 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.project.projectLeader.fenixIdentifier", equalTo(ADMIN_USER.getFenixId())))
 				.andExpect(jsonPath("$.userFenixUserIds").value(anyOf(
 						containsInAnyOrder(ADMIN_USER.getFenixId(), projectAdmin.getFenixId()))));
+	}
+
+	@Test
+	void shouldNotBeAbleToShowProjectWhenUserIsJustSiteAdmin() throws Exception {
+		//given
+		final Site.SiteBuilder siteBuilder = defaultSite();
+		final Site site2 = siteBuilder
+				.name("site2")
+				.externalId(new SiteExternalId("s2id"))
+				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.build();
+		final String community = createCommunity();
+		final String project1 = createProject(community);
+		final String project2 = createProject(community);
+		createProjectInstallation(project1, site.getId(), INSTALLED);
+		createProjectInstallation(project2, site.getId(), INSTALLED);
+
+		final TestUser siteAdmin = basicUser();
+		siteAdmin.addSiteAdmin(site.getId());
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1)
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void shouldFindProjectWhenUserIsAlreadyInstalledEvenHeIsNotAProjectAdmin() throws Exception {
+		//given
+		final String community = createCommunity();
+		final String project1 = createProject(community);
+		final String project2 = createProject(community);
+		createProjectInstallation(project1, site.getId(), INSTALLED);
+		createProjectInstallation(project2, site.getId(), INSTALLED);
+		final TestUser siteAdmin = basicUser();
+
+		createUserAddition(project1, site.getId(), siteAdmin);
+		createUserAddition(project2, site.getId(), ADMIN_USER);
+
+		siteAdmin.addSiteAdmin(site.getId());
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1)
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.project.id", equalTo(project1)));
 	}
 
 	@Test

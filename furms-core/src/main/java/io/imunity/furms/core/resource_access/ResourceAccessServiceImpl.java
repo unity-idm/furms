@@ -13,6 +13,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.ProjectAccessUsers;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -35,9 +36,14 @@ import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class ResourceAccessServiceImpl implements ResourceAccessService {
@@ -74,6 +80,21 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<String> findAddedUser(String projectId) {
 		return userRepository.findUserIds(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	public Set<ProjectAccessUsers> findAddedUserBySiteId(String siteId) {
+		return userRepository.findAllUserAdditionsBySiteId(siteId).stream()
+				.collect(groupingBy(userAddition -> userAddition.projectId))
+				.entrySet().stream()
+				.map(entry -> ProjectAccessUsers.builder()
+						.projectId(entry.getKey())
+						.userIds(entry.getValue().stream()
+								.map(userAddition -> userAddition.userId)
+								.collect(toList()))
+						.build())
+				.collect(toSet());
 	}
 
 	@Override

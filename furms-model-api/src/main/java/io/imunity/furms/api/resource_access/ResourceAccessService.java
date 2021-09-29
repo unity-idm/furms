@@ -6,12 +6,14 @@
 package io.imunity.furms.api.resource_access;
 
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.ProjectAccessUsers;
 import io.imunity.furms.domain.resource_access.UserGrant;
 
 import java.util.Set;
 
 public interface ResourceAccessService {
 	Set<String> findAddedUser(String projectId);
+	Set<ProjectAccessUsers> findAddedUserBySiteId(String siteId);
 	Set<UserGrant> findUsersGrants(String projectId);
 	Set<UserGrant> findCurrentUserGrants(String projectId);
 	void grantAccess(GrantAccess grantAccess);
