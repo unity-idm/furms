@@ -5,26 +5,6 @@
 
 package io.imunity.furms.unity.sites;
 
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.client.users.UserService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +19,27 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.client.users.UserService;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 
 class UnitySiteGroupDAOTest {
 
@@ -123,6 +124,7 @@ class UnitySiteGroupDAOTest {
 		unitySiteWebClient.update(site);
 
 		//then
+		verify(unityClient, times(1)).get(eq("/group/%2Ffenix%2Fsites%2F" + site.getId() + "/meta"), eq(Group.class));
 		verify(unityClient, times(1)).put(anyString(), any());
 	}
 
