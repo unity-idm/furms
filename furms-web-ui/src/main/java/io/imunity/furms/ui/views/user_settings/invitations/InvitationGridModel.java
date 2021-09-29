@@ -12,13 +12,15 @@ import java.util.Objects;
 
 class InvitationGridModel {
 	public final InvitationId id;
-	public final String invitationText;
+	public final String resourceName;
+	public final String role;
 	public final String originator;
 	public final LocalDateTime expiration;
 
-	InvitationGridModel(InvitationId id, String invitationText, String originator, LocalDateTime expiration) {
+	InvitationGridModel(InvitationId id, String resourceName, String role, String originator, LocalDateTime expiration) {
 		this.id = id;
-		this.invitationText = invitationText;
+		this.resourceName = resourceName;
+		this.role = role;
 		this.originator = originator;
 		this.expiration = expiration;
 	}
@@ -40,7 +42,7 @@ class InvitationGridModel {
 	public String toString() {
 		return "InvitationGridModel{" +
 			"id=" + id +
-			", invitationText='" + invitationText + '\'' +
+			", invitationText='" + resourceName + '\'' +
 			", originator='" + originator + '\'' +
 			", expiration=" + expiration +
 			'}';

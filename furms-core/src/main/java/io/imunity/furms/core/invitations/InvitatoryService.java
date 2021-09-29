@@ -16,6 +16,7 @@ import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
+import io.imunity.furms.domain.invitations.UpdateInvitationUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
@@ -36,8 +37,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 
 @Service
 public class InvitatoryService {
@@ -73,7 +72,7 @@ public class InvitatoryService {
 			.isPresent();
 	}
 
-	public void inviteUser(PersistentId userId, ResourceId resourceId, Role role) {
+	public void inviteUser(PersistentId userId, ResourceId resourceId, Role role, String resourceName) {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("Could not invite user due to wrong email address."));
 
@@ -92,6 +91,7 @@ public class InvitatoryService {
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
 			.role(role)
+			.resourceName(resourceName)
 			.userId(user.fenixUserId.get())
 			.originator(authzService.getCurrentAuthNUser().email)
 			.email(user.email)
@@ -101,7 +101,7 @@ public class InvitatoryService {
 		invitationRepository.create(invitation);
 		LOG.info("Inviting FENIX admin role to {}", userId);
 		notificationDAO.notifyUserAboutNewRole(user.id.get(), invitation.role);
-		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), new ResourceId((String) null, APP_LEVEL)));
+		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), user.email, resourceId));
 	}
 
 	private boolean isSiteAdminRoleCheckExistingAlsoForSupportRole(ResourceId resourceId, Role role, String email) {
@@ -123,6 +123,8 @@ public class InvitatoryService {
 				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC));
 			else
 				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), invitation.role);
+
+			publisher.publishEvent(new UpdateInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
 	}
 
@@ -133,11 +135,12 @@ public class InvitatoryService {
 			Optional<FURMSUser> furmsUser = usersDAO.getAllUsers().stream()
 				.filter(user -> user.email.equals(invitation.email))
 				.findAny();
-			if(invitation.code.isPresent() && furmsUser.isEmpty()){
+			if(invitation.code.isPresent() && furmsUser.isEmpty())
 				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC), role);
-			}
 			else
 				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), role);
+
+			publisher.publishEvent(new UpdateInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
 	}
 
@@ -146,16 +149,16 @@ public class InvitatoryService {
 			invitationRepository.deleteBy(id);
 			if(invitation.code.isPresent())
 				usersDAO.removeInvitation(invitation.code);
-			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.id, invitation.code));
+			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
 	}
 
-	public void inviteUser(String email, ResourceId resourceId, Role role) {
+	public void inviteUser(String email, ResourceId resourceId, Role role, String resourceName) {
 		Optional<FURMSUser> furmsUser = usersDAO.getAllUsers().stream()
 			.filter(user -> user.email.equals(email))
 			.findAny();
 		if(furmsUser.isPresent()){
-			inviteUser(furmsUser.get().id.get(), resourceId, role);
+			inviteUser(furmsUser.get().id.get(), resourceId, role, resourceName);
 			return;
 		}
 
@@ -173,6 +176,7 @@ public class InvitatoryService {
 			invitationRepository.create(
 				Invitation.builder()
 					.resourceId(resourceId)
+					.resourceName(resourceName)
 					.role(role)
 					.email(email)
 					.originator(authzService.getCurrentAuthNUser().email)

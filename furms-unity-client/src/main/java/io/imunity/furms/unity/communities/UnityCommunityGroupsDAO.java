@@ -21,8 +21,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.*;
-import static io.imunity.furms.unity.common.UnityPaths.*;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_GROUP_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
+import static io.imunity.furms.unity.common.UnityPaths.META;
+import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.isEmpty;
@@ -112,6 +117,14 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
 		return userService.getAllUsersByRole(communityPath, COMMUNITY_ADMIN);
+	}
+
+	@Override
+	public List<FURMSUser> getAllUsers(String communityId) {
+		assertTrue(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
+		return userService.getAllUsersFromGroup(communityPath, attributeExt -> true);
 	}
 
 	@Override

@@ -321,26 +321,33 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_ADMIN);
+		siteRepository.findById(siteId).ifPresent(site ->
+			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, String email) {
-		invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN);
+		siteRepository.findById(siteId).ifPresent(site ->
+			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_SUPPORT);
+		siteRepository.findById(siteId).ifPresent(site ->
+			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, String email) {
-		invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT);
-
+		siteRepository.findById(siteId).ifPresent(site ->
+			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
+		);
 	}
 
 	@Override

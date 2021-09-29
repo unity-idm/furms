@@ -23,6 +23,8 @@ public interface CommunityGroupsDAO {
 
 	List<FURMSUser> getAllAdmins(String id);
 
+	List<FURMSUser> getAllUsers(String id);
+
 	void addAdmin(String communityId, PersistentId userId);
 
 	void removeAdmin(String communityId, PersistentId userId);

@@ -124,9 +124,7 @@ public class NotificationBarComponent extends Button {
 		if(!(furmsEvent instanceof InvitationEvent))
 			return false;
 		InvitationEvent event = (InvitationEvent) furmsEvent;
-		return currentUser.fenixUserId
-			.filter(id -> id.equals(event.getId()))
-			.isPresent();
+		return currentUser.email.equals(event.getEmail());
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {

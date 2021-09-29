@@ -35,8 +35,8 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
-	public Optional<Invitation> findBy(InvitationId id, FenixUserId userId) {
-		return repository.findByIdAndUserId(id.id, userId.id)
+	public Optional<Invitation> findBy(InvitationId id, String email) {
+		return repository.findByIdAndEmail(id.id, email)
 			.map(InvitationEntity::toInvitation);
 	}
 

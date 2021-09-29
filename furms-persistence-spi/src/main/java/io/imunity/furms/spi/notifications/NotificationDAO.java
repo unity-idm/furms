@@ -13,6 +13,8 @@ import io.imunity.furms.domain.users.PersistentId;
 public interface NotificationDAO {
 	void notifyUser(PersistentId id, PolicyDocument policyDocument);
 	void notifyUserAboutNewRole(PersistentId id, Role role);
+	void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail);
+	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
 	void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId fenixUserId, String grantId);
 }

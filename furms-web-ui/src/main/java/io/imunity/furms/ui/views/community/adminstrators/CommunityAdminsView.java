@@ -8,7 +8,6 @@ package io.imunity.furms.ui.views.community.adminstrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -41,15 +40,15 @@ public class CommunityAdminsView extends FurmsViewComponent {
 	private final UsersGridComponent grid;
 	private final String communityId;
 
-	public CommunityAdminsView(CommunityService communityService, AuthzService authzService, UserService userService) {
+	public CommunityAdminsView(CommunityService communityService, AuthzService authzService) {
 		this.communityService = communityService;
 		communityId = getCurrentResourceId();
 		PersistentId currentUserId = authzService.getCurrentUserId();
 
-		Supplier<List<FURMSUser>> fetchUsersAction = () -> communityService.findAllAdmins(communityId);
+		Supplier<List<FURMSUser>> fetchAdminsAction = () -> communityService.findAllAdmins(communityId);
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
-			fetchUsersAction
+			() -> communityService.findAllUsers(communityId),
+			fetchAdminsAction
 		);
 
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
@@ -67,7 +66,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(fetchUsersAction, () -> communityService.findAllInvitations(communityId), userGrid);
+		grid = UsersGridComponent.defaultInit(fetchAdminsAction, () -> communityService.findAllInvitations(communityId), userGrid);
 
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(

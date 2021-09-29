@@ -12,10 +12,12 @@ import java.util.Objects;
 
 public class InvitationAcceptedEvent implements InvitationEvent {
 	public final FenixUserId id;
+	public final String email;
 	public final ResourceId resourceId;
 
-	public InvitationAcceptedEvent(FenixUserId id, ResourceId resourceId) {
+	public InvitationAcceptedEvent(FenixUserId id, String email, ResourceId resourceId) {
 		this.id = id;
+		this.email = email;
 		this.resourceId = resourceId;
 	}
 
@@ -25,17 +27,23 @@ public class InvitationAcceptedEvent implements InvitationEvent {
 	}
 
 	@Override
+	public String getEmail() {
+		return email;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		InvitationAcceptedEvent userEvent = (InvitationAcceptedEvent) o;
 		return Objects.equals(id, userEvent.id) &&
+			Objects.equals(email, userEvent.email) &&
 			Objects.equals(resourceId, userEvent.resourceId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, resourceId);
+		return Objects.hash(id, resourceId, email);
 	}
 
 	@Override
@@ -43,6 +51,7 @@ public class InvitationAcceptedEvent implements InvitationEvent {
 		return "InviteUserEvent{" +
 			"id='" + id + '\'' +
 			", resourceId=" + resourceId +
+			", email=" + email +
 			'}';
 	}
 }

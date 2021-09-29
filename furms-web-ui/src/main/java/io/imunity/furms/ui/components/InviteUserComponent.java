@@ -72,6 +72,7 @@ public class InviteUserComponent extends HorizontalLayout {
 
 	public void reload() {
 		furmsUserComboBox.clear();
+		furmsUserComboBox.clearCustomValue(inviteButton);
 		List<FurmsViewUserModel> availableUsers = getAvailableUsers();
 		furmsUserComboBox.setItems(availableUsers);
 	}

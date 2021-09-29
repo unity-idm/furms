@@ -14,6 +14,8 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.PageTitle;
@@ -23,7 +25,10 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
@@ -34,6 +39,8 @@ import static java.util.function.Function.identity;
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.community.page.title")
 public class CommunityView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final CommunityService communityService;
 	private final UserService userService;
 
@@ -48,6 +55,8 @@ public class CommunityView extends FurmsViewComponent {
 
 	private Div page1;
 	private Div page2;
+
+	private UsersGridComponent grid;
 
 	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService, CommunityAllocationService allocationService) {
 		this.communityService = communityService;
@@ -110,18 +119,30 @@ public class CommunityView extends FurmsViewComponent {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			})
+			.withRemoveInvitationAction(invitationId -> {
+				communityService.removeInvitation(communityId, invitationId);
+				gridReload();
+			})
+			.withResendInvitationAction(invitationId -> {
+				communityService.resendInvitation(communityId, invitationId);
+				gridReload();
+			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		UsersGridComponent grid = UsersGridComponent.defaultInit(() -> communityService.findAllAdmins(communityId), Set::of, userGrid);
+		grid = UsersGridComponent.defaultInit(
+			() -> communityService.findAllAdmins(communityId),
+			() -> communityService.findAllInvitations(communityId),
+			userGrid
+		);
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
-			grid.reloadGrid();
+			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (communityService.findAllAdmins(communityId).size() > 1) {
 				handleExceptions(() -> communityService.removeAdmin(communityId, currentUserId));
-				grid.reloadGrid();
+				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
@@ -132,13 +153,31 @@ public class CommunityView extends FurmsViewComponent {
 			getTranslation("view.fenix-admin.community.page.header", communityName),
 			membershipLayout
 		);
-		inviteUser.addInviteAction(event -> {
-			communityService.inviteAdmin(communityId, inviteUser.getUserId().orElse(null));
-			grid.reloadGrid();
+		inviteUser.addInviteAction(event -> doInviteAction(communityId, inviteUser, membershipLayout));
+		page1.add(headerLayout, inviteUser, grid);
+	}
+
+	private void doInviteAction(String communityId, InviteUserComponent inviteUser, MembershipChangerComponent membershipLayout) {
+		try {
+			inviteUser.getUserId().ifPresentOrElse(
+				id -> communityService.inviteAdmin(communityId, id),
+				() -> communityService.inviteAdmin(communityId, inviteUser.getEmail())
+			);
+			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
-		});
-		page1.add(headerLayout, inviteUser, grid);
+		} catch (DuplicatedInvitationError e) {
+			showErrorNotification(getTranslation("invite.error.duplicate"));
+		} catch (UserAlreadyHasRoleError e) {
+			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (RuntimeException e) {
+			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
+			LOG.error("Could not invite Site Administrator. ", e);
+		}
+	}
+
+	private void gridReload() {
+		grid.reloadGrid();
 	}
 
 	@Override

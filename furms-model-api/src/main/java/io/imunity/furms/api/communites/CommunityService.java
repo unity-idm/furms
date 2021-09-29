@@ -32,6 +32,8 @@ public interface CommunityService {
 
 	List<FURMSUser> findAllAdmins(String communityId);
 
+	List<FURMSUser> findAllUsers(String communityId);
+
 	Set<Invitation> findAllInvitations(String communityId);
 
 	void inviteAdmin(String communityId, PersistentId userId);

@@ -5,20 +5,19 @@
 
 package io.imunity.furms.domain.invitations;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class InviteUserEvent implements InvitationEvent {
+public class UpdateInvitationUserEvent implements InvitationEvent {
 	public final FenixUserId id;
 	public final String email;
-	public final ResourceId resourceId;
+	public final InvitationId invitationId;
 
-	public InviteUserEvent(FenixUserId id, String email, ResourceId resourceId) {
+	public UpdateInvitationUserEvent(FenixUserId id, String email, InvitationId invitationId) {
 		this.id = id;
 		this.email = email;
-		this.resourceId = resourceId;
+		this.invitationId = invitationId;
 	}
 
 	@Override
@@ -35,21 +34,23 @@ public class InviteUserEvent implements InvitationEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		InviteUserEvent userEvent = (InviteUserEvent) o;
+		UpdateInvitationUserEvent userEvent = (UpdateInvitationUserEvent) o;
 		return Objects.equals(id, userEvent.id) &&
-			Objects.equals(resourceId, userEvent.resourceId);
+			Objects.equals(email, userEvent.email) &&
+			Objects.equals(invitationId, userEvent.invitationId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, resourceId);
+		return Objects.hash(id, invitationId, email);
 	}
 
 	@Override
 	public String toString() {
 		return "InviteUserEvent{" +
 			"id='" + id + '\'' +
-			", resourceId=" + resourceId +
+			", invitationId=" + invitationId +
+			", email=" + email +
 			'}';
 	}
 }

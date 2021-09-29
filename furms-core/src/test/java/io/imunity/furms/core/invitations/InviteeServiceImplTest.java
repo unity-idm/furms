@@ -20,6 +20,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -63,6 +64,8 @@ class InviteeServiceImplTest {
 	@Mock
 	private FenixUsersDAO fenixUsersDAO;
 	@Mock
+	private NotificationDAO notificationDAO;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private InviteeServiceImpl invitationService;
@@ -75,9 +78,9 @@ class InviteeServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		invitationService = new InviteeServiceImpl(
 			invitationRepository, authzService, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO,
-			projectRepository, publisher, fenixUsersDAO
+			projectRepository, publisher, fenixUsersDAO, notificationDAO
 		);
-		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher, fenixUsersDAO);
+		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher, fenixUsersDAO, notificationDAO);
 	}
 
 	@Test
@@ -101,7 +104,13 @@ class InviteeServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
+		PersistentId originatorId = new PersistentId("originatorId");
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
 
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
@@ -109,7 +118,8 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(fenixUsersDAO).addFenixAdminRole(persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, invitation.resourceId));
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.FENIX_ADMIN, "email");
+		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
 
@@ -135,7 +145,13 @@ class InviteeServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
+		PersistentId originatorId = new PersistentId("originatorId");
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
 
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
@@ -143,7 +159,8 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(siteGroupDAO).addSiteUser(resourceId.id.toString(), persistentId, Role.SITE_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, invitation.resourceId));
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
+		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
 
@@ -169,7 +186,13 @@ class InviteeServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
+		PersistentId originatorId = new PersistentId("originatorId");
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
 
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 
@@ -177,7 +200,8 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(communityGroupsDAO).addAdmin(resourceId.id.toString(), persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, invitation.resourceId));
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
+		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
 
@@ -204,6 +228,13 @@ class InviteeServiceImplTest {
 			.email("email")
 			.build();
 
+		PersistentId originatorId = new PersistentId("originatorId");
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
+
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
 		when(projectRepository.findById(resourceId.id.toString())).thenReturn(Optional.of(Project.builder()
@@ -214,7 +245,8 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(projectGroupsDAO).addProjectUser("communityId", resourceId.id.toString(), persistentId, Role.PROJECT_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, invitation.resourceId));
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.PROJECT_ADMIN, "email");
+		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
 
@@ -244,18 +276,29 @@ class InviteeServiceImplTest {
 			.fenixUserId(userId)
 			.email("email")
 			.build();
+		PersistentId originatorId = new PersistentId("originatorId");
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
+			.role(Role.SITE_ADMIN)
+			.email("email")
+			.originator("originator")
+			.resourceId(new ResourceId(UUID.randomUUID(), SITE))
 			.userId(userId)
 			.build();
 
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
-		when(invitationRepository.findBy(invitationId, userId)).thenReturn(Optional.of(invitation));
+		when(invitationRepository.findBy(invitationId, "email")).thenReturn(Optional.of(invitation));
 
 		invitationService.removeBy(invitationId);
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(publisher).publishEvent(new RemoveInvitationUserEvent(user.fenixUserId.get(), invitationId, InvitationCode.empty()));
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleRejection(originatorId, Role.SITE_ADMIN, "email");
+		orderVerifier.verify(publisher).publishEvent(new RemoveInvitationUserEvent(user.fenixUserId.get(), invitation.email, invitationId));
 	}
 
 	@Test
@@ -263,24 +306,33 @@ class InviteeServiceImplTest {
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		InvitationCode invitationCode = new InvitationCode("code");
 		PersistentId persistentId = new PersistentId("id");
+		PersistentId originatorId = new PersistentId("originatorId");
 		FenixUserId userId = new FenixUserId("userId");
 		FURMSUser user = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(userId)
 			.email("email")
 			.build();
+		FURMSUser originatorUser = FURMSUser.builder()
+			.id(originatorId)
+			.email("originator")
+			.build();
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
 			.email("email")
+			.role(Role.SITE_ADMIN)
+			.originator("originator")
+			.resourceId(new ResourceId(UUID.randomUUID(), SITE))
 			.code(invitationCode)
 			.build();
 
-		when(usersDAO.getAllUsers()).thenReturn(List.of(user));
+		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(usersDAO.findByRegistrationId("registrationId")).thenReturn(invitationCode);
 		when(invitationRepository.findBy(invitationCode)).thenReturn(Optional.of(invitation));
 
 		invitationService.acceptInvitationByRegistration("registrationId");
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationCode);
+		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 	}
 }

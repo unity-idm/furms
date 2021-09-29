@@ -132,6 +132,7 @@ class InvitatoryServiceTest {
 			.resourceId(resourceId)
 			.role(role)
 			.userId(furmsUser.fenixUserId.get())
+			.resourceName("system")
 			.originator("originator")
 			.email(furmsUser.email)
 			.utcExpiredAt(getExpiredAt())
@@ -145,7 +146,7 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		invitatoryService.inviteUser(persistentId, resourceId, role);
+		invitatoryService.inviteUser(persistentId, resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
 		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
@@ -177,7 +178,7 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role));
+		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
 
 	}
 
@@ -197,6 +198,7 @@ class InvitatoryServiceTest {
 			.role(role)
 			.userId(furmsUser.fenixUserId.get())
 			.originator("originator")
+			.resourceName("system")
 			.email(furmsUser.email)
 			.utcExpiredAt(getExpiredAt())
 			.build();
@@ -210,7 +212,7 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		invitatoryService.inviteUser("email", resourceId, role);
+		invitatoryService.inviteUser("email", resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
 		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
@@ -231,6 +233,7 @@ class InvitatoryServiceTest {
 			.resourceId(resourceId)
 			.role(role)
 			.code(code)
+			.resourceName("system")
 			.originator("originator")
 			.email(furmsUser.email)
 			.utcExpiredAt(getExpiredAt())
@@ -244,7 +247,7 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		invitatoryService.inviteUser("email", resourceId, role);
+		invitatoryService.inviteUser("email", resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
 		verify(usersDAO).inviteUser(resourceId, role,"email", getExpiredAt().toInstant(ZoneOffset.UTC));
@@ -275,7 +278,7 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email", resourceId, role));
+		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"));
 	}
 
 	@Test
@@ -293,6 +296,7 @@ class InvitatoryServiceTest {
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
 			.role(role)
+			.resourceName("system")
 			.code(invitationCode)
 			.originator("originator")
 			.email(furmsUser.email)
@@ -308,7 +312,7 @@ class InvitatoryServiceTest {
 		);
 		when(invitationRepository.create(invitation)).thenThrow(new RuntimeException());
 
-		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email", resourceId, role));
+		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"));
 
 		verify(usersDAO).removeInvitation(invitationCode);
 	}

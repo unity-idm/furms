@@ -66,8 +66,6 @@ public interface ProjectService {
 
 	List<FURMSUser> findAllUsers(String communityId, String projectId);
 
-	List<FURMSUser> findAllUsers(String communityId);
-
 	boolean isUser(String projectId);
 
 	void addUser(String communityId, String projectId, PersistentId userId);

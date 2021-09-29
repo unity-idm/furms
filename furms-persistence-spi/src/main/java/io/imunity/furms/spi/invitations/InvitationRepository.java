@@ -22,7 +22,7 @@ public interface InvitationRepository {
 
 	Optional<Invitation> findBy(InvitationId id);
 
-	Optional<Invitation> findBy(InvitationId id, FenixUserId userId);
+	Optional<Invitation> findBy(InvitationId id, String email);
 
 	Optional<Invitation> findBy(InvitationCode code);
 
