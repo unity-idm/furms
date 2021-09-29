@@ -5,6 +5,22 @@
 
 package io.imunity.furms.ui.views.user_settings.policy_documents;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+
+import java.io.ByteArrayInputStream;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.UUID;
+
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -19,36 +35,21 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-
-import java.io.ByteArrayInputStream;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.UUID;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
@@ -63,7 +64,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		this.policyDocumentService = service;
 		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		ViewHeaderLayout layout = new ViewHeaderLayout(getTranslation("view.user-settings.policy-documents.page.title"));
-		this.grid = new SparseGrid<>(PolicyDocumentExtended.class);
+		this.grid = new DenseGrid<>(PolicyDocumentExtended.class);
 		grid.addComponentColumn(this::getTooltipName)
 			.setHeader(getTranslation("view.user-settings.policy-documents.grid.1"))
 			.setSortable(true);

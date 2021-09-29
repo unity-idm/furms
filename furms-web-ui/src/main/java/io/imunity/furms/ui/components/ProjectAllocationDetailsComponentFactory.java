@@ -5,13 +5,8 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.dom.Element;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
-import io.imunity.furms.domain.resource_types.AmountWithUnit;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.ui.user_context.UIContext;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -21,8 +16,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.dom.Element;
+
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.user_context.UIContext;
 
 public class ProjectAllocationDetailsComponentFactory {
 	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -75,7 +77,7 @@ public class ProjectAllocationDetailsComponentFactory {
 			tbody.appendChild(row);
 		}
 		tableElement.appendChild(thead, tbody);
-		Div div = new Div();
+		Div div = new AllocationDetails();
 		div.getElement().appendChild(tableElement);
 		return div;
 	}
@@ -101,6 +103,15 @@ public class ProjectAllocationDetailsComponentFactory {
 	private static class Tbody extends Element {
 		public Tbody() {
 			super("tbody");
+		}
+	}
+	
+	@CssImport(value = "./styles/components/allocation-details.css")
+	private static class AllocationDetails extends Div
+	{
+		AllocationDetails() {
+			super();
+			this.addClassName("allocation-details");
 		}
 	}
 }

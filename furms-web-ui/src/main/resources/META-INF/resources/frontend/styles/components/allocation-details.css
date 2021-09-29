@@ -1,0 +1,4 @@
+div.allocation-details {
+	padding-left: var(--lumo-space-m);
+	font-size: var(--lumo-font-size-xxs);
+}

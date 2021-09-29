@@ -5,6 +5,9 @@
 
 package io.imunity.furms.integration.tests.rest.community;
 
+import io.imunity.furms.domain.generic_groups.GenericGroup;
+import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
+import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.PersistentId;
@@ -14,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,8 +39,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -321,6 +328,95 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
+	void shouldFindGroups() throws Exception {
+		//given
+		String community = createCommunity();
+		String group1 = createGroup(community);
+		String group2 = createGroup(community);
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups", community))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", hasSize(2)))
+			.andExpect(jsonPath("$.[0].id", in(Set.of(group1, group2))))
+			.andExpect(jsonPath("$.[0].name", equalTo("name")))
+			.andExpect(jsonPath("$.[0].description", equalTo("description")))
+			.andExpect(jsonPath("$.[1].id", in(Set.of(group1, group2))))
+			.andExpect(jsonPath("$.[1].name", equalTo("name")))
+			.andExpect(jsonPath("$.[1].description", equalTo("description")));
+	}
+
+	@Test
+	void shouldFindGroupWithMembers() throws Exception {
+		//given
+		String community = createCommunity();
+		String group = createGroup(community);
+		createGroupMember(group, communityAdmin.getFenixId());
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id", equalTo(group)))
+			.andExpect(jsonPath("$.name", equalTo("name")))
+			.andExpect(jsonPath("$.description", equalTo("description")))
+			.andExpect(jsonPath("$.memberFenixUserIds", equalTo(List.of(communityAdmin.getFenixId()))));
+	}
+
+	@Test
+	void shouldAddGenericGroupToCommunity() throws Exception {
+		//given
+		String community = createCommunity();
+
+		GroupDefinitionRequest request = new GroupDefinitionRequest("name", "description");
+
+		//when
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/groups", community)
+			.contentType(APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(request))
+			.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id", notNullValue()))
+			.andExpect(jsonPath("$.name", equalTo(request.name)))
+			.andExpect(jsonPath("$.description", equalTo(request.description)));
+	}
+
+	@Test
+	void shouldDeleteGenericGroupToCommunity() throws Exception {
+		//given
+		String community = createCommunity();
+		String group = createGroup(community);
+
+		//when
+		mockMvc.perform(delete("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group)
+			.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isOk());
+	}
+
+	@Test
+	void shouldUpdateGenericGroupToCommunity() throws Exception {
+		//given
+		String community = createCommunity();
+		String group = createGroup(community);
+
+		GroupDefinitionRequest request = new GroupDefinitionRequest("name2", "description2");
+
+		//when
+		mockMvc.perform(put("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group)
+			.contentType(APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(request))
+			.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id", equalTo(group)))
+			.andExpect(jsonPath("$.name", equalTo(request.name)))
+			.andExpect(jsonPath("$.description", equalTo(request.description)));
+	}
+
+	@Test
 	void shouldNotAllowToAddCommunityAllocationToCommunityDueToLackOfCorrectRights() throws Exception {
 		//given
 		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
@@ -384,6 +480,26 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
+	private String createGroup(String communityId) {
+		return genericGroupRepository.create(
+			GenericGroup.builder()
+				.name("name")
+				.communityId(communityId)
+				.description("description")
+				.build()
+		).id.toString();
+	}
+
+	private String createGroupMember(String genericGroupId, String userId) {
+		return genericGroupRepository.create(
+			GenericGroupAssignment.builder()
+				.fenixUserId(userId)
+				.genericGroupId(new GenericGroupId(genericGroupId))
+				.utcMemberSince(LocalDate.now().atStartOfDay())
+				.build()
+		).id.toString();
+	}
+
 	private String createProject(String communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
@@ -433,5 +549,16 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 			this.name = name;
 			this.amount = amount;
 		}
+	}
+
+	private static class GroupDefinitionRequest {
+		public final String name;
+		public final String description;
+
+		public GroupDefinitionRequest(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+
 	}
 }

@@ -5,6 +5,15 @@
 
 package io.imunity.furms.ui.components.administrators;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -24,6 +33,7 @@ import java.util.function.Supplier;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import io.imunity.furms.ui.components.DenseGrid;
 
 public class UserGrid {
 	private final Grid<UserGridItem> grid;
@@ -55,7 +65,7 @@ public class UserGrid {
 	}
 
 	public static final class Builder {
-		private final Grid<UserGridItem> grid = new SparseGrid<>(UserGridItem.class);
+		private final Grid<UserGridItem> grid = new DenseGrid<>(UserGridItem.class);
 		private Supplier<List<UserGridItem>> fetchUsersAction;
 
 		private Builder() {

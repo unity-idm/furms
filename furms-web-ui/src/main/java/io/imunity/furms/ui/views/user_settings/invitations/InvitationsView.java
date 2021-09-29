@@ -5,28 +5,10 @@
 
 package io.imunity.furms.ui.views.user_settings.invitations;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.invitations.InviteeService;
-import io.imunity.furms.api.validation.exceptions.InvitationNotExistError;
-import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsViewComponent;
-import io.imunity.furms.ui.components.GridActionMenu;
-import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
-import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.user_context.UIContext;
-import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.CLOSE_CIRCLE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.lang.invoke.MethodHandles;
 import java.time.ZoneId;
@@ -37,10 +19,30 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.CLOSE_CIRCLE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.api.invitations.InviteeService;
+import io.imunity.furms.api.validation.exceptions.InvitationNotExistError;
+import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.user_context.UIContext;
+import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 @Route(value = "users/settings/invitations", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.invitations.page.title")
@@ -97,7 +99,7 @@ public class InvitationsView extends FurmsViewComponent {
 
 	private Grid<InvitationGridModel> createInvitationGrid(Map<InvitationId, Checkbox> checkboxes, Component mainContextMenu) {
 		final Grid<InvitationGridModel> grid;
-		grid = new SparseGrid<>(InvitationGridModel.class);
+		grid = new DenseGrid<>(InvitationGridModel.class);
 
 		grid.addComponentColumn(invitationGridModel -> {
 			Checkbox checkbox = new Checkbox();

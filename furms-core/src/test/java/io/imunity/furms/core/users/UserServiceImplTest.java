@@ -15,6 +15,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
 import io.imunity.furms.domain.users.UserRecord;
+import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +43,8 @@ class UserServiceImplTest {
 	private UsersDAO usersDAO;
 	@Mock
 	private UserAllocationsService userAllocationsService;
+	@Mock
+	private GenericGroupRepository genericGroupRepository;
 
 	@Test
 	void shouldGetCompleteUserInformation() {

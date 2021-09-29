@@ -44,7 +44,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -68,6 +67,7 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+import io.imunity.furms.ui.views.project.resource_access.DenseTreeGrid;
 import io.imunity.furms.utils.UTCTimeUtils;
 
 @Route(value = "community/admin/projects", layout = CommunityAdminMenu.class)
@@ -101,7 +101,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private TreeGrid<ProjectViewGridModel> createCommunityGrid() {
-		TreeGrid<ProjectViewGridModel> grid = new TreeGrid<>();
+		TreeGrid<ProjectViewGridModel> grid = new DenseTreeGrid<>();
 
 		grid.addComponentHierarchyColumn(this::createNameComponent)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
@@ -119,10 +119,6 @@ public class ProjectsView extends FurmsViewComponent {
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.5"))
 			.setTextAlign(ColumnTextAlign.END);
-
-		grid.setHeightByRows(true);
-		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-		grid.addClassName("sparse-grid");
 
 		return grid;
 	}
