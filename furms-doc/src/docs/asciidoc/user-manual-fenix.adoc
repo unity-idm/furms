@@ -16,6 +16,7 @@ NOTE: Site administrators can also themselves manage administrators of their sit
 
 include::snippets/invite-admin-generic.adoc[]
 
+
 === Managing communities
 
 Fenix admin can create communities providing site name, description and logo. Community settings can be also changed subsequently by community admins and therefore only the name of a created community is mandatory.

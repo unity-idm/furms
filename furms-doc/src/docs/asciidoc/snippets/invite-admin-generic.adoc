@@ -1,1 +1,1 @@
-A new administrator can be invited either by selecting one of existing FURMS users or by providing an email address. In the latter case the invited person must have a Fenix infrastructure account. 
+A new administrator can be invited either by selecting one of existing FURMS users or by providing an email address. In the latter case the invited person must have a Fenix infrastructure account. The invited user needs to accept the invitation to a new role. 
