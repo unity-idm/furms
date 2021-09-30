@@ -5,13 +5,12 @@
 
 package io.imunity.furms.core.generic_groups;
 
-import io.imunity.furms.api.validation.exceptions.GroupNotBelongToCommunityError;
+import io.imunity.furms.api.validation.exceptions.GroupNotBelongingToCommunityException;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentId;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
 import io.imunity.furms.domain.generic_groups.GenericGroupCreateEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupRemoveEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupUpdateEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -25,7 +24,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +40,8 @@ import static org.mockito.Mockito.when;
 
 class GenericGroupServiceImplTest {
 
+	private final static Instant LOCAL_DATE = Instant.now();
+
 	@Mock
 	private GenericGroupRepository genericGroupRepository;
 	@Mock
@@ -44,12 +49,15 @@ class GenericGroupServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 
+	private Clock fixedClock;
+
 	private GenericGroupServiceImpl genericGroupService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
-		genericGroupService = new GenericGroupServiceImpl(genericGroupRepository, usersDAO, publisher);
+		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
+		genericGroupService = new GenericGroupServiceImpl(genericGroupRepository, usersDAO, fixedClock, publisher);
 	}
 
 	@Test
@@ -79,7 +87,7 @@ class GenericGroupServiceImplTest {
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(false);
 
-		assertThrows(GroupNotBelongToCommunityError.class, () -> genericGroupService.findBy("communityId2", genericGroupId));
+		assertThrows(GroupNotBelongingToCommunityException.class, () -> genericGroupService.findBy("communityId2", genericGroupId));
 	}
 
 	@Test
@@ -95,20 +103,20 @@ class GenericGroupServiceImplTest {
 			.email("email")
 			.fenixUserId(new FenixUserId("userId"))
 			.build();
-		GenericGroupAssignment genericGroupAssignment = GenericGroupAssignment.builder()
+		GenericGroupMembership genericGroupMembership = GenericGroupMembership.builder()
 			.genericGroupId(genericGroupId)
 			.fenixUserId("userId")
 			.build();
 
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
-		when(genericGroupRepository.findAllBy(genericGroupId)).thenReturn(Set.of(genericGroupAssignment));
+		when(genericGroupRepository.findAllBy(genericGroupId)).thenReturn(Set.of(genericGroupMembership));
 		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
 
 		Set<GenericGroupAssignmentWithUser> genericGroupServiceAll = genericGroupService.findAll("communityId", genericGroupId);
 		assertEquals(1, genericGroupServiceAll.size());
 		GenericGroupAssignmentWithUser next = genericGroupServiceAll.iterator().next();
 		assertEquals(furmsUser, next.furmsUser);
-		assertEquals(genericGroupAssignment, next.assignment);
+		assertEquals(genericGroupMembership, next.membership);
 	}
 
 	@Test
@@ -131,20 +139,19 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void shouldCreateAssignment() {
-		GenericGroupAssignmentId genericGroupAssignmentId1 = new GenericGroupAssignmentId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
-		GenericGroupAssignment genericGroupAssignment = GenericGroupAssignment.builder()
-			.fenixUserId("fenixUserId")
-			.genericGroupId(genericGroupId)
-			.utcMemberSince(LocalDate.now().atStartOfDay())
-			.build();
+		FenixUserId userId = new FenixUserId("fenixUserId");
 
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
-		when(genericGroupRepository.create(genericGroupAssignment)).thenReturn(genericGroupAssignmentId1);
 
-		GenericGroupAssignmentId genericGroupAssignmentId = genericGroupService.create("communityId", genericGroupAssignment);
+		genericGroupService.createMembership("communityId", genericGroupId, userId);
 
-		assertEquals(genericGroupAssignmentId1, genericGroupAssignmentId);
+		verify(genericGroupRepository).createMembership(GenericGroupMembership.builder()
+			.genericGroupId(genericGroupId)
+			.fenixUserId(userId)
+			.utcMemberSince(ZonedDateTime.now(fixedClock).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())
+			.build()
+		);
 	}
 
 	@Test
@@ -171,7 +178,6 @@ class GenericGroupServiceImplTest {
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
 		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
 
-
 		genericGroupService.delete("communityId", groupId);
 
 		verify(genericGroupRepository).delete(groupId);
@@ -180,11 +186,13 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void deleteGenericGroupAssignment() {
-		GenericGroupAssignmentId assignmentId = new GenericGroupAssignmentId(UUID.randomUUID());
-		when(genericGroupRepository.existsBy("communityId", assignmentId)).thenReturn(true);
+		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
+		FenixUserId userId = new FenixUserId("userId");
 
-		genericGroupService.delete("communityId", assignmentId);
+		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
 
-		verify(genericGroupRepository).delete(assignmentId);
+		genericGroupService.deleteMembership("communityId", groupId, userId);
+
+		verify(genericGroupRepository).deleteMembership(groupId, userId);
 	}
 }

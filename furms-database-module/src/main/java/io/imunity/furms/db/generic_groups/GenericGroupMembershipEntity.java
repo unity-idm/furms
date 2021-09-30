@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("generic_group_assignment")
-class GenericGroupAssignmentEntity extends UUIDIdentifiable {
+@Table("generic_group_membership")
+class GenericGroupMembershipEntity extends UUIDIdentifiable {
 	public final UUID genericGroupId;
 	public final String userId;
 	public final LocalDateTime memberSince;
 
-	GenericGroupAssignmentEntity(UUID id, UUID genericGroupId, String userId, LocalDateTime memberSince) {
+	GenericGroupMembershipEntity(UUID id, UUID genericGroupId, String userId, LocalDateTime memberSince) {
 		this.id = id;
 		this.genericGroupId = genericGroupId;
 		this.userId = userId;
@@ -29,7 +29,7 @@ class GenericGroupAssignmentEntity extends UUIDIdentifiable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		GenericGroupAssignmentEntity that = (GenericGroupAssignmentEntity) o;
+		GenericGroupMembershipEntity that = (GenericGroupMembershipEntity) o;
 		return Objects.equals(genericGroupId, that.genericGroupId) && Objects.equals(userId, that.userId) && Objects.equals(memberSince, that.memberSince);
 	}
 
@@ -81,8 +81,8 @@ class GenericGroupAssignmentEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public GenericGroupAssignmentEntity build() {
-			return new GenericGroupAssignmentEntity(id, genericGroupId, userId, memberSince);
+		public GenericGroupMembershipEntity build() {
+			return new GenericGroupMembershipEntity(id, genericGroupId, userId, memberSince);
 		}
 	}
 }

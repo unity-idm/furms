@@ -6,6 +6,7 @@
 package io.imunity.furms.core.users;
 
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
@@ -71,9 +72,15 @@ class UserServiceImplTest {
 						ACCEPTED, Instant.now())),
 				Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))));
 
+		Set<GroupAccess> userGroupsAccesses = Set.of(
+			new GroupAccess("communityId", Set.of("group", "group1")),
+			new GroupAccess("communityId1", Set.of("group", "group1"))
+		);
+
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);
 		when(usersDAO.findById(fid)).thenReturn(Optional.of(furmsUser));
 		when(userAllocationsService.findUserSitesInstallations(pid)).thenReturn(siteUser);
+		when(genericGroupRepository.findAllBy(fid)).thenReturn(userGroupsAccesses);
 
 		// when
 		UserRecord userRecord = service.getUserRecord(new FenixUserId("id"));
@@ -81,5 +88,6 @@ class UserServiceImplTest {
 		// then
 		assertThat(userRecord.user).isEqualTo(furmsUser);
 		assertThat(userRecord.siteInstallations).containsAll(siteUser);
+		assertThat(userRecord.groupAccesses).containsAll(userGroupsAccesses);
 	}
 }

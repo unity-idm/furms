@@ -10,11 +10,11 @@ import java.util.Set;
 
 public class GenericGroupWithAssignments {
 	public final GenericGroup group;
-	public final Set<GenericGroupAssignment> assignments;
+	public final Set<GenericGroupMembership> memberships;
 
-	public GenericGroupWithAssignments(GenericGroup group, Set<GenericGroupAssignment> assignments) {
+	public GenericGroupWithAssignments(GenericGroup group, Set<GenericGroupMembership> memberships) {
 		this.group = group;
-		this.assignments = assignments;
+		this.memberships = memberships;
 	}
 
 	@Override
@@ -22,19 +22,19 @@ public class GenericGroupWithAssignments {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		GenericGroupWithAssignments that = (GenericGroupWithAssignments) o;
-		return Objects.equals(group, that.group) && Objects.equals(assignments, that.assignments);
+		return Objects.equals(group, that.group) && Objects.equals(memberships, that.memberships);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(group, assignments);
+		return Objects.hash(group, memberships);
 	}
 
 	@Override
 	public String toString() {
 		return "GenericGroupWithAssignments{" +
 			"group=" + group +
-			", assignments=" + assignments +
+			", assignments=" + memberships +
 			'}';
 	}
 }

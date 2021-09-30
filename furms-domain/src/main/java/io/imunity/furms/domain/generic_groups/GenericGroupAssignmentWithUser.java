@@ -11,11 +11,11 @@ import java.util.Objects;
 
 public class GenericGroupAssignmentWithUser {
 	public final FURMSUser furmsUser;
-	public final GenericGroupAssignment assignment;
+	public final GenericGroupMembership membership;
 
-	public GenericGroupAssignmentWithUser(FURMSUser furmsUser, GenericGroupAssignment assignment) {
+	public GenericGroupAssignmentWithUser(FURMSUser furmsUser, GenericGroupMembership membership) {
 		this.furmsUser = furmsUser;
-		this.assignment = assignment;
+		this.membership = membership;
 	}
 
 	@Override
@@ -23,19 +23,19 @@ public class GenericGroupAssignmentWithUser {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		GenericGroupAssignmentWithUser that = (GenericGroupAssignmentWithUser) o;
-		return Objects.equals(furmsUser, that.furmsUser) && Objects.equals(assignment, that.assignment);
+		return Objects.equals(furmsUser, that.furmsUser) && Objects.equals(membership, that.membership);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(furmsUser, assignment);
+		return Objects.hash(furmsUser, membership);
 	}
 
 	@Override
 	public String toString() {
 		return "GenericGroupAssignmentWithUser{" +
 			"furmsUser=" + furmsUser +
-			", assignment=" + assignment +
+			", assignment=" + membership +
 			'}';
 	}
 }

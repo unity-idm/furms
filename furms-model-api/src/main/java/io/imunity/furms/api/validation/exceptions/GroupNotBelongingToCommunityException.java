@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class GroupNotBelongToCommunityError extends IllegalArgumentException {
+public class GroupNotBelongingToCommunityException extends IllegalArgumentException {
 
-	public GroupNotBelongToCommunityError(String s) {
+	public GroupNotBelongingToCommunityException(String s) {
 		super(s);
 	}
 }
