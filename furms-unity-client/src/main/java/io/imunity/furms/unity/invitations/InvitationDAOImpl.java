@@ -5,23 +5,24 @@
 
 package io.imunity.furms.unity.invitations;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.unity.client.UnityClient;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 
 @Service
 class InvitationDAOImpl implements InvitationDAO {
@@ -47,12 +48,18 @@ class InvitationDAOImpl implements InvitationDAO {
 	}
 
 	private void addGroupAndAttributes(Role role, String group, RegistrationInvitationParam registrationInvitationParam) {
-		registrationInvitationParam.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection(group), PrefilledEntryMode.HIDDEN));
-		registrationInvitationParam.getAttributes().put(0, new PrefilledEntry<>(new Attribute(role.unityRoleAttribute, "enumeration", group, List.of(role.unityRoleValue)), PrefilledEntryMode.HIDDEN));
+		registrationInvitationParam
+			.getFormPrefill()
+			.getGroupSelections()
+			.put(0, new PrefilledEntry<>(new GroupSelection(group), PrefilledEntryMode.HIDDEN));
+		registrationInvitationParam
+			.getFormPrefill()
+			.getAttributes()
+			.put(0, new PrefilledEntry<>(new Attribute(role.unityRoleAttribute, "enumeration", group, List.of(role.unityRoleValue)), PrefilledEntryMode.HIDDEN));
 	}
 
 	private void addMessageParameters(Role role, RegistrationInvitationParam registrationInvitationParam) {
-		registrationInvitationParam.getMessageParams().put("custom.role", role.toString().toLowerCase().replace("_", " "));
+		registrationInvitationParam.getFormPrefill().getMessageParams().put("custom.role", role.toString().toLowerCase().replace("_", " "));
 	}
 
 	@Override
