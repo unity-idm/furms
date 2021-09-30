@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.domain.users;
 
+import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.sites.SiteUser;
 
 import java.util.Objects;
@@ -12,10 +13,12 @@ import java.util.Set;
 public class UserRecord {
 	public final FURMSUser user;
 	public final Set<SiteUser> siteInstallations;
+	public final Set<GroupAccess> groupAccesses;
 
-	public UserRecord(FURMSUser user, Set<SiteUser> siteInstallations) {
+	public UserRecord(FURMSUser user, Set<SiteUser> siteInstallations, Set<GroupAccess> groupAccesses) {
 		this.user = user;
 		this.siteInstallations = siteInstallations;
+		this.groupAccesses = groupAccesses;
 	}
 
 	@Override

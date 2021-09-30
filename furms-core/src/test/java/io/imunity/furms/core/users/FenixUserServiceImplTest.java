@@ -45,6 +45,6 @@ class FenixUserServiceImplTest {
 		service.inviteFenixAdmin(id);
 
 		// then
-		verify(invitatoryService, times(1)).inviteUser(id, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
+		verify(invitatoryService, times(1)).inviteUser(id, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, "system");
 	}
 }

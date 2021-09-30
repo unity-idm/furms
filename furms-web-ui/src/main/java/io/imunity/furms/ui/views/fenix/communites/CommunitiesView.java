@@ -56,7 +56,7 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private Grid<CommunityViewModel> createCommunityGrid() {
-		Grid<CommunityViewModel> grid = new SparseGrid<>(CommunityViewModel.class);
+		Grid<CommunityViewModel> grid = new DenseGrid<>(CommunityViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterGridLink(c.getName(), c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
 			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"))

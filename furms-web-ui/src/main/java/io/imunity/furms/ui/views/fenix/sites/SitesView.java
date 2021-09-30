@@ -47,6 +47,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -54,7 +55,6 @@ import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.add.SitesAddView;
@@ -92,7 +92,7 @@ public class SitesView extends FurmsViewComponent {
 
 		List<SiteGridItem> sites = fetchSites();
 
-		SparseGrid<SiteGridItem> siteGrid = new SparseGrid<>(SiteGridItem.class);
+		DenseGrid<SiteGridItem> siteGrid = new DenseGrid<>(SiteGridItem.class);
 		siteGrid.setItems(sites);
 
 		Binder<SiteGridItem> siteBinder = new Binder<>(SiteGridItem.class);

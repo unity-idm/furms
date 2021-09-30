@@ -270,13 +270,17 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void inviteAdmin(String projectId, PersistentId id){
-		invitatoryService.inviteUser(id, new ResourceId(projectId, PROJECT), PROJECT_ADMIN);
+		projectRepository.findById(projectId).ifPresent(project ->
+			invitatoryService.inviteUser(id, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void inviteAdmin(String projectId, String email){
-		invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_ADMIN);
+		projectRepository.findById(projectId).ifPresent(project ->
+			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
+		);
 	}
 
 	@Override
@@ -290,12 +294,6 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public List<FURMSUser> findAllUsers(String communityId, String projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public List<FURMSUser> findAllUsers(String communityId){
-		return projectGroupsDAO.getAllUsers(communityId);
 	}
 
 	@Override
@@ -314,13 +312,17 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void inviteUser(String projectId, PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId(projectId, PROJECT), PROJECT_USER);
+		projectRepository.findById(projectId).ifPresent(project ->
+			invitatoryService.inviteUser(userId, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
+		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void inviteUser(String projectId, String email) {
-		invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_USER);
+		projectRepository.findById(projectId).ifPresent(project ->
+			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
+		);
 	}
 
 	@Override

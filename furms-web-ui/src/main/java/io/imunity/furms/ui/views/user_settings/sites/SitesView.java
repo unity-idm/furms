@@ -37,10 +37,10 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
@@ -57,11 +57,11 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 	private Div connectionInfo;
 	private H4 connectionInfoLabel;
 
-	private final SparseGrid<UserSitesGridModel> grid;
+	private final DenseGrid<UserSitesGridModel> grid;
 
 	SitesView(UserAllocationsService userAllocationsService) {
 		this.userAllocationsService = userAllocationsService;
-		this.grid = new SparseGrid<>(UserSitesGridModel.class);
+		this.grid = new DenseGrid<>(UserSitesGridModel.class);
 
 		addTitle();
 		addGrid();

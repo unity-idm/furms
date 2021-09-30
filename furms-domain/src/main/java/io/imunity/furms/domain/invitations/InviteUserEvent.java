@@ -12,16 +12,23 @@ import java.util.Objects;
 
 public class InviteUserEvent implements InvitationEvent {
 	public final FenixUserId id;
+	public final String email;
 	public final ResourceId resourceId;
 
-	public InviteUserEvent(FenixUserId id, ResourceId resourceId) {
+	public InviteUserEvent(FenixUserId id, String email, ResourceId resourceId) {
 		this.id = id;
+		this.email = email;
 		this.resourceId = resourceId;
 	}
 
 	@Override
 	public FenixUserId getId() {
 		return id;
+	}
+
+	@Override
+	public String getEmail() {
+		return email;
 	}
 
 	@Override

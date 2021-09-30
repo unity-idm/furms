@@ -4,10 +4,13 @@
  */
 package io.imunity.furms.rest.admin;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.List;
-
+import io.imunity.furms.rest.openapi.APIDocConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,13 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.imunity.furms.rest.openapi.APIDocConstants;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@formatter:off
 @RestController
@@ -141,7 +140,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@GetMapping("/{communityId}/groups")
 	public List<Group> getGroups(@PathVariable("communityId") String communityId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return restService.getGroups(communityId);
 	}
 
 	@Operation(
@@ -156,7 +155,7 @@ public class CommunityRestController {
 	@GetMapping("/{communityId}/groups/{groupId}")
 	public GroupWithMembers getGroup(@PathVariable("communityId") String communityId,
 	                                 @PathVariable("groupId") String groupId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return restService.getGroupWithMember(communityId, groupId);
 	}
 
 	@Operation(
@@ -170,7 +169,7 @@ public class CommunityRestController {
 	@DeleteMapping("/{communityId}/groups/{groupId}")
 	public void deleteGroup(@PathVariable("communityId") String communityId,
 	                        @PathVariable("groupId") String groupId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		restService.deleteGroup(communityId, groupId);
 	}
 
 	@Operation(
@@ -185,7 +184,7 @@ public class CommunityRestController {
 	public Group updateGroup(@PathVariable("communityId") String communityId,
 	                         @PathVariable("groupId") String groupId,
 	                         @RequestBody GroupDefinitionRequest request) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return restService.updateGroup(communityId, groupId, request);
 	}
 
 	@Operation(
@@ -197,8 +196,9 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "403", description = "Permission denied"),
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@PostMapping("/{communityId}/groups")
-	public Group addGroup(@RequestBody GroupDefinitionRequest request) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+	public Group addGroup(@PathVariable("communityId") String communityId,
+	                      @RequestBody GroupDefinitionRequest request) {
+		return restService.addGroup(communityId, request);
 	}
 
 }

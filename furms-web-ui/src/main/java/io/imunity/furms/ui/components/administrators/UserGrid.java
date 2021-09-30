@@ -5,6 +5,15 @@
 
 package io.imunity.furms.ui.components.administrators;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -14,6 +23,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.provider.SortDirection;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.SparseGrid;
 
 import java.util.List;
@@ -22,8 +32,8 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import io.imunity.furms.ui.components.DenseGrid;
 
 public class UserGrid {
 	private final Grid<UserGridItem> grid;
@@ -55,7 +65,7 @@ public class UserGrid {
 	}
 
 	public static final class Builder {
-		private final Grid<UserGridItem> grid = new SparseGrid<>(UserGridItem.class);
+		private final Grid<UserGridItem> grid = new DenseGrid<>(UserGridItem.class);
 		private Supplier<List<UserGridItem>> fetchUsersAction;
 
 		private Builder() {
@@ -101,14 +111,27 @@ public class UserGrid {
 			return this;
 		}
 
-		private String addStatusLabel(final UserGridItem userGridItem) {
-			return userGridItem.getStatus() != null && userGridItem.getStatus().equals(ENABLED)
-				? getTranslation("component.administrators.user.status.active")
-				: getTranslation("component.administrators.user.status.inactive");
+		private String addStatusLabel(UserGridItem userGridItem) {
+			switch (userGridItem.getStatus()){
+				case ENABLED:
+					return getTranslation("component.administrators.user.status.active");
+				case AWAITS_APPROVAL:
+					return getTranslation("component.administrators.user.status.awaits-approval");
+				case ACCESS_REQUESTED:
+					return getTranslation("component.administrators.user.status.access-requested");
+				default:
+					return getTranslation("component.administrators.user.status.inactive");
+			}
 		}
 
 		public Builder withContextMenuColumn(UserContextMenuFactory factory) {
-			grid.addComponentColumn(x -> factory.get(x, () -> grid.setItems(fetchUsersAction.get()), () -> fetchUsersAction.get().size()))
+			grid.addComponentColumn(
+				x -> factory.get(
+					x,
+					() -> grid.setItems(fetchUsersAction.get()),
+					() -> fetchUsersAction.get().stream().filter(userGridItem -> userGridItem.getStatus().equals(UserStatus.ENABLED)).count()
+				)
+			)
 				.setHeader(getTranslation("component.administrators.grid.column.4"))
 				.setWidth("6em")
 				.setTextAlign(ColumnTextAlign.END);

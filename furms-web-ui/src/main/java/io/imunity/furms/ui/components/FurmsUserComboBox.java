@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.GeneratedVaadinComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -28,6 +29,7 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 			return fullName.isBlank() ? user.email : fullName;
 		});
 		comboBox.setItems(userModels);
+		comboBox.setPlaceholder(getTranslation("component.furms-user-comb-box.placeholder"));
 		Label emailLabel = new Label("placeholder");
 		emailLabel.getStyle().set("visibility", "hidden");
 		comboBox.addValueChangeListener(event -> Optional.ofNullable(event.getValue())
@@ -44,6 +46,7 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 		layout.setPadding(false);
 		add(layout);
 		getElement().getStyle().set("line-height", "unset");
+		comboBox.addFocusListener(event -> comboBox.setAllowCustomValue(true));
 	}
 
 	@Override
@@ -125,5 +128,12 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 
 	public void clear(){
 		comboBox.clear();
+	}
+
+	//Workaround - see https://github.com/vaadin/flow-components/issues/1798
+	public void clearCustomValue(Button button){
+		comboBox.setAllowCustomValue(false);
+		comboBox.focus();
+		button.focus();
 	}
 }

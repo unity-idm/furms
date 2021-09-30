@@ -97,7 +97,7 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private Grid<ProjectGridModel> createProjectGrid() {
-		Grid<ProjectGridModel> grid = new SparseGrid<>(ProjectGridModel.class);
+		Grid<ProjectGridModel> grid = new DenseGrid<>(ProjectGridModel.class);
 
 		Grid.Column<ProjectGridModel> firstColumn = grid.addComponentColumn(project -> {
 			Component component = new Span(project.name);

@@ -31,13 +31,13 @@ import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.services.InfraServiceService;
+import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.SparseGrid;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -71,7 +71,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 	}
 
 	private Grid<ResourceTypeViewModel> createResourceTypesGrid() {
-		Grid<ResourceTypeViewModel> grid = new SparseGrid<>(ResourceTypeViewModel.class);
+		Grid<ResourceTypeViewModel> grid = new DenseGrid<>(ResourceTypeViewModel.class);
 
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceTypeFormView.class, c.getId()))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.name"))

@@ -96,9 +96,9 @@ public class UsersGridComponent extends VerticalLayout {
 	}
 
 	private static boolean rowContains(UserGridItem row, String value, SearchLayout searchLayout) {
-		return searchLayout.getSearchText().isEmpty() || columnContains(row.getFirstName(), value)
-				|| columnContains(row.getLastName(), value)
-				|| columnContains(Optional.ofNullable(row.getEmail()), value);
+		return searchLayout.getSearchText().isEmpty()
+			|| columnContains(row.getFirstName().flatMap(firstName -> row.getLastName().map(lastName -> firstName + " " + lastName)), value)
+			|| columnContains(Optional.ofNullable(row.getEmail()), value);
 	}
 
 	private static boolean columnContains(Optional<String> column, String value) {

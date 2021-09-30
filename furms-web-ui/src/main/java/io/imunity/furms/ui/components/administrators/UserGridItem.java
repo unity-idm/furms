@@ -42,7 +42,7 @@ public class UserGridItem {
 		this.fenixUserId = Optional.empty();
 		this.firstName = Optional.empty();
 		this.lastName = Optional.empty();
-		this.status = UserStatus.DISABLED;
+		this.status = UserStatus.AWAITS_APPROVAL;
 		this.email = email;
 		this.invitationId = Optional.of(invitationId);
 	}

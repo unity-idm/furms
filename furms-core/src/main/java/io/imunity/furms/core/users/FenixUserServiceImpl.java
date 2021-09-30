@@ -32,6 +32,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 @Service
 class FenixUserServiceImpl implements FenixUserService {
 	private static final Logger LOG = LoggerFactory.getLogger(FenixUserServiceImpl.class);
+	public static final String RESOURCE_NAME = "system";
 
 	private final FenixUsersDAO usersDAO;
 	private final InvitatoryService invitatoryService;
@@ -58,7 +59,7 @@ class FenixUserServiceImpl implements FenixUserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void inviteFenixAdmin(PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
+		invitatoryService.inviteUser(userId, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override
@@ -78,7 +79,7 @@ class FenixUserServiceImpl implements FenixUserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void inviteFenixAdmin(String email) {
-		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN);
+		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, "system");
 	}
 
 	@Override

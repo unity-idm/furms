@@ -28,14 +28,20 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 	private final Binder<ResourceTypeViewModel> binder;
 	private final ServiceComboBoxModelResolver resolver;
+	private final ResourceTypeDistributionChecker resourceTypeDistChecker;
 
 	private final FormLayout formLayout;
 	private final ComboBox<ServiceComboBoxModel> servicesComboBox;
 	private final Checkbox accessibleCheckbox;
+	private final ComboBox<ResourceMeasureType> typeComboBox;
+	private final ComboBox<ResourceMeasureUnit> unitComboBox;
 
-	ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder, ServiceComboBoxModelResolver resolver) {
+	ResourceTypeFormComponent(Binder<ResourceTypeViewModel> binder,
+			ServiceComboBoxModelResolver resolver,
+			ResourceTypeDistributionChecker resourceTypeDistChecker) {
 		this.binder = binder;
 		this.resolver = resolver;
+		this.resourceTypeDistChecker = resourceTypeDistChecker;
 
 		this.formLayout = new FurmsFormLayout();
 
@@ -49,12 +55,12 @@ class ResourceTypeFormComponent extends Composite<Div> {
 		servicesComboBox.setItemLabelGenerator(service -> service.name);
 		formLayout.addFormItem(servicesComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.service"));
 
-		ComboBox<ResourceMeasureType> typeComboBox = new ComboBox<>();
+		typeComboBox = new ComboBox<>();
 		typeComboBox.setItemLabelGenerator(resourceMeasureType -> getTranslation("enum.ResourceMeasureType." + resourceMeasureType.name()));
 		typeComboBox.setItems(ResourceMeasureType.values());
 		formLayout.addFormItem(typeComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.type"));
 
-		ComboBox<ResourceMeasureUnit> unitComboBox = new ComboBox<>();
+		unitComboBox = new ComboBox<>();
 		unitComboBox.setItemLabelGenerator(ResourceMeasureUnit::name);
 		typeComboBox.addValueChangeListener(event -> {
 			unitComboBox.setItems(event.getValue().units);
@@ -105,21 +111,35 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 	public void setFormPools(ResourceTypeViewModel resourceTypeViewModel) {
 		binder.setBean(resourceTypeViewModel);
-		if(resourceTypeViewModel.getServiceId() != null) {
+		
+		if (resourceTypeViewModel.getServiceId() != null) {
 			servicesComboBox.setEnabled(false);
 		}
-		addIdFieldForEditForm(resourceTypeViewModel);
+		
+		if (isFormEdit(resourceTypeViewModel)) {
+			addResourcdTypeIdToForm(resourceTypeViewModel);
+			disableFields(resourceTypeViewModel);
+		}
 	}
 
-	private void addIdFieldForEditForm(ResourceTypeViewModel resourceTypeViewModel) {
-		if (resourceTypeViewModel!= null && isNotEmpty(resourceTypeViewModel.getId())) {
-			Div id = new Div();
-			id.setText(resourceTypeViewModel.getId());
-			Label idLabel = new Label(getTranslation("view.site-admin.resource-types.form.field.id"));
+	private void disableFields(ResourceTypeViewModel resourceTypeViewModel) {
 
-			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
-			
-			accessibleCheckbox.setEnabled(false);
+		accessibleCheckbox.setEnabled(false);
+
+		if (resourceTypeDistChecker.isDistributed(resourceTypeViewModel)) {
+			typeComboBox.setEnabled(false);
+			unitComboBox.setEnabled(false);
 		}
+	}
+	
+	private void addResourcdTypeIdToForm(ResourceTypeViewModel resourceTypeViewModel) {
+		Div id = new Div();
+		id.setText(resourceTypeViewModel.getId());
+		Label idLabel = new Label(getTranslation("view.site-admin.resource-types.form.field.id"));
+		formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
+	}
+	
+	private boolean isFormEdit(ResourceTypeViewModel resourceTypeViewModel) {
+		return resourceTypeViewModel != null && isNotEmpty(resourceTypeViewModel.getId());
 	}
 }

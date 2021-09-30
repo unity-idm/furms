@@ -34,6 +34,15 @@ The typical path to distribute available resource allocations starts at the comm
 
 The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its _Allocations_ tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected. 
 
+=== Managing groups
+
+FURMS allows community administrators to create groups and control membership of community users in the groups. 
+
+There are no limits on membership in groups, any community member can be a member of zero, one or many groups. The sole restriction is that only existing community users can be added to a group (i.e. users of any of the community projects and community admins). Adding and removing a user to a group does not require user's consent.
+
+Group membership is not changing the way how FURMS works in any way. It is, however, exposed on the REST APIs: both for the Fenix Central IdP and over Community REST API.
+
+
 === REST API access credentials
 
 include::rest-api-access.adoc[]
