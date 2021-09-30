@@ -46,34 +46,34 @@ public abstract class FurmsCommand implements Runnable {
 	private Optional<Properties> configurationFromFile;
 
 	@Option(names = {ConfigParameterNames.USERNAME}, description = "User identifier obtained from FURMS.")
-	protected String username;
+	protected static String username;
 
 	@Option(names = {ConfigParameterNames.API_KEY}, description = "API access key generated in FURMS.")
-	protected String apiKey;
+	protected static String apiKey;
 
 	@Option(names = {ConfigParameterNames.FURMS_URL}, description = "FURMS installation URL, e.g. https://furms.example.com")
-	protected String furmsurl;
+	protected static String furmsurl;
 
 	@Option(names = {"--config-file"}, description = "Path of an optional config file, with general settings.")
-	protected String configFile;
+	protected static String configFile;
 
 	@Option(names = {ConfigParameterNames.TRUSTSTORE_PATH}, description = "Path of HTTPS truststore.")
-	protected String truststore;
+	protected static String truststore;
 
 	@Option(names = {ConfigParameterNames.TRUSTSTORE_TYPE}, description = "Type of the trustore, either 'PKCS12' or 'JKS'.")
-	protected String truststoreType;
-	
+	protected static String truststoreType;
+
 	@Option(names = {ConfigParameterNames.TRUSTSTORE_PASS}, description = "Password of the truststore.")
-	protected String truststorepass;
+	protected static String truststorepass;
 
 	@Option(names = {"-s", "--silent"}, description = "Print only JSON result of an operation.")
-	protected boolean silentMode;
+	protected static boolean silentMode;
 
 	@Option(names = {"-v", "--verbose"}, description = "Enable verbose mode, overrides -s.")
-	protected boolean verboseMode;
+	protected static boolean verboseMode;
 
 	@Option(names = {"-d", "--debug"}, description = "Enables all logs for debugging purposes, overrides -v and -s.")
-	protected boolean debugMode;
+	protected static boolean debugMode;
 
 	protected abstract void executeCommand() throws Exception;
 
