@@ -43,10 +43,12 @@ class ResourceTypeFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ResourceTypeFormView(ResourceTypeService resourceTypeService, InfraServiceService serviceService) {
+	ResourceTypeFormView(ResourceTypeService resourceTypeService,
+			InfraServiceService serviceService,
+			ResourceTypeDistributionChecker resourceTypeDistChecker) {
 		this.resourceTypeService = resourceTypeService;
 		ServiceComboBoxModelResolver resolver = new ServiceComboBoxModelResolver(serviceService.findAll(getCurrentResourceId()));
-		this.resourceTypeFormComponent = new ResourceTypeFormComponent(binder, resolver);
+		this.resourceTypeFormComponent = new ResourceTypeFormComponent(binder, resolver, resourceTypeDistChecker);
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
 		Button cancelButton = createCloseButton();

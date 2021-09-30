@@ -53,7 +53,8 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	private final Grid<ResourceCreditViewModel> grid;
 	private ZoneId zoneId;
 
-	public ResourceCreditsView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
+	public ResourceCreditsView(ResourceCreditService resourceCreditService, 
+			ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
 		this.grid = createResourceCreditGrid();
 		zoneId = UIContext.getCurrent().getZone();
