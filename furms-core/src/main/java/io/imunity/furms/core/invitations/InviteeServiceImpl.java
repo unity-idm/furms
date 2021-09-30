@@ -7,7 +7,7 @@ package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.invitations.InviteeService;
-import io.imunity.furms.api.validation.exceptions.InvitationNotExistError;
+import io.imunity.furms.api.validation.exceptions.InvitationNotExistingException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -75,7 +75,7 @@ class InviteeServiceImpl implements InviteeService {
 	public void acceptBy(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		Invitation invitation = invitationRepository.findBy(id)
-			.orElseThrow(() -> new InvitationNotExistError(String.format("Invitation id %s doesn't exist for user %s", id, user.fenixUserId)));
+			.orElseThrow(() -> new InvitationNotExistingException(String.format("Invitation id %s doesn't exist for user %s", id, user.fenixUserId)));
 		switch (invitation.resourceId.type){
 			case APP_LEVEL:
 				fenixUsersDAO.addFenixAdminRole(user.id.get());
@@ -118,7 +118,6 @@ class InviteeServiceImpl implements InviteeService {
 			default:
 				adminsToNotify = List.of();
 		}
-		invitationRepository.deleteBy(invitation.id);
 		usersDAO.getAllUsers().stream()
 			.filter(usr -> usr.email.equals(invitation.originator))
 			.collect(collectingAndThen(toSet(), furmsUsers -> {

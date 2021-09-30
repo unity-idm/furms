@@ -79,7 +79,7 @@ class FenixUserServiceImpl implements FenixUserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
 	public void inviteFenixAdmin(String email) {
-		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, "system");
+		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override

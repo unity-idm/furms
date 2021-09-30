@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class InvitationNotExistError extends IllegalArgumentException {
+public class InvitationNotExistingException extends IllegalArgumentException {
 
-	public InvitationNotExistError(String message) {
+	public InvitationNotExistingException(String message) {
 		super(message);
 	}
 }
