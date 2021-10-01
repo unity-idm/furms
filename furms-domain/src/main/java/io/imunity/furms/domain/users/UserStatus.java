@@ -5,5 +5,5 @@
 package io.imunity.furms.domain.users;
 
 public enum UserStatus {
-	ENABLED, DISABLED, AWAITS_APPROVAL, ACCESS_REQUESTED
+	ENABLED, DISABLED
 }

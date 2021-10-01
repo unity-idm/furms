@@ -7,6 +7,7 @@ package io.imunity.furms.ui.views.project.users;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.applications.ApplicationService;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
@@ -18,10 +19,13 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
+import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
+import io.imunity.furms.ui.components.administrators.UserGridItem;
+import io.imunity.furms.ui.components.administrators.UserGridStatus;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import org.slf4j.Logger;
@@ -31,6 +35,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.CLOSE_CIRCLE;
 import static io.imunity.furms.domain.constant.RoutesConst.PROJECT_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -43,6 +49,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final Predicate<FURMSUser> IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP = user -> user.fenixUserId.isPresent();
 	private final ProjectService projectService;
+	private final ApplicationService applicationService;
 	private final AuthzService authzService;
 	private final UserService userService;
 	private Project project;
@@ -50,10 +57,11 @@ public class UsersView extends FurmsLandingViewComponent {
 	private MembershipChangerComponent membershipLayout;
 	private UsersGridComponent grid;
 
-	UsersView(ProjectService projectService, AuthzService authzService, UserService userService) {
+	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ApplicationService applicationService) {
 		this.projectService = projectService;
 		this.authzService = authzService;
 		this.userService = userService;
+		this.applicationService = applicationService;
 
 		loadPageContent();
 	}
@@ -98,11 +106,28 @@ public class UsersView extends FurmsLandingViewComponent {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			})
+			.addCustomContextMenuItem(
+				(UserGridItem userGridItem) -> new MenuButton(getTranslation("view.project-admin.users.requested.accept"), CHECK_CIRCLE),
+				userGridItem -> {
+					applicationService.accept(projectId, userGridItem.getFenixUserId().get());
+					grid.reloadGrid();
+				},
+				userGridItem -> UserGridStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
+			)
+			.addCustomContextMenuItem(
+				(UserGridItem userGridItem) -> new MenuButton(getTranslation("view.project-admin.users.requested.reject"), CLOSE_CIRCLE),
+				userGridItem -> {
+					applicationService.remove(projectId, userGridItem.getFenixUserId().get());
+					grid.reloadGrid();
+				},
+				userGridItem -> UserGridStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
+			)
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
 			() -> projectService.findAllUsersInvitations(projectId),
+			() -> applicationService.findAllApplyingUsers(projectId),
 			userGrid
 		);
 		membershipLayout.addJoinButtonListener(event -> {

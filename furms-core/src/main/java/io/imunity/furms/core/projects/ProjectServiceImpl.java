@@ -299,6 +299,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
 	public boolean isUser(String projectId) {
+		authzService.reloadRoles();
 		return authzService.isResourceMember(projectId, PROJECT_USER);
 	}
 
