@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class GenericGroupAssignmentEntityRepositoryTest extends DBIntegrationTest {
+class GenericGroupMembershipEntityRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private CommunityRepository communityRepository;
@@ -33,7 +33,7 @@ class GenericGroupAssignmentEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private GenericGroupEntityRepository entityRepository;
 	@Autowired
-	private GenericGroupAssignmentEntityRepository assignmentEntityRepository;
+	private GenericGroupMembershipEntityRepository membershipEntityRepository;
 
 	private UUID communityId;
 	private UUID communityId2;
@@ -76,137 +76,137 @@ class GenericGroupAssignmentEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldSave(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity foundAssignment = assignmentEntityRepository.findById(assignmentEntity.getId()).get();
+		GenericGroupMembershipEntity foundAssignment = membershipEntityRepository.findById(membershipEntity.getId()).get();
 
 		assertEquals(savedAssignment, foundAssignment);
 	}
 
 	@Test
 	void shouldDelete(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		assignmentEntityRepository.deleteById(savedAssignment.getId());
+		membershipEntityRepository.deleteById(savedAssignment.getId());
 
-		Optional<GenericGroupAssignmentEntity> groupAssignmentEntity = assignmentEntityRepository.findById(assignmentEntity.getId());
+		Optional<GenericGroupMembershipEntity> groupAssignmentEntity = membershipEntityRepository.findById(membershipEntity.getId());
 
 		assertTrue(groupAssignmentEntity.isEmpty());
 	}
 
 	@Test
 	void shouldUpdate(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.id(savedAssignment.getId())
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(2))
 			.build();
-		GenericGroupAssignmentEntity updatedAssignment = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity updatedAssignment = membershipEntityRepository.save(membershipEntity1);
 
-		GenericGroupAssignmentEntity foundAssignment = assignmentEntityRepository.findById(savedAssignment.getId()).get();
+		GenericGroupMembershipEntity foundAssignment = membershipEntityRepository.findById(savedAssignment.getId()).get();
 
 		assertEquals(updatedAssignment, foundAssignment);
 	}
 
 	@Test
 	void shouldFindAllByGenericGroupId(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(1))
 			.build();
-		GenericGroupAssignmentEntity savedAssignment1 = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity savedAssignment1 = membershipEntityRepository.save(membershipEntity1);
 
 
-		GenericGroupAssignmentEntity assignmentEntity2 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity2 = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId2)
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(2))
 			.build();
-		GenericGroupAssignmentEntity savedAssignment2 = assignmentEntityRepository.save(assignmentEntity2);
+		GenericGroupMembershipEntity savedAssignment2 = membershipEntityRepository.save(membershipEntity2);
 
 
-		Set<GenericGroupAssignmentEntity> genericGroupAssignmentEntities = assignmentEntityRepository.findAllByGenericGroupId(groupId);
+		Set<GenericGroupMembershipEntity> genericGroupAssignmentEntities = membershipEntityRepository.findAllByGenericGroupId(groupId);
 		assertEquals(2, genericGroupAssignmentEntities.size());
 		assertEquals(Set.of(savedAssignment, savedAssignment1), genericGroupAssignmentEntities);
 	}
 
 	@Test
 	void shouldFindByCommunityIdAndId(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity groupAssignmentEntity = assignmentEntityRepository.findByCommunityIdAndId(communityId, savedAssignment.getId()).get();
+		GenericGroupMembershipEntity groupAssignmentEntity = membershipEntityRepository.findByCommunityIdAndId(communityId, savedAssignment.getId()).get();
 
 		assertEquals(savedAssignment, groupAssignmentEntity);
 	}
 
 	@Test
 	void shouldNotFindByCommunityIdAndId(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		Optional<GenericGroupAssignmentEntity> byCommunityIdAndId = assignmentEntityRepository.findByCommunityIdAndId(communityId2, savedAssignment.getId());
+		Optional<GenericGroupMembershipEntity> byCommunityIdAndId = membershipEntityRepository.findByCommunityIdAndId(communityId2, savedAssignment.getId());
 
 		assertTrue(byCommunityIdAndId.isEmpty());
 	}
 
 	@Test
 	void shouldExistByGenericGroupIdAndUserId(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(groupId)
 			.memberSince(LocalDateTime.now())
 			.build();
-		assignmentEntityRepository.save(assignmentEntity);
+		membershipEntityRepository.save(membershipEntity);
 
-		boolean existsByGenericGroupIdAndUserId = assignmentEntityRepository.existsByGenericGroupIdAndUserId(groupId, "userId");
+		boolean existsByGenericGroupIdAndUserId = membershipEntityRepository.existsByGenericGroupIdAndUserId(groupId, "userId");
 		assertTrue(existsByGenericGroupIdAndUserId);
 	}
 
 	@Test
 	void shouldNotExistByGenericGroupIdAndUserId(){
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(groupId)
 			.memberSince(LocalDateTime.now())
 			.build();
-		assignmentEntityRepository.save(assignmentEntity);
+		membershipEntityRepository.save(membershipEntity);
 
-		boolean existsByGenericGroupIdAndUserId = assignmentEntityRepository.existsByGenericGroupIdAndUserId(groupId, "userId");
+		boolean existsByGenericGroupIdAndUserId = membershipEntityRepository.existsByGenericGroupIdAndUserId(groupId, "userId");
 		assertFalse(existsByGenericGroupIdAndUserId);
 	}
 }

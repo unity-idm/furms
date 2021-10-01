@@ -6,8 +6,7 @@
 package io.imunity.furms.spi.generic_groups;
 
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
@@ -24,18 +23,17 @@ public interface GenericGroupRepository {
 	Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(String communityId);
 
 	Set<GenericGroup> findAllBy(String communityId);
-	Set<GenericGroupAssignment> findAllBy(GenericGroupId id);
+	Set<GenericGroupMembership> findAllBy(GenericGroupId id);
 	Set<GroupAccess> findAllBy(FenixUserId id);
 
 	GenericGroupId create(GenericGroup group);
-	GenericGroupAssignmentId create(GenericGroupAssignment assignment);
+	void createMembership(GenericGroupMembership assignment);
 
 	void update(GenericGroup group);
 	void delete(GenericGroupId id);
-	void delete(GenericGroupAssignmentId id);
+	void deleteMembership(GenericGroupId groupId, FenixUserId userId);
 
 	boolean existsBy(String communityId, GenericGroupId groupId);
-	boolean existsBy(String communityId, GenericGroupAssignmentId assignmentId);
 	boolean existsBy(GenericGroupId groupId, FenixUserId userId);
 	boolean existsBy(String communityId, String name);
 }

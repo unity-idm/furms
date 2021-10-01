@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class UserNotExistError extends IllegalArgumentException {
+public class UserNotPresentException extends IllegalArgumentException {
 
-	public UserNotExistError(String s) {
+	public UserNotPresentException(String s) {
 		super(s);
 	}
 }

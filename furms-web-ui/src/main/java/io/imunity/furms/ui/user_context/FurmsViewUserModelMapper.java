@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class FurmsViewUserModelMapper {
 	public static List<FurmsViewUserModel> mapList(List<FURMSUser> users){
 		return users.stream()
-			.map(user -> new FurmsViewUserModel(user.id, user.firstName, user.lastName, user.email))
+			.map(user -> new FurmsViewUserModel(user.id, user.fenixUserId, user.firstName, user.lastName, user.email))
 			.collect(Collectors.toList());
 	}
 }

@@ -6,8 +6,7 @@
 package io.imunity.furms.db.generic_groups;
 
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
@@ -28,12 +27,12 @@ import static java.util.stream.Collectors.toSet;
 @Repository
 class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	private final GenericGroupEntityRepository genericGroupEntityRepository;
-	private final GenericGroupAssignmentEntityRepository genericGroupAssignmentEntityRepository;
+	private final GenericGroupMembershipEntityRepository genericGroupMembershipEntityRepository;
 
 	GenericGroupDatabaseRepository(GenericGroupEntityRepository genericGroupEntityRepository,
-	                               GenericGroupAssignmentEntityRepository genericGroupAssignmentEntityRepository) {
+	                               GenericGroupMembershipEntityRepository genericGroupMembershipEntityRepository) {
 		this.genericGroupEntityRepository = genericGroupEntityRepository;
-		this.genericGroupAssignmentEntityRepository = genericGroupAssignmentEntityRepository;
+		this.genericGroupMembershipEntityRepository = genericGroupMembershipEntityRepository;
 	}
 
 	@Override
@@ -61,8 +60,7 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 						.build(),
 				mapping(
 					x ->
-						GenericGroupAssignment.builder()
-							.id(x.assignmentId)
+						GenericGroupMembership.builder()
 							.genericGroupId(x.getId())
 							.fenixUserId(x.userId)
 							.utcMemberSince(x.memberSince)
@@ -84,7 +82,7 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 					.name(x.name)
 					.description(x.description)
 					.build(),
-				x.assignmentAmount
+				x.membershipAmount
 			)).collect(Collectors.toSet());
 	}
 
@@ -101,10 +99,9 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public Set<GenericGroupAssignment> findAllBy(GenericGroupId id) {
-		return genericGroupAssignmentEntityRepository.findAllByGenericGroupId(id.id).stream()
-			.map(entity -> GenericGroupAssignment.builder()
-				.id(entity.getId())
+	public Set<GenericGroupMembership> findAllBy(GenericGroupId id) {
+		return genericGroupMembershipEntityRepository.findAllByGenericGroupId(id.id).stream()
+			.map(entity -> GenericGroupMembership.builder()
 				.genericGroupId(entity.genericGroupId)
 				.fenixUserId(entity.userId)
 				.utcMemberSince(entity.memberSince)
@@ -134,15 +131,14 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public GenericGroupAssignmentId create(GenericGroupAssignment assignment) {
-		GenericGroupAssignmentEntity genericGroupAssignmentEntity = genericGroupAssignmentEntityRepository.save(
-			GenericGroupAssignmentEntity.builder()
-				.genericGroupId(assignment.genericGroupId.id)
-				.userId(assignment.fenixUserId.id)
-				.memberSince(assignment.utcMemberSince)
+	public void createMembership(GenericGroupMembership groupMembership) {
+		genericGroupMembershipEntityRepository.save(
+			GenericGroupMembershipEntity.builder()
+				.genericGroupId(groupMembership.genericGroupId.id)
+				.userId(groupMembership.fenixUserId.id)
+				.memberSince(groupMembership.utcMemberSince)
 				.build()
 		);
-		return new GenericGroupAssignmentId(genericGroupAssignmentEntity.getId());
 	}
 
 	@Override
@@ -163,8 +159,8 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public void delete(GenericGroupAssignmentId id) {
-		genericGroupAssignmentEntityRepository.deleteById(id.id);
+	public void deleteMembership(GenericGroupId id, FenixUserId userId) {
+		genericGroupMembershipEntityRepository.deleteByGenericGroupIdAndUserId(id.id, userId.id);
 	}
 
 	@Override
@@ -173,14 +169,8 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public boolean existsBy(String communityId, GenericGroupAssignmentId assignmentId) {
-		return genericGroupAssignmentEntityRepository.findByCommunityIdAndId(UUID.fromString(communityId), assignmentId.id)
-			.isPresent();
-	}
-
-	@Override
 	public boolean existsBy(GenericGroupId groupId, FenixUserId userId) {
-		return genericGroupAssignmentEntityRepository.existsByGenericGroupIdAndUserId(groupId.id, userId.id);
+		return genericGroupMembershipEntityRepository.existsByGenericGroupIdAndUserId(groupId.id, userId.id);
 	}
 
 	@Override

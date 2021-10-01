@@ -11,14 +11,12 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public class GenericGroupAssignment {
-	public final GenericGroupAssignmentId id;
+public class GenericGroupMembership {
 	public final GenericGroupId genericGroupId;
 	public final FenixUserId fenixUserId;
 	public final LocalDateTime utcMemberSince;
 
-	GenericGroupAssignment(GenericGroupAssignmentId id, GenericGroupId genericGroupId, FenixUserId fenixUserId, LocalDateTime utcMemberSince) {
-		this.id = id;
+	GenericGroupMembership(GenericGroupId genericGroupId, FenixUserId fenixUserId, LocalDateTime utcMemberSince) {
 		this.genericGroupId = genericGroupId;
 		this.fenixUserId = fenixUserId;
 		this.utcMemberSince = utcMemberSince;
@@ -28,19 +26,20 @@ public class GenericGroupAssignment {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		GenericGroupAssignment that = (GenericGroupAssignment) o;
-		return Objects.equals(id, that.id) && Objects.equals(genericGroupId, that.genericGroupId) && Objects.equals(fenixUserId, that.fenixUserId) && Objects.equals(utcMemberSince, that.utcMemberSince);
+		GenericGroupMembership that = (GenericGroupMembership) o;
+		return Objects.equals(genericGroupId, that.genericGroupId) &&
+			Objects.equals(fenixUserId, that.fenixUserId) &&
+			Objects.equals(utcMemberSince, that.utcMemberSince);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, genericGroupId, fenixUserId, utcMemberSince);
+		return Objects.hash(genericGroupId, fenixUserId, utcMemberSince);
 	}
 
 	@Override
 	public String toString() {
 		return "GenericGroupAssignment{" +
-			"id=" + id +
 			", genericGroupId=" + genericGroupId +
 			", fenixUserId=" + fenixUserId +
 			", utcMemberSince=" + utcMemberSince +
@@ -52,22 +51,11 @@ public class GenericGroupAssignment {
 	}
 
 	public static final class GenericGroupAssignmentBuilder {
-		private GenericGroupAssignmentId id;
 		private GenericGroupId genericGroupId;
 		private FenixUserId fenixUserId;
 		private LocalDateTime utcMemberSince;
 
 		private GenericGroupAssignmentBuilder() {
-		}
-
-		public GenericGroupAssignmentBuilder id(GenericGroupAssignmentId id) {
-			this.id = id;
-			return this;
-		}
-
-		public GenericGroupAssignmentBuilder id(UUID id) {
-			this.id = new GenericGroupAssignmentId(id);
-			return this;
 		}
 
 		public GenericGroupAssignmentBuilder genericGroupId(GenericGroupId genericGroupId) {
@@ -95,8 +83,8 @@ public class GenericGroupAssignment {
 			return this;
 		}
 
-		public GenericGroupAssignment build() {
-			return new GenericGroupAssignment(id, genericGroupId, fenixUserId, utcMemberSince);
+		public GenericGroupMembership build() {
+			return new GenericGroupMembership(genericGroupId, fenixUserId, utcMemberSince);
 		}
 	}
 }

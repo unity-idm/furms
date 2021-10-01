@@ -6,7 +6,7 @@
 package io.imunity.furms.integration.tests.rest.community;
 
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
@@ -490,14 +490,14 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		).id.toString();
 	}
 
-	private String createGroupMember(String genericGroupId, String userId) {
-		return genericGroupRepository.create(
-			GenericGroupAssignment.builder()
+	private void createGroupMember(String genericGroupId, String userId) {
+		genericGroupRepository.createMembership(
+			GenericGroupMembership.builder()
 				.fenixUserId(userId)
 				.genericGroupId(new GenericGroupId(genericGroupId))
 				.utcMemberSince(LocalDate.now().atStartOfDay())
 				.build()
-		).id.toString();
+		);
 	}
 
 	private String createProject(String communityId) {

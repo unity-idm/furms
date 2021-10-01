@@ -5,16 +5,6 @@
 
 package io.imunity.furms.ui.project;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
-import static java.util.Optional.ofNullable;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -23,7 +13,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
@@ -31,6 +20,16 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
+import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
+import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
@@ -80,7 +79,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		researchField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
-		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels);
+		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels, true);
 		furmsUserComboBox.setReadOnly(restrictedEditing);
 		furmsUserComboBox.setClassName("furms-leader-combo-box");
 		formLayout.addFormItem(furmsUserComboBox, getTranslation("view.community-admin.project.form.field.project-leader"));

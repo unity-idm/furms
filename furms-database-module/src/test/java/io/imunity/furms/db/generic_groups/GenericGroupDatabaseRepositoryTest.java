@@ -8,8 +8,7 @@ package io.imunity.furms.db.generic_groups;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignment;
-import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
@@ -41,7 +40,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private GenericGroupEntityRepository entityRepository;
 	@Autowired
-	private GenericGroupAssignmentEntityRepository assignmentEntityRepository;
+	private GenericGroupMembershipEntityRepository membershipEntityRepository;
 
 	@Autowired
 	private GenericGroupDatabaseRepository databaseRepository;
@@ -93,19 +92,19 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(2))
 			.build();
-		GenericGroupAssignmentEntity savedAssignment1 = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity savedAssignment1 = membershipEntityRepository.save(membershipEntity1);
 
 
 		GenericGroupWithAssignments groupWithAssignments = databaseRepository.findGroupWithAssignments(communityId.toString(), new GenericGroupId(saved.getId())).get();
@@ -114,7 +113,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		assertEquals(groupWithAssignments.group.communityId, communityId.toString());
 		assertThat(groupWithAssignments.group.name).isEqualTo("name");
 		assertThat(groupWithAssignments.group.description).isEqualTo("description");
-		assertEquals(2, groupWithAssignments.assignments.size());
+		assertEquals(2, groupWithAssignments.memberships.size());
 	}
 
 	@Test
@@ -131,33 +130,33 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.description("description2")
 			.build()
 		);
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment1 = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity savedAssignment1 = membershipEntityRepository.save(membershipEntity1);
 
-		GenericGroupAssignmentEntity assignmentEntity2 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity2 = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved2.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment2 = assignmentEntityRepository.save(assignmentEntity2);
+		GenericGroupMembershipEntity savedAssignment2 = membershipEntityRepository.save(membershipEntity2);
 
-		GenericGroupAssignmentEntity assignmentEntity3 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity3 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(saved2.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment3 = assignmentEntityRepository.save(assignmentEntity3);
+		GenericGroupMembershipEntity savedAssignment3 = membershipEntityRepository.save(membershipEntity3);
 
 
 		Set<GenericGroupWithAssignmentAmount> groupsWithAssignmentsAmount = databaseRepository.findAllGroupWithAssignmentsAmount(communityId.toString());
@@ -219,33 +218,31 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment1 = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity savedAssignment1 = membershipEntityRepository.save(membershipEntity1);
 
-		Set<GenericGroupAssignment> groupAssignments = databaseRepository.findAllBy(new GenericGroupId(saved.getId()));
+		Set<GenericGroupMembership> groupAssignments = databaseRepository.findAllBy(new GenericGroupId(saved.getId()));
 
 		assertEquals(2, groupAssignments.size());
-		Iterator<GenericGroupAssignment> iterator = groupAssignments.iterator();
-		GenericGroupAssignment groupAssignment = iterator.next();
-		assertThat(groupAssignment.id.id).isIn(savedAssignment.getId(), savedAssignment1.getId());
+		Iterator<GenericGroupMembership> iterator = groupAssignments.iterator();
+		GenericGroupMembership groupAssignment = iterator.next();
 		assertThat(groupAssignment.fenixUserId.id).isIn("userId", "userId1");
-		assertThat(groupAssignment.utcMemberSince).isIn(assignmentEntity.memberSince, assignmentEntity1.memberSince);
+		assertThat(groupAssignment.utcMemberSince).isIn(membershipEntity.memberSince, membershipEntity1.memberSince);
 
-		GenericGroupAssignment groupAssignment2 = iterator.next();
-		assertThat(groupAssignment2.id.id).isIn(savedAssignment.getId(), savedAssignment1.getId());
+		GenericGroupMembership groupAssignment2 = iterator.next();
 		assertThat(groupAssignment2.fenixUserId.id).isIn("userId", "userId1");
-		assertThat(groupAssignment2.utcMemberSince).isIn(assignmentEntity.memberSince, assignmentEntity1.memberSince);
+		assertThat(groupAssignment2.utcMemberSince).isIn(membershipEntity.memberSince, membershipEntity1.memberSince);
 	}
 
 	@Test
@@ -263,19 +260,19 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved2.getId())
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(2))
 			.build();
-		GenericGroupAssignmentEntity savedAssignment1 = assignmentEntityRepository.save(assignmentEntity1);
+		GenericGroupMembershipEntity savedAssignment1 = membershipEntityRepository.save(membershipEntity1);
 
 
 		Set<GroupAccess> groupAccesses = databaseRepository.findAllBy(new FenixUserId("userId"));
@@ -294,20 +291,18 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
 
-		GenericGroupAssignment assignmentEntity = GenericGroupAssignment.builder()
-			.fenixUserId("userId")
+		FenixUserId userId = new FenixUserId("userId");
+		GenericGroupMembership membershipEntity = GenericGroupMembership.builder()
+			.fenixUserId(userId)
 			.genericGroupId(savedGroup.getId())
 			.utcMemberSince(LocalDate.now().atStartOfDay())
 			.build();
 
-		GenericGroupAssignmentId assignmentId = databaseRepository.create(assignmentEntity);
+		databaseRepository.createMembership(membershipEntity);
 
-		GenericGroupAssignmentEntity groupAssignmentEntity = assignmentEntityRepository.findById(assignmentId.id).get();
+		boolean exists = membershipEntityRepository.existsByGenericGroupIdAndUserId(genericGroupEntity.getId(), userId.id);
 
-		assertEquals(assignmentId.id, groupAssignmentEntity.getId());
-		assertEquals(assignmentEntity.genericGroupId.id, groupAssignmentEntity.genericGroupId);
-		assertEquals(assignmentEntity.fenixUserId.id, groupAssignmentEntity.userId);
-		assertEquals(assignmentEntity.utcMemberSince, groupAssignmentEntity.memberSince);
+		assertTrue(exists);
 	}
 
 	@Test
@@ -352,7 +347,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldDeleteGenericGroup() {
+	void shouldDeleteGenericGroupMembership() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
 			.communityId(communityId)
@@ -360,22 +355,22 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
 
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
-		databaseRepository.delete(new GenericGroupAssignmentId(savedAssignment.getId()));
+		databaseRepository.deleteMembership(new GenericGroupId(savedAssignment.genericGroupId), new FenixUserId(savedAssignment.userId));
 
-		Optional<GenericGroupAssignmentEntity> found = assignmentEntityRepository.findById(savedGroup.getId());
+		boolean exists = membershipEntityRepository.existsByGenericGroupIdAndUserId(genericGroupEntity.getId(), savedAssignment.userId);
 
-		assertTrue(found.isEmpty());
+		assertFalse(exists);
 	}
 
 	@Test
-	void shouldDeleteGenericGroupAssignment() {
+	void shouldDeleteGenericGroup() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
 			.communityId(communityId)
@@ -419,48 +414,6 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldExistByCommunityIdAndGroupAssignmentId() {
-		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
-			.name("name")
-			.description("description")
-			.build()
-		);
-
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
-			.userId("userId")
-			.genericGroupId(saved.getId())
-			.memberSince(LocalDate.now().atStartOfDay())
-			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
-
-		boolean existsBy = databaseRepository.existsBy(communityId.toString(), new GenericGroupAssignmentId(assignmentEntity.getId()));
-
-		assertTrue(existsBy);
-	}
-
-	@Test
-	void shouldNotExistByCommunityIdAndGroupAssignmentId() {
-		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
-			.name("name")
-			.description("description")
-			.build()
-		);
-
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
-			.userId("userId")
-			.genericGroupId(saved.getId())
-			.memberSince(LocalDate.now().atStartOfDay())
-			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
-
-		boolean existsBy = databaseRepository.existsBy(communityId2.toString(), new GenericGroupAssignmentId(assignmentEntity.getId()));
-
-		assertFalse(existsBy);
-	}
-
-	@Test
 	void shouldExistByGenericGroupIdAndUserId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
 			.communityId(communityId)
@@ -469,12 +422,12 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 
-		GenericGroupAssignmentEntity assignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity membershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(saved.getId())
 			.memberSince(LocalDate.now().atStartOfDay())
 			.build();
-		GenericGroupAssignmentEntity savedAssignment = assignmentEntityRepository.save(assignmentEntity);
+		GenericGroupMembershipEntity savedAssignment = membershipEntityRepository.save(membershipEntity);
 
 		boolean existsBy = databaseRepository.existsBy(new GenericGroupId(saved.getId()), new FenixUserId("userId"));
 

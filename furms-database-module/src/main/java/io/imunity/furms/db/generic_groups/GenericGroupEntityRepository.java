@@ -13,24 +13,24 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface GenericGroupEntityRepository extends CrudRepository<GenericGroupEntity, UUID> {
-	@Query("select gg.*, gga.id as assignment_id, gga.user_id as user_id, gga.member_since as member_since " +
+	@Query("select gg.*, gga.user_id as user_id, gga.member_since as member_since " +
 		"from generic_group gg " +
-		"join generic_group_assignment gga on gg.id = gga.generic_group_id " +
+		"join generic_group_membership gga on gg.id = gga.generic_group_id " +
 		"where gg.community_id = :community_id and gg.id = :group_id")
-	Set<GenericGroupEntityWithAssignment> findAllAssignments(@Param("community_id") UUID communityId, @Param("group_id") UUID groupId);
+	Set<GenericGroupEntityWithMembership> findAllAssignments(@Param("community_id") UUID communityId, @Param("group_id") UUID groupId);
 
-	@Query("select gg.*, gga.id as assignment_id, gga.user_id as user_id, gga.member_since as member_since " +
+	@Query("select gg.*, gga.user_id as user_id, gga.member_since as member_since " +
 		"from generic_group gg " +
-		"join generic_group_assignment gga on gg.id = gga.generic_group_id " +
+		"join generic_group_membership gga on gg.id = gga.generic_group_id " +
 		"where gga.user_id = :user_id")
-	Set<GenericGroupEntityWithAssignment> findAllAssignments(@Param("user_id") String userId);
+	Set<GenericGroupEntityWithMembership> findAllAssignments(@Param("user_id") String userId);
 
-	@Query("select gg.*, count(gga.id) as assignment_amount " +
+	@Query("select gg.*, count(gga.id) as membership_amount " +
 		"from generic_group gg " +
-		"left join generic_group_assignment gga on gg.id = gga.generic_group_id " +
+		"left join generic_group_membership gga on gg.id = gga.generic_group_id " +
 		"where gg.community_id = :community_id " +
 		"group by gg.id")
-	Set<GenericGroupEntityWithAssignmentAmount> findAllWithAssignmentAmount(@Param("community_id") UUID communityId);
+	Set<GenericGroupEntityWithMembershipAmount> findAllWithAssignmentAmount(@Param("community_id") UUID communityId);
 
 	Set<GenericGroupEntity> findAllByCommunityId(UUID communityId);
 

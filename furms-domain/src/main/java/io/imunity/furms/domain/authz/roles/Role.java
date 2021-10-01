@@ -13,6 +13,8 @@ import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.MEMBERSHIP_GROUP_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.MEMBERSHIP_GROUP_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROFILE;
@@ -71,7 +73,7 @@ public enum Role {
 		"ADMIN",
 		List.of(
 			AUTHENTICATED, PROFILE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_READ, PROJECT_WRITE, PROJECT_LIMITED_WRITE,
-			PROJECT_LEAVE, PROJECT_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT
+			PROJECT_LEAVE, PROJECT_ADMINS_MANAGEMENT, OWNED_SSH_KEY_MANAGMENT, MEMBERSHIP_GROUP_READ, MEMBERSHIP_GROUP_WRITE
 		),
 		List.of(READ_ALL_USERS, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT)
 	),
