@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -66,7 +67,8 @@ public class GroupFormView extends FurmsViewComponent {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.groups.form.layout.name"));
 
-		TextField descriptionField = new TextField();
+		TextArea descriptionField = new TextArea();
+		descriptionField.setClassName("description-text-area");
 		descriptionField.setValueChangeMode(EAGER);
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);
 		formLayout.addFormItem(descriptionField, getTranslation("view.community-admin.groups.form.layout.description"));
@@ -94,7 +96,7 @@ public class GroupFormView extends FurmsViewComponent {
 		buttonLayout.add(buttons);
 	}
 
-	private void prepareValidator(TextField nameField, TextField descriptionField) {
+	private void prepareValidator(TextField nameField, TextArea descriptionField) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
@@ -110,7 +112,7 @@ public class GroupFormView extends FurmsViewComponent {
 		Button closeButton = new Button(getTranslation("view.community-admin.groups.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickShortcut(Key.ESCAPE);
-		closeButton.addClickListener(x -> UI.getCurrent().navigate(PolicyDocumentsView.class));
+		closeButton.addClickListener(x -> UI.getCurrent().navigate(GroupsView.class));
 		return closeButton;
 	}
 

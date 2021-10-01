@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.user_settings.projects;
 
 import com.google.common.collect.ImmutableList;
+import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -21,39 +22,53 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import io.imunity.furms.api.applications.ApplicationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FurmsDialog;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.RouterGridLink;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUESTED;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Route(value = "users/settings/projects", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
 public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
+	private final ApplicationService applicationService;
 	private final ProjectGridModelMapper mapper;
 	private final Grid<ProjectGridModel> grid;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
 	private String searchText = "";
 
-	ProjectsView(ProjectService projectService) {
+	ProjectsView(ProjectService projectService, ApplicationService applicationService) {
 		this.projectService = projectService;
-		this.mapper = new ProjectGridModelMapper(projectService);
+		this.applicationService = applicationService;
+		this.mapper = new ProjectGridModelMapper(projectService, applicationService);
 		this.grid = createProjectGrid();
 
 		CheckboxGroup<UserStatus> checkboxGroup = createCheckboxLayout();
 		loadGridContent();
-		getContent().add(createHeaderLayout(checkboxGroup), createSearchFilterLayout(grid), new HorizontalLayout(grid));
+		getContent().add(createHeaderLayout(checkboxGroup), createSearchFilterLayout(), new HorizontalLayout(grid));
 	}
 
 	private CheckboxGroup<UserStatus> createCheckboxLayout() {
@@ -78,7 +93,7 @@ public class ProjectsView extends FurmsViewComponent {
 		return new ViewHeaderLayout(getTranslation("view.user-settings.projects.header"), checkboxGroup);
 	}
 
-	private HorizontalLayout createSearchFilterLayout(Grid<ProjectGridModel> grid) {
+	private HorizontalLayout createSearchFilterLayout() {
 		TextField textField = new TextField();
 		textField.setPlaceholder(getTranslation("view.user-settings.projects.field.search"));
 		textField.setPrefixComponent(SEARCH.create());
@@ -131,12 +146,30 @@ public class ProjectsView extends FurmsViewComponent {
 					createContextMenu(project.id, project.name, project.communityId)
 				);
 			case NOT_ACTIVE:
-				return new GridActionsButtonLayout();
+				MenuButton applyButton = new MenuButton(PLUS_CIRCLE);
+				applyButton.addClickListener(x -> {
+					applicationService.createForCurrentUser(project.id);
+					loadGridContent();
+				});
+				return new GridActionsButtonLayout(addApplyTooltip(applyButton));
 			case REQUESTED:
-				return new GridActionsButtonLayout(new MenuButton(TRASH));
+				MenuButton removeApplicationButton = new MenuButton(TRASH);
+				removeApplicationButton.addClickListener(x -> {
+					applicationService.removeForCurrentUser(project.id);
+					loadGridContent();
+				});
+				return new GridActionsButtonLayout(removeApplicationButton);
 			default:
-				throw new RuntimeException();
+				throw new RuntimeException("This should not happened");
 		}
+	}
+
+	private MenuButton addApplyTooltip(MenuButton menuButton) {
+		Tooltip tooltip = new Tooltip();
+		tooltip.add(getTranslation("view.user-settings.projects.apply"));
+		tooltip.attachToComponent(menuButton);
+		getContent().add(tooltip);
+		return menuButton;
 	}
 
 	private Component createContextMenu(String projectId, String projectName, String communityId) {
@@ -169,17 +202,18 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		grid.setItems(loadProjectsViewsModels());
+		Set<ProjectGridModel> items = loadProjectsViewsModels();
+		grid.setItems(items);
 	}
 
-	private List<ProjectGridModel> loadProjectsViewsModels() {
-		return handleExceptions(() -> projectService.findAll())
+	private Set<ProjectGridModel> loadProjectsViewsModels() {
+		return handleExceptions(projectService::findAll)
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(mapper::map)
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.filter(project -> currentFilters.contains(project.status))
 			.filter(project -> searchText.isEmpty() || project.matches(searchText))
-			.collect(toList());
+			.collect(toSet());
 	}
 }

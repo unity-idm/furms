@@ -63,7 +63,7 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 
 		setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		setSpacing(true);
-		furmsUserComboBox = new FurmsUserComboBox(getAvailableUsers());
+		furmsUserComboBox = new FurmsUserComboBox(getAvailableUsers(), true);
 		furmsUserComboBox.setClassName("furms-invite-combo-box");
 		inviteButton = new Button(getTranslation("component.invite.button"), PAPERPLANE.create());
 		inviteButton.setMinWidth("auto");

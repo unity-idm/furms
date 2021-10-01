@@ -10,35 +10,35 @@ import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import java.util.Objects;
 import java.util.UUID;
 
-class GenericGroupEntityWithAssignmentAmount extends UUIDIdentifiable {
+class GenericGroupEntityWithMembershipAmount extends UUIDIdentifiable {
 	public final UUID communityId;
 	public final String name;
 	public final String description;
-	public final int assignmentAmount;
+	public final int membershipAmount;
 
-	GenericGroupEntityWithAssignmentAmount(UUID id, UUID communityId, String name, String description, int assignmentAmount) {
+	GenericGroupEntityWithMembershipAmount(UUID id, UUID communityId, String name, String description, int membershipAmount) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
 		this.description = description;
-		this.assignmentAmount = assignmentAmount;
+		this.membershipAmount = membershipAmount;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		GenericGroupEntityWithAssignmentAmount that = (GenericGroupEntityWithAssignmentAmount) o;
+		GenericGroupEntityWithMembershipAmount that = (GenericGroupEntityWithMembershipAmount) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(communityId, that.communityId) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
-			Objects.equals(assignmentAmount, that.assignmentAmount);
+			Objects.equals(membershipAmount, that.membershipAmount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, communityId, name, description, assignmentAmount);
+		return Objects.hash(id, communityId, name, description, membershipAmount);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ class GenericGroupEntityWithAssignmentAmount extends UUIDIdentifiable {
 			"communityId=" + communityId +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
-			", assignmentAmount='" + assignmentAmount + '\'' +
+			", assignmentAmount='" + membershipAmount + '\'' +
 			", id=" + id +
 			'}';
 	}

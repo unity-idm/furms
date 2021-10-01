@@ -11,7 +11,7 @@ CREATE TABLE generic_group (
     FOREIGN KEY (community_id) REFERENCES community(id) ON DELETE CASCADE
 );
 
-CREATE TABLE generic_group_assignment (
+CREATE TABLE generic_group_membership (
     id UUID PRIMARY KEY NOT NULL,
     generic_group_id UUID NOT NULL,
     user_id VARCHAR(255) NOT NULL,

@@ -53,6 +53,20 @@ public class UsersGridComponent extends VerticalLayout {
 			.collect(Collectors.toList())), searchLayout);
 	}
 
+	public static UsersGridComponent defaultInit(Supplier<List<FURMSUser>> fetchUsersAction,
+	                                             Supplier<Set<Invitation>> fetchInvitationsAction,
+	                                             Supplier<List<FURMSUser>> fetchApplicationsAction,
+	                                             UserGrid.Builder userGridBuilder){
+		SearchLayout searchLayout = new SearchLayout();
+		return new UsersGridComponent(userGridBuilder.build(() -> Stream.of(
+			loadUsers(fetchUsersAction, searchLayout),
+			loadInvitations(fetchInvitationsAction, searchLayout),
+			loadApplications(fetchApplicationsAction, searchLayout)
+		)
+			.flatMap(Function.identity())
+			.collect(Collectors.toList())), searchLayout);
+	}
+
 	public static UsersGridComponent init(Supplier<List<UserGridItem>> fetchUsersAction,
 	                                      Supplier<List<UserGridItem>> fetchInvitationsAction,
 	                                      UserGrid.Builder userGridBuilder){
@@ -80,6 +94,15 @@ public class UsersGridComponent extends VerticalLayout {
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(invitation -> new UserGridItem(invitation.email, invitation.id))
+			.sorted(Comparator.comparing(UserGridItem::getEmail))
+			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout));
+	}
+
+	private static Stream<UserGridItem> loadApplications(Supplier<List<FURMSUser>> fetchUsersAction, SearchLayout searchLayout) {
+		return handleExceptions(fetchUsersAction)
+			.orElseGet(Collections::emptyList)
+			.stream()
+			.map(furmsUser -> new UserGridItem(furmsUser, UserGridStatus.ACCESS_REQUESTED))
 			.sorted(Comparator.comparing(UserGridItem::getEmail))
 			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout));
 	}

@@ -21,7 +21,7 @@ import java.util.Optional;
 public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 	private final CustomValueCheckBox<FurmsViewUserModel>  comboBox = new CustomValueCheckBox<>();
 
-	public FurmsUserComboBox(List<FurmsViewUserModel> userModels) {
+	public FurmsUserComboBox(List<FurmsViewUserModel> userModels, boolean allowCustomValue) {
 		comboBox.setItemLabelGenerator(user -> {
 			String fullName = user.firstname
 				.map(value -> value + " ").orElse("")
@@ -29,7 +29,6 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 			return fullName.isBlank() ? user.email : fullName;
 		});
 		comboBox.setItems(userModels);
-		comboBox.setPlaceholder(getTranslation("component.furms-user-comb-box.placeholder"));
 		Label emailLabel = new Label("placeholder");
 		emailLabel.getStyle().set("visibility", "hidden");
 		comboBox.addValueChangeListener(event -> Optional.ofNullable(event.getValue())
@@ -46,7 +45,13 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 		layout.setPadding(false);
 		add(layout);
 		getElement().getStyle().set("line-height", "unset");
-		comboBox.addFocusListener(event -> comboBox.setAllowCustomValue(true));
+		if(allowCustomValue){
+			comboBox.addFocusListener(event -> comboBox.setAllowCustomValue(true));
+			comboBox.setPlaceholder(getTranslation("component.furms-user-comb-box.placeholder"));
+		} else {
+			comboBox.setAllowCustomValue(false);
+			comboBox.setPreventInvalidInput(true);
+		}
 	}
 
 	@Override

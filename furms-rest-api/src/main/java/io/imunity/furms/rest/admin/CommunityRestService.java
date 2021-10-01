@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -98,12 +97,17 @@ class CommunityRestService {
 	List<Group> getGroups(String communityId){
 		return resourceChecker.performIfExists(communityId, () -> genericGroupService.findAll(communityId)).stream()
 			.map(group -> new Group(group.id.id.toString(), group.name, group.description))
-			.collect(Collectors.toList());
+			.collect(toList());
 	}
 
 	GroupWithMembers getGroupWithMember(String communityId, String groupId){
 		return resourceChecker.performIfExists(communityId, () -> genericGroupService.findGroupWithAssignments(communityId, new GenericGroupId(groupId)))
-			.map(group -> new GroupWithMembers(group.group.id.id.toString(), group.group.name, group.group.description, group.assignments.stream().map(x -> x.fenixUserId.id).collect(Collectors.toList())))
+			.map(group -> new GroupWithMembers(
+				group.group.id.id.toString(),
+				group.group.name, group.group.description,
+				group.memberships.stream()
+					.map(x -> x.fenixUserId.id)
+					.collect(toList())))
 			.get();
 	}
 

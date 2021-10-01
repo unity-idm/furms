@@ -99,6 +99,7 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.user.dateOfBirth").isEmpty())
 				.andExpect(jsonPath("$.user.placeOfBirth").isEmpty())
 				.andExpect(jsonPath("$.user.postalAddress").isEmpty())
+				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
 				.andExpect(jsonPath("$.groupAccess[0].communityId").value(in(Set.of("communityId", "communityId2"))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[0]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[1]").value(in(Set.of("group1", "group2"))))

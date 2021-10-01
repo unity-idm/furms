@@ -34,7 +34,7 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private GenericGroupEntityRepository entityRepository;
 	@Autowired
-	private GenericGroupAssignmentEntityRepository assignmentEntityRepository;
+	private GenericGroupMembershipEntityRepository membershipEntityRepository;
 
 	private UUID communityId;
 	private UUID communityId2;
@@ -207,27 +207,27 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
 
-		GenericGroupAssignmentEntity genericGroupEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity genericGroupEntity2 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupEntity2 = GenericGroupMembershipEntity.builder()
 			.userId("userId2")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		assignmentEntityRepository.save(genericGroupEntity1);
-		assignmentEntityRepository.save(genericGroupEntity2);
+		membershipEntityRepository.save(genericGroupEntity1);
+		membershipEntityRepository.save(genericGroupEntity2);
 
-		Set<GenericGroupEntityWithAssignmentAmount> allWithAssignmentAmount = entityRepository.findAllWithAssignmentAmount(communityId);
+		Set<GenericGroupEntityWithMembershipAmount> allWithAssignmentAmount = entityRepository.findAllWithAssignmentAmount(communityId);
 
 		assertEquals(1, allWithAssignmentAmount.size());
-		GenericGroupEntityWithAssignmentAmount assignmentAmount = allWithAssignmentAmount.iterator().next();
-		assertEquals("name", assignmentAmount.name);
-		assertEquals(communityId, assignmentAmount.communityId);
-		assertEquals("description", assignmentAmount.description);
-		assertEquals(2, assignmentAmount.assignmentAmount);
+		GenericGroupEntityWithMembershipAmount membershipAmount = allWithAssignmentAmount.iterator().next();
+		assertEquals("name", membershipAmount.name);
+		assertEquals(communityId, membershipAmount.communityId);
+		assertEquals("description", membershipAmount.description);
+		assertEquals(2, membershipAmount.membershipAmount);
 	}
 
 	@Test
@@ -239,14 +239,14 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
 
-		Set<GenericGroupEntityWithAssignmentAmount> allWithAssignmentAmount = entityRepository.findAllWithAssignmentAmount(communityId);
+		Set<GenericGroupEntityWithMembershipAmount> allWithAssignmentAmount = entityRepository.findAllWithAssignmentAmount(communityId);
 
 		assertEquals(1, allWithAssignmentAmount.size());
-		GenericGroupEntityWithAssignmentAmount assignmentAmount = allWithAssignmentAmount.iterator().next();
-		assertEquals("name", assignmentAmount.name);
-		assertEquals(communityId, assignmentAmount.communityId);
-		assertEquals("description", assignmentAmount.description);
-		assertEquals(0, assignmentAmount.assignmentAmount);
+		GenericGroupEntityWithMembershipAmount membershipAmount = allWithAssignmentAmount.iterator().next();
+		assertEquals("name", membershipAmount.name);
+		assertEquals(communityId, membershipAmount.communityId);
+		assertEquals("description", membershipAmount.description);
+		assertEquals(0, membershipAmount.membershipAmount);
 	}
 
 	@Test
@@ -265,33 +265,31 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity savedGroup1 = entityRepository.save(genericGroupEntity1);
 
-		GenericGroupAssignmentEntity genericGroupAssignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupMembershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity genericGroupAssignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupMembershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId1")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity save = assignmentEntityRepository.save(genericGroupAssignmentEntity);
-		GenericGroupAssignmentEntity save1 = assignmentEntityRepository.save(genericGroupAssignmentEntity1);
+		GenericGroupMembershipEntity save = membershipEntityRepository.save(genericGroupMembershipEntity);
+		GenericGroupMembershipEntity save1 = membershipEntityRepository.save(genericGroupMembershipEntity1);
 
-		Set<GenericGroupEntityWithAssignment> allAssignments = entityRepository.findAllAssignments(communityId, savedGroup.getId());
+		Set<GenericGroupEntityWithMembership> allAssignments = entityRepository.findAllAssignments(communityId, savedGroup.getId());
 
 		assertEquals(2, allAssignments.size());
-		Iterator<GenericGroupEntityWithAssignment> iterator = allAssignments.iterator();
+		Iterator<GenericGroupEntityWithMembership> iterator = allAssignments.iterator();
 
-		GenericGroupEntityWithAssignment entityWithAssignment = iterator.next();
-		assertThat(entityWithAssignment.assignmentId).isIn(save1.getId(), save.getId());
+		GenericGroupEntityWithMembership entityWithAssignment = iterator.next();
 		assertThat(entityWithAssignment.communityId).isEqualTo(communityId);
 		assertThat(entityWithAssignment.userId).isIn("userId", "userId1");
 		assertThat(entityWithAssignment.description).isEqualTo("description");
 		assertThat(entityWithAssignment.name).isEqualTo("name");
 
-		GenericGroupEntityWithAssignment entityWithAssignment2 = iterator.next();
-		assertThat(entityWithAssignment2.assignmentId).isIn(save1.getId(), save.getId());
+		GenericGroupEntityWithMembership entityWithAssignment2 = iterator.next();
 		assertThat(entityWithAssignment2.communityId).isEqualTo(communityId);
 		assertThat(entityWithAssignment2.userId).isIn("userId", "userId1");
 		assertThat(entityWithAssignment2.description).isEqualTo("description");
@@ -315,33 +313,31 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		GenericGroupEntity save2 = entityRepository.save(genericGroupEntity1);
 
-		GenericGroupAssignmentEntity genericGroupAssignmentEntity = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupMembershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity genericGroupAssignmentEntity1 = GenericGroupAssignmentEntity.builder()
+		GenericGroupMembershipEntity genericGroupMembershipEntity1 = GenericGroupMembershipEntity.builder()
 			.userId("userId")
 			.genericGroupId(save2.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupAssignmentEntity save = assignmentEntityRepository.save(genericGroupAssignmentEntity);
-		GenericGroupAssignmentEntity save1 = assignmentEntityRepository.save(genericGroupAssignmentEntity1);
+		GenericGroupMembershipEntity save = membershipEntityRepository.save(genericGroupMembershipEntity);
+		GenericGroupMembershipEntity save1 = membershipEntityRepository.save(genericGroupMembershipEntity1);
 
-		Set<GenericGroupEntityWithAssignment> allAssignments = entityRepository.findAllAssignments("userId");
+		Set<GenericGroupEntityWithMembership> allAssignments = entityRepository.findAllAssignments("userId");
 
 		assertEquals(2, allAssignments.size());
-		Iterator<GenericGroupEntityWithAssignment> iterator = allAssignments.iterator();
+		Iterator<GenericGroupEntityWithMembership> iterator = allAssignments.iterator();
 
-		GenericGroupEntityWithAssignment entityWithAssignment = iterator.next();
-		assertThat(entityWithAssignment.assignmentId).isIn(save1.getId(), save.getId());
+		GenericGroupEntityWithMembership entityWithAssignment = iterator.next();
 		assertThat(entityWithAssignment.communityId).isEqualTo(communityId);
 		assertThat(entityWithAssignment.userId).isEqualTo("userId");
 		assertThat(entityWithAssignment.description).isIn("description", "description2");
 		assertThat(entityWithAssignment.name).isIn("name", "name2");
 
-		GenericGroupEntityWithAssignment entityWithAssignment2 = iterator.next();
-		assertThat(entityWithAssignment2.assignmentId).isIn(save1.getId(), save.getId());
+		GenericGroupEntityWithMembership entityWithAssignment2 = iterator.next();
 		assertThat(entityWithAssignment2.communityId).isEqualTo(communityId);
 		assertThat(entityWithAssignment2.userId).isEqualTo("userId");
 		assertThat(entityWithAssignment2.description).isIn("description", "description2");

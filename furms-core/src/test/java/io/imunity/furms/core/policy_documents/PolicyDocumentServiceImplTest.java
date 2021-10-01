@@ -48,6 +48,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PolicyDocumentServiceImplTest {
@@ -305,6 +306,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(userId));
+		verify(repository, times(0)).findById(PolicyId.empty());
 	}
 
 	@Test
