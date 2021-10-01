@@ -10,12 +10,12 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
 
-public class ProjectAccessUsers {
+public class UsersWithProjectAccess {
 
 	private final String projectId;
 	private final List<String> userIds;
 
-	public ProjectAccessUsers(String projectId, List<String> userIds) {
+	public UsersWithProjectAccess(String projectId, List<String> userIds) {
 		this.projectId = projectId;
 		this.userIds = ImmutableList.copyOf(userIds);
 	}
@@ -32,7 +32,7 @@ public class ProjectAccessUsers {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ProjectAccessUsers that = (ProjectAccessUsers) o;
+		UsersWithProjectAccess that = (UsersWithProjectAccess) o;
 		return Objects.equals(projectId, that.projectId) && Objects.equals(userIds, that.userIds);
 	}
 
@@ -70,8 +70,8 @@ public class ProjectAccessUsers {
 			return this;
 		}
 
-		public ProjectAccessUsers build() {
-			return new ProjectAccessUsers(projectId, userIds);
+		public UsersWithProjectAccess build() {
+			return new UsersWithProjectAccess(projectId, userIds);
 		}
 	}
 }

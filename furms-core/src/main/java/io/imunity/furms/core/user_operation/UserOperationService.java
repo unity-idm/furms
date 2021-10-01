@@ -88,13 +88,15 @@ public class UserOperationService implements UserAllocationsService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
+		final FenixUserId fenixUserId = ofNullable(usersDAO.getFenixUserId(userId))
+				.orElse(null);
 		final Map<String, Optional<PolicyAcceptanceAtSite>> sitesPolicy =
-				policyService.findSitePolicyAcceptancesByUserId(userId).stream()
+				policyService.findSitePolicyAcceptancesByUserId(fenixUserId).stream()
 						.collect(groupingBy(
 								policyAcceptance -> policyAcceptance.siteId,
 								maxBy(comparingInt(policyAcceptance -> policyAcceptance.policyDocumentRevision))));
 		final Map<String, Set<PolicyAcceptanceAtSite>> servicePolicies =
-				policyService.findServicesPolicyAcceptancesByUserId(userId).stream()
+				policyService.findServicesPolicyAcceptancesByUserId(fenixUserId).stream()
 						.collect(groupingBy(policyAcceptance -> policyAcceptance.siteId, toSet()));
 		return findByUserId(userId).stream()
 				.map(site -> SiteUser.builder()

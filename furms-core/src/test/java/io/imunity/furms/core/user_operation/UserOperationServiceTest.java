@@ -116,12 +116,12 @@ class UserOperationServiceTest {
 				UserAdditionWithProject.builder().projectId("project31").userId("remoteUser31").build(),
 				UserAdditionWithProject.builder().projectId("project32").userId("remoteUser32").build(),
 				UserAdditionWithProject.builder().projectId("project33").userId("remoteUser33").build()));
-		when(policyService.findSitePolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
+		when(policyService.findSitePolicyAcceptancesByUserId(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
 				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
 				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy2).build(),
 				PolicyAcceptanceAtSite.builder().siteId("id3").policyDocumentId(policy3).build()));
-		when(policyService.findServicesPolicyAcceptancesByUserId(userId)).thenReturn(Set.of(
+		when(policyService.findServicesPolicyAcceptancesByUserId(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).build(),
 				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy2).build(),
 				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy1).build(),

@@ -162,7 +162,6 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[1].sshKeys.[0]", in(Set.of(sshKey1Value, sshKey2Value))));
 	}
 
-
 	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
 		return projectOperationRepository.create(defaultProjectInstallationJob()
 				.projectId(projectId)

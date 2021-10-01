@@ -8,7 +8,7 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.resource_access.ProjectAccessUsers;
+import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -46,7 +46,7 @@ class ProjectsRestConverter {
 		final List<String> userIds = resourceAccessService.findAddedUserBySiteId(siteInstalledProject.siteId).stream()
 				.filter(project -> project.getProjectId().equals(siteInstalledProject.project.getId()))
 				.findFirst()
-				.map(ProjectAccessUsers::getUserIds)
+				.map(UsersWithProjectAccess::getUserIds)
 				.orElse(List.of());
 		return new ProjectWithUsers(convert(siteInstalledProject.project), userIds);
 	}

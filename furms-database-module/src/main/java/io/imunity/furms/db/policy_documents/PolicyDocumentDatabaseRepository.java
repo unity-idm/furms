@@ -127,14 +127,14 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Set<PolicyDocument> findAllSitePoliciesByUserId(PersistentId userId) {
+	public Set<PolicyDocument> findAllSitePoliciesByUserId(FenixUserId userId) {
 		return repository.findAllSitePoliciesByUserId(userId.id).stream()
 				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
 				.collect(toSet());
 	}
 
 	@Override
-	public Set<PolicyDocument> findAllServicePoliciesByUserId(PersistentId userId) {
+	public Set<PolicyDocument> findAllServicePoliciesByUserId(FenixUserId userId) {
 		return repository.findAllServicePoliciesByUserId(userId.id).stream()
 				.map(PolicyDocumentExtendedEntity::toPolicyDocument)
 				.collect(toSet());

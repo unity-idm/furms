@@ -322,8 +322,9 @@ public class UserService {
 
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
-			.map(x -> UnityUserMapper.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
-				.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
+			.map(x -> UnityUserMapper
+					.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
+					.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)

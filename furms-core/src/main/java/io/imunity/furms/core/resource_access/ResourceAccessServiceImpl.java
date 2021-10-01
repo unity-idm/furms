@@ -13,7 +13,7 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.ProjectAccessUsers;
+import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -84,11 +84,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ProjectAccessUsers> findAddedUserBySiteId(String siteId) {
+	public Set<UsersWithProjectAccess> findAddedUserBySiteId(String siteId) {
 		return userRepository.findAllUserAdditionsBySiteId(siteId).stream()
 				.collect(groupingBy(userAddition -> userAddition.projectId))
 				.entrySet().stream()
-				.map(entry -> ProjectAccessUsers.builder()
+				.map(entry -> UsersWithProjectAccess.builder()
 						.projectId(entry.getKey())
 						.userIds(entry.getValue().stream()
 								.map(userAddition -> userAddition.userId)

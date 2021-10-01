@@ -5,10 +5,7 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -18,23 +15,16 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
+import io.imunity.furms.integration.tests.tools.PolicyAcceptanceMockUtils;
+import io.imunity.furms.integration.tests.tools.PolicyAcceptanceMockUtils.PolicyUser;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,10 +43,6 @@ import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.b
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
-import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
-import static io.imunity.furms.unity.common.UnityConst.STRING;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -73,6 +59,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	private Site site;
 	private Site darkSite;
 
+	private PolicyAcceptanceMockUtils policyAcceptanceMockUtils;
+
 	@MockBean
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	@MockBean
@@ -80,6 +68,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 
 	@BeforeEach
 	void setUp() {
+		policyAcceptanceMockUtils = new PolicyAcceptanceMockUtils(objectMapper, server);
 		Site.SiteBuilder siteBuilder = defaultSite();
 		site = siteBuilder
 				.name("Site")
@@ -105,10 +94,10 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		createPolicyAcceptanceBase(site, basicUser);
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, PolicyId.empty());
 
-		createPolicyAcceptancesMock(sitePath, List.of(
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of(
 				new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
 				new PolicyUser(site.getPolicyId().id.toString(), basicUser)));
-		createPolicyAcceptancesMock(darkSitePath, List.of(
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
 				new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
 
 		//when
@@ -137,10 +126,10 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		createPolicyAcceptanceBase(site, basicUser);
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER);
 
-		createPolicyAcceptancesMock(sitePath, List.of(
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of(
 			new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
 			new PolicyUser(site.getPolicyId().id.toString(), basicUser)));
-		createPolicyAcceptancesMock(darkSitePath, List.of(
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
 			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
 
 		updatePolicyRevision(site.getPolicyId());
@@ -180,8 +169,8 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		PolicyId darkPolicyId = createPolicy(site.getId());
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, darkPolicyId);
 
-		createPolicyAcceptancesMock(sitePath, List.of());
-		createPolicyAcceptancesMock(darkSitePath, List.of(
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of());
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
 			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
 
 		//when
@@ -250,7 +239,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)));
 
-		createPolicyAcceptancesMock(createPolicyAcceptanceBase(site, ADMIN_USER),
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(createPolicyAcceptanceBase(site, ADMIN_USER),
 				List.of(new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER)));
 
 		//when
@@ -323,43 +312,6 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 			.build());
 	}
 
-	private void createPolicyAcceptancesMock(String path, List<PolicyUser> policies) throws JsonProcessingException {
-		final MultiGroupMembers multiGroupMembers = new MultiGroupMembers(
-				policies.stream()
-						.map(policy -> policy.user.getEntity())
-						.collect(toSet()),
-				Map.of(path, policies.stream()
-						.map(policyUser -> createEntityGroupInformation(path, policyUser))
-						.collect(toList())));
-
-		server.stubFor(WireMock.post("/unity/group-members-multi/%2F")
-				.withRequestBody(new ContainsPattern(path))
-				.willReturn(aResponse().withStatus(200)
-						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-						.withBody(new ObjectMapper().writeValueAsString(multiGroupMembers))));
-	}
-
-	private MultiGroupMembers.EntityGroupAttributes createEntityGroupInformation(String path, PolicyUser policyAcceptance) {
-		try {
-			final List<AttributeExt> attributes = new ArrayList<>(policyAcceptance.user.getAttributes().values().stream()
-					.flatMap(Collection::stream)
-					.map(attribute -> new AttributeExt(attribute, true))
-					.collect(toList()));
-			attributes.add(new AttributeExt(new Attribute(
-					FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
-					path,
-					List.of(objectMapper.writeValueAsString(new PolicyAcceptanceUnityMock(
-							policyAcceptance.policyId,
-							1,
-							ACCEPTED.name(),
-							LocalDateTime.now().toInstant(ZoneOffset.UTC))))),
-					true));
-			return new MultiGroupMembers.EntityGroupAttributes(policyAcceptance.user.getEntity().getEntityInformation().getId(), attributes);
-		} catch (JsonProcessingException e) {
-			return null;
-		}
-	}
-
 	private String createPolicyAcceptanceBase(Site site, TestUser testUser) {
 		return createPolicyAcceptanceBase(site, testUser, site.getPolicyId());
 	}
@@ -409,30 +361,6 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), grantAccess, GRANT_PENDING);
 		return "/fenix/communities/"+communityId+"/projects/"+projectId+"/users";
-	}
-
-	private static class PolicyUser {
-		public final String policyId;
-		public final TestUser user;
-
-		public PolicyUser(String policyId, TestUser user) {
-			this.policyId = policyId;
-			this.user = user;
-		}
-	}
-
-	private static class PolicyAcceptanceUnityMock {
-		public final String policyDocumentId;
-		public final int policyDocumentRevision;
-		public final String acceptanceStatus;
-		public final Instant decisionTs;
-
-		public PolicyAcceptanceUnityMock(String policyDocumentId, int policyDocumentRevision, String acceptanceStatus, Instant decisionTs) {
-			this.policyDocumentId = policyDocumentId;
-			this.policyDocumentRevision = policyDocumentRevision;
-			this.acceptanceStatus = acceptanceStatus;
-			this.decisionTs = decisionTs;
-		}
 	}
 
 }

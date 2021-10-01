@@ -180,8 +180,6 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final String community = createCommunity();
 		final String project1 = createProject(community);
 		final String project2 = createProject(community);
-		createProjectInstallation(project1, site.getId(), INSTALLED);
-		createProjectInstallation(project2, site.getId(), INSTALLED);
 
 		final TestUser siteAdmin = basicUser();
 		siteAdmin.addSiteAdmin(site.getId());

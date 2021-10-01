@@ -43,18 +43,18 @@ class PolicyDocumentServiceHelper {
 	}
 
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
-	public Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(PersistentId userId) {
+	public Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(FenixUserId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllSitePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
 	}
 
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
-	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(PersistentId userId) {
+	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(FenixUserId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
 	}
 
-	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(PersistentId userId,
+	private Set<PolicyAcceptanceAtSite> findPolicyAcceptancesByUserIdFilterByPolicies(FenixUserId userId,
 	                                                                                  Set<PolicyDocument> userPolicies) {
 		return findPolicyAcceptancesByUserId(userId).stream()
 			.filter(policyAcceptance -> policyAcceptance.acceptanceStatus == ACCEPTED)
@@ -72,12 +72,8 @@ class PolicyDocumentServiceHelper {
 			&& userPolicy.revision == policyAcceptance.policyDocumentRevision;
 	}
 
-	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(PersistentId userId) {
-		final FenixUserId fenixUserId = usersDAO.findById(userId)
-				.flatMap(user -> user.fenixUserId)
-				.orElseThrow(() -> new IllegalArgumentException("User have to be central IDP user"));
-
-		LOG.debug("Getting all Policy Document for user id={}", userId.id);
+	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(FenixUserId fenixUserId) {
+		LOG.debug("Getting all Policy Document for fenix user id={}", fenixUserId.id);
 		return policyDocumentDAO.getPolicyAcceptances(fenixUserId);
 	}
 }
