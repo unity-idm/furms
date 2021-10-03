@@ -475,6 +475,18 @@ registrationInvitation.consumer=InvitationWithCode
 registrationInvitation.notificationChannel=default_email
 registrationInvitation.type=HTML
 registrationInvitation.bodyFile.en=${CONF}/msgTemplates/registrationInvitation.html
+
+invitationAccepted.subject.en=Invitation has been accepted
+invitationAccepted.consumer=UserNotification
+invitationAccepted.notificationChannel=default_email
+invitationAccepted.type=HTML
+invitationAccepted.bodyFile.en=${CONF}/msgTemplates/invitationAccepted.html
+
+invitationRejected.subject.en=Invitation has been rejected
+invitationRejected.consumer=UserNotification
+invitationRejected.notificationChannel=default_email
+invitationRejected.type=HTML
+invitationRejected.bodyFile.en=${CONF}/msgTemplates/invitationRejected.html
 ```
 
 The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definitions are used by FURMS:
@@ -482,7 +494,10 @@ The path to this file shall be provided in the  `unity.msgTemplates.configuratio
 * `policyAcceptanceNew` - utilized to notify user about new policy document to accept,
 * `policyAcceptanceRevision` - utilized to notify user that existing policy has been updated and awaits approval,
 * `invitationNew` - utilized to send invitations to existing users who were invited to new roles,
-* `registrationInvitation` - utilized to send invitations to create a new account in FURMS to prospective users.
+* `registrationInvitation` - utilized to send invitations to create a new account in FURMS to prospective users,
+* `invitationAccepted` - utilized to send information that particular user has accepted the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation,
+* `invitationRejected` - utilized to send information that particular user has rejected the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation.
+
 
 Most of the configuration in the default message template file should not be changed.
 It is recommended for system administrator to adjust the template subject only. 
@@ -494,7 +509,9 @@ Given the default template configuration file, FURMS system administrator has to
 * `policyAcceptanceRevision.html` - used by `policyAcceptanceRevision` template definition,
 * `invitationNew.html` - used by `invitationNew` template definition,
 * `registrationInvitation.html` - used by `registrationInvitation` template definition,
-* `masterTemplate-furms-head.html` - header that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-head}` tag is replaced with the header content.
+* `invitationAccepted.html` - used by `invitationAccepted` template definition,
+* `invitationRejected.html` - used by `invitationRejected` template definition,
+* `masterTemplate-furms-head.html` - header that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-head}` tag is replaced with the header content,
 * `masterTemplate-furms-footer.html`- footer that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-footer}` tag is replaced with the footer content.
 
 The path to the directory that stores the aforementioned HTML template files, shall be provided in the `unity.msgTemplates.files` property value in the Ansible groups variable file.
@@ -514,8 +531,9 @@ ${include:master-furms-footer}
 Email templates can use custom variables that define dynamic contents set by FURMS when sending notifications. The following variables are available:
 
 * `${custom.name}` - can be used in `policyAcceptanceNew` or `policyAcceptanceRevision` HTML template files, and is resolved to the policy document name,
-* `${custom.role}` - can be used in `invitationNew` or `registrationInvitation` HTML template files, and is resolved to the FURMS role that invited user is about to accept,
+* `${custom.role}` - can be used in `invitationNew`, `registrationInvitation`, `invitationAccepted` or `invitationRejected` HTML template files, and is resolved to the FURMS role that invited user is about to accept,
 * `${custom.furmsUrl}` - can be used by all of the HTML templates except `registrationInvitation`, and points to the FURMS application,
+* `${custom.email}` - can be used in `invitationAccepted` or `invitationRejected` HTML template files, and is resolved to the email address of person that either accepted or declined the invitation,
 * `${url}` - can be used in `registrationInvitation` HTML template file and points to the Unity-IdM registration form.
 
 
