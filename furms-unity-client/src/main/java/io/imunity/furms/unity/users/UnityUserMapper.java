@@ -5,7 +5,6 @@
 
 package io.imunity.furms.unity.users;
 
-
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -14,6 +13,8 @@ import io.imunity.furms.unity.common.AttributeValueMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -38,16 +39,16 @@ public class UnityUserMapper {
 		return getFurmsUser(() -> buildUser(groupMember));
 	}
 
-	public static Optional<FURMSUser> map(PersistentId userId,  List<Identity> identities, List<Attribute> attributes){
-		return getFurmsUser(() -> buildUser(userId, getFenixId(identities), attributes));
+	public static Optional<FURMSUser> map(PersistentId userId, Entity entity, List<Attribute> attributes){
+		return getFurmsUser(() -> buildUser(userId, getFenixId(entity.getIdentities()), attributes, entity));
+	}
+
+	public static Optional<FURMSUser> map(FenixUserId userId, Entity entity, List<Attribute> attributes){
+		return getFurmsUser(() -> buildUser(getPersistentId(entity.getIdentities()), userId, attributes, entity));
 	}
 
 	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes){
 		return getFurmsUser(() -> buildUser(identities, attributes));
-	}
-
-	public static Optional<FURMSUser> map(FenixUserId userId,  List<Identity> identities, List<Attribute> attributes){
-		return getFurmsUser(() -> buildUser(getPersistentId(identities), userId, attributes));
 	}
 
 	private static Optional<FURMSUser> getFurmsUser(Supplier<FURMSUser> userGetter) {
@@ -87,14 +88,14 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<Attribute> attributes) {
+	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<Attribute> attributes, Entity entity) {
 		return FURMSUser.builder()
 			.id(userId)
 			.fenixUserId(fenixUserId)
 			.firstName(getFirstAttributeValue(attributes, "firstname"))
 			.lastName(getFirstAttributeValue(attributes, "surname"))
 			.email(getFirstAttributeValue(attributes, "email"))
-			.status(getStatus(attributes))
+			.status(getStatus(entity.getState()))
 			.build();
 	}
 
@@ -109,7 +110,7 @@ public class UnityUserMapper {
 			.map(Identity::getComparableValue)
 			.orElse(null);
 	}
-	
+
 	private static FenixUserId getFenixId(GroupMember groupMember) {
 		return getFenixId(groupMember.getEntity().getIdentities());
 	}
@@ -134,6 +135,10 @@ public class UnityUserMapper {
 
 	private static UserStatus getStatus(Collection<? extends Attribute> attributes) {
 		return getStatus(getFirstAttributeValue(attributes, "entityState"));
+	}
+
+	private static UserStatus getStatus(EntityState state) {
+		return getStatus(state.name());
 	}
 
 	private static UserStatus getStatus(String entityState) {

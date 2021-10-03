@@ -8,7 +8,9 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
+import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.FenixIdNotFoundException;
@@ -16,6 +18,7 @@ import io.imunity.furms.rest.user.User;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -39,9 +42,18 @@ class ProjectsRestConverter {
 				new ArrayList<>(resourceAccessService.findAddedUser(project.getId())));
 	}
 
+	public ProjectWithUsers convertToProjectWithUsers(SiteInstalledProjectResolved siteInstalledProject) {
+		final List<String> userIds = resourceAccessService.findAddedUserBySiteId(siteInstalledProject.siteId).stream()
+				.filter(project -> project.getProjectId().equals(siteInstalledProject.project.getId()))
+				.findFirst()
+				.map(UsersWithProjectAccess::getUserIds)
+				.orElse(List.of());
+		return new ProjectWithUsers(convert(siteInstalledProject.project), userIds);
+	}
+
 	public Project convert(io.imunity.furms.domain.projects.Project project) {
 		final Set<SiteInstalledProject> projectInstallations =
-				projectInstallationsService.findAllSiteInstallionProjectsByProjectId(project.getId());
+				projectInstallationsService.findAllSiteInstalledProjectsByProjectId(project.getId());
 		final User user = findUser(project.getLeaderId());
 		return new Project(project, user, projectInstallations);
 	}
@@ -57,5 +69,4 @@ class ProjectsRestConverter {
 				.map(User::new)
 				.orElse(null);
 	}
-
 }

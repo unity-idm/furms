@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
+import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.rest.user.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -62,7 +63,6 @@ import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 class SitesRestService {
 
 	private final SiteService siteService;
-	private final ProjectService projectService;
 	private final ResourceCreditService resourceCreditService;
 	private final ResourceTypeService resourceTypeService;
 	private final ResourceUsageService resourceUsageService;
@@ -77,7 +77,6 @@ class SitesRestService {
 
 
 	SitesRestService(SiteService siteService,
-	                 ProjectService projectService,
 	                 ResourceCreditService resourceCreditService,
 	                 ResourceTypeService resourceTypeService,
 	                 ResourceUsageService resourceUsageService,
@@ -89,7 +88,6 @@ class SitesRestService {
 	                 SSHKeyService sshKeyService,
 	                 PolicyDocumentService policyDocumentService) {
 		this.siteService = siteService;
-		this.projectService = projectService;
 		this.resourceCreditService = resourceCreditService;
 		this.resourceTypeService = resourceTypeService;
 		this.resourceUsageService = resourceUsageService;
@@ -349,7 +347,7 @@ class SitesRestService {
 						uid,
 						furmsUser.map(persistedUser ->
 								sshKeyService.findByOwnerId(persistedUser.id.get().id).stream()
-									.map(sshKey -> sshKey.id)
+									.map(sshKey -> sshKey.value)
 									.collect(toList()))
 								.orElse(List.of()),
 						userAdditions.stream()
@@ -358,12 +356,9 @@ class SitesRestService {
 				.orElse(null);
 	}
 
-	private ProjectInstallation convertToProject(SiteInstalledProject projectInstallation) {
-		final io.imunity.furms.domain.projects.Project projectBySiteId = projectService.findById(projectInstallation.projectId)
-				.orElseThrow(() -> new ProjectRestNotFoundException("Project installations not found, " +
-						"related Project not found."));
-		final User projectLeader = findUser(projectBySiteId.getLeaderId().id);
-		final Project project = new Project(projectBySiteId, projectLeader, Set.of(projectInstallation));
+	private ProjectInstallation convertToProject(SiteInstalledProjectResolved projectInstallation) {
+		final User projectLeader = findUser(projectInstallation.project.getLeaderId().id);
+		final Project project = new Project(projectInstallation.project, projectLeader, projectInstallation.toSiteInstalledProject());
 
 		return new ProjectInstallation(project, INSTALLED, projectInstallation.gid.id);
 	}

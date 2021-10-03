@@ -12,27 +12,32 @@ import io.imunity.furms.domain.users.SiteSSHKeys;
 
 class SSHKeysJson {
 
+	public final String siteId;
 	public final Set<String> sshKeys;
 	
 	SSHKeysJson(SiteSSHKeys keys) {
+		this.siteId = keys.siteId;
 		this.sshKeys = Set.copyOf(keys.sshKeys);
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(sshKeys);
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SSHKeysJson that = (SSHKeysJson) o;
+		return Objects.equals(siteId, that.siteId) && Objects.equals(sshKeys, that.sshKeys);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SSHKeysJson other = (SSHKeysJson) obj;
-		return Objects.equals(sshKeys, other.sshKeys);
+	public int hashCode() {
+		return Objects.hash(siteId, sshKeys);
 	}
 
+	@Override
+	public String toString() {
+		return "SSHKeysJson{" +
+				"siteId='" + siteId + '\'' +
+				", sshKeys=" + sshKeys +
+				'}';
+	}
 }

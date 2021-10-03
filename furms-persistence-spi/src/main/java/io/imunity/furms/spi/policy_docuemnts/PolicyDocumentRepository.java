@@ -38,9 +38,9 @@ public interface PolicyDocumentRepository {
 
 	Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId);
 
-	Set<PolicyDocument> findAllSitePoliciesByUserId(PersistentId userId);
+	Set<PolicyDocument> findAllSitePoliciesByUserId(FenixUserId userId);
 
-	Set<PolicyDocument> findAllServicePoliciesByUserId(PersistentId userId);
+	Set<PolicyDocument> findAllServicePoliciesByUserId(FenixUserId userId);
 
 	PolicyId create(PolicyDocument projectAllocation);
 

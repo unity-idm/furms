@@ -211,14 +211,14 @@ public class UserService {
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		Entity entity  = getEntity(userId);
 		
-		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
+		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
 	public Optional<FURMSUser> getUser(FenixUserId userId){
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		Entity entity  = getEntity(userId);
 
-		return UnityUserMapper.map(userId, entity.getIdentities(), attributesFromGroup);
+		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
 	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
@@ -322,8 +322,9 @@ public class UserService {
 
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
-			.map(x -> UnityUserMapper.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
-				.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
+			.map(x -> UnityUserMapper
+					.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
+					.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)

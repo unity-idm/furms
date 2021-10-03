@@ -7,6 +7,7 @@ package io.imunity.furms.integration.tests.tools;
 
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -184,6 +185,14 @@ public class DefaultDataBuilders {
 				.revision(1)
 				.contentType(PolicyContentType.EMBEDDED)
 				.wysiwygText("Default HTML Policy Text");
+	}
+
+	public static GenericGroup.GenericGroupBuilder defaultGenericGroup() {
+		return GenericGroup.builder()
+				.id(UUID.randomUUID())
+				.communityId(UUID.randomUUID().toString())
+				.name(UUID.randomUUID().toString())
+				.description("Default Description");
 	}
 
 }
