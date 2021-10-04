@@ -35,9 +35,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,79 +81,30 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindUserRecordByFenixUserId() throws Exception {
 		//given
-		Site.SiteBuilder siteBuilder = defaultSite();
-		final String siteId = siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId());
-		final PolicyId policyId = createPolicy(siteId);
-		final Site site = siteBuilder
-				.id(siteId)
-				.oauthClientId("siteOauth")
-				.policyId(policyId)
-				.name("site1")
-				.build();
-		//just to save oauthClientId and policy
-		siteRepository.update(site);
-
 		final TestUser testUser = basicUser();
+		final CidpRequiredData data = createCidpRequiredData(testUser);
 
-		final String communityId = communityRepository.create(defaultCommunity()
-				.name(UUID.randomUUID().toString())
-				.build());
-		final String projectId = createProject(communityId);
-		final String serviceId = infraServiceRepository.create(defaultService()
-				.siteId(site.getId())
-				.policyId(site.getPolicyId())
-				.name(UUID.randomUUID().toString())
-				.build());
-		final String resourceTypeId = resourceTypeRepository.create(defaultResourceType()
-				.siteId(site.getId())
-				.serviceId(serviceId)
-				.name(UUID.randomUUID().toString())
-				.build());
-		final String resourceCreditId = resourceCreditRepository.create(defaultResourceCredit()
-				.siteId(site.getId())
-				.resourceTypeId(resourceTypeId)
-				.amount(BigDecimal.TEN)
-				.name(UUID.randomUUID().toString())
-				.build());
-		final String communityAllocationId = communityAllocationRepository.create(defaultCommunityAllocation()
-				.resourceCreditId(resourceCreditId)
-				.communityId(communityId)
-				.amount(BigDecimal.valueOf(5))
-				.name(UUID.randomUUID().toString())
-				.build());
-		String projectAllocationId = projectAllocationRepository.create(defaultProjectAllocation()
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.amount(BigDecimal.ONE)
-				.name(UUID.randomUUID().toString())
-				.build());
-		GrantAccess grantAccess = GrantAccess.builder()
-				.siteId(new SiteId(site.getId(), "mock"))
-				.allocationId(projectAllocationId)
-				.projectId(projectId)
-				.fenixUserId(new FenixUserId(testUser.getFenixId()))
-				.build();
-		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), grantAccess, GRANT_PENDING);
+		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
-		final String path = "/fenix/communities/"+communityId+"/projects/"+projectId+"/users";
+		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
 		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
-				new PolicyAcceptanceMockUtils.PolicyUser(site.getPolicyId().id.toString(), testUser)));
+				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
 
 		testUser.getAttributes().put(path, Set.of(new Attribute(
 						FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
 						path,
 						List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
-								site.getPolicyId().id.toString(),
+								data.policyId,
 								1,
 								ACCEPTED.name(),
 								LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
 		setupUser(testUser);
 
-		createSiteInstalledProject(projectId, site.getId(), INSTALLED);
-		createUserSite(projectId, site.getId(), testUser);
-		createSSHKey(site.getId(), "ssh-key", testUser);
+		createSiteInstalledProject(data.projectId, data.siteId, INSTALLED);
+		createUserSite(data.projectId, data.siteId, testUser);
+		createSSHKey(data.siteId, "ssh-key", testUser);
 		final String groupName = "groupName";
-		createGroup(communityId, groupName, testUser);
+		createGroup(data.communityId, groupName, testUser);
 
 		//when
 		mockMvc.perform(get("/rest-api/v1/cidp/user/{fenixUserId}", testUser.getFenixId())
@@ -166,23 +119,71 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.user.affiliation.name").value("Ahsoka"))
 				.andExpect(jsonPath("$.user.affiliation.email", containsString("jedi_office@domain.com")))
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.siteAccess.[0].siteId").value(site.getId()))
-				.andExpect(jsonPath("$.siteAccess.[0].siteOauthClientId").value(site.getOauthClientId()))
+				.andExpect(jsonPath("$.siteAccess.[0].siteId").value(data.siteId))
+				.andExpect(jsonPath("$.siteAccess.[0].siteOauthClientId").value(data.oauthClientId))
 				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].localUserId").value(testUser.getFenixId()))
-				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].projectId").value(projectId))
-				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(site.getPolicyId().id.toString()))
+				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].projectId").value(data.projectId))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.revision").value(1))
-				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(site.getPolicyId().id.toString()))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.currentVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].revision").value(1))
-				.andExpect(jsonPath("$.siteAccess.[0].sshKeys.[0].siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.siteAccess.[0].sshKeys.[0].sshKeys", equalTo(List.of("ssh-key"))))
-				.andExpect(jsonPath("$.groupAccess.[0].communityId").value(communityId))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].currentVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess.[0].sshKeys", equalTo(List.of("ssh-key"))))
+				.andExpect(jsonPath("$.groupAccess.[0].communityId").value(data.communityId))
 				.andExpect(jsonPath("$.groupAccess.[0].groups", equalTo(List.of(groupName))));
+	}
 
+	@Test
+	void shouldIncludeInUserRecordResponseInformationAboutCurrentAndAcceptedPolicyRevisions() throws Exception {
+		//given
+		final TestUser testUser = basicUser();
+		final CidpRequiredData data = createCidpRequiredData(testUser);
+
+		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
+
+		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
+				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
+
+		final Optional<PolicyDocument> oldRevision = policyDocumentRepository.findById(new PolicyId(data.policyId));
+		policyDocumentRepository.update(oldRevision.get(), true);
+
+		testUser.getAttributes().put(path, Set.of(new Attribute(
+				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
+				path,
+				List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
+						data.policyId,
+						1,
+						ACCEPTED.name(),
+						LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
+		setupUser(testUser);
+
+		createSiteInstalledProject(data.projectId, data.siteId, INSTALLED);
+		createUserSite(data.projectId, data.siteId, testUser);
+		createSSHKey(data.siteId, "ssh-key", testUser);
+		final String groupName = "groupName";
+		createGroup(data.communityId, groupName, testUser);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/cidp/user/{fenixUserId}", testUser.getFenixId())
+				.with(httpBasic(centralIdPUser, centralIdPSecret)))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.acceptanceStatus").value(ACCEPTED.name()))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.currentVersion").value(2))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].acceptanceStatus").value(ACCEPTED.name()))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedOn").isNotEmpty())
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].currentVersion").value(2))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedVersion").value(1));
 	}
 
 	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
@@ -255,6 +256,77 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.utcMemberSince(LocalDateTime.now().minusDays(1))
 				.build());
 		return genericGroupId;
+	}
+
+	private CidpRequiredData createCidpRequiredData(TestUser testUser) {
+		final CidpRequiredData relatedData = new CidpRequiredData();
+		Site.SiteBuilder siteBuilder = defaultSite();
+		relatedData.siteId = siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId());
+		relatedData.policyId = createPolicy(relatedData.siteId).id.toString();
+		relatedData.oauthClientId = "siteOauth";
+		final Site site = siteBuilder
+				.id(relatedData.siteId)
+				.oauthClientId(relatedData.oauthClientId)
+				.policyId(new PolicyId(relatedData.policyId))
+				.name("site1")
+				.build();
+		//just to save oauthClientId and policy
+		siteRepository.update(site);
+
+		relatedData.communityId = communityRepository.create(defaultCommunity()
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.projectId = createProject(relatedData.communityId);
+		relatedData.serviceId = infraServiceRepository.create(defaultService()
+				.siteId(site.getId())
+				.policyId(site.getPolicyId())
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.resourceTypeId = resourceTypeRepository.create(defaultResourceType()
+				.siteId(site.getId())
+				.serviceId(relatedData.serviceId)
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.resourceCreditId = resourceCreditRepository.create(defaultResourceCredit()
+				.siteId(site.getId())
+				.resourceTypeId(relatedData.resourceTypeId)
+				.amount(BigDecimal.TEN)
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.communityAllocationId = communityAllocationRepository.create(defaultCommunityAllocation()
+				.resourceCreditId(relatedData.resourceCreditId)
+				.communityId(relatedData.communityId)
+				.amount(BigDecimal.valueOf(5))
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.projectAllocationId = projectAllocationRepository.create(defaultProjectAllocation()
+				.communityAllocationId(relatedData.communityAllocationId)
+				.projectId(relatedData.projectId)
+				.amount(BigDecimal.ONE)
+				.name(UUID.randomUUID().toString())
+				.build());
+		relatedData.grantAccess = GrantAccess.builder()
+				.siteId(new SiteId(site.getId(), "mock"))
+				.allocationId(relatedData.projectAllocationId)
+				.projectId(relatedData.projectId)
+				.fenixUserId(new FenixUserId(testUser.getFenixId()))
+				.build();
+
+		return relatedData;
+	}
+
+	private static class CidpRequiredData {
+		String siteId;
+		String oauthClientId;
+		String policyId;
+		String communityId;
+		String projectId;
+		String serviceId;
+		String resourceTypeId;
+		String resourceCreditId;
+		String communityAllocationId;
+		String projectAllocationId;
+		GrantAccess grantAccess;
 	}
 
 }

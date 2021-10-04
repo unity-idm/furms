@@ -75,9 +75,7 @@ class ResourceCreditServiceValidator {
 
 	void validateDelete(String id) {
 		assertCreditWithIdExists(id);
-		if(communityAllocationRepository.existsByResourceCreditId(id)){
-			throw new ResourceCreditHasAllocationException("ResourceTypeCredit can not be removed when community allocation exists");
-		}
+		assertCommunityAllocationNotExistsByResourceId(id);
 	}
 
 	private void validateName(ResourceCredit resourceCredit, Optional<ResourceCredit> existingCredit) {
@@ -162,6 +160,12 @@ class ResourceCreditServiceValidator {
 		if(!savedResourceCredit.utcStartTime.isEqual(resourceCredit.utcStartTime) && !savedResourceCredit.utcEndTime.isEqual(resourceCredit.utcEndTime)){
 			if(communityAllocationRepository.existsByResourceCreditId(resourceCredit.id))
 				throw new ResourceCreditHasAllocationException("Can not change validity to/from when it already was allocated");
+		}
+	}
+
+	private void assertCommunityAllocationNotExistsByResourceId(String id) {
+		if(communityAllocationRepository.existsByResourceCreditId(id)){
+			throw new ResourceCreditHasAllocationException("ResourceTypeCredit can not be removed when community allocation exists");
 		}
 	}
 }

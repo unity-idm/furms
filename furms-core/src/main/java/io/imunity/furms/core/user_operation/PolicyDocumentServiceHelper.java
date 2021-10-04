@@ -67,8 +67,7 @@ class PolicyDocumentServiceHelper {
 	}
 
 	private boolean isPolicyRelatedToAcceptance(PolicyDocument userPolicy, PolicyAcceptance policyAcceptance) {
-		return userPolicy.id.equals(policyAcceptance.policyDocumentId)
-			&& userPolicy.revision == policyAcceptance.policyDocumentRevision;
+		return userPolicy.id.equals(policyAcceptance.policyDocumentId);
 	}
 
 	private Set<PolicyAcceptance> findPolicyAcceptancesByUserId(FenixUserId fenixUserId) {

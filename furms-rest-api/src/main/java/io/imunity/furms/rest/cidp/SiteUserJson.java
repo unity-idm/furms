@@ -19,7 +19,7 @@ public class SiteUserJson {
 	public final Set<ProjectMembershipOnSiteJson> projectMemberships;
 	public final PolicyAcceptanceJson sitePolicyAcceptance;
 	public final Set<PolicyAcceptanceJson> servicesPolicyAcceptance;
-	public final Set<SSHKeysJson> sshKeys;
+	public final Set<String> sshKeys;
 
 	public SiteUserJson(SiteUser siteUser) {
 		this.siteId = siteUser.siteId;
@@ -36,9 +36,7 @@ public class SiteUserJson {
 						.collect(toSet()))
 				.orElse(null);
 		this.sshKeys = ofNullable(siteUser.siteSSHKeys)
-				.map(sshKeys -> sshKeys.stream()
-						.map(SSHKeysJson::new)
-						.collect(toSet()))
+				.map(keys -> keys.sshKeys)
 				.orElse(null);
 	}
 
