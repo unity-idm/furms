@@ -125,7 +125,10 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 						.chunkId(chunk.chunkId)
 						.projectAllocation(allocations.stream()
 								.filter(allocation -> allocation.id.equals(chunk.projectAllocationId))
-								.findFirst().get())
+								.findFirst()
+								.orElseThrow(() -> new IllegalArgumentException(
+									String.format("This shouldn't happen chunk project allocation id: %s doesn't exist in those allocations: %s", chunk.projectAllocationId, allocations)))
+						)
 						.amount(chunk.amount)
 						.validFrom(chunk.validFrom)
 						.validTo(chunk.validTo)
