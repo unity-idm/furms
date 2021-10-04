@@ -56,6 +56,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 import static java.util.stream.Collectors.toSet;
@@ -246,6 +247,15 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public boolean isAdmin(String projectId){
 		return authzService.isResourceMember(projectId, PROJECT_ADMIN);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public boolean hasAdminRights(String projectId) {
+		final Optional<Project> project = projectRepository.findById(projectId);
+		return project.isPresent()
+				&& (authzService.isResourceMember(project.get().getId(), PROJECT_ADMIN)
+					|| authzService.isResourceMember(project.get().getCommunityId(), COMMUNITY_ADMIN));
 	}
 
 	@Override

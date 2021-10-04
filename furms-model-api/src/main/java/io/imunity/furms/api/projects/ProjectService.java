@@ -48,6 +48,8 @@ public interface ProjectService {
 
 	boolean isAdmin(String projectId);
 
+	boolean hasAdminRights(String projectId);
+
 	void addAdmin(String communityId, String projectId, PersistentId userId);
 
 	Set<Invitation> findAllAdminsInvitations(String projectId);
