@@ -30,7 +30,6 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 
 import java.util.Objects;
 import java.util.Optional;

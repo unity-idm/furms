@@ -11,7 +11,6 @@ import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import io.imunity.furms.domain.project_installation.Error;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
