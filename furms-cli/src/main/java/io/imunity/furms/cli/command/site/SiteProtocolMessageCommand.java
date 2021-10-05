@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "protocolMsg",
-		description = "Using to handle Site Protocol Messages",
+		description = "Handling of the communication with site agent.",
 		subcommands = {
 				SiteProtocolMessageCommand.List.class,
 				SiteProtocolMessageCommand.Delete.class,

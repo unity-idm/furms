@@ -14,7 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "group",
-		description = "Using to handle Community Groups.",
+		description = "Community groups control.",
 		subcommands = {
 				GroupCommand.List.class,
 				GroupCommand.Show.class,

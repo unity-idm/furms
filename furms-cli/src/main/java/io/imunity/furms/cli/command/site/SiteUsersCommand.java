@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "users",
-		description = "Using to handle Site Users",
+		description = "Site users listing.",
 		subcommands = {
 				SiteUsersCommand.List.class
 		})

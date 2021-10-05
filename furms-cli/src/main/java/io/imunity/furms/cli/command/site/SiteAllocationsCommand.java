@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "allocations",
-		description = "Using to handle Site Allocations",
+		description = "Site allocations control.",
 		subcommands = {
 				SiteAllocationsCommand.List.class,
 				SiteAllocationsCommand.Show.class

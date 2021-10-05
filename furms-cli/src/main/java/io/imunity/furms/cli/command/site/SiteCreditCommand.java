@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "credit",
-		description = "Using to handle Site Credits",
+		description = "Site credits control.",
 		subcommands = {
 				SiteCreditCommand.List.class,
 				SiteCreditCommand.Show.class

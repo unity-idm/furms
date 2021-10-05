@@ -14,7 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "allocation",
-		description = "Using to handle Project Allocations",
+		description = "Project allocations control",
 		subcommands = {
 			ProjectAllocationCommand.List.class,
 			ProjectAllocationCommand.Show.class,

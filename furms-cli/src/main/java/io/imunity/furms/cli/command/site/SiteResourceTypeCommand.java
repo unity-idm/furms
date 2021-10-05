@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "resourceType",
-		description = "Using to handle Site Resource Types",
+		description = "Site resource types handling.",
 		subcommands = {
 				SiteResourceTypeCommand.List.class,
 				SiteResourceTypeCommand.Show.class

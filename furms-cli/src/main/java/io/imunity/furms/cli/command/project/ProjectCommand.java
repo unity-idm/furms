@@ -14,7 +14,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "project",
-		description = "Using to handle Projects",
+		description = "Projects handling.",
 		subcommands = {
 			ProjectCommand.List.class,
 			ProjectCommand.Show.class,

@@ -17,7 +17,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "site",
-		description = "Using to handle Sites",
+		description = "Sites control.",
 		subcommands = {
 				SiteCommand.List.class,
 				SiteCommand.Show.class,

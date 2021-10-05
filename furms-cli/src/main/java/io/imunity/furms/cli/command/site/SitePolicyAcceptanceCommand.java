@@ -13,7 +13,7 @@ import static io.imunity.furms.cli.client.FurmsClientRequest.path;
 import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessage;
 
 @Command(name = "acceptance",
-		description = "Using to handle Site Policy Acceptances",
+		description = "Hand-signed site policy acceptance handling.",
 		subcommands = {
 				SitePolicyAcceptanceCommand.List.class,
 				SitePolicyAcceptanceCommand.Ack.class

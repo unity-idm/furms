@@ -15,7 +15,7 @@ import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessag
 import static org.apache.http.util.TextUtils.isBlank;
 
 @Command(name = "allocation",
-		description = "Using to handle Community Allocations.",
+		description = "Community allocations control.",
 		subcommands = {
 				CommunityAllocationCommand.List.class,
 				CommunityAllocationCommand.Show.class,
