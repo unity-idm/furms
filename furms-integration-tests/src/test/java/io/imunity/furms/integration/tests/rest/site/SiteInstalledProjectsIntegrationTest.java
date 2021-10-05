@@ -10,6 +10,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -138,8 +140,9 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 
 		final String sshKey1Value = "ssh-rsa " + UUID.randomUUID();
 		final String sshKey2Value = "ssh-rsa " + UUID.randomUUID();
-		final String sshKey1 = createSSHKey(site.getId(), sshKey1Value, ADMIN_USER);
-		final String sshKey2 = createSSHKey(site.getId(), sshKey2Value, otherUser);
+		createSSHKey(site.getId(), sshKey1Value, ADMIN_USER);
+		createSSHKey(site.getId(), sshKey2Value, otherUser);
+		final List<List<String>> sshKeyExpectedValues = List.of(List.of(sshKey1Value), List.of(sshKey2Value));
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/users", site.getId()))
@@ -151,15 +154,50 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].projectIds").value(anyOf(
 						containsInAnyOrder(projectId1, projectId2, projectId3),
 						containsInAnyOrder(projectId1, projectId2))))
-				.andExpect(jsonPath("$.[0].sshKeys", hasSize(1)))
-				.andExpect(jsonPath("$.[0].sshKeys.[0]", in(Set.of(sshKey1Value, sshKey2Value))))
+				.andExpect(jsonPath("$.[0].sshKeys", in(sshKeyExpectedValues)))
 				.andExpect(jsonPath("$.[1].user.fenixIdentifier", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].uid", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].projectIds").value(anyOf(
 						containsInAnyOrder(projectId1, projectId2, projectId3),
 						containsInAnyOrder(projectId1, projectId2))))
-				.andExpect(jsonPath("$.[1].sshKeys", hasSize(1)))
-				.andExpect(jsonPath("$.[1].sshKeys.[0]", in(Set.of(sshKey1Value, sshKey2Value))));
+				.andExpect(jsonPath("$.[1].sshKeys", in(sshKeyExpectedValues)));
+	}
+
+	@Test
+	void shouldReturnSSHKeysGroupedByUserIdAndSiteId() throws Exception {
+		//given
+		final String communityId = communityRepository.create(defaultCommunity()
+				.name(UUID.randomUUID().toString())
+				.build());
+		final String projectId1 = createProject(communityId);
+		final String projectId2 = createProject(communityId);
+		final TestUser otherUser = basicUser();
+		otherUser.addSiteAdmin(site.getId());
+		otherUser.addSiteAdmin(darkSite.getId());
+		setupUser(otherUser);
+
+		createUserSite(projectId1, site.getId(), otherUser);
+		createUserSite(projectId2, site.getId(), otherUser);
+		createUserSite(projectId1, darkSite.getId(), otherUser);
+
+		final String sshKeySiteValue = "ssh-rsa " + UUID.randomUUID();
+		final String sshKeyDarkSiteValue = "ssh-rsa " + UUID.randomUUID();
+		createSSHKey(site.getId(), sshKeySiteValue, otherUser);
+		createSSHKey(darkSite.getId(), sshKeyDarkSiteValue, otherUser);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", site.getId())
+				.with(otherUser.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)))
+				.andExpect(jsonPath("$.[0].sshKeys", equalTo(List.of(sshKeySiteValue))));
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", darkSite.getId())
+				.with(otherUser.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)))
+				.andExpect(jsonPath("$.[0].sshKeys", equalTo(List.of(sshKeyDarkSiteValue))));
 	}
 
 	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
@@ -199,12 +237,18 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 	}
 
 	private String createSSHKey(String siteId, String value, TestUser user) {
-		return sshKeyRepository.create(SSHKey.builder()
+		final String sshKeyId = sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
 				.ownerId(new PersistentId(user.getUserId()))
 				.value(value)
 				.createTime(LocalDateTime.now())
 				.build());
+		installedSSHKeyRepository.create(InstalledSSHKey.builder()
+				.siteId(siteId)
+				.sshkeyId(sshKeyId)
+				.value(value)
+				.build());
+		return sshKeyId;
 	}
 }

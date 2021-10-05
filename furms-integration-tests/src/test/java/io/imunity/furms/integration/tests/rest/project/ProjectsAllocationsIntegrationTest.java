@@ -6,26 +6,36 @@
 package io.imunity.furms.integration.tests.rest.project;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunityAllocation;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultPolicy;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProject;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProjectAllocation;
+import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultProjectInstallationJob;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultResourceCredit;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultResourceType;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultService;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultSite;
+import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultUserAddition;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -98,6 +108,31 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void shouldFindProjectAllocationsByProjectIdWhenUserIsNotAnAdminButProjectIsInstalledOnManagedSite() throws Exception {
+		//given
+		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final String community = createCommunity();
+		final String project = createProject(community);
+		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
+		createProjectInstallation(project, site.getId(), INSTALLED);
+		createProjectAllocation(communityAllocation, project, BigDecimal.ONE);
+		createProjectAllocation(communityAllocation, project, BigDecimal.ONE);
+
+		final TestUser siteAdmin = basicUser();
+		createUserAddition(project, site.getId(), siteAdmin);
+		siteAdmin.addSiteAdmin(site.getId());
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}/allocations", project)
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)));
 	}
 
 	@Test
@@ -275,6 +310,32 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.andExpect(status().isForbidden());
 	}
 
+
+	@Test
+	void shouldFindAllocationByProjectIdAndAllocationIdWhenUserIsNotAnAdminButProjectIsInstalledOnManagedSite() throws Exception {
+		//given
+		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final String community = createCommunity();
+		final String project = createProject(community);
+		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
+		createProjectInstallation(project, site.getId(), INSTALLED);
+		final String projectAllocation = createProjectAllocation(communityAllocation, project, BigDecimal.ONE);
+
+		final TestUser siteAdmin = basicUser();
+		createUserAddition(project, site.getId(), siteAdmin);
+		siteAdmin.addSiteAdmin(site.getId());
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}/allocations/{allocationId}",
+					project, projectAllocation)
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(projectAllocation));
+	}
+
 	private String createCommunity() {
 		return communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
@@ -326,6 +387,27 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.resourceTypeId(resourceType)
 				.name(name)
 				.amount(amount)
+				.build());
+	}
+
+	private void createProjectInstallation(String projectId, String siteId, ProjectInstallationStatus status) {
+		final String id = projectOperationRepository.create(defaultProjectInstallationJob()
+				.projectId(projectId)
+				.siteId(siteId)
+				.status(status)
+				.build());
+		if (status == INSTALLED) {
+			projectOperationRepository.update(id, new ProjectInstallationResult(Map.of(
+					"gid", UUID.randomUUID().toString()), INSTALLED, new Error("", "")));
+		}
+	}
+
+	private String createUserAddition(String projectId, String siteId, TestUser testUser) {
+		return userOperationRepository.create(defaultUserAddition()
+				.projectId(projectId)
+				.siteId(new SiteId(siteId))
+				.userId(testUser.getFenixId())
+				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
 				.build());
 	}
 

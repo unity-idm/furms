@@ -71,10 +71,10 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						"siteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
 						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
-								ACCEPTED, Instant.now()),
+								1, ACCEPTED, Instant.now()),
 						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
-								ACCEPTED, Instant.now())),
-						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1"))))),
+								1, ACCEPTED, Instant.now())),
+						new SiteSSHKeys("siteId", Set.of("sshKey1")))),
 				Set.of(
 					new GroupAccess("communityId", Set.of("group1", "group2")),
 					new GroupAccess("communityId2", Set.of("group1", "group2"))
@@ -113,12 +113,14 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.revision").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.currentVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedVersion").value(1))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].revision").value(2))
-				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].currentVersion").value(2))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0]").value("sshKey1"));
 	}
 
 	@Test
@@ -140,19 +142,19 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						"siteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
 						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
-								ACCEPTED, Instant.now()),
+								1, ACCEPTED, Instant.now()),
 						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
-								ACCEPTED, Instant.now())),
-						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))),
+								1, ACCEPTED, Instant.now())),
+						new SiteSSHKeys("siteId", Set.of("sshKey1"))),
 					new SiteUser(
 						"siteId",
 						"otherSiteOauthClientId",
 						Set.of(new ProjectMembershipOnSite("localUserId2", "projId")),
 						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
-								ACCEPTED, Instant.now()),
+								1, ACCEPTED, Instant.now()),
 						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
-								ACCEPTED, Instant.now())),
-						Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1"))))),
+								1, ACCEPTED, Instant.now())),
+						new SiteSSHKeys("siteId", Set.of("sshKey1")))),
 				Set.of(
 					new GroupAccess("communityId", Set.of("group1", "group2")),
 					new GroupAccess("communityId2", Set.of("group1", "group2"))
@@ -192,12 +194,14 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.revision").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.currentVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedVersion").value(1))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].policyId").value(policy2.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedOn").isNotEmpty())
-				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].revision").value(2))
-				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0].sshKeys[0]").value("sshKey1"));
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].currentVersion").value(2))
+				.andExpect(jsonPath("$.siteAccess[0].servicesPolicyAcceptance[0].processedVersion").value(1))
+				.andExpect(jsonPath("$.siteAccess[0].sshKeys[0]").value("sshKey1"));
 	}
 
 	@Test

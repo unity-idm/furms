@@ -5,7 +5,6 @@
 
 package io.imunity.furms.domain.sites;
 
-import com.google.common.collect.ImmutableSet;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.users.SiteSSHKeys;
@@ -20,20 +19,20 @@ public class SiteUser {
 	public final Set<ProjectMembershipOnSite> projectMemberships;
 	public final PolicyAcceptanceAtSite sitePolicyAcceptance;
 	public final Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance;
-	public final Set<SiteSSHKeys> siteSSHKeys;
+	public final SiteSSHKeys siteSSHKeys;
 
 	public SiteUser(String siteId,
 	                String siteOauthClientId,
 	                Set<ProjectMembershipOnSite> projectMemberships,
 	                PolicyAcceptanceAtSite sitePolicyAcceptance,
 	                Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance,
-	                Set<SiteSSHKeys> siteSSHKeys) {
+	                SiteSSHKeys siteSSHKeys) {
 		this.siteId = siteId;
 		this.siteOauthClientId = siteOauthClientId;
 		this.projectMemberships = projectMemberships;
 		this.sitePolicyAcceptance = sitePolicyAcceptance;
 		this.servicesPolicyAcceptance = servicesPolicyAcceptance;
-		this.siteSSHKeys = ImmutableSet.copyOf(siteSSHKeys);
+		this.siteSSHKeys = siteSSHKeys;
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class SiteUser {
 		private Set<ProjectMembershipOnSite> projectMemberships;
 		private PolicyAcceptanceAtSite sitePolicyAcceptance;
 		private Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance;
-		private Set<SiteSSHKeys> siteSSHKeys;
+		private SiteSSHKeys siteSSHKeys;
 
 		private SiteUserBuilder() {
 		}
@@ -107,7 +106,7 @@ public class SiteUser {
 			return this;
 		}
 
-		public SiteUserBuilder sshKeys(Set<SiteSSHKeys> siteSSHKeys) {
+		public SiteUserBuilder sshKeys(SiteSSHKeys siteSSHKeys) {
 			this.siteSSHKeys = siteSSHKeys;
 			return this;
 		}

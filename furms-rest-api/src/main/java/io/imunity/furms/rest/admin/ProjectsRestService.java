@@ -109,18 +109,29 @@ class ProjectsRestService {
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
-		return resourceChecker.performIfExists(projectId,
-					() -> projectAllocationService.findAllWithRelatedObjects(projectId))
+		return resourceChecker.performIfExistsAndMatching(projectId,
+					() -> projectAllocationService.findAllWithRelatedObjects(projectId),
+					project -> isProjectAdminOrIsProjectInstalledOnUserSites(projectId))
 				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
 	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		return resourceChecker.performIfExists(projectId,
+		try {
+			return resourceChecker.performIfExists(projectId,
 					() -> projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
-				.map(ProjectAllocation::new)
-				.get();
+					.map(ProjectAllocation::new)
+					.get();
+		} catch (AccessDeniedException e) {
+			return findAllUserInstalledProjects().stream()
+					.map(siteInstallation -> projectAllocationService.findAllWithRelatedObjectsBySiteId(siteInstallation.siteId))
+					.flatMap(Collection::stream)
+					.filter(allocation -> allocation.id.equals(projectAllocationId))
+					.findFirst()
+					.map(ProjectAllocation::new)
+					.orElseThrow(() -> e);
+		}
 	}
 
 	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationAddRequest request) {
@@ -160,6 +171,15 @@ class ProjectsRestService {
 				.map(site -> projectInstallationsService.findAllSiteInstalledProjectsBySiteId(site.getId()))
 				.flatMap(Collection::stream)
 				.collect(toSet());
+	}
+
+	private boolean isProjectAdminOrIsProjectInstalledOnUserSites(String projectId) {
+		try {
+			return projectService.hasAdminRights(projectId);
+		} catch (AccessDeniedException e) {
+			return findAllUserInstalledProjects().stream()
+					.anyMatch(siteInstalledProject -> siteInstalledProject.project.getId().equals(projectId));
+		}
 	}
 
 }

@@ -235,7 +235,7 @@ class SitesRestService {
 		return userAdditionsBySite.stream()
 				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
 				.entrySet().stream()
-				.map(entry -> createSiteUser(entry.getKey(), entry.getValue()))
+				.map(entry -> createSiteUser(entry.getKey(), entry.getValue(), siteId))
 				.collect(toList());
 	}
 
@@ -331,22 +331,18 @@ class SitesRestService {
 				.get();
 	}
 
-	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions) {
+	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions, String siteId) {
 		final String uid = userAdditions.stream()
 				.filter(userAddition -> !StringUtils.isEmpty(userAddition.uid))
 				.findAny()
 				.map(userAddition -> userAddition.uid)
 				.orElseThrow(() -> new IllegalArgumentException("UID not found"));
-		final Optional<FURMSUser> furmsUser = userService.findByFenixUserId(new FenixUserId(fenixUserId));
-		return findUserByFenixId(fenixUserId)
+
+		return userService.findByFenixUserId(new FenixUserId(fenixUserId))
 				.map(user -> new SiteUser(
-						user,
+						new User(user),
 						uid,
-						furmsUser.map(persistedUser ->
-								sshKeyService.findByOwnerId(persistedUser.id.get().id).stream()
-									.map(sshKey -> sshKey.value)
-									.collect(toList()))
-								.orElse(List.of()),
+						sshKeyService.findSiteSSHKeysByUserIdAndSite(user.id.get(), siteId).sshKeys,
 						userAdditions.stream()
 							.map(userAddition -> userAddition.projectId)
 							.collect(toSet())))
@@ -364,11 +360,6 @@ class SitesRestService {
 		return userService.findById(new PersistentId(userId))
 				.map(User::new)
 				.orElse(null);
-	}
-
-	private Optional<User> findUserByFenixId(String fenixUserId) {
-		return userService.findByFenixUserId(new FenixUserId(fenixUserId))
-				.map(User::new);
 	}
 
 }

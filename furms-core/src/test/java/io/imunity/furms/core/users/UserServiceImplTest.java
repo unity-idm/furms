@@ -67,10 +67,10 @@ class UserServiceImplTest {
 				"siteOauthClientId",
 				Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
 				new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
-						ACCEPTED, Instant.now()),
+						1, ACCEPTED, Instant.now()),
 				Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
-						ACCEPTED, Instant.now())),
-				Set.of(new SiteSSHKeys("siteId", Set.of("sshKey1")))));
+						1, ACCEPTED, Instant.now())),
+				new SiteSSHKeys("siteId", Set.of("sshKey1"))));
 
 		Set<GroupAccess> userGroupsAccesses = Set.of(
 			new GroupAccess("communityId", Set.of("group", "group1")),

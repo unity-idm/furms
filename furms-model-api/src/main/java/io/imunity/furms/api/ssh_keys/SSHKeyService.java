@@ -22,7 +22,7 @@ public interface SSHKeyService {
 
 	Set<SSHKey> findByOwnerId(String ownerId);
 
-	Set<SiteSSHKeys> findSiteSSHKeysByUserId(PersistentId userId);
+	SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId);
 
 	String create(SSHKey sshKey);
 

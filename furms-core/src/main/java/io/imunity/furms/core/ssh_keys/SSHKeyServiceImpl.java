@@ -122,17 +122,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	public Set<SiteSSHKeys> findSiteSSHKeysByUserId(PersistentId userId) {
-		return sshKeysRepository.findAllByOwnerId(userId).stream()
+	public SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId) {
+		final Set<String> sshKeys = sshKeysRepository.findAllByOwnerId(userId).stream()
 				.map(key -> installedSSHKeyRepository.findBySSHKeyId(key.id))
 				.flatMap(Collection::parallelStream)
-				.collect(groupingBy(
-						key -> key.siteId,
-						mapping(key -> key.value, toSet())))
-				.entrySet().stream()
-				.filter(entry -> isNotEmpty(entry.getValue()))
-				.map(entry -> new SiteSSHKeys(entry.getKey(), entry.getValue()))
+				.filter(key -> key.siteId.equals(siteId))
+				.map(key -> key.value)
 				.collect(toSet());
+		return new SiteSSHKeys(siteId, sshKeys);
 	}
 
 	@Transactional

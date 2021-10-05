@@ -12,21 +12,27 @@ public class PolicyAcceptanceAtSite {
 	public final PolicyId policyDocumentId;
 	public final String siteId;
 	public final int policyDocumentRevision;
+	public final int acceptedPolicyDocumentRevision;
 	public final PolicyAcceptanceStatus acceptanceStatus;
 	public final Instant decisionTs;
 
-	public PolicyAcceptanceAtSite(PolicyId policyDocumentId, String siteId, int policyDocumentRevision,
-	                              PolicyAcceptanceStatus acceptanceStatus, Instant decisionTs) {
+	public PolicyAcceptanceAtSite(PolicyId policyDocumentId,
+	                              String siteId,
+	                              int policyDocumentRevision,
+	                              int acceptedPolicyDocumentRevision,
+	                              PolicyAcceptanceStatus acceptanceStatus,
+	                              Instant decisionTs) {
 		this.policyDocumentId = policyDocumentId;
 		this.siteId = siteId;
 		this.policyDocumentRevision = policyDocumentRevision;
+		this.acceptedPolicyDocumentRevision = acceptedPolicyDocumentRevision;
 		this.acceptanceStatus = acceptanceStatus;
 		this.decisionTs = decisionTs;
 	}
 
 	public PolicyAcceptanceAtSite(PolicyAcceptance policyAcceptance, PolicyDocument policyDocument) {
-		this(policyAcceptance.policyDocumentId, policyDocument.siteId, policyAcceptance.policyDocumentRevision,
-				policyAcceptance.acceptanceStatus, policyAcceptance.decisionTs);
+		this(policyAcceptance.policyDocumentId, policyDocument.siteId, policyDocument.revision,
+				policyAcceptance.policyDocumentRevision, policyAcceptance.acceptanceStatus, policyAcceptance.decisionTs);
 	}
 
 	@Override
@@ -34,12 +40,17 @@ public class PolicyAcceptanceAtSite {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PolicyAcceptanceAtSite that = (PolicyAcceptanceAtSite) o;
-		return policyDocumentRevision == that.policyDocumentRevision && Objects.equals(policyDocumentId, that.policyDocumentId) && Objects.equals(siteId, that.siteId) && acceptanceStatus == that.acceptanceStatus && Objects.equals(decisionTs, that.decisionTs);
+		return policyDocumentRevision == that.policyDocumentRevision
+				&& acceptedPolicyDocumentRevision == that.acceptedPolicyDocumentRevision
+				&& Objects.equals(policyDocumentId, that.policyDocumentId)
+				&& Objects.equals(siteId, that.siteId)
+				&& acceptanceStatus == that.acceptanceStatus
+				&& Objects.equals(decisionTs, that.decisionTs);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(policyDocumentId, siteId, policyDocumentRevision, acceptanceStatus, decisionTs);
+		return Objects.hash(policyDocumentId, siteId, policyDocumentRevision, acceptedPolicyDocumentRevision, acceptanceStatus, decisionTs);
 	}
 
 	@Override
@@ -48,6 +59,7 @@ public class PolicyAcceptanceAtSite {
 				"policyDocumentId=" + policyDocumentId +
 				", siteId='" + siteId + '\'' +
 				", policyDocumentRevision=" + policyDocumentRevision +
+				", acceptedPolicyDocumentRevision=" + acceptedPolicyDocumentRevision +
 				", acceptanceStatus=" + acceptanceStatus +
 				", decisionTs=" + decisionTs +
 				'}';
@@ -62,6 +74,7 @@ public class PolicyAcceptanceAtSite {
 		public PolicyId policyDocumentId;
 		public String siteId;
 		public int policyDocumentRevision;
+		public int acceptedPolicyDocumentRevision;
 		public PolicyAcceptanceStatus acceptanceStatus;
 		public Instant decisionTs;
 
@@ -83,6 +96,11 @@ public class PolicyAcceptanceAtSite {
 			return this;
 		}
 
+		public PolicyAcceptanceAtSiteBuilder acceptedPolicyDocumentRevision(int acceptedPolicyDocumentRevision) {
+			this.acceptedPolicyDocumentRevision = acceptedPolicyDocumentRevision;
+			return this;
+		}
+
 		public PolicyAcceptanceAtSiteBuilder acceptanceStatus(PolicyAcceptanceStatus acceptanceStatus) {
 			this.acceptanceStatus = acceptanceStatus;
 			return this;
@@ -94,7 +112,7 @@ public class PolicyAcceptanceAtSite {
 		}
 
 		public PolicyAcceptanceAtSite build() {
-			return new PolicyAcceptanceAtSite(policyDocumentId, siteId, policyDocumentRevision, acceptanceStatus, decisionTs);
+			return new PolicyAcceptanceAtSite(policyDocumentId, siteId, policyDocumentRevision, acceptedPolicyDocumentRevision, acceptanceStatus, decisionTs);
 		}
 	}
 }

@@ -110,7 +110,7 @@ public class UserOperationService implements UserAllocationsService {
 								.collect(toSet()))
 						.sitePolicyAcceptance(sitesPolicy.getOrDefault(site.getSiteId(), empty()).orElse(null))
 						.servicesPolicyAcceptance(servicePolicies.getOrDefault(site.getSiteId(), Set.of()))
-						.sshKeys(sshKeyService.findSiteSSHKeysByUserId(userId))
+						.sshKeys(sshKeyService.findSiteSSHKeysByUserIdAndSite(userId, site.getSiteId()))
 						.build())
 				.collect(toSet());
 	}

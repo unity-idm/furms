@@ -4,25 +4,23 @@
  */
 package io.imunity.furms.rest.admin;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.imunity.furms.rest.user.User;
 
 class SiteUser {
 	public final User user;
 	public final String uid;
-	public final List<String> sshKeys;
+	public final Set<String> sshKeys;
 	public final Set<String> projectIds;
 	
-	SiteUser(User user, String uid, List<String> sshKeys, Set<String> projectIds) {
+	SiteUser(User user, String uid, Set<String> sshKeys, Set<String> projectIds) {
 		this.user = user;
 		this.uid = uid;
 		this.projectIds = ImmutableSet.copyOf(projectIds);
-		this.sshKeys = ImmutableList.copyOf(sshKeys);
+		this.sshKeys = ImmutableSet.copyOf(sshKeys);
 	}
 
 	@Override
