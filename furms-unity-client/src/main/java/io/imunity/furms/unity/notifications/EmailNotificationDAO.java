@@ -33,9 +33,11 @@ class EmailNotificationDAO implements NotificationDAO {
 	private static final String NAME_ATTRIBUTE = "custom.name";
 	private static final String ROLE_ATTRIBUTE = "custom.role";
 	private static final String EMAIL_ATTRIBUTE = "custom.email";
+	private static final String PROJECT_ATTRIBUTE = "custom.projectName";
 	private static final String URL_ATTRIBUTE = "custom.furmsUrl";
 	private static final String POLICY_DOCUMENTS_URL = "/front/users/settings/policy/documents";
 	private static final String INVITATIONS_URL = "/front/users/settings/invitations";
+	private static final String APPLICATIONS_URL = "/front/project/admin/users?resourceId=";
 
 	private final UserService userService;
 	private final PolicyDocumentDAO policyDocumentDAO;
@@ -74,6 +76,28 @@ class EmailNotificationDAO implements NotificationDAO {
 	public void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail) {
 		Map<String, String> attributes = Map.of(ROLE_ATTRIBUTE, bundle.getString(role.name()), EMAIL_ATTRIBUTE, acceptanceUserEmail);
 		userService.sendUserNotification(id, emailNotificationProperties.acceptedInvitationTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail) {
+		Map<String, String> attributes = Map.of(
+			PROJECT_ATTRIBUTE, projectName,
+			EMAIL_ATTRIBUTE, applicationUserEmail,
+			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + APPLICATIONS_URL + projectId
+		);
+		userService.sendUserNotification(id, emailNotificationProperties.newApplicationTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyUserAboutApplicationAcceptance(PersistentId id, String projectName) {
+		Map<String, String> attributes = Map.of(PROJECT_ATTRIBUTE, projectName);
+		userService.sendUserNotification(id, emailNotificationProperties.acceptedApplicationTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyUserAboutApplicationRejection(PersistentId id, String projectName) {
+		Map<String, String> attributes = Map.of(PROJECT_ATTRIBUTE, projectName);
+		userService.sendUserNotification(id, emailNotificationProperties.rejectedApplicationTemplateId, attributes);
 	}
 
 	@Override

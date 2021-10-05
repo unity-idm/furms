@@ -7,6 +7,7 @@ package io.imunity.furms.db.applications;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.applications.ProjectApplication;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -96,6 +98,28 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 		Set<FenixUserId> allApplyingUsers = applicationDatabaseRepository.findAllApplyingUsers(projectId.toString());
 
 		assertEquals(Set.of(new FenixUserId("userId"), new FenixUserId("userId1")), allApplyingUsers);
+	}
+
+	@Test
+	void shouldFindAllApplyingUsersByProjectIds(){
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+
+		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId, "userId1");
+		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
+
+		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId2");
+		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+
+		Set<ProjectApplication> allApplyingUsers = applicationDatabaseRepository.findAllApplyingUsers(List.of(projectId, projectId2));
+
+		assertEquals(Set.of(
+			new ProjectApplication(projectId.toString(), "name", new FenixUserId("userId")),
+			new ProjectApplication(projectId.toString(), "name", new FenixUserId("userId1")),
+			new ProjectApplication(projectId2.toString(), "name2", new FenixUserId("userId2"))
+			),
+			allApplyingUsers
+		);
 	}
 
 	@Test

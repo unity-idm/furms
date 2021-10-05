@@ -22,8 +22,9 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import io.imunity.furms.api.applications.ApplicationService;
+import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -37,6 +38,7 @@ import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
@@ -44,26 +46,28 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PIE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUESTED;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "users/settings/projects", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
 public class ProjectsView extends FurmsViewComponent {
 	private final ProjectService projectService;
-	private final ApplicationService applicationService;
+	private final ProjectApplicationsService projectApplicationsService;
 	private final ProjectGridModelMapper mapper;
 	private final Grid<ProjectGridModel> grid;
 	private final Set<UserStatus> currentFilters = new HashSet<>();
 	private String searchText = "";
 
-	ProjectsView(ProjectService projectService, ApplicationService applicationService) {
+	ProjectsView(ProjectService projectService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
-		this.applicationService = applicationService;
-		this.mapper = new ProjectGridModelMapper(projectService, applicationService);
+		this.projectApplicationsService = projectApplicationsService;
+		this.mapper = new ProjectGridModelMapper(projectService, projectApplicationsService);
 		this.grid = createProjectGrid();
 
 		CheckboxGroup<UserStatus> checkboxGroup = createCheckboxLayout();
@@ -148,14 +152,27 @@ public class ProjectsView extends FurmsViewComponent {
 			case NOT_ACTIVE:
 				MenuButton applyButton = new MenuButton(PLUS_CIRCLE);
 				applyButton.addClickListener(x -> {
-					applicationService.createForCurrentUser(project.id);
-					loadGridContent();
+					try {
+						projectApplicationsService.createForCurrentUser(project.id);
+						showSuccessNotification(getTranslation("view.user-settings.projects.applied.notification", project.name));
+						loadGridContent();
+					} catch (Exception e){
+						showErrorNotification(getTranslation("base.error.message"));
+						throw e;
+					}
 				});
 				return new GridActionsButtonLayout(addApplyTooltip(applyButton));
 			case REQUESTED:
 				MenuButton removeApplicationButton = new MenuButton(TRASH);
 				removeApplicationButton.addClickListener(x -> {
-					applicationService.removeForCurrentUser(project.id);
+					try {
+						projectApplicationsService.removeForCurrentUser(project.id);
+					}catch (ApplicationNotExistingException e){
+						showErrorNotification(getTranslation("application.already.not.existing"));
+					} catch (Exception e){
+						showErrorNotification(getTranslation("base.error.message"));
+						throw e;
+					}
 					loadGridContent();
 				});
 				return new GridActionsButtonLayout(removeApplicationButton);
@@ -195,18 +212,21 @@ public class ProjectsView extends FurmsViewComponent {
 	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.projects.dialog.text", projectName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> projectService.resignFromMembership(communityId, projectId));
-			loadGridContent();
+			try {
+				projectService.resignFromMembership(communityId, projectId);
+				loadGridContent();
+			} catch (Exception e){
+				showErrorNotification("base.error.message");
+			}
 		});
 		return furmsDialog;
 	}
 
 	private void loadGridContent() {
-		Set<ProjectGridModel> items = loadProjectsViewsModels();
-		grid.setItems(items);
+		grid.setItems(loadProjectsViewsModels());
 	}
 
-	private Set<ProjectGridModel> loadProjectsViewsModels() {
+	private List<ProjectGridModel> loadProjectsViewsModels() {
 		return handleExceptions(projectService::findAll)
 			.orElseGet(Collections::emptySet)
 			.stream()
@@ -214,6 +234,6 @@ public class ProjectsView extends FurmsViewComponent {
 			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 			.filter(project -> currentFilters.contains(project.status))
 			.filter(project -> searchText.isEmpty() || project.matches(searchText))
-			.collect(toSet());
+			.collect(toList());
 	}
 }

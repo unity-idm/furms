@@ -7,7 +7,9 @@ package io.imunity.furms.ui.views.community;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
@@ -24,8 +26,8 @@ import java.util.List;
 public class CommunityAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	CommunityAdminMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
-		super(roleTranslator, ViewMode.COMMUNITY);
+	CommunityAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
+		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.COMMUNITY);
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(

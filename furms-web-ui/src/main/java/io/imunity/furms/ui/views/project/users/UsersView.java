@@ -7,10 +7,11 @@ package io.imunity.furms.ui.views.project.users;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.api.applications.ApplicationService;
+import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
@@ -25,7 +26,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
-import io.imunity.furms.ui.components.administrators.UserGridStatus;
+import io.imunity.furms.ui.components.administrators.UserUIStatus;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final Predicate<FURMSUser> IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP = user -> user.fenixUserId.isPresent();
 	private final ProjectService projectService;
-	private final ApplicationService applicationService;
+	private final ProjectApplicationsService projectApplicationsService;
 	private final AuthzService authzService;
 	private final UserService userService;
 	private Project project;
@@ -57,11 +58,11 @@ public class UsersView extends FurmsLandingViewComponent {
 	private MembershipChangerComponent membershipLayout;
 	private UsersGridComponent grid;
 
-	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ApplicationService applicationService) {
+	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
 		this.authzService = authzService;
 		this.userService = userService;
-		this.applicationService = applicationService;
+		this.projectApplicationsService = projectApplicationsService;
 
 		loadPageContent();
 	}
@@ -109,25 +110,35 @@ public class UsersView extends FurmsLandingViewComponent {
 			.addCustomContextMenuItem(
 				(UserGridItem userGridItem) -> new MenuButton(getTranslation("view.project-admin.users.requested.accept"), CHECK_CIRCLE),
 				userGridItem -> {
-					applicationService.accept(projectId, userGridItem.getFenixUserId().get());
+				try {
+					projectApplicationsService.accept(projectId, userGridItem.getFenixUserId().get());
+					showSuccessNotification(getTranslation("view.project-admin.users.application.accept"));
+				} catch (ApplicationNotExistingException e) {
+					showErrorNotification(getTranslation("application.already.not.existing"));
+				}
 					grid.reloadGrid();
 				},
-				userGridItem -> UserGridStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
+				userGridItem -> UserUIStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
 			)
 			.addCustomContextMenuItem(
 				(UserGridItem userGridItem) -> new MenuButton(getTranslation("view.project-admin.users.requested.reject"), CLOSE_CIRCLE),
 				userGridItem -> {
-					applicationService.remove(projectId, userGridItem.getFenixUserId().get());
+					try {
+						projectApplicationsService.remove(projectId, userGridItem.getFenixUserId().get());
+						showSuccessNotification(getTranslation("view.project-admin.users.application.reject"));
+					} catch (ApplicationNotExistingException e) {
+						showErrorNotification(getTranslation("application.already.not.existing"));
+					}
 					grid.reloadGrid();
 				},
-				userGridItem -> UserGridStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
+				userGridItem -> UserUIStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
 			)
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
 			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
 			() -> projectService.findAllUsersInvitations(projectId),
-			() -> applicationService.findAllApplyingUsers(projectId),
+			() -> projectApplicationsService.findAllApplyingUsers(projectId),
 			userGrid
 		);
 		membershipLayout.addJoinButtonListener(event -> {

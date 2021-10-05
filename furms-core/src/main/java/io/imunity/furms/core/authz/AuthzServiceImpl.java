@@ -40,6 +40,8 @@ public class AuthzServiceImpl implements AuthzService {
 
 	@Override
 	public Map<ResourceId, Set<Role>> getRoles() {
+		if(getCurrent() == null)
+			return Map.of();
 		return getCurrent().roles;
 	}
 

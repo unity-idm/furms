@@ -5,13 +5,15 @@
 
 package io.imunity.furms.api.applications;
 
+import io.imunity.furms.domain.applications.ProjectApplicationWithUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.List;
 import java.util.Set;
 
-public interface ApplicationService {
+public interface ProjectApplicationsService {
+	List<ProjectApplicationWithUser> findAllApplicationsUsersForCurrentProjectAdmins();
 	List<FURMSUser> findAllApplyingUsers(String projectId);
 	Set<String> findAllAppliedProjectsIdsForCurrentUser();
 	void createForCurrentUser(String projectId);

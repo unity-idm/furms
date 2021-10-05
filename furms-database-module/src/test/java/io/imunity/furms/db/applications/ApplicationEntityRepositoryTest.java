@@ -79,7 +79,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldCreate() {
+	void shouldReturnCreatedApplication() {
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
@@ -143,8 +143,8 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
-		boolean existApplication = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, savedApplication.userId);
-		assertTrue(existApplication);
+		boolean applicationExists = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, savedApplication.userId);
+		assertTrue(applicationExists);
 	}
 
 	@Test
@@ -152,7 +152,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId1");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
-		boolean existApplication = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, "userId");
-		assertFalse(existApplication);
+		boolean applicationExists = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, "userId");
+		assertFalse(applicationExists);
 	}
 }

@@ -7,7 +7,9 @@ package io.imunity.furms.ui.views.project;
 
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
@@ -25,8 +27,8 @@ import java.util.List;
 public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationObserver {
 	private final FurmsLayout furmsLayout;
 
-	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
-		super(roleTranslator, ViewMode.PROJECT);
+	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
+		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.PROJECT);
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(
 			List.of(
@@ -47,4 +49,5 @@ public class ProjectAdminMenu extends FurmsAppLayout implements AfterNavigationO
 	public void afterNavigation(AfterNavigationEvent event) {
 		furmsLayout.afterNavigation(getContent());
 	}
+
 }

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
+import io.imunity.furms.domain.applications.ApplicationEvent;
 import io.imunity.furms.domain.invitations.InvitationEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -48,11 +49,11 @@ public class NotificationBarComponent extends Button {
 	private Registration broadcasterRegistration;
 
 	public NotificationBarComponent(VaadinBroadcaster vaadinBroadcaster, UINotificationService notificationService,
-	                                FURMSUser furmsUser, RoleTranslator roleTranslator) {
+	                                FURMSUser currentUser, RoleTranslator roleTranslator) {
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.notificationService = notificationService;
 		this.roleTranslator = roleTranslator;
-		this.currentUser = furmsUser;
+		this.currentUser = currentUser;
 
 		badge = new Span();
 		badge.getElement().setAttribute("theme","badge error primary small pill");
@@ -90,7 +91,9 @@ public class NotificationBarComponent extends Button {
 			NotificationBarElement barElement = iterator.next();
 			MenuItem menuItem = contextMenu.addItem(createLabel(barElement.text), y -> {
 				roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-					.get(barElement.viewMode).stream().findAny()
+					.get(barElement.viewMode).stream()
+					.filter(context -> barElement.resourceId.filter(resourceId -> resourceId.equals(context.id)).isPresent())
+					.findAny()
 					.ifPresent(FurmsViewUserContext::setAsCurrent);
 				UI.getCurrent().navigate(barElement.redirect);
 			});
@@ -116,6 +119,7 @@ public class NotificationBarComponent extends Button {
 				.consumer(event -> ui.access(this::loadData))
 				.predicate(this::isCurrentUserPoliciesAcceptanceListChanged)
 				.orPredicate(this::isCurrentUserInvitationsListChanged)
+				.orPredicate(this::isCurrentUserApplicationsListChanged)
 				.build()
 		);
 	}
@@ -125,6 +129,13 @@ public class NotificationBarComponent extends Button {
 			return false;
 		InvitationEvent event = (InvitationEvent) furmsEvent;
 		return currentUser.email.equals(event.getEmail());
+	}
+
+	private boolean isCurrentUserApplicationsListChanged(FurmsEvent furmsEvent) {
+		if(!(furmsEvent instanceof ApplicationEvent))
+			return false;
+		ApplicationEvent event = (ApplicationEvent) furmsEvent;
+		return event.concern(currentUser);
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
