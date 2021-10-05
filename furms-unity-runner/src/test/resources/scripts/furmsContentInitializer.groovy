@@ -278,7 +278,7 @@ void setupAdminUser() throws EngineException
 	Attribute nameA = StringAttribute.of(NAME_ATTR, "/", "Default Administrator")
 	attributesManagement.createAttribute(entity, nameA)
 	
-	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", "admin@domain.com")
+	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", "admin@not-existing-1qaz.example.com")
 	attributesManagement.createAttribute(entity, emailA)
 
 	Attribute firstnameA = StringAttribute.of(FIRSTNAME_ATTR, "/", "John")
@@ -311,7 +311,7 @@ void initTestUsers()
 	Attribute nameA = StringAttribute.of(NAME_ATTR, "/", "Test user")
 	attributesManagement.createAttribute(entity, nameA)
 	
-	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", "test-user@domain.com")
+	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", "test-user@not-existing-1qaz.example.com")
 	attributesManagement.createAttribute(entity, emailA)
 	
 	log.info("Provisioned test FURMS users")
