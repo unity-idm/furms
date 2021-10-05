@@ -18,6 +18,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.CommunityAllocationAmountNotEnoughException;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
@@ -52,7 +53,9 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 
 	private static final Map<Class<? extends Exception>, String> KNOWN_ERRORS = 
 			Map.of(CommunityAllocationUpdateBelowDistributedAmountException.class, 
-					"view.fenix-admin.resource-credits-allocation.form.error.updateBelowAlreadyDistributed");
+					"view.fenix-admin.resource-credits-allocation.form.error.updateBelowAlreadyDistributed",
+					CommunityAllocationAmountNotEnoughException.class,
+					"view.fenix-admin.resource-credits-allocation.form.error.amountNotEnough");
 	private String communityId;
 
 	private BreadCrumbParameter breadCrumbParameter;
@@ -110,15 +113,19 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 	private void saveCommunityAllocation() {
 		CommunityAllocationViewModel allocationViewModel = binder.getBean();
 		CommunityAllocation communityAllocation = CommunityAllocationModelsMapper.map(allocationViewModel);
-		OptionalException<Void> optionalException;
-		if(communityAllocation.id == null)
-			optionalException = getResultOrException(() -> communityAllocationService.create(communityAllocation));
-		else
-			optionalException = getResultOrException(() -> communityAllocationService.update(communityAllocation),
+		OptionalException<Void> optionalException = getResultOrException(() ->{
+					if (communityAllocation.id == null) {
+						communityAllocationService.create(communityAllocation);
+					} else {
+						communityAllocationService.update(communityAllocation);
+					}},
 					KNOWN_ERRORS);
 
 		optionalException.getException().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
+			throwable -> {
+				communityAllocationFormComponent.reloadAvailableAmount();
+				NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage()));
+			},
 			() -> UI.getCurrent().navigate(CommunityView.class, communityId)
 		);
 	}
