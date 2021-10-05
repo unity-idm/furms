@@ -23,7 +23,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.provider.SortDirection;
 
-import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.ui.components.DenseGrid;
 
 public class UserGrid {
@@ -120,7 +119,7 @@ public class UserGrid {
 				x -> factory.get(
 					x,
 					() -> grid.setItems(fetchUsersAction.get()),
-					() -> fetchUsersAction.get().stream().filter(userGridItem -> userGridItem.getStatus().equals(UserStatus.ENABLED)).count()
+					() -> fetchUsersAction.get().stream().filter(userGridItem -> userGridItem.getStatus().equals(UserGridStatus.ENABLED)).count()
 				)
 			)
 				.setHeader(getTranslation("component.administrators.grid.column.4"))
