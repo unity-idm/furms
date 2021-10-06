@@ -5,7 +5,7 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
-import io.imunity.furms.api.applications.ApplicationService;
+import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 
@@ -17,15 +17,15 @@ import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.REQUES
 
 class ProjectGridModelMapper {
 	private final ProjectService projectService;
-	private final ApplicationService applicationService;
+	private final ProjectApplicationsService projectApplicationsService;
 
-	ProjectGridModelMapper(ProjectService projectService, ApplicationService applicationService) {
+	ProjectGridModelMapper(ProjectService projectService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
-		this.applicationService = applicationService;
+		this.projectApplicationsService = projectApplicationsService;
 	}
 
 	ProjectGridModel map(Project project){
-		Set<String> projectsIds = applicationService.findAllAppliedProjectsIdsForCurrentUser();
+		Set<String> projectsIds = projectApplicationsService.findAllAppliedProjectsIdsForCurrentUser();
 		return ProjectGridModel.builder()
 		.id(project.getId())
 		.communityId(project.getCommunityId())

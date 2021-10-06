@@ -17,7 +17,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
-import io.imunity.furms.ui.components.administrators.UserGridStatus;
+import io.imunity.furms.ui.components.administrators.UserUIStatus;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.landing.LandingPageView;
@@ -55,7 +55,7 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 							.orElseThrow(() -> new IllegalArgumentException("Site role is required"))),
 						EXCHANGE),
 				(SiteUserGridItem userGridItem) -> {
-					if (userGridItem.getStatus().equals(UserGridStatus.AWAITS_APPROVAL)) {
+					if (userGridItem.getStatus().equals(UserUIStatus.AWAITS_APPROVAL)) {
 						if (userGridItem.getSiteRole().get().equals(SiteRole.SUPPORT)) {
 							siteService.changeInvitationRoleToAdmin(siteId, userGridItem.getInvitationId().get());
 						} else if (userGridItem.getSiteRole().get().equals(SiteRole.ADMIN)) {

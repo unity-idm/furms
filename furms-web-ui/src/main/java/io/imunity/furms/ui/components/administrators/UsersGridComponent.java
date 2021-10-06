@@ -102,7 +102,7 @@ public class UsersGridComponent extends VerticalLayout {
 		return handleExceptions(fetchUsersAction)
 			.orElseGet(Collections::emptyList)
 			.stream()
-			.map(furmsUser -> new UserGridItem(furmsUser, UserGridStatus.ACCESS_REQUESTED))
+			.map(furmsUser -> new UserGridItem(furmsUser, UserUIStatus.ACCESS_REQUESTED))
 			.sorted(Comparator.comparing(UserGridItem::getEmail))
 			.filter(user -> rowContains(user, searchLayout.getSearchText(), searchLayout));
 	}

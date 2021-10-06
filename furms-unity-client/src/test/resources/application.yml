@@ -6,6 +6,9 @@ furms:
     new-invitation-template-id: testTemplate
     accepted-invitation-template-id: testTemplate
     rejected-invitation-template-id: testTemplate
+    new-application-template-id: testTemplate
+    accepted-application-template-id: testTemplate
+    rejected-application-template-id: testTemplate
   invitations:
     expiration-time-in-seconds: 604800
     fenix-form: fenixForm

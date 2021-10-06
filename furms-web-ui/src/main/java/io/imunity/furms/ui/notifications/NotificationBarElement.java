@@ -10,16 +10,26 @@ import com.vaadin.flow.component.Component;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class NotificationBarElement {
 	public final String text;
 	public final ViewMode viewMode;
 	public final Class<? extends Component> redirect;
+	public final Optional<String> resourceId;
 
 	NotificationBarElement(String text, ViewMode viewMode, Class<? extends Component> redirect) {
 		this.text = text;
 		this.viewMode = viewMode;
 		this.redirect = redirect;
+		this.resourceId = Optional.empty();
+	}
+
+	NotificationBarElement(String text, ViewMode viewMode, Class<? extends Component> redirect, String resourceId) {
+		this.text = text;
+		this.viewMode = viewMode;
+		this.redirect = redirect;
+		this.resourceId = Optional.of(resourceId);
 	}
 
 	@Override

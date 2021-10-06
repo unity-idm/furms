@@ -5,10 +5,12 @@
 
 package io.imunity.furms.db.applications;
 
+import io.imunity.furms.domain.applications.ProjectApplication;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +30,15 @@ class ApplicationDatabaseRepository implements ApplicationRepository {
 		return repository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(applicationEntity -> applicationEntity.userId)
 			.map(FenixUserId::new)
+			.collect(toSet());
+	}
+
+	@Override
+	public Set<ProjectApplication> findAllApplyingUsers(List<UUID> projectIds) {
+		if(projectIds.isEmpty())
+			return Set.of();
+		return repository.findAllByProjectIdIn(projectIds).stream()
+			.map(entity -> new ProjectApplication(entity.projectId.toString(), entity.projectName, new FenixUserId(entity.userId)))
 			.collect(toSet());
 	}
 

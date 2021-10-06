@@ -214,7 +214,7 @@ class DemoDataInitializer implements CommandLineRunner {
 
 	private PersistentId getPersistentId() {
 		return usersDAO.getAllUsers().stream()
-			.filter(user -> user.email.equals("admin@domain.com"))
+			.filter(user -> user.email.equals("admin@not-existing-1qaz.example.com"))
 			.map(user -> user.id)
 			.findAny()
 			.flatMap(identity())

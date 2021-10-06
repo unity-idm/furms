@@ -119,7 +119,7 @@ public class UserGrid {
 				x -> factory.get(
 					x,
 					() -> grid.setItems(fetchUsersAction.get()),
-					() -> fetchUsersAction.get().stream().filter(userGridItem -> userGridItem.getStatus().equals(UserGridStatus.ENABLED)).count()
+					() -> fetchUsersAction.get().stream().filter(userGridItem -> userGridItem.getStatus().equals(UserUIStatus.ENABLED)).count()
 				)
 			)
 				.setHeader(getTranslation("component.administrators.grid.column.4"))

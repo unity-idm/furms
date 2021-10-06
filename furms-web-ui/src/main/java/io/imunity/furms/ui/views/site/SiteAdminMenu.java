@@ -6,7 +6,9 @@
 package io.imunity.furms.ui.views.site;
 
 import com.vaadin.flow.component.applayout.AppLayout;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
@@ -24,8 +26,8 @@ import java.util.List;
 public class SiteAdminMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
-	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
-		super(roleTranslator, ViewMode.SITE);
+	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
+		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.SITE);
 
 		setPrimarySection(AppLayout.Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(

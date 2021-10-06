@@ -23,7 +23,7 @@ public class UserGridItem {
 	private final Optional<String> firstName;
 	private final Optional<String> lastName;
 	private final Optional<InvitationId> invitationId;
-	private final UserGridStatus status;
+	private final UserUIStatus status;
 	private final String email;
 	private Icon icon = ANGLE_RIGHT.create();
 
@@ -32,17 +32,17 @@ public class UserGridItem {
 		this.fenixUserId = user.fenixUserId;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;
-		this.status = UserStatus.ENABLED.equals(user.status) ? UserGridStatus.ENABLED : UserGridStatus.DISABLED;
+		this.status = UserStatus.ENABLED.equals(user.status) ? UserUIStatus.ENABLED : UserUIStatus.DISABLED;
 		this.email = user.email;
 		this.invitationId = Optional.empty();
 	}
 
-	public UserGridItem(FURMSUser user, UserGridStatus userGridStatus){
+	public UserGridItem(FURMSUser user, UserUIStatus userUIStatus){
 		this.id = user.id;
 		this.fenixUserId = user.fenixUserId;
 		this.firstName = user.firstName;
 		this.lastName = user.lastName;
-		this.status = userGridStatus;
+		this.status = userUIStatus;
 		this.email = user.email;
 		this.invitationId = Optional.empty();
 	}
@@ -52,7 +52,7 @@ public class UserGridItem {
 		this.fenixUserId = Optional.empty();
 		this.firstName = Optional.empty();
 		this.lastName = Optional.empty();
-		this.status = UserGridStatus.AWAITS_APPROVAL;
+		this.status = UserUIStatus.AWAITS_APPROVAL;
 		this.email = email;
 		this.invitationId = Optional.of(invitationId);
 	}
@@ -69,7 +69,7 @@ public class UserGridItem {
 		return lastName;
 	}
 
-	public UserGridStatus getStatus() {
+	public UserUIStatus getStatus() {
 		return status;
 	}
 

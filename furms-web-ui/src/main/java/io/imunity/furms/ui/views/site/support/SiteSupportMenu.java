@@ -5,7 +5,9 @@
 
 package io.imunity.furms.ui.views.site.support;
 
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
@@ -17,8 +19,8 @@ import java.util.List;
 public class SiteSupportMenu extends FurmsAppLayout {
 	private final FurmsLayout furmsLayout;
 
-	SiteSupportMenu(FurmsLayoutFactory furmsLayoutFactory, RoleTranslator roleTranslator) {
-		super(roleTranslator, ViewMode.SITE);
+	SiteSupportMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
+		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.SITE);
 
 		setPrimarySection(Section.DRAWER);
 		furmsLayout = furmsLayoutFactory.create(

@@ -4,6 +4,6 @@
  */
 package io.imunity.furms.ui.components.administrators;
 
-public enum UserGridStatus {
+public enum UserUIStatus {
 	ENABLED, DISABLED, AWAITS_APPROVAL, ACCESS_REQUESTED
 }

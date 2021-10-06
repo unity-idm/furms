@@ -17,4 +17,8 @@ public interface NotificationDAO {
 	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
 	void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId fenixUserId, String grantId);
+
+	void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail);
+	void notifyUserAboutApplicationAcceptance(PersistentId id, String projectName);
+	void notifyUserAboutApplicationRejection(PersistentId id, String projectName);
 }
