@@ -124,7 +124,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId.id);
-			if(job.status.equals(ProjectInstallationStatus.FAILED)){
+			if(ProjectInstallationStatus.FAILED.equals(job.status)){
 				create(siteId, project);
 				projectOperationRepository.deleteById(job.id);
 				return;
