@@ -33,16 +33,20 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<CommunityAllocationViewModel> binder;
+	private final CommunityAllocationComboBoxesModelsResolver resolver;
 
 	private ComboBox<ComboBoxModel> siteComboBox;
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
+	private ResourceCreditComboBoxModel selectedCreditComboBoxModel;
 	private Label availableAmountLabel;
 	private BigDecimal availableAmount;
+	private BigDecimalField amountField;
 	private boolean editMode;
 
 	CommunityAllocationFormComponent(Binder<CommunityAllocationViewModel> binder, CommunityAllocationComboBoxesModelsResolver resolver) {
 		this.binder = binder;
+		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
@@ -67,7 +71,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		formLayout.addFormItem(resourceCreditComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit"));
 
-		BigDecimalField amountField = new BigDecimalField();
+		amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		resourceTypeComboBox.addValueChangeListener(event -> {
 			if (event.getValue() == null) {
@@ -92,14 +96,8 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		resourceCreditComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				x -> {
-					availableAmount = resolver.getAvailableAmount(x.id);
-					availableAmountLabel.setText(getTranslation(x.split ? 
-						"view.fenix-admin.resource-credits-allocation.form.label.available" : 
-						"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit", 
-						availableAmount));
-					amountField.setReadOnly(!x.split);
-					if (!editMode)
-						amountField.setValue(availableAmount);
+					selectedCreditComboBoxModel = x;
+					reloadAvailableAmount();
 				},
 				() -> availableAmountLabel.setText("")
 			)
@@ -109,6 +107,17 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		prepareValidator(nameField, siteComboBox, resourceTypeComboBox, resourceCreditComboBox, amountField);
 
 		getContent().add(formLayout);
+	}
+
+	public void reloadAvailableAmount() {
+		availableAmount = resolver.getAvailableAmount(selectedCreditComboBoxModel.id);
+		availableAmountLabel.setText(getTranslation(selectedCreditComboBoxModel.split ?
+						"view.fenix-admin.resource-credits-allocation.form.label.available" :
+						"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit",
+				availableAmount));
+		amountField.setReadOnly(!selectedCreditComboBoxModel.split);
+		if (!editMode)
+			amountField.setValue(availableAmount);
 	}
 
 	private void createUnitLabel(BigDecimalField amountField, ResourceMeasureUnit unit) {
