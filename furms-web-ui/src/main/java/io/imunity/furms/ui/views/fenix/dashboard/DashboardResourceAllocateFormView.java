@@ -48,6 +48,7 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditCo
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
+import io.imunity.furms.ui.views.fenix.communites.CommunityAllocationErrors;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 
 @Route(value = "fenix/admin/dashboard/allocate", layout = FenixAdminMenu.class)
@@ -133,7 +134,8 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		final CommunityAllocationViewModel allocationViewModel = binder.getBean();
 		final CommunityAllocation communityAllocation = CommunityAllocationModelsMapper.map(allocationViewModel);
 		final OptionalException<Void> optionalException =
-				getResultOrException(() -> communityAllocationService.create(communityAllocation));
+				getResultOrException(() -> communityAllocationService.create(communityAllocation),
+						CommunityAllocationErrors.KNOWN_ERRORS);
 
 		optionalException.getException().ifPresentOrElse(
 				throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
