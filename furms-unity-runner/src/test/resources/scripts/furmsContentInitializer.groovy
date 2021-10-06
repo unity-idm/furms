@@ -74,7 +74,8 @@ void initFenixAdminRegistrationForms()
 	fenixRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
 	fenixRoleParam.setGroup('DYN:/fenix/users')
 
-	RegistrationForm fenixAdminForm = createRegistrationForm("fenixForm", fenixGroupParam, fenixRoleParam)
+	RegistrationForm fenixAdminForm = createRegistrationForm("fenixForm", fenixGroupParam, fenixRoleParam,
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(fenixAdminForm)
 }
 
@@ -89,7 +90,8 @@ void initSiteUserRegistrationForms()
 	siteRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
 	siteRoleParam.setGroup('DYN:/fenix/sites/*/users')
 
-	RegistrationForm siteAdminForm = createRegistrationForm("siteForm", siteGroupParam, siteRoleParam)
+	RegistrationForm siteAdminForm = createRegistrationForm("siteForm", siteGroupParam, siteRoleParam,
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(siteAdminForm)
 }
 
@@ -104,7 +106,8 @@ void initCommunityAdminRegistrationForms()
 	communityRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
 	communityRoleParam.setGroup('DYN:/fenix/communities/*/users')
 
-	RegistrationForm communityForm = createRegistrationForm("communityForm", communityGroupParam, communityRoleParam)
+	RegistrationForm communityForm = createRegistrationForm("communityForm", communityGroupParam, communityRoleParam,
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(communityForm)
 }
 
@@ -119,11 +122,13 @@ void initProjectUserRegistrationForms()
 	projectRoleParam.setRetrievalSettings(ParameterRetrievalSettings.interactive)
 	projectRoleParam.setGroup('DYN:/fenix/communities/*/projects/*/users')
 
-	RegistrationForm projectForm = createRegistrationForm("projectForm", projectGroupParam, projectRoleParam)
+	RegistrationForm projectForm = createRegistrationForm("projectForm", projectGroupParam, projectRoleParam,
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(projectForm)
 }
 
-private RegistrationForm createRegistrationForm(String name, GroupRegistrationParam groupParam, AttributeRegistrationParam roleParam) {
+private RegistrationForm createRegistrationForm(String name, GroupRegistrationParam groupParam, AttributeRegistrationParam roleParam,
+	I18nString title, I18nString info) {
 	def identityParam = new IdentityRegistrationParam()
 	identityParam.setIdentityType('identifier')
 	identityParam.setRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
@@ -139,6 +144,8 @@ private RegistrationForm createRegistrationForm(String name, GroupRegistrationPa
 			.withDefaultCredentialRequirement("user password")
 			.withNotificationsConfiguration(registrationFormNotifications)
 			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('registration', 'registration')]))
+			.withDisplayedName(title)
+			.withFormInformation(info)
 			.build()
 	form.setIdentityParams([identityParam])
 
