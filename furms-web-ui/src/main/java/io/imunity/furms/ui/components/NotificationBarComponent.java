@@ -20,7 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
-import io.imunity.furms.domain.applications.ApplicationEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationEvent;
 import io.imunity.furms.domain.invitations.InvitationEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -132,10 +132,10 @@ public class NotificationBarComponent extends Button {
 	}
 
 	private boolean isCurrentUserApplicationsListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof ApplicationEvent))
+		if(!(furmsEvent instanceof ProjectApplicationEvent))
 			return false;
-		ApplicationEvent event = (ApplicationEvent) furmsEvent;
-		return event.concern(currentUser);
+		ProjectApplicationEvent event = (ProjectApplicationEvent) furmsEvent;
+		return event.isTargetedAt(currentUser);
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
