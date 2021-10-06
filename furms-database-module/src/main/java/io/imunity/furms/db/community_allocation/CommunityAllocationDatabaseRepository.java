@@ -26,11 +26,14 @@ import static org.springframework.util.StringUtils.isEmpty;
 class CommunityAllocationDatabaseRepository implements CommunityAllocationRepository {
 	private final CommunityAllocationEntityRepository repository;
 	private final CommunityAllocationReadEntityRepository readRepository;
+	private final CommunityAllocationConverter communityAllocationConverter;
 
 	CommunityAllocationDatabaseRepository(CommunityAllocationEntityRepository repository,
-	                                      CommunityAllocationReadEntityRepository readRepository) {
+	                                      CommunityAllocationReadEntityRepository readRepository,
+	                                      CommunityAllocationConverter communityAllocationConverter) {
 		this.repository = repository;
 		this.readRepository = readRepository;
+		this.communityAllocationConverter = communityAllocationConverter;
 	}
 
 	@Override
@@ -48,20 +51,20 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 			return empty();
 		}
 		return readRepository.findById(UUID.fromString(id))
-			.map(CommunityAllocationReadEntity::toCommunityAllocationResolved);
+			.map(communityAllocationConverter::toCommunityAllocationResolved);
 	}
 
 	@Override
 	public Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
-			.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
+			.map(communityAllocationConverter::toCommunityAllocationResolved)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
 	public Set<CommunityAllocation> findAllByCommunityId(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
-				.map(CommunityAllocationReadEntity::toCommunityAllocation)
+				.map(communityAllocationConverter::toCommunityAllocation)
 				.collect(Collectors.toSet());
 	}
 
@@ -69,7 +72,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
 		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
-				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
+				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
@@ -77,7 +80,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	public Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
 	                                                                                                String name) {
 		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
-				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
+				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
@@ -86,7 +89,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	                                                                                                          String name) {
 		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
-				.map(CommunityAllocationReadEntity::toCommunityAllocationResolved)
+				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 

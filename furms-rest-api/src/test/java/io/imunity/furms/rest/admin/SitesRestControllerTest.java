@@ -414,7 +414,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ProjectAllocation createProjectAllocation(String allocationId) {
-		return new ProjectAllocation(allocationId, "projectId", allocationId, "name", "typeId", ONE);
+		return new ProjectAllocation(allocationId, "projectId", allocationId, "name", "typeId", "resourceUnit", "siteId",
+				"siteName", "serviceId", "serviceName", ONE);
 	}
 
 	private SiteAllocatedResources createSiteAllocatedResources(String siteId, String id) {

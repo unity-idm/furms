@@ -181,7 +181,8 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private CommunityAllocation createCommunityAllocation(String id, String communityId) {
-		return new CommunityAllocation(id, "creditId", "name", ONE);
+		return new CommunityAllocation(id, "name", "creditId", "resourceUnit", "siteId", "siteName", "serviceId",
+				"serviceName", ONE);
 	}
 
 	private Project createProject(String id) {
