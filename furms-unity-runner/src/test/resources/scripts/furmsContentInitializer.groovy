@@ -75,7 +75,7 @@ void initFenixAdminRegistrationForms()
 	fenixRoleParam.setGroup('DYN:/fenix/users')
 
 	RegistrationForm fenixAdminForm = createRegistrationForm("fenixForm", fenixGroupParam, fenixRoleParam,
-		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You were invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(fenixAdminForm)
 }
 
@@ -91,7 +91,7 @@ void initSiteUserRegistrationForms()
 	siteRoleParam.setGroup('DYN:/fenix/sites/*/users')
 
 	RegistrationForm siteAdminForm = createRegistrationForm("siteForm", siteGroupParam, siteRoleParam,
-		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You were invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(siteAdminForm)
 }
 
@@ -107,7 +107,7 @@ void initCommunityAdminRegistrationForms()
 	communityRoleParam.setGroup('DYN:/fenix/communities/*/users')
 
 	RegistrationForm communityForm = createRegistrationForm("communityForm", communityGroupParam, communityRoleParam,
-		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You were invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(communityForm)
 }
 
@@ -123,7 +123,7 @@ void initProjectUserRegistrationForms()
 	projectRoleParam.setGroup('DYN:/fenix/communities/*/projects/*/users')
 
 	RegistrationForm projectForm = createRegistrationForm("projectForm", projectGroupParam, projectRoleParam,
-		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You was invited to become \${custom.role} in FURMS."))
+		new I18nString("en", "Sign up to FURMS"), new I18nString("en", "You were invited to become \${custom.role} in FURMS."))
 	registrationsManagement.addForm(projectForm)
 }
 
