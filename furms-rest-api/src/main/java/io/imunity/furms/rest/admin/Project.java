@@ -38,7 +38,7 @@ class Project {
 	}
 
 	public Project(io.imunity.furms.domain.projects.Project project,
-	               User user,
+	               User projectLeader,
 	               Set<SiteInstalledProject> projectInstallations) {
 		this(project.getId(),
 				project.getAcronym(),
@@ -52,13 +52,13 @@ class Project {
 					.orElse(Set.of()),
 				project.getDescription(),
 				new Validity(project.getUtcStartTime(), project.getUtcEndTime()),
-				user);
+				projectLeader);
 	}
 
 	public Project(io.imunity.furms.domain.projects.Project project,
-	               User user,
+	               User projectLeader,
 	               SiteInstalledProject projectInstallation) {
-		this(project, user, Set.of(projectInstallation));
+		this(project, projectLeader, Set.of(projectInstallation));
 	}
 
 	@Override

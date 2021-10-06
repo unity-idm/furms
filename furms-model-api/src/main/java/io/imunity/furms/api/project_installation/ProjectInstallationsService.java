@@ -14,6 +14,7 @@ import java.util.Set;
 
 public interface ProjectInstallationsService {
 	Set<SiteInstalledProjectResolved> findAllSiteInstalledProjectsBySiteId(String siteId);
+	Set<SiteInstalledProjectResolved> findAllSiteInstalledProjectsOfCurrentUser();
 	Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId);
 	Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId);
 	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);

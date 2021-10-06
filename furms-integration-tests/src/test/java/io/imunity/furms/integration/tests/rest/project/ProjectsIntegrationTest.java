@@ -134,6 +134,32 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
+	void shouldFindProjectsWhenUserIsAlreadyInstalledEvenHeIsNotAnAnyAdmin() throws Exception {
+		//given
+		final Site.SiteBuilder siteBuilder = defaultSite();
+		final Site site2 = siteBuilder
+				.name("site2")
+				.externalId(new SiteExternalId("s2id"))
+				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.build();
+		final String community = createCommunity();
+		final String project1 = createProject(community);
+		final TestUser siteAdmin = basicUser();
+		createProjectInstallation(project1, site.getId(), INSTALLED);
+		createProjectInstallation(project1, site2.getId(), INSTALLED);
+
+		createUserAddition(project1, site.getId(), siteAdmin);
+		setupUser(siteAdmin);
+
+		//when
+		mockMvc.perform(MockMvcRequestBuilders.get("/rest-api/v1/projects")
+				.with(siteAdmin.getHttpBasic()))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)));
+	}
+
+	@Test
 	void shouldFindProjectByProjectId() throws Exception {
 		//given
 		final String community = createCommunity();

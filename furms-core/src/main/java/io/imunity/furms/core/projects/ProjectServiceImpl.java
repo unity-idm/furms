@@ -7,6 +7,7 @@ package io.imunity.furms.core.projects;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
+import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
@@ -73,6 +74,7 @@ class ProjectServiceImpl implements ProjectService {
 	private final UserOperationService userOperationService;
 	private final ApplicationEventPublisher publisher;
 	private final ProjectInstallationService projectInstallationService;
+	private final ProjectInstallationsService projectInstallationsService;
 	private final CapabilityCollector capabilityCollector;
 	private final InvitatoryService invitatoryService;
 
@@ -84,6 +86,7 @@ class ProjectServiceImpl implements ProjectService {
 	                          AuthzService authzService,
 	                          UserOperationService userOperationService,
 	                          ProjectInstallationService projectInstallationService,
+	                          ProjectInstallationsService projectInstallationsService,
 	                          CapabilityCollector capabilityCollector,
 	                          InvitatoryService invitatoryService) {
 		this.projectRepository = projectRepository;
@@ -94,6 +97,7 @@ class ProjectServiceImpl implements ProjectService {
 		this.authzService = authzService;
 		this.projectInstallationService = projectInstallationService;
 		this.userOperationService = userOperationService;
+		this.projectInstallationsService = projectInstallationsService;
 		this.capabilityCollector = capabilityCollector;
 		this.invitatoryService = invitatoryService;
 	}
@@ -129,7 +133,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT)
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Set<Project> findAllByCurrentUserId() {
 		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
 		return projectRepository.findAll().stream()
@@ -304,6 +308,16 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public List<FURMSUser> findAllUsers(String communityId, String projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	public Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId) {
+		return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
+				.filter(siteInstalledProject -> siteInstalledProject.project.getId().equals(projectId))
+				.findFirst()
+				.map(siteInstalledProject -> usersDAO.findById(siteInstalledProject.project.getLeaderId()))
+				.map(Optional::get);
 	}
 
 	@Override
