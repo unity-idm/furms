@@ -487,6 +487,24 @@ invitationRejected.consumer=UserNotification
 invitationRejected.notificationChannel=default_email
 invitationRejected.type=HTML
 invitationRejected.bodyFile.en=${CONF}/msgTemplates/invitationRejected.html
+
+applicationNew.subject.en=You have received new application
+applicationNew.consumer=UserNotification
+applicationNew.notificationChannel=default_email
+applicationNew.type=HTML
+applicationNew.bodyFile.en=${CONF}/msgTemplates/applicationNew.html
+
+applicationAccepted.subject.en=Application has been accepted
+applicationAccepted.consumer=UserNotification
+applicationAccepted.notificationChannel=default_email
+applicationAccepted.type=HTML
+applicationAccepted.bodyFile.en=${CONF}/msgTemplates/applicationAccepted.html
+
+applicationRejected.subject.en=Application has been rejected
+applicationRejected.consumer=UserNotification
+applicationRejected.notificationChannel=default_email
+applicationRejected.type=HTML
+applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html
 ```
 
 The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definitions are used by FURMS:
@@ -496,7 +514,10 @@ The path to this file shall be provided in the  `unity.msgTemplates.configuratio
 * `invitationNew` - utilized to send invitations to existing users who were invited to new roles,
 * `registrationInvitation` - utilized to send invitations to create a new account in FURMS to prospective users,
 * `invitationAccepted` - utilized to send information that particular user has accepted the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation,
-* `invitationRejected` - utilized to send information that particular user has rejected the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation.
+* `invitationRejected` - utilized to send information that particular user has rejected the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation,
+* `applicationNew` - utilized to send information to particular project's administrators that specific user has applied for project membership,
+* `applicationAccepted` - utilized to send information to user, that particular application to become member of a project, has been accepted by project administrator,
+* `applicationRejected` - utilized to send information to user, that particular application to become member of a project, has been rejected by project administrator.  
 
 
 Most of the configuration in the default message template file should not be changed.
@@ -511,6 +532,9 @@ Given the default template configuration file, FURMS system administrator has to
 * `registrationInvitation.html` - used by `registrationInvitation` template definition,
 * `invitationAccepted.html` - used by `invitationAccepted` template definition,
 * `invitationRejected.html` - used by `invitationRejected` template definition,
+* `applicationNew.html` - used by `applicationNew` template definition,
+* `applicationAccepted.html` - used by `applicationAccepted` template definition,
+* `applicationRejected.html` - used by `applicationRejected` template definition,
 * `masterTemplate-furms-head.html` - header that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-head}` tag is replaced with the header content,
 * `masterTemplate-furms-footer.html`- footer that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-footer}` tag is replaced with the footer content.
 
@@ -528,13 +552,63 @@ ${include:master-furms-footer}
 
 ```
 
-Email templates can use custom variables that define dynamic contents set by FURMS when sending notifications. The following variables are available:
+Email templates can use custom variables that define dynamic contents set by FURMS when sending notifications. The following table provides information about variables available in the particular HTML template.
 
-* `${custom.name}` - can be used in `policyAcceptanceNew` or `policyAcceptanceRevision` HTML template files, and is resolved to the policy document name,
-* `${custom.role}` - can be used in `invitationNew`, `registrationInvitation`, `invitationAccepted` or `invitationRejected` HTML template files, and is resolved to the FURMS role that invited user is about to accept,
-* `${custom.furmsUrl}` - can be used by all of the HTML templates except `registrationInvitation`, and points to the FURMS application,
-* `${custom.email}` - can be used in `invitationAccepted` or `invitationRejected` HTML template files, and is resolved to the email address of person that either accepted or declined the invitation,
-* `${url}` - can be used in `registrationInvitation` HTML template file and points to the Unity-IdM registration form.
+|===
+| HTML template file name | Variable | Description of resolved variable in template
+
+.2+a|:hardbreaks:
+policyAcceptanceNew.html 
+policyAcceptanceRevision.html
+| `${custom.name}`
+| Policy document name
+
+| `${custom.furmsUrl}`
+| URL to FURMS that points to the User Settings -> Policy Documents view
+
+
+.2+| invitationNew.html
+| `${custom.role}`
+| FURMS role that invited user is requested to accept
+
+| `${custom.furmsUrl}`
+| URL to FURMS that points to the User Settings -> Invitations view
+
+.2+| registrationInvitation.html
+| `${custom.role}`
+| FURMS role that invited user is requested to accept
+
+| `${url}`
+| URL to Unity-IdM that points to the registration form
+
+.2+a|:hardbreaks:
+invitationAccepted.html 
+invitationRejected.html
+| `${custom.role}`
+| FURMS role that invited has accept/rejected
+
+| `${custom.email}`
+| Email address of person that either accepted or declined the invitation
+
+.3+| 
+``
+applicationNew.html
+``
+| `${custom.projectName}`
+| Project name for which user has requested membership
+
+| `${custom.email}`
+| Email address of person that requested membership to a project
+
+| `${custom.furmsUrl}`
+| URL to FURMS that points to particular project's Users view
+
+a|:hardbreaks: 
+applicationAccepted.html
+applicationRejected.html
+| `${custom.projectName}`
+| Project name for which user has requested membership 
+|===   
 
 
 === Install FURMS stack
