@@ -6,6 +6,7 @@
 package io.imunity.furms.rest.admin;
 
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
+import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
@@ -15,6 +16,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.rest.error.exceptions.FenixIdNotFoundException;
 import io.imunity.furms.rest.user.User;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,13 +29,16 @@ class ProjectsRestConverter {
 	private final ProjectInstallationsService projectInstallationsService;
 	private final ResourceAccessService resourceAccessService;
 	private final UserService userService;
+	private final ProjectService projectService;
 
 	ProjectsRestConverter(ProjectInstallationsService projectInstallationsService,
 	                      ResourceAccessService resourceAccessService,
-	                      UserService userService) {
+	                      UserService userService,
+	                      ProjectService projectService) {
 		this.projectInstallationsService = projectInstallationsService;
 		this.resourceAccessService = resourceAccessService;
 		this.userService = userService;
+		this.projectService = projectService;
 	}
 
 	public ProjectWithUsers convertToProjectWithUsers(io.imunity.furms.domain.projects.Project project) {
@@ -54,7 +59,7 @@ class ProjectsRestConverter {
 	public Project convert(io.imunity.furms.domain.projects.Project project) {
 		final Set<SiteInstalledProject> projectInstallations =
 				projectInstallationsService.findAllSiteInstalledProjectsByProjectId(project.getId());
-		final User user = findUser(project.getLeaderId());
+		final User user = findLeader(project);
 		return new Project(project, user, projectInstallations);
 	}
 
@@ -64,9 +69,16 @@ class ProjectsRestConverter {
 				.orElseThrow(() -> new FenixIdNotFoundException("User with provided fenixId doesn't exist."));
 	}
 
-	private User findUser(PersistentId userId) {
-		return userService.findById(userId)
-				.map(User::new)
-				.orElse(null);
+	private User findLeader(io.imunity.furms.domain.projects.Project project) {
+		try {
+			return userService.findById(project.getLeaderId())
+					.map(User::new)
+					.orElse(null);
+		} catch (AccessDeniedException e) {
+			return projectService.findProjectLeaderInfoAsInstalledUser(project.getId())
+					.map(User::new)
+					.orElse(null);
+
+		}
 	}
 }

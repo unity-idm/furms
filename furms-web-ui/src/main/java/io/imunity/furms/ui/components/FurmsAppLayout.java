@@ -11,6 +11,8 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Location;
@@ -20,15 +22,19 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.FurmsEvent;
-import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserEvent;
+import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
+import java.util.List;
 import java.util.Optional;
+
+import static java.util.Collections.emptyList;
 
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
@@ -36,28 +42,40 @@ import java.util.Optional;
 @Theme(value = Lumo.class)
 @PreserveOnRefresh
 @Push
-public class FurmsAppLayout extends AppLayout implements BeforeEnterObserver  {
+public class FurmsAppLayout extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver  {
 	private final RoleTranslator roleTranslator;
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private final AuthzService authzService;
 	private final ViewMode viewMode;
-	private final FURMSUser furmsUser;
+	private final PersistentId currentUserId;
+	private final FurmsLayout furmsLayout;
+
 	private Registration broadcasterRegistration;
 
-
-	protected FurmsAppLayout(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, ViewMode viewMode) {
+	protected FurmsAppLayout(RoleTranslator roleTranslator, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, ViewMode viewMode, FurmsLayoutFactory furmsLayoutFactory, List<MenuComponent> menuComponents) {
 		this.roleTranslator = roleTranslator;
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.authzService = authzService;
 		this.viewMode = viewMode;
-		this.furmsUser = authzService.getCurrentAuthNUser();
+		this.currentUserId = authzService.getCurrentAuthNUser().id.get();
+
+		setPrimarySection(Section.DRAWER);
+		this.furmsLayout = furmsLayoutFactory.create(menuComponents);
+		addToNavbar(false, this.furmsLayout.createNavbar());
+		addToDrawer(this.furmsLayout.createDrawerContent());
 	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 		if(FurmsViewUserContext.getCurrent() == null) {
 			setCurrentRole(beforeEnterEvent);
+			furmsLayout.reloadUserPicker();
 		}
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
+		furmsLayout.afterNavigation(getContent());
 	}
 
 	@Override
@@ -76,9 +94,7 @@ public class FurmsAppLayout extends AppLayout implements BeforeEnterObserver  {
 		if(!(furmsEvent instanceof UserEvent))
 			return false;
 		UserEvent event = (UserEvent) furmsEvent;
-		return furmsUser.id
-			.filter(id -> id.equals(event.getId()))
-			.isPresent();
+		return currentUserId.equals(event.getId());
 	}
 
 	@Override
@@ -100,13 +116,13 @@ public class FurmsAppLayout extends AppLayout implements BeforeEnterObserver  {
 
 	private void setAnyCurrentRole() {
 		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-			.get(viewMode).stream().findAny()
+			.getOrDefault(viewMode, emptyList()).stream().findAny()
 			.ifPresent(FurmsViewUserContext::setAsCurrent);
 	}
 
 	private void setCurrentRoleFromQueryParam(String id) {
 		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-			.get(viewMode).stream()
+			.getOrDefault(viewMode, emptyList()).stream()
 			.filter(x -> x.id.equals(id))
 			.findAny()
 			.ifPresent(FurmsViewUserContext::setAsCurrent);

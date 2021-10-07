@@ -6,7 +6,6 @@
 package io.imunity.furms.db.resource_types;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import org.springframework.data.relational.core.mapping.Table;
@@ -33,18 +32,6 @@ public class ResourceTypeEntity extends UUIDIdentifiable {
 		this.type = type;
 		this.unit = unit;
 		this.accessible = accessible;
-	}
-
-	public ResourceType toResourceType() {
-		return ResourceType.builder()
-			.id(id.toString())
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
-			.name(name)
-			.type(type)
-			.unit(unit)
-			.accessibleForAllProjectMembers(accessible)
-			.build();
 	}
 
 	@Override

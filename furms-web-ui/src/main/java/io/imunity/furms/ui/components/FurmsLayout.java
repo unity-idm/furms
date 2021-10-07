@@ -37,6 +37,10 @@ public class FurmsLayout {
 		this.notificationBar = notificationBar;
 	}
 
+	void reloadUserPicker() {
+		furmsSelect.reloadComponent();
+	}
+
 	public Component createDrawerContent() {
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();

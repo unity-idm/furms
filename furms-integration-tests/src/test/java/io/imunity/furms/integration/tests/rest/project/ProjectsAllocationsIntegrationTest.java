@@ -17,7 +17,6 @@ import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -65,8 +64,26 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllProjectAllocationsByProjectId() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
+				.siteId(site.getId())
+				.build());
+		final String serviceName = UUID.randomUUID().toString();
+		final String serviceId = infraServiceRepository.create(defaultService()
+				.siteId(site.getId())
+				.name(serviceName)
+				.policyId(policyId)
+				.build());
+		final String resourceType = resourceTypeRepository.create(defaultResourceType()
+				.siteId(site.getId())
+				.serviceId(serviceId)
+				.name(UUID.randomUUID().toString())
+				.build());
+		final String resourceCredit = resourceCreditRepository.create(defaultResourceCredit()
+				.siteId(site.getId())
+				.resourceTypeId(resourceType)
+				.name("RC 1")
+				.amount(BigDecimal.TEN)
+				.build());
 		final String community = createCommunity();
 		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
 		final String project1 = createProject(community);
@@ -88,10 +105,20 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].id", in(Set.of(projectAllocation1, projectAllocation2))))
 				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation)))
 				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.[0].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[0].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[0].amount", equalTo(1)))
 				.andExpect(jsonPath("$.[1].id", in(Set.of(projectAllocation1, projectAllocation2))))
 				.andExpect(jsonPath("$.[1].communityAllocationId", equalTo(communityAllocation)))
 				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[1].resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[1].siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.[1].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[1].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[1].amount", equalTo(1)));
 	}
 
@@ -247,6 +274,11 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$", hasSize(1)))
 				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation)))
 				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.[0].serviceId").isNotEmpty())
+				.andExpect(jsonPath("$.[0].serviceName").isNotEmpty())
 				.andExpect(jsonPath("$.[0].amount", equalTo(1)));
 	}
 

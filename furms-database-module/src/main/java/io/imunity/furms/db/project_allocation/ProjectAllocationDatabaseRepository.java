@@ -32,11 +32,16 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	private final ProjectAllocationEntityRepository repository;
 	private final ProjectAllocationReadEntityRepository readRepository;
 	private final ResourceUsageRepository resourceUsageRepository;
+	private final ProjectAllocationConverter converter;
 
-	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository, ProjectAllocationReadEntityRepository readRepository, ResourceUsageRepository resourceUsageRepository) {
+	ProjectAllocationDatabaseRepository(ProjectAllocationEntityRepository repository,
+	                                    ProjectAllocationReadEntityRepository readRepository,
+	                                    ResourceUsageRepository resourceUsageRepository,
+	                                    ProjectAllocationConverter converter) {
 		this.repository = repository;
 		this.readRepository = readRepository;
 		this.resourceUsageRepository = resourceUsageRepository;
+		this.converter = converter;
 	}
 
 	@Override
@@ -56,7 +61,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 		BigDecimal newestResourceUsage = resourceUsageRepository.findCurrentResourceUsage(id)
 			.map(usage -> usage.cumulativeConsumption).orElse(BigDecimal.ZERO);
 		return readRepository.findById(UUID.fromString(id))
-			.map(x -> x.toProjectAllocationResolved(newestResourceUsage));
+			.map(x -> converter.toProjectAllocationResolved(x, newestResourceUsage));
 	}
 
 	@Override
@@ -64,10 +69,11 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 		Map<String, ResourceUsage> projectAllocationUsage = resourceUsageRepository.findCurrentResourceUsages(projectId).stream()
 			.collect(toMap(x -> x.projectAllocationId, Function.identity()));
 		return readRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
-			.map(allocationReadEntity -> allocationReadEntity.toProjectAllocationResolved(
-				ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
-				.map(y -> y.cumulativeConsumption)
-				.orElse(BigDecimal.ZERO))
+			.map(allocationReadEntity -> converter.toProjectAllocationResolved(
+					allocationReadEntity,
+					ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
+						.map(y -> y.cumulativeConsumption)
+						.orElse(BigDecimal.ZERO))
 			)
 			.collect(Collectors.toSet());
 	}
@@ -80,7 +86,8 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 				.flatMap(Collection::stream)
 				.collect(toMap(x -> x.projectAllocationId, Function.identity()));
 		return allocations.stream()
-				.map(allocationReadEntity -> allocationReadEntity.toProjectAllocationResolved(
+				.map(allocationReadEntity -> converter.toProjectAllocationResolved(
+						allocationReadEntity,
 						ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
 								.map(y -> y.cumulativeConsumption)
 								.orElse(BigDecimal.ZERO)))

@@ -12,6 +12,9 @@ import io.imunity.furms.domain.applications.CreateProjectApplicationEvent;
 import io.imunity.furms.domain.applications.RemoveProjectApplicationEvent;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.projects.Project;
@@ -136,7 +139,7 @@ class ProjectApplicationsServiceImplTest {
 
 		verify(applicationRepository).create(projectId, id);
 		verify(notificationDAO).notifyAdminAboutApplicationRequest(persistentId, projectId,  "name", "email");
-		verify(publisher).publishEvent(new CreateProjectApplicationEvent(id, projectId, List.of(user)));
+		verify(publisher).publishEvent(new ProjectApplicationCreatedEvent(id, projectId, List.of(user)));
 	}
 
 	@Test
@@ -184,7 +187,7 @@ class ProjectApplicationsServiceImplTest {
 		applicationService.removeForCurrentUser("projectId");
 
 		verify(applicationRepository).remove("projectId", id);
-		verify(publisher).publishEvent(new RemoveProjectApplicationEvent(id, "projectId", List.of(user)));
+		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, "projectId", Set.of(user)));
 	}
 
 	@Test
@@ -215,7 +218,7 @@ class ProjectApplicationsServiceImplTest {
 
 		verify(projectGroupsDAO).addProjectUser("communityId", projectId, persistentId, Role.PROJECT_USER);
 		verify(applicationRepository).remove(projectId, fenixUserId);
-		verify(publisher).publishEvent(new AcceptProjectApplicationEvent(fenixUserId, projectId, List.of(user)));
+		verify(publisher).publishEvent(new ProjectApplicationAcceptedEvent(fenixUserId, projectId, Set.of(user)));
 		verify(notificationDAO).notifyUserAboutApplicationAcceptance(persistentId, "name");
 	}
 
@@ -244,7 +247,7 @@ class ProjectApplicationsServiceImplTest {
 		applicationService.remove("projectId", id);
 
 		verify(applicationRepository).remove("projectId", id);
-		verify(publisher).publishEvent(new RemoveProjectApplicationEvent(id, "projectId", List.of(user)));
+		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, "projectId", Set.of(user)));
 		verify(notificationDAO).notifyUserAboutApplicationRejection(persistentId, "name");
 	}
 }

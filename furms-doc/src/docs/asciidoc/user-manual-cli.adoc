@@ -123,6 +123,26 @@ Retrieve site policies
 
 Output of the operation is printed in JSON format.
 
+=== Format of selected inputs
+
+==== Creation of community allocation
+
+Creation of community allocation requires its definition provided in JSON format. The syntax should be as follows:
+
+----
+{
+  "name" : "My CLI Allocation",
+  "creditId" : "fe1f2d62-4568-42da-809d-0a59f6bc6174",
+  "amount" : 10
+}
+----
+
+Example use:
+ 
+----
+furms community allocation create --file <PATH_TO_JSON_FILE> <COMMUNITY-ID>
+----
+
 === Diagnostic messages 
 
 By default FURMS client prints command result in JSON, and can also print (rather rarely) some extra information prefixed with the `[INFO]` label. 

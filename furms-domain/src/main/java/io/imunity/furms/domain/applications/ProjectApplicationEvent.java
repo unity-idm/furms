@@ -9,8 +9,8 @@ import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 
-public interface ApplicationEvent extends FurmsEvent {
+public interface ProjectApplicationEvent extends FurmsEvent {
 	FenixUserId getId();
 	String getProjectId();
-	boolean concern(FURMSUser user);
+	boolean isTargetedAt(FURMSUser user);
 }

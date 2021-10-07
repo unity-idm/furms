@@ -8,21 +8,21 @@ package io.imunity.furms.domain.applications;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
-public class AcceptProjectApplicationEvent implements ApplicationEvent {
+public class ProjectApplicationCreatedEvent implements ProjectApplicationEvent {
 	public final FenixUserId id;
 	public final String projectId;
-	public final List<FURMSUser> projectAdmins;
+	public final Set<FURMSUser> projectAdmins;
 
-	public AcceptProjectApplicationEvent(FenixUserId id, String projectId, List<FURMSUser> projectAdmins) {
+	public ProjectApplicationCreatedEvent(FenixUserId id, String projectId, Set<FURMSUser> projectAdmins) {
 		this.id = id;
 		this.projectId = projectId;
-		this.projectAdmins = projectAdmins;
+		this.projectAdmins = Set.copyOf(projectAdmins);
 	}
 
-	public boolean concern(FURMSUser user) {
+	public boolean isTargetedAt(FURMSUser user) {
 		return projectAdmins.stream().anyMatch(adminUsr -> adminUsr.id.equals(user.id));
 	}
 
@@ -40,7 +40,7 @@ public class AcceptProjectApplicationEvent implements ApplicationEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AcceptProjectApplicationEvent userEvent = (AcceptProjectApplicationEvent) o;
+		ProjectApplicationCreatedEvent userEvent = (ProjectApplicationCreatedEvent) o;
 		return Objects.equals(id, userEvent.id) &&
 			Objects.equals(projectId, userEvent.projectId);
 	}
@@ -52,9 +52,10 @@ public class AcceptProjectApplicationEvent implements ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return "AcceptApplicationEvent{" +
+		return "ProjectApplicationCreatedEvent{" +
 			"id='" + id + '\'' +
 			", projectId=" + projectId +
+			", projectAdmins=" + projectAdmins +
 			'}';
 	}
 }

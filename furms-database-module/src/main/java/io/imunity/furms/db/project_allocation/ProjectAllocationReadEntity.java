@@ -33,7 +33,6 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 	public final String name;
 	public final BigDecimal amount;
 
-
 	ProjectAllocationReadEntity(UUID id, String name,
 	                            UUID projectId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
 	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation) {
@@ -45,20 +44,6 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
 		this.communityAllocation = communityAllocation;
-	}
-
-	ProjectAllocationResolved toProjectAllocationResolved(BigDecimal consumed) {
-		return ProjectAllocationResolved.builder()
-			.id(id.toString())
-			.site(site.toSite())
-			.resourceType(resourceType.toResourceType())
-			.resourceCredit(resourceCredit.toResourceCredit())
-			.communityAllocation(communityAllocation.toCommunityAllocation())
-			.projectId(projectId.toString())
-			.name(name)
-			.amount(amount)
-			.consumed(consumed)
-			.build();
 	}
 
 	@Override
@@ -94,6 +79,5 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 	public int hashCode() {
 		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount);
 	}
-
 
 }
