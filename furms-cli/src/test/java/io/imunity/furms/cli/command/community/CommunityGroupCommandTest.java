@@ -15,12 +15,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 
-class GroupCommandTest extends CLICommandsTest {
+class CommunityGroupCommandTest extends CLICommandsTest {
 
 	@Test
 	void shouldCallForGroupList() {
 		final String communityId = "communityId";
-		runCLI("group", "list", communityId);
+		runCLI("community", "group", "list", communityId);
 
 		server.verify(getRequestedFor(restPath("/communities/{communityId}/groups", communityId)));
 	}
@@ -29,7 +29,7 @@ class GroupCommandTest extends CLICommandsTest {
 	void shouldCallForSpecificGroup() {
 		final String communityId = "communityId";
 		final String groupId = "groupId";
-		runCLI("group", "show", communityId, groupId);
+		runCLI("community", "group", "show", communityId, groupId);
 
 		server.verify(getRequestedFor(restPath("/communities/{communityId}/groups/{groupId}",
 				communityId, groupId)));
@@ -39,7 +39,7 @@ class GroupCommandTest extends CLICommandsTest {
 	void shouldCallForDeleteSpecificGroup() {
 		final String communityId = "communityId";
 		final String groupId = "groupId";
-		runCLI("group", "delete", communityId, groupId);
+		runCLI("community", "group", "delete", communityId, groupId);
 
 		server.verify(deleteRequestedFor(restPath("/communities/{communityId}/groups/{groupId}",
 				communityId, groupId)));
@@ -50,7 +50,7 @@ class GroupCommandTest extends CLICommandsTest {
 		final String communityId = "communityId";
 		final String groupName = "groupName";
 		final String groupDescription = "groupDescription";
-		runCLI("group", "create", communityId, "--name", groupName, "--description", groupDescription);
+		runCLI("community", "group", "create", communityId, "--name", groupName, "--description", groupDescription);
 
 		server.verify(postRequestedFor(restPath("/communities/{communityId}/groups", communityId))
 				.withRequestBody(equalToJson(objectMapper.writeValueAsString(new GroupRequestJson(groupName, groupDescription)))));
@@ -62,7 +62,7 @@ class GroupCommandTest extends CLICommandsTest {
 		final String groupId = "groupId";
 		final String groupName = "groupName";
 		final String groupDescription = "groupDescription";
-		runCLI("group", "update", communityId, groupId, "--name", groupName, "--description", groupDescription);
+		runCLI("community", "group", "update", communityId, groupId, "--name", groupName, "--description", groupDescription);
 
 		server.verify(putRequestedFor(restPath("/communities/{communityId}/groups/{groupId}", communityId, groupId))
 				.withRequestBody(equalToJson(objectMapper.writeValueAsString(new GroupRequestJson(groupName, groupDescription)))));

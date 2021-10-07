@@ -16,13 +16,13 @@ import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessag
 @Command(name = "group",
 		description = "Community groups control.",
 		subcommands = {
-				GroupCommand.List.class,
-				GroupCommand.Show.class,
-				GroupCommand.Delete.class,
-				GroupCommand.Create.class,
-				GroupCommand.Update.class,
+				CommunityGroupCommand.List.class,
+				CommunityGroupCommand.Show.class,
+				CommunityGroupCommand.Delete.class,
+				CommunityGroupCommand.Create.class,
+				CommunityGroupCommand.Update.class,
 		})
-public class GroupCommand extends FurmsCommand {
+class CommunityGroupCommand extends FurmsCommand {
 
 	@Override
 	protected void executeCommand() {
