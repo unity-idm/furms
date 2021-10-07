@@ -6,15 +6,20 @@
 package io.imunity.furms.core.applications;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
 import io.imunity.furms.domain.applications.AcceptProjectApplicationEvent;
 import io.imunity.furms.domain.applications.CreateProjectApplicationEvent;
 import io.imunity.furms.domain.applications.RemoveProjectApplicationEvent;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.applications.ApplicationRepository;
+import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -32,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +56,8 @@ class ProjectApplicationsServiceImplTest {
 	private AuthzService authzService;
 	@Mock
 	private NotificationDAO notificationDAO;
+	@Mock
+	private InvitationRepository invitationRepository;
 	@Mock
 	private ApplicationEventPublisher publisher;
 
@@ -103,6 +111,7 @@ class ProjectApplicationsServiceImplTest {
 
 	@Test
 	void shouldCreateForCurrentUser(){
+		String projectId = UUID.randomUUID().toString();
 		FenixUserId id = new FenixUserId("id");
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -111,21 +120,47 @@ class ProjectApplicationsServiceImplTest {
 			.email("email")
 			.build();
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
-		when(projectRepository.findById("projectId")).thenReturn(Optional.of(
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
 				.communityId("communityId")
 				.name("name")
-				.id("projectId")
+				.id(projectId)
 				.build()
 		));
-		when(projectGroupsDAO.getAllAdmins("communityId", "projectId"))
+		when(projectGroupsDAO.getAllAdmins("communityId", projectId))
 			.thenReturn(List.of(user));
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
+			.thenReturn(Optional.empty());
 
-		applicationService.createForCurrentUser("projectId");
+		applicationService.createForCurrentUser(projectId);
 
-		verify(applicationRepository).create("projectId", id);
-		verify(notificationDAO).notifyAdminAboutApplicationRequest(persistentId, "projectId",  "name", "email");
-		verify(publisher).publishEvent(new CreateProjectApplicationEvent(id, "projectId", List.of(user)));
+		verify(applicationRepository).create(projectId, id);
+		verify(notificationDAO).notifyAdminAboutApplicationRequest(persistentId, projectId,  "name", "email");
+		verify(publisher).publishEvent(new CreateProjectApplicationEvent(id, projectId, List.of(user)));
+	}
+
+	@Test
+	void shouldThrowExceptionWhenUserIsInvited(){
+		String projectId = UUID.randomUUID().toString();
+		FenixUserId id = new FenixUserId("id");
+		PersistentId persistentId = new PersistentId("id");
+		FURMSUser user = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(id)
+			.email("email")
+			.build();
+		when(authzService.getCurrentAuthNUser()).thenReturn(user);
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
+			Project.builder()
+				.communityId("communityId")
+				.name("name")
+				.id(projectId)
+				.build()
+		));
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
+			.thenReturn(Optional.of(Invitation.builder().build()));
+
+		assertThrows(UserIsInvitedException.class,() -> applicationService.createForCurrentUser(projectId));
 	}
 
 	@Test

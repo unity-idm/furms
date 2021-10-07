@@ -8,6 +8,7 @@ package io.imunity.furms.core.applications;
 import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
+import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.applications.AcceptProjectApplicationEvent;
@@ -21,6 +22,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.applications.ApplicationRepository;
+import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -55,17 +57,20 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	private final ProjectRepository projectRepository;
 	private final AuthzService authzService;
 	private final NotificationDAO notificationDAO;
+	private final InvitationRepository invitationRepository;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectApplicationsServiceImpl(ApplicationRepository applicationRepository, UsersDAO usersDAO,
 	                               ProjectGroupsDAO projectGroupsDAO, ProjectRepository projectRepository,
-	                               AuthzService authzService, NotificationDAO notificationDAO, ApplicationEventPublisher publisher) {
+	                               AuthzService authzService, NotificationDAO notificationDAO,  InvitationRepository invitationRepository,
+	                               ApplicationEventPublisher publisher) {
 		this.applicationRepository = applicationRepository;
 		this.usersDAO = usersDAO;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.authzService = authzService;
 		this.notificationDAO = notificationDAO;
+		this.invitationRepository = invitationRepository;
 		this.publisher = publisher;
 	}
 
@@ -109,6 +114,8 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	public void createForCurrentUser(String projectId) {
 		projectRepository.findById(projectId).ifPresent(project -> {
 			FURMSUser currentUser = authzService.getCurrentAuthNUser();
+			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId, PROJECT)).isPresent())
+				throw new UserIsInvitedException("This user is invited for this project");
 			FenixUserId fenixUserId = currentUser.fenixUserId
 				.orElseThrow(UserWithoutFenixIdValidationError::new);
 			applicationRepository.create(projectId, fenixUserId);

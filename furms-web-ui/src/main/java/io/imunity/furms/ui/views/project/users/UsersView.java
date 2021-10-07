@@ -14,6 +14,7 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.api.validation.exceptions.UserAppliedForMembershipException;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -172,6 +173,8 @@ public class UsersView extends FurmsLandingViewComponent {
 			showErrorNotification(getTranslation("invite.error.duplicate"));
 		} catch (UserAlreadyHasRoleError e) {
 			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (UserAppliedForMembershipException e) {
+			showErrorNotification(getTranslation("invite.error.application.exist"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);
