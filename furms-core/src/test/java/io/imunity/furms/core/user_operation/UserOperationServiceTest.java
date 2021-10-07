@@ -199,7 +199,7 @@ class UserOperationServiceTest {
 			.build();
 		//when
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(repository.existsByUserIdAndProjectId(id, projectId)).thenReturn(true);
+		when(repository.existsByUserIdAndSiteIdAndProjectId(id, siteId.id, projectId)).thenReturn(true);
 		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		//then

@@ -159,8 +159,8 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId) {
-		return userAdditionEntityRepository.existsByProjectIdAndUserId(UUID.fromString(projectId), userId.id);
+	public boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId) {
+		return userAdditionEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
 	}
 
 	@Override
