@@ -664,6 +664,7 @@ This section describes the FURMS 3.0 release installation steps basing on 2.0 re
 * Make a backup of PostgreSQL database used by Unity-IdM instance.
 * Make a backup of PostgreSQL database used by FURMS service instance.
 * Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
+* <<Stopping FURMS stack,Stop FURMS stack>>.
 * Update your existing `groups_var/all.yml` Ansible configuration file:
 
 ** change the version of furmsVersion to `3.0.0`
@@ -684,7 +685,6 @@ This section describes the FURMS 3.0 release installation steps basing on 2.0 re
 	    configuration:       -- set -- me --
 
 ** To customize the default message templates used by FURMS to send email notifications, please refer to the <<Email templates configuration>> section.
-* <<Stopping FURMS stack,Stop FURMS stack>>.
 * <<Install FURMS stack>>.
 * Make sure that RabbitMQ broker is up and running.
 * <<Starting FURMS stack,Start FURMS stack>>.
