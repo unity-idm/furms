@@ -44,28 +44,6 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 		this.resourceCredit = resourceCredit;
 	}
 
-	CommunityAllocationResolved toCommunityAllocationResolved() {
-		return CommunityAllocationResolved.builder()
-			.id(id.toString())
-			.site(site.toSite())
-			.resourceType(resourceType.toResourceType())
-			.resourceCredit(resourceCredit.toResourceCredit())
-			.communityId(communityId.toString())
-			.name(name)
-			.amount(amount)
-			.build();
-	}
-
-	CommunityAllocation toCommunityAllocation() {
-		return CommunityAllocation.builder()
-				.id(id.toString())
-				.resourceCreditId(resourceCredit.getId().toString())
-				.communityId(communityId.toString())
-				.name(name)
-				.amount(amount)
-				.build();
-	}
-
 	public boolean isExpired() {
 		return UTCTimeUtils.isExpired(resourceCredit.endTime);
 	}

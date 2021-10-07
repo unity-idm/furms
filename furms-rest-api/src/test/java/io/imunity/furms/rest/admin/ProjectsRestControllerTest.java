@@ -220,7 +220,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private ProjectAllocation createProjectAllocation(String id) {
-		return new ProjectAllocation(id, "projectId", "allocationId", "name", "typeId", ONE);
+		return new ProjectAllocation(id, "projectId", "allocationId", "name", "typeId", "resourceUnit", "siteId",
+				"siteName", "serviceId", "serviceName", ONE);
 	}
 
 }

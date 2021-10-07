@@ -12,16 +12,18 @@ public class ResourceType {
 	public final String name;
 	public final String siteId;
 	public final String serviceId;
+	public final String serviceName;
 	public final ResourceMeasureType type;
 	public final ResourceMeasureUnit unit;
 	public final boolean accessibleForAllProjectMembers;
 
-	public ResourceType(String id, String name, String siteId, String serviceId, ResourceMeasureType type,
-	                    ResourceMeasureUnit unit, boolean accessibleForAllProjectMembers) {
+	public ResourceType(String id, String name, String siteId, String serviceId, String serviceName,
+	                    ResourceMeasureType type, ResourceMeasureUnit unit, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.name = name;
 		this.siteId = siteId;
 		this.serviceId = serviceId;
+		this.serviceName = serviceName;
 		this.type = type;
 		this.unit = unit;
 		this.accessibleForAllProjectMembers = accessibleForAllProjectMembers;
@@ -36,6 +38,7 @@ public class ResourceType {
 			Objects.equals(name, that.name) &&
 			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(serviceId, that.serviceId) &&
+			Objects.equals(serviceName, that.serviceName) &&
 			type == that.type &&
 			Objects.equals(unit, that.unit) &&
 			Objects.equals(accessibleForAllProjectMembers, that.accessibleForAllProjectMembers);
@@ -43,7 +46,7 @@ public class ResourceType {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, siteId, serviceId, type, unit, accessibleForAllProjectMembers);
+		return Objects.hash(id, name, siteId, serviceId, serviceName, type, unit, accessibleForAllProjectMembers);
 	}
 
 	@Override
@@ -53,6 +56,7 @@ public class ResourceType {
 			", name='" + name + '\'' +
 			", siteId='" + siteId + '\'' +
 			", serviceId='" + serviceId + '\'' +
+			", serviceName='" + serviceName + '\'' +
 			", type=" + type +
 			", unit=" + unit +
 			", accessible=" + accessibleForAllProjectMembers +
@@ -68,6 +72,7 @@ public class ResourceType {
 		public String name;
 		public String siteId;
 		public String serviceId;
+		public String serviceName;
 		public ResourceMeasureType type;
 		public ResourceMeasureUnit unit;
 		public boolean accessibleForAllProjectMembers;
@@ -95,6 +100,11 @@ public class ResourceType {
 			return this;
 		}
 
+		public ResourceTypeBuilder serviceName(String serviceName) {
+			this.serviceName = serviceName;
+			return this;
+		}
+
 		public ResourceTypeBuilder type(ResourceMeasureType type) {
 			this.type = type;
 			return this;
@@ -111,7 +121,7 @@ public class ResourceType {
 		}
 
 		public ResourceType build() {
-			return new ResourceType(id, name, siteId, serviceId, type, unit, accessibleForAllProjectMembers);
+			return new ResourceType(id, name, siteId, serviceId, serviceName, type, unit, accessibleForAllProjectMembers);
 		}
 	}
 }

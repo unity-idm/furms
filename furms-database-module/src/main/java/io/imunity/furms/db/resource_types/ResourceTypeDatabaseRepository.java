@@ -5,7 +5,6 @@
 
 package io.imunity.furms.db.resource_types;
 
-
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import org.springframework.stereotype.Repository;
@@ -22,9 +21,11 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	private final ResourceTypeEntityRepository repository;
+	private final ResourceTypeConverter resourceTypeConverter;
 
-	ResourceTypeDatabaseRepository(ResourceTypeEntityRepository repository) {
+	ResourceTypeDatabaseRepository(ResourceTypeEntityRepository repository, ResourceTypeConverter resourceTypeConverter) {
 		this.repository = repository;
+		this.resourceTypeConverter = resourceTypeConverter;
 	}
 
 	@Override
@@ -33,27 +34,27 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 			return empty();
 		}
 		return repository.findById(UUID.fromString(id))
-			.map(ResourceTypeEntity::toResourceType);
+			.map(resourceTypeConverter::toResourceType);
 	}
 
 	@Override
 	public Set<ResourceType> findAllBySiteId(String siteId) {
 		return repository.findAllBySiteId(UUID.fromString(siteId))
-			.map(ResourceTypeEntity::toResourceType)
+			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
 
 	@Override
 	public Set<ResourceType> findAllByInfraServiceId(String siteId) {
 		return repository.findAllByServiceId(UUID.fromString(siteId))
-			.map(ResourceTypeEntity::toResourceType)
+			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
 
 	@Override
 	public Set<ResourceType> findAll() {
 		return stream(repository.findAll().spliterator(), false)
-			.map(ResourceTypeEntity::toResourceType)
+			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
 

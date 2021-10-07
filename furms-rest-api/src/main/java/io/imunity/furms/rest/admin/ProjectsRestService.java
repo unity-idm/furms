@@ -8,8 +8,6 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import io.imunity.furms.utils.UTCTimeUtils;
@@ -19,11 +17,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 @Service
 class ProjectsRestService {
@@ -33,25 +29,23 @@ class ProjectsRestService {
 	private final ProjectInstallationsService projectInstallationsService;
 	private final ResourceChecker resourceChecker;
 	private final ProjectsRestConverter converter;
-	private final SiteService siteService;
 
 	ProjectsRestService(ProjectService projectService,
 	                    ProjectAllocationService projectAllocationService,
 	                    ProjectInstallationsService projectInstallationsService,
-	                    ProjectsRestConverter converter,
-	                    SiteService siteService) {
+	                    ProjectsRestConverter converter) {
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
 		this.resourceChecker = new ResourceChecker(projectService::existsById);
 		this.projectInstallationsService = projectInstallationsService;
 		this.converter = converter;
-		this.siteService = siteService;
 	}
 
 	List<Project> findAll() {
 		return Stream.concat(
 					projectService.findAllByCurrentUserId().stream(),
-					findAllUserInstalledProjects().stream().map(siteInstalledProject -> siteInstalledProject.project))
+					projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
+							.map(siteInstalledProject -> siteInstalledProject.project))
 				.map(converter::convert)
 				.collect(toList());
 	}
@@ -124,7 +118,7 @@ class ProjectsRestService {
 					.map(ProjectAllocation::new)
 					.get();
 		} catch (AccessDeniedException e) {
-			return findAllUserInstalledProjects().stream()
+			return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
 					.map(siteInstallation -> projectAllocationService.findAllWithRelatedObjectsBySiteId(siteInstallation.siteId))
 					.flatMap(Collection::stream)
 					.filter(allocation -> allocation.id.equals(projectAllocationId))
@@ -155,7 +149,8 @@ class ProjectsRestService {
 			return projectService.findById(projectId)
 					.map(converter::convertToProjectWithUsers);
 		} catch (AccessDeniedException e) {
-			final Optional<ProjectWithUsers> project = findAllUserInstalledProjects().stream()
+			final Optional<ProjectWithUsers> project = projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser()
+					.stream()
 					.filter(siteInstalledProject -> projectId.equals(siteInstalledProject.project.getId()))
 					.findFirst()
 					.map(converter::convertToProjectWithUsers);
@@ -166,18 +161,11 @@ class ProjectsRestService {
 		}
 	}
 
-	private Set<SiteInstalledProjectResolved> findAllUserInstalledProjects() {
-		return siteService.findAllOfCurrentUserId().stream()
-				.map(site -> projectInstallationsService.findAllSiteInstalledProjectsBySiteId(site.getId()))
-				.flatMap(Collection::stream)
-				.collect(toSet());
-	}
-
 	private boolean isProjectAdminOrIsProjectInstalledOnUserSites(String projectId) {
 		try {
 			return projectService.hasAdminRights(projectId);
 		} catch (AccessDeniedException e) {
-			return findAllUserInstalledProjects().stream()
+			return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
 					.anyMatch(siteInstalledProject -> siteInstalledProject.project.getId().equals(projectId));
 		}
 	}

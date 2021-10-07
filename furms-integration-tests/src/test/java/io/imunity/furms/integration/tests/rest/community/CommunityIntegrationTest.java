@@ -204,7 +204,26 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllAllocationsByCommunityId() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
+				.siteId(site.getId())
+				.build());
+		final String serviceName = UUID.randomUUID().toString();
+		final String serviceId = infraServiceRepository.create(defaultService()
+				.siteId(site.getId())
+				.name(serviceName)
+				.policyId(policyId)
+				.build());
+		final String resourceType = resourceTypeRepository.create(defaultResourceType()
+				.siteId(site.getId())
+				.serviceId(serviceId)
+				.name(UUID.randomUUID().toString())
+				.build());
+		final String resourceCredit = resourceCreditRepository.create(defaultResourceCredit()
+				.siteId(site.getId())
+				.resourceTypeId(resourceType)
+				.name("RC 1")
+				.amount(BigDecimal.TEN)
+				.build());
 		final String community1 = createCommunity();
 		final String community2 = createCommunity();
 		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
@@ -218,9 +237,19 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].id", in(Set.of(communityAllocation1, communityAllocation2))))
 				.andExpect(jsonPath("$.[0].creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.[0].resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.[0].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[0].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[0].amount", equalTo(10)))
 				.andExpect(jsonPath("$.[1].id", in(Set.of(communityAllocation1, communityAllocation2))))
 				.andExpect(jsonPath("$.[1].creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.[1].resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[1].siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.[1].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[1].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[1].amount", equalTo(10)));
 	}
 
@@ -266,6 +295,11 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id", equalTo(communityAllocation1)))
 				.andExpect(jsonPath("$.creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.resourceUnit", equalTo("GB")))
+				.andExpect(jsonPath("$.siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.siteName", equalTo(site.getName())))
+				.andExpect(jsonPath("$.serviceId").isNotEmpty())
+				.andExpect(jsonPath("$.serviceName").isNotEmpty())
 				.andExpect(jsonPath("$.amount", equalTo(10)));
 	}
 
