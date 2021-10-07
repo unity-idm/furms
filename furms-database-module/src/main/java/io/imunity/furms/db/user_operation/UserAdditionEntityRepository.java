@@ -80,5 +80,5 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 	Optional<Integer> findStatusBySiteIdAndProjectIdAndUserId(@Param("site_id") UUID siteId, @Param("project_id") UUID projectId, @Param("user_id") String userId);
 
 	boolean existsBySiteIdAndUserId(UUID siteId, String userId);
-	boolean existsByProjectIdAndUserId(UUID projectId, String userId);
+	boolean existsBySiteIdAndProjectIdAndUserId(UUID siteId, UUID projectId, String userId);
 }

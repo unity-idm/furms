@@ -154,7 +154,7 @@ public class UserOperationService implements UserAllocationsService {
 
 	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
-		if(repository.existsByUserIdAndProjectId(userId, projectId))
+		if(repository.existsByUserIdAndSiteIdAndProjectId(userId, siteId.id, projectId))
 			throw new IllegalArgumentException(String.format("User %s is already added to project %s", userId, projectId));
 
 		UserAddition userAddition = UserAddition.builder()

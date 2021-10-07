@@ -32,7 +32,7 @@ public interface UserOperationRepository {
 	UserAddition findAdditionByCorrelationId(CorrelationId correlationId);
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(String correlationId);
-	boolean existsByUserIdAndProjectId(FenixUserId userId, String projectId);
+	boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
 	void deleteAll();
 	void delete(UserAddition userAddition);
 }
