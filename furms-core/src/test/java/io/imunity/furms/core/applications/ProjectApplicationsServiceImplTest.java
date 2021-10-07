@@ -7,14 +7,11 @@ package io.imunity.furms.core.applications;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
-import io.imunity.furms.domain.applications.AcceptProjectApplicationEvent;
-import io.imunity.furms.domain.applications.CreateProjectApplicationEvent;
-import io.imunity.furms.domain.applications.RemoveProjectApplicationEvent;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.projects.Project;
@@ -139,7 +136,7 @@ class ProjectApplicationsServiceImplTest {
 
 		verify(applicationRepository).create(projectId, id);
 		verify(notificationDAO).notifyAdminAboutApplicationRequest(persistentId, projectId,  "name", "email");
-		verify(publisher).publishEvent(new ProjectApplicationCreatedEvent(id, projectId, List.of(user)));
+		verify(publisher).publishEvent(new ProjectApplicationCreatedEvent(id, projectId, Set.of(user)));
 	}
 
 	@Test
