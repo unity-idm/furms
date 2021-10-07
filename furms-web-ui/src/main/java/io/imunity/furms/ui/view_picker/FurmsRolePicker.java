@@ -54,7 +54,7 @@ public class FurmsRolePicker extends Select<FurmsRolePickerText> {
 		addValueChangeListener(event -> furmsSelectService.manageSelectedItemRedirects(event.getValue()));
 	}
 
-	private void reloadComponent(){
+	public void reloadComponent(){
 		try {
 			String currentSelectedContextId = furmsSelectService.loadSelectedItem()
 					.orElseThrow(() -> new IllegalStateException("No context found for current user"))

@@ -10,10 +10,10 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.applications.AcceptProjectApplicationEvent;
-import io.imunity.furms.domain.applications.CreateProjectApplicationEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationWithUser;
-import io.imunity.furms.domain.applications.RemoveProjectApplicationEvent;
+import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.AddUserEvent;
@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +115,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 			applicationRepository.create(projectId, fenixUserId);
 			projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)
 				.forEach(usr -> notificationDAO.notifyAdminAboutApplicationRequest(usr.id.get(), projectId, project.getName(), currentUser.email));
-			publisher.publishEvent(new CreateProjectApplicationEvent(fenixUserId, projectId, projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)));
+			publisher.publishEvent(new ProjectApplicationCreatedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId))));
 			LOG.info("User {} application for project ID: {} was created", projectId, currentUser.fenixUserId.get());
 		});
 	}
@@ -129,7 +130,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 			projectRepository.findById(projectId).ifPresent(project -> {
 				applicationRepository.remove(projectId, fenixUserId);
 				publisher.publishEvent(
-					new RemoveProjectApplicationEvent(fenixUserId, projectId, projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId))
+					new ProjectApplicationRemovedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
 				LOG.info("User {} application for project ID: {} was removed", projectId, fenixUserId);
 			});
@@ -149,7 +150,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				applicationRepository.remove(projectId, fenixUserId);
 				notificationDAO.notifyUserAboutApplicationAcceptance(persistentId, project.getName());
 				publisher.publishEvent(
-					new AcceptProjectApplicationEvent(fenixUserId, projectId, projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId))
+					new ProjectApplicationAcceptedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
 				publisher.publishEvent(new AddUserEvent(persistentId, new ResourceId(projectId, PROJECT)));
 				LOG.info("User {} application for project ID: {} was accepted", projectId, fenixUserId);
@@ -167,7 +168,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				PersistentId persistentId = usersDAO.getPersistentId(fenixUserId);
 				notificationDAO.notifyUserAboutApplicationRejection(persistentId, project.getName());
 				publisher.publishEvent(
-					new RemoveProjectApplicationEvent(fenixUserId, projectId, projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId))
+					new ProjectApplicationRemovedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
 				LOG.info("User {} application for project ID: {} was rejected", projectId, fenixUserId);
 			});
