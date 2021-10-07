@@ -590,10 +590,7 @@ invitationRejected.html
 | `${custom.email}`
 | Email address of person that either accepted or declined the invitation
 
-.3+| 
-``
-applicationNew.html
-``
+.3+| applicationNew.html
 | `${custom.projectName}`
 | Project name for which user has requested membership
 
