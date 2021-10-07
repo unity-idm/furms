@@ -29,6 +29,10 @@ class CustomValueCheckBox<T> extends ComboBox<T> {
 		return customValue;
 	}
 
+	public void clearEmail() {
+		customValue = "";
+	}
+
 	@DomEvent(value = "input", debounce = @DebounceSettings(timeout = 500, phases = {LEADING, INTERMEDIATE}))
 	public static class CustomValueCheckBoxEvent<T extends ComboBox<?>> extends ComponentEvent<T> {
 		public CustomValueCheckBoxEvent(T source, boolean fromClient) {

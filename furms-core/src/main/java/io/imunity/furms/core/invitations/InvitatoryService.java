@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.api.validation.exceptions.UserAppliedForMembershipException;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -20,6 +21,7 @@ import io.imunity.furms.domain.invitations.UpdateInvitationUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -30,6 +32,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -37,6 +41,8 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 public class InvitatoryService {
@@ -46,17 +52,20 @@ public class InvitatoryService {
 	private final InvitationRepository invitationRepository;
 	private final AuthzService authzService;
 	private final NotificationDAO notificationDAO;
+	private final ApplicationRepository applicationRepository;
 	private final ApplicationEventPublisher publisher;
 	private final Clock clock;
 	private final int expirationTimeInSeconds;
 
 	InvitatoryService(UsersDAO usersDAO, InvitationRepository invitationRepository, AuthzService authzService,
 	                  NotificationDAO notificationDAO, ApplicationEventPublisher publisher, Clock clock,
+	                  ApplicationRepository applicationRepository,
 	                  @Value("${furms.invitations.expiration-time-in-seconds}") String expirationTime) {
 		this.usersDAO = usersDAO;
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
 		this.notificationDAO = notificationDAO;
+		this.applicationRepository = applicationRepository;
 		this.publisher = publisher;
 		this.clock = clock;
 		this.expirationTimeInSeconds = Integer.parseInt(expirationTime);
@@ -84,7 +93,8 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
 			throw new DuplicatedInvitationError("This invitation already exists");
-
+		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.id.toString(), user.fenixUserId.get()))
+			throw new UserAppliedForMembershipException("User waiting for application approval");
 		if(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role)))
 			throw new UserAlreadyHasRoleError("User already has this role");
 
@@ -162,6 +172,8 @@ public class InvitatoryService {
 			return;
 		}
 
+		if(!isEmailValid(email))
+			throw new IllegalArgumentException("Email is not valid");
 		if(invitationRepository.findBy(email, role, resourceId).isPresent())
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSupportRoleCheckExistingAlsoForAdminRole(resourceId, role, email))
@@ -192,5 +204,14 @@ public class InvitatoryService {
 
 	private LocalDateTime getExpiredAtTime() {
 		return UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock).plusSeconds(expirationTimeInSeconds));
+	}
+
+	public boolean isEmailValid(String email) {
+		try {
+			new InternetAddress(email).validate();
+		} catch (AddressException ex) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -137,6 +137,7 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 
 	//Workaround - see https://github.com/vaadin/flow-components/issues/1798
 	public void clearCustomValue(Button button){
+		comboBox.clearEmail();
 		comboBox.setAllowCustomValue(false);
 		comboBox.focus();
 		button.focus();

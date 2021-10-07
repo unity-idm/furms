@@ -7,6 +7,7 @@ package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.UserAppliedForMembershipException;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -17,6 +18,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -59,6 +61,8 @@ class InvitatoryServiceTest {
 	@Mock
 	private NotificationDAO notificationDAO;
 	@Mock
+	private ApplicationRepository applicationRepository;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private InvitatoryService invitatoryService;
@@ -69,7 +73,7 @@ class InvitatoryServiceTest {
 		MockitoAnnotations.initMocks(this);
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
 		invitatoryService = new InvitatoryService(usersDAO, invitationRepository, authzService,
-			notificationDAO, publisher, fixedClock, String.valueOf(EXPIRATION_TIME));
+			notificationDAO, publisher, fixedClock, applicationRepository, String.valueOf(EXPIRATION_TIME));
 	}
 
 	@Test
@@ -126,7 +130,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(fenixId)
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -140,7 +144,7 @@ class InvitatoryServiceTest {
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
@@ -153,6 +157,30 @@ class InvitatoryServiceTest {
 	}
 
 	@Test
+	void shouldThrowExceptionWhenUserAppliedForMembership() {
+		Role role = Role.FENIX_ADMIN;
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.PROJECT);
+		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = new FenixUserId("fenixId");
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(fenixId)
+			.email("email@email.com")
+			.build();
+
+		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
+		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("originator")
+			.build()
+		);
+		when(applicationRepository.existsBy(resourceId.id.toString(), fenixId)).thenReturn(true);
+
+		assertThrows(UserAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
+	}
+
+	@Test
 	void shouldNotInviteExistingUserWhenInvitationAlreadyExists() {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
@@ -160,7 +188,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(new FenixUserId("fenixId"))
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -172,7 +200,7 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.of(invitation));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.of(invitation));
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
@@ -191,7 +219,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(fenixId)
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -206,13 +234,13 @@ class InvitatoryServiceTest {
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
 		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
 		);
 
-		invitatoryService.inviteUser("email", resourceId, role, "system");
+		invitatoryService.inviteUser("email@email.com", resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
 		verify(notificationDAO).notifyUserAboutNewRole(persistentId, invitation.role);
@@ -227,7 +255,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(new FenixUserId("fenixId"))
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -239,6 +267,32 @@ class InvitatoryServiceTest {
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
+		when(usersDAO.inviteUser(resourceId, role, "email@email.com", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
+		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("originator")
+			.build()
+		);
+
+		invitatoryService.inviteUser("email@email.com", resourceId, role, "system");
+
+		verify(invitationRepository).create(invitation);
+		verify(usersDAO).inviteUser(resourceId, role,"email@email.com", getExpiredAt().toInstant(ZoneOffset.UTC));
+	}
+
+	@Test
+	void shouldThrowExceptionWhenEmailIsIncorrect() {
+		Role role = Role.FENIX_ADMIN;
+		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		PersistentId persistentId = new PersistentId("id");
+		InvitationCode code = new InvitationCode("code");
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(new FenixUserId("fenixId"))
+			.email("email")
+			.build();
+
 		when(usersDAO.inviteUser(resourceId, role, "email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
@@ -247,10 +301,10 @@ class InvitatoryServiceTest {
 			.build()
 		);
 
-		invitatoryService.inviteUser("email", resourceId, role, "system");
+		String message = assertThrows(IllegalArgumentException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"))
+			.getMessage();
+		assertEquals("Email is not valid", message);
 
-		verify(invitationRepository).create(invitation);
-		verify(usersDAO).inviteUser(resourceId, role,"email", getExpiredAt().toInstant(ZoneOffset.UTC));
 	}
 
 	@Test
@@ -261,7 +315,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(new FenixUserId("fenixId"))
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -272,13 +326,13 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.of(invitation));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.of(invitation));
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
 		);
 
-		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"));
+		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email@email.com", resourceId, role, "system"));
 	}
 
 	@Test
@@ -291,7 +345,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(new FenixUserId("fenixId"))
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
@@ -304,15 +358,15 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.inviteUser(resourceId, role,"email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(invitationCode);
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
+		when(usersDAO.inviteUser(resourceId, role,"email@email.com", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(invitationCode);
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
 			.build()
 		);
 		when(invitationRepository.create(invitation)).thenThrow(new RuntimeException());
 
-		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"));
+		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email@email.com", resourceId, role, "system"));
 
 		verify(usersDAO).removeInvitation(invitationCode);
 	}
@@ -334,7 +388,7 @@ class InvitatoryServiceTest {
 			.role(role)
 			.code(invitationCode)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
@@ -358,7 +412,7 @@ class InvitatoryServiceTest {
 			.role(role)
 			.code(invitationCode)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
@@ -381,7 +435,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(fenixId)
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
@@ -389,7 +443,7 @@ class InvitatoryServiceTest {
 			.userId(fenixId)
 			.role(role)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
@@ -412,7 +466,7 @@ class InvitatoryServiceTest {
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
 			.fenixUserId(fenixId)
-			.email("email")
+			.email("email@email.com")
 			.build();
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
@@ -420,7 +474,7 @@ class InvitatoryServiceTest {
 			.userId(fenixId)
 			.role(role)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
@@ -444,7 +498,7 @@ class InvitatoryServiceTest {
 			.resourceId(resourceId)
 			.role(role)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
@@ -468,7 +522,7 @@ class InvitatoryServiceTest {
 			.role(role)
 			.code(invitationCode)
 			.originator("originator")
-			.email("email")
+			.email("email@email.com")
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
