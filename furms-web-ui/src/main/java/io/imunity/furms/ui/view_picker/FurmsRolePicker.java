@@ -21,6 +21,7 @@ import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.components.LabeledHr;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import org.slf4j.Logger;
@@ -68,7 +69,10 @@ public class FurmsRolePicker extends Select<FurmsRolePickerText> {
 		} catch (Exception e) {
 			LOG.error("Unable to refresh role-view selector", e);
 		}
-		
+	}
+
+	public FurmsViewUserContext getCurrentValue() {
+		return getValue().furmsViewUserContext;
 	}
 
 	@Override

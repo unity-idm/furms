@@ -15,6 +15,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.view_picker.FurmsRolePicker;
 
 import java.util.List;
@@ -39,6 +40,10 @@ public class FurmsLayout {
 
 	void reloadUserPicker() {
 		furmsSelect.reloadComponent();
+	}
+
+	FurmsViewUserContext getUserPickerValue() {
+		return furmsSelect.getCurrentValue();
 	}
 
 	public Component createDrawerContent() {
