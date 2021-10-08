@@ -17,7 +17,9 @@ import static io.imunity.furms.cli.command.CommandUtils.createEmptyCommandMessag
 		subcommands = {
 				CommunityCommand.List.class,
 				CommunityCommand.Show.class,
-				CommunityAllocationCommand.class
+				CommunityAllocationCommand.class,
+				CommunityGroupCommand.class,
+				CommunityProjectCommand.class
 		})
 public class CommunityCommand extends FurmsCommand {
 

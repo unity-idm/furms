@@ -6,7 +6,6 @@
 package io.imunity.furms.cli.command;
 
 import io.imunity.furms.cli.command.community.CommunityCommand;
-import io.imunity.furms.cli.command.community.GroupCommand;
 import io.imunity.furms.cli.command.project.ProjectCommand;
 import io.imunity.furms.cli.command.site.SiteCommand;
 import picocli.CommandLine.Command;
@@ -18,7 +17,6 @@ import java.util.List;
 		mixinStandardHelpOptions = true,
 		subcommands = {
 				CommunityCommand.class,
-				GroupCommand.class,
 				ProjectCommand.class,
 				SiteCommand.class
 		}
