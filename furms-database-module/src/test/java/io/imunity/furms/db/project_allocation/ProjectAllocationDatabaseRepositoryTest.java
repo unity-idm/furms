@@ -17,6 +17,7 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -25,12 +26,14 @@ import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,6 +43,7 @@ import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -70,6 +74,9 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 	@Autowired
 	private ProjectAllocationDatabaseRepository entityDatabaseRepository;
+
+	@MockBean
+	private ResourceUsageRepository resourceUsageRepository;
 
 	private UUID siteId;
 	private UUID siteId2;
@@ -515,6 +522,37 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldReturnFalseForNonExistingCommunityAllocationId() {
 		//when + then
 		assertThat(entityRepository.existsByCommunityAllocationId(UUID.randomUUID())).isFalse();
+	}
+
+	@Test
+	void shouldNotThrowDuplicateKeyExceptionForManyResourceUsagesForTheSameProjectId() {
+		final ProjectAllocationEntity allocation1 = entityRepository.save(ProjectAllocationEntity.builder()
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
+				.name("name")
+				.amount(new BigDecimal(10))
+				.build());
+		final ProjectAllocationEntity allocation2 = entityRepository.save(ProjectAllocationEntity.builder()
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
+				.name("name2")
+				.amount(new BigDecimal(10))
+				.build());
+		when(resourceUsageRepository.findCurrentResourceUsages(projectId.toString())).thenReturn(Set.of(
+				ResourceUsage.builder()
+						.projectId(projectId.toString())
+						.projectAllocationId(allocation1.getId().toString())
+						.cumulativeConsumption(BigDecimal.ONE)
+						.probedAt(LocalDateTime.now().minusMinutes(1))
+						.build(),
+				ResourceUsage.builder()
+						.projectId(projectId.toString())
+						.projectAllocationId(allocation2.getId().toString())
+						.cumulativeConsumption(BigDecimal.ONE)
+						.probedAt(LocalDateTime.now().minusMinutes(1))
+						.build()
+		));
+		entityDatabaseRepository.findAllWithRelatedObjectsBySiteId(siteId.toString());
 	}
 
 }

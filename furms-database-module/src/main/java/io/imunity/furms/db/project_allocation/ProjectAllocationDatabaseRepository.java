@@ -81,15 +81,16 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	@Override
 	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(String siteId) {
 		final Set<ProjectAllocationReadEntity> allocations = readRepository.findAllBySiteId(UUID.fromString(siteId));
-		Map<String, ResourceUsage> projectAllocationUsage = allocations.stream()
-				.map(allocation -> resourceUsageRepository.findCurrentResourceUsages(allocation.projectId.toString()))
+		final Map<String, BigDecimal> projectAllocationUsage = allocations.stream()
+				.map(allocation -> allocation.projectId.toString())
+				.distinct()
+				.map(resourceUsageRepository::findCurrentResourceUsages)
 				.flatMap(Collection::stream)
-				.collect(toMap(x -> x.projectAllocationId, Function.identity()));
+				.collect(toMap(x -> x.projectAllocationId, x -> x.cumulativeConsumption));
 		return allocations.stream()
 				.map(allocationReadEntity -> converter.toProjectAllocationResolved(
 						allocationReadEntity,
 						ofNullable(projectAllocationUsage.get(allocationReadEntity.getId().toString()))
-								.map(y -> y.cumulativeConsumption)
 								.orElse(BigDecimal.ZERO)))
 				.collect(Collectors.toSet());
 	}
