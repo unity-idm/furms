@@ -72,7 +72,7 @@ public class FurmsAppLayout extends AppLayout implements AfterNavigationObserver
 			setCurrentRole(beforeEnterEvent);
 			furmsLayout.reloadUserPicker();
 		}
-		else if(Objects.equals(FurmsViewUserContext.getCurrent(), furmsLayout.getUserPickerValue()));
+		else if(!Objects.equals(FurmsViewUserContext.getCurrent(), furmsLayout.getUserPickerValue()))
 			furmsLayout.reloadUserPicker();
 	}
 
