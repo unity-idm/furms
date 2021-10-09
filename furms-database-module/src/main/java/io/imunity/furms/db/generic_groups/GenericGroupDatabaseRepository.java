@@ -15,6 +15,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -50,26 +51,32 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	@Override
 	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(String communityId, GenericGroupId genericGroupId) {
 		return genericGroupEntityRepository.findAllAssignments(UUID.fromString(communityId), genericGroupId.id).stream()
-			.collect(groupingBy(
-				x ->
-					GenericGroup.builder()
-						.id(x.getId())
-						.communityId(x.communityId.toString())
-						.name(x.name)
-						.description(x.description)
-						.build(),
-				mapping(
-					x ->
-						GenericGroupMembership.builder()
-							.genericGroupId(x.getId())
-							.fenixUserId(x.userId)
-							.utcMemberSince(x.memberSince)
+				.filter(Objects::nonNull)
+				.collect(groupingBy(
+					groupWithAssignments -> GenericGroup.builder()
+							.id(groupWithAssignments.getId())
+							.communityId(groupWithAssignments.communityId.toString())
+							.name(groupWithAssignments.name)
+							.description(groupWithAssignments.description)
 							.build(),
-					toSet()
-				))
-			).entrySet().stream()
-			.map(x -> new GenericGroupWithAssignments(x.getKey(), x.getValue()))
-			.findAny();
+					mapping(
+						groupWithAssignments ->
+							groupWithAssignments.userId == null
+							? null
+							: GenericGroupMembership.builder()
+											.genericGroupId(groupWithAssignments.getId())
+											.fenixUserId(groupWithAssignments.userId)
+											.utcMemberSince(groupWithAssignments.memberSince)
+											.build(),
+							toSet()
+					))
+				).entrySet().stream()
+				.map(x -> new GenericGroupWithAssignments(
+						x.getKey(),
+						x.getValue().stream()
+								.filter(Objects::nonNull)
+								.collect(toSet())))
+				.findAny();
 	}
 
 	@Override
