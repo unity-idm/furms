@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface GenericGroupEntityRepository extends CrudRepository<GenericGroupEntity, UUID> {
 	@Query("select gg.*, gga.user_id as user_id, gga.member_since as member_since " +
 		"from generic_group gg " +
-		"join generic_group_membership gga on gg.id = gga.generic_group_id " +
+		"left join generic_group_membership gga on gg.id = gga.generic_group_id " +
 		"where gg.community_id = :community_id and gg.id = :group_id")
 	Set<GenericGroupEntityWithMembership> findAllAssignments(@Param("community_id") UUID communityId, @Param("group_id") UUID groupId);
 

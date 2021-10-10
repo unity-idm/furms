@@ -399,6 +399,22 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
+	void shouldFindGroupWithMembersEvenWhenThereAreNoMembers() throws Exception {
+		//given
+		String community = createCommunity();
+		String group = createGroup(community);
+
+		//when
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", equalTo(group)))
+				.andExpect(jsonPath("$.name", equalTo("name")))
+				.andExpect(jsonPath("$.description", equalTo("description")))
+				.andExpect(jsonPath("$.memberFenixUserIds").isEmpty());
+	}
+
+	@Test
 	void shouldAddGenericGroupToCommunity() throws Exception {
 		//given
 		String community = createCommunity();

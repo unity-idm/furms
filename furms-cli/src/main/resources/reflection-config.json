@@ -158,5 +158,29 @@
   {
     "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
     "allDeclaredConstructors": true
+  },
+  {
+    "name": "io.imunity.furms.cli.command.community.GroupRequestJson",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
   }
 ]

@@ -7,6 +7,7 @@ package io.imunity.furms.cli.client;
 
 import static io.imunity.furms.cli.client.RestTemplateConfig.createClient;
 import static java.util.Optional.of;
+import static org.apache.http.util.TextUtils.isBlank;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
@@ -83,10 +84,14 @@ public class FurmsClient {
 
 	private void printResponse(ResponseEntity<String> response) {
 		try {
-			final Object object = objectMapper.readValue(response.getBody(), Object.class);
-			LOG.debug("Raw response: {}", response);
-			LOG.debug("Result {}", response.getStatusCode());
-			System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			if (!isBlank(response.getBody())) {
+				final Object object = objectMapper.readValue(response.getBody(), Object.class);
+				LOG.debug("Raw response: {}", response);
+				LOG.debug("Result {}", response.getStatusCode());
+				System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+			} else {
+				LOG.info("Result {}", response.getStatusCode());
+			}
 		} catch (Exception e) {
 			LOG.error("Unable to parse and print response: {}", response);
 		}

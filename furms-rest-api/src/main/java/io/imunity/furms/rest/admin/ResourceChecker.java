@@ -63,10 +63,10 @@ class ResourceChecker {
 
 	private <T> void assertResultExists(T result, String resourceId) {
 		if (result == null && !isNotAvailable(resourceId)) {
-			throw new RestNotFoundException("Searched object does not exists.");
+			throw new RestNotFoundException("Searched object does not exist");
 		}
 		if (result instanceof Optional && ((Optional<?>) result).isEmpty()) {
-			throw new RestNotFoundException("Searched object does not exists.");
+			throw new RestNotFoundException("Searched object does not exist");
 		}
 		if (result instanceof Collection && ((Collection<?>) result).isEmpty() && isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
