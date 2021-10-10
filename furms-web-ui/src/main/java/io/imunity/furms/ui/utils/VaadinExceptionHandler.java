@@ -22,6 +22,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 
 public class VaadinExceptionHandler {
@@ -34,8 +35,8 @@ public class VaadinExceptionHandler {
 			InfraServiceHasIndirectlyResourceCreditsRemoveValidationError.class, "service.removing.error.message",
 			ResourceTypeHasResourceCreditsRemoveValidationError.class, "resource-type.removing.error.message",
 			SiteAgentException.class, "site-agent.error.message",
-			CommunityAllocationHasProjectAllocationsRemoveValidationError.class, "community-allocation.removing.error.message"
-			); 
+			CommunityAllocationHasProjectAllocationsRemoveValidationError.class, "community-allocation.removing.error.message",
+			UserWithoutFenixIdValidationError.class, "user.without.fenixid.error.message"); 
 	
 	public static <T> Optional<T> handleExceptions(Supplier<T> supplier) {
 		return handleExceptions(supplier, emptyMap());
