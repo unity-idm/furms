@@ -28,6 +28,7 @@ import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.IdFormItem;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.views.site.PolicyDto;
@@ -94,7 +95,8 @@ public class SettingsView extends FurmsViewComponent {
 		Binder<SiteSettingsDto> binder = new Binder<>(SiteSettingsDto.class);
 		binder.setBean(dto);
 
-		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.id"));
+		formLayout.add(furmsIdRow(binder.getBean().getId(), getTranslation("view.site-admin.settings.form.furms-id")));
+		formLayout.addFormItem(externalIdRow(binder), getTranslation("view.site-admin.settings.form.external-id"));
 		formLayout.addFormItem(nameRow(binder), getTranslation("view.site-admin.settings.form.name"));
 		formLayout.addFormItem(oauthClientIdRow(binder), getTranslation("view.site-admin.settings.form.oauth-client"));
 		formLayout.addFormItem(connectionInfoRow(binder), getTranslation("view.site-admin.settings.form.info"));
@@ -105,6 +107,10 @@ public class SettingsView extends FurmsViewComponent {
 		formLayout.add(buttonsRow(binder));
 
 		getContent().add(formLayout);
+	}
+
+	private Component furmsIdRow(String id, String textLabel) {
+		return new IdFormItem(id, textLabel);
 	}
 
 	private Component externalIdRow(Binder<SiteSettingsDto> binder) {

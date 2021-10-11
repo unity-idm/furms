@@ -19,6 +19,7 @@ import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
+import io.imunity.furms.ui.components.IdFormItem;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.io.IOException;
@@ -43,16 +44,22 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final TextArea descriptionField = new TextArea();
 	private final FurmsDateTimePicker startDateTimePicker;
 	private final FurmsDateTimePicker endDateTimePicker;
+	private final IdFormItem idFormItem;
 
 	public ProjectFormComponent(Binder<ProjectViewModel> binder, boolean restrictedEditing, List<FurmsViewUserModel> userModels) {
 		this.binder = binder;
 		this.userModels = userModels;
 
+		final FormLayout formLayout = new FurmsFormLayout();
+
+		idFormItem = new IdFormItem(getTranslation("view.community-admin.project.form.field.furms-id"));
+		idFormItem.setVisible(false);
+		formLayout.add(idFormItem);
+
 		TextField nameField = new TextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		nameField.setReadOnly(restrictedEditing);
-		FormLayout formLayout = new FurmsFormLayout();
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
 		descriptionField.setClassName("description-text-area");
@@ -173,6 +180,7 @@ public class ProjectFormComponent extends Composite<Div> {
 			.findAny()
 			.ifPresent(user -> projectViewModel.projectLeader = user);
 		binder.setBean(projectViewModel);
+		idFormItem.setIdAndShow(projectViewModel.id);
 		uploadComponent.setValue(projectViewModel.getLogo());
 	}
 
