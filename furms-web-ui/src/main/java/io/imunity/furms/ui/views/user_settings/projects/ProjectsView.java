@@ -25,7 +25,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
-import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -157,7 +157,7 @@ public class ProjectsView extends FurmsViewComponent {
 						projectApplicationsService.createForCurrentUser(project.id);
 						showSuccessNotification(getTranslation("view.user-settings.projects.applied.notification", project.name));
 						loadGridContent();
-					} catch (UserIsInvitedException e){
+					} catch (UserAlreadyInvitedException e){
 						showErrorNotification(getTranslation("user.already.invited"));
 					} catch (Exception e){
 						showErrorNotification(getTranslation("base.error.message"));

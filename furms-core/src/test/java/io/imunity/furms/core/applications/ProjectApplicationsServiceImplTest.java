@@ -6,7 +6,7 @@
 package io.imunity.furms.core.applications;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
@@ -160,7 +160,7 @@ class ProjectApplicationsServiceImplTest {
 		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
 			.thenReturn(Optional.of(Invitation.builder().build()));
 
-		assertThrows(UserIsInvitedException.class,() -> applicationService.createForCurrentUser(projectId));
+		assertThrows(UserAlreadyInvitedException.class,() -> applicationService.createForCurrentUser(projectId));
 	}
 
 	@Test

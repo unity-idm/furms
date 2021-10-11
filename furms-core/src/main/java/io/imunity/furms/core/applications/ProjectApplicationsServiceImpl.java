@@ -8,7 +8,7 @@ package io.imunity.furms.core.applications;
 import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
-import io.imunity.furms.api.validation.exceptions.UserIsInvitedException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
@@ -116,7 +116,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 		projectRepository.findById(projectId).ifPresent(project -> {
 			FURMSUser currentUser = authzService.getCurrentAuthNUser();
 			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId, PROJECT)).isPresent())
-				throw new UserIsInvitedException("This user is invited for this project");
+				throw new UserAlreadyInvitedException(String.format("User %s is invited for project %s", currentUser.email, projectId));
 			FenixUserId fenixUserId = currentUser.fenixUserId
 				.orElseThrow(UserWithoutFenixIdValidationError::new);
 			applicationRepository.create(projectId, fenixUserId);
