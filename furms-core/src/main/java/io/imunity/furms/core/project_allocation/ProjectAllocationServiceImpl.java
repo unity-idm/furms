@@ -89,6 +89,15 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<String> getAllOccupiedNames(String communityId, String id) {
+		validator.validateCommunityIdAndProjectId(communityId, id);
+		return projectAllocationRepository.findAll(id).stream()
+			.map(projectAllocation -> projectAllocation.name)
+			.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public BigDecimal getAvailableAmount(String communityId, String communityAllocationId) {
 		validator.validateCommunityIdAndCommunityAllocationId(communityId, communityAllocationId);
 		return projectAllocationRepository.getAvailableAmount(communityAllocationId);

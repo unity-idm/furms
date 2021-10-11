@@ -25,6 +25,8 @@ public interface CommunityAllocationService {
 
 	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId);
 
+	Set<String> getAllOccupiedNames(String communityId);
+
 	Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId,
 	                                                           String name,
 	                                                           boolean includedFullyDistributed,

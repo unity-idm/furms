@@ -14,11 +14,14 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
@@ -34,20 +37,18 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	private final ResourceTypeComboBoxModelResolver resolver;
 
 	private final FormLayout formLayout;
+	private final DefaultNameField defaultNameField;
 	private final FurmsDateTimePicker startTimePicker;
 	private final FurmsDateTimePicker endTimePicker;
 	private final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
-
 
 	ResourceCreditFormComponent(Binder<ResourceCreditViewModel> binder, ResourceTypeComboBoxModelResolver resolver) {
 		this.binder = binder;
 		this.resolver = resolver;
 		this.formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
-		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
-		formLayout.addFormItem(nameField, getTranslation("view.site-admin.resource-credits.form.field.name"));
+		defaultNameField = new DefaultNameField();
+		formLayout.addFormItem(defaultNameField, getTranslation("view.site-admin.resource-credits.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItems(resolver.getResourceTypes());
@@ -62,6 +63,10 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		amountField.setValueChangeMode(EAGER);
 		amountField.setMaxLength(MAX_NAME_LENGTH);
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
+		resourceTypeComboBox.addValueChangeListener(event -> {
+			if(defaultNameField.isReadOnly())
+				defaultNameField.generateName(event.getValue().name);
+		});
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));
 
 		startTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
@@ -70,7 +75,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		endTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
 		formLayout.addFormItem(endTimePicker, getTranslation("view.site-admin.resource-credits.form.field.end-time"));
 
-		prepareValidator(nameField, resourceTypeComboBox, splitCheckbox, amountField, startTimePicker, endTimePicker);
+		prepareValidator(defaultNameField, resourceTypeComboBox, splitCheckbox, amountField, startTimePicker, endTimePicker);
 
 		getContent().add(formLayout);
 	}
@@ -79,7 +84,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		amountField.setSuffixComponent(new Label(unit.getSuffix()));
 	}
 
-	private void prepareValidator(TextField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
+	private void prepareValidator(DefaultNameField nameField, ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
 	                              Checkbox splitCheckbox, TextField amountField,
 	                              FurmsDateTimePicker startTimePicker, FurmsDateTimePicker endTimePicker) {
 		binder.forField(nameField)
@@ -125,15 +130,25 @@ class ResourceCreditFormComponent extends Composite<Div> {
 					(credit, endTime) -> credit.setEndTime(endTime));
 	}
 
-	public void setFormPools(ResourceCreditViewModel resourceCreditViewModel, boolean blockTimeChange) {
+	public void reloadDefaultName(){
+		defaultNameField.generateName();
+	}
+
+	public void setFormPools(ResourceCreditViewModel resourceCreditViewModel, boolean blockTimeChange, Supplier<Set<String>> occupiedNamesGetter) {
 		binder.setBean(resourceCreditViewModel);
+		defaultNameField.activeDefaultName(resourceCreditViewModel.getResourceTypeName(), occupiedNamesGetter, resourceCreditViewModel.getId() == null, resourceCreditViewModel.getName());
 		if(blockTimeChange){
 			startTimePicker.setReadOnly(true);
 			endTimePicker.setReadOnly(true);
 		}
 		if(resourceCreditViewModel.getId() != null)
 			resourceTypeComboBox.setReadOnly(true);
+
 		addIdFieldForEditForm(resourceCreditViewModel);
+	}
+
+	public boolean isNameDefault(){
+		return defaultNameField.isReadOnly();
 	}
 
 	private void addIdFieldForEditForm(ResourceCreditViewModel resourceCreditViewModel) {

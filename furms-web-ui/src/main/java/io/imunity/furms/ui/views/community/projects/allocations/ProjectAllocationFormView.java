@@ -16,12 +16,15 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationDecreaseBeyondUsageException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExpiredProjectException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -35,7 +38,6 @@ import java.util.function.Function;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/allocation/form", layout = CommunityAdminMenu.class)
@@ -43,6 +45,7 @@ import static java.util.Optional.ofNullable;
 class ProjectAllocationFormView extends FurmsViewComponent {
 
 	private final ProjectAllocationService projectAllocationService;
+	private final ProjectService projectService;
 
 	private final Binder<ProjectAllocationViewModel> binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
 	private final ProjectAllocationFormComponent projectAllocationFormComponent;
@@ -53,8 +56,10 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ProjectAllocationFormView(ProjectAllocationService projectAllocationService,
-							  CommunityAllocationService communityAllocationService) {
+	                          CommunityAllocationService communityAllocationService,
+	                          ProjectService projectService) {
 		this.projectAllocationService = projectAllocationService;
+		this.projectService = projectService;
 		this.resolver = new ProjectAllocationComboBoxesModelsResolver(
 			communityAllocationService.findAllNotExpiredByCommunityIdWithRelatedObjects(getCurrentResourceId()),
 			projectAllocationService::getAvailableAmount
@@ -109,6 +114,13 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			showErrorNotification(getTranslation("project.allocation.decrease.amount.beyond.usage.message"));
 		} catch (ProjectAllocationIsNotInTerminalStateException e) {
 			showErrorNotification(getTranslation("project.allocation.terminal-state.message"));
+		} catch (DuplicatedNameValidationError e) {
+			if(projectAllocationFormComponent.isNameDefault()) {
+				showErrorNotification(getTranslation("default.name.duplicated.error.message"));
+				projectAllocationFormComponent.reloadDefaultName();
+			}
+			else
+				showErrorNotification(getTranslation("name.duplicated.error.message"));
 		} catch (Exception e) {
 			showErrorNotification(getTranslation("base.error.message"));
 		}
@@ -117,26 +129,25 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		ProjectAllocationViewModel serviceViewModel = ofNullable(parameter)
+		ProjectAllocationViewModel projectAllocationModel = ofNullable(parameter)
 			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByIdWithRelatedObjects(communityId, id)))
 			.flatMap(Function.identity())
 			.map(ProjectAllocationModelsMapper::map)
-			.orElseGet(ProjectAllocationViewModel::new);
-
-		String projectId = event.getLocation()
-			.getQueryParameters()
-			.getParameters()
-			.getOrDefault("projectId", singletonList(serviceViewModel.getProjectId()))
-			.iterator().next();
-		Optional.ofNullable(projectId)
-			.ifPresent(id -> this.projectId = id);
-		serviceViewModel.setProjectId(this.projectId);
-
+			.orElseGet(() -> {
+				String projectId = event.getLocation()
+					.getQueryParameters()
+					.getParameters()
+					.get("projectId")
+					.iterator().next();
+				Project project = projectService.findById(projectId).get();
+				return new ProjectAllocationViewModel(projectId, project.getName());
+			});
+		this.projectId = projectAllocationModel.getProjectId();
 		String trans = parameter == null
 			? "view.community-admin.project-allocation.form.parameter.new"
 			: "view.community-admin.project-allocation.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		projectAllocationFormComponent.setFormPools(serviceViewModel);
+		projectAllocationFormComponent.setFormPools(projectAllocationModel, () -> projectAllocationService.getAllOccupiedNames(communityId, projectId));
 	}
 
 	@Override

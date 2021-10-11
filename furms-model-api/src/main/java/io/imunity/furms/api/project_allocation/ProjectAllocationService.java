@@ -23,6 +23,8 @@ public interface ProjectAllocationService {
 
 	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id);
 
+	Set<String> getAllOccupiedNames(String communityId, String id);
+
 	BigDecimal getAvailableAmount(String communityId, String communityAllocationId);
 
 	Set<ProjectAllocation> findAll(String communityId, String projectId);

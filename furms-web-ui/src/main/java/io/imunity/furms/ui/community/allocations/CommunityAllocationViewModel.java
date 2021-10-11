@@ -15,17 +15,21 @@ import java.util.Objects;
 public class CommunityAllocationViewModel {
 	private String id;
 	private String communityId;
+	private String communityName;
 	private ComboBoxModel site;
 	private ResourceTypeComboBoxModel resourceType;
 	private ResourceCreditComboBoxModel resourceCredit;
 	private String name;
 	private BigDecimal amount;
 
-	public CommunityAllocationViewModel() {
+	public CommunityAllocationViewModel(String communityId, String communityName) {
+		this.communityId = communityId;
+		this.communityName = communityName;
 	}
 
 	public CommunityAllocationViewModel(String id,
 	                                    String communityId,
+	                                    String communityName,
 	                                    ComboBoxModel site,
 	                                    ResourceTypeComboBoxModel resourceType,
 	                                    ResourceCreditComboBoxModel resourceCredit,
@@ -33,6 +37,7 @@ public class CommunityAllocationViewModel {
 	                                    BigDecimal amount) {
 		this.id = id;
 		this.communityId = communityId;
+		this.communityName = communityName;
 		this.site = site;
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
@@ -50,6 +55,10 @@ public class CommunityAllocationViewModel {
 
 	public void setCommunityId(String communityId) {
 		this.communityId = communityId;
+	}
+
+	public String getCommunityName() {
+		return communityName;
 	}
 
 	public ComboBoxModel getSite() {
@@ -125,6 +134,7 @@ public class CommunityAllocationViewModel {
 	public static final class CommunityAllocationViewModelBuilder {
 		private String id;
 		private String communityId;
+		private String communityName;
 		private ComboBoxModel site;
 		private ResourceTypeComboBoxModel resourceType;
 		private ResourceCreditComboBoxModel resourceCredit;
@@ -169,8 +179,13 @@ public class CommunityAllocationViewModel {
 			return this;
 		}
 
+		public CommunityAllocationViewModelBuilder communityName(String communityName) {
+			this.communityName = communityName;
+			return this;
+		}
+
 		public CommunityAllocationViewModel build() {
-			return new CommunityAllocationViewModel(id, communityId, site, resourceType, resourceCredit, name, amount);
+			return new CommunityAllocationViewModel(id, communityId, communityName, site, resourceType, resourceCredit, name, amount);
 		}
 	}
 }

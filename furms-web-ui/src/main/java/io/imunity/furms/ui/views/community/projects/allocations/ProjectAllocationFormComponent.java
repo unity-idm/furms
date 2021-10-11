@@ -11,9 +11,9 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
@@ -21,6 +21,8 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComb
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -34,6 +36,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
 	private ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox;
 	private Label availableAmountLabel;
+	private DefaultNameField defaultNameField;
 	private BigDecimal availableAmount;
 	private BigDecimal lastAmount = new BigDecimal("0");
 
@@ -42,10 +45,8 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
-		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
-		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project-allocation.form.field.name"));
+		defaultNameField = new DefaultNameField();
+		formLayout.addFormItem(defaultNameField, getTranslation("view.community-admin.project-allocation.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();
 		resourceTypeComboBox.setItems(resolver.getResourceTypes());
@@ -86,7 +87,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		);
 		formLayout.addFormItem(availableAmountLabel, "");
 
-		prepareValidator(nameField, resourceTypeComboBox, communityAllocationComboBox, amountField);
+		prepareValidator(defaultNameField, resourceTypeComboBox, communityAllocationComboBox, amountField);
 
 		getContent().add(formLayout);
 	}
@@ -95,10 +96,10 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		amountField.setSuffixComponent(new Label(unit == null ? "" : unit.getSuffix()));
 	}
 
-	private void prepareValidator(TextField nameField,
+	private void prepareValidator(DefaultNameField defaultNameField,
 	                              ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
 	                              ComboBox<AllocationCommunityComboBoxModel> resourceCreditComboBox, BigDecimalField amountField) {
-		binder.forField(nameField)
+		binder.forField(defaultNameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),
 				getTranslation("view.community-admin.project-allocation.form.error.validation.field.name")
@@ -148,10 +149,19 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		return availableAmount.compareTo(current.subtract(lastAmount)) >= 0;
 	}
 
-	public void setFormPools(ProjectAllocationViewModel model) {
+	public boolean isNameDefault(){
+		return defaultNameField.isReadOnly();
+	}
+
+	public void reloadDefaultName(){
+		defaultNameField.generateName();
+	}
+
+	public void setFormPools(ProjectAllocationViewModel model, Supplier<Set<String>> occupiedNamesGetter) {
 		if(model.getAmount() != null)
 			lastAmount = model.getAmount();
 		binder.setBean(model);
+		defaultNameField.activeDefaultName(model.getProjectName(), occupiedNamesGetter, model.getId() == null, model.getName());
 		if(model.getResourceType() != null)
 			resourceTypeComboBox.setEnabled(false);
 		else
