@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class UserIsInvitedException extends IllegalArgumentException {
+public class UserAlreadyAppliedForMembershipException extends IllegalArgumentException {
 
-	public UserIsInvitedException(String message) {
+	public UserAlreadyAppliedForMembershipException(String message) {
 		super(message);
 	}
 }

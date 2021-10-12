@@ -7,7 +7,7 @@ package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAppliedForMembershipException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -177,7 +177,7 @@ class InvitatoryServiceTest {
 		);
 		when(applicationRepository.existsBy(resourceId.id.toString(), fenixId)).thenReturn(true);
 
-		assertThrows(UserAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
+		assertThrows(UserAlreadyAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
 	}
 
 	@Test

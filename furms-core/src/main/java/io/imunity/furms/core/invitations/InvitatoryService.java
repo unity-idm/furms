@@ -9,7 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
-import io.imunity.furms.api.validation.exceptions.UserAppliedForMembershipException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -94,7 +94,7 @@ public class InvitatoryService {
 		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.id.toString(), user.fenixUserId.get()))
-			throw new UserAppliedForMembershipException("User waiting for application approval");
+			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
 		if(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role)))
 			throw new UserAlreadyHasRoleError("User already has this role");
 
