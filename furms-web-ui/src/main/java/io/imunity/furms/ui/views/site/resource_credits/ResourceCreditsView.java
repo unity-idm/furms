@@ -79,9 +79,10 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			.setSortable(true)
 			.setComparator(x -> x.getName().toLowerCase());
 		grid.addColumn(ResourceCreditViewModel::getId)
-				.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.id"))
-				.setSortable(true)
-				.setComparator(x -> x.getName().toLowerCase());
+			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.id"))
+			.setSortable(true)
+			.setFlexGrow(20)
+			.setComparator(x -> x.getName().toLowerCase());
 		grid.addColumn(ResourceCreditViewModel::getResourceTypeName)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.resourceType"))
 			.setSortable(true);
@@ -118,7 +119,6 @@ public class ResourceCreditsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.actions"))
 			.setWidth("4em")
 			.setTextAlign(ColumnTextAlign.END);
-
 		return grid;
 	}
 

@@ -78,7 +78,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 		grid.addColumn(ResourceTypeViewModel::getId)
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.id"))
 			.setSortable(true)
-			.setAutoWidth(true);
+			.setFlexGrow(3);
 		grid.addColumn(c -> resolver.getName(c.getServiceId()))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.service"))
 			.setSortable(true);
