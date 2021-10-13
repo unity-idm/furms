@@ -17,7 +17,6 @@ public class IdFormItem extends FormLayout.FormItem {
 	private final Label label;
 
 	public IdFormItem(String textLabel) {
-		super();
 		this.idField = new Div();
 		this.label = new Label(textLabel);
 
@@ -27,16 +26,16 @@ public class IdFormItem extends FormLayout.FormItem {
 
 	public IdFormItem(String id, String textLabel) {
 		this(textLabel);
-		this.setIdAndShow(id);
+		setIdAndShow(id);
 	}
 
 	public void setIdAndShow(String id) {
-		this.idField.setText(id);
-		this.setVisible(!isEmpty(id));
+		idField.setText(id);
+		setVisible(!isEmpty(id));
 	}
 
 	public void setVisible(boolean visible) {
-		this.idField.setVisible(visible);
-		this.label.setVisible(visible);
+		idField.setVisible(visible);
+		label.setVisible(visible);
 	}
 }
