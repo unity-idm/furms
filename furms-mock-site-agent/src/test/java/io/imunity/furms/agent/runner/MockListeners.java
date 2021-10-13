@@ -32,6 +32,9 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequest;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequestAck;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusResult;
 import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequest;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequestAck;
@@ -250,6 +253,17 @@ class MockListeners {
 		TimeUnit.SECONDS.sleep(5);
 
 		UserAllocationBlockAccessResult result = new UserAllocationBlockAccessResult();
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveSetUserStatusRequest(Payload<SetUserStatusRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new SetUserStatusRequestAck()));
+
+		TimeUnit.SECONDS.sleep(5);
+
+		SetUserStatusResult result = new SetUserStatusResult();
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
 	}
 

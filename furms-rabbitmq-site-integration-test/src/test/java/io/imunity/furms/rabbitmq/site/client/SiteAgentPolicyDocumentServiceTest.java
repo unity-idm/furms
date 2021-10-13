@@ -14,13 +14,13 @@ import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithService
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
+import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentPolicyDocumentReceiverMock;
 import io.imunity.furms.rabbitmq.site.models.Acceptance;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
 import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdate;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,19 +30,12 @@ import java.util.UUID;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentPolicyDocumentServiceTest {
-	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
+class SiteAgentPolicyDocumentServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private SiteAgentPolicyDocumentServiceImpl siteAgentPolicyDocumentService;
 	@Autowired
 	private SiteAgentPolicyDocumentReceiverMock receiverMock;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldUpdatePolicyDocument() {

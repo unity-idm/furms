@@ -13,9 +13,11 @@ import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatus;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.site.api.status_updater.UserAccountStatusUpdater;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -31,6 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.users.UserAccountStatusUpdateReason.SECURITY_INCIDENT;
 
 @Service
 class UserServiceImpl implements UserService {
@@ -40,13 +43,16 @@ class UserServiceImpl implements UserService {
 	private final UsersDAO usersDAO;
 	private final UserAllocationsService userAllocationsService;
 	private final GenericGroupRepository genericGroupRepository;
+	private final UserAccountStatusUpdater userAccountStatusUpdater;
 
 	public UserServiceImpl(UsersDAO usersDAO,
 	                       UserAllocationsService userAllocationsService,
-	                       GenericGroupRepository genericGroupRepository) {
+	                       GenericGroupRepository genericGroupRepository,
+	                       UserAccountStatusUpdater userAccountStatusUpdater) {
 		this.usersDAO = usersDAO;
 		this.userAllocationsService = userAllocationsService;
 		this.genericGroupRepository = genericGroupRepository;
+		this.userAccountStatusUpdater = userAccountStatusUpdater;
 	}
 
 	@Override
@@ -63,6 +69,9 @@ class UserServiceImpl implements UserService {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		try {
 			usersDAO.setUserStatus(fenixUserId, status);
+			userAllocationsService.findAllByFenixUserId(fenixUserId)
+					.forEach(userAddition -> userAccountStatusUpdater.setStatus(
+							new SiteAgentSetUserAccountStatus(userAddition, status, SECURITY_INCIDENT)));
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);

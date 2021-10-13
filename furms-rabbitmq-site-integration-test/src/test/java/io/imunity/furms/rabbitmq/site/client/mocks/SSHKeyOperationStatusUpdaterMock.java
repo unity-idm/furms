@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.client.mocks;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 
 @Service
-public class MockSSHKeyOperationStatusUpdater implements SSHKeyOperationStatusUpdater {
+public class SSHKeyOperationStatusUpdaterMock implements SSHKeyOperationStatusUpdater {
 
 	@Override
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result) {

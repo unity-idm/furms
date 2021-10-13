@@ -23,6 +23,9 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.Body;
 import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequest;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequestAck;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusResult;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequestAck;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessResult;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequestAck;
@@ -37,6 +40,7 @@ import io.imunity.furms.site.api.message_resolver.ProjectDeallocationSiteIdResol
 import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.UserAccountStatusUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
 import org.springframework.stereotype.Component;
@@ -49,14 +53,15 @@ class BaseSiteIdResolversConnector implements SiteIdResolversConnector {
 	private final Map<Class<? extends Body>, BaseSiteIdResolver> resolvers;
 
 	BaseSiteIdResolversConnector(
-		SiteAgentStatusServiceImpl siteAgentStatusService,
-		ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver,
-		ProjectAllocationInstallationSiteIdResolver projectAllocationInstallationSiteIdResolver,
-		ProjectInstallationSiteIdResolver projectInstallationSiteIdResolver,
-		ProjectUpdateSiteIdResolver projectUpdateSiteIdResolver,
-		SSHKeySiteIdResolver sshKeySiteIdResolver,
-		UserAdditionSiteIdResolver userAdditionSiteIdResolver,
-		UserAllocationGrantSiteIdResolver userAllocationGrantSiteIdResolver) {
+			SiteAgentStatusServiceImpl siteAgentStatusService,
+			ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver,
+			ProjectAllocationInstallationSiteIdResolver projectAllocationInstallationSiteIdResolver,
+			ProjectInstallationSiteIdResolver projectInstallationSiteIdResolver,
+			ProjectUpdateSiteIdResolver projectUpdateSiteIdResolver,
+			SSHKeySiteIdResolver sshKeySiteIdResolver,
+			UserAdditionSiteIdResolver userAdditionSiteIdResolver,
+			UserAllocationGrantSiteIdResolver userAllocationGrantSiteIdResolver,
+			UserAccountStatusUpdateSiteIdResolver userAccountStatusUpdateSiteIdResolver) {
 		this.resolvers = Map.ofEntries(
 			Map.entry(AgentPingAck.class, siteAgentStatusService),
 
@@ -84,7 +89,11 @@ class BaseSiteIdResolversConnector implements SiteIdResolversConnector {
 			Map.entry(UserAllocationGrantAccessRequestAck.class, userAllocationGrantSiteIdResolver),
 			Map.entry(UserAllocationGrantAccessResult.class, userAllocationGrantSiteIdResolver),
 			Map.entry(UserAllocationBlockAccessRequestAck.class, userAllocationGrantSiteIdResolver),
-			Map.entry(UserAllocationBlockAccessResult.class, userAllocationGrantSiteIdResolver)
+			Map.entry(UserAllocationBlockAccessResult.class, userAllocationGrantSiteIdResolver),
+
+			Map.entry(SetUserStatusRequest.class, userAccountStatusUpdateSiteIdResolver),
+			Map.entry(SetUserStatusRequestAck.class, userAccountStatusUpdateSiteIdResolver),
+			Map.entry(SetUserStatusResult.class, userAccountStatusUpdateSiteIdResolver)
 		);
 	}
 

@@ -16,12 +16,11 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -29,20 +28,12 @@ import java.util.Map;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentProjectOperationServiceTest {
+class SiteAgentProjectOperationServiceTest extends IntegrationTestBase {
 
 	@Autowired
 	private SiteAgentProjectOperationService siteAgentProjectOperationService;
 	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@Autowired
 	private ProjectInstallationStatusUpdater projectInstallationService;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldInstallProject() {
