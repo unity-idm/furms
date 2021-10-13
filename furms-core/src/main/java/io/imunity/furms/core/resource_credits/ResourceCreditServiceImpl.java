@@ -177,7 +177,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public Set<String> getAllOccupiedNames(String siteId) {
+	public Set<String> getOccupiedNames(String siteId) {
 		return resourceCreditRepository.findAll(siteId).stream()
 			.map(credit -> credit.name)
 			.collect(toSet());

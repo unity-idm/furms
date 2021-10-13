@@ -92,7 +92,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<String> getAllOccupiedNames(String communityId) {
+	public Set<String> getOccupiedNames(String communityId) {
 		return communityAllocationRepository.findAllByCommunityId(communityId).stream()
 			.map(communityAllocation -> communityAllocation.name)
 			.collect(toSet());

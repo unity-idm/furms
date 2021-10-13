@@ -119,6 +119,7 @@ public class CommunityAllocationViewModel {
 		return "CommunityAllocationViewModel{" +
 			"id='" + id + '\'' +
 			", communityId='" + communityId + '\'' +
+			", communityName='" + communityName + '\'' +
 			", site='" + site + '\'' +
 			", resourceTypeId='" + resourceType + '\'' +
 			", resourceCreditId='" + resourceCredit + '\'' +

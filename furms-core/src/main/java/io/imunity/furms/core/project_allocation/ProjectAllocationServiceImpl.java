@@ -89,7 +89,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<String> getAllOccupiedNames(String communityId, String id) {
+	public Set<String> getOccupiedNames(String communityId, String id) {
 		validator.validateCommunityIdAndProjectId(communityId, id);
 		return projectAllocationRepository.findAll(id).stream()
 			.map(projectAllocation -> projectAllocation.name)

@@ -147,7 +147,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			? "view.community-admin.project-allocation.form.parameter.new"
 			: "view.community-admin.project-allocation.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		projectAllocationFormComponent.setFormPools(projectAllocationModel, () -> projectAllocationService.getAllOccupiedNames(communityId, projectId));
+		projectAllocationFormComponent.setFormPools(projectAllocationModel, () -> projectAllocationService.getOccupiedNames(communityId, projectId));
 	}
 
 	@Override

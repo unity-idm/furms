@@ -149,7 +149,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 			? "view.fenix-admin.resource-credits-allocation.form.parameter.new"
 			: "view.fenix-admin.resource-credits-allocation.form.parameter.update";
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
-		communityAllocationFormComponent.setModelObject(serviceViewModel, () -> communityAllocationService.getAllOccupiedNames(communityId));
+		communityAllocationFormComponent.setModelObject(serviceViewModel, () -> communityAllocationService.getOccupiedNames(communityId));
 	}
 
 	@Override

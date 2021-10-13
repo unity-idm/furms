@@ -122,6 +122,7 @@ class ProjectAllocationViewModel {
 		return "ProjectAllocationViewModel{" +
 				"id='" + id + '\'' +
 				", projectId='" + projectId + '\'' +
+				", projectName='" + projectName + '\'' +
 				", communityId='" + communityId + '\'' +
 				", resourceType=" + resourceType +
 				", allocationCommunity=" + allocationCommunity +

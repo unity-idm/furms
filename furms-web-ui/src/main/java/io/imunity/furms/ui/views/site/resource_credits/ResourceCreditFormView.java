@@ -123,7 +123,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		resourceCreditFormComponent.setFormPools(
 			resourceCreditViewModel,
 			resourceCreditService.hasCommunityAllocations(resourceCreditViewModel.getId(), resourceCreditViewModel.getSiteId()),
-			() -> resourceCreditService.getAllOccupiedNames(resourceCreditViewModel.getSiteId())
+			() -> resourceCreditService.getOccupiedNames(resourceCreditViewModel.getSiteId())
 		);
 	}
 

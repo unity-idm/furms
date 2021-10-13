@@ -30,5 +30,5 @@ public interface ResourceCreditService {
 
 	boolean hasCommunityAllocations(String id, String siteId);
 
-	Set<String> getAllOccupiedNames(String siteId);
+	Set<String> getOccupiedNames(String siteId);
 }
