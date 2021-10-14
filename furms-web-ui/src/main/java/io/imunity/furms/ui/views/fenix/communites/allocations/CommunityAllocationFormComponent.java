@@ -11,11 +11,11 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
+import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.ComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
@@ -42,6 +43,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	private Label availableAmountLabel;
 	private BigDecimal availableAmount;
 	private BigDecimalField amountField;
+	private DefaultNameField defaultNameField;
 	private boolean editMode;
 
 	CommunityAllocationFormComponent(Binder<CommunityAllocationViewModel> binder, CommunityAllocationComboBoxesModelsResolver resolver) {
@@ -49,10 +51,8 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
-		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
-		formLayout.addFormItem(nameField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.name"));
+		defaultNameField = new DefaultNameField();
+		formLayout.addFormItem(defaultNameField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.name"));
 
 		siteComboBox = new ComboBox<>();
 		siteComboBox.setItems(resolver.getSites());
@@ -104,7 +104,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		);
 		formLayout.addFormItem(availableAmountLabel, "");
 
-		prepareValidator(nameField, siteComboBox, resourceTypeComboBox, resourceCreditComboBox, amountField);
+		prepareValidator(defaultNameField, siteComboBox, resourceTypeComboBox, resourceCreditComboBox, amountField);
 
 		getContent().add(formLayout);
 	}
@@ -120,11 +120,19 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 			amountField.setValue(availableAmount);
 	}
 
+	public void reloadDefaultName(){
+		defaultNameField.generateName();
+	}
+
+	public boolean isNameDefault(){
+		return defaultNameField.isReadOnly();
+	}
+
 	private void createUnitLabel(BigDecimalField amountField, ResourceMeasureUnit unit) {
 		amountField.setSuffixComponent(new Label(unit == null ? "" : unit.getSuffix()));
 	}
 
-	private void prepareValidator(TextField nameField, ComboBox<ComboBoxModel> siteComboBox,
+	private void prepareValidator(DefaultNameField nameField, ComboBox<ComboBoxModel> siteComboBox,
 	                              ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox,
 	                              ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox, BigDecimalField amountField) {
 		binder.forField(nameField)
@@ -186,7 +194,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		return availableAmount.compareTo(current) >= 0;
 	}
 
-	public void setModelObject(CommunityAllocationViewModel model) {
+	public void setModelObject(CommunityAllocationViewModel model, Supplier<Set<String>> occupiedNameGetter) {
 		if(model.getSite() != null) {
 			siteComboBox.setReadOnly(true);
 			siteComboBox.setItems(model.getSite());
@@ -201,5 +209,6 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		}
 		editMode = model.getId() != null;
 		binder.setBean(model);
+		defaultNameField.activeDefaultName(model.getCommunityName(), occupiedNameGetter, !editMode, model.getName());
 	}
 }

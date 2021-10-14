@@ -10,7 +10,6 @@ import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.db.resource_credits.ResourceCreditEntity;
 import io.imunity.furms.db.resource_types.ResourceTypeEntity;
 import io.imunity.furms.db.sites.SiteEntity;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -30,15 +29,17 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 	@Column("community_allocation_id")
 	public final CommunityAllocationEntity communityAllocation;
 	public final UUID projectId;
+	public final String projectName;
 	public final String name;
 	public final BigDecimal amount;
 
 	ProjectAllocationReadEntity(UUID id, String name,
 	                            UUID projectId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
-	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation) {
+	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation, String projectName) {
 		this.id = id;
 		this.name = name;
 		this.projectId = projectId;
+		this.projectName = projectName;
 		this.amount = amount;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -54,6 +55,7 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 			", resourceCredit=" + resourceCredit +
 			", communityAllocation=" + communityAllocation +
 			", projectId='" + projectId + '\'' +
+			", projectName='" + projectName + '\'' +
 			", name='" + name + '\'' +
 			", amount=" + amount +
 			", id=" + id +
@@ -72,12 +74,13 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 			&& Objects.equals(communityAllocation, that.communityAllocation)
 			&& Objects.equals(projectId, that.projectId)
 			&& Objects.equals(name, that.name)
+			&& Objects.equals(projectName, that.projectName)
 			&& Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, projectName, name, amount);
 	}
 
 }

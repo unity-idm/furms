@@ -28,6 +28,7 @@ public class ProjectAllocationConverter {
 				.resourceCredit(entity.resourceCredit.toResourceCredit())
 				.communityAllocation(entity.communityAllocation.toCommunityAllocation())
 				.projectId(entity.projectId.toString())
+				.projectName(entity.projectName)
 				.name(entity.name)
 				.amount(entity.amount)
 				.consumed(consumed)

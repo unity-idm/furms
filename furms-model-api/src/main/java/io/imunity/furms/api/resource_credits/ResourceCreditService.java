@@ -29,4 +29,6 @@ public interface ResourceCreditService {
 	void delete(String id, String siteId);
 
 	boolean hasCommunityAllocations(String id, String siteId);
+
+	Set<String> getOccupiedNames(String siteId);
 }

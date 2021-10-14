@@ -13,15 +13,16 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComb
 
 public class CommunityAllocationModelsMapper {
 
-	public static CommunityAllocationViewModel map(CommunityAllocationResolved CommunityAllocation) {
+	public static CommunityAllocationViewModel map(CommunityAllocationResolved communityAllocationResolved) {
 		return CommunityAllocationViewModel.builder()
-			.id(CommunityAllocation.id)
-			.communityId(CommunityAllocation.communityId)
-			.site(new ComboBoxModel(CommunityAllocation.site.getId(), CommunityAllocation.site.getName()))
-			.resourceType(new ResourceTypeComboBoxModel(CommunityAllocation.resourceType.id, CommunityAllocation.resourceType.name, CommunityAllocation.resourceType.unit))
-			.resourceCredit(new ResourceCreditComboBoxModel(CommunityAllocation.resourceCredit.id, CommunityAllocation.resourceCredit.name, CommunityAllocation.resourceCredit.amount, CommunityAllocation.resourceCredit.splittable))
-			.name(CommunityAllocation.name)
-			.amount(CommunityAllocation.amount)
+			.id(communityAllocationResolved.id)
+			.communityId(communityAllocationResolved.communityId)
+			.communityName(communityAllocationResolved.communityName)
+			.site(new ComboBoxModel(communityAllocationResolved.site.getId(), communityAllocationResolved.site.getName()))
+			.resourceType(new ResourceTypeComboBoxModel(communityAllocationResolved.resourceType.id, communityAllocationResolved.resourceType.name, communityAllocationResolved.resourceType.unit))
+			.resourceCredit(new ResourceCreditComboBoxModel(communityAllocationResolved.resourceCredit.id, communityAllocationResolved.resourceCredit.name, communityAllocationResolved.resourceCredit.amount, communityAllocationResolved.resourceCredit.splittable))
+			.name(communityAllocationResolved.name)
+			.amount(communityAllocationResolved.amount)
 			.build();
 	}
 
