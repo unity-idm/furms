@@ -9,12 +9,12 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
+import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
+import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
@@ -55,24 +55,18 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final AuthzService authzService;
 	private final NotificationDAO notificationDAO;
 	private final ApplicationEventPublisher publisher;
-	private final UserPoliciesDocumentsServiceHelper policyDocumentService;
-	private final UserOperationService userOperationService;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                          ResourceAccessRepository repository,
 	                          UserOperationRepository userRepository,
 	                          AuthzService authzService,
 	                          NotificationDAO notificationDAO,
-	                          ApplicationEventPublisher publisher,
-	                          UserPoliciesDocumentsServiceHelper policyDocumentService,
-	                          UserOperationService userOperationService) {
+	                          ApplicationEventPublisher publisher) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
 		this.authzService = authzService;
 		this.notificationDAO = notificationDAO;
-		this.policyDocumentService = policyDocumentService;
-		this.userOperationService = userOperationService;
 		this.publisher = publisher;
 	}
 
@@ -114,7 +108,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void grantAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
-
 		if(repository.exists(grantAccess))
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 
@@ -133,23 +126,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		else if (userAdditionStatus.isEmpty() && hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess)) {
+		else
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
-			userOperationService.createUserAdditions(
-				grantAccess.siteId,
-				grantAccess.projectId,
-				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
-			);
-		}
-		else {
-			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
-		}
-		return grantId;
-	}
 
-	private boolean hasUserSitePolicyAcceptanceOrSiteHasntPolicy(GrantAccess grantAccess) {
-		return policyDocumentService.hasUserSitePolicyAcceptance(grantAccess.fenixUserId, grantAccess.siteId.id)
-			|| !policyDocumentService.hasSitePolicy(grantAccess.siteId.id);
+		publisher.publishEvent(new UserGrantAddedEvent(grantAccess));
+		return grantId;
 	}
 
 	private boolean isUserProvisioned(Optional<UserStatus> userAdditionStatus) {

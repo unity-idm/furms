@@ -21,6 +21,7 @@ public interface UserOperationRepository {
 	Set<UserAddition> findAllUserAdditions(String projectId, String userId);
 	Set<UserAddition> findAllUserAdditions(String userId);
 	Set<UserAddition> findAllUserAdditionsBySiteId(String siteId);
+	Set<UserAddition> findAllUserAdditionsByProjectId(String projectId);
 	Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId);
 	String create(UserAddition userAddition);
 	void update(UserAddition userAddition);
@@ -33,6 +34,7 @@ public interface UserOperationRepository {
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(String correlationId);
 	boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
+	boolean isUserInstalledOnSite(FenixUserId userId, String siteId);
 	void deleteAll();
 	void delete(UserAddition userAddition);
 }

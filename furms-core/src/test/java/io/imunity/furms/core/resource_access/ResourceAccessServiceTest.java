@@ -8,6 +8,7 @@ package io.imunity.furms.core.resource_access;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.core.user_site_access.UserPoliciesDocumentsServiceHelper;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
@@ -61,10 +62,6 @@ class ResourceAccessServiceTest {
 	private ApplicationEventPublisher publisher;
 	@Mock
 	private NotificationDAO notificationDAO;
-	@Mock
-	private UserPoliciesDocumentsServiceHelper policyDocumentService;
-	@Mock
-	private UserOperationService userOperationService;
 
 	private ResourceAccessService service;
 	private InOrder orderVerifier;
@@ -82,7 +79,7 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, notificationDAO, publisher, policyDocumentService, userOperationService);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, notificationDAO, publisher);
 		orderVerifier = inOrder(repository, siteAgentResourceAccessService, notificationDAO, publisher, userOperationService);
 	}
 

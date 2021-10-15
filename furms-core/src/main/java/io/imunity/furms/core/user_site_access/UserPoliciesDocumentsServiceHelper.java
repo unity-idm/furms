@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.resource_access;
+package io.imunity.furms.core.user_site_access;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
@@ -60,7 +60,7 @@ class UserPoliciesDocumentsServiceHelper {
 			.anyMatch(site -> site.getPolicyId().id != null);
 	}
 
-	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(String siteId, FenixUserId fenixUserId) {
+	public UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(String siteId, FenixUserId fenixUserId) {
 		FURMSUser user = userService.findByFenixUserId(fenixUserId)
 			.orElseThrow(() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
 

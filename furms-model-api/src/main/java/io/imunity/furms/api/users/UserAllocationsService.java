@@ -18,4 +18,6 @@ public interface UserAllocationsService {
 	Set<SiteUser> findUserSitesInstallations(PersistentId userId);
 
 	Set<UserAddition> findAllBySiteId(String siteId);
+
+	Set<UserAddition> findAllByProjectId(String projectId);
 }

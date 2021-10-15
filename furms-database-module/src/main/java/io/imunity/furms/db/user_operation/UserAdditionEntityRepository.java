@@ -41,7 +41,14 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 				"join site s on ua.site_id = s.id " +
 			"where s.id = :siteId")
 	Set<UserAdditionReadEntity> findAllBySiteId(@Param("siteId") UUID siteId);
-	
+
+	@Query("select ua.*, uaj.*, s.id as site_id, s.external_id as site_external_id " +
+		"from user_addition ua " +
+		"join user_addition_job uaj on ua.id = uaj.user_addition_id " +
+		"join site s on ua.site_id = s.id " +
+		"where ua.project_id = :project_Id")
+	Set<UserAdditionReadEntity> findExtendedAllByProjectId(@Param("project_Id") UUID projectId);
+
 	@Query("SELECT ua.*," +
 			"       uaj.*," +
 			"       s.name AS site_name," +
@@ -78,6 +85,14 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 			"where ua.site_id = :site_id and ua.project_id = :project_id and ua.user_id = :user_id"
 	)
 	Optional<Integer> findStatusBySiteIdAndProjectIdAndUserId(@Param("site_id") UUID siteId, @Param("project_id") UUID projectId, @Param("user_id") String userId);
+
+	@Query(
+		"select uaj.status " +
+			"from user_addition ua " +
+			"join user_addition_job uaj on ua.id = uaj.user_addition_id " +
+			"where ua.site_id = :site_id and ua.user_id = :user_id"
+	)
+	Set<Integer> findStatusBySiteIdAndUserId(@Param("site_id") UUID siteId, @Param("user_id") String userId);
 
 	boolean existsBySiteIdAndUserId(UUID siteId, String userId);
 	boolean existsBySiteIdAndProjectIdAndUserId(UUID siteId, UUID projectId, String userId);

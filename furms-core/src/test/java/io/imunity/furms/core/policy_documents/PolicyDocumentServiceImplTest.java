@@ -30,6 +30,7 @@ import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,15 +67,14 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private NotificationDAO notificationDAO;
 	@Mock
-	private UserOperationService userOperationService;
-	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
-	@Mock
-	private ResourceAccessRepository resourceAccessRepository;
 	@Mock
 	private SiteRepository siteRepository;
 	@Mock
 	private UsersDAO usersDAO;
+	@Mock
+	private UserOperationRepository userRepository;
+
 
 	private PolicyDocumentServiceImpl service;
 	private InOrder orderVerifier;
@@ -85,8 +85,8 @@ class PolicyDocumentServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		service = new PolicyDocumentServiceImpl(
 			authzService, repository, validator, policyDocumentDAO, notificationDAO,
-			userOperationService, siteAgentPolicyDocumentService, resourceAccessRepository, siteRepository,
-			usersDAO, publisher
+			siteAgentPolicyDocumentService, siteRepository,
+			userRepository, usersDAO, publisher
 		);
 		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO, publisher);
 	}

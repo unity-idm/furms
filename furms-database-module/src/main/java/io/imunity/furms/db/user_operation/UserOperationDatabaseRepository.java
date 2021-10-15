@@ -63,6 +63,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public Set<UserAddition> findAllUserAdditionsByProjectId(String projectId) {
+		return userAdditionEntityRepository.findExtendedAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(UserAdditionReadEntity::toUserAddition)
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId) {
 		return userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
 				.map(userAddition -> UserAdditionWithProject.builder()
@@ -162,6 +169,14 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId) {
 		return userAdditionEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
 	}
+
+	@Override
+	public boolean isUserInstalledOnSite(FenixUserId userId, String siteId){
+		return userAdditionEntityRepository.findStatusBySiteIdAndUserId(UUID.fromString(siteId), userId.id).stream()
+			.map(UserStatus::valueOf)
+			.anyMatch(UserStatus::isInstalled);
+	}
+
 
 	@Override
 	public void deleteAll() {
