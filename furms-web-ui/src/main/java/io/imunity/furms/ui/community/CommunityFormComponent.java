@@ -14,6 +14,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.components.FurmsImageUpload;
+import io.imunity.furms.ui.components.IdFormItem;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -29,11 +30,17 @@ public class CommunityFormComponent extends Composite<Div> {
 	private final Binder<CommunityViewModel> binder;
 	private final FurmsImageUpload upload;
 
+	private final IdFormItem idFormItem;
+
 	public CommunityFormComponent(Binder<CommunityViewModel> binder) {
 		this.binder = binder;
 		this.upload = createUploadComponent();
 
 		FormLayout formLayout = new FormLayout();
+
+		idFormItem = new IdFormItem(getTranslation("view.fenix-admin.community.form.field.furms-id"));
+		idFormItem.setVisible(false);
+		formLayout.add(idFormItem);
 
 		TextField name = new TextField();
 		name.setValueChangeMode(EAGER);
@@ -92,6 +99,7 @@ public class CommunityFormComponent extends Composite<Div> {
 	public void setFormPools(CommunityViewModel communityViewModel) {
 		binder.setBean(communityViewModel);
 		upload.setValue(communityViewModel.getLogoImage());
+		idFormItem.setIdAndShow(communityViewModel.getId());
 	}
 
 	public FurmsImageUpload getUpload() {
