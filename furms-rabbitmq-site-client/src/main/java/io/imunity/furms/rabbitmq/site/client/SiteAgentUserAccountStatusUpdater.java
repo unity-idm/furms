@@ -6,7 +6,7 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.SiteAgentException;
-import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatus;
+import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatusRequest;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.SetUserStatusReason;
@@ -40,7 +40,7 @@ class SiteAgentUserAccountStatusUpdater implements UserAccountStatusUpdater {
 	}
 
 	@Override
-	public void setStatus(SiteAgentSetUserAccountStatus userStatus) {
+	public void setStatus(SiteAgentSetUserAccountStatusRequest userStatus) {
 		final SetUserStatusRequest request = new SetUserStatusRequest(
 				userStatus.fenixUserId.id,
 				UserAccountStatus.valueOf(userStatus.status.name()),

@@ -8,7 +8,7 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatus;
+import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatusRequest;
 import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequestAck;
@@ -34,7 +34,7 @@ class UserAccountStatusUpdaterTest extends IntegrationTestBase {
 		final FenixUserId fenixUserId = new FenixUserId("fenixId");
 		final SiteExternalId siteExternalId = new SiteExternalId("mock");
 
-		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatus(
+		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatusRequest(
 				siteExternalId, correlationId, fenixUserId, ENABLED, SECURITY_INCIDENT));
 
 		final Payload<SetUserStatusRequestAck> ack = (Payload<SetUserStatusRequestAck>)rabbitTemplate.receiveAndConvert(
@@ -50,7 +50,7 @@ class UserAccountStatusUpdaterTest extends IntegrationTestBase {
 		final FenixUserId fenixUserId = new FenixUserId("fenixId");
 		final SiteExternalId siteExternalId = new SiteExternalId("mock");
 
-		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatus(
+		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatusRequest(
 				siteExternalId, correlationId, fenixUserId, ENABLED, SECURITY_INCIDENT));
 
 		final Payload<SetUserStatusResult> result = (Payload<SetUserStatusResult>)rabbitTemplate.receiveAndConvert(

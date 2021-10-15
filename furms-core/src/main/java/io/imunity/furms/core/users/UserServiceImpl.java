@@ -13,7 +13,7 @@ import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatus;
+import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatusRequest;
 import io.imunity.furms.domain.users.UnknownUserException;
 import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.domain.users.UserStatus;
@@ -71,7 +71,7 @@ class UserServiceImpl implements UserService {
 			usersDAO.setUserStatus(fenixUserId, status);
 			userAllocationsService.findAllByFenixUserId(fenixUserId)
 					.forEach(userAddition -> userAccountStatusUpdater.setStatus(
-							new SiteAgentSetUserAccountStatus(userAddition, status, SECURITY_INCIDENT)));
+							new SiteAgentSetUserAccountStatusRequest(userAddition, status, SECURITY_INCIDENT)));
 		} catch (UnityFailureException e) {
 			LOG.info("Failed to resolve user", e);
 			throw new UnknownUserException(fenixUserId);

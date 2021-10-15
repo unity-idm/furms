@@ -11,18 +11,18 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 
 import java.util.Objects;
 
-public class SiteAgentSetUserAccountStatus {
+public class SiteAgentSetUserAccountStatusRequest {
 	public final SiteExternalId siteExternalId;
 	public final CorrelationId correlationId;
 	public final FenixUserId fenixUserId;
 	public final UserStatus status;
 	public final UserAccountStatusUpdateReason reason;
 
-	public SiteAgentSetUserAccountStatus(SiteExternalId siteExternalId,
-	                                     CorrelationId correlationId,
-	                                     FenixUserId fenixUserId,
-	                                     UserStatus status,
-	                                     UserAccountStatusUpdateReason reason) {
+	public SiteAgentSetUserAccountStatusRequest(SiteExternalId siteExternalId,
+	                                            CorrelationId correlationId,
+	                                            FenixUserId fenixUserId,
+	                                            UserStatus status,
+	                                            UserAccountStatusUpdateReason reason) {
 		this.siteExternalId = siteExternalId;
 		this.correlationId = correlationId;
 		this.fenixUserId = fenixUserId;
@@ -30,8 +30,8 @@ public class SiteAgentSetUserAccountStatus {
 		this.reason = reason;
 	}
 
-	public SiteAgentSetUserAccountStatus(UserAddition userAddition, UserStatus status, UserAccountStatusUpdateReason reason) {
-		this(userAddition.siteId.externalId, userAddition.correlationId, new FenixUserId(userAddition.userId),
+	public SiteAgentSetUserAccountStatusRequest(UserAddition userAddition, UserStatus status, UserAccountStatusUpdateReason reason) {
+		this(userAddition.siteId.externalId, CorrelationId.randomID(), new FenixUserId(userAddition.userId),
 				status, reason);
 	}
 
@@ -39,7 +39,7 @@ public class SiteAgentSetUserAccountStatus {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		SiteAgentSetUserAccountStatus that = (SiteAgentSetUserAccountStatus) o;
+		SiteAgentSetUserAccountStatusRequest that = (SiteAgentSetUserAccountStatusRequest) o;
 		return Objects.equals(siteExternalId, that.siteExternalId)
 				&& Objects.equals(correlationId, that.correlationId)
 				&& Objects.equals(fenixUserId, that.fenixUserId)

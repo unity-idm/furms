@@ -5,8 +5,8 @@
 
 package io.imunity.furms.site.api.status_updater;
 
-import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatus;
+import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatusRequest;
 
 public interface UserAccountStatusUpdater {
-	void setStatus(SiteAgentSetUserAccountStatus userStatus);
+	void setStatus(SiteAgentSetUserAccountStatusRequest userStatus);
 }
