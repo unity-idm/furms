@@ -15,6 +15,7 @@ import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResol
 import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.UserAccountStatusUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,5 +47,6 @@ class TestSpringContextConfig {
 	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@MockBean
 	private SiteAgentStatusServiceImpl siteAgentStatusServiceImpl;
-
+	@MockBean
+	private UserAccountStatusUpdateSiteIdResolver userAccountStatusUpdateSiteIdResolver;
 }

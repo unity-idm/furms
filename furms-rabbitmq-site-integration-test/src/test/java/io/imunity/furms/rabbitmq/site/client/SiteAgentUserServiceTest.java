@@ -13,12 +13,11 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,19 +27,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentUserServiceTest {
+class SiteAgentUserServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private SiteAgentUserService siteAgentUserService;
 	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@Autowired
 	private UserOperationStatusUpdater userOperationStatusUpdater;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldAddUser() throws ExecutionException, InterruptedException {

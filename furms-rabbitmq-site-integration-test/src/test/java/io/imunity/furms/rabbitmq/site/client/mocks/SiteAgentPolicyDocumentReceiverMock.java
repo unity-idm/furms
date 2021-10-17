@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.client.mocks;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
 import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdate;

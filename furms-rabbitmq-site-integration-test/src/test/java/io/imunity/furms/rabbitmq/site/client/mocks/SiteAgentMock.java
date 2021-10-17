@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.client.mocks;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
@@ -33,6 +33,9 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequest;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequestAck;
+import io.imunity.furms.rabbitmq.site.models.SetUserStatusResult;
 import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequest;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessRequestAck;
@@ -64,8 +67,8 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Component
 public class SiteAgentMock {
 
-	private static final String MOCK_SITE_PUB = "mock-site-pub";
-	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
+	public static final String MOCK_SITE_PUB = "mock-site-pub";
+	public static final String MOCK_FURMS_PUB = "mock-furms-pub";
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
 	private final SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
@@ -250,6 +253,17 @@ public class SiteAgentMock {
 		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
 		UserAllocationBlockAccessResult result = new UserAllocationBlockAccessResult();
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	@EventListener
+	public void receiveSetUserStatusRequest(Payload<SetUserStatusRequest> payload) throws InterruptedException {
+		Header header = getHeader(payload.header);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new SetUserStatusRequestAck()));
+
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
+
+		SetUserStatusResult result = new SetUserStatusResult();
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 

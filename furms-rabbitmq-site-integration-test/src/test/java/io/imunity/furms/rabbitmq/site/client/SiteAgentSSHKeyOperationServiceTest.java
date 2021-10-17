@@ -10,15 +10,14 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyAddition;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyUpdating;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.ExecutionException;
 
@@ -27,19 +26,12 @@ import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentSSHKeyOperationServiceTest {
+class SiteAgentSSHKeyOperationServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private SiteAgentSSHKeyOperationService siteAgent;
 	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@Autowired
 	private SSHKeyOperationStatusUpdater sshKeyOperationService;
-
-	@BeforeEach
-	void init() {
-		siteAgentListenerConnector.connectListenerToQueue("mock-site-pub");
-	}
 
 	@Test
 	void shouldAddKey() throws ExecutionException, InterruptedException {

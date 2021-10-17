@@ -8,13 +8,13 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
+import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentUsageProducerMock;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
 import io.imunity.furms.rabbitmq.site.models.UserResourceUsageRecord;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -23,19 +23,12 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentResourceUsageServiceTest {
-	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
+class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private ResourceUsageUpdater resourceUsageUpdater;
 	@Autowired
 	private SiteAgentUsageProducerMock producerMock;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldReceivedResourceUsage() {
