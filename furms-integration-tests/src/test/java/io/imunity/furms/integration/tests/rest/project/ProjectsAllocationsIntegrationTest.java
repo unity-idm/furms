@@ -423,7 +423,7 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 	}
 
 	private void createProjectInstallation(String projectId, String siteId, ProjectInstallationStatus status) {
-		final String id = projectOperationRepository.create(defaultProjectInstallationJob()
+		final String id = projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
 				.projectId(projectId)
 				.siteId(siteId)
 				.status(status)

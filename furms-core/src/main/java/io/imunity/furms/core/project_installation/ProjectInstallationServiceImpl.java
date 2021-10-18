@@ -69,7 +69,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional
-	public void create(String projectId, ProjectInstallation projectInstallation) {
+	public void createOrUpdate(String projectId, ProjectInstallation projectInstallation) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.correlationId(correlationId)
@@ -78,18 +78,14 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.status(ProjectInstallationStatus.PENDING)
 			.build();
 
-		projectOperationRepository.findProjectInstallation(projectId).stream()
-			.filter(job -> job.siteId.equals(projectInstallationJob.siteId))
-			.forEach(job -> projectOperationRepository.deleteById(job.id));
-
-		projectOperationRepository.create(projectInstallationJob);
+		projectOperationRepository.createOrUpdate(projectInstallationJob);
 		runAfterCommit(() ->
 			siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation)
 		);
 		LOG.info("ProjectInstallation was created: {}", projectInstallationJob);
 	}
 
-	private void create(SiteId siteId, Project project) {
+	private void update(SiteId siteId, Project project) {
 		FURMSUser leader = project.getLeaderId() != null
 			? usersDAO.findById(project.getLeaderId()).orElse(null)
 			: null;
@@ -109,7 +105,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.validityEnd(project.getUtcEndTime())
 			.leader(leader)
 			.build();
-		create(project.getId(), projectInstallation);
+		createOrUpdate(project.getId(), projectInstallation);
 	}
 
 	@Override
@@ -125,8 +121,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId.id);
 			if(ProjectInstallationStatus.FAILED.equals(job.status)){
-				create(siteId, project);
-				projectOperationRepository.deleteById(job.id);
+				update(siteId, project);
 				return;
 			}
 

@@ -102,7 +102,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		String id = entityDatabaseRepository.createOrUpdate(request);
 
 		//then
 		Optional<ProjectInstallationJobEntity> byId = installationRepository.findById(UUID.fromString(id));
@@ -124,7 +124,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		entityDatabaseRepository.create(request);
+		entityDatabaseRepository.createOrUpdate(request);
 
 		//then
 		Set<ProjectInstallationJobStatus> statuses = entityDatabaseRepository.findAllByCommunityId(communityId.toString());
@@ -147,7 +147,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		entityDatabaseRepository.create(request);
+		entityDatabaseRepository.createOrUpdate(request);
 
 		//then
 		Set<ProjectInstallationJobStatus> statuses = entityDatabaseRepository.findAllByProjectId(projectId.toString());
@@ -171,7 +171,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		String id = entityDatabaseRepository.createOrUpdate(request);
 		entityDatabaseRepository.update(id, new ProjectInstallationResult(Map.of("gid", "gid"), INSTALLED, new Error(null, null)));
 
 		//then
@@ -196,7 +196,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		String id = entityDatabaseRepository.createOrUpdate(request);
 		entityDatabaseRepository.update(id, new ProjectInstallationResult(null, INSTALLED, new Error(null, null)));
 
 		//then
