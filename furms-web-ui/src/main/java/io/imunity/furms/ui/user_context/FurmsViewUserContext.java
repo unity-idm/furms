@@ -52,8 +52,7 @@ public class FurmsViewUserContext implements Comparable<FurmsViewUserContext>{
 	}
 
 	@Override
-	public int compareTo(FurmsViewUserContext o)
-	{
+	public int compareTo(FurmsViewUserContext o) {
 		return name.compareToIgnoreCase(o.name);
 	}
 	
