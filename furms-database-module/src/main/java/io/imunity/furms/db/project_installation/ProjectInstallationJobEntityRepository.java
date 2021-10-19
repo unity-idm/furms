@@ -16,6 +16,7 @@ import java.util.UUID;
 public interface ProjectInstallationJobEntityRepository extends CrudRepository<ProjectInstallationJobEntity, UUID> {
 	Optional<ProjectInstallationJobEntity> findByCorrelationId(UUID correlationId);
 	Set<ProjectInstallationJobEntity> findByProjectId(UUID projectId);
+	Optional<ProjectInstallationJobEntity> findBySiteIdAndProjectId(UUID siteId, UUID projectId);
 
 	boolean existsBySiteIdAndProjectIdAndStatus(UUID siteId, UUID projectId, int status);
 	boolean existsByProjectIdAndStatusOrProjectIdAndStatus(UUID projectId, int pendingStatus, UUID projectId1, int ackStatus);

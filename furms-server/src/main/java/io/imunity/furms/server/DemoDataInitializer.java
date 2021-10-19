@@ -522,7 +522,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.correlationId(CorrelationId.randomID())
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build();
-			projectOperationRepository.create(projectInstallationJob);
+			projectOperationRepository.createOrUpdate(projectInstallationJob);
 
 			ProjectInstallationJob projectInstallationJob2 = ProjectInstallationJob.builder()
 				.gid("gid")
@@ -531,7 +531,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.correlationId(CorrelationId.randomID())
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build();
-			projectOperationRepository.create(projectInstallationJob2);
+			projectOperationRepository.createOrUpdate(projectInstallationJob2);
 
 			ProjectInstallationJob projectInstallationJob3 = ProjectInstallationJob.builder()
 				.gid("gid")
@@ -540,7 +540,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.correlationId(CorrelationId.randomID())
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build();
-			projectOperationRepository.create(projectInstallationJob3);
+			projectOperationRepository.createOrUpdate(projectInstallationJob3);
 
 			ProjectInstallationJob projectInstallationJob4 = ProjectInstallationJob.builder()
 				.gid("gid")
@@ -549,7 +549,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.correlationId(CorrelationId.randomID())
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build();
-			projectOperationRepository.create(projectInstallationJob4);
+			projectOperationRepository.createOrUpdate(projectInstallationJob4);
 		}
 	}
 }

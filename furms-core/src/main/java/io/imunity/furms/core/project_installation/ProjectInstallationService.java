@@ -12,7 +12,7 @@ public interface ProjectInstallationService {
 	ProjectInstallation findProjectInstallationOfProjectAllocation(String projectAllocationId);
 	boolean isProjectInstalled(String siteId, String projectId);
 	boolean isProjectInTerminalState(String projectId);
-	void create(String projectId, ProjectInstallation projectInstallation);
+	void createOrUpdate(String projectId, ProjectInstallation projectInstallation);
 	void update(Project project);
 	void remove(String projectId);
 }

@@ -74,14 +74,14 @@ class ProjectInstallationServiceTest {
 		//when
 		when(repository.findProjectInstallation(eq("projectAllocationId"), any()))
 			.thenReturn(projectInstallation);
-		service.create("projectId", projectInstallation);
+		service.createOrUpdate("projectId", projectInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
 		}
 
 		//then
-		orderVerifier.verify(repository).create(any(ProjectInstallationJob.class));
+		orderVerifier.verify(repository).createOrUpdate(any(ProjectInstallationJob.class));
 		orderVerifier.verify(siteAgentProjectOperationService).installProject(any(), any());
 	}
 
@@ -157,7 +157,7 @@ class ProjectInstallationServiceTest {
 		}
 
 		//then
-		orderVerifier.verify(repository).create(any(ProjectInstallationJob.class));
+		orderVerifier.verify(repository).createOrUpdate(any(ProjectInstallationJob.class));
 		orderVerifier.verify(siteAgentProjectOperationService).installProject(any(), any());
 	}
 
