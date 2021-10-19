@@ -13,13 +13,13 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
+import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentChunkUpdateProducerMock;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,21 +31,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentProjectAllocationInstallationServiceTest {
+class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
-	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
 	@Autowired
 	private ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
 	@Autowired
 	private SiteAgentChunkUpdateProducerMock producerMock;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldInstallProjectAllocation() {

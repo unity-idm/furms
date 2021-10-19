@@ -9,8 +9,6 @@ import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.db.resource_credits.ResourceCreditEntity;
 import io.imunity.furms.db.resource_types.ResourceTypeEntity;
 import io.imunity.furms.db.sites.SiteEntity;
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -29,15 +27,17 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	@Column("resource_credit_id")
 	public final ResourceCreditEntity resourceCredit;
 	public final UUID communityId;
+	public final String communityName;
 	public final String name;
 	public final BigDecimal amount;
 
 	CommunityAllocationReadEntity(UUID id, String name,
-	                              UUID communityId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
+	                              UUID communityId, String communityName, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
 	                              ResourceCreditEntity resourceCredit) {
 		this.id = id;
 		this.name = name;
 		this.communityId = communityId;
+		this.communityName = communityName;
 		this.amount = amount;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -54,6 +54,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			"site=" + site +
 			", resourceType=" + resourceType +
 			", resourceCredit=" + resourceCredit +
+			", communityName=" + communityName +
 			", name='" + name + '\'' +
 			", amount=" + amount +
 			", id=" + id +
@@ -69,6 +70,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			&& Objects.equals(id, that.id)
 			&& Objects.equals(resourceType, that.resourceType)
 			&& Objects.equals(resourceCredit, that.resourceCredit)
+			&& Objects.equals(communityName, that.communityName)
 			&& Objects.equals(communityId, that.communityId)
 			&& Objects.equals(name, that.name)
 			&& Objects.equals(amount, that.amount);
@@ -76,7 +78,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount, communityName);
 	}
 
 }

@@ -22,7 +22,7 @@ public interface ProjectOperationRepository {
 
 	ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter);
 
-	String create(ProjectInstallationJob projectInstallationJob);
+	String createOrUpdate(ProjectInstallationJob projectInstallationJob);
 
 	String createOrUpdate(ProjectUpdateJob projectUpdateJob);
 

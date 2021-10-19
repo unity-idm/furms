@@ -14,17 +14,21 @@ import java.util.Objects;
 class ProjectAllocationViewModel {
 	private String id;
 	private String projectId;
+	private String projectName;
 	private String communityId;
 	private ResourceTypeComboBoxModel resourceType;
 	private AllocationCommunityComboBoxModel allocationCommunity;
 	private String name;
 	private BigDecimal amount;
 
-	ProjectAllocationViewModel() {
+	ProjectAllocationViewModel(String projectId, String projectName) {
+		this.projectId = projectId;
+		this.projectName = projectName;
 	}
 
 	ProjectAllocationViewModel(String id,
 	                           String projectId,
+	                           String projectName,
 	                           String communityId,
 	                           ResourceTypeComboBoxModel resourceType,
 	                           AllocationCommunityComboBoxModel allocationCommunity,
@@ -32,6 +36,7 @@ class ProjectAllocationViewModel {
 	                           BigDecimal amount) {
 		this.id = id;
 		this.projectId = projectId;
+		this.projectName = projectName;
 		this.communityId = communityId;
 		this.resourceType = resourceType;
 		this.allocationCommunity = allocationCommunity;
@@ -49,6 +54,10 @@ class ProjectAllocationViewModel {
 
 	void setProjectId(String projectId) {
 		this.projectId = projectId;
+	}
+
+	String getProjectName() {
+		return projectName;
 	}
 
 	void setId(String id) {
@@ -113,6 +122,7 @@ class ProjectAllocationViewModel {
 		return "ProjectAllocationViewModel{" +
 				"id='" + id + '\'' +
 				", projectId='" + projectId + '\'' +
+				", projectName='" + projectName + '\'' +
 				", communityId='" + communityId + '\'' +
 				", resourceType=" + resourceType +
 				", allocationCommunity=" + allocationCommunity +
@@ -128,6 +138,7 @@ class ProjectAllocationViewModel {
 	public static final class ProjectAllocationViewModelBuilder {
 		private String id;
 		private String projectId;
+		private String projectName;
 		private String communityId;
 		private ResourceTypeComboBoxModel resourceType;
 		private AllocationCommunityComboBoxModel allocationCommunity;
@@ -144,6 +155,11 @@ class ProjectAllocationViewModel {
 
 		public ProjectAllocationViewModelBuilder projectId(String projectId) {
 			this.projectId = projectId;
+			return this;
+		}
+
+		public ProjectAllocationViewModelBuilder projectName(String projectName) {
+			this.projectName = projectName;
 			return this;
 		}
 
@@ -173,7 +189,7 @@ class ProjectAllocationViewModel {
 		}
 
 		public ProjectAllocationViewModel build() {
-			return new ProjectAllocationViewModel(id, projectId, communityId, resourceType, allocationCommunity, name, amount);
+			return new ProjectAllocationViewModel(id, projectId, projectName, communityId, resourceType, allocationCommunity, name, amount);
 		}
 	}
 }

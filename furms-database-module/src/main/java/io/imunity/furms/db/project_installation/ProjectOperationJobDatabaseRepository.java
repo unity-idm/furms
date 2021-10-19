@@ -86,8 +86,12 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String create(ProjectInstallationJob projectInstallationJob) {
+	public String createOrUpdate(ProjectInstallationJob projectInstallationJob) {
+		UUID id = installationRepository.findBySiteIdAndProjectId(UUID.fromString(projectInstallationJob.siteId), UUID.fromString(projectInstallationJob.projectId))
+			.map(UUIDIdentifiable::getId)
+			.orElse(null);
 		ProjectInstallationJobEntity projectInstallationJobEntity = ProjectInstallationJobEntity.builder()
+			.id(id)
 			.correlationId(UUID.fromString(projectInstallationJob.correlationId.id))
 			.siteId(UUID.fromString(projectInstallationJob.siteId))
 			.projectId(UUID.fromString(projectInstallationJob.projectId))

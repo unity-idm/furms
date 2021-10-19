@@ -15,6 +15,7 @@ class ProjectAllocationModelsMapper {
 		return ProjectAllocationViewModel.builder()
 			.id(projectAllocation.id)
 			.projectId(projectAllocation.projectId)
+			.projectName(projectAllocation.projectName)
 			.resourceType(new ResourceTypeComboBoxModel(projectAllocation.resourceType.id, projectAllocation.resourceType.name))
 			.allocationCommunity(new AllocationCommunityComboBoxModel(projectAllocation.communityAllocation.id, projectAllocation.communityAllocation.name, projectAllocation.resourceCredit.splittable, projectAllocation.resourceType.unit))
 			.name(projectAllocation.name)

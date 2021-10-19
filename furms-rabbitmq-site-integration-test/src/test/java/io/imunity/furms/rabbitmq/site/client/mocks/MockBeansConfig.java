@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2020 Bixbit s.c. All rights reserved.
- * See LICENSE file for licensing information.
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.rabbitmq.site.client;
+package io.imunity.furms.rabbitmq.site.client.mocks;
 
+import io.imunity.furms.rabbitmq.site.client.MessageAuthorizer;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationSiteIdResolver;
@@ -14,6 +15,7 @@ import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
 import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
+import io.imunity.furms.site.api.message_resolver.UserAccountStatusUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
@@ -64,5 +66,7 @@ class MockBeansConfig {
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
 
 	@MockBean
-	private SiteAgentPolicyDocumentReceiverMock SiteAgentPolicyDocumentReceiverMock;
+	private SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
+	@MockBean
+	private UserAccountStatusUpdateSiteIdResolver userAccountStatusUpdateSiteIdResolver;
 }

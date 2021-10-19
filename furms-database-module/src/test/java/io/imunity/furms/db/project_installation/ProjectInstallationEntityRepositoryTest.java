@@ -159,7 +159,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
-	void shouldFindSiteInstalledProjectsBySiteid() {
+	void shouldFindSiteInstalledProjectsBySiteId() {
 		//given
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
@@ -170,8 +170,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId2)
+				.siteId(siteId2)
+				.projectId(projectId)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
@@ -179,7 +179,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 				.correlationId(UUID.randomUUID())
 				.siteId(siteId)
 				.projectId(projectId2)
-				.status(PENDING)
+				.status(INSTALLED)
 				.gid("gid")
 				.build());
 		entityRepository.save(ProjectInstallationJobEntity.builder()

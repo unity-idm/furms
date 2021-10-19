@@ -10,29 +10,21 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-class SiteAgentResourceAccessServiceTest {
+class SiteAgentResourceAccessServiceTest extends IntegrationTestBase {
+
 	@Autowired
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
 	@Autowired
-	private SiteAgentListenerConnector siteAgentListenerConnector;
-	@Autowired
 	private UserAllocationStatusUpdater userAllocationStatusUpdater;
-
-	@BeforeEach
-	void init(){
-		siteAgentListenerConnector.connectListenerToQueue( "mock-site-pub");
-	}
 
 	@Test
 	void shouldGrantAccess() {

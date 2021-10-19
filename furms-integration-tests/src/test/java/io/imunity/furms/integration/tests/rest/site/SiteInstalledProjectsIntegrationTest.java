@@ -201,7 +201,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 	}
 
 	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
-		return projectOperationRepository.create(defaultProjectInstallationJob()
+		return projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
 				.projectId(projectId)
 				.siteId(siteId)
 				.status(status)

@@ -72,7 +72,6 @@ class SitesRestService {
 	private final ResourceChecker resourceChecker;
 	private final PolicyDocumentService policyDocumentService;
 
-
 	SitesRestService(SiteService siteService,
 	                 ResourceCreditService resourceCreditService,
 	                 ResourceTypeService resourceTypeService,

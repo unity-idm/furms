@@ -89,6 +89,15 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<String> getOccupiedNames(String communityId, String id) {
+		validator.validateCommunityIdAndProjectId(communityId, id);
+		return projectAllocationRepository.findAll(id).stream()
+			.map(projectAllocation -> projectAllocation.name)
+			.collect(toSet());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public BigDecimal getAvailableAmount(String communityId, String communityAllocationId) {
 		validator.validateCommunityIdAndCommunityAllocationId(communityId, communityAllocationId);
 		return projectAllocationRepository.getAvailableAmount(communityAllocationId);
@@ -207,7 +216,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private void allocateProject(ProjectAllocation projectAllocation, String id) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
-			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
+			projectInstallationService.createOrUpdate(projectAllocation.projectId, projectInstallation);
 			projectAllocationInstallationService.createAllocation(id);
 		}
 		else {
@@ -231,7 +240,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private void updateProjectAllocation(ProjectAllocation projectAllocation) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(projectAllocation.id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId))
-			projectInstallationService.create(projectAllocation.projectId, projectInstallation);
+			projectInstallationService.createOrUpdate(projectAllocation.projectId, projectInstallation);
 		else
 			projectAllocationInstallationService.updateAndStartAllocation(projectAllocation.id);
 	}

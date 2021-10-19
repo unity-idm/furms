@@ -26,6 +26,7 @@ public class CommunityAllocationConverter {
 				.resourceType(resourceTypeConverter.toResourceType(entity.resourceType))
 				.resourceCredit(entity.resourceCredit.toResourceCredit())
 				.communityId(entity.communityId.toString())
+				.communityName(entity.communityName)
 				.name(entity.name)
 				.amount(entity.amount)
 				.build();

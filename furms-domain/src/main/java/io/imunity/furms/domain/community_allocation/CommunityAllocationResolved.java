@@ -19,18 +19,20 @@ public class CommunityAllocationResolved {
 	public final ResourceType resourceType;
 	public final ResourceCredit resourceCredit;
 	public final String communityId;
+	public final String communityName;
 	public final String name;
 	public final BigDecimal amount;
 	public final BigDecimal consumed;
 	public final BigDecimal remaining;
 
 	CommunityAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
-	                            String communityId, String name, BigDecimal amount, BigDecimal consumed, BigDecimal remaining) {
+	                            String communityId, String communityName, String name, BigDecimal amount, BigDecimal consumed, BigDecimal remaining) {
 		this.id = id;
 		this.site = site;
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
 		this.communityId = communityId;
+		this.communityName = communityName;
 		this.name = name;
 		this.amount = amount;
 		this.consumed = consumed;
@@ -47,6 +49,7 @@ public class CommunityAllocationResolved {
 				Objects.equals(resourceType, that.resourceType) &&
 				Objects.equals(resourceCredit, that.resourceCredit) &&
 				Objects.equals(communityId, that.communityId) &&
+				Objects.equals(communityName, that.communityName) &&
 				Objects.equals(name, that.name) &&
 				Objects.equals(amount, that.amount) &&
 				Objects.equals(consumed, that.consumed) &&
@@ -55,7 +58,7 @@ public class CommunityAllocationResolved {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount, consumed, remaining);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityId, communityName, name, amount, consumed, remaining);
 	}
 
 	@Override
@@ -66,6 +69,7 @@ public class CommunityAllocationResolved {
 				", resourceType=" + resourceType +
 				", resourceCredit=" + resourceCredit +
 				", communityId=" + communityId +
+				", communityName=" + communityName +
 				", name='" + name + '\'' +
 				", amount='" + amount + '\'' +
 				", consumed='" + consumed + '\'' +
@@ -84,6 +88,7 @@ public class CommunityAllocationResolved {
 				.resourceType(this.resourceType)
 				.resourceCredit(this.resourceCredit)
 				.communityId(this.communityId)
+				.communityName(this.communityName)
 				.name(this.name)
 				.amount(this.amount)
 				.consumed(this.consumed)
@@ -96,6 +101,7 @@ public class CommunityAllocationResolved {
 		private ResourceType resourceType;
 		private ResourceCredit resourceCredit;
 		private String communityId;
+		private String communityName;
 		private String name;
 		private BigDecimal amount;
 		private BigDecimal consumed;
@@ -134,6 +140,11 @@ public class CommunityAllocationResolved {
 			return this;
 		}
 
+		public CommunityAllocationResolvedBuilder communityName(String communityName) {
+			this.communityName = communityName;
+			return this;
+		}
+
 		public CommunityAllocationResolvedBuilder consumed(BigDecimal consumed) {
 			this.consumed = consumed;
 			return this;
@@ -150,7 +161,7 @@ public class CommunityAllocationResolved {
 		}
 
 		public CommunityAllocationResolved build() {
-			return new CommunityAllocationResolved(id, site, resourceType, resourceCredit, communityId, name, amount, consumed, remaining);
+			return new CommunityAllocationResolved(id, site, resourceType, resourceCredit, communityId, communityName,  name, amount, consumed, remaining);
 		}
 	}
 }

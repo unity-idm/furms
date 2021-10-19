@@ -174,4 +174,12 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	public boolean hasCommunityAllocations(String id, String siteId) {
 		return communityAllocationServiceHelper.existsByResourceCreditId(id);
 	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
+	public Set<String> getOccupiedNames(String siteId) {
+		return resourceCreditRepository.findAll(siteId).stream()
+			.map(credit -> credit.name)
+			.collect(toSet());
+	}
 }

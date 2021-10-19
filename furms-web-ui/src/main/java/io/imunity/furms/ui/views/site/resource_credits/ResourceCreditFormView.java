@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
+import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.ui.components.BreadCrumbParameter;
@@ -24,7 +25,6 @@ import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.user_context.UIContext;
-import io.imunity.furms.ui.utils.NotificationUtils;
 import io.imunity.furms.ui.utils.OptionalException;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 
@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -96,7 +97,13 @@ class ResourceCreditFormView extends FurmsViewComponent {
 					KNOWN_EXCEPTIONS);
 
 		optionalException.getException().ifPresentOrElse(
-			throwable -> NotificationUtils.showErrorNotification(getTranslation(throwable.getMessage())),
+			throwable -> {
+				if(throwable.getCause() instanceof DuplicatedNameValidationError && resourceCreditFormComponent.isNameDefault()) {
+					showErrorNotification(getTranslation("default.name.duplicated.error.message"));
+					resourceCreditFormComponent.reloadDefaultName();
+				} else
+					showErrorNotification(getTranslation(throwable.getMessage()));
+				},
 			() -> UI.getCurrent().navigate(ResourceCreditsView.class)
 		);
 	}
@@ -115,7 +122,8 @@ class ResourceCreditFormView extends FurmsViewComponent {
 		breadCrumbParameter = new BreadCrumbParameter(parameter, getTranslation(trans));
 		resourceCreditFormComponent.setFormPools(
 			resourceCreditViewModel,
-			resourceCreditService.hasCommunityAllocations(resourceCreditViewModel.getId(), resourceCreditViewModel.getSiteId())
+			resourceCreditService.hasCommunityAllocations(resourceCreditViewModel.getId(), resourceCreditViewModel.getSiteId()),
+			() -> resourceCreditService.getOccupiedNames(resourceCreditViewModel.getSiteId())
 		);
 	}
 
