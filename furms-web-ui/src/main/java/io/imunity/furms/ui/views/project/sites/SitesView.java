@@ -5,7 +5,9 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
@@ -73,10 +75,7 @@ public class SitesView extends FurmsViewComponent {
 			.collect(Collectors.toSet());
 	}
 
-	private Set<SiteTreeGridModel> loadNextLevelData(String siteId) {
-
-		UsersSitesAccesses usersSitesAccesses = userSiteAccessService.getUsersSitesAccesses(getCurrentResourceId());
-
+	private Set<SiteTreeGridModel> loadNextLevelData(UsersSitesAccesses usersSitesAccesses, String siteId) {
 		return  usersSitesAccesses.getUsersInstalledOnSite(siteId).stream()
 			.map(furmsUser -> SiteTreeGridModel.builder()
 				.siteId(siteId)
@@ -104,22 +103,26 @@ public class SitesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.sites.grid.4"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addColumn(model -> model.userAccessStatus.status.isEnabled() ?
-			getTranslation("view.project-admin.sites.enabled") : getTranslation("view.project-admin.sites.disabled")
-			)
+		grid.addColumn(model -> Optional.ofNullable(model.userAccessStatus)
+				.map(status -> status.status.isEnabled() ?
+					getTranslation("view.project-admin.sites.enabled") : getTranslation("view.project-admin.sites.disabled"))
+				.orElse("")
+		)
 			.setHeader(getTranslation("view.project-admin.sites.grid.5"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addComponentColumn(model -> new StatusLayout(
-			getTranslation("view.project-admin.sites." + model.userAccessStatus.status.name()),
-			model.userAccessStatus.message,
-			getContent())
+		grid.addComponentColumn(model -> Optional.ofNullable(model.userAccessStatus)
+			.map(status -> (Component) new StatusLayout(
+				getTranslation("view.project-admin.sites." + status.status.name()),
+				status.message,
+				getContent()))
+			.orElse(new Div())
 		)
 			.setHeader(getTranslation("view.project-admin.sites.grid.6"))
 			.setSortable(true)
 			.setFlexGrow(25);
 		grid.addComponentColumn(resourceAccessModel -> {
-			if(resourceAccessModel.userAccessStatus.status.isPending()) {
+			if(resourceAccessModel.userAccessStatus == null || resourceAccessModel.userAccessStatus.status.isPending()) {
 				IconButton iconButton = new IconButton(REFRESH.create());
 				iconButton.addClickListener(event -> loadGridContent());
 				return iconButton;
@@ -153,6 +156,13 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		grid.setItems(loadData(), key -> loadNextLevelData(key.siteId));
+		UsersSitesAccesses usersSitesAccesses = userSiteAccessService.getUsersSitesAccesses(projectId);
+		Set<SiteTreeGridModel> rootItems = loadData();
+		Set<SiteTreeGridModel> currentExpandedItems = rootItems.stream()
+			.filter(grid::isExpanded)
+			.collect(Collectors.toSet());
+
+		grid.setItems(rootItems, key -> loadNextLevelData(usersSitesAccesses, key.siteId));
+		grid.expand(currentExpandedItems);
 	}
 }

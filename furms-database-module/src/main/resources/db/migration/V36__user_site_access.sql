@@ -12,7 +12,3 @@ CREATE TABLE user_site_access (
     FOREIGN KEY (site_id) REFERENCES site(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES project(id) ON DELETE CASCADE
 );
-
-INSERT INTO user_site_access (site_id, project_id, user_id)
-SELECT RANDOM_UUID(), DISTINCT(site_id, project_id, user_id)
-FROM user_grant;

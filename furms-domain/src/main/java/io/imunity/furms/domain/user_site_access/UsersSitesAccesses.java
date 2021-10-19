@@ -24,10 +24,11 @@ import static java.util.stream.Collectors.toMap;
 public class UsersSitesAccesses {
 	private final Map<String, List<FURMSUser>> usersGroupedBySiteId;
 	private final Map<String, Map<FenixUserId, UserSiteAccessStatusWithMessage>> userInstallations;
-	private final Map<String, Map<FenixUserId, AccessStatus>> userResourceAccess;
+	private final Map<String, Map<FenixUserId, Optional<AccessStatus>>> userResourceAccess;
 
 	public UsersSitesAccesses(Map<String, Set<FenixUserId>> allUserGroupedBySiteId, List<FURMSUser> allUsers, Set<UserAddition> userAdditions, Set<GrantAccess> usersGrants) {
 		Map<FenixUserId, FURMSUser> collect = allUsers.stream()
+			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(toMap(x -> x.fenixUserId.get(), x -> x));
 
 		usersGroupedBySiteId = allUserGroupedBySiteId.entrySet().stream()
@@ -36,7 +37,7 @@ public class UsersSitesAccesses {
 		this.userInstallations = userAdditions.stream()
 			.collect(groupingBy(x -> x.siteId.id, toMap(x -> new FenixUserId(x.userId), x -> new UserSiteAccessStatusWithMessage(x.errorMessage.map(z -> z.message).orElse(null) ,getStatus(x.status)))));
 		this.userResourceAccess = usersGrants.stream()
-			.collect(groupingBy(x -> x.siteId.id, toMap(x -> x.fenixUserId, x -> x.status)));
+			.collect(groupingBy(x -> x.siteId.id, toMap(x -> x.fenixUserId, x -> Optional.ofNullable(x.status))));
 	}
 
 	private UserSiteAccessStatus getStatus(UserStatus x) {
