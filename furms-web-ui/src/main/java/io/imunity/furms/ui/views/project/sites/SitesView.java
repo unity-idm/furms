@@ -9,14 +9,9 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
-import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.api.users.UserAllocationsService;
-import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
-import io.imunity.furms.domain.resource_access.UserGrant;
-import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.user_site_access.UsersSitesAccesses;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
@@ -27,39 +22,30 @@ import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import io.imunity.furms.ui.views.project.resource_access.DenseTreeGrid;
-import io.imunity.furms.ui.views.project.resource_access.ResourceAccessModel;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static io.imunity.furms.domain.resource_access.AccessStatus.PENDING_AND_ACKNOWLEDGED_STATUES;
-import static io.imunity.furms.domain.resource_access.AccessStatus.TERMINAL_GRANTED;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static java.util.stream.Collectors.groupingBy;
 
 @Route(value = "project/admin/sites", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.sites.page.title")
 public class SitesView extends FurmsViewComponent {
+	public final UserSiteAccessService userSiteAccessService;
 	public final ProjectInstallationsService projectInstallationsService;
-	public final UserAllocationsService userAllocationsService;
-	public final UserService userService;
 	public final TreeGrid<SiteTreeGridModel> grid;
-	ResourceAccessService resourceAccessService;
+	public final String projectId;
 
-
-	SitesView(ProjectInstallationsService projectInstallationsService, UserAllocationsService userAllocationsService, UserService userService) {
+	SitesView(UserSiteAccessService userSiteAccessService, ProjectInstallationsService projectInstallationsService) {
+		this.userSiteAccessService = userSiteAccessService;
 		this.projectInstallationsService = projectInstallationsService;
-		this.userAllocationsService = userAllocationsService;
-		this.userService = userService;
 		this.grid = new DenseTreeGrid<>();
+		this.projectId = getCurrentResourceId();
 		fillGrid();
 		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
@@ -89,24 +75,15 @@ public class SitesView extends FurmsViewComponent {
 
 	private Set<SiteTreeGridModel> loadNextLevelData(String siteId) {
 
-		Set<UserAddition> allByProjectId = userAllocationsService.findAllByProjectId(getCurrentResourceId());
-		Map<FenixUserId, FURMSUser> users = userService.getAllUsers().stream()
-			.filter(x -> x.fenixUserId.isPresent())
-			.collect(Collectors.toMap(usr -> usr.fenixUserId.get(), Function.identity()));
+		UsersSitesAccesses usersSitesAccesses = userSiteAccessService.getUsersSitesAccesses(getCurrentResourceId());
 
-		return  allByProjectId.stream()
-			.filter(x -> x.siteId.id.equals(siteId))
-			.map(x -> {
-				FenixUserId userId = new FenixUserId(x.userId);
-				FURMSUser furmsUser = users.get(userId);
-				return SiteTreeGridModel.builder()
-					.siteId(x.siteId.id)
-					.userId(userId)
-					.userEmail(furmsUser.email)
-					.userStatus(furmsUser.status.name())
-					.userAccessStatus(x.status)
-					.build();
-			})
+		return  usersSitesAccesses.getUsersInstalledOnSite(siteId).stream()
+			.map(furmsUser -> SiteTreeGridModel.builder()
+				.siteId(siteId)
+				.userId(furmsUser.fenixUserId.get())
+				.userEmail(furmsUser.email)
+				.userAccessStatus(usersSitesAccesses.getStatus(siteId, furmsUser.fenixUserId.get()))
+				.build())
 			.collect(Collectors.toSet());
 	}
 
@@ -127,33 +104,43 @@ public class SitesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.sites.grid.4"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addColumn(model -> model.userStatus)
+		grid.addColumn(model -> model.userAccessStatus.status.isEnabled() ?
+			getTranslation("view.project-admin.sites.enabled") : getTranslation("view.project-admin.sites.disabled")
+			)
 			.setHeader(getTranslation("view.project-admin.sites.grid.5"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addColumn(model -> model.userAccessStatus)
+		grid.addComponentColumn(model -> new StatusLayout(
+			getTranslation("view.project-admin.sites." + model.userAccessStatus.status.name()),
+			model.userAccessStatus.message,
+			getContent())
+		)
 			.setHeader(getTranslation("view.project-admin.sites.grid.6"))
 			.setSortable(true)
 			.setFlexGrow(25);
 		grid.addComponentColumn(resourceAccessModel -> {
-			if(resourceAccessModel.siteName != null || isInstalling()) {
+			if(resourceAccessModel.userAccessStatus.status.isPending()) {
 				IconButton iconButton = new IconButton(REFRESH.create());
-				iconButton.addClickListener(event -> grid.setItems(loadData(), key -> loadNextLevelData(key.siteId)));
+				iconButton.addClickListener(event -> loadGridContent());
 				return iconButton;
 			}
 			else {
 				GridActionMenu contextMenu = new GridActionMenu();
-				if(isInstalled()) {
+				if(resourceAccessModel.userAccessStatus.status.isInstalled()) {
 					contextMenu.addItem(new MenuButton(
-							getTranslation("view.community-admin.projects.menu.refresh"), MINUS_CIRCLE),
-						event -> loadGridContent()
-					);
+							getTranslation("view.project-admin.sites.revoke"), MINUS_CIRCLE),
+						event -> {
+						userSiteAccessService.removeAccess(resourceAccessModel.siteId, projectId, resourceAccessModel.userId);
+						loadGridContent();
+					});
 				}
 				else {
 					contextMenu.addItem(new MenuButton(
-							getTranslation("view.community-admin.projects.menu.refresh"), PLUS_CIRCLE),
-						event -> loadGridContent()
-					);
+							getTranslation("view.project-admin.sites.grant"), PLUS_CIRCLE),
+						event -> {
+							userSiteAccessService.addAccess(resourceAccessModel.siteId, projectId, resourceAccessModel.userId);
+							loadGridContent();
+						});
 				}
 				return new GridActionsButtonLayout(contextMenu.getTarget());
 			}
@@ -161,19 +148,11 @@ public class SitesView extends FurmsViewComponent {
 		})
 			.setHeader(getTranslation("view.project-admin.sites.grid.7"));
 
-
-		grid.setItems(loadData(), key -> loadNextLevelData(key.siteId));
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		loadGridContent();
 	}
 
-	private Map<FenixUserId, List<UserGrant>> loadUsersGrants() {
-		return resourceAccessService.findUsersGrants(getCurrentResourceId()).stream()
-			.collect(groupingBy(x -> new FenixUserId(x.userId)));
-	}
-
-	public boolean isGrantOrRevokeAvailable(FenixUserId userId) {
-		return loadUsersGrants().getOrDefault(userId, List.of()).stream()
-			.filter(x -> PENDING_AND_ACKNOWLEDGED_STATUES.contains(x.status))
-			.isEmpty();
+	private void loadGridContent() {
+		grid.setItems(loadData(), key -> loadNextLevelData(key.siteId));
 	}
 }

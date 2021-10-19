@@ -4,7 +4,7 @@
  */
 
 CREATE TABLE user_site_access (
-    id UUID PRIMARY KEY NOT,
+    id UUID PRIMARY KEY NOT NULL,
     site_id UUID NOT NULL,
     project_id UUID NOT NULL,
     user_id VARCHAR(255) NOT NULL,
@@ -14,5 +14,5 @@ CREATE TABLE user_site_access (
 );
 
 INSERT INTO user_site_access (site_id, project_id, user_id)
-SELECT uuid_in(md5(random()::text || clock_timestamp()::text)::cstring), DISTINCT(site_id, project_id, user_id)
-FROM user_grant
+SELECT RANDOM_UUID(), DISTINCT(site_id, project_id, user_id)
+FROM user_grant;

@@ -51,9 +51,9 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 			"from user_grant ua " +
 			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +
 			"join site s on s.id = ua.site_id " +
-			"where ua.user_id = :user_id and ua.site_id = :site_id and uaj.status = :status"
+			"where ua.project_id = :project_id"
 	)
-	Set<UserGrantReadEntity> findByUserIdAndSiteId(@Param("user_id") String userId, @Param("site_id") UUID siteId, @Param("status") int status);
+	Set<UserGrantReadEntity> findAllByProjectId(@Param("project_id") UUID projectId);
 
 
 	@Query(

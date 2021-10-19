@@ -19,7 +19,8 @@ import java.util.Set;
 public interface UserOperationRepository {
 	Set<String> findUserIds(String projectId);
 	Set<UserAddition> findAllUserAdditions(String projectId, String userId);
-	Set<UserAddition> findAllUserAdditions(String userId);
+	Set<UserAddition> findAllUserAdditions(String projectId);
+	Set<UserAddition> findAllUserAdditions(FenixUserId userId);
 	Set<UserAddition> findAllUserAdditionsBySiteId(String siteId);
 	Set<UserAddition> findAllUserAdditionsByProjectId(String projectId);
 	Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId);

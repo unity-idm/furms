@@ -6,7 +6,6 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -28,7 +27,6 @@ import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
-import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -407,16 +405,16 @@ class PolicyDocumentServiceImplTest {
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
+//		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		Mockito.verify(userOperationService).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
-			furmsUser,
-			Set.of(policyAcceptance),
-			Optional.of(policyDocument),
-			Set.of(servicePolicyDocument)
-		));
+//		Mockito.verify(userOperationService).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
+//			furmsUser,
+//			Set.of(policyAcceptance),
+//			Optional.of(policyDocument),
+//			Set.of(servicePolicyDocument)
+//		));
 	}
 
 	@Test
@@ -458,16 +456,16 @@ class PolicyDocumentServiceImplTest {
 		when(repository.findById(servicePolicyId)).thenReturn(Optional.of(servicePolicy));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
+//		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of(grantAccess));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		Mockito.verify(userOperationService, times(0)).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
-			furmsUser,
-			Set.of(policyAcceptance),
-			Optional.of(servicePolicy),
-			Set.of(servicePolicyDocument)
-		));
+//		Mockito.verify(userOperationService, times(0)).createUserAdditions(siteId, "projectId", new UserPolicyAcceptancesWithServicePolicies(
+//			furmsUser,
+//			Set.of(policyAcceptance),
+//			Optional.of(servicePolicy),
+//			Set.of(servicePolicyDocument)
+//		));
 	}
 
 	@Test
@@ -499,7 +497,7 @@ class PolicyDocumentServiceImplTest {
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
 		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of());
+//		when(resourceAccessRepository.findWaitingGrantAccesses(userId, "siteId")).thenReturn(Set.of());
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 

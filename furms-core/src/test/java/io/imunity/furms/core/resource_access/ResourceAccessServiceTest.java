@@ -7,8 +7,6 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.user_operation.UserOperationService;
-import io.imunity.furms.core.user_site_access.UserPoliciesDocumentsServiceHelper;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
@@ -80,7 +78,7 @@ class ResourceAccessServiceTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, notificationDAO, publisher);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService, notificationDAO, publisher, userOperationService);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService, notificationDAO, publisher);
 	}
 
 	@Test
@@ -157,8 +155,6 @@ class ResourceAccessServiceTest {
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
-		when(policyDocumentService.hasUserSitePolicyAcceptance(fenixUserId, "siteId")).thenReturn(true);
-		when(policyDocumentService.getUserPolicyAcceptancesWithServicePolicies("siteId", fenixUserId)).thenReturn(userPolicyAcceptancesWithServicePolicies);
 
 		service.grantAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
@@ -168,7 +164,6 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", userPolicyAcceptancesWithServicePolicies);
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 	}
@@ -193,9 +188,6 @@ class ResourceAccessServiceTest {
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
-		when(policyDocumentService.hasUserSitePolicyAcceptance(fenixUserId, "siteId")).thenReturn(true);
-		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(false);
-		when(policyDocumentService.getUserPolicyAcceptancesWithServicePolicies("siteId", fenixUserId)).thenReturn(userPolicyAcceptancesWithServicePolicies);
 
 		service.grantAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
@@ -205,7 +197,6 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(userOperationService).createUserAdditions(siteId, "projectId", userPolicyAcceptancesWithServicePolicies);
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 	}
@@ -224,7 +215,6 @@ class ResourceAccessServiceTest {
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
-		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(true);
 
 		service.grantAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager

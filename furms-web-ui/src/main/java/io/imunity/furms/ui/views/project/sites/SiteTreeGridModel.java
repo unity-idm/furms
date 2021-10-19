@@ -5,7 +5,7 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
-import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_site_access.UserSiteAccessStatusWithMessage;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
@@ -18,11 +18,10 @@ class SiteTreeGridModel {
 	public final FenixUserId userId;
 	public final String userName;
 	public final String userEmail;
-	public final String userStatus;
-	public final UserStatus userAccessStatus;
+	public final UserSiteAccessStatusWithMessage userAccessStatus;
 
 	SiteTreeGridModel(String siteId, String siteName, String status, String message, FenixUserId userId, String userName,
-	                  String userEmail, String userStatus, UserStatus userAccessStatus) {
+	                  String userEmail, UserSiteAccessStatusWithMessage userAccessStatus) {
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.status = status;
@@ -30,7 +29,6 @@ class SiteTreeGridModel {
 		this.userId = userId;
 		this.userName = userName;
 		this.userEmail = userEmail;
-		this.userStatus = userStatus;
 		this.userAccessStatus = userAccessStatus;
 	}
 
@@ -58,7 +56,6 @@ class SiteTreeGridModel {
 			", userId='" + userId + '\'' +
 			", userName='" + userName + '\'' +
 			", userEmail='" + userEmail + '\'' +
-			", userStatus='" + userStatus + '\'' +
 			", userAccessStatus='" + userAccessStatus + '\'' +
 			'}';
 	}
@@ -75,8 +72,7 @@ class SiteTreeGridModel {
 		private FenixUserId userId;
 		private String userName;
 		private String userEmail;
-		private String userStatus;
-		private UserStatus userAccessStatus;
+		private UserSiteAccessStatusWithMessage userAccessStatus;
 
 		private SiteTreeGridModelBuilder() {
 		}
@@ -116,18 +112,14 @@ class SiteTreeGridModel {
 			return this;
 		}
 
-		public SiteTreeGridModelBuilder userStatus(String userStatus) {
-			this.userStatus = userStatus;
-			return this;
-		}
 
-		public SiteTreeGridModelBuilder userAccessStatus(UserStatus userAccessStatus) {
+		public SiteTreeGridModelBuilder userAccessStatus(UserSiteAccessStatusWithMessage userAccessStatus) {
 			this.userAccessStatus = userAccessStatus;
 			return this;
 		}
 
 		public SiteTreeGridModel build() {
-			return new SiteTreeGridModel(siteId, siteName, status, message, userId, userName, userEmail, userStatus, userAccessStatus);
+			return new SiteTreeGridModel(siteId, siteName, status, message, userId, userName, userEmail, userAccessStatus);
 		}
 	}
 }

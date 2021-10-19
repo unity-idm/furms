@@ -9,9 +9,13 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
 
 @Repository
 class UserSiteAccessDatabaseRepository implements UserSiteAccessRepository {
@@ -25,7 +29,13 @@ class UserSiteAccessDatabaseRepository implements UserSiteAccessRepository {
 	public Set<String> findAllUserProjectIds(String siteId, FenixUserId userId) {
 		return userSiteAccessEntityRepository.findAllBySiteIdAndUserId(UUID.fromString(siteId), userId.id).stream()
 			.map(userSiteAccessEntity -> userSiteAccessEntity.projectId.toString())
-			.collect(Collectors.toSet());
+			.collect(toSet());
+	}
+
+	@Override
+	public Map<String, Set<FenixUserId>> findAllUserGroupedBySiteId(String projectId) {
+		return userSiteAccessEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+			.collect(groupingBy(x -> x.siteId.toString(), mapping(x -> new FenixUserId(x.userId), toSet())));
 	}
 
 	@Override

@@ -114,8 +114,8 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String siteId) {
-		return userGrantEntityRepository.findByUserIdAndSiteId(userId.id, UUID.fromString(siteId), AccessStatus.USER_INSTALLING.getPersistentId()).stream()
+	public Set<GrantAccess> findGrantAccessesBy(String projectId) {
+		return userGrantEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
 			.map(x -> GrantAccess.builder()
 				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
 				.fenixUserId(new FenixUserId(x.userId))
