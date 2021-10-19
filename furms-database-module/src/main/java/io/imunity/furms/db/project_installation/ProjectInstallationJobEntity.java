@@ -109,6 +109,11 @@ public class ProjectInstallationJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectInstallationJobEntityBuilder status(int status) {
+			this.status = status;
+			return this;
+		}
+
 		public ProjectInstallationJobEntityBuilder gid(String gid) {
 			this.gid = gid;
 			return this;
