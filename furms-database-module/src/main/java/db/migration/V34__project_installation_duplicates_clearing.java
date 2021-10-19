@@ -31,6 +31,10 @@ public class V34__project_installation_duplicates_clearing extends BaseJavaMigra
 	public void migrate(Context context) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
 			new SingleConnectionDataSource(context.getConnection(), true);
+		migrate(jdbcTemplate);
+	}
+
+	static void migrate(JdbcTemplate jdbcTemplate) {
 		List<ProjectSiteId> duplicatedIds = jdbcTemplate.query(
 			"SELECT pij.site_Id, pij.project_Id " +
 				"FROM project_installation_job pij " +

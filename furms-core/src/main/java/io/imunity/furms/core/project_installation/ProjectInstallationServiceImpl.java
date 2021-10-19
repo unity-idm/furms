@@ -85,7 +85,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 		LOG.info("ProjectInstallation was created: {}", projectInstallationJob);
 	}
 
-	private void update(SiteId siteId, Project project) {
+	private void createOrUpdate(SiteId siteId, Project project) {
 		FURMSUser leader = project.getLeaderId() != null
 			? usersDAO.findById(project.getLeaderId()).orElse(null)
 			: null;
@@ -121,7 +121,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
 			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId.id);
 			if(ProjectInstallationStatus.FAILED.equals(job.status)){
-				update(siteId, project);
+				createOrUpdate(siteId, project);
 				return;
 			}
 
