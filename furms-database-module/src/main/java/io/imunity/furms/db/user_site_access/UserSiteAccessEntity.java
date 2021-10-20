@@ -18,7 +18,7 @@ public class UserSiteAccessEntity extends UUIDIdentifiable {
 	public final UUID siteId;
 	public final String userId;
 
-	UserSiteAccessEntity(UUID projectId, UUID siteId, String userId) {
+	UserSiteAccessEntity(UUID siteId, UUID projectId, String userId) {
 		this.projectId = projectId;
 		this.siteId = siteId;
 		this.userId = userId;

@@ -49,6 +49,11 @@ class UserSiteAccessDatabaseRepository implements UserSiteAccessRepository {
 	}
 
 	@Override
+	public void remove(String projectId, FenixUserId userId){
+		userSiteAccessEntityRepository.deleteBy(UUID.fromString(projectId), userId.id);
+	}
+
+	@Override
 	public boolean exists(String siteId, String projectId, FenixUserId userId){
 		return userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
 	}

@@ -27,7 +27,7 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 	Optional<UserGrantResolved> findByUserIdAndProjectAllocationId(@Param("user_id") String userId, @Param("project_allocation_id") UUID projectAllocationId);
 
 	@Query(
-		"select ua.id as grant_id, ua.user_id as user_id, pa.project_id as project_id " +
+		"select ua.site_id as site_id, ua.id as grant_id, ua.user_id as user_id, pa.project_id as project_id " +
 			"from user_grant ua " +
 			"join project_allocation pa on pa.id = ua.project_allocation_id " +
 			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +
@@ -46,15 +46,7 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 
 	Set<UserGrantEntity> findByUserIdAndProjectId(String userId, UUID projectId);
 
-	@Query(
-		"select ua.*, s.external_id as site_external_id " +
-			"from user_grant ua " +
-			"join user_grant_job uaj on ua.id = uaj.user_grant_id " +
-			"join site s on s.id = ua.site_id " +
-			"where ua.project_id = :project_id"
-	)
-	Set<UserGrantReadEntity> findAllByProjectId(@Param("project_id") UUID projectId);
-
+	Set<UserGrantEntity> findByUserIdAndSiteIdAndProjectId(String userId, UUID siteId, UUID projectId);
 
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +

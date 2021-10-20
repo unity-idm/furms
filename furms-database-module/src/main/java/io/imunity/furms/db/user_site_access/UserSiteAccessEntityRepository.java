@@ -23,4 +23,7 @@ public interface UserSiteAccessEntityRepository extends CrudRepository<UserSiteA
 	@Query("DELETE FROM user_site_access WHERE site_id = :siteId AND project_id = :projectId AND user_id = :userId")
 	void deleteBy(@Param("siteId") UUID siteId, @Param("projectId") UUID projectId, @Param("userId") String userId);
 
+	@Modifying
+	@Query("DELETE FROM user_site_access WHERE project_id = :projectId AND user_id = :userId")
+	void deleteBy(@Param("projectId") UUID projectId, @Param("userId") String userId);
 }

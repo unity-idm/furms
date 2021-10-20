@@ -38,6 +38,7 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,8 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
+	@Autowired
+	private UserSiteAccessRepository userSiteAccessRepository;
 
 	private UUID siteId;
 
@@ -261,6 +264,9 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 
 		UUID projectId = UUID.fromString(projectRepository.create(project));
 
+		FenixUserId fenixUserId = new FenixUserId("id");
+		userSiteAccessRepository.add(siteId.toString(), projectId.toString(), fenixUserId);
+
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())
 			.name("serviceName")
@@ -307,7 +313,6 @@ class PolicyDocumentDatabaseRepositoryTest extends DBIntegrationTest {
 				.build()
 		));
 
-		FenixUserId fenixUserId = new FenixUserId("id");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.fenixUserId(fenixUserId)
 			.siteId(new SiteId(siteId.toString()))

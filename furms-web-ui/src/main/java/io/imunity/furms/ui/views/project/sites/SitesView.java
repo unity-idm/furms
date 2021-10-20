@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.project.sites;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -75,11 +76,15 @@ public class SitesView extends FurmsViewComponent {
 			.collect(Collectors.toSet());
 	}
 
-	private Set<SiteTreeGridModel> loadNextLevelData(UsersSitesAccesses usersSitesAccesses, String siteId) {
-		return  usersSitesAccesses.getUsersInstalledOnSite(siteId).stream()
+	private Set<SiteTreeGridModel> loadNextLevelData(UsersSitesAccesses usersSitesAccesses, SiteTreeGridModel model) {
+		if(model.userId != null)
+			return Set.of();
+		String siteId = model.siteId;
+		return  usersSitesAccesses.getUsersInstalledOnSite().stream()
 			.map(furmsUser -> SiteTreeGridModel.builder()
 				.siteId(siteId)
 				.userId(furmsUser.fenixUserId.get())
+				.userName(furmsUser.firstName.orElse("") + " " + furmsUser.lastName.orElse(""))
 				.userEmail(furmsUser.email)
 				.userAccessStatus(usersSitesAccesses.getStatus(siteId, furmsUser.fenixUserId.get()))
 				.build())
@@ -87,7 +92,7 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void fillGrid() {
-		grid.addHierarchyColumn(model -> model.siteName)
+		grid.addHierarchyColumn(model -> Optional.ofNullable(model.siteName).orElse(""))
 			.setHeader(getTranslation("view.project-admin.sites.grid.1"))
 			.setSortable(true)
 			.setFlexGrow(25);
@@ -149,7 +154,8 @@ public class SitesView extends FurmsViewComponent {
 			}
 
 		})
-			.setHeader(getTranslation("view.project-admin.sites.grid.7"));
+			.setHeader(getTranslation("view.project-admin.sites.grid.7"))
+			.setTextAlign(ColumnTextAlign.END);
 
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		loadGridContent();
@@ -162,7 +168,7 @@ public class SitesView extends FurmsViewComponent {
 			.filter(grid::isExpanded)
 			.collect(Collectors.toSet());
 
-		grid.setItems(rootItems, key -> loadNextLevelData(usersSitesAccesses, key.siteId));
+		grid.setItems(rootItems, key -> loadNextLevelData(usersSitesAccesses, key));
 		grid.expand(currentExpandedItems);
 	}
 }

@@ -25,6 +25,7 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ public class UserOperationService implements UserAllocationsService {
 	private final PolicyDocumentServiceHelper policyService;
 	private final SSHKeyService sshKeyService;
 	private final ResourceAccessRepository resourceAccessRepository;
-
+	private final UserSiteAccessRepository userSiteAccessRepository;
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService,
@@ -69,7 +70,8 @@ public class UserOperationService implements UserAllocationsService {
 	                     UsersDAO usersDAO,
 	                     PolicyDocumentServiceHelper policyService,
 	                     SSHKeyService sshKeyService,
-	                     ResourceAccessRepository resourceAccessRepository) {
+	                     ResourceAccessRepository resourceAccessRepository,
+	                     UserSiteAccessRepository userSiteAccessRepository) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
@@ -78,6 +80,7 @@ public class UserOperationService implements UserAllocationsService {
 		this.policyService = policyService;
 		this.sshKeyService = sshKeyService;
 		this.resourceAccessRepository = resourceAccessRepository;
+		this.userSiteAccessRepository = userSiteAccessRepository;
 	}
 
 	@Override
@@ -189,9 +192,9 @@ public class UserOperationService implements UserAllocationsService {
 		createUserRemovals(projectId, user);
 	}
 
-	public void createUserRemovals(String projectId, FenixUserId userId) {
+	public void createUserRemovals(String siteId, String projectId, FenixUserId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
-		createUserRemovals(projectId, user);
+		createUserRemovals(siteId, projectId, user);
 	}
 
 	private void createUserRemovals(String projectId, FURMSUser user) {
@@ -199,28 +202,40 @@ public class UserOperationService implements UserAllocationsService {
 		Set<UserAddition> allUserAdditions = repository.findAllUserAdditions(projectId, fenixUserId);
 		allUserAdditions.stream()
 			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
-			.forEach(userAddition -> {
-				if(userAddition.status.equals(ADDING_FAILED)) {
-					repository.delete(userAddition);
-					return;
-				}
-				UserAddition addition = UserAddition.builder()
-					.id(userAddition.id)
-					.userId(userAddition.userId)
-					.projectId(userAddition.projectId)
-					.siteId(userAddition.siteId)
-					.uid(userAddition.uid)
-					.correlationId(CorrelationId.randomID())
-					.status(REMOVAL_PENDING)
-					.build();
-				repository.update(addition);
-				runAfterCommit(() ->
-					siteAgentUserService.removeUser(addition)
-				);
-			});
+			.forEach(this::removeUser);
 		if(allUserAdditions.isEmpty()){
-			resourceAccessRepository.deleteByUserAndProjectId(new FenixUserId(fenixUserId), projectId);
+			FenixUserId userId = new FenixUserId(fenixUserId);
+			resourceAccessRepository.deleteByUserAndProjectId(userId, projectId);
+			userSiteAccessRepository.remove(projectId, userId);
 		}
+	}
+
+	private void createUserRemovals(String siteId, String projectId, FURMSUser user) {
+		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
+		repository.findUserAddition(siteId, projectId, fenixUserId)
+			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
+			.ifPresent(this::removeUser);
+			resourceAccessRepository.deleteByUserAndSiteIdAndProjectId(new FenixUserId(fenixUserId), siteId, projectId);
+	}
+
+	private void removeUser(UserAddition userAddition) {
+		if (userAddition.status.equals(ADDING_FAILED)) {
+			repository.delete(userAddition);
+			return;
+		}
+		UserAddition addition = UserAddition.builder()
+			.id(userAddition.id)
+			.userId(userAddition.userId)
+			.projectId(userAddition.projectId)
+			.siteId(userAddition.siteId)
+			.uid(userAddition.uid)
+			.correlationId(CorrelationId.randomID())
+			.status(REMOVAL_PENDING)
+			.build();
+		repository.update(addition);
+		runAfterCommit(() ->
+			siteAgentUserService.removeUser(addition)
+		);
 	}
 
 }

@@ -27,11 +27,11 @@ public interface ResourceAccessRepository {
 	boolean exists(GrantAccess grantAccess);
 	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
 	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId);
-	Set<GrantAccess> findGrantAccessesBy(String projectId);
 	AccessStatus findCurrentStatus(CorrelationId correlationId);
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);
 	void deleteByUserAndAllocationId(FenixUserId userId, String allocationId);
 	void deleteByUserAndProjectId(FenixUserId userId, String projectId);
+	void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
 	void deleteAll();
 }

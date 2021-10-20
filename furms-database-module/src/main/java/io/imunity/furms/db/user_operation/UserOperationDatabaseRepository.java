@@ -54,7 +54,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
-	
+
+	@Override
+	public Optional<UserAddition> findUserAddition(String siteId, String projectId, String userId) {
+		return userAdditionEntityRepository.findBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId)
+			.map(UserAdditionReadEntity::toUserAddition);
+	}
+
 	@Override
 	public Set<UserAddition> findAllUserAdditions(FenixUserId userId) {
 		return userAdditionEntityRepository.findAllByUserId(userId.id).stream()

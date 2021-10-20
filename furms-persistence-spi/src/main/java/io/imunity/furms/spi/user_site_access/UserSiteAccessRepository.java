@@ -15,5 +15,6 @@ public interface UserSiteAccessRepository {
 	Map<String, Set<FenixUserId>> findAllUserGroupedBySiteId(String projectId);
 	void add(String siteId, String projectId, FenixUserId userId);
 	void remove(String siteId, String projectId, FenixUserId userId);
+	void remove(String projectId, FenixUserId userId);
 	boolean exists(String siteId, String projectId, FenixUserId userId);
 }

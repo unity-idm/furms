@@ -60,7 +60,7 @@ class UserAllocationStatusUpdaterTest {
 
 		FenixUserId userId = new FenixUserId("userId");
 		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("grantId", "projectId", userId)));
+			.thenReturn(Optional.of(new ProjectUserGrant("siteId", "grantId", "projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
@@ -165,7 +165,7 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
@@ -178,12 +178,12 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 		FenixUserId fenixUserId = new FenixUserId("userId");
 		when(repository.findUserGrantsByProjectIdAndFenixUserId("projectId", fenixUserId)).thenReturn(Set.of());
 		service.update(correlationId, REVOKED, "msg");
 
-		orderVerifier.verify(userOperationService).createUserRemovals("projectId", fenixUserId);
+		orderVerifier.verify(userOperationService).createUserRemovals("siteId", "projectId", fenixUserId);
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
 		verify(repository, times(0)).update(correlationId, REVOKED, "msg");
 	}

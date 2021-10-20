@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.user_site_access;
 
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
@@ -18,6 +17,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,16 +28,16 @@ class UserPoliciesDocumentsServiceHelper {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final SiteRepository siteRepository;
-	private final UserService userService;
+	private final UsersDAO usersDAO;
 
 	UserPoliciesDocumentsServiceHelper(PolicyDocumentRepository policyDocumentRepository,
 	                                   PolicyDocumentDAO policyDocumentDAO,
 	                                   SiteRepository siteRepository,
-	                                   UserService userService) {
+	                                   UsersDAO usersDAO) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.siteRepository = siteRepository;
-		this.userService = userService;
+		this.usersDAO = usersDAO;
 	}
 
 	PolicyDocument findById(PolicyId id) {
@@ -73,7 +73,7 @@ class UserPoliciesDocumentsServiceHelper {
 	}
 
 	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(String siteId, FenixUserId fenixUserId) {
-		FURMSUser user = userService.findByFenixUserId(fenixUserId)
+		FURMSUser user = usersDAO.findById(fenixUserId)
 			.orElseThrow(() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
 
 		Site site = siteRepository.findById(siteId)
