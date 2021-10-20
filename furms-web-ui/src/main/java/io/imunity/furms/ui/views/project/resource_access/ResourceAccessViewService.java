@@ -37,7 +37,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-public class ResourceAccessViewService {
+class ResourceAccessViewService {
 	public final String projectId;
 	public final String communityId;
 
@@ -48,7 +48,7 @@ public class ResourceAccessViewService {
 	public Map<ResourceAccessModel, List<ResourceAccessModel>> data;
 	public Map<Pair<String, String>, UserGrant> usersGrants;
 
-	public ResourceAccessViewService(ProjectService projectService, ProjectAllocationService projectAllocationService,
+	ResourceAccessViewService(ProjectService projectService, ProjectAllocationService projectAllocationService,
 	                          ResourceAccessService resourceAccessService, String projectId) {
 		this.projectId = projectId;
 		this.communityId = getResultOrException(() -> projectService.findById(projectId))

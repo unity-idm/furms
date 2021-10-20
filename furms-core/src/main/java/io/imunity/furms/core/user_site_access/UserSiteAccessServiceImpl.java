@@ -6,6 +6,7 @@
 package io.imunity.furms.core.user_site_access;
 
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
+import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -33,6 +34,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
 class UserSiteAccessServiceImpl implements UserSiteAccessService {
@@ -65,6 +70,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addAccess(String siteId, String projectId, FenixUserId userId) {
 		if(!userSiteAccessRepository.exists(siteId, projectId, userId)) {
 			Site site = siteRepository.findById(siteId)
@@ -86,6 +92,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeAccess(String siteId, String projectId, FenixUserId userId) {
 		LOG.info("Manual removing user {} access to project {} on site {}", userId, projectId, siteId);
 		if(userSiteAccessRepository.exists(siteId, projectId, userId)) {
@@ -95,6 +102,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 	}
 
 	@Override
+	@Transactional
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public UsersSitesAccesses getUsersSitesAccesses(String projectId) {
 		Project project = projectRepository.findById(projectId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Project id %s doesn't exist", projectId)));
