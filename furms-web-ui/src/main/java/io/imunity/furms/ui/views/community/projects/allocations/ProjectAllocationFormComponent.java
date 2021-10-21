@@ -161,7 +161,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		if(model.getAmount() != null)
 			lastAmount = model.getAmount();
 		binder.setBean(model);
-		defaultNameField.activeDefaultName(model.getProjectName(), occupiedNamesGetter, model.getId() == null, model.getName());
+		defaultNameField.reloadName(model.getProjectName(), occupiedNamesGetter, model.getId() == null, model.getName());
 		if(model.getResourceType() != null)
 			resourceTypeComboBox.setEnabled(false);
 		else

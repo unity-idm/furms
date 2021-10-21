@@ -34,10 +34,13 @@ public class DefaultNameField extends CustomField<String> {
 		textField.setValueChangeMode(EAGER);
 		textField.setMaxLength(20);
 		textField.getStyle().set("margin", "0");
+		textField.setReadOnly(true);
 
 		checkbox = new Checkbox(getTranslation("component.default-name-field.checkbox.text"));
 		checkbox.addValueChangeListener(event -> textField.setReadOnly(event.getValue()));
 		checkbox.getStyle().set("margin", "0");
+		checkbox.setValue(true);
+
 
 		Div div = new Div(textField, checkbox);
 		div.getStyle().set("display", "flex");
@@ -60,7 +63,18 @@ public class DefaultNameField extends CustomField<String> {
 		return textField.isReadOnly();
 	}
 
-	public void activeDefaultName(String resourceName, Supplier<Set<String>> occupiedNamesGetter, boolean initialValue, String currentName){
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		textField.setReadOnly(readOnly);
+		checkbox.setValue(readOnly);
+	}
+	public void reloadName(String resourceName, Supplier<Set<String>> occupiedNamesGetter, boolean initialValue, String currentName) {
+		reloadName(resourceName, occupiedNamesGetter, currentName);
+		textField.setReadOnly(initialValue);
+		checkbox.setValue(initialValue);
+	}
+
+	public void reloadName(String resourceName, Supplier<Set<String>> occupiedNamesGetter, String currentName) {
 		this.currentName = Optional.ofNullable(currentName);
 		this.resourceName = Optional.ofNullable(resourceName).orElse("");
 		this.occupiedNamesGetter = occupiedNamesGetter;
@@ -70,16 +84,19 @@ public class DefaultNameField extends CustomField<String> {
 			if(event.getValue())
 				generateName();
 		});
-		checkbox.setValue(initialValue);
-		textField.setReadOnly(initialValue);
+		if(checkbox.getValue())
+			generateName();
 	}
 
 	public void generateName(String resourceName) {
 		this.resourceName = resourceName;
-		generateName();
+		if(isReadOnly())
+			generateName();
 	}
 
 	public void generateName() {
+		if(resourceName.isEmpty())
+			return;
 		Set<String> names = occupiedNamesGetter.get();
 		currentName.ifPresent(names::remove);
 		String name;
