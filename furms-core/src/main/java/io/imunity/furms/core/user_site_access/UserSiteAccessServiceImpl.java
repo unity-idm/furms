@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.user_site_access;
 
+import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
@@ -13,16 +14,20 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
+import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.user_site_access.UsersSitesAccesses;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
@@ -34,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
@@ -51,6 +57,9 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 	private final ProjectRepository projectRepository;
 	private final SiteRepository siteRepository;
 	private final ApplicationEventPublisher publisher;
+	private final ProjectAllocationRepository projectAllocationRepository;
+	private final ResourceAccessRepository resourceAccessRepository;
+
 
 
 	UserSiteAccessServiceImpl(UserSiteAccessRepository userSiteAccessRepository,
@@ -151,6 +160,28 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 				grantAccess.projectId,
 				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
 			);
+		}
+	}
+
+	@EventListener
+	void onUserGrantRevoke(UserGrantRemovedEvent event) {
+		GrantAccess grantAccess = event.grantAccess;
+		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId) &&
+			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId).stream()
+				.noneMatch(projectAllocation -> projectAllocation.resourceType.accessibleForAllProjectMembers)
+		) {
+			removeAccess(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+		}
+	}
+
+	@EventListener
+	void onUserGrantRevoke(ResourceRemovedEvent event) {
+		GrantAccess grantAccess = event.grantAccess;
+		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId) &&
+			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId).stream()
+				.noneMatch(projectAllocation -> projectAllocation.resourceType.accessibleForAllProjectMembers)
+		) {
+			removeAccess(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
 		}
 	}
 

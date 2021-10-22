@@ -59,6 +59,11 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.collect(Collectors.toSet());
 	}
 
+	@Override
+	public boolean existsBySiteIdAndProjectIdAndFenixUserId(String siteId, String projectId, FenixUserId fenixUserId) {
+		return userGrantEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), fenixUserId.id);
+	}
+
 	private UserGrant map(UserGrantResolved userAllocationResolved) {
 		return UserGrant.builder()
 			.projectAllocationId(userAllocationResolved.allocation.projectAllocationId.toString())

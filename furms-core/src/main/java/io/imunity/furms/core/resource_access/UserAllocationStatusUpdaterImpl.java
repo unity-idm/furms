@@ -41,6 +41,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
 			if(repository.findUserGrantsByProjectIdAndFenixUserId(projectUserGrant.projectId, projectUserGrant.userId).isEmpty())
 				userOperationService.createUserRemovals(projectUserGrant.siteId, projectUserGrant.projectId, projectUserGrant.userId);
+			asd
 			repository.deleteByCorrelationId(correlationId);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;

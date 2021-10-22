@@ -15,6 +15,7 @@ import java.util.UUID;
 
 public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntity, UUID> {
 	Set<UserGrantEntity> findAllBySiteId(UUID siteId);
+	boolean existsBySiteIdAndProjectIdAndUserId(UUID siteId, UUID projectId, String userId);
 
 	@Query(
 		"select ua.id as allocation_id, ua.site_id as allocation_site_id, ua.project_Id as allocation_project_Id, " +

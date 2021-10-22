@@ -21,6 +21,7 @@ public interface ResourceAccessRepository {
 	Set<FenixUserId> findUsersBySiteId(String siteId);
 	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
 	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
+	boolean existsBySiteIdAndProjectIdAndFenixUserId(String siteId, String projectId, FenixUserId fenixUserId);
 	UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);

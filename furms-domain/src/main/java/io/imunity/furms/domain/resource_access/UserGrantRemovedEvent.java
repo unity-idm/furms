@@ -9,10 +9,10 @@ import io.imunity.furms.domain.FurmsEvent;
 
 import java.util.Objects;
 
-public class UserGrantAddedEvent implements FurmsEvent {
+public class UserGrantRemovedEvent implements FurmsEvent {
 	public final GrantAccess grantAccess;
 
-	public UserGrantAddedEvent(GrantAccess grantAccess) {
+	public UserGrantRemovedEvent(GrantAccess grantAccess) {
 		this.grantAccess = grantAccess;
 	}
 
@@ -20,7 +20,7 @@ public class UserGrantAddedEvent implements FurmsEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserGrantAddedEvent that = (UserGrantAddedEvent) o;
+		UserGrantRemovedEvent that = (UserGrantRemovedEvent) o;
 		return Objects.equals(grantAccess, that.grantAccess);
 	}
 
@@ -31,7 +31,7 @@ public class UserGrantAddedEvent implements FurmsEvent {
 
 	@Override
 	public String toString() {
-		return "UserGrantAddedEvent{" +
+		return "UserGrantRemovedEvent{" +
 			"grantAccess=" + grantAccess +
 			'}';
 	}
