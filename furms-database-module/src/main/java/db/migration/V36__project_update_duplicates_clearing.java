@@ -36,8 +36,22 @@ public class V36__project_update_duplicates_clearing extends BaseJavaMigration {
 				UUID.fromString(rs.getString("project_id")))
 		);
 
-		duplicatedIds.stream()
-			.peek(projectSiteId -> LOG.warn("All updates with this ids {} will be removed", projectSiteId))
+		duplicatedIds
+			.forEach(projectSiteId ->
+				jdbcTemplate.query(
+					"SELECT * FROM project_update_job WHERE site_id = ? AND project_id = ?",
+					new Object[] {projectSiteId.siteId, projectSiteId.projectId},
+					(rs, rowNum) -> {
+						StringBuilder row = new StringBuilder();
+						for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+							row.append(rs.getString(i)).append(" | ");
+						}
+						LOG.warn("This row: {} will be removed", row.toString());
+						return null;
+					})
+			);
+
+		duplicatedIds
 			.forEach(projectSiteId -> jdbcTemplate.update("DELETE FROM project_update_job WHERE site_id = ? AND project_id = ?", new Object[] {projectSiteId.siteId, projectSiteId.projectId}));
 	}
 }
