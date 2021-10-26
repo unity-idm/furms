@@ -10,11 +10,14 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.unity.client.users.UserService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -26,6 +29,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 class EmailNotificationDAO implements NotificationDAO {
@@ -40,16 +44,21 @@ class EmailNotificationDAO implements NotificationDAO {
 	private static final String APPLICATIONS_URL = "/front/project/admin/users?resourceId=";
 
 	private final UserService userService;
+	private final UserOperationRepository userOperationRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final EmailNotificationProperties emailNotificationProperties;
 	private final ApplicationEventPublisher publisher;
 	private final ResourceBundle bundle;
 
-
-	EmailNotificationDAO(UserService userService, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
-	                     EmailNotificationProperties emailNotificationProperties, ApplicationEventPublisher publisher) {
+	EmailNotificationDAO(UserService userService,
+	                     UserOperationRepository userOperationRepository,
+	                     PolicyDocumentDAO policyDocumentDAO,
+	                     PolicyDocumentRepository policyDocumentRepository,
+	                     EmailNotificationProperties emailNotificationProperties,
+	                     ApplicationEventPublisher publisher) {
 		this.userService = userService;
+		this.userOperationRepository = userOperationRepository;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.emailNotificationProperties = emailNotificationProperties;
@@ -126,6 +135,22 @@ class EmailNotificationDAO implements NotificationDAO {
 	}
 
 	@Override
+	public void notifyAllUsersAboutPolicyAssignmentChange(SiteId siteId) {
+		final PolicyDocument sitePolicy = policyDocumentRepository.findSitePolicy(siteId.id)
+				.orElseThrow(() -> new IllegalArgumentException("Site hasn't policy document attached."));
+
+		notifyAllSiteUsersAboutPolicyAssignmentChange(siteId, sitePolicy);
+	}
+
+	@Override
+	public void notifyAllUsersAboutPolicyAssignmentChange(InfraService infraService) {
+		final PolicyDocument servicePolicy = policyDocumentRepository.findById(infraService.policyId)
+				.orElseThrow(() -> new IllegalArgumentException("Service hasn't policy document attached."));
+
+		notifyAllSiteUsersAboutPolicyAssignmentChange(new SiteId(infraService.siteId), servicePolicy);
+	}
+
+	@Override
 	public void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId userId, String grantId) {
 		PersistentId persistentId = userService.getPersistentId(userId);
 
@@ -150,5 +175,30 @@ class EmailNotificationDAO implements NotificationDAO {
 					Map.of(NAME_ATTRIBUTE, policyDocumentExtended.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL)
 				)
 			);
+	}
+
+	private void notifyAllSiteUsersAboutPolicyAssignmentChange(SiteId siteId, PolicyDocument policy) {
+		Stream.concat(
+				userOperationRepository.findAllUserAdditionsBySiteId(siteId.id).stream()
+						.map(addition -> addition.userId)
+						.map(FenixUserId::new),
+				userService.findAllSiteUsers(siteId).stream())
+				.distinct()
+				.filter(fenixUserId -> policyDocumentDAO.getPolicyAcceptances(fenixUserId).stream()
+						.noneMatch(acceptance -> isCurrentRevisionAccepted(policy, acceptance)))
+				.forEach(fenixUserId -> {
+					final PersistentId persistentId = userService.getPersistentId(fenixUserId);
+					userService.sendUserNotification(
+							persistentId,
+							emailNotificationProperties.newPolicyAcceptanceTemplateId,
+							Map.of(NAME_ATTRIBUTE, policy.name,
+									URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL));
+					publisher.publishEvent(new UserPendingPoliciesChangedEvent(fenixUserId));
+				});
+	}
+
+	private boolean isCurrentRevisionAccepted(PolicyDocument sitePolicy, PolicyAcceptance acceptance) {
+		return acceptance.policyDocumentId.equals(sitePolicy.id)
+				&& acceptance.policyDocumentRevision == sitePolicy.revision;
 	}
 }

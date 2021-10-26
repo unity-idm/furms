@@ -18,6 +18,7 @@ import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -27,6 +28,7 @@ import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -87,6 +89,8 @@ class SiteServiceImplTest {
 	@Mock
 	private CapabilityCollector capabilityCollector;
 	@Mock
+	private NotificationDAO notificationDAO;
+	@Mock
 	private InvitatoryService invitatoryService;
 	
 	@BeforeEach
@@ -94,7 +98,7 @@ class SiteServiceImplTest {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
 				siteAgentService, siteAgentStatusService, userOperationRepository, policyDocumentRepository,
-				siteAgentPolicyDocumentService, capabilityCollector, invitatoryService);
+				siteAgentPolicyDocumentService, capabilityCollector, notificationDAO, invitatoryService);
 	}
 
 	@Test
@@ -229,10 +233,12 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(1)
 			.build();
+		final String tempId = "tempId";
 		when(repository.exists(newSite.getId())).thenReturn(true);
-		when(repository.isNamePresentIgnoringRecord(newSite.getName(), newSite.getId())).thenReturn(false);
-		when(repository.update(newSite)).thenReturn(newSite.getId());
-		when(repository.findById(newSite.getId())).thenReturn(Optional.of(oldSite));
+		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
+		when(repository.findById(eq(oldSite.getId()))).thenReturn(Optional.of(oldSite));
+		when(repository.update(any())).thenReturn(tempId);
+		when(repository.findById(tempId)).thenReturn(Optional.of(newSite));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		//when
@@ -244,6 +250,7 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(1)
 			.build());
+		verify(notificationDAO, times(1)).notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
 	}
 
 	@Test
@@ -268,10 +275,12 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(1)
 			.build();
+		final String tempId = "tempId";
 		when(repository.exists(newSite.getId())).thenReturn(true);
-		when(repository.isNamePresentIgnoringRecord(newSite.getName(), newSite.getId())).thenReturn(false);
-		when(repository.update(newSite)).thenReturn(newSite.getId());
-		when(repository.findById(newSite.getId())).thenReturn(Optional.of(oldSite));
+		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
+		when(repository.findById(oldSite.getId())).thenReturn(Optional.of(oldSite));
+		when(repository.update(any())).thenReturn(tempId);
+		when(repository.findById(tempId)).thenReturn(Optional.of(newSite));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		//when
@@ -283,6 +292,7 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(-1)
 			.build());
+		verify(notificationDAO, times(0)).notifyAllUsersAboutPolicyAssignmentChange(any(SiteId.class));
 	}
 
 	@Test
