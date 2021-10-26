@@ -197,7 +197,14 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			policyAcceptance = getPolicyWithCurrentRevision(policyAcceptance, policyDocumentId, policyDocument);
 
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
+		updateUsersPolicyAcceptance(user, userId, policyDocument);
 
+		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
+		publisher.publishEvent(new UserAcceptedPolicyEvent(userId, policyAcceptance));
+		LOG.debug("Added Policy Document id={} for user id={}", policyDocumentId.id, userId.id);
+	}
+
+	private void updateUsersPolicyAcceptance(FURMSUser user, FenixUserId userId, PolicyDocument policyDocument) {
 		if(userRepository.isUserInstalledOnSite(userId, policyDocument.siteId)) {
 			Site site = siteRepository.findById(policyDocument.siteId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", policyDocument.siteId)));
@@ -212,10 +219,6 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 				site.getExternalId(), new UserPolicyAcceptancesWithServicePolicies(user, policyAcceptances, sitePolicyDocument, allAssignPoliciesBySiteId)
 			);
 		}
-
-		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
-		publisher.publishEvent(new UserAcceptedPolicyEvent(userId, policyAcceptance));
-		LOG.debug("Added Policy Document id={} for user id={}", policyDocumentId.id, userId.id);
 	}
 
 	private PolicyAcceptance getPolicyWithCurrentRevision(PolicyAcceptance policyAcceptance, PolicyId policyDocumentId, PolicyDocument policyDocument) {

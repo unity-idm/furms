@@ -5,14 +5,17 @@
 
 package io.imunity.furms.core.resource_access;
 
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
+import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +26,11 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ResourceAccessRepository repository;
-	private final UserOperationService userOperationService;
+	private final ApplicationEventPublisher publisher;
 
-	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, UserOperationService userOperationService) {
+	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, ApplicationEventPublisher publisher) {
 		this.repository = repository;
-		this.userOperationService = userOperationService;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -39,10 +42,13 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 		if(status.equals(AccessStatus.REVOKED)) {
 			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
-			if(repository.findUserGrantsByProjectIdAndFenixUserId(projectUserGrant.projectId, projectUserGrant.userId).isEmpty())
-				userOperationService.createUserRemovals(projectUserGrant.siteId, projectUserGrant.projectId, projectUserGrant.userId);
-			asd
 			repository.deleteByCorrelationId(correlationId);
+			publisher.publishEvent(new UserGrantRemovedEvent(GrantAccess.builder()
+				.siteId(new SiteId(projectUserGrant.siteId))
+				.projectId(projectUserGrant.projectId)
+				.fenixUserId(projectUserGrant.userId)
+				.build())
+			);
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}

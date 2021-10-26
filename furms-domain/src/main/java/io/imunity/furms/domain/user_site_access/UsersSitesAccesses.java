@@ -22,15 +22,15 @@ import static java.util.stream.Collectors.toMap;
 public class UsersSitesAccesses {
 	private final List<FURMSUser> users;
 	private final Map<String, Set<FenixUserId>> userSiteAccesses;
-	private final Map<String, Map<FenixUserId, UserSiteAccessStatusWithMessage>> userInstallations;
+	private final Map<String, Map<FenixUserId, UserSiteAccessStatusWithMessage>> userInstallationBySite;
 
 	public UsersSitesAccesses(List<FURMSUser> allUsers, Map<String, Set<FenixUserId>> allUserGroupedBySiteId, Set<UserAddition> userAdditions) {
 		this.users = allUsers.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(Collectors.toList());
-		this.userSiteAccesses = allUserGroupedBySiteId;
+		this.userSiteAccesses = Map.copyOf(allUserGroupedBySiteId);
 
-		this.userInstallations = userAdditions.stream()
+		this.userInstallationBySite = userAdditions.stream()
 			.collect(groupingBy(x -> x.siteId.id,
 				toMap(x -> new FenixUserId(x.userId), x -> new UserSiteAccessStatusWithMessage(x.errorMessage.map(z -> z.message).orElse(null), getStatus(x.status))))
 			);
@@ -40,14 +40,14 @@ public class UsersSitesAccesses {
 		switch (x){
 			case ADDING_PENDING:
 			case ADDING_ACKNOWLEDGED:
-				return UserSiteAccessStatus.APPLYING_PENDING;
+				return UserSiteAccessStatus.ENABLING_PENDING;
 			case ADDED:
-				return UserSiteAccessStatus.APPLIED;
+				return UserSiteAccessStatus.ENABLED;
 			case REMOVAL_PENDING:
 			case REMOVAL_ACKNOWLEDGED:
 				return UserSiteAccessStatus.DISABLING_PENDING;
 			case ADDING_FAILED:
-				return UserSiteAccessStatus.APPLYING_FAILED;
+				return UserSiteAccessStatus.ENABLING_FAILED;
 			case REMOVAL_FAILED:
 				return UserSiteAccessStatus.DISABLING_FAILED;
 			case REMOVED:
@@ -62,11 +62,11 @@ public class UsersSitesAccesses {
 	}
 
 	public UserSiteAccessStatusWithMessage getStatus(String siteId, FenixUserId userId){
-		return Optional.ofNullable(userInstallations.get(siteId))
+		return Optional.ofNullable(userInstallationBySite.get(siteId))
 			.flatMap(map -> Optional.ofNullable(map.get(userId)))
 			.orElse(
 				userSiteAccesses.getOrDefault(siteId, Set.of()).contains(userId) ?
-					new UserSiteAccessStatusWithMessage(UserSiteAccessStatus.APPLYING_PENDING) :
+					new UserSiteAccessStatusWithMessage(UserSiteAccessStatus.ENABLING_PENDING) :
 					new UserSiteAccessStatusWithMessage(UserSiteAccessStatus.DISABLED)
 			);
 	}

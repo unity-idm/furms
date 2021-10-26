@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.user_site_access;
 
-import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
@@ -14,7 +13,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
@@ -60,13 +58,14 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ResourceAccessRepository resourceAccessRepository;
 
-
-
 	UserSiteAccessServiceImpl(UserSiteAccessRepository userSiteAccessRepository,
 	                          UserPoliciesDocumentsServiceHelper policyDocumentService,
 	                          UserOperationService userOperationService, UserOperationRepository userRepository,
 	                          ProjectGroupsDAO projectGroupsDAO, ProjectRepository projectRepository,
-	                          SiteRepository siteRepository, ApplicationEventPublisher publisher) {
+	                          SiteRepository siteRepository,
+	                          ProjectAllocationRepository projectAllocationRepository,
+		                      ResourceAccessRepository resourceAccessRepository,
+	                          ApplicationEventPublisher publisher) {
 		this.userSiteAccessRepository = userSiteAccessRepository;
 		this.policyDocumentService = policyDocumentService;
 		this.userOperationService = userOperationService;
@@ -74,6 +73,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.siteRepository = siteRepository;
+		this.projectAllocationRepository = projectAllocationRepository;
+		this.resourceAccessRepository = resourceAccessRepository;
 		this.publisher = publisher;
 	}
 
@@ -87,7 +88,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 
 			userSiteAccessRepository.add(siteId, projectId, userId);
 
-			if (hasUserSitePolicyAcceptanceOrSiteHasntPolicy(siteId, userId))
+			if(hasUserSitePolicyAcceptanceOrSiteHasntPolicy(siteId, userId))
 				userOperationService.createUserAdditions(
 					new SiteId(siteId, site.getExternalId()),
 					projectId, policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(siteId, userId)
@@ -166,17 +167,15 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 	@EventListener
 	void onUserGrantRevoke(UserGrantRemovedEvent event) {
 		GrantAccess grantAccess = event.grantAccess;
-		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId) &&
-			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId).stream()
-				.noneMatch(projectAllocation -> projectAllocation.resourceType.accessibleForAllProjectMembers)
-		) {
-			removeAccess(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
-		}
+		removeAccess(grantAccess);
 	}
 
 	@EventListener
-	void onUserGrantRevoke(ResourceRemovedEvent event) {
-		GrantAccess grantAccess = event.grantAccess;
+	void onProjectAllocationRemove(ProjectDeallocationEvent event) {
+		event.relatedGrantAccesses.forEach(this::removeAccess);
+	}
+
+	private void removeAccess(GrantAccess grantAccess) {
 		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId) &&
 			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId).stream()
 				.noneMatch(projectAllocation -> projectAllocation.resourceType.accessibleForAllProjectMembers)

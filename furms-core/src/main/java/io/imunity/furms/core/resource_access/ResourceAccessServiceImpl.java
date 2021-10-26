@@ -14,7 +14,6 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -155,7 +154,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		runAfterCommit(() ->
 			siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess)
 		);
-		publisher.publishEvent(new UserGrantRemovedEvent(grantAccess));
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}
 }

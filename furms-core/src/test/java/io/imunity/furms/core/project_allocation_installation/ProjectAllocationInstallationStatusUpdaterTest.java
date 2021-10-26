@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -17,11 +16,13 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -35,7 +36,9 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Mock
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Mock
-	private UserOperationService userOperationService;
+	private ResourceAccessRepository resourceAccessRepository;
+	@Mock
+	private ApplicationEventPublisher publisher;
 
 
 	private ProjectAllocationInstallationStatusUpdaterImpl service;
@@ -44,7 +47,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository);
+		service = new ProjectAllocationInstallationStatusUpdaterImpl(repository, projectAllocationRepository, resourceAccessRepository, publisher);
 		orderVerifier = inOrder(repository);
 	}
 

@@ -119,6 +119,18 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
+	public Set<GrantAccess> findGrantAccessesBy(String siteId, String projectAllocationId) {
+		return userGrantEntityRepository.findBySiteIdAndProjectAllocationId(UUID.fromString(siteId), UUID.fromString(projectAllocationId)).stream()
+			.map(x -> GrantAccess.builder()
+				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
+				.fenixUserId(new FenixUserId(x.userId))
+				.projectId(x.projectId.toString())
+				.allocationId(x.projectAllocationId.toString())
+				.build())
+			.collect(Collectors.toSet());
+	}
+
+	@Override
 	public AccessStatus findCurrentStatus(CorrelationId correlationId) {
 		return userGrantJobEntityRepository
 			.findByCorrelationId(UUID.fromString(correlationId.id))
