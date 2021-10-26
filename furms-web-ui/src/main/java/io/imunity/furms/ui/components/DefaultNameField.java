@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 public class DefaultNameField extends CustomField<String> {
-	private static final DateTimeFormatter DD_MM_YY_FORMAT = DateTimeFormatter.ofPattern("ddMMyy");
+	private static final DateTimeFormatter DD_MM_YY_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 	private static final int MAX_NAME_SIZE = 20;
 	public final TextField textField;
 	public final Checkbox checkbox;
