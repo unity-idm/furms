@@ -63,10 +63,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		amountField.setValueChangeMode(EAGER);
 		amountField.setMaxLength(MAX_NAME_LENGTH);
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
-		resourceTypeComboBox.addValueChangeListener(event -> {
-			if(defaultNameField.isReadOnly())
-				defaultNameField.generateName(event.getValue().name);
-		});
+		resourceTypeComboBox.addValueChangeListener(event -> defaultNameField.generateName(event.getValue().name));
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));
 
 		startTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
@@ -135,8 +132,8 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	}
 
 	public void setFormPools(ResourceCreditViewModel resourceCreditViewModel, boolean blockTimeChange, Supplier<Set<String>> occupiedNamesGetter) {
+		defaultNameField.reloadName(resourceCreditViewModel.getResourceTypeName(), occupiedNamesGetter, resourceCreditViewModel.getId() == null, resourceCreditViewModel.getName());
 		binder.setBean(resourceCreditViewModel);
-		defaultNameField.activeDefaultName(resourceCreditViewModel.getResourceTypeName(), occupiedNamesGetter, resourceCreditViewModel.getId() == null, resourceCreditViewModel.getName());
 		if(blockTimeChange){
 			startTimePicker.setReadOnly(true);
 			endTimePicker.setReadOnly(true);

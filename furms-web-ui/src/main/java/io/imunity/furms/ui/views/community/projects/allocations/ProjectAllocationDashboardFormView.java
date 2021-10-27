@@ -12,7 +12,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
@@ -23,12 +22,12 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
-import io.imunity.furms.ui.components.support.models.ComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
@@ -51,12 +50,11 @@ import static java.util.stream.Collectors.toSet;
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
 public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 
-	private final static int MAX_NAME_LENGTH = 25;
-
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectService projectService;
 
 	private final Binder<ProjectAllocationViewModel> binder;
+	private final DefaultNameField nameField;
 
 	private BigDecimal availableAmount;
 
@@ -65,10 +63,13 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		this.projectAllocationService = projectAllocationService;
 		this.projectService = projectService;
 		this.binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
+		this.nameField = nameField();
 
-		binder.setBean(createViewModel());
+		ProjectAllocationViewModel viewModel = createViewModel();
+		binder.setBean(viewModel);
+		nameField.setReadOnly(true);
 
-		addForm();
+		addForm(nameField);
 		addButtons();
 	}
 
@@ -84,12 +85,12 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 				.build();
 	}
 
-	private void addForm() {
+	private void addForm(DefaultNameField nameField) {
 		final FormLayout formLayout = new FurmsFormLayout();
 
 		final Label availableAmountLabel = new Label();
 
-		formLayout.addFormItem(nameField(),
+		formLayout.addFormItem(nameField,
 				getTranslation("view.community-admin.project-allocation.form.field.name"));
 		formLayout.addFormItem(projectsField(),
 				getTranslation("view.community-admin.project-allocation.form.field.projects"));
@@ -138,10 +139,8 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		}
 	}
 
-	private TextField nameField() {
-		final TextField nameField = new TextField();
-		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
+	private DefaultNameField nameField() {
+		final DefaultNameField nameField = new DefaultNameField();
 		binder.forField(nameField)
 				.withValidator(
 						value -> Objects.nonNull(value) && !value.isBlank(),
@@ -154,9 +153,14 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	private ComboBox<ComboBoxModel> projectsField() {
 		final Set<ComboBoxModel> items = projectService.findAllNotExpiredByCommunityId(binder.getBean().getCommunityId())
 				.stream()
-				.map(item -> new ComboBoxModel(item.getId(), item.getName()))
+				.map(item -> new ComboBoxModel(item.getId(), item.getCommunityId(), item.getName()))
 				.collect(toSet());
 		final ComboBox<ComboBoxModel> projectsComboBox = new ComboBox<>();
+		projectsComboBox.addValueChangeListener(event -> nameField.reloadName(
+			event.getValue().getName(),
+			() -> projectAllocationService.getOccupiedNames(event.getValue().getCommunityId(), event.getValue().getId()),
+			null)
+		);
 		projectsComboBox.setItemLabelGenerator(ComboBoxModel::getName);
 		projectsComboBox.setItems(items);
 

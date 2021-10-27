@@ -209,6 +209,6 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		}
 		editMode = model.getId() != null;
 		binder.setBean(model);
-		defaultNameField.activeDefaultName(model.getCommunityName(), occupiedNameGetter, !editMode, model.getName());
+		defaultNameField.reloadName(model.getCommunityName(), occupiedNameGetter, !editMode, model.getName());
 	}
 }
