@@ -6,7 +6,7 @@ package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -15,11 +15,13 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 
+import io.imunity.furms.ui.components.branding.FurmsLogo;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.view_picker.FurmsRolePicker;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
@@ -30,12 +32,21 @@ public class FurmsLayout {
 	private final FurmsRolePicker furmsSelect;
 	private final Component notificationBar;
 
-	public FurmsLayout(List<MenuComponent> menuContent, FurmsRolePicker furmsSelect, Component notificationBar){
+	private final VerticalLayout drawer;
+
+	private Supplier<FurmsLogo> furmsLogoLoader;
+
+	public FurmsLayout(List<MenuComponent> menuContent,
+	                   FurmsRolePicker furmsSelect,
+	                   Component notificationBar,
+	                   Supplier<FurmsLogo> furmsLogoLoader){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
 		this.furmsSelect = furmsSelect;
 		this.notificationBar = notificationBar;
+		this.furmsLogoLoader = furmsLogoLoader;
+		this.drawer = new VerticalLayout();
 	}
 
 	void reloadUserPicker() {
@@ -47,23 +58,12 @@ public class FurmsLayout {
 	}
 
 	public Component createDrawerContent() {
-		VerticalLayout layout = new VerticalLayout();
-		layout.setSizeFull();
-		layout.setPadding(false);
-		layout.setSpacing(false);
-		layout.setAlignItems(FlexComponent.Alignment.STRETCH);
-		layout.add(getLogo(), menu);
-		return layout;
-	}
-	
-	private Component getLogo() {
-		HorizontalLayout logoLayout = new HorizontalLayout();
-		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoLayout.setMargin(true);
-		Image image = new Image(Images.FENIX_LOGO.path, "");
-		image.setWidthFull();
-		logoLayout.add(image);
-		return logoLayout;
+		drawer.setSizeFull();
+		drawer.setPadding(false);
+		drawer.setSpacing(false);
+		drawer.setAlignItems(FlexComponent.Alignment.STRETCH);
+		drawer.add(menu);
+		return drawer;
 	}
 
 	public Component createNavbar(){
@@ -89,6 +89,26 @@ public class FurmsLayout {
 	public void afterNavigation(Component content){
 		getTabForComponent(content).ifPresent(menu::setSelectedTab);
 		breadCrumbComponent.update((FurmsViewComponent) content);
+		loadLogo();
+	}
+
+	public static void callReloadLogo(final Class source) {
+		UI.getCurrent().navigate(source);
+	}
+
+	private void loadLogo() {
+		final FurmsLogo currentFurmsLogo = furmsLogoLoader.get();
+		drawer.getChildren()
+				.filter(component -> component instanceof FurmsLogo)
+				.findFirst()
+				.ifPresentOrElse(
+						logo -> {
+							if (!((FurmsLogo)logo).equalsLogo(currentFurmsLogo)) {
+								drawer.replace(logo, currentFurmsLogo);
+							}
+						},
+						() -> drawer.addComponentAsFirst(currentFurmsLogo)
+				);
 	}
 
 	private Tabs createMenu() {

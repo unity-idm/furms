@@ -32,6 +32,10 @@ public class FurmsImage {
 			.orElse(null);
 	}
 
+	public boolean isEmpty() {
+		return image == null || image.length == 0 || type == null;
+	}
+
 	public static FurmsImage empty() {
 		return new FurmsImage(new byte[0], (String) null);
 	}

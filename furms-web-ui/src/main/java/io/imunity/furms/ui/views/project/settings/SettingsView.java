@@ -25,9 +25,11 @@ import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.imunity.furms.ui.components.FurmsLayout.callReloadLogo;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -131,6 +133,9 @@ public class SettingsView extends FurmsViewComponent {
 					.ifPresentOrElse(
 						e -> showErrorNotification(getTranslation("base.error.message")),
 						() -> {
+							if (isLogoChange(oldProject, projectViewModel)) {
+								callReloadLogo(this.getClass());
+							}
 							oldProject = projectViewModel;
 							disableEditorMode();
 							showSuccessNotification(getTranslation("view.project-admin.settings.update.success"));
@@ -139,5 +144,9 @@ public class SettingsView extends FurmsViewComponent {
 			}
 		});
 		return updateButton;
+	}
+
+	private boolean isLogoChange(ProjectViewModel oldProject, ProjectViewModel projectViewModel) {
+		return !Arrays.equals(oldProject.getLogo().getImage(), projectViewModel.getLogo().getImage());
 	}
 }
