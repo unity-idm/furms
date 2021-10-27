@@ -13,7 +13,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.sites.Site;
@@ -301,7 +301,7 @@ class PolicyDocumentServiceImplTest {
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
 		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(userId));
+		orderVerifier.verify(publisher).publishEvent(new UserAcceptedPolicyEvent(userId, policyAcceptance));
 		verify(repository, times(0)).findById(PolicyId.empty());
 	}
 

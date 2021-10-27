@@ -12,7 +12,6 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -21,6 +20,7 @@ import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.user_site_access.UserSiteAccessGrantedEvent;
 import io.imunity.furms.domain.user_site_access.UsersSitesAccesses;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -94,7 +94,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 					projectId, policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(siteId, userId)
 				);
 			else
-				publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
+				publisher.publishEvent(new UserSiteAccessGrantedEvent(userId));
 
 			LOG.info("User {} has got manual access to project {} on site {}", userId, projectId, siteId);
 		}

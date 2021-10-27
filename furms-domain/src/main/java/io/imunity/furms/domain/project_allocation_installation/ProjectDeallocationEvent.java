@@ -15,7 +15,7 @@ public class ProjectDeallocationEvent implements FurmsEvent {
 	public final Set<GrantAccess> relatedGrantAccesses;
 
 	public ProjectDeallocationEvent(Set<GrantAccess> relatedGrantAccesses) {
-		this.relatedGrantAccesses = relatedGrantAccesses;
+		this.relatedGrantAccesses = Set.copyOf(relatedGrantAccesses);
 	}
 
 	@Override

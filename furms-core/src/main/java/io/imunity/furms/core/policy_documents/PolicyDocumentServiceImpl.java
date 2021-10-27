@@ -19,7 +19,6 @@ import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.sites.Site;
@@ -199,9 +198,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		policyDocumentDAO.addUserPolicyAcceptance(userId, policyAcceptance);
 		updateUsersPolicyAcceptance(user, userId, policyDocument);
 
-		publisher.publishEvent(new UserPendingPoliciesChangedEvent(userId));
 		publisher.publishEvent(new UserAcceptedPolicyEvent(userId, policyAcceptance));
-		LOG.debug("Added Policy Document id={} for user id={}", policyDocumentId.id, userId.id);
+		LOG.info("Added Policy Document id={} for user id={}", policyDocumentId.id, userId.id);
 	}
 
 	private void updateUsersPolicyAcceptance(FURMSUser user, FenixUserId userId, PolicyDocument policyDocument) {

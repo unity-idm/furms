@@ -9,7 +9,6 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
@@ -114,7 +113,6 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
 		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
 		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId.id, grantAccess.fenixUserId, grantId.toString());
-		publisher.publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 	}
 

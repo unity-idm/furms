@@ -7,10 +7,10 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -103,8 +103,8 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
+		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
 	}
 
@@ -131,8 +131,7 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
+		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 	}
 
 	@Test
@@ -164,8 +163,8 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
+		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 	}
 
 	@Test
@@ -197,8 +196,8 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
+		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 	}
 
 	@Test
@@ -224,8 +223,8 @@ class ResourceAccessServiceTest {
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
+		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(publisher).publishEvent(new UserPendingPoliciesChangedEvent(grantAccess.fenixUserId));
 	}
 
 	@Test
