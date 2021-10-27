@@ -77,6 +77,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 
 	@BeforeEach
 	void init() {
+//		userSiteAccessRepository.deleteAll();
 		Site site = Site.builder()
 			.name("name")
 			.connectionInfo("alala")

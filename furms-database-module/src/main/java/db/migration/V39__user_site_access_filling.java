@@ -16,7 +16,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
 
-public class V37__user_site_access_filling extends BaseJavaMigration {
+public class V39__user_site_access_filling extends BaseJavaMigration {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public void migrate(Context context) {

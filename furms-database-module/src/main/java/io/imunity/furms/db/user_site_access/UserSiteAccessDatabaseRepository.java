@@ -57,4 +57,9 @@ class UserSiteAccessDatabaseRepository implements UserSiteAccessRepository {
 	public boolean exists(String siteId, String projectId, FenixUserId userId){
 		return userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
 	}
+
+	@Override
+	public void deleteAll() {
+		userSiteAccessEntityRepository.deleteAll();
+	}
 }

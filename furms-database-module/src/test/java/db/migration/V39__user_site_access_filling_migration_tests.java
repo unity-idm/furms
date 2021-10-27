@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest
-class V37__user_site_access_filling_migration_tests {
+class V39__user_site_access_filling_migration_tests {
 
 	@Autowired
 	private ResourceAccessRepository repository;
@@ -235,7 +235,7 @@ class V37__user_site_access_filling_migration_tests {
 			AccessStatus.GRANT_ACKNOWLEDGED
 		);
 
-		V37__user_site_access_filling.migrate(jdbcTemplate);
+		V39__user_site_access_filling.migrate(jdbcTemplate);
 
 		Iterable<UserSiteAccessEntity> all = userSiteAccessEntityRepository.findAll();
 		assertEquals(all.spliterator().getExactSizeIfKnown(), 5);

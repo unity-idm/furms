@@ -17,4 +17,5 @@ public interface UserSiteAccessRepository {
 	void remove(String siteId, String projectId, FenixUserId userId);
 	void remove(String projectId, FenixUserId userId);
 	boolean exists(String siteId, String projectId, FenixUserId userId);
+	void deleteAll();
 }
