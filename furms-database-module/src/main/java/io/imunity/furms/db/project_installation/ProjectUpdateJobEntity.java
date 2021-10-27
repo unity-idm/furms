@@ -104,6 +104,11 @@ public class ProjectUpdateJobEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public ProjectUpdateJobEntityBuilder status(int status) {
+			this.status = status;
+			return this;
+		}
+
 		public ProjectUpdateJobEntityBuilder code(String code) {
 			this.code = code;
 			return this;
