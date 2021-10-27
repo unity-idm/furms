@@ -77,6 +77,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceCreditFormView.class, c.getId()))
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.name"))
 			.setSortable(true)
+			.setFlexGrow(20)
 			.setComparator(x -> x.getName().toLowerCase());
 		grid.addColumn(ResourceCreditViewModel::getId)
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.id"))
