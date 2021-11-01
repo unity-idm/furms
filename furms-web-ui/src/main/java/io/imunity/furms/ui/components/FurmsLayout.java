@@ -102,13 +102,14 @@ public class FurmsLayout {
 				.filter(component -> component instanceof FurmsLogo)
 				.findFirst()
 				.ifPresentOrElse(
-						logo -> {
-							if (!((FurmsLogo)logo).equalsLogo(currentFurmsLogo)) {
-								drawer.replace(logo, currentFurmsLogo);
-							}
-						},
-						() -> drawer.addComponentAsFirst(currentFurmsLogo)
-				);
+						logo -> replaceLogoInDrawer(logo, currentFurmsLogo),
+						() -> drawer.addComponentAsFirst(currentFurmsLogo));
+	}
+
+	private void replaceLogoInDrawer(Component logo, FurmsLogo currentFurmsLogo) {
+		if (!((FurmsLogo)logo).equalsLogo(currentFurmsLogo)) {
+			drawer.replace(logo, currentFurmsLogo);
+		}
 	}
 
 	private Tabs createMenu() {
