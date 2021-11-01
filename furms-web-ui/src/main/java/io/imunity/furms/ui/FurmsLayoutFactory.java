@@ -7,7 +7,7 @@ package io.imunity.furms.ui;
 
 import io.imunity.furms.ui.components.FurmsLayout;
 import io.imunity.furms.ui.components.MenuComponent;
-import io.imunity.furms.ui.components.branding.FurmsLogoFactory;
+import io.imunity.furms.ui.components.branding.logo.FurmsLogoFactory;
 import io.imunity.furms.ui.view_picker.FurmsRolePickerFactory;
 
 import org.springframework.stereotype.Component;

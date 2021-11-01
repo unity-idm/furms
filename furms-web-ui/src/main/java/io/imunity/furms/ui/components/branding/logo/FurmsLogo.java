@@ -3,7 +3,7 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components.branding;
+package io.imunity.furms.ui.components.branding.logo;
 
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;

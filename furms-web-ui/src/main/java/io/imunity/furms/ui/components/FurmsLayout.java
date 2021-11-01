@@ -15,7 +15,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 
-import io.imunity.furms.ui.components.branding.FurmsLogo;
+import io.imunity.furms.ui.components.branding.logo.FurmsLogo;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.view_picker.FurmsRolePicker;
 
@@ -34,7 +34,7 @@ public class FurmsLayout {
 
 	private final VerticalLayout drawer;
 
-	private Supplier<FurmsLogo> furmsLogoLoader;
+	private final Supplier<FurmsLogo> furmsLogoLoader;
 
 	public FurmsLayout(List<MenuComponent> menuContent,
 	                   FurmsRolePicker furmsSelect,
