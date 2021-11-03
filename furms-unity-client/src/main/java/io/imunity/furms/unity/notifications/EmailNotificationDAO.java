@@ -10,7 +10,6 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.NewPolicyRevisionUserAcceptanceRequiredEvent;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -194,7 +193,7 @@ class EmailNotificationDAO implements NotificationDAO {
 							emailNotificationProperties.newPolicyAcceptanceTemplateId,
 							Map.of(NAME_ATTRIBUTE, policy.name,
 									URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL));
-					publisher.publishEvent(new UserPendingPoliciesChangedEvent(fenixUserId));
+					publisher.publishEvent(new NewPolicyRevisionUserAcceptanceRequiredEvent(fenixUserId));
 				});
 	}
 
