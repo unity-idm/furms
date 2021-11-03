@@ -14,6 +14,7 @@ import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.RemoveServiceEvent;
 import io.imunity.furms.domain.services.UpdateServiceEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -41,19 +42,22 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	private final SiteRepository siteRepository;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final ApplicationEventPublisher publisher;
+	private final NotificationDAO notificationDAO;
 
 	InfraServiceServiceImpl(InfraServiceRepository infraServiceRepository,
 	                        InfraServiceServiceValidator validator,
 	                        SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                        SiteRepository siteRepository,
 	                        PolicyDocumentRepository policyDocumentRepository,
-	                        ApplicationEventPublisher publisher) {
+	                        ApplicationEventPublisher publisher,
+	                        NotificationDAO notificationDAO) {
 		this.infraServiceRepository = infraServiceRepository;
 		this.validator = validator;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.siteRepository = siteRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.publisher = publisher;
+		this.notificationDAO = notificationDAO;
 	}
 
 	@Override
@@ -92,10 +96,18 @@ class InfraServiceServiceImpl implements InfraServiceService {
 		InfraService oldInfraService = infraServiceRepository.findById(infraService.id)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Infra service id %s doesn't exist", infraService.id)));
 		infraServiceRepository.update(infraService);
-		if(isPolicyChange(infraService, oldInfraService))
-			sendUpdateToSite(infraService, oldInfraService);
+		handlePolicyChange(infraService, oldInfraService);
 		publisher.publishEvent(new UpdateServiceEvent(infraService.id));
 		LOG.info("InfraService was updated {}", infraService);
+	}
+
+	private void handlePolicyChange(InfraService infraService, InfraService oldInfraService) {
+		if(isPolicyChange(infraService, oldInfraService)) {
+			sendUpdateToSite(infraService, oldInfraService);
+			if (infraService.policyId != null && infraService.policyId.id != null) {
+				notificationDAO.notifyAllUsersAboutPolicyAssignmentChange(infraService);
+			}
+		}
 	}
 
 	private void sendUpdateToSite(InfraService infraService, InfraService oldInfraService) {

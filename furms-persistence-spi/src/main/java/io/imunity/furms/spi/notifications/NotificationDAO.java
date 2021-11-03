@@ -7,6 +7,8 @@ package io.imunity.furms.spi.notifications;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -16,6 +18,8 @@ public interface NotificationDAO {
 	void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail);
 	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);
 	void notifyAboutChangedPolicy(PolicyDocument policyDocument);
+	void notifyAllUsersAboutPolicyAssignmentChange(SiteId siteId);
+	void notifyAllUsersAboutPolicyAssignmentChange(InfraService infraService);
 	void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId fenixUserId, String grantId);
 
 	void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail);

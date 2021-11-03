@@ -13,6 +13,7 @@ import io.imunity.furms.domain.services.RemoveServiceEvent;
 import io.imunity.furms.domain.services.UpdateServiceEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -52,6 +53,8 @@ class InfraServiceServiceImplTest {
 	private ResourceCreditRepository resourceCreditRepository;
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
+	@Mock
+	private NotificationDAO notificationDAO;
 
 
 	private InfraServiceServiceImpl service;
@@ -61,7 +64,7 @@ class InfraServiceServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
-		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher);
+		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, notificationDAO);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
 	}
 
@@ -139,17 +142,17 @@ class InfraServiceServiceImplTest {
 		//given
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.id(policyId)
-			.name("policyName")
-			.revision(1)
-			.build();
+				.id(policyId)
+				.name("policyName")
+				.revision(1)
+				.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("id")
-			.name("userFacingName")
-			.policyId(policyId)
-			.build();
+				.id("id")
+				.siteId("id")
+				.name("userFacingName")
+				.policyId(policyId)
+				.build();
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
@@ -169,6 +172,44 @@ class InfraServiceServiceImplTest {
 				.build(),
 			"id"
 		);
+	}
+
+	@Test
+	void shouldSentNotificationWhenPolicyDocumentsHaveBeenChanged() {
+		//given
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PolicyId policyId1 = new PolicyId(UUID.randomUUID());
+		PolicyDocument policyDocument = PolicyDocument.builder()
+				.id(policyId1)
+				.name("policyName")
+				.revision(1)
+				.build();
+		SiteExternalId siteExternalId = new SiteExternalId("id");
+		InfraService oldService = InfraService.builder()
+				.id("id")
+				.siteId("id")
+				.name("userFacingName")
+				.policyId(policyId)
+				.build();
+
+		InfraService newService = InfraService.builder()
+				.id("id")
+				.siteId("id")
+				.name("userFacingName")
+				.policyId(policyId1)
+				.build();
+
+		when(siteRepository.exists(oldService.id)).thenReturn(true);
+		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
+		when(infraServiceRepository.isNamePresent(oldService.name, oldService.siteId)).thenReturn(false);
+		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
+		when(policyDocumentRepository.findById(policyId1)).thenReturn(Optional.of(policyDocument));
+		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+
+		//when
+		service.update(newService);
+
+		Mockito.verify(notificationDAO).notifyAllUsersAboutPolicyAssignmentChange(newService);
 	}
 
 	@Test

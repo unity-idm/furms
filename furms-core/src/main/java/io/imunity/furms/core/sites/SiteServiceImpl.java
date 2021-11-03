@@ -25,6 +25,7 @@ import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UpdateSiteEvent;
 import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -35,6 +36,7 @@ import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
+import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -80,6 +82,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final CapabilityCollector capabilityCollector;
+	private final NotificationDAO notificationDAO;
 	private final InvitatoryService invitatoryService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
@@ -94,6 +97,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                PolicyDocumentRepository policyDocumentRepository,
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                CapabilityCollector capabilityCollector,
+	                NotificationDAO notificationDAO,
 	                InvitatoryService invitatoryService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
@@ -107,6 +111,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.capabilityCollector = capabilityCollector;
+		this.notificationDAO = notificationDAO;
 		this.invitatoryService = invitatoryService;
 	}
 
@@ -209,13 +214,21 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
-			if(isPolicyChange(site, oldSite))
-				sendUpdateToSite(site, oldSite);
+			handlePolicyChange(updatedSite, oldSite);
 			publisher.publishEvent(new UpdateSiteEvent(updatedSite.getId()));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
 			throw e;
+		}
+	}
+
+	private void handlePolicyChange(Site updatedSite, Site oldSite) {
+		if(isPolicyChange(updatedSite, oldSite)) {
+			sendUpdateToSite(updatedSite, oldSite);
+			if (updatedSite.getPolicyId() != null && updatedSite.getPolicyId().id != null) {
+				notificationDAO.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+			}
 		}
 	}
 
