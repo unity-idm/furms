@@ -8,6 +8,7 @@ package io.imunity.furms.unity.client.users;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -49,6 +50,8 @@ import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
 import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP_PATH;
+import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.SITE_USERS_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_ATTRIBUTES;
@@ -286,6 +289,10 @@ public class UserService {
 		return getAllUsersFromGroup(group, filter);
 	}
 
+	public List<FURMSUser> getAllUsersFromGroup(String group){
+		return getAllUsersFromGroup(group, filter -> true);
+	}
+
 	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
@@ -353,5 +360,20 @@ public class UserService {
 				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
 				.map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
 
+	}
+
+	public Set<FenixUserId> findAllSiteUsers(SiteId siteId) {
+		return getAllUsersFromGroup(siteUsersPath(siteId)).stream()
+				.map(user -> user.fenixUserId)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toSet());
+	}
+
+	private String siteUsersPath(SiteId siteId) {
+		return UriComponentsBuilder.newInstance()
+				.path(SITE_USERS_PATTERN)
+				.uriVariables(Map.of(ID, siteId.id))
+				.toUriString();
 	}
 }

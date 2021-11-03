@@ -41,9 +41,9 @@ public interface PolicyDocumentRepository {
 
 	Set<PolicyDocument> findAllServicePoliciesByUserId(FenixUserId userId);
 
-	PolicyId create(PolicyDocument projectAllocation);
+	PolicyId create(PolicyDocument policyDocument);
 
-	PolicyId update(PolicyDocument projectAllocation, boolean revision);
+	PolicyId update(PolicyDocument policyDocument, boolean revision);
 
 	boolean isNamePresent(String siteId, String name);
 
