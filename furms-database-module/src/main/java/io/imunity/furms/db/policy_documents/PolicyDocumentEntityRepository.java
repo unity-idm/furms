@@ -72,8 +72,8 @@ public interface PolicyDocumentEntityRepository extends CrudRepository<PolicyDoc
 	@Query("select pd.*, s.name as site_name " +
 		"from policy_document pd " +
 		"join site s on pd.id = s.policy_id " +
-		"join user_grant ua on ua.site_id = s.id " +
-		"where ua.user_id = :user_id")
+		"join user_site_access usa on usa.site_id = s.id " +
+		"where usa.user_id = :user_id")
 	Set<PolicyDocumentExtendedEntity> findAllSitePoliciesByUserId(@Param("user_id") String userId);
 
 	@Query("select pd.*, s.id as service_id " +

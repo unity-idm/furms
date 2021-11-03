@@ -5,10 +5,12 @@
 
 package io.imunity.furms.core.resource_access;
 
-import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
+import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.Set;
@@ -41,7 +44,7 @@ class UserAllocationStatusUpdaterTest {
 	@Mock
 	private ResourceAccessRepository repository;
 	@Mock
-	private UserOperationService userOperationService;
+	private ApplicationEventPublisher publisher;
 
 	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -49,8 +52,8 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, userOperationService);
-		orderVerifier = inOrder(repository, userOperationService);
+		service = new UserAllocationStatusUpdaterImpl(repository, publisher);
+		orderVerifier = inOrder(repository, publisher);
 	}
 
 	@ParameterizedTest
@@ -60,7 +63,7 @@ class UserAllocationStatusUpdaterTest {
 
 		FenixUserId userId = new FenixUserId("userId");
 		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("grantId", "projectId", userId)));
+			.thenReturn(Optional.of(new ProjectUserGrant("siteId", "grantId", "projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		service.update(correlationId, GRANTED, "msg");
 
@@ -165,7 +168,7 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
@@ -178,13 +181,19 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 		FenixUserId fenixUserId = new FenixUserId("userId");
 		when(repository.findUserGrantsByProjectIdAndFenixUserId("projectId", fenixUserId)).thenReturn(Set.of());
 		service.update(correlationId, REVOKED, "msg");
 
-		orderVerifier.verify(userOperationService).createUserRemovals("projectId", fenixUserId);
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
+		orderVerifier.verify(publisher).publishEvent(new UserGrantRemovedEvent(GrantAccess.builder()
+				.siteId(new SiteId("siteId"))
+				.projectId("projectId")
+				.fenixUserId(fenixUserId)
+				.build()
+			)
+		);
 		verify(repository, times(0)).update(correlationId, REVOKED, "msg");
 	}
 

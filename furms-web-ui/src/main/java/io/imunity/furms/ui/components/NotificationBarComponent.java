@@ -22,8 +22,12 @@ import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationEvent;
 import io.imunity.furms.domain.invitations.InvitationEvent;
-import io.imunity.furms.domain.policy_documents.UserPendingPoliciesChangedEvent;
+import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
+import io.imunity.furms.domain.policy_documents.NewPolicyRevisionUserAcceptanceRequiredEvent;
+import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
+import io.imunity.furms.domain.user_site_access.UserSiteAccessGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
 import io.imunity.furms.ui.notifications.NotificationBarElement;
@@ -139,11 +143,19 @@ public class NotificationBarComponent extends Button {
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof UserPendingPoliciesChangedEvent))
+		FenixUserId userId;
+		if(furmsEvent instanceof UserGrantAddedEvent)
+			userId = ((UserGrantAddedEvent) furmsEvent).grantAccess.fenixUserId;
+		else if(furmsEvent instanceof UserAcceptedPolicyEvent)
+			userId = ((UserAcceptedPolicyEvent) furmsEvent).userId;
+		else if(furmsEvent instanceof UserSiteAccessGrantedEvent)
+			userId = ((UserSiteAccessGrantedEvent) furmsEvent).fenixUserId;
+		else if(furmsEvent instanceof NewPolicyRevisionUserAcceptanceRequiredEvent)
+			userId = ((NewPolicyRevisionUserAcceptanceRequiredEvent) furmsEvent).fenixUserId;
+		else
 			return false;
-		UserPendingPoliciesChangedEvent event = (UserPendingPoliciesChangedEvent) furmsEvent;
 		return currentUser.fenixUserId
-			.filter(id -> id.equals(event.fenixUserId))
+			.filter(id -> id.equals(userId))
 			.isPresent();
 	}
 

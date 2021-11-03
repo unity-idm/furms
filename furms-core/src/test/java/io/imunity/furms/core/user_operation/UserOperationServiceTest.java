@@ -25,6 +25,7 @@ import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +71,9 @@ class UserOperationServiceTest {
 	private SSHKeyService sshKeyService;
 	@Mock
 	private ResourceAccessRepository resourceAccessRepository;
+	@Mock
+	private UserSiteAccessRepository userSiteAccessRepository;
+
 
 
 	private UserOperationService service;
@@ -89,7 +93,7 @@ class UserOperationServiceTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
-				policyService, sshKeyService, resourceAccessRepository);
+				policyService, sshKeyService, resourceAccessRepository, userSiteAccessRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 

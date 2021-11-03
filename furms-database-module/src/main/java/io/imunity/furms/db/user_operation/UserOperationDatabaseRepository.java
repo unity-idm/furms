@@ -42,15 +42,28 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
+	public Set<UserAddition> findAllUserAdditions(String projectId) {
+		return userAdditionEntityRepository.findAllExtendedByProjectId(UUID.fromString(projectId)).stream()
+			.map(UserAdditionReadEntity::toUserAddition)
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<UserAddition> findAllUserAdditions(String projectId, String userId) {
 		return userAdditionEntityRepository.findAllByProjectIdAndUserId(UUID.fromString(projectId), userId).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
-	
+
 	@Override
-	public Set<UserAddition> findAllUserAdditions(String userId) {
-		return userAdditionEntityRepository.findAllByUserId(userId).stream()
+	public Optional<UserAddition> findUserAddition(String siteId, String projectId, String userId) {
+		return userAdditionEntityRepository.findBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId)
+			.map(UserAdditionReadEntity::toUserAddition);
+	}
+
+	@Override
+	public Set<UserAddition> findAllUserAdditions(FenixUserId userId) {
+		return userAdditionEntityRepository.findAllByUserId(userId.id).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
@@ -60,6 +73,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 		return userAdditionEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
 				.map(UserAdditionReadEntity::toUserAddition)
 				.collect(toSet());
+	}
+
+	@Override
+	public Set<UserAddition> findAllUserAdditionsByProjectId(String projectId) {
+		return userAdditionEntityRepository.findExtendedAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(UserAdditionReadEntity::toUserAddition)
+			.collect(toSet());
 	}
 
 	@Override
@@ -162,6 +182,14 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId) {
 		return userAdditionEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
 	}
+
+	@Override
+	public boolean isUserInstalledOnSite(FenixUserId userId, String siteId){
+		return userAdditionEntityRepository.findStatusBySiteIdAndUserId(UUID.fromString(siteId), userId.id).stream()
+			.map(UserStatus::valueOf)
+			.anyMatch(UserStatus::isInstalled);
+	}
+
 
 	@Override
 	public void deleteAll() {

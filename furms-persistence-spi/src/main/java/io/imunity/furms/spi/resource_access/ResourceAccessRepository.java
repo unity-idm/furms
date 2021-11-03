@@ -21,17 +21,19 @@ public interface ResourceAccessRepository {
 	Set<FenixUserId> findUsersBySiteId(String siteId);
 	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
 	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
+	boolean existsBySiteIdAndProjectIdAndFenixUserId(String siteId, String projectId, FenixUserId fenixUserId);
 	UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
 	boolean exists(GrantAccess grantAccess);
 	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
 	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId);
-	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String siteId);
+	Set<GrantAccess> findGrantAccessesBy(String siteId, String projectAllocationId);
 	AccessStatus findCurrentStatus(CorrelationId correlationId);
 	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);
 	void deleteByUserAndAllocationId(FenixUserId userId, String allocationId);
 	void deleteByUserAndProjectId(FenixUserId userId, String projectId);
+	void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
 	void deleteAll();
 }

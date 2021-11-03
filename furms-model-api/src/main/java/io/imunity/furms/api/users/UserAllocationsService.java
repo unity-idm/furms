@@ -21,4 +21,6 @@ public interface UserAllocationsService {
 	Set<UserAddition> findAllByFenixUserId(FenixUserId userId);
 
 	Set<UserAddition> findAllBySiteId(String siteId);
+
+	Set<UserAddition> findAllByProjectId(String projectId);
 }

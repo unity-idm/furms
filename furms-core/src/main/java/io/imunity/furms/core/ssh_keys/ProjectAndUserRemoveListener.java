@@ -5,17 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.domain.projects.RemoveProjectEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -26,6 +15,16 @@ import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class ProjectAndUserRemoveListener {
@@ -111,7 +110,7 @@ public class ProjectAndUserRemoveListener {
 	}
 
 	private Set<String> findUserSites(FenixUserId fenixUserId, String skippedProjectId) {
-		return userOperationRepository.findAllUserAdditions(fenixUserId.id).stream()
+		return userOperationRepository.findAllUserAdditions(fenixUserId).stream()
 				.filter(ua -> !ua.projectId.equals(skippedProjectId)).map(ua -> ua.siteId.id)
 				.collect(Collectors.toSet());
 	}

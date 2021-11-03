@@ -46,6 +46,21 @@ public interface ProjectAllocationReadEntityRepository extends CrudRepository<Pr
 	Set<ProjectAllocationReadEntity> findAllByProjectId(@Param("id") UUID id);
 
 	@Query("select a.*, " +
+		"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info, s.logo as site_logo, s.logo_type as site_logo_type, s.external_id as site_external_id, " +
+		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
+		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time, " +
+		"ca.id as communityAllocation_id, ca.name as communityAllocation_name, ca.resource_credit_id as communityAllocation_resource_credit_id, ca.amount as communityAllocation_amount, ca.community_id as communityAllocation_community_id, " +
+		"p.name as project_name " +
+		"from project_allocation a " +
+		"join project p on a.project_id = p.id " +
+		"join community_allocation ca on a.community_allocation_id = ca.id " +
+		"join resource_credit rc on ca.resource_credit_id = rc.id " +
+		"join site s on rc.site_id = s.id " +
+		"join resource_type rt on rc.resource_type_id = rt.id " +
+		"where a.project_id = :project_id and s.id = :site_id")
+	Set<ProjectAllocationReadEntity> findAllBySiteIdAndProjectId(@Param("site_id") UUID siteId, @Param("project_id") UUID projectId);
+
+	@Query("select a.*, " +
 			"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info, s.logo as site_logo, s.logo_type as site_logo_type, s.external_id as site_external_id, " +
 			"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
 			"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time, " +

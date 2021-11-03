@@ -184,6 +184,7 @@ class UserOperationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(UserAddition.builder()
+			.siteId(new SiteId("siteId"))
 			.correlationId(correlationId)
 			.userId("id")
 			.projectId("projectId")
@@ -193,7 +194,7 @@ class UserOperationStatusUpdaterTest {
 		service.updateStatus(correlationId, REMOVED, Optional.empty());
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId.id);
-		orderVerifier.verify(resourceAccessRepository).deleteByUserAndProjectId(new FenixUserId("id"), "projectId");
+		orderVerifier.verify(resourceAccessRepository).deleteByUserAndSiteIdAndProjectId(new FenixUserId("id"), "siteId", "projectId");
 	}
 
 	@ParameterizedTest

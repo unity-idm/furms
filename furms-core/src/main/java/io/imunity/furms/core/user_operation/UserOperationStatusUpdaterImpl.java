@@ -76,7 +76,7 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 			UserAddition userAddition = repository.findAdditionByCorrelationId(correlationId);
 			repository.deleteByCorrelationId(correlationId.id);
 			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
-			resourceAccessRepository.deleteByUserAndProjectId(new FenixUserId(userAddition.userId), userAddition.projectId);
+			resourceAccessRepository.deleteByUserAndSiteIdAndProjectId(new FenixUserId(userAddition.userId), userAddition.siteId.id, userAddition.projectId);
 			LOG.info("User {} grants in project {} were deleted", userAddition.userId, userAddition.projectId);
 			return;
 		}

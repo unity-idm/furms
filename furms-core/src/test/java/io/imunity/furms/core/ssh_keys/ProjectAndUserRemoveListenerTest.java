@@ -5,20 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.projects.RemoveProjectEvent;
@@ -33,6 +20,17 @@ import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectAndUserRemoveListenerTest {
@@ -73,7 +71,7 @@ public class ProjectAndUserRemoveListenerTest {
 				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1", "s2")).build();
 
 		when(usersDAO.getFenixUserId(new PersistentId("id"))).thenReturn(new FenixUserId("id"));
-		when(userOperationRepository.findAllUserAdditions("id")).thenReturn(
+		when(userOperationRepository.findAllUserAdditions(new FenixUserId("id"))).thenReturn(
 				Sets.newHashSet(UserAddition.builder().projectId(UUID.randomUUID().toString())
 						.siteId(new SiteId("s1", "id")).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
@@ -104,7 +102,7 @@ public class ProjectAndUserRemoveListenerTest {
 						+ "mb9xUkdFjZk9bL demo@demo.pl")
 				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1", "s2")).build();
 
-		when(userOperationRepository.findAllUserAdditions("id")).thenReturn(
+		when(userOperationRepository.findAllUserAdditions(new FenixUserId("id"))).thenReturn(
 				Sets.newHashSet(UserAddition.builder().projectId(UUID.randomUUID().toString())
 						.siteId(new SiteId("s1", "id")).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));

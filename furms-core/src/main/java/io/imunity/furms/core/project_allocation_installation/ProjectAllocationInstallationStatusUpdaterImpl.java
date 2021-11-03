@@ -10,18 +10,23 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
@@ -34,11 +39,14 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
+	private final ResourceAccessRepository resourceAccessRepository;
+	private final ApplicationEventPublisher publisher;
 
-	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
-	                                               ProjectAllocationRepository projectAllocationRepository) {
+	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository, ProjectAllocationRepository projectAllocationRepository, ResourceAccessRepository resourceAccessRepository, ApplicationEventPublisher publisher) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
+		this.resourceAccessRepository = resourceAccessRepository;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -68,7 +76,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id);
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
+			Set<GrantAccess> grantAccesses = resourceAccessRepository.findGrantAccessesBy(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
 			projectAllocationRepository.deleteById(projectDeallocation.projectAllocationId);
+			publisher.publishEvent(new ProjectDeallocationEvent(grantAccesses));
 			return;
 		}
 		if(projectDeallocation.status.equals(ProjectDeallocationStatus.FAILED)) {
