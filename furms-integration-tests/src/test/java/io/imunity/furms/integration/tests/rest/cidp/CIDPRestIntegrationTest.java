@@ -84,6 +84,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		final TestUser testUser = basicUser();
 		final CidpRequiredData data = createCidpRequiredData(testUser);
 
+		userSiteAccessRepository.add(data.siteId, data.projectId, data.grantAccess.fenixUserId);
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
 		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
@@ -144,6 +145,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		final TestUser testUser = basicUser();
 		final CidpRequiredData data = createCidpRequiredData(testUser);
 
+		userSiteAccessRepository.add(data.siteId, data.projectId, data.grantAccess.fenixUserId);
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
 		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";

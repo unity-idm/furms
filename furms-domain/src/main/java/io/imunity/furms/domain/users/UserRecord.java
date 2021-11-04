@@ -27,12 +27,13 @@ public class UserRecord {
 		if (o == null || getClass() != o.getClass()) return false;
 		UserRecord that = (UserRecord) o;
 		return Objects.equals(user, that.user)
-				&& Objects.equals(siteInstallations, that.siteInstallations);
+				&& Objects.equals(siteInstallations, that.siteInstallations)
+				&& Objects.equals(groupAccesses, that.groupAccesses);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(user, siteInstallations);
+		return Objects.hash(user, siteInstallations, groupAccesses);
 	}
 
 	@Override
@@ -40,6 +41,7 @@ public class UserRecord {
 		return "UserRecord{" +
 				"user=" + user +
 				", siteInstallations=" + siteInstallations +
+				", groupAccesses=" + groupAccesses +
 				'}';
 	}
 }
