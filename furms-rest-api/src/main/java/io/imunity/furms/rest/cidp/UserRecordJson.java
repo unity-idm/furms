@@ -39,12 +39,15 @@ public class UserRecordJson {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserRecordJson that = (UserRecordJson) o;
-		return Objects.equals(user, that.user) && userStatus == that.userStatus && Objects.equals(siteAccess, that.siteAccess);
+		return Objects.equals(user, that.user)
+				&& userStatus == that.userStatus
+				&& Objects.equals(siteAccess, that.siteAccess)
+				&& Objects.equals(groupAccess, that.groupAccess);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(user, userStatus, siteAccess);
+		return Objects.hash(user, userStatus, siteAccess, groupAccess);
 	}
 
 	@Override
@@ -53,6 +56,7 @@ public class UserRecordJson {
 				"user=" + user +
 				", userStatus=" + userStatus +
 				", siteAccess=" + siteAccess +
+				", groupAccess=" + groupAccess +
 				'}';
 	}
 }

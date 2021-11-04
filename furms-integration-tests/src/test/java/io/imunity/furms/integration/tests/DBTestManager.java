@@ -25,6 +25,7 @@ import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.tokens.AccessTokenRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ public abstract class DBTestManager {
 	@Autowired protected UserApiKeyRepository userApiKeyRepository;
 	@Autowired protected ResourceAccessRepository resourceAccessDatabaseRepository;
 	@Autowired protected GenericGroupRepository genericGroupRepository;
+	@Autowired protected UserSiteAccessRepository userSiteAccessRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -88,5 +90,6 @@ public abstract class DBTestManager {
 		jdbcTemplate.execute("DELETE FROM user_grant_job");
 		jdbcTemplate.execute("DELETE FROM user_resource_usage");
 		jdbcTemplate.execute("DELETE FROM user_resource_usage_history");
+		jdbcTemplate.execute("DELETE FROM user_site_access");
 	}
 }

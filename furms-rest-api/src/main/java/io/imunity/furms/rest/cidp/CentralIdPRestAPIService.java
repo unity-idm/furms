@@ -40,7 +40,7 @@ class CentralIdPRestAPIService {
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId != null)
 					.filter(siteInstallation -> siteInstallation.siteOauthClientId.equals(oauthClientId))
 					.collect(toSet()),
-			userRecord.groupAccesses
+				userRecord.groupAccesses
 		));
 	}
 	
