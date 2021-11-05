@@ -40,6 +40,7 @@ import org.vaadin.pekka.WysiwygE;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.ui.components.FurmsLayout.callReloadLogo;
 import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -255,6 +257,9 @@ public class SettingsView extends FurmsViewComponent {
 						.sshKeyHistoryLength(settings.isProhibitOldsshKeys()? SSHKeysConst.MAX_HISTORY_SIZE : 0)
 						.policyId(settings.getPolicyId())
 						.build());
+				if (isLogoChange(bufferedSettings, settings)) {
+					callReloadLogo(this.getClass());
+				}
 				refreshBinder(binder);
 				showSuccessNotification(getTranslation("view.sites.form.save.success"));
 				formButtons.setVisible(false);
@@ -294,5 +299,9 @@ public class SettingsView extends FurmsViewComponent {
 
 	private void refreshBinder(Binder<SiteSettingsDto> binder) {
 		binder.setBean(loadSite());
+	}
+
+	private boolean isLogoChange(SiteSettingsDto oldSettings, SiteSettingsDto settings) {
+		return !Arrays.equals(oldSettings.getLogo().getImage(), settings.getLogo().getImage());
 	}
 }
