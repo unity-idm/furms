@@ -82,6 +82,7 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseS
 			Header header = new Header(VERSION, correlationId.id, null, null);
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(externalId), new Payload<>(header, agentPingRequest));
 		}catch (AmqpConnectException e){
+			map.remove(correlationId.id);
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
 		failJobIfNoResponse(connectionFuture);
