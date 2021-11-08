@@ -75,6 +75,9 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseS
 
 		CorrelationId correlationId = CorrelationId.randomID();
 		AgentPingRequest agentPingRequest = new AgentPingRequest();
+
+		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId, externalId);
+		map.put(correlationId.id, pendingJob);
 		try {
 			Header header = new Header(VERSION, correlationId.id, null, null);
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(externalId), new Payload<>(header, agentPingRequest));
@@ -83,8 +86,6 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseS
 		}
 		failJobIfNoResponse(connectionFuture);
 
-		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId, externalId);
-		map.put(correlationId.id, pendingJob);
 		return pendingJob;
 	}
 
