@@ -10,18 +10,15 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.SiteAgentSetUserAccountStatusRequest;
 import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
-import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequestAck;
-import io.imunity.furms.rabbitmq.site.models.SetUserStatusResult;
-import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.site.api.status_updater.UserAccountStatusUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.domain.users.UserAccountStatusUpdateReason.SECURITY_INCIDENT;
-import static io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentMock.MOCK_SITE_PUB;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 class UserAccountStatusUpdaterTest extends IntegrationTestBase {
 
@@ -37,11 +34,7 @@ class UserAccountStatusUpdaterTest extends IntegrationTestBase {
 		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatusRequest(
 				siteExternalId, correlationId, fenixUserId, ENABLED, SECURITY_INCIDENT));
 
-		final Payload<SetUserStatusRequestAck> ack = (Payload<SetUserStatusRequestAck>)rabbitTemplate.receiveAndConvert(
-				MOCK_SITE_PUB, DEFAULT_RECEIVE_TIMEOUT_MILIS);
-		assertThat(ack).isNotNull();
-		assertThat(ack.header.messageCorrelationId).isEqualTo(correlationId.id);
-		assertThat(ack.header.status).isEqualTo(Status.OK);
+		verify(flowUpdater, timeout(DEFAULT_RECEIVE_TIMEOUT_MILIS)).updateSetUserStatusRequestAck(eq(correlationId));
 	}
 
 	@Test
@@ -53,10 +46,6 @@ class UserAccountStatusUpdaterTest extends IntegrationTestBase {
 		userAccountStatusUpdater.setStatus(new SiteAgentSetUserAccountStatusRequest(
 				siteExternalId, correlationId, fenixUserId, ENABLED, SECURITY_INCIDENT));
 
-		final Payload<SetUserStatusResult> result = (Payload<SetUserStatusResult>)rabbitTemplate.receiveAndConvert(
-				MOCK_SITE_PUB, DEFAULT_RECEIVE_TIMEOUT_MILIS);
-		assertThat(result).isNotNull();
-		assertThat(result.header.messageCorrelationId).isEqualTo(correlationId.id);
-		assertThat(result.header.status).isEqualTo(Status.OK);
+		verify(flowUpdater, timeout(DEFAULT_RECEIVE_TIMEOUT_MILIS)).updateSetUserStatusResult(eq(correlationId));
 	}
 }
