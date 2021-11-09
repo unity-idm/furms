@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
-public class FurmsLayout {
+public class FurmsAppLayoutUtils {
 	private final List<MenuComponent> menuContent;
 	private final BreadCrumbComponent breadCrumbComponent;
 	private final Tabs menu;
@@ -36,10 +36,10 @@ public class FurmsLayout {
 
 	private final Supplier<FurmsLogo> furmsLogoLoader;
 
-	public FurmsLayout(List<MenuComponent> menuContent,
-	                   FurmsRolePicker furmsSelect,
-	                   Component notificationBar,
-	                   Supplier<FurmsLogo> furmsLogoLoader){
+	public FurmsAppLayoutUtils(List<MenuComponent> menuContent,
+	                           FurmsRolePicker furmsSelect,
+	                           Component notificationBar,
+	                           Supplier<FurmsLogo> furmsLogoLoader){
 		this.menuContent = menuContent;
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent);
 		this.menu = createMenu();
@@ -57,8 +57,7 @@ public class FurmsLayout {
 		return furmsSelect.getCurrentValue();
 	}
 
-	public Component createDrawerContent() {
-		drawer.setSizeFull();
+	public VerticalLayout createDrawerContent() {
 		drawer.setPadding(false);
 		drawer.setSpacing(false);
 		drawer.setAlignItems(FlexComponent.Alignment.STRETCH);

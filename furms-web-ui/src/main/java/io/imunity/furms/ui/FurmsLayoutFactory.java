@@ -5,7 +5,7 @@
 
 package io.imunity.furms.ui;
 
-import io.imunity.furms.ui.components.FurmsLayout;
+import io.imunity.furms.ui.components.FurmsAppLayoutUtils;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.components.branding.logo.FurmsLogoFactory;
 import io.imunity.furms.ui.view_picker.FurmsRolePickerFactory;
@@ -28,8 +28,8 @@ public class FurmsLayoutFactory {
 		this.furmsLogoFactory = furmsLogoFactory;
 	}
 
-	public FurmsLayout create(List<MenuComponent> menuComponents){
-		return new FurmsLayout(
+	public FurmsAppLayoutUtils create(List<MenuComponent> menuComponents){
+		return new FurmsAppLayoutUtils(
 				menuComponents,
 				furmsSelectFactory.create(),
 				notificationBarFactory.create(),

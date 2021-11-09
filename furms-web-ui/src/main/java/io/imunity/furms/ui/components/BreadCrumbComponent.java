@@ -101,7 +101,7 @@ class BreadCrumbComponent extends Composite<Div> {
 	private Stream<RouterLink> createRouterLink(BreadCrumb route) {
 		return route.getBreadCrumbParameter()
 			.map(p -> getRouterLink(route.getRouteClass(), p))
-			.orElseGet(() -> Stream.of(new RouterLink(FurmsLayout.getPageTitle(route.getRouteClass()), route.getRouteClass())));
+			.orElseGet(() -> Stream.of(new RouterLink(FurmsAppLayoutUtils.getPageTitle(route.getRouteClass()), route.getRouteClass())));
 	}
 
 
