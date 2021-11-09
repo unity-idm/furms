@@ -7,7 +7,7 @@ package io.imunity.furms.ui.views.fenix.menu;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.FurmsAppLayoutExtended;
+import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -20,7 +20,7 @@ import io.imunity.furms.ui.views.fenix.sites.SitesView;
 
 import java.util.List;
 
-public class FenixAdminMenu extends FurmsAppLayoutExtended {
+public class FenixAdminMenu extends FurmsAppLayout {
 	FenixAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
 		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.FENIX, furmsLayoutFactory,
 			List.of(

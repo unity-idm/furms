@@ -30,7 +30,6 @@ public class FurmsLogo extends HorizontalLayout {
 				.map(this::createDynamicResource)
 				.map(logoResource -> new Image(logoResource, ""))
 				.orElse(new Image(Images.FENIX_LOGO.path, ""));
-		image.setWidthFull();
 		image.setId("furms-logo-image");
 		add(image);
 	}

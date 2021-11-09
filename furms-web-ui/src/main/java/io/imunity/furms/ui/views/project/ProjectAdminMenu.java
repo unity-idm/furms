@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.project;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.FurmsAppLayoutExtended;
+import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -21,7 +21,7 @@ import io.imunity.furms.ui.views.project.users.UsersView;
 
 import java.util.List;
 
-public class ProjectAdminMenu extends FurmsAppLayoutExtended {
+public class ProjectAdminMenu extends FurmsAppLayout {
 	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
 		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.PROJECT, furmsLayoutFactory, List.of(
 			MenuComponent.builder(UsersView.class).build(),

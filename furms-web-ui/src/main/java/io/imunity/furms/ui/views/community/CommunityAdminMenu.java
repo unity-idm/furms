@@ -8,7 +8,7 @@ package io.imunity.furms.ui.views.community;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.FurmsAppLayoutExtended;
+import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -20,7 +20,7 @@ import io.imunity.furms.ui.views.community.settings.SettingsView;
 
 import java.util.List;
 
-public class CommunityAdminMenu extends FurmsAppLayoutExtended {
+public class CommunityAdminMenu extends FurmsAppLayout {
 	CommunityAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
 		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.COMMUNITY, furmsLayoutFactory, List.of(
 			MenuComponent.builder(DashboardView.class).build(),
