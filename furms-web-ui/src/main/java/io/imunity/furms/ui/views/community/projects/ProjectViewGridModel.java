@@ -59,10 +59,10 @@ class ProjectViewGridModel {
 	}
 
 	public boolean matches(String value) {
-		return name.toLowerCase().contains(value) ||
-			description.toLowerCase().contains(value) ||
-			siteName.toLowerCase().contains(value) ||
-			status.toString().toLowerCase().contains(value);
+		return (name != null && name.toLowerCase().contains(value)) ||
+				(description != null && description.toLowerCase().contains(value)) ||
+				(siteName != null && siteName.toLowerCase().contains(value)) ||
+				(status != null && status.toString().toLowerCase().contains(value));
 	}
 
 	public static ProjectViewGridModelBuilder builder() {

@@ -134,8 +134,8 @@ public class ProjectViewModel {
 	}
 
 	public boolean matches(String value) {
-		return name.toLowerCase().contains(value) || 
-				description.toLowerCase().contains(value) ||
+		return name.toLowerCase().contains(value) ||
+				(description != null && description.toLowerCase().contains(value)) ||
 				acronym.toLowerCase().contains(value) ||
 				researchField.toLowerCase().contains(value);
 	}

@@ -87,9 +87,9 @@ class ResourceAccessModel {
 	}
 
 	boolean matches(String value) {
-		return firstName.toLowerCase().contains(value) ||
-			lastName.toLowerCase().contains(value) ||
-			email.toLowerCase().contains(value);
+		return (firstName != null && firstName.toLowerCase().contains(value)) ||
+				(lastName != null && lastName.toLowerCase().contains(value)) ||
+				(email != null && email.toLowerCase().contains(value));
 	}
 
 	@Override
