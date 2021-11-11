@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -36,6 +37,11 @@ import io.imunity.furms.domain.users.UserEvent;
 import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
+import io.imunity.furms.ui.components.branding.layout.BottomPanel;
+import io.imunity.furms.ui.components.branding.layout.EmptyPolymerModel;
+import io.imunity.furms.ui.components.branding.layout.LeftPanel;
+import io.imunity.furms.ui.components.branding.layout.RightPanel;
+import io.imunity.furms.ui.components.branding.layout.TopPanel;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -83,10 +89,10 @@ public class FurmsAppLayout
 
 		setId("furms-layout");
 
-		final Div top = div("furms-layout-top");
-		final Div left = div("furms-layout-left");
-		final Div right = div("furms-layout-right");
-		final Div bottom = div("furms-layout-bottom");
+		final Div top = panel("furms-layout-top", new TopPanel());
+		final Div left = panel("furms-layout-left", new LeftPanel());
+		final Div right = panel("furms-layout-right", new RightPanel());
+		final Div bottom = panel("furms-layout-bottom", new BottomPanel());
 
 		final VerticalLayout menuContent = furmsAppLayoutUtils.createDrawerContent();
 		menuContent.setId("furms-layout-menu");
@@ -184,9 +190,10 @@ public class FurmsAppLayout
 				.ifPresent(FurmsViewUserContext::setAsCurrent);
 	}
 
-	private Div div(String id) {
+	private Div panel(String id, PolymerTemplate<EmptyPolymerModel> panelTemplate) {
 		final Div div = new Div();
 		div.setId(id);
+		div.add(panelTemplate);
 		return div;
 	}
 
