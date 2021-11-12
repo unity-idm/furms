@@ -8,5 +8,5 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserSSHKeyUpdateResult")
-public class AgentSSHKeyUpdatingResult implements Body {
+public class AgentSSHKeyUpdatingResult implements Body, Result {
 }	

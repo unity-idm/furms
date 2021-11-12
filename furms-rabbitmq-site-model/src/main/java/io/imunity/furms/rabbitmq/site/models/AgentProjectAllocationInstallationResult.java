@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @JsonTypeName("ProjectResourceAllocationResult")
-public class AgentProjectAllocationInstallationResult implements Body {
+public class AgentProjectAllocationInstallationResult implements Body, Result {
 	public final String allocationIdentifier;
 	public final String allocationChunkIdentifier;
 	public final String resourceType;

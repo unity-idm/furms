@@ -14,7 +14,6 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
-import io.imunity.furms.site.api.message_resolver.BaseSiteIdResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ import static io.imunity.furms.rabbitmq.site.models.Status.OK;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Service
-public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseSiteIdResolver {
+public class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -61,7 +60,6 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService, BaseS
 		map.remove(result.header.messageCorrelationId);
 	}
 
-	@Override
 	public SiteExternalId getSiteId(CorrelationId correlationId) {
 		PendingJob<SiteAgentStatus> pendingJob = map.get(correlationId.id);
 		return Optional.ofNullable(pendingJob)

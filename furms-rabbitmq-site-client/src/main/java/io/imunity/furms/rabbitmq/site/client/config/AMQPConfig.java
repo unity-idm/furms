@@ -7,10 +7,8 @@ package io.imunity.furms.rabbitmq.site.client.config;
 
 import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdResolversConnector;
 import io.imunity.furms.rabbitmq.site.models.Body;
-import io.imunity.furms.rabbitmq.site.models.converter.FurmsPayloadConverter;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +24,6 @@ class AMQPConfig {
 	@Bean
 	RabbitAdmin rabbitAdmin(RabbitTemplate rabbitTemplate){
 		return new RabbitAdmin(rabbitTemplate);
-	}
-
-	@Bean
-	MessageConverter messageConverter() {
-		return new FurmsPayloadConverter();
 	}
 
 	@Bean

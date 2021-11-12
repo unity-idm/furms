@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @JsonTypeName("ProjectInstallationResult")
-public class AgentProjectInstallationResult implements Body{
+public class AgentProjectInstallationResult implements Body, Result {
 	public final Map<String, String> attributes;
 
 	@JsonCreator

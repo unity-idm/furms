@@ -10,5 +10,5 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 @JsonTypeName("UserSSHKeyUpdateRequestAck")
-public class AgentSSHKeyUpdatingAck implements Body{
+public class AgentSSHKeyUpdatingAck implements Body, Ack {
 }
