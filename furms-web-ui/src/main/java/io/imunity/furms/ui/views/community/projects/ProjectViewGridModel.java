@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 
 class ProjectViewGridModel {
@@ -59,10 +61,11 @@ class ProjectViewGridModel {
 	}
 
 	public boolean matches(String value) {
-		return (name != null && name.toLowerCase().contains(value)) ||
-				(description != null && description.toLowerCase().contains(value)) ||
-				(siteName != null && siteName.toLowerCase().contains(value)) ||
-				(status != null && status.toString().toLowerCase().contains(value));
+		return StringUtils.isBlank(value) ||
+				name.toLowerCase().contains(value.toLowerCase()) ||
+				(description != null && description.toLowerCase().contains(value.toLowerCase())) ||
+				(siteName != null && siteName.toLowerCase().contains(value.toLowerCase())) ||
+				(status != null && status.toString().toLowerCase().contains(value.toLowerCase()));
 	}
 
 	public static ProjectViewGridModelBuilder builder() {

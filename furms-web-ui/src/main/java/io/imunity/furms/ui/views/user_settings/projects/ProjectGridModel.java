@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 
 class ProjectGridModel {
@@ -23,8 +25,9 @@ class ProjectGridModel {
 	}
 
 	boolean matches(String value) {
-		return name.toLowerCase().contains(value) ||
-				(description != null && description.toLowerCase().contains(value));
+		return StringUtils.isBlank(value) ||
+				name.toLowerCase().contains(value.toLowerCase()) ||
+				(description != null && description.toLowerCase().contains(value.toLowerCase()));
 	}
 
 	@Override

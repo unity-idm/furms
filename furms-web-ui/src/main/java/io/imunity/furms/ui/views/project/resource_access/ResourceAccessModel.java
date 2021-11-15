@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
+import org.apache.commons.lang3.StringUtils;
 
 class ResourceAccessModel {
 	private String firstName;
@@ -87,9 +88,10 @@ class ResourceAccessModel {
 	}
 
 	boolean matches(String value) {
-		return (firstName != null && firstName.toLowerCase().contains(value)) ||
-				(lastName != null && lastName.toLowerCase().contains(value)) ||
-				(email != null && email.toLowerCase().contains(value));
+		return StringUtils.isBlank(value) ||
+				(firstName != null && firstName.toLowerCase().contains(value.toLowerCase())) ||
+				(lastName != null && lastName.toLowerCase().contains(value.toLowerCase())) ||
+				email.toLowerCase().contains(value.toLowerCase());
 	}
 
 	@Override
