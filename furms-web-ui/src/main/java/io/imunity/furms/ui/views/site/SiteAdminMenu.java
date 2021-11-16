@@ -10,6 +10,7 @@ import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.components.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
@@ -23,15 +24,19 @@ import java.util.List;
 
 public class SiteAdminMenu extends FurmsAppLayout {
 
-	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory, VaadinBroadcaster vaadinBroadcaster, AuthzService authzService, RoleTranslator roleTranslator) {
-		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.SITE, furmsLayoutFactory, 			List.of(
-			MenuComponent.builder(PolicyDocumentsView.class).build(),
-			MenuComponent.builder(InfraServicesView.class).build(),
-			MenuComponent.builder(ResourceTypesView.class).build(),
-			MenuComponent.builder(ResourceCreditsView.class).build(),
-			MenuComponent.builder(PendingRequestsView.class).build(),
-			MenuComponent.builder(SiteAdministratorsView.class).build(),
-			MenuComponent.builder(SettingsView.class).build()
-		));
+	SiteAdminMenu(FurmsLayoutFactory furmsLayoutFactory,
+	              VaadinBroadcaster vaadinBroadcaster,
+	              AuthzService authzService,
+	              RoleTranslator roleTranslator,
+	              FurmsLayoutExtraPanelsConfig extraPanelsConfig) {
+		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.SITE, furmsLayoutFactory, extraPanelsConfig,
+				List.of(
+						MenuComponent.builder(PolicyDocumentsView.class).build(),
+						MenuComponent.builder(InfraServicesView.class).build(),
+						MenuComponent.builder(ResourceTypesView.class).build(),
+						MenuComponent.builder(ResourceCreditsView.class).build(),
+						MenuComponent.builder(PendingRequestsView.class).build(),
+						MenuComponent.builder(SiteAdministratorsView.class).build(),
+						MenuComponent.builder(SettingsView.class).build()));
 	}
 }

@@ -46,6 +46,12 @@ furms:
       site-form: siteForm
       community-form: communityForm
       project-form: projectForm
+   layout:
+      panels:
+         top:
+         left:
+         right:
+         bottom:
 
 
 spring:
