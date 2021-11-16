@@ -12,8 +12,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
@@ -26,6 +26,8 @@ import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
+import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -40,12 +42,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -80,6 +84,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		);
 
 		getContent().add(viewHeaderLayout, siteConnectionLayout, searchLayout, grid);
+		loadGrid();
 	}
 
 	private boolean rowContains(PendingMessageGridModel row, String value, SearchLayout searchLayout) {
@@ -96,7 +101,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		GridActionMenu contextMenu = new GridActionMenu();
 		Dialog retryConfirmDialog = createMainConfirmDialog(
 			checkboxes,
-			siteAgentPendingMessageService::retry,
+			correlationId -> siteAgentPendingMessageService.retry(siteId, correlationId),
 			getTranslation("view.site-admin.pending-requests.page.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
@@ -106,7 +111,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 
 		Dialog deleteConfirmDialog = createMainConfirmDialog(
 			checkboxes,
-			siteAgentPendingMessageService::delete,
+			correlationId -> siteAgentPendingMessageService.delete(siteId, correlationId),
 			getTranslation("view.site-admin.pending-requests.page.dialog.delete.confirmation"));
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.pending-requests.page.context-menu.delete"), TRASH),
@@ -138,32 +143,38 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addComponentColumn(pendingMessageGridModel -> {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(pendingMessageGridModel.id ,checkbox);
-			return new HorizontalLayout(checkbox, new Label(pendingMessageGridModel.operationType));
-		}).setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.site-admin.pending-requests.page.grid.1"))));
-		grid.addColumn(x -> x.status)
+			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Paragraph(
+				getTranslation("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType)
+			));
+			horizontalLayout.setAlignItems(CENTER);
+			return horizontalLayout;
+		})
+			.setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.site-admin.pending-requests.page.grid.1"))))
+			.setFlexGrow(2);
+		grid.addColumn(model -> model.status)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.2"))
 			.setSortable(true);
-		grid.addColumn(x -> x.sentAt.format(dateTimeFormatter))
+		grid.addColumn(model -> model.sentAt.format(dateTimeFormatter))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.3"))
 			.setSortable(true);
-		grid.addColumn(x -> x.ackAt.format(dateTimeFormatter))
+		grid.addColumn(model -> Optional.ofNullable(model.ackAt)
+				.map(ackTime -> ackTime.format(dateTimeFormatter))
+				.orElse("")
+		)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.4"))
 			.setSortable(true);
-		grid.addColumn(x -> x.retryAmount)
+		grid.addColumn(model -> model.retryAmount)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.5"))
 			.setSortable(true);
-		grid.addComponentColumn(x -> createContextMenu(x.id))
+		grid.addComponentColumn(model -> createContextMenu(model.id))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
-
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(data -> {
-			Div div = new Div();
-			div.setId("view-detail");
-			div.addClassNames("center-rows", "row-details");
-//			Paragraph p = new Paragraph("this text\nhas\nsome line breaks");
-//			p.getElement().getStyle().set("white-space", "pre");
-			return div;
+			Paragraph json = new Paragraph(data.json);
+			json.getElement().getStyle().set("white-space", "pre");
+			return json;
 		}));
+
 		return grid;
 	}
 
@@ -171,7 +182,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		Dialog retryConfirmDialog = createConfirmDialog(
-			() -> siteAgentPendingMessageService.retry(id),
+			() -> siteAgentPendingMessageService.retry(siteId, id),
 			getTranslation("view.site-admin.pending-requests.page.grid.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
@@ -179,8 +190,11 @@ public class PendingRequestsView extends FurmsViewComponent {
 			event -> retryConfirmDialog.open()
 		);
 
+		IconButton retryButton = new IconButton(REFRESH.create());
+		retryButton.addClickListener(event -> retryConfirmDialog.open());
+
 		Dialog deleteConfirmDialog = createConfirmDialog(
-			() -> siteAgentPendingMessageService.delete(id),
+			() -> siteAgentPendingMessageService.delete(siteId, id),
 			getTranslation("view.site-admin.pending-requests.page.grid.dialog.delete.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
@@ -188,7 +202,9 @@ public class PendingRequestsView extends FurmsViewComponent {
 			event -> deleteConfirmDialog.open()
 		);
 
-		return contextMenu.getTarget();
+		GridActionsButtonLayout gridActionsButtonLayout = new GridActionsButtonLayout(retryButton, contextMenu.getTarget());
+		gridActionsButtonLayout.setAlignItems(CENTER);
+		return gridActionsButtonLayout;
 	}
 
 	private Dialog createConfirmDialog(Runnable operation, String message) {
@@ -211,13 +227,16 @@ public class PendingRequestsView extends FurmsViewComponent {
 			.map(message ->
 				PendingMessageGridModel.builder()
 					.id(message.correlationId)
-					.operationType(message.jsonContent.substring(0,20))
+					.operationType(JsonOperationTypeParser.parse(message.jsonContent))
 					.status(message.utcAckAt == null ?
 						getTranslation("view.site-admin.pending-requests.page.grid.status.pending") :
 						getTranslation("view.site-admin.pending-requests.page.grid.status.ack")
 					)
 					.sentAt(convertToZoneTime(message.utcSentAt, browserZoneId).toLocalDateTime())
-					.ackAt(convertToZoneTime(message.utcAckAt, browserZoneId).toLocalDateTime())
+					.ackAt(Optional.ofNullable(message.utcAckAt)
+						.map(ack -> convertToZoneTime(ack, browserZoneId).toLocalDateTime())
+						.orElse(null)
+					)
 					.retryAmount(message.retryAmount)
 					.json(message.jsonContent)
 					.build()
@@ -236,7 +255,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		progressBar.setVisible(false);
 		progressBar.setWidth("10em");
 
-		button.addClickListener(event -> handleExceptions(() -> siteAgentPendingMessageService.getSiteAgentStatus(siteId.id))
+		button.addClickListener(event -> handleExceptions(() -> siteAgentPendingMessageService.getSiteAgentStatus(siteId))
 			.ifPresent(siteAgentStatus -> {
 				resultLabel.setText("");
 				progressBar.setVisible(true);

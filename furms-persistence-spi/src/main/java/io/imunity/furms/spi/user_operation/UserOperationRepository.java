@@ -39,4 +39,5 @@ public interface UserOperationRepository {
 	boolean isUserInstalledOnSite(FenixUserId userId, String siteId);
 	void deleteAll();
 	void delete(UserAddition userAddition);
+	void delete(CorrelationId id);
 }

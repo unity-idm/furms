@@ -21,7 +21,7 @@ public interface SiteAgentPendingMessageRepository {
 
 	void create(SiteAgentPendingMessage message);
 
-	void restartSentTime(CorrelationId id, LocalDateTime sentAt);
+	void overwriteSentTime(CorrelationId id, LocalDateTime sentAt);
 
 	void updateAckTime(CorrelationId id, LocalDateTime ackAt);
 

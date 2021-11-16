@@ -55,4 +55,6 @@ public interface ProjectOperationRepository {
 	void deleteById(String id);
 
 	void deleteAll();
+
+	void delete(CorrelationId id);
 }

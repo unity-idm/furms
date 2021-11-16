@@ -18,37 +18,50 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.utils.UTCTimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class SiteAgentPendingMessageServiceImpl implements SiteAgentPendingMessageService {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final SiteAgentPendingMessageRepository repository;
 	private final SiteAgentRetryService siteAgentRetryService;
 	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteRepository siteRepository;
 	private final Clock clock;
+	private final SiteAgentPendingMessageRemover siteAgentPendingMessageRemover;
+	private final JacksonJsonParser jacksonJsonParser;
 
 	SiteAgentPendingMessageServiceImpl(SiteAgentPendingMessageRepository repository,
 	                                   SiteAgentRetryService siteAgentRetryService,
 	                                   SiteAgentStatusService siteAgentStatusService,
 	                                   SiteRepository siteRepository,
-	                                   Clock clock) {
+	                                   Clock clock, SiteAgentPendingMessageRemover siteAgentPendingMessageRemover) {
 		this.repository = repository;
 		this.siteAgentRetryService = siteAgentRetryService;
 		this.siteAgentStatusService = siteAgentStatusService;
 		this.siteRepository = siteRepository;
 		this.clock = clock;
+		this.siteAgentPendingMessageRemover = siteAgentPendingMessageRemover;
+		this.jacksonJsonParser = new JacksonJsonParser();
 	}
 
 	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId.id")
 	public Set<SiteAgentPendingMessage> findAll(SiteId siteId) {
 		return siteRepository.findById(siteId.id).stream()
 			.flatMap(site -> repository.findAll(site.getExternalId()).stream())
@@ -56,22 +69,44 @@ class SiteAgentPendingMessageServiceImpl implements SiteAgentPendingMessageServi
 	}
 
 	@Override
-	public void retry(CorrelationId correlationId) {
-		repository.find(correlationId).ifPresent(message -> {
-			siteAgentRetryService.retry(new SiteExternalId(message.siteExternalId.id), message.jsonContent);
-			repository.restartSentTime(correlationId, UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)));
-		});
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
+	public void retry(SiteId siteId, CorrelationId correlationId) {
+		repository.find(correlationId).ifPresentOrElse(
+			message -> {
+				if(isMessageRelatedWithSite(siteId, message)) {
+					siteAgentRetryService.retry(new SiteExternalId(message.siteExternalId.id), message.jsonContent);
+					repository.overwriteSentTime(correlationId, UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)));
+					return;
+				}
+				LOG.warn("Correlation id {} doesn't belong to site id {}", correlationId, siteId);
+			},
+			() -> LOG.warn("Correlation id {} doesn't exist", correlationId));
+	}
+
+	private Boolean isMessageRelatedWithSite(SiteId siteId, SiteAgentPendingMessage message) {
+		return siteRepository.findById(siteId.id).map(site -> site.getExternalId().equals(message.siteExternalId)).orElse(false);
 	}
 
 	@Override
-	public void delete(CorrelationId correlationId) {
-		repository.delete(correlationId);
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
+	public void delete(SiteId siteId, CorrelationId correlationId) {
+		repository.find(correlationId).ifPresentOrElse(
+			message -> {
+				if(isMessageRelatedWithSite(siteId, message)) {
+					String type = ((Map<String, ?>) jacksonJsonParser.parseMap(message.jsonContent).get("body")).keySet().stream().findAny().orElse("");
+					siteAgentPendingMessageRemover.remove(correlationId, type);
+					repository.delete(correlationId);
+					return;
+				}
+				LOG.warn("Correlation id {} doesn't belong to site id {}", correlationId, siteId);
+			},
+			() -> LOG.warn("Correlation id {} doesn't exist", correlationId));
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
-		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId.id")
+	public PendingJob<SiteAgentStatus> getSiteAgentStatus(SiteId siteId) {
+		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId.id);
 		return siteAgentStatusService.getStatus(externalId);
 	}
 }

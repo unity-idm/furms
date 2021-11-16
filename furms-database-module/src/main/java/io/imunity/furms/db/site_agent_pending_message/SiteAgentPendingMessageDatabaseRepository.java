@@ -72,6 +72,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 		repository.findByCorrelationId(UUID.fromString(id.id))
 			.map(message ->
 				SiteAgentPendingMessageEntity.builder()
+					.id(message.getId())
 					.siteExternalId(message.siteExternalId)
 					.correlationId(message.correlationId)
 					.jsonContent(message.jsonContent)
@@ -84,10 +85,11 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 	}
 
 	@Override
-	public void restartSentTime(CorrelationId id, LocalDateTime sentAt) {
+	public void overwriteSentTime(CorrelationId id, LocalDateTime sentAt) {
 		repository.findByCorrelationId(UUID.fromString(id.id))
 			.map(message ->
 				SiteAgentPendingMessageEntity.builder()
+					.id(message.getId())
 					.siteExternalId(message.siteExternalId)
 					.correlationId(message.correlationId)
 					.jsonContent(message.jsonContent)

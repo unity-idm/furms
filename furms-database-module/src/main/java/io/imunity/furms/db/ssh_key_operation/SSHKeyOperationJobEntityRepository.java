@@ -5,13 +5,13 @@
 
 package io.imunity.furms.db.ssh_key_operation;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.UUID;
 
 interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperationJobEntity, UUID> {
 	SSHKeyOperationJobEntity findByCorrelationId(UUID correlationId);
@@ -26,5 +26,9 @@ interface SSHKeyOperationJobEntityRepository extends CrudRepository<SSHKeyOperat
 	List<SSHKeyOperationJobEntity> findBySshkeyId(UUID sshkeyId);
 
 	List<SSHKeyOperationJobEntity> findByStatus(String status);
+
+	@Modifying
+	@Query("delete from ssh_key_operation_job where correlation_id = :correlation_id")
+	void deleteByCorrelationId(@Param("correlation_id") UUID correlationId);
 
 }

@@ -5,6 +5,7 @@
 package io.imunity.furms.db;
 
 import io.imunity.furms.db.resource_access.UserGrantEntityRepository;
+import io.imunity.furms.db.site_agent_pending_message.SiteAgentPendingMessageEntityRepository;
 import io.imunity.furms.db.user_operation.UserAdditionEntityRepository;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -43,9 +44,12 @@ public class RepoCleaner {
 	private PolicyDocumentRepository policyDocumentRepository;
 	@Autowired
 	private InfraServiceRepository infraServiceRepository;
+	@Autowired
+	private SiteAgentPendingMessageEntityRepository siteAgentPendingMessageEntityRepository;
 
 
 	public void cleanAll() {
+		siteAgentPendingMessageEntityRepository.deleteAll();
 		userGrantEntityRepository.deleteAll();
 		userAdditionEntityRepository.deleteAll();
 		projectOperationRepository.deleteAll();

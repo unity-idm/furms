@@ -27,6 +27,6 @@ class SiteAgentRetryServiceImpl implements SiteAgentRetryService {
 	@Override
 	public void retry(SiteExternalId id, String json) {
 		String queueName = getFurmsPublishQueueName(id);
-		rabbitTemplate.send(queueName, new Message(json.getBytes(StandardCharsets.UTF_8), new MessageProperties()));
+		rabbitTemplate.send(queueName, new Message(json.replaceAll("(\\r|\\n|\\t|\\s)", "").getBytes(StandardCharsets.UTF_8), new MessageProperties()));
 	}
 }

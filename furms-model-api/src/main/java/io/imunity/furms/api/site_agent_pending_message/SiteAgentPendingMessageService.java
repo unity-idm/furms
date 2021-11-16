@@ -15,7 +15,7 @@ import java.util.Set;
 
 public interface SiteAgentPendingMessageService {
 	Set<SiteAgentPendingMessage> findAll(SiteId siteId);
-	void retry(CorrelationId correlationId);
-	void delete(CorrelationId correlationId);
-	PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId);
+	void retry(SiteId siteId, CorrelationId correlationId);
+	void delete(SiteId siteId, CorrelationId correlationId);
+	PendingJob<SiteAgentStatus> getSiteAgentStatus(SiteId siteId);
 }
