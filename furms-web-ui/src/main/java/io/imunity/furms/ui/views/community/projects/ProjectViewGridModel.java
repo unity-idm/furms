@@ -61,11 +61,14 @@ class ProjectViewGridModel {
 	}
 
 	public boolean matches(String value) {
-		return StringUtils.isBlank(value) ||
-				name.toLowerCase().contains(value.toLowerCase()) ||
-				(description != null && description.toLowerCase().contains(value.toLowerCase())) ||
-				(siteName != null && siteName.toLowerCase().contains(value.toLowerCase())) ||
-				(status != null && status.toString().toLowerCase().contains(value.toLowerCase()));
+		if (StringUtils.isBlank(value)) {
+			return true;
+		}
+		final String lowerCaseValue = value.toLowerCase();
+		return name.toLowerCase().contains(lowerCaseValue) ||
+				(description != null && description.toLowerCase().contains(lowerCaseValue)) ||
+				(siteName != null && siteName.toLowerCase().contains(lowerCaseValue)) ||
+				(status != null && status.toString().toLowerCase().contains(lowerCaseValue));
 	}
 
 	public static ProjectViewGridModelBuilder builder() {

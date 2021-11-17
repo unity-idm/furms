@@ -25,9 +25,12 @@ class ProjectGridModel {
 	}
 
 	boolean matches(String value) {
-		return StringUtils.isBlank(value) ||
-				name.toLowerCase().contains(value.toLowerCase()) ||
-				(description != null && description.toLowerCase().contains(value.toLowerCase()));
+		if (StringUtils.isBlank(value)) {
+			return true;
+		}
+		final String lowerCaseValue = value.toLowerCase();
+		return name.toLowerCase().contains(lowerCaseValue) ||
+				(description != null && description.toLowerCase().contains(lowerCaseValue));
 	}
 
 	@Override

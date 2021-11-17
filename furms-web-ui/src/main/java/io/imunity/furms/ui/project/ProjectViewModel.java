@@ -135,11 +135,14 @@ public class ProjectViewModel {
 	}
 
 	public boolean matches(String value) {
-		return StringUtils.isBlank(value) ||
-				name.toLowerCase().contains(value.toLowerCase()) ||
-				(description != null && description.toLowerCase().contains(value.toLowerCase())) ||
-				acronym.toLowerCase().contains(value.toLowerCase()) ||
-				researchField.toLowerCase().contains(value.toLowerCase());
+		if (StringUtils.isBlank(value)) {
+			return true;
+		}
+		final String lowerCaseValue = value.toLowerCase();
+		return name.toLowerCase().contains(lowerCaseValue) ||
+				(description != null && description.toLowerCase().contains(lowerCaseValue)) ||
+				acronym.toLowerCase().contains(lowerCaseValue) ||
+				researchField.toLowerCase().contains(lowerCaseValue);
 	}
 
 	@Override

@@ -88,10 +88,13 @@ class ResourceAccessModel {
 	}
 
 	boolean matches(String value) {
-		return StringUtils.isBlank(value) ||
-				(firstName != null && firstName.toLowerCase().contains(value.toLowerCase())) ||
-				(lastName != null && lastName.toLowerCase().contains(value.toLowerCase())) ||
-				email.toLowerCase().contains(value.toLowerCase());
+		if (StringUtils.isBlank(value)) {
+			return true;
+		}
+		final String lowerCaseValue = value.toLowerCase();
+		return (firstName != null && firstName.toLowerCase().contains(lowerCaseValue)) ||
+				(lastName != null && lastName.toLowerCase().contains(lowerCaseValue)) ||
+				email.toLowerCase().contains(lowerCaseValue);
 	}
 
 	@Override
