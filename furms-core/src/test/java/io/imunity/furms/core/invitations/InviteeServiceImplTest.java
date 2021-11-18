@@ -6,6 +6,7 @@
 package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.notification.NotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -20,7 +21,6 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -64,7 +64,7 @@ class InviteeServiceImplTest {
 	@Mock
 	private FenixUsersDAO fenixUsersDAO;
 	@Mock
-	private NotificationDAO notificationDAO;
+	private NotificationService notificationService;
 	@Mock
 	private ApplicationEventPublisher publisher;
 
@@ -78,9 +78,9 @@ class InviteeServiceImplTest {
 		MockitoAnnotations.initMocks(this);
 		invitationService = new InviteeServiceImpl(
 			invitationRepository, authzService, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO,
-			projectRepository, publisher, fenixUsersDAO, notificationDAO
+			projectRepository, publisher, fenixUsersDAO, notificationService
 		);
-		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher, fenixUsersDAO, notificationDAO);
+		orderVerifier = inOrder(invitationRepository, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO, publisher, fenixUsersDAO, notificationService);
 	}
 
 	@Test
@@ -118,7 +118,7 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(fenixUsersDAO).addFenixAdminRole(persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.FENIX_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.FENIX_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
@@ -159,7 +159,7 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(siteGroupDAO).addSiteUser(resourceId.id.toString(), persistentId, Role.SITE_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
@@ -200,7 +200,7 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(communityGroupsDAO).addAdmin(resourceId.id.toString(), persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
@@ -245,7 +245,7 @@ class InviteeServiceImplTest {
 
 		orderVerifier.verify(projectGroupsDAO).addProjectUser("communityId", resourceId.id.toString(), persistentId, Role.PROJECT_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.PROJECT_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.PROJECT_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
 		orderVerifier.verify(publisher).publishEvent(new AddUserEvent(persistentId, invitation.resourceId));
 	}
@@ -297,7 +297,7 @@ class InviteeServiceImplTest {
 		invitationService.removeBy(invitationId);
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleRejection(originatorId, Role.SITE_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleRejection(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new RemoveInvitationUserEvent(user.fenixUserId.get(), invitation.email, invitationId));
 	}
 
@@ -333,6 +333,6 @@ class InviteeServiceImplTest {
 		invitationService.acceptInvitationByRegistration("registrationId");
 
 		orderVerifier.verify(invitationRepository).deleteBy(invitationCode);
-		orderVerifier.verify(notificationDAO).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
+		orderVerifier.verify(notificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 	}
 }

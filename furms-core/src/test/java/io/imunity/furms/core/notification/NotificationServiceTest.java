@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.unity.notifications;
+package io.imunity.furms.core.notification;
 
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
@@ -17,18 +17,18 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.notifications.EmailNotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
+import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
-import io.imunity.furms.unity.client.users.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -40,11 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class EmailNotificationDAOTest {
-	private static final String FURMS_BASE_URL = "https://localhost:333";
-	private static final String POLICY_DOCUMENT_BASE_URL = FURMS_BASE_URL + "/front/users/settings/policy/documents";
-	@Mock
-	private UserService userService;
+class NotificationServiceTest {
 	@Mock
 	private PolicyDocumentDAO policyDocumentDAO;
 	@Mock
@@ -52,24 +48,14 @@ class EmailNotificationDAOTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 	@Mock
+	private EmailNotificationDAO emailNotificationDAO;
+	@Mock
+	private SiteGroupDAO siteGroupDAO;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
-	private EmailNotificationDAO emailNotificationDAO;
-
-	@BeforeEach
-	void setUp() {
-		EmailNotificationProperties emailNotificationProperties = new EmailNotificationProperties(
-			"policyAcceptanceNew",
-			"policyAcceptanceRevision",
-			"newInvitation",
-			"acceptedInvitation",
-			"rejectedInvitation",
-			"newApplication",
-			"acceptedApplication",
-			"rejectedApplication",
-				FURMS_BASE_URL);
-		emailNotificationDAO = new EmailNotificationDAO(userService, userOperationRepository, policyDocumentDAO, policyDocumentRepository, emailNotificationProperties, publisher);
-	}
+	@InjectMocks
+	private NotificationService notificationService;
 
 	@Test
 	void shouldNotifyAboutChangedPolicy() {
@@ -97,12 +83,9 @@ class EmailNotificationDAOTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances(siteId))
 			.thenReturn(Set.of(userPolicyAcceptances));
 
-		emailNotificationDAO.notifyAboutChangedPolicy(policyDocument);
+		notificationService.notifyAboutChangedPolicy(policyDocument);
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceRevision",
-			Map.of("custom.name", "policyName",
-				"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL)
-		);
+		verify(emailNotificationDAO).notifyAboutChangedPolicy(id, "policyName");
 	}
 
 	@Test
@@ -131,21 +114,15 @@ class EmailNotificationDAOTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances(siteId))
 			.thenReturn(Set.of(userPolicyAcceptances));
 
-		emailNotificationDAO.notifyAboutChangedPolicy(policyDocument);
+		notificationService.notifyAboutChangedPolicy(policyDocument);
 
-		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceRevision", Map.of("custom.name", "policyName", "custom.furmsUrl", FURMS_BASE_URL));
+		verify(emailNotificationDAO, times(0)).notifyAboutChangedPolicy(id, "policyName");
 	}
 
 	@Test
 	void shouldNotifyAboutNewPolicy() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		PersistentId id = new PersistentId(UUID.randomUUID().toString());
-
-		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
-			.policyDocumentId(policyId)
-			.policyDocumentRevision(1)
-			.build();
 
 		PolicyDocument sitePolicy = PolicyDocument.builder()
 			.id(policyId)
@@ -159,21 +136,15 @@ class EmailNotificationDAOTest {
 			.revision(2)
 			.build();
 
-		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
-		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
 		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(policyId)
 			.build()));
 
+		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
-
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
-			Map.of("custom.name", "policyName",
-				"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL)
-		);
+		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
 
 	@Test
@@ -181,7 +152,6 @@ class EmailNotificationDAOTest {
 		PolicyId sitePolicyId = new PolicyId(UUID.randomUUID());
 		PolicyId servicePolicyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 
 		PolicyDocument sitePolicy = PolicyDocument.builder()
 			.id(sitePolicyId)
@@ -201,8 +171,6 @@ class EmailNotificationDAOTest {
 			.revision(2)
 			.build();
 
-		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
-		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of());
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(sitePolicyExtended, servicePolicyExtended));
 		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
 		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
@@ -210,23 +178,16 @@ class EmailNotificationDAOTest {
 			.build()));
 
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
-			Map.of("custom.name", "sitePolicyName",
-				"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL)
-		);
-		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
-			Map.of("custom.name", "servicePolicyName",
-				"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL)
-		);
+		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "sitePolicyName");
+		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "servicePolicyName");
 	}
 
 	@Test
 	void shouldNotNotifyAboutNewPolicy() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
@@ -239,16 +200,15 @@ class EmailNotificationDAOTest {
 			.revision(1)
 			.build();
 
-		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
-		when(userService.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
+		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
 		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(policyId)
 			.build()));
 
-		emailNotificationDAO.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
+		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
 
-		verify(userService, times(0)).sendUserNotification(id, "policyAcceptanceNew", Map.of("custom.name", "policyName", "custom.furmsUrl", FURMS_BASE_URL));
+		verify(emailNotificationDAO, times(0)).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
 
 	@Test
@@ -270,18 +230,13 @@ class EmailNotificationDAOTest {
 		when(policyDocumentRepository.findSitePolicy(siteId.id)).thenReturn(Optional.of(policyDocument));
 		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId.id)).thenReturn(Set.of(
 				UserAddition.builder().userId(fenixUserId.id).build()));
-		when(userService.findAllSiteUsers(siteId)).thenReturn(Set.of(fenixUserId));
 		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));
-		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
 
 		//when
-		emailNotificationDAO.notifyAllUsersAboutPolicyAssignmentChange(siteId);
+		notificationService.notifyAllUsersAboutPolicyAssignmentChange(siteId);
 
-		verify(userService, times(1))
-				.sendUserNotification(id, "policyAcceptanceNew",
-						Map.of("custom.name", "name",
-								"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL));
+		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}
 
 	@Test
@@ -307,17 +262,12 @@ class EmailNotificationDAOTest {
 		when(policyDocumentRepository.findById(infraService.policyId)).thenReturn(Optional.of(policyDocument));
 		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId.id)).thenReturn(Set.of(
 				UserAddition.builder().userId(fenixUserId.id).build()));
-		when(userService.findAllSiteUsers(siteId)).thenReturn(Set.of(fenixUserId));
 		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));
-		when(userService.getPersistentId(fenixUserId)).thenReturn(id);
 
 		//when
-		emailNotificationDAO.notifyAllUsersAboutPolicyAssignmentChange(infraService);
+		notificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
 
-		verify(userService, times(1))
-				.sendUserNotification(id, "policyAcceptanceNew",
-						Map.of("custom.name", "name",
-								"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL));
+		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}
 }

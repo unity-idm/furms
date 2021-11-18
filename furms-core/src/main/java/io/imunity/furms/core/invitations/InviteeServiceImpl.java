@@ -10,6 +10,7 @@ import io.imunity.furms.api.invitations.InviteeService;
 import io.imunity.furms.api.validation.exceptions.InvitationNotExistingException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
+import io.imunity.furms.core.notification.NotificationService;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
@@ -21,7 +22,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -51,13 +51,13 @@ class InviteeServiceImpl implements InviteeService {
 	private final CommunityGroupsDAO communityGroupsDAO;
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final ProjectRepository projectRepository;
-	private final NotificationDAO notificationDAO;
+	private final NotificationService notificationService;
 	private final ApplicationEventPublisher publisher;
 
 	InviteeServiceImpl(InvitationRepository invitationRepository, AuthzService authzService, UsersDAO usersDAO,
 	                   SiteGroupDAO siteGroupDAO, CommunityGroupsDAO communityGroupsDAO, ProjectGroupsDAO projectGroupsDAO,
 	                   ProjectRepository projectRepository, ApplicationEventPublisher publisher, FenixUsersDAO fenixUsersDAO,
-	                   NotificationDAO notificationDAO) {
+	                   NotificationService notificationService) {
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
 		this.usersDAO = usersDAO;
@@ -66,7 +66,7 @@ class InviteeServiceImpl implements InviteeService {
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
-		this.notificationDAO = notificationDAO;
+		this.notificationService = notificationService;
 		this.publisher = publisher;
 	}
 
@@ -93,7 +93,7 @@ class InviteeServiceImpl implements InviteeService {
 				break;
 		}
 		invitationRepository.deleteBy(invitation.id);
-		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationDAO.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
+		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
 		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), user.email, invitation.resourceId));
 		publisher.publishEvent(new AddUserEvent(user.id.get(), invitation.resourceId));
 	}
@@ -144,7 +144,7 @@ class InviteeServiceImpl implements InviteeService {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		invitationRepository.findBy(id, user.email).ifPresent(invitation -> {
 			invitationRepository.deleteBy(id);
-			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationDAO.notifyAdminAboutRoleRejection(usr.id.get(), invitation.role, invitation.email));
+			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationService.notifyAdminAboutRoleRejection(usr.id.get(), invitation.role, invitation.email));
 			publisher.publishEvent(new RemoveInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
 	}
@@ -155,7 +155,7 @@ class InviteeServiceImpl implements InviteeService {
 		InvitationCode invitationCode = usersDAO.findByRegistrationId(registrationId);
 		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
 			invitationRepository.deleteBy(invitationCode);
-			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationDAO.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
+			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> notificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
 		});
 	}
 }

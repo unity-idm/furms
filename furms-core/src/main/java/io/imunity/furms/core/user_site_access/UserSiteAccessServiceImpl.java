@@ -15,12 +15,11 @@ import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.user_site_access.UserSiteAccessGrantedEvent;
+import io.imunity.furms.domain.user_site_access.UserSiteAccessRevokedEvent;
 import io.imunity.furms.domain.user_site_access.UsersSitesAccesses;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -44,7 +43,7 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 
 @Service
-class UserSiteAccessServiceImpl implements UserSiteAccessService {
+class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccessInnerService {
 	private static final Logger LOG = LoggerFactory.getLogger(UserSiteAccessServiceImpl.class);
 
 	private final UserSiteAccessRepository userSiteAccessRepository;
@@ -109,6 +108,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 			userSiteAccessRepository.remove(siteId, projectId, userId);
 			userOperationService.createUserRemovals(siteId, projectId, userId);
 		}
+		publisher.publishEvent(new UserSiteAccessRevokedEvent(userId));
 	}
 
 	@Override
@@ -146,9 +146,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 		}
 	}
 
-	@EventListener
-	void onUserGrantAccess(UserGrantAddedEvent event) {
-		GrantAccess grantAccess = event.grantAccess;
+	@Override
+	public void addAccessOnSite(GrantAccess grantAccess) {
 		if(!userSiteAccessRepository.exists(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId))
 			userSiteAccessRepository.add(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
 
@@ -164,9 +163,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService {
 		}
 	}
 
-	@EventListener
-	void onUserGrantRevoke(UserGrantRemovedEvent event) {
-		GrantAccess grantAccess = event.grantAccess;
+	@Override
+	public void revokeAccessOnSite(GrantAccess grantAccess) {
 		removeAccess(grantAccess);
 	}
 

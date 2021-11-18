@@ -6,10 +6,11 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.notification.NotificationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
-import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentCreatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -22,7 +23,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -61,7 +61,7 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private NotificationDAO notificationDAO;
+	private NotificationService notificationService;
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	@Mock
@@ -80,11 +80,11 @@ class PolicyDocumentServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new PolicyDocumentServiceImpl(
-			authzService, repository, validator, policyDocumentDAO, notificationDAO,
+			authzService, repository, validator, policyDocumentDAO, notificationService,
 			siteAgentPolicyDocumentService, siteRepository,
 			userRepository, usersDAO, publisher
 		);
-		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationDAO, publisher);
+		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationService, publisher);
 	}
 
 	@Test
@@ -112,7 +112,7 @@ class PolicyDocumentServiceImplTest {
 
 		service.resendPolicyInfo("siteId", persistentId, policyId);
 
-		orderVerifier.verify(notificationDAO).notifyUser(persistentId, policyDocument);
+		orderVerifier.verify(notificationService).notifyUser(persistentId, policyDocument);
 	}
 
 	@Test
@@ -125,7 +125,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateCreate(policyDocument);
 		orderVerifier.verify(repository).create(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreateEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreatedEvent(policyId));
 	}
 
 	@Test
@@ -160,7 +160,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
-		orderVerifier.verify(notificationDAO).notifyAboutChangedPolicy(policyDocument);
+		orderVerifier.verify(notificationService).notifyAboutChangedPolicy(policyDocument);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 

@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.services;
 
+import io.imunity.furms.core.notification.NotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.CreateServiceEvent;
@@ -13,7 +14,6 @@ import io.imunity.furms.domain.services.RemoveServiceEvent;
 import io.imunity.furms.domain.services.UpdateServiceEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -54,7 +54,7 @@ class InfraServiceServiceImplTest {
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	@Mock
-	private NotificationDAO notificationDAO;
+	private NotificationService notificationService;
 
 
 	private InfraServiceServiceImpl service;
@@ -64,7 +64,7 @@ class InfraServiceServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
-		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, notificationDAO);
+		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, notificationService);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
 	}
 
@@ -209,7 +209,7 @@ class InfraServiceServiceImplTest {
 		//when
 		service.update(newService);
 
-		Mockito.verify(notificationDAO).notifyAllUsersAboutPolicyAssignmentChange(newService);
+		Mockito.verify(notificationService).notifyAllUsersAboutPolicyAssignmentChange(newService);
 	}
 
 	@Test
