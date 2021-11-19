@@ -34,6 +34,8 @@ import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.assertj.core.groups.Tuple;
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,8 @@ class V39__user_site_access_filling_migration_tests {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private Flyway flyway;
 
 	private UUID siteId;
 	private UUID projectId;
@@ -87,6 +91,12 @@ class V39__user_site_access_filling_migration_tests {
 
 	@BeforeEach
 	void setUp() {
+		flyway.clean();
+		Flyway.configure()
+				.configuration(flyway.getConfiguration())
+				.target("38")
+				.load()
+				.migrate();
 		Site site = Site.builder()
 			.name("name")
 			.build();
@@ -180,6 +190,12 @@ class V39__user_site_access_filling_migration_tests {
 				.amount(new BigDecimal(5))
 				.build()
 		));
+	}
+
+	@AfterEach
+	void tearDown() {
+		flyway.clean();
+		flyway.migrate();
 	}
 
 	@Test

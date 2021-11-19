@@ -30,6 +30,7 @@ import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -86,8 +87,14 @@ public class CleanupProjectDeallocationsMigrationTest extends DBIntegrationTest 
 	private String multipleWithPendingAndFailed;
 	private String singlePending;
 
+	@AfterEach
+	void tearDown() {
+		flyway.clean();
+		flyway.migrate();
+	}
+
 	@Test
-	void should() {
+	void shouldCleanupProjectDeallocationTableFromIllegalRecords() {
 		initializeFlywayWithVersionBeforeMigration();
 		loadRecords();
 
