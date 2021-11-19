@@ -19,9 +19,9 @@ public interface ProjectRepository {
 
 	Set<Project> findAll();
 
-	String create(Project community);
+	String create(Project project);
 
-	String update(Project community);
+	String update(Project project);
 
 	boolean exists(String id);
 
