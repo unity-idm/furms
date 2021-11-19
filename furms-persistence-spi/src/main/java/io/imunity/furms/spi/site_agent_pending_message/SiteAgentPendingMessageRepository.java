@@ -8,14 +8,14 @@ package io.imunity.furms.spi.site_agent_pending_message;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
-import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
 public interface SiteAgentPendingMessageRepository {
-	Set<SiteAgentPendingMessage> findAll(SiteExternalId siteId);
+	Set<SiteAgentPendingMessage> findAll(SiteId siteId);
 
 	Optional<SiteAgentPendingMessage> find(CorrelationId correlationId);
 

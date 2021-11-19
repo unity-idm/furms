@@ -10,7 +10,7 @@ import io.imunity.furms.rabbitmq.site.models.Ack;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Result;
-import io.imunity.furms.site.api.SiteAgentPendingMessageResolver;
+import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.utils.MDCKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +35,12 @@ class SiteAgentListenerRouter {
 
 	private final ApplicationEventPublisher publisher;
 	private final MessageAuthorizer validator;
-	private final SiteAgentPendingMessageResolver repository;
+	private final AgentPendingMessageSiteService agentPendingMessageSiteService;
 
-	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer validator, SiteAgentPendingMessageResolver repository) {
+	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer validator, AgentPendingMessageSiteService agentPendingMessageSiteService) {
 		this.publisher = publisher;
 		this.validator = validator;
-		this.repository = repository;
+		this.agentPendingMessageSiteService = agentPendingMessageSiteService;
 	}
 
 	@RabbitHandler
@@ -49,7 +49,7 @@ class SiteAgentListenerRouter {
 		try {
 			validator.validate(payload, queueName);
 			publisher.publishEvent(payload);
-			menagePendingRequests(payload);
+			updateOrDeletePendingRequests(payload);
 			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
 			LOG.error("This error occurred while processing payload: {} from queue {}", payload, queueName, e);
@@ -58,11 +58,17 @@ class SiteAgentListenerRouter {
 		}
 	}
 
-	private void menagePendingRequests(Payload<?> payload) {
+	/**
+	 * This method update or delete pending message based on arriving message type.
+	 * If message is Ack type it should be update, if message is Result type it should be delete.
+	 * There is one exception when AgentProjectAllocationInstallationAck arrived, pending message should be remove,
+	 * because project allocation message kind doesn't have result type.
+	 */
+	private void updateOrDeletePendingRequests(Payload<?> payload) {
 		if(payload.header.status.equals(OK) && payload.body instanceof Ack)
-			repository.updateToAck(new CorrelationId(payload.header.messageCorrelationId));
+			agentPendingMessageSiteService.setAsAcknowledged(new CorrelationId(payload.header.messageCorrelationId));
 		if((payload.header.status.equals(OK) && payload.body instanceof Result) || payload.body instanceof AgentProjectAllocationInstallationAck)
-			repository.delete(new CorrelationId(payload.header.messageCorrelationId));
+			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
 	}
 
 	@RabbitHandler(isDefault = true)

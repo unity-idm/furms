@@ -790,7 +790,7 @@ channels:
 
    site/site_id/policy/acceptance_update/ack:
       publish:
-         summary: Acknowledge ping request
+         summary: Acknowledge acceptance update request
          operationId: UserPolicyAcceptanceUpdateAck
          message:
             name: UserPolicyAcceptanceUpdateAck
@@ -824,7 +824,7 @@ channels:
 
    site/site_id/policy/update/ack:
       publish:
-         summary: Acknowledge ping request
+         summary: Acknowledge policy update request
          operationId: PolicyUpdateAck
          message:
             name: PolicyUpdateAck

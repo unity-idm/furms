@@ -14,16 +14,16 @@ import java.util.Objects;
 public class SiteAgentPendingMessage {
 	public final SiteExternalId siteExternalId;
 	public final CorrelationId correlationId;
-	public final int retryAmount;
+	public final int retryCount;
 	public final String jsonContent;
 	public final LocalDateTime utcSentAt;
 	public final LocalDateTime utcAckAt;
 
 	SiteAgentPendingMessage(SiteExternalId siteExternalId, CorrelationId correlationId,
-	                        int retryAmount, String jsonContent, LocalDateTime utcSentAt, LocalDateTime utcAckAt) {
+	                        int retryCount, String jsonContent, LocalDateTime utcSentAt, LocalDateTime utcAckAt) {
 		this.siteExternalId = siteExternalId;
 		this.correlationId = correlationId;
-		this.retryAmount = retryAmount;
+		this.retryCount = retryCount;
 		this.jsonContent = jsonContent;
 		this.utcSentAt = utcSentAt;
 		this.utcAckAt = utcAckAt;
@@ -36,7 +36,7 @@ public class SiteAgentPendingMessage {
 		SiteAgentPendingMessage that = (SiteAgentPendingMessage) o;
 		return Objects.equals(siteExternalId, that.siteExternalId) &&
 			Objects.equals(correlationId, that.correlationId) &&
-			retryAmount == that.retryAmount &&
+			retryCount == that.retryCount &&
 			Objects.equals(jsonContent, that.jsonContent) &&
 			Objects.equals(utcSentAt, that.utcSentAt) &&
 			Objects.equals(utcAckAt, that.utcAckAt);
@@ -44,7 +44,7 @@ public class SiteAgentPendingMessage {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteExternalId, correlationId, retryAmount, jsonContent, utcSentAt, utcAckAt);
+		return Objects.hash(siteExternalId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SiteAgentPendingMessage {
 		return "SiteAgentPendingMessage{" +
 			"siteId='" + siteExternalId + '\'' +
 			", correlationId=" + correlationId +
-			", retryAmount=" + retryAmount +
+			", retryAmount=" + retryCount +
 			", jsonContent='" + jsonContent + '\'' +
 			", utcSentAt=" + utcSentAt +
 			", utcAckAt=" + utcAckAt +
@@ -66,7 +66,7 @@ public class SiteAgentPendingMessage {
 	public static final class SiteAgentPendingMessageBuilder {
 		public SiteExternalId siteId;
 		public CorrelationId correlationId;
-		public int retryAmount;
+		public int retryCount;
 		public String jsonContent;
 		public LocalDateTime utcSentAt;
 		public LocalDateTime utcAckAt;
@@ -99,13 +99,13 @@ public class SiteAgentPendingMessage {
 			return this;
 		}
 
-		public SiteAgentPendingMessageBuilder retryAmount(int retryAmount) {
-			this.retryAmount = retryAmount;
+		public SiteAgentPendingMessageBuilder retryCount(int retryCount) {
+			this.retryCount = retryCount;
 			return this;
 		}
 
 		public SiteAgentPendingMessage build() {
-			return new SiteAgentPendingMessage(siteId, correlationId, retryAmount, jsonContent, utcSentAt, utcAckAt);
+			return new SiteAgentPendingMessage(siteId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt);
 		}
 	}
 }

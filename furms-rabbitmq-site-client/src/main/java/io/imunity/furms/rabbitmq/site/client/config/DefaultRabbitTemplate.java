@@ -7,17 +7,17 @@ package io.imunity.furms.rabbitmq.site.client.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.converter.FurmsPayloadConverter;
-import io.imunity.furms.site.api.SiteAgentPendingMessageResolver;
+import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.utils.UTCTimeUtils;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -25,19 +25,19 @@ import java.time.ZonedDateTime;
 
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSiteId;
 
+@Primary
 @Component
-class FurmsRabbitTemplate extends RabbitTemplate {
+class DefaultRabbitTemplate extends RabbitTemplate {
 
-	private final SiteAgentPendingMessageResolver repository;
-	private final ObjectMapper prettyMapper;
+	private final AgentPendingMessageSiteService agentPendingMessageSiteService;
+	private final ObjectMapper objectMapper;
 	private final Clock clock;
 
-	FurmsRabbitTemplate(SiteAgentPendingMessageResolver repository, Clock clock, ConnectionFactory connectionFactory, MessageConverter converter) {
+	DefaultRabbitTemplate(AgentPendingMessageSiteService agentPendingMessageSiteService, Clock clock, ConnectionFactory connectionFactory, MessageConverter converter) {
 		super(connectionFactory);
-		prettyMapper = new FurmsPayloadConverter().mapper;
-		prettyMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		setMessageConverter(converter);
-		this.repository = repository;
+		this.objectMapper = new FurmsPayloadConverter().mapper;
+		this.agentPendingMessageSiteService = agentPendingMessageSiteService;
 		this.clock = clock;
 	}
 
@@ -45,10 +45,10 @@ class FurmsRabbitTemplate extends RabbitTemplate {
 	public void convertAndSend(String routingKey, Object object){
 		Payload<?> payload = (Payload<?>) object;
 		try {
-			repository.create(SiteAgentPendingMessage.builder()
+			agentPendingMessageSiteService.create(SiteAgentPendingMessage.builder()
 				.siteExternalId(new SiteExternalId(getSiteId(routingKey)))
 				.correlationId(new CorrelationId(payload.header.messageCorrelationId))
-				.jsonContent(prettyMapper.writeValueAsString(object))
+				.jsonContent(objectMapper.writeValueAsString(object))
 				.utcSentAt(UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)))
 				.build()
 			);

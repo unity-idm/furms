@@ -12,6 +12,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.Body;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class SiteAgentStatusConnector implements SiteIdResolversConnector {
@@ -28,7 +29,7 @@ public class SiteAgentStatusConnector implements SiteIdResolversConnector {
 	}
 
 	@Override
-	public SiteExternalId getSiteId(Payload<?> payload) {
-		return resolver.getSiteId(new CorrelationId(payload.header.messageCorrelationId));
+	public Optional<SiteExternalId> getSiteId(Payload<?> payload) {
+		return Optional.ofNullable(resolver.getSiteId(new CorrelationId(payload.header.messageCorrelationId)));
 	}
 }

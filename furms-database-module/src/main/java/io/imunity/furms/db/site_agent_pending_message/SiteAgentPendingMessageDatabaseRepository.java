@@ -8,7 +8,9 @@ package io.imunity.furms.db.site_agent_pending_message;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,21 +21,23 @@ import java.util.stream.Collectors;
 
 @Repository
 class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessageRepository {
+	private final SiteRepository siteRepository;
 	private final SiteAgentPendingMessageEntityRepository repository;
 
-	SiteAgentPendingMessageDatabaseRepository(SiteAgentPendingMessageEntityRepository repository) {
+	SiteAgentPendingMessageDatabaseRepository(SiteRepository siteRepository, SiteAgentPendingMessageEntityRepository repository) {
+		this.siteRepository = siteRepository;
 		this.repository = repository;
 	}
 
 	@Override
-	public Set<SiteAgentPendingMessage> findAll(SiteExternalId siteId) {
-		return repository.findAllBySiteExternalId(siteId.id).stream()
+	public Set<SiteAgentPendingMessage> findAll(SiteId siteId) {
+		return repository.findAllBySiteId(UUID.fromString(siteId.id)).stream()
 			.map(message ->
 				SiteAgentPendingMessage.builder()
 					.siteExternalId(new SiteExternalId(message.siteExternalId))
 					.correlationId(new CorrelationId(message.correlationId.toString()))
 					.jsonContent(message.jsonContent)
-					.retryAmount(message.retryAmount)
+					.retryCount(message.retryCount)
 					.utcSentAt(message.sentAt)
 					.utcAckAt(message.ackAt)
 					.build()
@@ -49,7 +53,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 					.siteExternalId(new SiteExternalId(message.siteExternalId))
 					.correlationId(new CorrelationId(message.correlationId.toString()))
 					.jsonContent(message.jsonContent)
-					.retryAmount(message.retryAmount)
+					.retryCount(message.retryCount)
 					.utcSentAt(message.sentAt)
 					.utcAckAt(message.ackAt)
 					.build()
@@ -59,10 +63,11 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 	@Override
 	public void create(SiteAgentPendingMessage message) {
 		repository.save(SiteAgentPendingMessageEntity.builder()
+			.siteId(UUID.fromString(siteRepository.findByExternalId(message.siteExternalId).id))
 			.siteExternalId(message.siteExternalId.id)
 			.correlationId(UUID.fromString(message.correlationId.id))
 			.jsonContent(message.jsonContent)
-			.retryAmount(message.retryAmount)
+			.retryCount(message.retryCount)
 			.sentAt(message.utcSentAt)
 			.build());
 	}
@@ -73,10 +78,11 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 			.map(message ->
 				SiteAgentPendingMessageEntity.builder()
 					.id(message.getId())
+					.siteId(message.siteId)
 					.siteExternalId(message.siteExternalId)
 					.correlationId(message.correlationId)
 					.jsonContent(message.jsonContent)
-					.retryAmount(message.retryAmount)
+					.retryCount(message.retryCount)
 					.sentAt(message.sentAt)
 					.ackAt(ackAt)
 					.build()
@@ -90,10 +96,11 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 			.map(message ->
 				SiteAgentPendingMessageEntity.builder()
 					.id(message.getId())
+					.siteId(message.siteId)
 					.siteExternalId(message.siteExternalId)
 					.correlationId(message.correlationId)
 					.jsonContent(message.jsonContent)
-					.retryAmount(message.retryAmount + 1)
+					.retryCount(message.retryCount + 1)
 					.sentAt(sentAt)
 					.build()
 			)

@@ -14,19 +14,21 @@ import java.util.UUID;
 
 @Table("site_agent_pending_message")
 class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
+	public final UUID siteId;
 	public final String siteExternalId;
 	public final UUID correlationId;
-	public final int retryAmount;
+	public final int retryCount;
 	public final String jsonContent;
 	public final LocalDateTime sentAt;
 	public final LocalDateTime ackAt;
 
-	SiteAgentPendingMessageEntity(UUID id, String siteExternalId, UUID correlationId,
-	                              int retryAmount, String jsonContent, LocalDateTime sentAt, LocalDateTime ackAt) {
+	SiteAgentPendingMessageEntity(UUID id, UUID siteId, String siteExternalId, UUID correlationId,
+	                              int retryCount, String jsonContent, LocalDateTime sentAt, LocalDateTime ackAt) {
 		this.id = id;
+		this.siteId = siteId;
 		this.siteExternalId = siteExternalId;
 		this.correlationId = correlationId;
-		this.retryAmount = retryAmount;
+		this.retryCount = retryCount;
 		this.jsonContent = jsonContent;
 		this.sentAt = sentAt;
 		this.ackAt = ackAt;
@@ -37,8 +39,9 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		SiteAgentPendingMessageEntity that = (SiteAgentPendingMessageEntity) o;
-		return retryAmount == that.retryAmount &&
+		return retryCount == that.retryCount &&
 			Objects.equals(id, that.id) &&
+			Objects.equals(siteId, that.siteId) &&
 			Objects.equals(siteExternalId, that.siteExternalId) &&
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(jsonContent, that.jsonContent) &&
@@ -48,7 +51,7 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteExternalId, correlationId, retryAmount, jsonContent, sentAt, ackAt);
+		return Objects.hash(id, siteId, siteExternalId, correlationId, retryCount, jsonContent, sentAt, ackAt);
 	}
 
 	public static SiteAgentPendingMessageEntityBuilder builder() {
@@ -58,9 +61,10 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 
 	public static final class SiteAgentPendingMessageEntityBuilder {
 		private UUID id;
+		private UUID siteId;
 		private String siteExternalId;
 		private UUID correlationId;
-		private int retryAmount;
+		private int retryCount;
 		private String jsonContent;
 		private LocalDateTime sentAt;
 		private LocalDateTime ackAt;
@@ -70,6 +74,11 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 
 		public SiteAgentPendingMessageEntityBuilder id(UUID id) {
 			this.id = id;
+			return this;
+		}
+
+		public SiteAgentPendingMessageEntityBuilder siteId(UUID siteId) {
+			this.siteId = siteId;
 			return this;
 		}
 
@@ -83,8 +92,8 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public SiteAgentPendingMessageEntityBuilder retryAmount(int retryAmount) {
-			this.retryAmount = retryAmount;
+		public SiteAgentPendingMessageEntityBuilder retryCount(int retryCount) {
+			this.retryCount = retryCount;
 			return this;
 		}
 
@@ -104,7 +113,7 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 		}
 
 		public SiteAgentPendingMessageEntity build() {
-			return new SiteAgentPendingMessageEntity(id, siteExternalId, correlationId, retryAmount, jsonContent, sentAt, ackAt);
+			return new SiteAgentPendingMessageEntity(id, siteId, siteExternalId, correlationId, retryCount, jsonContent, sentAt, ackAt);
 		}
 	}
 }

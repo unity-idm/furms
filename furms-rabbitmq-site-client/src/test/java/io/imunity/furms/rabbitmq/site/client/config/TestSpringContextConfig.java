@@ -7,7 +7,7 @@ package io.imunity.furms.rabbitmq.site.client.config;
 
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
 import io.imunity.furms.rabbitmq.site.client.SiteAgentStatusServiceImpl;
-import io.imunity.furms.site.api.SiteAgentPendingMessageResolver;
+import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
@@ -27,5 +27,5 @@ class TestSpringContextConfig {
 	@MockBean
 	private SiteAgentStatusServiceImpl siteAgentStatusServiceImpl;
 	@MockBean
-	private SiteAgentPendingMessageResolver siteAgentPendingMessageResolver;
+	private AgentPendingMessageSiteService agentPendingMessageSiteService;
 }

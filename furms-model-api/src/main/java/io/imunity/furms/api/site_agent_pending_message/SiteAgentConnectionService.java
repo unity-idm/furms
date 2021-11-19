@@ -13,7 +13,7 @@ import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Set;
 
-public interface SiteAgentPendingMessageService {
+public interface SiteAgentConnectionService {
 	Set<SiteAgentPendingMessage> findAll(SiteId siteId);
 	void retry(SiteId siteId, CorrelationId correlationId);
 	void delete(SiteId siteId, CorrelationId correlationId);

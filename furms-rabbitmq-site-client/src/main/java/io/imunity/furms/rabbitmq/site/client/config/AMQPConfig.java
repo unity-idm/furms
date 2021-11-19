@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client.config;
 
+import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdGetter;
 import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdResolversConnector;
 import io.imunity.furms.rabbitmq.site.models.Body;
 import io.imunity.furms.rabbitmq.site.models.converter.FurmsPayloadConverter;
@@ -34,7 +35,7 @@ class AMQPConfig {
 
 	@Bean
 	@Autowired
-	Map<Class<? extends Body>, SiteIdResolversConnector> getAuthorizerMap(List<SiteIdResolversConnector> siteIdResolversConnectors){
+	Map<Class<? extends Body>, SiteIdGetter> getAuthorizerMap(List<SiteIdResolversConnector> siteIdResolversConnectors){
 		return siteIdResolversConnectors.stream()
 			.flatMap(authorizer -> authorizer.getApplicableClasses().stream().map(clazz -> Map.entry(clazz, authorizer)))
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));

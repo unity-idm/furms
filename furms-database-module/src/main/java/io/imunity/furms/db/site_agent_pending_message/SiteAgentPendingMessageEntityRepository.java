@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public interface SiteAgentPendingMessageEntityRepository extends CrudRepository<SiteAgentPendingMessageEntity, UUID> {
 	Optional<SiteAgentPendingMessageEntity> findByCorrelationId(UUID correlationId);
-	Set<SiteAgentPendingMessageEntity> findAllBySiteExternalId(String siteId);
+	Set<SiteAgentPendingMessageEntity> findAllBySiteId(UUID siteId);
 	@Modifying
 	@Query("delete from site_agent_pending_message where correlation_id = :correlation_id")
 	void deleteByCorrelationId(@Param("correlation_id") UUID correlationId);

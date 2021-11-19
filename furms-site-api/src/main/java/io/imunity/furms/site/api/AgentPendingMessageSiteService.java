@@ -10,12 +10,12 @@ import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessa
 
 import java.util.Optional;
 
-public interface SiteAgentPendingMessageResolver {
+public interface AgentPendingMessageSiteService {
 	Optional<SiteAgentPendingMessage> find(CorrelationId correlationId);
 
 	void create(SiteAgentPendingMessage message);
 
-	void updateToAck(CorrelationId id);
+	void setAsAcknowledged(CorrelationId id);
 
 	void delete(CorrelationId id);
 }
