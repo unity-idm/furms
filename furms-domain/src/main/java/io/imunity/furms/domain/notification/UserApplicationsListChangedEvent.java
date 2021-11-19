@@ -8,6 +8,7 @@ package io.imunity.furms.domain.notification;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 
-public interface UserApplicationNotificationRequestEvent extends FurmsEvent {
+@FunctionalInterface
+public interface UserApplicationsListChangedEvent extends FurmsEvent {
 	boolean isTargetedAt(FURMSUser user);
 }

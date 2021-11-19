@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class NotificationServiceTest {
+class PolicyNotificationServiceTest {
 	@Mock
 	private PolicyDocumentDAO policyDocumentDAO;
 	@Mock
@@ -55,7 +55,7 @@ class NotificationServiceTest {
 	private ApplicationEventPublisher publisher;
 
 	@InjectMocks
-	private NotificationService notificationService;
+	private PolicyNotificationService policyNotificationService;
 
 	@Test
 	void shouldNotifyAboutChangedPolicy() {
@@ -83,7 +83,7 @@ class NotificationServiceTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances(siteId))
 			.thenReturn(Set.of(userPolicyAcceptances));
 
-		notificationService.notifyAboutChangedPolicy(policyDocument);
+		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 
 		verify(emailNotificationDAO).notifyAboutChangedPolicy(id, "policyName");
 	}
@@ -114,7 +114,7 @@ class NotificationServiceTest {
 		when(policyDocumentDAO.getUserPolicyAcceptances(siteId))
 			.thenReturn(Set.of(userPolicyAcceptances));
 
-		notificationService.notifyAboutChangedPolicy(policyDocument);
+		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 
 		verify(emailNotificationDAO, times(0)).notifyAboutChangedPolicy(id, "policyName");
 	}
@@ -142,7 +142,7 @@ class NotificationServiceTest {
 			.id(policyId)
 			.build()));
 
-		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
 		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
@@ -178,7 +178,7 @@ class NotificationServiceTest {
 			.build()));
 
 
-		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
 		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "sitePolicyName");
 		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "servicePolicyName");
@@ -206,7 +206,7 @@ class NotificationServiceTest {
 			.id(policyId)
 			.build()));
 
-		notificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
 
 		verify(emailNotificationDAO, times(0)).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
@@ -234,7 +234,7 @@ class NotificationServiceTest {
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));
 
 		//when
-		notificationService.notifyAllUsersAboutPolicyAssignmentChange(siteId);
+		policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(siteId);
 
 		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}
@@ -266,7 +266,7 @@ class NotificationServiceTest {
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));
 
 		//when
-		notificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
+		policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
 
 		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}

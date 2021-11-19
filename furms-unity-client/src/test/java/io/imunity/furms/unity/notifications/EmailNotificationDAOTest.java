@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class EmailEmailNotificationDAOTest {
+class EmailNotificationDAOTest {
 	private static final String FURMS_BASE_URL = "https://localhost:333";
 	private static final String POLICY_DOCUMENT_BASE_URL = FURMS_BASE_URL + "/front/users/settings/policy/documents";
 	@Mock

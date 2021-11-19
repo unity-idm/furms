@@ -11,7 +11,7 @@ import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingExceptio
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.UserApplicationNotificationService;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
@@ -57,20 +57,20 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final ProjectRepository projectRepository;
 	private final AuthzService authzService;
-	private final NotificationService notificationService;
+	private final UserApplicationNotificationService userApplicationNotificationService;
 	private final InvitationRepository invitationRepository;
 	private final ApplicationEventPublisher publisher;
 
 	ProjectApplicationsServiceImpl(ApplicationRepository applicationRepository, UsersDAO usersDAO,
 	                               ProjectGroupsDAO projectGroupsDAO, ProjectRepository projectRepository,
-	                               AuthzService authzService, NotificationService notificationDAO,  InvitationRepository invitationRepository,
+	                               AuthzService authzService, UserApplicationNotificationService notificationDAO, InvitationRepository invitationRepository,
 	                               ApplicationEventPublisher publisher) {
 		this.applicationRepository = applicationRepository;
 		this.usersDAO = usersDAO;
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.authzService = authzService;
-		this.notificationService = notificationDAO;
+		this.userApplicationNotificationService = notificationDAO;
 		this.invitationRepository = invitationRepository;
 		this.publisher = publisher;
 	}
@@ -121,7 +121,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				.orElseThrow(UserWithoutFenixIdValidationError::new);
 			applicationRepository.create(projectId, fenixUserId);
 			projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)
-				.forEach(usr -> notificationService.notifyAdminAboutApplicationRequest(usr.id.get(), projectId, project.getName(), currentUser.email));
+				.forEach(usr -> userApplicationNotificationService.notifyAdminAboutApplicationRequest(usr.id.get(), projectId, project.getName(), currentUser.email));
 			publisher.publishEvent(new ProjectApplicationCreatedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId))));
 			LOG.info("User {} application for project ID: {} was created", projectId, currentUser.fenixUserId.get());
 		});
@@ -155,7 +155,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				PersistentId persistentId = usersDAO.getPersistentId(fenixUserId);
 				projectGroupsDAO.addProjectUser(communityId, projectId, persistentId, Role.PROJECT_USER);
 				applicationRepository.remove(projectId, fenixUserId);
-				notificationService.notifyUserAboutApplicationAcceptance(persistentId, project.getName());
+				userApplicationNotificationService.notifyUserAboutApplicationAcceptance(persistentId, project.getName());
 				publisher.publishEvent(
 					new ProjectApplicationAcceptedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
@@ -173,7 +173,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 			projectRepository.findById(projectId).ifPresent(project -> {
 				applicationRepository.remove(projectId, fenixUserId);
 				PersistentId persistentId = usersDAO.getPersistentId(fenixUserId);
-				notificationService.notifyUserAboutApplicationRejection(persistentId, project.getName());
+				userApplicationNotificationService.notifyUserAboutApplicationRejection(persistentId, project.getName());
 				publisher.publishEvent(
 					new ProjectApplicationRemovedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);

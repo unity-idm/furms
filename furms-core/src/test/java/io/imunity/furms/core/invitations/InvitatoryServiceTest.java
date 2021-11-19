@@ -8,7 +8,7 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -59,7 +59,7 @@ class InvitatoryServiceTest {
 	@Mock
 	private AuthzService authzService;
 	@Mock
-	private NotificationService notificationService;
+	private UserInvitationNotificationService userInvitationNotificationService;
 	@Mock
 	private ApplicationRepository applicationRepository;
 	@Mock
@@ -73,7 +73,7 @@ class InvitatoryServiceTest {
 		MockitoAnnotations.initMocks(this);
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
 		invitatoryService = new InvitatoryService(usersDAO, invitationRepository, authzService,
-			notificationService, publisher, fixedClock, applicationRepository, String.valueOf(EXPIRATION_TIME));
+			userInvitationNotificationService, publisher, fixedClock, applicationRepository, String.valueOf(EXPIRATION_TIME));
 	}
 
 	@Test
@@ -153,7 +153,7 @@ class InvitatoryServiceTest {
 		invitatoryService.inviteUser(persistentId, resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
-		verify(notificationService).notifyUserAboutNewRole(persistentId, invitation.role);
+		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, invitation.role);
 	}
 
 	@Test
@@ -243,7 +243,7 @@ class InvitatoryServiceTest {
 		invitatoryService.inviteUser("email@email.com", resourceId, role, "system");
 
 		verify(invitationRepository).create(invitation);
-		verify(notificationService).notifyUserAboutNewRole(persistentId, invitation.role);
+		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, invitation.role);
 	}
 
 	@Test
@@ -452,7 +452,7 @@ class InvitatoryServiceTest {
 
 		invitatoryService.resendInvitation(invitationId);
 
-		verify(notificationService).notifyUserAboutNewRole(persistentId, invitation.role);
+		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, invitation.role);
 	}
 
 	@Test
@@ -484,7 +484,7 @@ class InvitatoryServiceTest {
 		invitatoryService.updateInvitationRole(invitationId, Role.SITE_SUPPORT);
 
 		verify(invitationRepository).updateExpiredAtAndRole(invitationId, getExpiredAt(), Role.SITE_SUPPORT);
-		verify(notificationService).notifyUserAboutNewRole(persistentId, Role.SITE_SUPPORT);
+		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, Role.SITE_SUPPORT);
 	}
 
 	@Test

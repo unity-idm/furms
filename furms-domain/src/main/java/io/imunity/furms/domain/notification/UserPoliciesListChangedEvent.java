@@ -10,10 +10,10 @@ import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class UserPolicyNotificationRequestEvent implements FurmsEvent {
+public class UserPoliciesListChangedEvent implements FurmsEvent {
 	public final FenixUserId fenixUserId;
 
-	public UserPolicyNotificationRequestEvent(FenixUserId fenixUserId) {
+	public UserPoliciesListChangedEvent(FenixUserId fenixUserId) {
 		this.fenixUserId = fenixUserId;
 	}
 
@@ -21,7 +21,7 @@ public class UserPolicyNotificationRequestEvent implements FurmsEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserPolicyNotificationRequestEvent siteEvent = (UserPolicyNotificationRequestEvent) o;
+		UserPoliciesListChangedEvent siteEvent = (UserPoliciesListChangedEvent) o;
 			return Objects.equals(fenixUserId, siteEvent.fenixUserId);
 	}
 

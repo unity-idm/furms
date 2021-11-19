@@ -7,7 +7,7 @@ package io.imunity.furms.core.services;
 
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.CreateServiceEvent;
@@ -42,7 +42,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	private final SiteRepository siteRepository;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final ApplicationEventPublisher publisher;
-	private final NotificationService notificationService;
+	private final PolicyNotificationService policyNotificationService;
 
 	InfraServiceServiceImpl(InfraServiceRepository infraServiceRepository,
 	                        InfraServiceServiceValidator validator,
@@ -50,14 +50,14 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	                        SiteRepository siteRepository,
 	                        PolicyDocumentRepository policyDocumentRepository,
 	                        ApplicationEventPublisher publisher,
-	                        NotificationService notificationDAO) {
+	                        PolicyNotificationService notificationDAO) {
 		this.infraServiceRepository = infraServiceRepository;
 		this.validator = validator;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.siteRepository = siteRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.publisher = publisher;
-		this.notificationService = notificationDAO;
+		this.policyNotificationService = notificationDAO;
 	}
 
 	@Override
@@ -105,7 +105,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 		if(isPolicyChange(infraService, oldInfraService)) {
 			sendUpdateToSite(infraService, oldInfraService);
 			if (infraService.policyId != null && infraService.policyId.id != null) {
-				notificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
+				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
 			}
 		}
 	}

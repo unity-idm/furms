@@ -9,10 +9,10 @@ import io.imunity.furms.domain.FurmsEvent;
 
 import java.util.Objects;
 
-public class UserInvitationNotificationRequestEvent implements FurmsEvent {
+public class UserInvitationsListChangedEvent implements FurmsEvent {
 	public final String email;
 
-	public UserInvitationNotificationRequestEvent(String email) {
+	public UserInvitationsListChangedEvent(String email) {
 		this.email = email;
 	}
 
@@ -20,7 +20,7 @@ public class UserInvitationNotificationRequestEvent implements FurmsEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserInvitationNotificationRequestEvent that = (UserInvitationNotificationRequestEvent) o;
+		UserInvitationsListChangedEvent that = (UserInvitationsListChangedEvent) o;
 		return Objects.equals(email, that.email);
 	}
 

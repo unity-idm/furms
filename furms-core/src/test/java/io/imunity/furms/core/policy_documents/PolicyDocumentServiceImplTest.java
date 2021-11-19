@@ -6,7 +6,7 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -61,7 +61,7 @@ class PolicyDocumentServiceImplTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private NotificationService notificationService;
+	private PolicyNotificationService policyNotificationService;
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	@Mock
@@ -80,11 +80,11 @@ class PolicyDocumentServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		service = new PolicyDocumentServiceImpl(
-			authzService, repository, validator, policyDocumentDAO, notificationService,
+			authzService, repository, validator, policyDocumentDAO, policyNotificationService,
 			siteAgentPolicyDocumentService, siteRepository,
 			userRepository, usersDAO, publisher
 		);
-		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, notificationService, publisher);
+		orderVerifier = inOrder(repository, validator, publisher, policyDocumentDAO, policyNotificationService, publisher);
 	}
 
 	@Test
@@ -112,7 +112,7 @@ class PolicyDocumentServiceImplTest {
 
 		service.resendPolicyInfo("siteId", persistentId, policyId);
 
-		orderVerifier.verify(notificationService).notifyUser(persistentId, policyDocument);
+		orderVerifier.verify(policyNotificationService).notifyUserAboutNewPolicy(persistentId, policyDocument);
 	}
 
 	@Test
@@ -160,7 +160,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
-		orderVerifier.verify(notificationService).notifyAboutChangedPolicy(policyDocument);
+		orderVerifier.verify(policyNotificationService).notifyAboutChangedPolicy(policyDocument);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 

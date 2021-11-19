@@ -7,7 +7,7 @@ package io.imunity.furms.core.applications;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.UserApplicationNotificationService;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
@@ -55,7 +55,7 @@ class ProjectApplicationsServiceImplTest {
 	@Mock
 	private AuthzService authzService;
 	@Mock
-	private NotificationService notificationService;
+	private UserApplicationNotificationService userApplicationNotificationService;
 	@Mock
 	private InvitationRepository invitationRepository;
 	@Mock
@@ -135,7 +135,7 @@ class ProjectApplicationsServiceImplTest {
 		applicationService.createForCurrentUser(projectId);
 
 		verify(applicationRepository).create(projectId, id);
-		verify(notificationService).notifyAdminAboutApplicationRequest(persistentId, projectId,  "name", "email");
+		verify(userApplicationNotificationService).notifyAdminAboutApplicationRequest(persistentId, projectId,  "name", "email");
 		verify(publisher).publishEvent(new ProjectApplicationCreatedEvent(id, projectId, Set.of(user)));
 	}
 
@@ -216,7 +216,7 @@ class ProjectApplicationsServiceImplTest {
 		verify(projectGroupsDAO).addProjectUser("communityId", projectId, persistentId, Role.PROJECT_USER);
 		verify(applicationRepository).remove(projectId, fenixUserId);
 		verify(publisher).publishEvent(new ProjectApplicationAcceptedEvent(fenixUserId, projectId, Set.of(user)));
-		verify(notificationService).notifyUserAboutApplicationAcceptance(persistentId, "name");
+		verify(userApplicationNotificationService).notifyUserAboutApplicationAcceptance(persistentId, "name");
 	}
 
 	@Test
@@ -245,6 +245,6 @@ class ProjectApplicationsServiceImplTest {
 
 		verify(applicationRepository).remove("projectId", id);
 		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, "projectId", Set.of(user)));
-		verify(notificationService).notifyUserAboutApplicationRejection(persistentId, "name");
+		verify(userApplicationNotificationService).notifyUserAboutApplicationRejection(persistentId, "name");
 	}
 }

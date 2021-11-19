@@ -11,7 +11,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
 public interface EmailNotificationDAO {
-	void notifyUser(PersistentId id, PolicyDocument policyDocument);
+	void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument);
 	void notifyUserAboutNewRole(PersistentId id, Role role);
 	void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail);
 	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);

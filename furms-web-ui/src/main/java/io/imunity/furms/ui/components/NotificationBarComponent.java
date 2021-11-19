@@ -20,9 +20,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
-import io.imunity.furms.domain.notification.UserApplicationNotificationRequestEvent;
-import io.imunity.furms.domain.notification.UserInvitationNotificationRequestEvent;
-import io.imunity.furms.domain.notification.UserPolicyNotificationRequestEvent;
+import io.imunity.furms.domain.notification.UserApplicationsListChangedEvent;
+import io.imunity.furms.domain.notification.UserInvitationsListChangedEvent;
+import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.ui.VaadinBroadcaster;
@@ -126,22 +126,22 @@ public class NotificationBarComponent extends Button {
 	}
 
 	private boolean isCurrentUserInvitationsListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof UserInvitationNotificationRequestEvent))
+		if(!(furmsEvent instanceof UserInvitationsListChangedEvent))
 			return false;
-		UserInvitationNotificationRequestEvent event = (UserInvitationNotificationRequestEvent) furmsEvent;
+		UserInvitationsListChangedEvent event = (UserInvitationsListChangedEvent) furmsEvent;
 		return currentUser.email.equals(event.email);
 	}
 
 	private boolean isCurrentUserApplicationsListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof UserApplicationNotificationRequestEvent))
+		if(!(furmsEvent instanceof UserApplicationsListChangedEvent))
 			return false;
-		UserApplicationNotificationRequestEvent event = (UserApplicationNotificationRequestEvent) furmsEvent;
+		UserApplicationsListChangedEvent event = (UserApplicationsListChangedEvent) furmsEvent;
 		return event.isTargetedAt(currentUser);
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
-		if(furmsEvent instanceof UserPolicyNotificationRequestEvent) {
-			FenixUserId userId = ((UserPolicyNotificationRequestEvent) furmsEvent).fenixUserId;
+		if(furmsEvent instanceof UserPoliciesListChangedEvent) {
+			FenixUserId userId = ((UserPoliciesListChangedEvent) furmsEvent).fenixUserId;
 			return currentUser.fenixUserId
 				.filter(id -> id.equals(userId))
 				.isPresent();

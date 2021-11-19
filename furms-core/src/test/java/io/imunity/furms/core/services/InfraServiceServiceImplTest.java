@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.services;
 
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.CreateServiceEvent;
@@ -54,7 +54,7 @@ class InfraServiceServiceImplTest {
 	@Mock
 	private SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	@Mock
-	private NotificationService notificationService;
+	private PolicyNotificationService policyNotificationService;
 
 
 	private InfraServiceServiceImpl service;
@@ -64,7 +64,7 @@ class InfraServiceServiceImplTest {
 	void init() {
 		MockitoAnnotations.initMocks(this);
 		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
-		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, notificationService);
+		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, policyNotificationService);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
 	}
 
@@ -209,7 +209,7 @@ class InfraServiceServiceImplTest {
 		//when
 		service.update(newService);
 
-		Mockito.verify(notificationService).notifyAllUsersAboutPolicyAssignmentChange(newService);
+		Mockito.verify(policyNotificationService).notifyAllUsersAboutPolicyAssignmentChange(newService);
 	}
 
 	@Test

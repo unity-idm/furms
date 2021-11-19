@@ -197,7 +197,7 @@ class UserAllocationStatusUpdaterTest {
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
-		orderVerifier.verify(userSiteAccessInnerService).revokeAccessOnSite(GrantAccess.builder()
+		orderVerifier.verify(userSiteAccessInnerService).revokeAccessToSite(GrantAccess.builder()
 				.siteId(new SiteId("siteId"))
 				.projectId("projectId")
 				.fenixUserId(fenixUserId)

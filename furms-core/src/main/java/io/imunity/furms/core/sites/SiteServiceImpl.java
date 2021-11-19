@@ -11,7 +11,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -82,7 +82,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final CapabilityCollector capabilityCollector;
-	private final NotificationService notificationService;
+	private final PolicyNotificationService policyNotificationService;
 	private final InvitatoryService invitatoryService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
@@ -97,7 +97,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                PolicyDocumentRepository policyDocumentRepository,
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                CapabilityCollector capabilityCollector,
-	                NotificationService notificationService,
+	                PolicyNotificationService policyNotificationService,
 	                InvitatoryService invitatoryService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
@@ -111,7 +111,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.capabilityCollector = capabilityCollector;
-		this.notificationService = notificationService;
+		this.policyNotificationService = policyNotificationService;
 		this.invitatoryService = invitatoryService;
 	}
 
@@ -227,7 +227,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		if(isPolicyChange(updatedSite, oldSite)) {
 			sendUpdateToSite(updatedSite, oldSite);
 			if (updatedSite.getPolicyId() != null && updatedSite.getPolicyId().id != null) {
-				notificationService.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
 			}
 		}
 	}

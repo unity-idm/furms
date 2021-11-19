@@ -7,7 +7,7 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.notification.NotificationService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
@@ -60,7 +60,7 @@ class ResourceAccessServiceTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private NotificationService notificationService;
+	private PolicyNotificationService policyNotificationService;
 	@Mock
 	private UserSiteAccessInnerService userSiteAccessInnerService;
 
@@ -80,8 +80,8 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, notificationService, publisher);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService, notificationService, publisher);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService, policyNotificationService, publisher);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
 	}
 
@@ -167,7 +167,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test
@@ -200,7 +200,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test
@@ -227,7 +227,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test

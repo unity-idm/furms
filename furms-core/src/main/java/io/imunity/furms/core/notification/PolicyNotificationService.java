@@ -5,12 +5,8 @@
 
 package io.imunity.furms.core.notification;
 
-import io.imunity.furms.domain.applications.ProjectApplicationEvent;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.invitations.InvitationEvent;
-import io.imunity.furms.domain.notification.UserApplicationNotificationRequestEvent;
-import io.imunity.furms.domain.notification.UserInvitationNotificationRequestEvent;
-import io.imunity.furms.domain.notification.UserPolicyNotificationRequestEvent;
+import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -40,7 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class NotificationService {
+public class PolicyNotificationService {
 
 	private final EmailNotificationDAO emailNotificationDAO;
 	private final ApplicationEventPublisher publisher;
@@ -49,7 +45,7 @@ public class NotificationService {
 	private final UserOperationRepository userOperationRepository;
 	private final SiteGroupDAO siteGroupDAO;
 
-	NotificationService(EmailNotificationDAO emailNotificationDAO, ApplicationEventPublisher publisher, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
+	PolicyNotificationService(EmailNotificationDAO emailNotificationDAO, ApplicationEventPublisher publisher, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
 		this.emailNotificationDAO = emailNotificationDAO;
 		this.publisher = publisher;
 		this.policyDocumentDAO = policyDocumentDAO;
@@ -60,61 +56,26 @@ public class NotificationService {
 
 	@EventListener
 	void onUserSiteAccessGrantedEvent(UserSiteAccessGrantedEvent event){
-		publisher.publishEvent(new UserPolicyNotificationRequestEvent(event.fenixUserId));
+		publisher.publishEvent(new UserPoliciesListChangedEvent(event.fenixUserId));
 	}
 
 	@EventListener
 	void onUserAcceptedPolicyEvent(UserAcceptedPolicyEvent event){
-		publisher.publishEvent(new UserPolicyNotificationRequestEvent(event.userId));
+		publisher.publishEvent(new UserPoliciesListChangedEvent(event.userId));
 	}
 
 	@EventListener
 	void onUserSiteAccessRevokedEvent(UserSiteAccessRevokedEvent event){
-		publisher.publishEvent(new UserPolicyNotificationRequestEvent(event.fenixUserId));
+		publisher.publishEvent(new UserPoliciesListChangedEvent(event.fenixUserId));
 	}
 
 	@EventListener
 	void onUserGrantRemovedEvent(UserGrantRemovedEvent event){
-		publisher.publishEvent(new UserPolicyNotificationRequestEvent(event.grantAccess.fenixUserId));
+		publisher.publishEvent(new UserPoliciesListChangedEvent(event.grantAccess.fenixUserId));
 	}
 
-	@EventListener
-	void onProjectApplicationEvent(ProjectApplicationEvent event){
-		UserApplicationNotificationRequestEvent notificationRequestEvent = event::isTargetedAt;
-		publisher.publishEvent(notificationRequestEvent);
-	}
-
-	@EventListener
-	void onInvitationEvent(InvitationEvent event){
-		publisher.publishEvent(new UserInvitationNotificationRequestEvent(event.getEmail()));
-	}
-
-	public void notifyUser(PersistentId id, PolicyDocument policyDocument) {
-		emailNotificationDAO.notifyUser(id, policyDocument);
-	}
-
-	public void notifyUserAboutNewRole(PersistentId id, Role role) {
-		emailNotificationDAO.notifyUserAboutNewRole(id, role);
-	}
-
-	public void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail) {
-		emailNotificationDAO.notifyAdminAboutRoleAcceptance(id, role, acceptanceUserEmail);
-	}
-
-	public void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail) {
-		emailNotificationDAO.notifyAdminAboutApplicationRequest(id, projectId, projectName, applicationUserEmail);
-	}
-
-	public void notifyUserAboutApplicationAcceptance(PersistentId id, String projectName) {
-		emailNotificationDAO.notifyUserAboutApplicationAcceptance(id, projectName);
-	}
-
-	public void notifyUserAboutApplicationRejection(PersistentId id, String projectName) {
-		emailNotificationDAO.notifyUserAboutApplicationRejection(id, projectName);
-	}
-
-	public void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail) {
-		emailNotificationDAO.notifyAdminAboutRoleRejection(id, role, rejectionUserEmail);
+	public void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument) {
+		emailNotificationDAO.notifyUserAboutNewPolicy(id, policyDocument);
 	}
 
 	public void notifyAboutChangedPolicy(PolicyDocument policyDocument) {
@@ -127,7 +88,7 @@ public class NotificationService {
 			.filter(user -> user.id.isPresent())
 			.forEach(user -> {
 				emailNotificationDAO.notifyAboutChangedPolicy(user.id.get(), policyDocument.name);
-				publisher.publishEvent(new UserPolicyNotificationRequestEvent(user.fenixUserId.get()));
+				publisher.publishEvent(new UserPoliciesListChangedEvent(user.fenixUserId.get()));
 			});
 	}
 
@@ -149,7 +110,7 @@ public class NotificationService {
 			.forEach(policyDocumentExtended ->
 				emailNotificationDAO.notifyAboutNotAcceptedPolicy(userId, policyDocumentExtended.name)
 			);
-		publisher.publishEvent(new UserPolicyNotificationRequestEvent(userId));
+		publisher.publishEvent(new UserPoliciesListChangedEvent(userId));
 	}
 
 	public void notifyAllUsersAboutPolicyAssignmentChange(SiteId siteId) {
@@ -180,7 +141,7 @@ public class NotificationService {
 				.noneMatch(acceptance -> isCurrentRevisionAccepted(policy, acceptance)))
 			.forEach(fenixUserId -> {
 				emailNotificationDAO.notifySiteUserAboutPolicyAssignmentChange(fenixUserId, policy.name);
-				publisher.publishEvent(new UserPolicyNotificationRequestEvent(fenixUserId));
+				publisher.publishEvent(new UserPoliciesListChangedEvent(fenixUserId));
 			});
 	}
 

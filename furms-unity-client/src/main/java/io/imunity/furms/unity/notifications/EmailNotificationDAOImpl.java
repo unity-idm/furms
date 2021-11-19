@@ -41,7 +41,7 @@ class EmailNotificationDAOImpl implements EmailNotificationDAO {
 	}
 
 	@Override
-	public void notifyUser(PersistentId id, PolicyDocument policyDocument) {
+	public void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument) {
 		Map<String, String> attributes = Map.of(NAME_ATTRIBUTE, policyDocument.name, URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + POLICY_DOCUMENTS_URL);
 		if(policyDocument.revision == 1)
 			userService.sendUserNotification(id, emailNotificationProperties.newPolicyAcceptanceTemplateId, attributes);

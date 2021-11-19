@@ -53,7 +53,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 				.projectId(projectUserGrant.projectId)
 				.fenixUserId(projectUserGrant.userId)
 				.build();
-			userSiteAccessInnerService.revokeAccessOnSite(userGrant);
+			userSiteAccessInnerService.revokeAccessToSite(userGrant);
 			runAfterCommit(() -> publisher.publishEvent(new UserGrantRemovedEvent(userGrant)));
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
