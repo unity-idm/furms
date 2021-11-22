@@ -15,8 +15,6 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -30,12 +28,15 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -72,6 +73,16 @@ class UserSiteAccessServiceImplTest {
 
 	@InjectMocks
 	private UserSiteAccessServiceImpl userSiteAccessService;
+
+	@BeforeEach
+	void setUp() {
+		TransactionSynchronizationManager.initSynchronization();
+	}
+
+	@AfterEach
+	void clear() {
+		TransactionSynchronizationManager.clear();
+	}
 
 	@Test
 	void shouldAddAccessAndCreateUserInstallation() {
@@ -239,7 +250,7 @@ class UserSiteAccessServiceImplTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", userId)).thenReturn(Optional.empty());
 		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(true);
 
-		userSiteAccessService.onUserGrantAccess(new UserGrantAddedEvent(grantAccess));
+		userSiteAccessService.addAccessToSite(grantAccess);
 
 		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
 		verify(userOperationService).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
@@ -259,7 +270,7 @@ class UserSiteAccessServiceImplTest {
 		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(false);
 		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(true);
 
-		userSiteAccessService.onUserGrantAccess(new UserGrantAddedEvent(grantAccess));
+		userSiteAccessService.addAccessToSite(grantAccess);
 
 		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
 		verify(userOperationService, times(0)).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
@@ -277,7 +288,7 @@ class UserSiteAccessServiceImplTest {
 		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
 		when(userRepository.findAdditionStatus("siteId", "projectId", userId)).thenReturn(Optional.of(UserStatus.ADDED));
 
-		userSiteAccessService.onUserGrantAccess(new UserGrantAddedEvent(grantAccess));
+		userSiteAccessService.addAccessToSite(grantAccess);
 
 		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
 		verify(userOperationService, times(0)).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
@@ -296,7 +307,7 @@ class UserSiteAccessServiceImplTest {
 		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId)).thenReturn(Set.of());
 		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(true);
 
-		userSiteAccessService.onUserGrantRevoke(new UserGrantRemovedEvent(grantAccess));
+		userSiteAccessService.revokeAccessToSite(grantAccess);
 
 		verify(userSiteAccessRepository).remove("siteId", "projectId", userId);
 		verify(userOperationService).createUserRemovals("siteId", "projectId", userId);
@@ -320,7 +331,7 @@ class UserSiteAccessServiceImplTest {
 				.build()
 		));
 
-		userSiteAccessService.onUserGrantRevoke(new UserGrantRemovedEvent(grantAccess));
+		userSiteAccessService.revokeAccessToSite(grantAccess);
 
 		verify(userSiteAccessRepository, times(0)).remove("siteId", "projectId", userId);
 		verify(userOperationService, times(0)).createUserRemovals("siteId", "projectId", userId);

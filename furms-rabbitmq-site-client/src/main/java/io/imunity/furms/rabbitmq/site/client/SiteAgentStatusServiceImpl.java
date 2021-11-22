@@ -42,7 +42,7 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final RabbitTemplate rabbitTemplate;
-	private final Map<String, PendingJob<SiteAgentStatus>> map = new HashMap<>();
+	private final Map<String, PendingJob<SiteAgentStatus>> correlationIdToPendingJobCache = new HashMap<>();
 
 	SiteAgentStatusServiceImpl(RabbitTemplate rabbitTemplate) {
 		this.rabbitTemplate = rabbitTemplate;
@@ -50,18 +50,18 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 
 	@EventListener
 	void receiveAgentPingAck(Payload<AgentPingAck> result) {
-		PendingJob<SiteAgentStatus> pendingJob = map.get(result.header.messageCorrelationId);
+		PendingJob<SiteAgentStatus> pendingJob = correlationIdToPendingJobCache.get(result.header.messageCorrelationId);
 		if(result.header.status.equals(OK) && pendingJob != null){
 			pendingJob.jobFuture.complete(new SiteAgentStatus(AVAILABLE));
 		}
 		if(result.header.status.equals(FAILED) && pendingJob != null){
 			pendingJob.jobFuture.complete(new SiteAgentStatus(UNAVAILABLE));
 		}
-		map.remove(result.header.messageCorrelationId);
+		correlationIdToPendingJobCache.remove(result.header.messageCorrelationId);
 	}
 
 	public SiteExternalId getSiteId(CorrelationId correlationId) {
-		PendingJob<SiteAgentStatus> pendingJob = map.get(correlationId.id);
+		PendingJob<SiteAgentStatus> pendingJob = correlationIdToPendingJobCache.get(correlationId.id);
 		return Optional.ofNullable(pendingJob)
 			.map(job -> job.siteExternalId)
 			.orElse(null);
@@ -73,16 +73,18 @@ public class SiteAgentStatusServiceImpl implements SiteAgentStatusService {
 
 		CorrelationId correlationId = CorrelationId.randomID();
 		AgentPingRequest agentPingRequest = new AgentPingRequest();
+
+		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId, externalId);
+		correlationIdToPendingJobCache.put(correlationId.id, pendingJob);
 		try {
 			Header header = new Header(VERSION, correlationId.id, null, null);
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(externalId), new Payload<>(header, agentPingRequest));
 		}catch (AmqpConnectException e){
+			correlationIdToPendingJobCache.remove(correlationId.id);
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
 		failJobIfNoResponse(connectionFuture);
 
-		PendingJob<SiteAgentStatus> pendingJob = new PendingJob<>(connectionFuture, correlationId, externalId);
-		map.put(correlationId.id, pendingJob);
 		return pendingJob;
 	}
 

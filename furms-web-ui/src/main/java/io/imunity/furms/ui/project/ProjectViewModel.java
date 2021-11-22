@@ -7,6 +7,7 @@ package io.imunity.furms.ui.project;
 
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -134,10 +135,14 @@ public class ProjectViewModel {
 	}
 
 	public boolean matches(String value) {
-		return name.toLowerCase().contains(value) || 
-				description.toLowerCase().contains(value) ||
-				acronym.toLowerCase().contains(value) ||
-				researchField.toLowerCase().contains(value);
+		if (StringUtils.isBlank(value)) {
+			return true;
+		}
+		final String lowerCaseValue = value.toLowerCase();
+		return name.toLowerCase().contains(lowerCaseValue) ||
+				(description != null && description.toLowerCase().contains(lowerCaseValue)) ||
+				acronym.toLowerCase().contains(lowerCaseValue) ||
+				researchField.toLowerCase().contains(lowerCaseValue);
 	}
 
 	@Override

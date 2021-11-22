@@ -3,16 +3,17 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.policy_documents;
+package io.imunity.furms.domain.user_site_access;
 
+import io.imunity.furms.domain.policy_documents.PolicyDocumentEvent;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
-public class NewPolicyRevisionUserAcceptanceRequiredEvent implements PolicyDocumentEvent {
+public class UserSiteAccessRevokedEvent implements PolicyDocumentEvent {
 	public final FenixUserId fenixUserId;
 
-	public NewPolicyRevisionUserAcceptanceRequiredEvent(FenixUserId fenixUserId) {
+	public UserSiteAccessRevokedEvent(FenixUserId fenixUserId) {
 		this.fenixUserId = fenixUserId;
 	}
 
@@ -20,7 +21,7 @@ public class NewPolicyRevisionUserAcceptanceRequiredEvent implements PolicyDocum
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		NewPolicyRevisionUserAcceptanceRequiredEvent siteEvent = (NewPolicyRevisionUserAcceptanceRequiredEvent) o;
+		UserSiteAccessRevokedEvent siteEvent = (UserSiteAccessRevokedEvent) o;
 			return Objects.equals(fenixUserId, siteEvent.fenixUserId);
 	}
 
@@ -31,7 +32,7 @@ public class NewPolicyRevisionUserAcceptanceRequiredEvent implements PolicyDocum
 
 	@Override
 	public String toString() {
-		return "PolicyDocumentCreateEvent{" +
+		return "UserSiteAccessGrantedEvent{" +
 			"fenixUserId='" + fenixUserId + '\'' +
 			'}';
 	}

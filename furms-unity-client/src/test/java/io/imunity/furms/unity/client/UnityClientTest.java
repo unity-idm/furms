@@ -37,7 +37,7 @@ import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
-import io.imunity.furms.spi.notifications.NotificationDAO;
+import io.imunity.furms.spi.notifications.EmailNotificationDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -55,7 +55,7 @@ class UnityClientTest {
 	@MockBean
 	private SiteRepository siteRepository;
 	@MockBean
-	private NotificationDAO emailNotificationDAO;
+	private EmailNotificationDAO emailNotificationDAO;
 	@MockBean
 	private ProjectRepository projectRepository;
 	@MockBean

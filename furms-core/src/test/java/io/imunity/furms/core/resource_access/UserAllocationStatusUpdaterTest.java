@@ -5,14 +5,15 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
-import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +47,8 @@ class UserAllocationStatusUpdaterTest {
 	private ResourceAccessRepository repository;
 	@Mock
 	private ApplicationEventPublisher publisher;
+	@Mock
+	private UserSiteAccessInnerService userSiteAccessInnerService;
 
 	private UserAllocationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
@@ -52,8 +56,14 @@ class UserAllocationStatusUpdaterTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new UserAllocationStatusUpdaterImpl(repository, publisher);
-		orderVerifier = inOrder(repository, publisher);
+		service = new UserAllocationStatusUpdaterImpl(repository, userSiteAccessInnerService, publisher);
+		orderVerifier = inOrder(repository, publisher, userSiteAccessInnerService);
+		TransactionSynchronizationManager.initSynchronization();
+	}
+
+	@AfterEach
+	void clean() {
+		TransactionSynchronizationManager.clear();
 	}
 
 	@ParameterizedTest
@@ -187,12 +197,11 @@ class UserAllocationStatusUpdaterTest {
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
-		orderVerifier.verify(publisher).publishEvent(new UserGrantRemovedEvent(GrantAccess.builder()
+		orderVerifier.verify(userSiteAccessInnerService).revokeAccessToSite(GrantAccess.builder()
 				.siteId(new SiteId("siteId"))
 				.projectId("projectId")
 				.fenixUserId(fenixUserId)
 				.build()
-			)
 		);
 		verify(repository, times(0)).update(correlationId, REVOKED, "msg");
 	}
