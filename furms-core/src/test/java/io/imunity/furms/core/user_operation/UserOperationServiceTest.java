@@ -8,6 +8,7 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
@@ -48,7 +49,6 @@ import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -249,11 +249,9 @@ class UserOperationServiceTest {
 			.fenixUserId(new FenixUserId("userId"))
 			.build()));
 		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
-		service.createUserRemovals(projectId, userId);
 
 		//then
-		verify(repository, times(0)).update(any(UserAddition.class));
-		verify(siteAgentUserService, times(0)).removeUser(any(UserAddition.class));
+		assertThrows(UserInstallationOnSiteIsNotTerminalException.class, () -> service.createUserRemovals(projectId, userId));
 	}
 
 	@ParameterizedTest
