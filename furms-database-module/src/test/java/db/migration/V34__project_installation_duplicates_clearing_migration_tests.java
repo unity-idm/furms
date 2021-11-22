@@ -16,13 +16,13 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -32,12 +32,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
-import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
 
-
-@SpringBootTest(properties = "spring.flyway.target=34")
-@DirtiesContext(classMode = AFTER_CLASS, methodMode = BEFORE_METHOD)
+@SpringBootTest
 class V34__project_installation_duplicates_clearing_migration_tests {
 
 	@Autowired
@@ -67,7 +63,11 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 		projectRepository.deleteAll();
 		communityRepository.deleteAll();
 		flyway.clean();
-		flyway.migrate();
+		Flyway.configure()
+				.configuration(flyway.getConfiguration())
+				.target("33")
+				.load()
+				.migrate();
 
 		Site site = Site.builder()
 			.name("name")
@@ -117,6 +117,12 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		projectId1 = UUID.fromString(projectRepository.create(project1));
+	}
+
+	@AfterEach
+	void tearDown() {
+		flyway.clean();
+		flyway.migrate();
 	}
 
 	@Test
