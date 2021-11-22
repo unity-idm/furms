@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-class ResourceAccessRemoveStrategy implements PendingMessageRemoveStrategy {
+class ResourceAccessRemovalStrategy implements PendingMessageRemovalStrategy {
 	private final ResourceAccessRemover resourceAccessRemover;
 	private final Set<Class<? extends Body>> classes = Set.of(UserAllocationGrantAccessRequest.class, UserAllocationBlockAccessRequest.class);
 
-	ResourceAccessRemoveStrategy(ResourceAccessRemover resourceAccessRemover) {
+	ResourceAccessRemovalStrategy(ResourceAccessRemover resourceAccessRemover) {
 		this.resourceAccessRemover = resourceAccessRemover;
 	}
 

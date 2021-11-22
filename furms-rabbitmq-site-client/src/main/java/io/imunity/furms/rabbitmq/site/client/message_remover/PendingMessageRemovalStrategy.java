@@ -7,7 +7,7 @@ package io.imunity.furms.rabbitmq.site.client.message_remover;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 
-interface PendingMessageRemoveStrategy {
+interface PendingMessageRemovalStrategy {
 	boolean isApplicable(String name);
 	void remove(CorrelationId correlationId);
 }

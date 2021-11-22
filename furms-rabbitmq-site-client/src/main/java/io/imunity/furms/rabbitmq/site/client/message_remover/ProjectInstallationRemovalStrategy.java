@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-class ProjectInstallationRemoveStrategy implements PendingMessageRemoveStrategy {
+class ProjectInstallationRemovalStrategy implements PendingMessageRemovalStrategy {
 	private final ProjectInstallationRemover projectInstallationRemover;
 	private final Set<Class<? extends Body>> classes = Set.of(AgentProjectInstallationRequest.class, AgentProjectUpdateRequest.class);
 
-	ProjectInstallationRemoveStrategy(ProjectInstallationRemover projectInstallationRemover) {
+	ProjectInstallationRemovalStrategy(ProjectInstallationRemover projectInstallationRemover) {
 		this.projectInstallationRemover = projectInstallationRemover;
 	}
 

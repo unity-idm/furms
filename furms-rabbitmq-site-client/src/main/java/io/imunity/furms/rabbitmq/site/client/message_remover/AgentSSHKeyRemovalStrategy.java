@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-class AgentSSHKeyRemoveStrategy implements PendingMessageRemoveStrategy {
+class AgentSSHKeyRemovalStrategy implements PendingMessageRemovalStrategy {
 	private final AgentSSHKeyRemover agentSSHKeyRemover;
 	private final Set<Class<? extends Body>> classes = Set.of(AgentSSHKeyAdditionRequest.class, AgentSSHKeyRemovalRequest.class, AgentSSHKeyUpdatingRequest.class);
 
-	AgentSSHKeyRemoveStrategy(AgentSSHKeyRemover agentSSHKeyRemover) {
+	AgentSSHKeyRemovalStrategy(AgentSSHKeyRemover agentSSHKeyRemover) {
 		this.agentSSHKeyRemover = agentSSHKeyRemover;
 	}
 

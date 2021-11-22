@@ -16,10 +16,10 @@ import java.util.Map;
 @Component
 class SiteAgentPendingMessageRemoverConnectorImpl implements SiteAgentPendingMessageRemoverConnector {
 
-	private final List<PendingMessageRemoveStrategy> strategies;
+	private final List<PendingMessageRemovalStrategy> strategies;
 	private final JacksonJsonParser jacksonJsonParser = new JacksonJsonParser();
 
-	SiteAgentPendingMessageRemoverConnectorImpl(List<PendingMessageRemoveStrategy> strategies) {
+	SiteAgentPendingMessageRemoverConnectorImpl(List<PendingMessageRemovalStrategy> strategies) {
 		this.strategies = strategies;
 	}
 

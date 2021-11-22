@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-class UserProjectAddRemoveStrategy implements PendingMessageRemoveStrategy {
+class UserProjectAddRemovalStrategy implements PendingMessageRemovalStrategy {
 	private final UserProjectAddRemover userProjectAddRemover;
 	private final Set<Class<? extends Body>> classes = Set.of(UserProjectAddRequest.class, UserProjectRemovalRequest.class);
 
-	UserProjectAddRemoveStrategy(UserProjectAddRemover userProjectAddRemover) {
+	UserProjectAddRemovalStrategy(UserProjectAddRemover userProjectAddRemover) {
 		this.userProjectAddRemover = userProjectAddRemover;
 	}
 
