@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
@@ -200,14 +201,13 @@ public class UserOperationService implements UserAllocationsService {
 	private void createUserRemovals(String projectId, FURMSUser user) {
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		Set<UserAddition> allUserAdditions = repository.findAllUserAdditions(projectId, fenixUserId);
-		allUserAdditions.stream()
-			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
-			.forEach(this::removeUser);
-		if(allUserAdditions.isEmpty()){
-			FenixUserId userId = new FenixUserId(fenixUserId);
-			resourceAccessRepository.deleteByUserAndProjectId(userId, projectId);
-			userSiteAccessRepository.remove(projectId, userId);
-		}
+		if(allUserAdditions.stream().anyMatch(userAddition -> !userAddition.status.isTransitionalTo(REMOVAL_PENDING)))
+			throw new UserInstallationOnSiteIsNotTerminalException();
+		allUserAdditions.forEach(this::removeUser);
+
+		FenixUserId userId = new FenixUserId(fenixUserId);
+		resourceAccessRepository.deleteByUserAndProjectId(userId, projectId);
+		userSiteAccessRepository.remove(projectId, userId);
 	}
 
 	private void createUserRemovals(String siteId, String projectId, FURMSUser user) {

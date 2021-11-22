@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.images.FurmsImage;
@@ -28,7 +29,6 @@ import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -89,7 +89,7 @@ class SiteServiceImplTest {
 	@Mock
 	private CapabilityCollector capabilityCollector;
 	@Mock
-	private NotificationDAO notificationDAO;
+	private PolicyNotificationService policyNotificationService;
 	@Mock
 	private InvitatoryService invitatoryService;
 	
@@ -98,7 +98,7 @@ class SiteServiceImplTest {
 		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
 				siteAgentService, siteAgentStatusService, userOperationRepository, policyDocumentRepository,
-				siteAgentPolicyDocumentService, capabilityCollector, notificationDAO, invitatoryService);
+				siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService);
 	}
 
 	@Test
@@ -250,7 +250,7 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(1)
 			.build());
-		verify(notificationDAO, times(1)).notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+		verify(policyNotificationService, times(1)).notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
 	}
 
 	@Test
@@ -292,7 +292,7 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(-1)
 			.build());
-		verify(notificationDAO, times(0)).notifyAllUsersAboutPolicyAssignmentChange(any(SiteId.class));
+		verify(policyNotificationService, times(0)).notifyAllUsersAboutPolicyAssignmentChange(any(SiteId.class));
 	}
 
 	@Test

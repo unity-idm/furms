@@ -13,8 +13,9 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -103,7 +104,13 @@ public class UsersView extends FurmsLandingViewComponent {
 				projectService.resendInvitation(projectId, invitationId);
 				gridReload();
 			})
-			.withRemoveUserAction(userId -> projectService.removeUser(project.getCommunityId(), project.getId(), userId))
+			.withRemoveUserAction(userId -> {
+				try {
+					projectService.removeUser(project.getCommunityId(), project.getId(), userId);
+				} catch (UserInstallationOnSiteIsNotTerminalException e) {
+					showErrorNotification(getTranslation("user.currently.de-installing"));
+				}
+			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();

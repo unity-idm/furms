@@ -9,6 +9,8 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.notification.PolicyNotificationService;
+import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
@@ -17,7 +19,6 @@ import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
@@ -52,20 +53,23 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final ResourceAccessRepository repository;
 	private final UserOperationRepository userRepository;
 	private final AuthzService authzService;
-	private final NotificationDAO notificationDAO;
+	private final PolicyNotificationService policyNotificationService;
+	private final UserSiteAccessInnerService userSiteAccessInnerService;
 	private final ApplicationEventPublisher publisher;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                          ResourceAccessRepository repository,
 	                          UserOperationRepository userRepository,
 	                          AuthzService authzService,
-	                          NotificationDAO notificationDAO,
+	                          UserSiteAccessInnerService userSiteAccessInnerService,
+	                          PolicyNotificationService policyNotificationService,
 	                          ApplicationEventPublisher publisher) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
 		this.authzService = authzService;
-		this.notificationDAO = notificationDAO;
+		this.policyNotificationService = policyNotificationService;
+		this.userSiteAccessInnerService = userSiteAccessInnerService;
 		this.publisher = publisher;
 	}
 
@@ -112,7 +116,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
 		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
-		notificationDAO.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId.id, grantAccess.fenixUserId, grantId.toString());
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId.id, grantAccess.fenixUserId, grantId.toString());
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 	}
 
@@ -124,8 +128,10 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
 			);
 		}
-		else
+		else {
+			userSiteAccessInnerService.addAccessToSite(grantAccess);
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.USER_INSTALLING);
+		}
 
 		publisher.publishEvent(new UserGrantAddedEvent(grantAccess));
 		return grantId;

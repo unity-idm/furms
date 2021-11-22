@@ -20,12 +20,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
-import io.imunity.furms.domain.applications.ProjectApplicationEvent;
-import io.imunity.furms.domain.invitations.InvitationEvent;
-import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
-import io.imunity.furms.domain.policy_documents.NewPolicyRevisionUserAcceptanceRequiredEvent;
-import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.user_site_access.UserSiteAccessGrantedEvent;
+import io.imunity.furms.domain.notification.UserApplicationsListChangedEvent;
+import io.imunity.furms.domain.notification.UserInvitationsListChangedEvent;
+import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.ui.VaadinBroadcaster;
@@ -129,34 +126,27 @@ public class NotificationBarComponent extends Button {
 	}
 
 	private boolean isCurrentUserInvitationsListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof InvitationEvent))
+		if(!(furmsEvent instanceof UserInvitationsListChangedEvent))
 			return false;
-		InvitationEvent event = (InvitationEvent) furmsEvent;
-		return currentUser.email.equals(event.getEmail());
+		UserInvitationsListChangedEvent event = (UserInvitationsListChangedEvent) furmsEvent;
+		return currentUser.email.equals(event.email);
 	}
 
 	private boolean isCurrentUserApplicationsListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof ProjectApplicationEvent))
+		if(!(furmsEvent instanceof UserApplicationsListChangedEvent))
 			return false;
-		ProjectApplicationEvent event = (ProjectApplicationEvent) furmsEvent;
+		UserApplicationsListChangedEvent event = (UserApplicationsListChangedEvent) furmsEvent;
 		return event.isTargetedAt(currentUser);
 	}
 
 	private boolean isCurrentUserPoliciesAcceptanceListChanged(FurmsEvent furmsEvent) {
-		FenixUserId userId;
-		if(furmsEvent instanceof UserGrantAddedEvent)
-			userId = ((UserGrantAddedEvent) furmsEvent).grantAccess.fenixUserId;
-		else if(furmsEvent instanceof UserAcceptedPolicyEvent)
-			userId = ((UserAcceptedPolicyEvent) furmsEvent).userId;
-		else if(furmsEvent instanceof UserSiteAccessGrantedEvent)
-			userId = ((UserSiteAccessGrantedEvent) furmsEvent).fenixUserId;
-		else if(furmsEvent instanceof NewPolicyRevisionUserAcceptanceRequiredEvent)
-			userId = ((NewPolicyRevisionUserAcceptanceRequiredEvent) furmsEvent).fenixUserId;
-		else
-			return false;
-		return currentUser.fenixUserId
-			.filter(id -> id.equals(userId))
-			.isPresent();
+		if(furmsEvent instanceof UserPoliciesListChangedEvent) {
+			FenixUserId userId = ((UserPoliciesListChangedEvent) furmsEvent).fenixUserId;
+			return currentUser.fenixUserId
+				.filter(id -> id.equals(userId))
+				.isPresent();
+		}
+		return false;
 	}
 
 	@Override

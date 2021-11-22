@@ -10,10 +10,11 @@ import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
-import io.imunity.furms.domain.policy_documents.PolicyDocumentCreateEvent;
+import io.imunity.furms.domain.policy_documents.PolicyDocumentCreatedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentRemovedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentUpdatedEvent;
@@ -26,7 +27,6 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -66,7 +66,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentValidator validator;
 	private final PolicyDocumentDAO policyDocumentDAO;
-	private final NotificationDAO notificationDAO;
+	private final PolicyNotificationService policyNotificationService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final SiteRepository siteRepository;
 	private final UsersDAO usersDAO;
@@ -75,7 +75,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	PolicyDocumentServiceImpl(AuthzService authzService, PolicyDocumentRepository policyDocumentRepository,
 	                          PolicyDocumentValidator validator, PolicyDocumentDAO policyDocumentDAO,
-	                          NotificationDAO notificationDAO,
+	                          PolicyNotificationService policyNotificationService,
 	                          SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                          SiteRepository siteRepository,
 	                          UserOperationRepository userRepository,
@@ -84,7 +84,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.validator = validator;
 		this.policyDocumentDAO = policyDocumentDAO;
-		this.notificationDAO = notificationDAO;
+		this.policyNotificationService = policyNotificationService;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.siteRepository = siteRepository;
 		this.usersDAO = usersDAO;
@@ -162,7 +162,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId) {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
-		notificationDAO.notifyUser(persistentId, policyDocument);
+		policyNotificationService.notifyUserAboutNewPolicy(persistentId, policyDocument);
 	}
 
 	@Override
@@ -238,7 +238,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Creating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateCreate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.create(policyDocument);
-		publisher.publishEvent(new PolicyDocumentCreateEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentCreatedEvent(policyId));
 	}
 
 	@Override
@@ -270,7 +270,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			.orElseGet(Set::of)
 			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument, serviceId));
 
-		notificationDAO.notifyAboutChangedPolicy(policyDocument);
+		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
 	}
 

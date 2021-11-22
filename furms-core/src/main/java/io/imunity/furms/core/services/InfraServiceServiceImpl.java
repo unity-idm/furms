@@ -7,6 +7,7 @@ package io.imunity.furms.core.services;
 
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.CreateServiceEvent;
@@ -14,7 +15,6 @@ import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.RemoveServiceEvent;
 import io.imunity.furms.domain.services.UpdateServiceEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -42,7 +42,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	private final SiteRepository siteRepository;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final ApplicationEventPublisher publisher;
-	private final NotificationDAO notificationDAO;
+	private final PolicyNotificationService policyNotificationService;
 
 	InfraServiceServiceImpl(InfraServiceRepository infraServiceRepository,
 	                        InfraServiceServiceValidator validator,
@@ -50,14 +50,14 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	                        SiteRepository siteRepository,
 	                        PolicyDocumentRepository policyDocumentRepository,
 	                        ApplicationEventPublisher publisher,
-	                        NotificationDAO notificationDAO) {
+	                        PolicyNotificationService notificationDAO) {
 		this.infraServiceRepository = infraServiceRepository;
 		this.validator = validator;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.siteRepository = siteRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.publisher = publisher;
-		this.notificationDAO = notificationDAO;
+		this.policyNotificationService = notificationDAO;
 	}
 
 	@Override
@@ -105,7 +105,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 		if(isPolicyChange(infraService, oldInfraService)) {
 			sendUpdateToSite(infraService, oldInfraService);
 			if (infraService.policyId != null && infraService.policyId.id != null) {
-				notificationDAO.notifyAllUsersAboutPolicyAssignmentChange(infraService);
+				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
 			}
 		}
 	}
