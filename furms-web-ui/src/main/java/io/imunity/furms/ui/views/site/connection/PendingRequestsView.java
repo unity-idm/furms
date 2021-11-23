@@ -5,6 +5,28 @@
 
 package io.imunity.furms.ui.views.site.connection;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.PLAY;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -19,6 +41,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -34,26 +57,6 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "site/admin/pending/requests", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.pending-requests.page.title")
@@ -105,7 +108,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 			getTranslation("view.site-admin.pending-requests.page.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
-				getTranslation("view.site-admin.pending-requests.page.context-menu.retry"), REFRESH),
+				getTranslation("view.site-admin.pending-requests.page.context-menu.retry"), PLAY),
 			event -> retryConfirmDialog.open()
 		);
 
@@ -144,7 +147,8 @@ public class PendingRequestsView extends FurmsViewComponent {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(pendingMessageGridModel.id, checkbox);
 			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Paragraph(
-				getTranslation("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType)
+					getTranslationOrDefault("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType,
+							pendingMessageGridModel.operationType)
 			));
 			horizontalLayout.setAlignItems(CENTER);
 			return horizontalLayout;
@@ -171,11 +175,26 @@ public class PendingRequestsView extends FurmsViewComponent {
 			.setTextAlign(ColumnTextAlign.END);
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(data -> {
 			Paragraph json = new Paragraph(data.json);
-			json.getElement().getStyle().set("white-space", "pre");
+			json.getStyle().set("font-family", "monospace");
+			json.getStyle().set("word-wrap", "break-word");
+			json.getElement().getStyle().set("white-space", "pre-wrap");
 			return json;
 		}));
 
+		
 		return grid;
+	}
+	
+
+	private String getTranslationOrDefault(String key, String defaultString) {
+		try
+		{
+			return super.getTranslation(key);
+		} catch (MissingResourceException e)
+		{
+			LOG.error("Unable to resolve message key: {}. Using default {}", key, defaultString, e);
+			return defaultString;
+		}
 	}
 
 	private Component createContextMenu(CorrelationId id) {
@@ -186,11 +205,11 @@ public class PendingRequestsView extends FurmsViewComponent {
 			getTranslation("view.site-admin.pending-requests.page.grid.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
-				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.retry"), REFRESH),
+				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.retry"), PLAY),
 			event -> retryConfirmDialog.open()
 		);
 
-		IconButton retryButton = new IconButton(REFRESH.create());
+		IconButton retryButton = new IconButton(PLAY.create());
 		retryButton.addClickListener(event -> retryConfirmDialog.open());
 
 		Dialog deleteConfirmDialog = createConfirmDialog(

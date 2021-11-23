@@ -689,6 +689,19 @@ This section describes the FURMS 3.0 release installation steps basing on 2.0 re
 * Make sure that RabbitMQ broker is up and running.
 * <<Starting FURMS stack,Start FURMS stack>>.
 
+== Upgrade from 3.0 to 3.1 release
+
+This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation straight forward.
+
+* Make a backup of PostgreSQL database used by Unity-IdM instance.
+* Make a backup of PostgreSQL database used by FURMS service instance.
+* Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
+* <<Stopping FURMS stack,Stop FURMS stack>>.
+* Update your existing `groups_var/all.yml` Ansible configuration file and change the version of furmsVersion to `3.1.0`
+* <<Install FURMS stack>>.
+* Make sure that RabbitMQ broker is up and running.
+* <<Starting FURMS stack,Start FURMS stack>>.
+
 == Operating the system
 
 === Starting FURMS stack
