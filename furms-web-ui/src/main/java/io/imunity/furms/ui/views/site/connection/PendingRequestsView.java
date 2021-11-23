@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -146,7 +147,8 @@ public class PendingRequestsView extends FurmsViewComponent {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(pendingMessageGridModel.id, checkbox);
 			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Paragraph(
-				getTranslation("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType)
+					getTranslationOrDefault("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType,
+							pendingMessageGridModel.operationType)
 			));
 			horizontalLayout.setAlignItems(CENTER);
 			return horizontalLayout;
@@ -181,6 +183,18 @@ public class PendingRequestsView extends FurmsViewComponent {
 
 		
 		return grid;
+	}
+	
+
+	private String getTranslationOrDefault(String key, String defaultString) {
+		try
+		{
+			return super.getTranslation(key);
+		} catch (MissingResourceException e)
+		{
+			LOG.error("Unable to resolve message key: {}. Using default {}", key, defaultString, e);
+			return defaultString;
+		}
 	}
 
 	private Component createContextMenu(CorrelationId id) {
