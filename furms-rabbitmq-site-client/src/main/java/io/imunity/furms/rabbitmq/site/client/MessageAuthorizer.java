@@ -17,16 +17,16 @@ import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSiteId;
 
 @Component
 public class MessageAuthorizer {
-	private final Map<Class<? extends Body>, SiteIdGetter> messageAuthorizers;
+	private final Map<Class<? extends Body>, SiteIdGetter> siteIdGetterMap;
 	private final DefaultSiteIdResolversConnector defaultSiteIdResolversConnector;
 
-	MessageAuthorizer(Map<Class<? extends Body>, SiteIdGetter> messageAuthorizers, DefaultSiteIdResolversConnector defaultSiteIdResolversConnector) {
-		this.messageAuthorizers = messageAuthorizers;
+	MessageAuthorizer(Map<Class<? extends Body>, SiteIdGetter> siteIdGetterMap, DefaultSiteIdResolversConnector defaultSiteIdResolversConnector) {
+		this.siteIdGetterMap = siteIdGetterMap;
 		this.defaultSiteIdResolversConnector = defaultSiteIdResolversConnector;
 	}
 
 	void validate(Payload<?> payload, String queueName){
-		SiteIdGetter siteIdResolversConnector = messageAuthorizers.getOrDefault(payload.body.getClass(), defaultSiteIdResolversConnector);
+		SiteIdGetter siteIdResolversConnector = siteIdGetterMap.getOrDefault(payload.body.getClass(), defaultSiteIdResolversConnector);
 		siteIdResolversConnector.getSiteId(payload)
 			.filter(siteExternalId -> getSiteId(queueName).equals(siteExternalId.id))
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Message doesn't belong to site:  %s", payload)));
