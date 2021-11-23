@@ -7,6 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.rabbitmq.site.models.Ack;
+import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Result;
@@ -61,13 +62,15 @@ class SiteAgentListenerRouter {
 	/**
 	 * This method update or delete pending message based on arriving message type.
 	 * If message is Ack type it should be update, if message is Result type it should be delete.
-	 * There is one exception when AgentProjectAllocationInstallationAck arrived, pending message should be remove,
-	 * because project allocation message kind doesn't have result type.
+	 * There is two exceptions when AgentProjectAllocationInstallationAck or AgentPingAck arrived, pending message should be remove,
+	 * because project allocation and ping message kind doesn't have result type.
 	 */
 	private void updateOrDeletePendingRequests(Payload<?> payload) {
-		if(payload.header.status.equals(OK) && payload.body instanceof Ack)
+		if(payload.body instanceof AgentPingAck || payload.body instanceof AgentProjectAllocationInstallationAck)
+			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
+		else if(payload.header.status.equals(OK) && payload.body instanceof Ack)
 			agentPendingMessageSiteService.setAsAcknowledged(new CorrelationId(payload.header.messageCorrelationId));
-		if((payload.header.status.equals(OK) && payload.body instanceof Result) || payload.body instanceof AgentProjectAllocationInstallationAck)
+		else if(payload.header.status.equals(OK) && payload.body instanceof Result)
 			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
 	}
 
