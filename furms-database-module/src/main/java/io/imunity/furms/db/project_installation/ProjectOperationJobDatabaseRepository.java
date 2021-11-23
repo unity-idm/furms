@@ -6,7 +6,15 @@
 package io.imunity.furms.db.project_installation;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Gid;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
@@ -295,6 +303,12 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.projectId(installation.projectId.toString())
 				.gid(new Gid(installation.gid))
 				.build();
+	}
+
+	@Override
+	public void delete(CorrelationId id) {
+		installationRepository.deleteByCorrelationId(UUID.fromString(id.id));
+		updateRepository.deleteByCorrelationId(UUID.fromString(id.id));
 	}
 }
 

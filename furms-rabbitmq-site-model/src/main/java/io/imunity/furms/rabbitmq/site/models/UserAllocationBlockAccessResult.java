@@ -8,5 +8,5 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserAllocationBlockAccessResult")
-public class UserAllocationBlockAccessResult implements Body {
+public class UserAllocationBlockAccessResult implements Body, Result {
 }

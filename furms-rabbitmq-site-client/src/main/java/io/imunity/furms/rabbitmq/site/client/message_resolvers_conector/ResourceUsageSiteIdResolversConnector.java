@@ -13,6 +13,7 @@ import io.imunity.furms.rabbitmq.site.models.UserResourceUsageRecord;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -30,14 +31,14 @@ class ResourceUsageSiteIdResolversConnector implements SiteIdResolversConnector 
 	}
 
 	@Override
-	public SiteExternalId getSiteId(Payload<?> payload) {
+	public Optional<SiteExternalId> getSiteId(Payload<?> payload) {
 		if(payload.body.getClass().equals(CumulativeResourceUsageRecord.class)){
 			CumulativeResourceUsageRecord body = (CumulativeResourceUsageRecord)payload.body;
-			return resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier);
+			return Optional.ofNullable(resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier));
 		}
 		if(payload.body.getClass().equals(UserResourceUsageRecord.class)){
 			UserResourceUsageRecord body = (UserResourceUsageRecord)payload.body;
-			return resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier);
+			return Optional.ofNullable(resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier));
 		}
 		throw new IllegalStateException("Error - not applicable class was send to process");
 	}

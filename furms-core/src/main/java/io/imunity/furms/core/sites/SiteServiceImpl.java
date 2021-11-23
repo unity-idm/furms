@@ -20,8 +20,6 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
@@ -79,7 +77,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
 	private final PolicyDocumentRepository policyDocumentRepository;
-	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final CapabilityCollector capabilityCollector;
 	private final PolicyNotificationService policyNotificationService;
@@ -92,7 +89,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
-	                SiteAgentStatusService siteAgentStatusService,
 	                UserOperationRepository userOperationRepository,
 	                PolicyDocumentRepository policyDocumentRepository,
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
@@ -106,7 +102,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.authzService = authzService;
 		this.publisher = publisher;
 		this.siteAgentService = siteAgentService;
-		this.siteAgentStatusService = siteAgentStatusService;
 		this.userOperationRepository = userOperationRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
@@ -477,13 +472,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public boolean isCurrentUserSupportOf(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
-		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
-		return siteAgentStatusService.getStatus(externalId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

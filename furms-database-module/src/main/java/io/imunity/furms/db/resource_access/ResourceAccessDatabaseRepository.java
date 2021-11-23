@@ -210,4 +210,8 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 
+	@Override
+	public void delete(CorrelationId id) {
+		userGrantEntityRepository.deleteByCorrelationId(UUID.fromString(id.id));
+	}
 }

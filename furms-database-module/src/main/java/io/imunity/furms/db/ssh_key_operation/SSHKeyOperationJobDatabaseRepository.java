@@ -5,7 +5,11 @@
 
 package io.imunity.furms.db.ssh_key_operation;
 
-import static java.util.stream.StreamSupport.stream;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
+import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,12 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
-import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
+import static java.util.stream.StreamSupport.stream;
 
 @Repository
 class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository {
@@ -122,5 +121,10 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 						.operation(job.operation).status(job.status).error(job.error)
 						.originationTime(job.originationTime).build())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void delete(CorrelationId id) {
+		repository.deleteByCorrelationId(UUID.fromString(id.id));
 	}
 }

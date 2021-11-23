@@ -788,6 +788,17 @@ channels:
                   policiesAcceptance:
                      $ref: "#/components/schemas/policiesAcceptance"
 
+   site/site_id/policy/acceptance_update/ack:
+      publish:
+         summary: Acknowledge acceptance update request
+         operationId: UserPolicyAcceptanceUpdateAck
+         message:
+            name: UserPolicyAcceptanceUpdateAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
    site/site_id/policy/update:
       subscribe:
          summary: Policy document update
@@ -810,7 +821,17 @@ channels:
                   serviceIdentifier:
                      type: string
                      description: only used for service policies
-                  
+
+   site/site_id/policy/update/ack:
+      publish:
+         summary: Acknowledge policy update request
+         operationId: PolicyUpdateAck
+         message:
+            name: PolicyUpdateAck
+            traits:
+               - $ref: "#/components/messageTraits/requestAck"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
 
 components:
    messageTraits:

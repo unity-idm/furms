@@ -13,6 +13,7 @@ import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.site.administrators.SiteAdministratorsView;
+import io.imunity.furms.ui.views.site.connection.PendingRequestsView;
 import io.imunity.furms.ui.views.site.policy_documents.PolicyDocumentsView;
 import io.imunity.furms.ui.views.site.resource_credits.ResourceCreditsView;
 import io.imunity.furms.ui.views.site.resource_types.ResourceTypesView;

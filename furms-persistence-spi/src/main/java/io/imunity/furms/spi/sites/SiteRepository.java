@@ -19,6 +19,8 @@ public interface SiteRepository {
 
 	SiteExternalId findByIdExternalId(String id);
 
+	SiteId findByExternalId(SiteExternalId externalId);
+
 	Set<SiteId> findByProjectId(String id);
 
 	Map<String, Set<String>> findRelatedProjectIds(SiteId siteId);
