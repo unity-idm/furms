@@ -26,14 +26,13 @@ import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.utils.UTCTimeUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -206,12 +205,7 @@ public class InvitatoryService {
 		return UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock).plusSeconds(expirationTimeInSeconds));
 	}
 
-	public boolean isEmailValid(String email) {
-		try {
-			new InternetAddress(email).validate();
-		} catch (AddressException ex) {
-			return false;
-		}
-		return true;
+	private boolean isEmailValid(String email) {
+		return EmailValidator.getInstance().isValid(email);
 	}
 }

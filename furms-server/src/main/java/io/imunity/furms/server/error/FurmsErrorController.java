@@ -30,11 +30,6 @@ public class FurmsErrorController implements ErrorController {
 				.build(), status);
 	}
 
-	@Override
-	public String getErrorPath() {
-		return "";
-	}
-
 	protected HttpStatus getStatus(HttpServletRequest request) {
 		try {
 			if (request == null) {
