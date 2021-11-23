@@ -19,11 +19,15 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
 
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSiteId;
+import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
 @Primary
 @Component
@@ -42,6 +46,7 @@ class DefaultRabbitTemplate extends RabbitTemplate {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void convertAndSend(String routingKey, Object object){
 		Payload<?> payload = (Payload<?>) object;
 		try {
@@ -52,9 +57,18 @@ class DefaultRabbitTemplate extends RabbitTemplate {
 				.utcSentAt(UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)))
 				.build()
 			);
-			super.convertAndSend(routingKey, object);
+			runAfterCommit((() -> super.convertAndSend(routingKey, object)));
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	static void runAfterCommit(Runnable agentOperation) {
+		registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				agentOperation.run();
+			}
+		});
 	}
 }
