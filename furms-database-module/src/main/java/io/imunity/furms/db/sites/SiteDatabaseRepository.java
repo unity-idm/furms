@@ -53,6 +53,16 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
+	public SiteId findByExternalId(SiteExternalId externalId) {
+		if (isEmpty(externalId)) {
+			throw new IllegalArgumentException("Id should not be null");
+		}
+		return repository.findId(externalId.id)
+			.map(id -> new SiteId(id, externalId))
+			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
+	}
+
+	@Override
 	public Set<SiteId> findByProjectId(String id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Id should not be null");

@@ -8,5 +8,5 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("SetUserStatusResult")
-public class SetUserStatusResult implements Body {
+public class SetUserStatusResult implements Body, Result {
 }

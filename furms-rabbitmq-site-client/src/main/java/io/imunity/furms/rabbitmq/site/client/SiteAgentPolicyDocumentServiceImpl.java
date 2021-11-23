@@ -7,6 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
 import io.imunity.furms.rabbitmq.site.models.Header;
@@ -32,7 +33,7 @@ class SiteAgentPolicyDocumentServiceImpl implements SiteAgentPolicyDocumentServi
 	public void updateUsersPolicyAcceptances(SiteExternalId siteExternalId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		UserPolicyAcceptanceUpdate request = new UserPolicyAcceptanceUpdate(userPolicyAcceptances.user.fenixUserId.get().id, getPolicyAcceptances(userPolicyAcceptances));
 		String queueName = getFurmsPublishQueueName(siteExternalId);
-		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, null), request));
+		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, CorrelationId.randomID().id), request));
 	}
 
 	@Override
@@ -44,7 +45,7 @@ class SiteAgentPolicyDocumentServiceImpl implements SiteAgentPolicyDocumentServi
 			.serviceIdentifier(serviceIdentifier)
 			.build();
 		String queueName = getFurmsPublishQueueName(siteExternalId);
-		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, null), request));
+		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, CorrelationId.randomID().id), request));
 	}
 
 	@Override

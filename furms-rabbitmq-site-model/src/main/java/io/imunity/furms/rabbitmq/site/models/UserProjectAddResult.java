@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
 
 @JsonTypeName("UserProjectAddResult")
-public class UserProjectAddResult implements Body {
+public class UserProjectAddResult implements Body, Result {
 	public final String uid;
 
 	@JsonCreator

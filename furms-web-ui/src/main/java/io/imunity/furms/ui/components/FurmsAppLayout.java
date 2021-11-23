@@ -32,7 +32,6 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -68,12 +67,11 @@ public class FurmsAppLayout extends AppLayout implements AfterNavigationObserver
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-		if(FurmsViewUserContext.getCurrent() == null) {
+		final FurmsViewUserContext currentViewUserContext = FurmsViewUserContext.getCurrent();
+		if(currentViewUserContext == null || currentViewUserContext.viewMode != viewMode) {
 			setCurrentRole(beforeEnterEvent);
 			furmsLayout.reloadUserPicker();
 		}
-		else if(!Objects.equals(FurmsViewUserContext.getCurrent(), furmsLayout.getUserPickerValue()))
-			furmsLayout.reloadUserPicker();
 	}
 
 	@Override
@@ -119,7 +117,9 @@ public class FurmsAppLayout extends AppLayout implements AfterNavigationObserver
 
 	private void setAnyCurrentRole() {
 		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-			.getOrDefault(viewMode, emptyList()).stream().findAny()
+			.getOrDefault(viewMode, emptyList())
+			.stream()
+			.findAny()
 			.ifPresent(FurmsViewUserContext::setAsCurrent);
 	}
 

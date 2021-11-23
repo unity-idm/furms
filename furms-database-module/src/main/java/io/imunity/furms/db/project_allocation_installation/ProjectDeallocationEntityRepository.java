@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.project_allocation_installation;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,8 @@ public interface ProjectDeallocationEntityRepository extends CrudRepository<Proj
 		"join project_allocation pa on pa.id = pd.project_allocation_id " +
 		"where pa.project_id = :id")
 	Set<ProjectDeallocationEntity> findAllByProjectId(@Param("id") UUID projectId);
+
+	@Modifying
+	@Query("delete from project_deallocation where correlation_id = :correlation_id")
+	void deleteByCorrelationId(@Param("correlation_id") UUID correlationId);
 }

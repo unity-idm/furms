@@ -7,8 +7,6 @@ package io.imunity.furms.api.sites;
 
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -78,6 +76,4 @@ public interface SiteService {
 	boolean isCurrentUserAdminOf(String siteId);
 
 	boolean isCurrentUserSupportOf(String siteId);
-
-	PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId);
 }

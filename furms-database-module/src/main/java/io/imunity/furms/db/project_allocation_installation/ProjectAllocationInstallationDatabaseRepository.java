@@ -5,7 +5,12 @@
 
 package io.imunity.furms.db.project_allocation_installation;
 
-import io.imunity.furms.domain.project_allocation_installation.*;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.springframework.stereotype.Repository;
@@ -227,6 +232,12 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	public void deleteAll() {
 		allocationRepository.deleteAll();
 		deallocationRepository.deleteAll();
+	}
+
+	@Override
+	public void delete(CorrelationId id) {
+		allocationRepository.deleteByCorrelationId(UUID.fromString(id.id));
+		deallocationRepository.deleteByCorrelationId(UUID.fromString(id.id));
 	}
 }
 

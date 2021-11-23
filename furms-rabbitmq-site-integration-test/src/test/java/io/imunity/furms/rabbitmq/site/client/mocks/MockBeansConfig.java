@@ -6,18 +6,16 @@
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
 import io.imunity.furms.rabbitmq.site.client.MessageAuthorizer;
+import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
+import io.imunity.furms.site.api.message_remover.AgentSSHKeyRemover;
+import io.imunity.furms.site.api.message_remover.ProjectAllocationInstallationRemover;
+import io.imunity.furms.site.api.message_remover.ProjectInstallationRemover;
+import io.imunity.furms.site.api.message_remover.ResourceAccessRemover;
+import io.imunity.furms.site.api.message_remover.UserProjectAddRemover;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectAllocationInstallationSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectDeallocationSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectInstallationSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.ProjectUpdateSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
-import io.imunity.furms.site.api.message_resolver.SSHKeySiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.UserAccountStatusUpdateSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.UserAdditionSiteIdResolver;
-import io.imunity.furms.site.api.message_resolver.UserAllocationGrantSiteIdResolver;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
@@ -47,26 +45,21 @@ class MockBeansConfig {
 	private MessageAuthorizer messageAuthorizer;
 
 	@MockBean
-	private ProjectAllocationInstallationSiteIdResolver projectAllocationInstallationSiteIdResolver;
+	private AgentPendingMessageSiteService projectAllocationInstallationSiteIdResolver;
 	@MockBean
-	private ProjectInstallationSiteIdResolver projectInstallationSiteIdResolver;
+	private AgentSSHKeyRemover projectInstallationSiteIdResolver;
 	@MockBean
-	private ProjectUpdateSiteIdResolver projectUpdateSiteIdResolver;
+	private ProjectAllocationInstallationRemover projectUpdateSiteIdResolver;
 	@MockBean
-	private SSHKeySiteIdResolver sshKeySiteIdResolver;
+	private ProjectInstallationRemover sshKeySiteIdResolver;
 	@MockBean
-	private UserAdditionSiteIdResolver userAdditionSiteIdResolver;
+	private ResourceAccessRemover userAdditionSiteIdResolver;
 	@MockBean
-	private UserAllocationGrantSiteIdResolver userAllocationGrantSiteIdResolver;
+	private UserProjectAddRemover userAllocationGrantSiteIdResolver;
 	@MockBean
 	private ProjectAllocationChunkSiteIdResolver projectAllocationChunkSiteIdResolver;
 	@MockBean
-	private ProjectDeallocationSiteIdResolver projectDeallocationSiteIdResolver;
-	@MockBean
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
-
 	@MockBean
 	private SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
-	@MockBean
-	private UserAccountStatusUpdateSiteIdResolver userAccountStatusUpdateSiteIdResolver;
 }

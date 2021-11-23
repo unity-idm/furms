@@ -7,6 +7,8 @@ package io.imunity.furms.agent.runner;
 
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
+import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdateAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
@@ -42,6 +44,8 @@ import io.imunity.furms.rabbitmq.site.models.UserAllocationBlockAccessResult;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequest;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessRequestAck;
 import io.imunity.furms.rabbitmq.site.models.UserAllocationGrantAccessResult;
+import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdate;
+import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdateAck;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequest;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddRequestAck;
 import io.imunity.furms.rabbitmq.site.models.UserProjectAddResult;
@@ -92,6 +96,22 @@ class MockListeners {
 
 		Header header = getHeader(message.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentPingAck()));
+	}
+
+	@EventListener
+	public void receivePolicyUpdate(Payload<AgentPolicyUpdate> message) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentPolicyUpdateAck()));
+	}
+
+	@EventListener
+	public void receivePolicyAcceptanceUpdate(Payload<UserPolicyAcceptanceUpdate> message) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new UserPolicyAcceptanceUpdateAck()));
 	}
 
 	@EventListener

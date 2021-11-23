@@ -13,6 +13,7 @@ import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.site.api.message_resolver.ProjectAllocationChunkSiteIdResolver;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -30,14 +31,14 @@ class ProjectAllocationChunkSiteIdResolversConnector implements SiteIdResolversC
 	}
 
 	@Override
-	public SiteExternalId getSiteId(Payload<?> payload) {
+	public Optional<SiteExternalId> getSiteId(Payload<?> payload) {
 		if(payload.body.getClass().equals(AgentProjectAllocationInstallationResult.class)) {
 			AgentProjectAllocationInstallationResult body = (AgentProjectAllocationInstallationResult) payload.body;
-			return resolver.getSiteId(body.allocationIdentifier);
+			return Optional.ofNullable(resolver.getSiteId(body.allocationIdentifier));
 		}
 		if(payload.body.getClass().equals(AgentProjectAllocationUpdate.class)) {
 			AgentProjectAllocationUpdate body = (AgentProjectAllocationUpdate) payload.body;
-			return resolver.getSiteId(body.allocationIdentifier);
+			return Optional.ofNullable(resolver.getSiteId(body.allocationIdentifier));
 		}
 		throw new IllegalStateException("Error - not applicable class was send to process");
 	}

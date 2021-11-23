@@ -36,4 +36,5 @@ public interface ResourceAccessRepository {
 	void deleteByUserAndProjectId(FenixUserId userId, String projectId);
 	void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
 	void deleteAll();
+	void delete(CorrelationId id);
 }

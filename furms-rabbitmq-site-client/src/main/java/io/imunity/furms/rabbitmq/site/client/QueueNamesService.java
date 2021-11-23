@@ -28,6 +28,6 @@ public class QueueNamesService {
 	}
 
 	public static String getSiteId(String queueName){
-		return queueName.replace(SITE_PUB,"");
+		return queueName.replace(SITE_PUB,"").replace(FURMS_PUB, "");
 	}
 }
