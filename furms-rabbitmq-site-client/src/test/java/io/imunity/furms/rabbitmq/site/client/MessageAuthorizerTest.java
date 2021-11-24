@@ -6,6 +6,8 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.DefaultSiteIdResolversConnector;
+import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdGetter;
 import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdResolversConnector;
 import io.imunity.furms.rabbitmq.site.models.Body;
 import io.imunity.furms.rabbitmq.site.models.Header;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getSitePublishQueueName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,11 +28,12 @@ class MessageAuthorizerTest {
 	@Test
 	void shouldValidatePayload(){
 		Body body = Mockito.mock(Body.class);
-		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector));
+		SiteIdGetter resolversConnector = Mockito.mock(SiteIdGetter.class);
+		DefaultSiteIdResolversConnector defaultResolversConnector = Mockito.mock(DefaultSiteIdResolversConnector.class);
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector), defaultResolversConnector);
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
-		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx"));
+		when(resolversConnector.getSiteId(payload)).thenReturn(Optional.of(new SiteExternalId("fzx")));
 
 		messageAuthorizer.validate(payload, getSitePublishQueueName("fzx"));
 	}
@@ -38,10 +42,11 @@ class MessageAuthorizerTest {
 	void shouldThrowExceptionWhenPayloadIsNotCorrelatedWithParentSite(){
 		Body body = Mockito.mock(Body.class);
 		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector));
+		DefaultSiteIdResolversConnector defaultResolversConnector = Mockito.mock(DefaultSiteIdResolversConnector.class);
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(body.getClass(), resolversConnector), defaultResolversConnector);
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
-		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx1"));
+		when(resolversConnector.getSiteId(payload)).thenReturn(Optional.of(new SiteExternalId("fzx1")));
 
 		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
 			.getMessage();
@@ -49,16 +54,15 @@ class MessageAuthorizerTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenResolverIsNotProvided(){
+	void shouldUseDefaultSiteIdResolverWhenPayloadNotFittingDedicates(){
 		Body body = Mockito.mock(Body.class);
 		SiteIdResolversConnector resolversConnector = Mockito.mock(SiteIdResolversConnector.class);
-		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(Body.class, resolversConnector));
+		DefaultSiteIdResolversConnector defaultResolversConnector = Mockito.mock(DefaultSiteIdResolversConnector.class);
+		MessageAuthorizer messageAuthorizer = new MessageAuthorizer(Map.of(Body.class, resolversConnector), defaultResolversConnector);
 		Payload<Body> payload = new Payload<>(new Header("1", "id"), body);
 
-		when(resolversConnector.getSiteId(payload)).thenReturn(new SiteExternalId("fzx"));
+		when(defaultResolversConnector.getSiteId(payload)).thenReturn(Optional.of(new SiteExternalId("fzx")));
 
-		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
-			.getMessage();
-		assertEquals("This shouldn't happened - no MessageAuthorizer fit to payload", message);
+		messageAuthorizer.validate(payload, getSitePublishQueueName("fzx"));
 	}
 }

@@ -11,6 +11,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -19,8 +20,6 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.site_agent.PendingJob;
-import io.imunity.furms.domain.site_agent.SiteAgentStatus;
 import io.imunity.furms.domain.sites.CreateSiteEvent;
 import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
@@ -36,7 +35,6 @@ import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -79,10 +77,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final AuthzService authzService;
 	private final SiteAgentService siteAgentService;
 	private final PolicyDocumentRepository policyDocumentRepository;
-	private final SiteAgentStatusService siteAgentStatusService;
 	private final SiteAgentPolicyDocumentService siteAgentPolicyDocumentService;
 	private final CapabilityCollector capabilityCollector;
-	private final NotificationDAO notificationDAO;
+	private final PolicyNotificationService policyNotificationService;
 	private final InvitatoryService invitatoryService;
 
 	SiteServiceImpl(SiteRepository siteRepository,
@@ -92,12 +89,11 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                ApplicationEventPublisher publisher,
 	                AuthzService authzService,
 	                SiteAgentService siteAgentService,
-	                SiteAgentStatusService siteAgentStatusService,
 	                UserOperationRepository userOperationRepository,
 	                PolicyDocumentRepository policyDocumentRepository,
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                CapabilityCollector capabilityCollector,
-	                NotificationDAO notificationDAO,
+	                PolicyNotificationService policyNotificationService,
 	                InvitatoryService invitatoryService) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
@@ -106,12 +102,11 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.authzService = authzService;
 		this.publisher = publisher;
 		this.siteAgentService = siteAgentService;
-		this.siteAgentStatusService = siteAgentStatusService;
 		this.userOperationRepository = userOperationRepository;
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.siteAgentPolicyDocumentService = siteAgentPolicyDocumentService;
 		this.capabilityCollector = capabilityCollector;
-		this.notificationDAO = notificationDAO;
+		this.policyNotificationService = policyNotificationService;
 		this.invitatoryService = invitatoryService;
 	}
 
@@ -227,7 +222,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		if(isPolicyChange(updatedSite, oldSite)) {
 			sendUpdateToSite(updatedSite, oldSite);
 			if (updatedSite.getPolicyId() != null && updatedSite.getPolicyId().id != null) {
-				notificationDAO.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
 			}
 		}
 	}
@@ -477,13 +472,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public boolean isCurrentUserSupportOf(String siteId) {
 		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
-	}
-
-	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public PendingJob<SiteAgentStatus> getSiteAgentStatus(String siteId) {
-		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
-		return siteAgentStatusService.getStatus(externalId);
 	}
 
 	private Site merge(Site oldSite, Site site) {

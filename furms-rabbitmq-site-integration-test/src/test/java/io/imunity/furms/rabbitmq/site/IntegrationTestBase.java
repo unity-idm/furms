@@ -6,11 +6,12 @@
 package io.imunity.furms.rabbitmq.site;
 
 import io.imunity.furms.rabbitmq.site.client.SiteAgentListenerConnector;
+import io.imunity.furms.site.api.status_updater.SiteAgentUserStatusFlowUpdater;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentMock.MOCK_FURMS_PUB;
 import static io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentMock.MOCK_SITE_PUB;
@@ -23,10 +24,10 @@ public class IntegrationTestBase {
 	protected SiteAgentListenerConnector siteAgentListenerConnector;
 
 	@Autowired
-	protected RabbitTemplate rabbitTemplate;
-
-	@Autowired
 	protected RabbitAdmin rabbitAdmin;
+
+	@MockBean
+	protected SiteAgentUserStatusFlowUpdater flowUpdater;
 
 	private static boolean isSiteAgentRegistered;
 

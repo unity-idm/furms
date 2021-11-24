@@ -7,6 +7,8 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.core.notification.PolicyNotificationService;
+import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -16,7 +18,6 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +60,9 @@ class ResourceAccessServiceTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 	@Mock
-	private NotificationDAO notificationDAO;
+	private PolicyNotificationService policyNotificationService;
+	@Mock
+	private UserSiteAccessInnerService userSiteAccessInnerService;
 
 	private ResourceAccessService service;
 	private InOrder orderVerifier;
@@ -77,8 +80,8 @@ class ResourceAccessServiceTest {
 	@BeforeEach
 	void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, notificationDAO, publisher);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService, notificationDAO, publisher);
+		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService, policyNotificationService, publisher);
 	}
 
 	@Test
@@ -104,7 +107,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
 	}
 
@@ -164,7 +167,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test
@@ -197,7 +200,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test
@@ -224,7 +227,7 @@ class ResourceAccessServiceTest {
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
 		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
-		orderVerifier.verify(notificationDAO).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
 	@Test

@@ -5,10 +5,35 @@
 
 package io.imunity.furms.core.user_operation;
 
+import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
+import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
+import static java.util.Comparator.comparingInt;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
@@ -27,29 +52,6 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
-import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
-import static java.util.Comparator.comparingInt;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.maxBy;
-import static java.util.stream.Collectors.toSet;
 
 @Service
 public class UserOperationService implements UserAllocationsService {
@@ -142,7 +144,7 @@ public class UserOperationService implements UserAllocationsService {
 	@Override
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
 	public Set<UserAddition> findAllByFenixUserId(FenixUserId fenixUserId) {
-		return repository.findAllUserAdditions(fenixUserId.id);
+		return repository.findAllUserAdditions(fenixUserId);
 	}
 
 	@Override
@@ -200,14 +202,13 @@ public class UserOperationService implements UserAllocationsService {
 	private void createUserRemovals(String projectId, FURMSUser user) {
 		String fenixUserId = user.fenixUserId.map(uId -> uId.id).orElse(null);
 		Set<UserAddition> allUserAdditions = repository.findAllUserAdditions(projectId, fenixUserId);
-		allUserAdditions.stream()
-			.filter(userAddition -> userAddition.status.isTransitionalTo(REMOVAL_PENDING))
-			.forEach(this::removeUser);
-		if(allUserAdditions.isEmpty()){
-			FenixUserId userId = new FenixUserId(fenixUserId);
-			resourceAccessRepository.deleteByUserAndProjectId(userId, projectId);
-			userSiteAccessRepository.remove(projectId, userId);
-		}
+		if(allUserAdditions.stream().anyMatch(userAddition -> !userAddition.status.isTransitionalTo(REMOVAL_PENDING)))
+			throw new UserInstallationOnSiteIsNotTerminalException();
+		allUserAdditions.forEach(this::removeUser);
+
+		FenixUserId userId = new FenixUserId(fenixUserId);
+		resourceAccessRepository.deleteByUserAndProjectId(userId, projectId);
+		userSiteAccessRepository.remove(projectId, userId);
 	}
 
 	private void createUserRemovals(String siteId, String projectId, FURMSUser user) {

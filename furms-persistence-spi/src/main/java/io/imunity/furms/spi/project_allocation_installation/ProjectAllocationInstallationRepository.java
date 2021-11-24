@@ -47,5 +47,7 @@ public interface ProjectAllocationInstallationRepository {
 	void deleteBy(String id);
 
 	void deleteAll();
+
+	void delete(CorrelationId id);
 }
 

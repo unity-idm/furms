@@ -233,4 +233,9 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	public boolean isUserAdded(String siteId, String userId) {
 		return userAdditionEntityRepository.existsBySiteIdAndUserId(UUID.fromString(siteId), userId);
 	}
+
+	@Override
+	public void delete(CorrelationId id) {
+		userAdditionEntityRepository.deleteByCorrelationId(UUID.fromString(id.id));
+	}
 }

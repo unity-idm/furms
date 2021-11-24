@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.resource_access;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -87,4 +88,11 @@ public interface UserGrantEntityRepository extends CrudRepository<UserGrantEntit
 			"where ua.project_id = :project_id and ua.user_id = :user_id"
 	)
 	Set<UserGrantResolved> findAll(@Param("site_id") UUID siteId, @Param("project_allocation_id") UUID projectAllocationId);
+
+	@Modifying
+	@Query(
+		"delete from user_grant ug " +
+		"join user_grant_job ugj on ug.id = uaj.user_grant_id " +
+		"where ugj.correlation_id = :correlation_id")
+	void deleteByCorrelationId(@Param("correlation_id") UUID correlationId);
 }

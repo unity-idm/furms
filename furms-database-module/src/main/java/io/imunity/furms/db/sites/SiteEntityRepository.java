@@ -24,6 +24,9 @@ interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 	@Query("select external_id from site s where s.id = :id")
 	Optional<String> findExternalId(@Param("id") UUID id);
 
+	@Query("select id from site s where s.external_id = :external_id")
+	Optional<String> findId(@Param("external_id") String id);
+
 	@Query(
 			"select s.* " +
 			"from site s " +

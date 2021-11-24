@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.user_operation;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -114,4 +115,11 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 
 	boolean existsBySiteIdAndUserId(UUID siteId, String userId);
 	boolean existsBySiteIdAndProjectIdAndUserId(UUID siteId, UUID projectId, String userId);
+
+	@Modifying
+	@Query(
+		"delete from user_addition ug " +
+			"join user_addition_job ugj on ug.id = uaj.user_grant_id " +
+			"where ugj.correlation_id = :correlation_id")
+	void deleteByCorrelationId(@Param("correlation_id") UUID correlationId);
 }

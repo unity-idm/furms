@@ -43,7 +43,6 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -124,12 +123,11 @@ public class FurmsAppLayout
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-		if(FurmsViewUserContext.getCurrent() == null) {
+		final FurmsViewUserContext currentViewUserContext = FurmsViewUserContext.getCurrent();
+		if(currentViewUserContext == null || currentViewUserContext.viewMode != viewMode) {
 			setCurrentRole(beforeEnterEvent);
 			furmsAppLayoutUtils.reloadUserPicker();
 		}
-		else if(!Objects.equals(FurmsViewUserContext.getCurrent(), furmsAppLayoutUtils.getUserPickerValue()))
-			furmsAppLayoutUtils.reloadUserPicker();
 	}
 
 	@Override
@@ -175,8 +173,10 @@ public class FurmsAppLayout
 
 	private void setAnyCurrentRole() {
 		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-				.getOrDefault(viewMode, emptyList()).stream().findAny()
-				.ifPresent(FurmsViewUserContext::setAsCurrent);
+			.getOrDefault(viewMode, emptyList())
+			.stream()
+			.findAny()
+			.ifPresent(FurmsViewUserContext::setAsCurrent);
 	}
 
 	private void setCurrentRoleFromQueryParam(String id) {

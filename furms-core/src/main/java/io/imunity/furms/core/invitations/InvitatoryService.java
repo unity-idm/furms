@@ -8,8 +8,9 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -23,17 +24,15 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
-import io.imunity.furms.spi.notifications.NotificationDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import io.imunity.furms.utils.UTCTimeUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -51,20 +50,20 @@ public class InvitatoryService {
 	private final UsersDAO usersDAO;
 	private final InvitationRepository invitationRepository;
 	private final AuthzService authzService;
-	private final NotificationDAO notificationDAO;
+	private final UserInvitationNotificationService userInvitationNotificationService;
 	private final ApplicationRepository applicationRepository;
 	private final ApplicationEventPublisher publisher;
 	private final Clock clock;
 	private final int expirationTimeInSeconds;
 
 	InvitatoryService(UsersDAO usersDAO, InvitationRepository invitationRepository, AuthzService authzService,
-	                  NotificationDAO notificationDAO, ApplicationEventPublisher publisher, Clock clock,
+	                  UserInvitationNotificationService userInvitationNotificationService, ApplicationEventPublisher publisher, Clock clock,
 	                  ApplicationRepository applicationRepository,
 	                  @Value("${furms.invitations.expiration-time-in-seconds}") String expirationTime) {
 		this.usersDAO = usersDAO;
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
-		this.notificationDAO = notificationDAO;
+		this.userInvitationNotificationService = userInvitationNotificationService;
 		this.applicationRepository = applicationRepository;
 		this.publisher = publisher;
 		this.clock = clock;
@@ -110,7 +109,7 @@ public class InvitatoryService {
 
 		invitationRepository.create(invitation);
 		LOG.info("Inviting FENIX admin role to {}", userId);
-		notificationDAO.notifyUserAboutNewRole(user.id.get(), invitation.role);
+		userInvitationNotificationService.notifyUserAboutNewRole(user.id.get(), invitation.role);
 		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), user.email, resourceId));
 	}
 
@@ -132,7 +131,7 @@ public class InvitatoryService {
 			if(invitation.code.isPresent() && furmsUser.isEmpty())
 				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC));
 			else
-				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), invitation.role);
+				userInvitationNotificationService.notifyUserAboutNewRole(furmsUser.get().id.get(), invitation.role);
 
 			publisher.publishEvent(new UpdateInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
@@ -148,7 +147,7 @@ public class InvitatoryService {
 			if(invitation.code.isPresent() && furmsUser.isEmpty())
 				usersDAO.resendInvitation(invitation, expiredAt.toInstant(ZoneOffset.UTC), role);
 			else
-				notificationDAO.notifyUserAboutNewRole(furmsUser.get().id.get(), role);
+				userInvitationNotificationService.notifyUserAboutNewRole(furmsUser.get().id.get(), role);
 
 			publisher.publishEvent(new UpdateInvitationUserEvent(invitation.userId, invitation.email, invitation.id));
 		});
@@ -206,12 +205,7 @@ public class InvitatoryService {
 		return UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock).plusSeconds(expirationTimeInSeconds));
 	}
 
-	public boolean isEmailValid(String email) {
-		try {
-			new InternetAddress(email).validate();
-		} catch (AddressException ex) {
-			return false;
-		}
-		return true;
+	private boolean isEmailValid(String email) {
+		return EmailValidator.getInstance().isValid(email);
 	}
 }
