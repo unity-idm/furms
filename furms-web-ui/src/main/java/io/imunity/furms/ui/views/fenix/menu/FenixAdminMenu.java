@@ -5,12 +5,12 @@
 package io.imunity.furms.ui.views.fenix.menu;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.FurmsAppLayout;
+import io.imunity.furms.ui.components.layout.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.components.layout.UserViewContextHandler;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.fenix.administrators.FenixAdministratorsView;
 import io.imunity.furms.ui.views.fenix.communites.CommunitiesView;
@@ -23,12 +23,13 @@ import java.util.List;
 
 public class FenixAdminMenu extends FurmsAppLayout {
 
-	FenixAdminMenu(FurmsLayoutFactory furmsLayoutFactory,
+	FenixAdminMenu(UserViewContextHandler userViewContextHandler,
 	               VaadinBroadcaster vaadinBroadcaster,
 	               AuthzService authzService,
-	               RoleTranslator roleTranslator,
+	               FurmsAppLayoutComponentsFactory componentsFactory,
 	               FurmsLayoutExtraPanelsConfig extraPanelsConfig) {
-		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.FENIX, furmsLayoutFactory, extraPanelsConfig,
+		super(userViewContextHandler, vaadinBroadcaster, authzService, componentsFactory, extraPanelsConfig,
+				ViewMode.FENIX,
 				List.of(
 						MenuComponent.builder(DashboardView.class).build(),
 						MenuComponent.builder(SitesView.class).build(),

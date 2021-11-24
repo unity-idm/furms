@@ -3,10 +3,9 @@
  *  See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components;
+package io.imunity.furms.ui.components.layout;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -23,7 +22,6 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.shared.Registration;
@@ -33,19 +31,15 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserEvent;
-import io.imunity.furms.ui.FurmsLayoutFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
 import io.imunity.furms.ui.VaadinListener;
+import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.components.branding.layout.ExtraLayoutPanel;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.List;
-import java.util.Optional;
-
-import static java.util.Collections.emptyList;
 
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
@@ -57,52 +51,31 @@ public class FurmsAppLayout
 		extends FlexLayout
 		implements RouterLayout, AfterNavigationObserver, BeforeEnterObserver {
 
-	private final RoleTranslator roleTranslator;
+	private final UserViewContextHandler userViewContextHandler;
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private final AuthzService authzService;
+
 	private final ViewMode viewMode;
 	private final PersistentId currentUserId;
-	private final FurmsAppLayoutUtils furmsAppLayoutUtils;
+	private final FurmsAppLayoutComponentsHolder appLayoutComponents;
+
 	private Registration broadcasterRegistration;
 
-	private final Div viewContainer;
-	private Component content;
-
-	public FurmsAppLayout(RoleTranslator roleTranslator,
+	public FurmsAppLayout(UserViewContextHandler userViewContextHandler,
 	                      VaadinBroadcaster vaadinBroadcaster,
 	                      AuthzService authzService,
-	                      ViewMode viewMode,
-	                      FurmsLayoutFactory furmsLayoutFactory,
+	                      FurmsAppLayoutComponentsFactory appLayoutComponentsFactory,
 	                      FurmsLayoutExtraPanelsConfig furmsLayoutExtraPanelsConfig,
+	                      ViewMode viewMode,
 	                      List<MenuComponent> menuComponents) {
-		this.roleTranslator = roleTranslator;
+		this.userViewContextHandler = userViewContextHandler;
 		this.vaadinBroadcaster = vaadinBroadcaster;
 		this.authzService = authzService;
 		this.viewMode = viewMode;
 		this.currentUserId = authzService.getCurrentAuthNUser().id.get();
-		this.furmsAppLayoutUtils = furmsLayoutFactory.create(menuComponents);
-		this.viewContainer = new Div();
+		this.appLayoutComponents = appLayoutComponentsFactory.create(menuComponents);
 
-		setId("furms-layout");
-
-		final Div top = new ExtraLayoutPanel("furms-layout-top", furmsLayoutExtraPanelsConfig.getTop());
-		final Div left = new ExtraLayoutPanel("furms-layout-left", furmsLayoutExtraPanelsConfig.getLeft());
-		final Div right = new ExtraLayoutPanel("furms-layout-right", furmsLayoutExtraPanelsConfig.getRight());
-		final Div bottom = new ExtraLayoutPanel("furms-layout-bottom", furmsLayoutExtraPanelsConfig.getBottom());
-
-		final VerticalLayout menuContent = furmsAppLayoutUtils.createDrawerContent();
-		menuContent.setId("furms-layout-menu");
-
-		final VerticalLayout viewContent = new VerticalLayout();
-		viewContent.setId("furms-layout-view-content");
-		viewContent.setAlignItems(FlexComponent.Alignment.STRETCH);
-		viewContent.add(furmsAppLayoutUtils.createNavbar(), viewContainer);
-
-		final HorizontalLayout mainLayout = new HorizontalLayout();
-		mainLayout.setId("furms-layout-main");
-		mainLayout.add(left, menuContent, viewContent, right);
-
-		add(top, mainLayout, bottom);
+		initView(furmsLayoutExtraPanelsConfig);
 	}
 
 	@Override
@@ -112,27 +85,21 @@ public class FurmsAppLayout
 
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		if (content != null) {
-			final Element contentElement = content.getElement();
-			this.content = contentElement.getComponent()
-					.orElseThrow(() -> new IllegalArgumentException(
-							"AppLayout content must be a Component"));
-			viewContainer.getElement().appendChild(contentElement);
-		}
+		appLayoutComponents.setViewContent(content);
 	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
 		final FurmsViewUserContext currentViewUserContext = FurmsViewUserContext.getCurrent();
 		if(currentViewUserContext == null || currentViewUserContext.viewMode != viewMode) {
-			setCurrentRole(beforeEnterEvent);
-			furmsAppLayoutUtils.reloadUserPicker();
+			userViewContextHandler.setUserViewContext(beforeEnterEvent, viewMode);
+			appLayoutComponents.reloadUserPicker();
 		}
 	}
 
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
-		furmsAppLayoutUtils.afterNavigation(content);
+		appLayoutComponents.reloadMenuAndBreadCrumb();
 	}
 
 	@Override
@@ -147,13 +114,6 @@ public class FurmsAppLayout
 		);
 	}
 
-	private boolean isCurrentUserRoleListChanged(FurmsEvent furmsEvent) {
-		if(!(furmsEvent instanceof UserEvent))
-			return false;
-		UserEvent event = (UserEvent) furmsEvent;
-		return currentUserId.equals(event.getId());
-	}
-
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
 		super.onDetach(detachEvent);
@@ -161,30 +121,34 @@ public class FurmsAppLayout
 		broadcasterRegistration = null;
 	}
 
-	private void setCurrentRole(BeforeEnterEvent beforeEnterEvent) {
-		beforeEnterEvent.getLocation()
-				.getSubLocation()
-				.map(Location::getQueryParameters)
-				.flatMap(x -> Optional.ofNullable(x.getParameters().get("resourceId")))
-				.filter(x -> !x.isEmpty())
-				.map(x -> x.iterator().next())
-				.ifPresentOrElse(this::setCurrentRoleFromQueryParam, this::setAnyCurrentRole);
+	private void initView(FurmsLayoutExtraPanelsConfig furmsLayoutExtraPanelsConfig) {
+		setId("furms-layout");
+
+		final Div top = new ExtraLayoutPanel("furms-layout-top", furmsLayoutExtraPanelsConfig.getTop());
+		final Div left = new ExtraLayoutPanel("furms-layout-left", furmsLayoutExtraPanelsConfig.getLeft());
+		final Div right = new ExtraLayoutPanel("furms-layout-right", furmsLayoutExtraPanelsConfig.getRight());
+		final Div bottom = new ExtraLayoutPanel("furms-layout-bottom", furmsLayoutExtraPanelsConfig.getBottom());
+
+		final VerticalLayout menuContent = appLayoutComponents.getLogoMenuContainer();
+		menuContent.setId("furms-layout-menu");
+
+		final VerticalLayout viewContent = new VerticalLayout();
+		viewContent.setId("furms-layout-view-content");
+		viewContent.setAlignItems(FlexComponent.Alignment.STRETCH);
+		viewContent.add(appLayoutComponents.getNavbar(), appLayoutComponents.getViewContainer());
+
+		final HorizontalLayout mainLayout = new HorizontalLayout();
+		mainLayout.setId("furms-layout-main");
+		mainLayout.add(left, menuContent, viewContent, right);
+
+		add(top, mainLayout, bottom);
 	}
 
-	private void setAnyCurrentRole() {
-		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-			.getOrDefault(viewMode, emptyList())
-			.stream()
-			.findAny()
-			.ifPresent(FurmsViewUserContext::setAsCurrent);
-	}
-
-	private void setCurrentRoleFromQueryParam(String id) {
-		roleTranslator.refreshAuthzRolesAndGetRolesToUserViewContexts()
-				.getOrDefault(viewMode, emptyList()).stream()
-				.filter(x -> x.id.equals(id))
-				.findAny()
-				.ifPresent(FurmsViewUserContext::setAsCurrent);
+	private boolean isCurrentUserRoleListChanged(FurmsEvent furmsEvent) {
+		if(!(furmsEvent instanceof UserEvent))
+			return false;
+		UserEvent event = (UserEvent) furmsEvent;
+		return currentUserId.equals(event.getId());
 	}
 
 }

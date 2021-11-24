@@ -6,12 +6,12 @@
 package io.imunity.furms.ui.views.project;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.ui.FurmsLayoutFactory;
+import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.FurmsAppLayout;
+import io.imunity.furms.ui.components.layout.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.components.layout.UserViewContextHandler;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
-import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsView;
 import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsView;
@@ -24,12 +24,13 @@ import java.util.List;
 
 public class ProjectAdminMenu extends FurmsAppLayout {
 
-	ProjectAdminMenu(FurmsLayoutFactory furmsLayoutFactory,
+	ProjectAdminMenu(UserViewContextHandler userViewContextHandler,
 	                 VaadinBroadcaster vaadinBroadcaster,
 	                 AuthzService authzService,
-	                 RoleTranslator roleTranslator,
+	                 FurmsAppLayoutComponentsFactory componentsFactory,
 	                 FurmsLayoutExtraPanelsConfig extraPanelsConfig) {
-		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.PROJECT, furmsLayoutFactory, extraPanelsConfig,
+		super(userViewContextHandler, vaadinBroadcaster, authzService, componentsFactory, extraPanelsConfig,
+				ViewMode.PROJECT,
 				List.of(
 						MenuComponent.builder(UsersView.class).build(),
 						MenuComponent.builder(SitesView.class).build(),

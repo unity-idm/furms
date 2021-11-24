@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.imunity.furms.ui.components.FurmsAppLayoutUtils.callReloadLogo;
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutUtils.callReloadLogo;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;

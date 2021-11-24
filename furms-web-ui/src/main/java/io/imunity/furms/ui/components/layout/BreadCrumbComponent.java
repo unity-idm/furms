@@ -2,8 +2,9 @@
  * Copyright (c) 2020 Bixbit s.c. All rights reserved.
  * See LICENSE file for licensing information.
  */
-package io.imunity.furms.ui.components;
+package io.imunity.furms.ui.components.layout;
 
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutUtils.getPageTitle;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouterLink;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.MenuComponent;
 
 class BreadCrumbComponent extends Composite<Div> {
 	private final Stack<BreadCrumb> bredCrumbs = new Stack<>();
@@ -101,7 +104,7 @@ class BreadCrumbComponent extends Composite<Div> {
 	private Stream<RouterLink> createRouterLink(BreadCrumb route) {
 		return route.getBreadCrumbParameter()
 			.map(p -> getRouterLink(route.getRouteClass(), p))
-			.orElseGet(() -> Stream.of(new RouterLink(FurmsAppLayoutUtils.getPageTitle(route.getRouteClass()), route.getRouteClass())));
+			.orElseGet(() -> Stream.of(new RouterLink(getPageTitle(route.getRouteClass()), route.getRouteClass())));
 	}
 
 

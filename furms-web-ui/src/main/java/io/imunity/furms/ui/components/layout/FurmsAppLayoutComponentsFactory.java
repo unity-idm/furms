@@ -3,9 +3,8 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui;
+package io.imunity.furms.ui.components.layout;
 
-import io.imunity.furms.ui.components.FurmsAppLayoutUtils;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.components.branding.logo.FurmsLogoFactory;
 import io.imunity.furms.ui.view_picker.FurmsRolePickerFactory;
@@ -15,21 +14,21 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class FurmsLayoutFactory {
+public class FurmsAppLayoutComponentsFactory {
 	private final FurmsRolePickerFactory furmsSelectFactory;
 	private final FurmsNotificationBarFactory notificationBarFactory;
 	private final FurmsLogoFactory furmsLogoFactory;
 
-	FurmsLayoutFactory(FurmsRolePickerFactory furmsSelectFactory,
-	                   FurmsNotificationBarFactory notificationBarFactory,
-	                   FurmsLogoFactory furmsLogoFactory) {
+	FurmsAppLayoutComponentsFactory(FurmsRolePickerFactory furmsSelectFactory,
+	                                FurmsNotificationBarFactory notificationBarFactory,
+	                                FurmsLogoFactory furmsLogoFactory) {
 		this.furmsSelectFactory = furmsSelectFactory;
 		this.notificationBarFactory = notificationBarFactory;
 		this.furmsLogoFactory = furmsLogoFactory;
 	}
 
-	public FurmsAppLayoutUtils create(List<MenuComponent> menuComponents){
-		return new FurmsAppLayoutUtils(
+	FurmsAppLayoutComponentsHolder create(List<MenuComponent> menuComponents){
+		return new FurmsAppLayoutComponentsHolder(
 				menuComponents,
 				furmsSelectFactory.create(),
 				notificationBarFactory.create(),
