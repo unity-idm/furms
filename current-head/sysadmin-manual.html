@@ -456,11 +456,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#furms-devops-tools-installation-utility">FURMS devops tools installation utility</a></li>
 <li><a href="#furms-ansible-scripts">FURMS Ansible scripts</a></li>
 <li><a href="#setup-ansible-configuration-files">Setup Ansible configuration files</a></li>
+<li><a href="#email-templates-configuration">Email templates configuration</a></li>
 <li><a href="#install-furms-stack">Install FURMS stack</a></li>
 </ul>
 </li>
 <li><a href="#furms-system-minor-update-procedure">FURMS system minor update procedure</a></li>
 <li><a href="#upgrade-from-1-0-to-2-0-release">Upgrade from 1.0 to 2.0 release</a></li>
+<li><a href="#upgrade-from-2-0-to-3-0-release">Upgrade from 2.0 to 3.0 release</a></li>
+<li><a href="#upgrade-from-3-0-to-3-1-release">Upgrade from 3.0 to 3.1 release</a></li>
 <li><a href="#operating-the-system">Operating the system</a>
 <ul class="sectlevel2">
 <li><a href="#starting-furms-stack">Starting FURMS stack</a></li>
@@ -1054,6 +1057,77 @@ The redirect URL configured at Central IdP OAuth client side should be set to ht
 <td class="tableblock halign-left valign-top"><p class="tableblock">Central IdP OpenID Connect Discovery endpoint address, for production environment <a href="https://central-proxy.fenix-ri.eu/.well-known/openid-configuration" class="bare">https://central-proxy.fenix-ri.eu/.well-known/openid-configuration</a> and for the acceptance environment <a href="https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration" class="bare">https://proxy.acc.fenix.eduteams.org/.well-known/openid-configuration</a></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
+<p>Configuration of Unity-IdM mail notifications subsystem, used by FURMS to send invitations, applications, policy acceptance information etc. Mail configuration is optional.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The SSL for SMTP connections is enabled by default.
+</td>
+</tr>
+</table>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.from</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User name which will be used for From: field of the email. It is also used as SMTP envelope return address.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The SMTP server to connect to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.port</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer [0-65535]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The SMTP server port to connect to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User name to authenticate SMTP connection.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password to authenticate SMTP connection.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.msgTemplates</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
+<p>Configuration of email templates used by FURMS to send notifications. This configuration is optional, FURMS comes with default config file and default email template files.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For more information on email templates configuration, please refer to <a href="#email-templates-configuration">Email templates configuration</a> section.
+</td>
+</tr>
+</table>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.msgTemplates.configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unity message templates configuration file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.msgTemplates.files</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path to directory with HTML body files used by message templates.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-center valign-top" colspan="3"><p class="tableblock"><em>--- FURMS service configuration ---</em></p></td>
 </tr>
 <tr>
@@ -1180,6 +1254,264 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 </div>
 <div class="sect2">
+<h3 id="email-templates-configuration"><a class="anchor" href="#email-templates-configuration"></a>Email templates configuration</h3>
+<div class="paragraph">
+<p>FURMS utilizes Unity-IdM notification subsystem, therefore in order to setup email templates used by FURMS, administrator has to create the Unity-IdM configuration files, described in the next subsections, and put a reference to those in the Ansible group variables file.</p>
+</div>
+<div class="sect3">
+<h4 id="message-templates-configuration"><a class="anchor" href="#message-templates-configuration"></a>Message templates configuration</h4>
+<div class="paragraph">
+<p>This particular configuration file is parsed by Unity-IdM and defines all email template definitions. Below is the default content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>master-furms-header.subject.en=
+master-furms-header.consumer=Generic
+master-furms-header.type=HTML
+master-furms-header.bodyFile.en=${CONF}/msgTemplates/masterTemplate-furms-head.html
+
+master-furms-footer.subject.en=
+master-furms-footer.consumer=Generic
+master-furms-footer.type=HTML
+master-furms-footer.bodyFile.en=${CONF}/msgTemplates/masterTemplate-furms-footer.html
+
+policyAcceptanceNew.subject.en=Fenix policy document awaits acceptance
+policyAcceptanceNew.consumer=UserNotification
+policyAcceptanceNew.notificationChannel=default_email
+policyAcceptanceNew.type=HTML
+policyAcceptanceNew.bodyFile.en=${CONF}/msgTemplates/policyAcceptanceNew.html
+
+policyAcceptanceRevision.subject.en=Fenix policy document was updated
+policyAcceptanceRevision.consumer=UserNotification
+policyAcceptanceRevision.notificationChannel=default_email
+policyAcceptanceRevision.type=HTML
+policyAcceptanceRevision.bodyFile.en=${CONF}/msgTemplates/policyAcceptanceRevision.html
+
+invitationNew.subject.en=New role to accept
+invitationNew.consumer=UserNotification
+invitationNew.notificationChannel=default_email
+invitationNew.type=HTML
+invitationNew.bodyFile.en=${CONF}/msgTemplates/invitationNew.html
+
+registrationInvitation.subject.en=You have been invited to the FURMS app
+registrationInvitation.consumer=InvitationWithCode
+registrationInvitation.notificationChannel=default_email
+registrationInvitation.type=HTML
+registrationInvitation.bodyFile.en=${CONF}/msgTemplates/registrationInvitation.html
+
+invitationAccepted.subject.en=Invitation has been accepted
+invitationAccepted.consumer=UserNotification
+invitationAccepted.notificationChannel=default_email
+invitationAccepted.type=HTML
+invitationAccepted.bodyFile.en=${CONF}/msgTemplates/invitationAccepted.html
+
+invitationRejected.subject.en=Invitation has been rejected
+invitationRejected.consumer=UserNotification
+invitationRejected.notificationChannel=default_email
+invitationRejected.type=HTML
+invitationRejected.bodyFile.en=${CONF}/msgTemplates/invitationRejected.html
+
+applicationNew.subject.en=You have received new application
+applicationNew.consumer=UserNotification
+applicationNew.notificationChannel=default_email
+applicationNew.type=HTML
+applicationNew.bodyFile.en=${CONF}/msgTemplates/applicationNew.html
+
+applicationAccepted.subject.en=Application has been accepted
+applicationAccepted.consumer=UserNotification
+applicationAccepted.notificationChannel=default_email
+applicationAccepted.type=HTML
+applicationAccepted.bodyFile.en=${CONF}/msgTemplates/applicationAccepted.html
+
+applicationRejected.subject.en=Application has been rejected
+applicationRejected.consumer=UserNotification
+applicationRejected.notificationChannel=default_email
+applicationRejected.type=HTML
+applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The path to this file shall be provided in the  <code>unity.msgTemplates.configuration</code> property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definitions are used by FURMS:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>policyAcceptanceNew</code> - utilized to notify user about new policy document to accept,</p>
+</li>
+<li>
+<p><code>policyAcceptanceRevision</code> - utilized to notify user that existing policy has been updated and awaits approval,</p>
+</li>
+<li>
+<p><code>invitationNew</code> - utilized to send invitations to existing users who were invited to new roles,</p>
+</li>
+<li>
+<p><code>registrationInvitation</code> - utilized to send invitations to create a new account in FURMS to prospective users,</p>
+</li>
+<li>
+<p><code>invitationAccepted</code> - utilized to send information that particular user has accepted the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation,</p>
+</li>
+<li>
+<p><code>invitationRejected</code> - utilized to send information that a user has rejected the invitation to new role, email is send to administrators of originating group as well as to the person who initiated the invitation,</p>
+</li>
+<li>
+<p><code>applicationNew</code> - utilized to send information to particular project&#8217;s administrators that a new user has applied for project membership,</p>
+</li>
+<li>
+<p><code>applicationAccepted</code> - utilized to send information to a user, that her/his application to become member of a project, has been accepted by project administrator,</p>
+</li>
+<li>
+<p><code>applicationRejected</code> - utilized to send information to a user, that her/his application to become member of a project, has been rejected by project administrator.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Most of the configuration in the default message template file should not be changed.
+It is recommended for system administrator to adjust the template subject only.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="email-template-body-files"><a class="anchor" href="#email-template-body-files"></a>Email template body files</h4>
+<div class="paragraph">
+<p>Given the default template configuration file, FURMS system administrator has to create the following email template body files:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>policyAcceptanceNew.html</code> - used by <code>policyAcceptanceNew</code> template definition,</p>
+</li>
+<li>
+<p><code>policyAcceptanceRevision.html</code> - used by <code>policyAcceptanceRevision</code> template definition,</p>
+</li>
+<li>
+<p><code>invitationNew.html</code> - used by <code>invitationNew</code> template definition,</p>
+</li>
+<li>
+<p><code>registrationInvitation.html</code> - used by <code>registrationInvitation</code> template definition,</p>
+</li>
+<li>
+<p><code>invitationAccepted.html</code> - used by <code>invitationAccepted</code> template definition,</p>
+</li>
+<li>
+<p><code>invitationRejected.html</code> - used by <code>invitationRejected</code> template definition,</p>
+</li>
+<li>
+<p><code>applicationNew.html</code> - used by <code>applicationNew</code> template definition,</p>
+</li>
+<li>
+<p><code>applicationAccepted.html</code> - used by <code>applicationAccepted</code> template definition,</p>
+</li>
+<li>
+<p><code>applicationRejected.html</code> - used by <code>applicationRejected</code> template definition,</p>
+</li>
+<li>
+<p><code>masterTemplate-furms-head.html</code> - header that can be utilized in body files of other HTML templates. In the resolved HTML email the <code>${include:master-furms-head}</code> tag is replaced with the header content,</p>
+</li>
+<li>
+<p><code>masterTemplate-furms-footer.html</code>- footer that can be utilized in body files of other HTML templates. In the resolved HTML email the <code>${include:master-furms-footer}</code> tag is replaced with the footer content.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The path to the directory that stores the aforementioned HTML template files, shall be provided in the <code>unity.msgTemplates.files</code> property value in the Ansible groups variable file.</p>
+</div>
+<div class="paragraph">
+<p>Example of <code>policyAcceptanceNew.html</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>${include:master-furms-header}
+&lt;p&gt;Dear User,&lt;/p&gt;
+&lt;p&gt;There is a new policy document awaiting your acceptance.&lt;/p&gt;
+&lt;p&gt;Please read the '${custom.name}' document available &lt;a href=&quot;${custom.furmsUrl}&quot;&gt;here&lt;/a&gt;.
+&lt;/p&gt;
+${include:master-furms-footer}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Email templates can use custom variables that define dynamic contents set by FURMS when sending notifications. The following table provides information about variables available in the particular HTML template.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">HTML template file name</th>
+<th class="tableblock halign-left valign-top">Variable</th>
+<th class="tableblock halign-left valign-top">Description of resolved variable in template</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="2"><div class="content"><div class="paragraph">
+<p>policyAcceptanceNew.html<br>
+policyAcceptanceRevision.html</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.name}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Policy document name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.furmsUrl}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to FURMS that points to the User Settings &#8594; Policy Documents view</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="2"><p class="tableblock">invitationNew.html</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.role}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FURMS role that invitee is requested to accept</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.furmsUrl}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to FURMS that points to the User Settings &#8594; Invitations view</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="2"><p class="tableblock">registrationInvitation.html</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.role}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FURMS role that invitee is requested to accept</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${url}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to Unity-IdM that points to the registration form</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="2"><div class="content"><div class="paragraph">
+<p>invitationAccepted.html<br>
+invitationRejected.html</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.role}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FURMS role that invitee has accept/rejected</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.email}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Email address of person that either accepted or declined the invitation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="3"><p class="tableblock">applicationNew.html</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.projectName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project name for which user has requested membership</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.email}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Email address of person that requested membership to a project</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.furmsUrl}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to FURMS that points to particular project&#8217;s Users view</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>applicationAccepted.html<br>
+applicationRejected.html</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.projectName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project name for which user has requested membership</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="install-furms-stack"><a class="anchor" href="#install-furms-stack"></a>Install FURMS stack</h3>
 <div class="paragraph">
 <p>Once configuration is finished, the following command will install the Unity-IdM as well as FURMS service:</p>
@@ -1205,7 +1537,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 <div class="ulist">
 <ul>
 <li>
-<p><a href="#Stop FURMS stack">[Stop FURMS stack]</a></p>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
 </li>
 <li>
 <p>Install minor update:</p>
@@ -1224,7 +1556,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 </li>
 <li>
-<p><a href="#Start FURMS stack">[Start FURMS stack]</a></p>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
 </li>
 </ul>
 </div>
@@ -1283,6 +1615,107 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </li>
 <li>
 <p><a href="#install-furms-stack">Install FURMS stack</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-from-2-0-to-3-0-release"><a class="anchor" href="#upgrade-from-2-0-to-3-0-release"></a>Upgrade from 2.0 to 3.0 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 3.0 release installation steps basing on 2.0 release configuration. This procedure does not require dropping any of the databases, and all of the Ansible related configuration is reused.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a backup of PostgreSQL database used by Unity-IdM instance.</p>
+</li>
+<li>
+<p>Make a backup of PostgreSQL database used by FURMS service instance.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>change the version of furmsVersion to <code>3.0.0</code></p>
+</li>
+<li>
+<p>add the following configuration under the unity:</p>
+<div class="literalblock">
+<div class="content">
+<pre>unity:
+	...
+  mail:
+    from:                -- set -- me --
+    smtp:
+      host:              -- set -- me --
+      port:              -- set -- me --
+      username:          -- set -- me --
+      password:          -- set -- me --
+  msgTemplates:          # this section is optional, if not provided the default configuration is delivered
+    files:               -- set -- me --
+    configuration:       -- set -- me --</pre>
+</div>
+</div>
+</li>
+<li>
+<p>To customize the default message templates used by FURMS to send email notifications, please refer to the <a href="#email-templates-configuration">Email templates configuration</a> section.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
+</li>
+<li>
+<p>Make sure that RabbitMQ broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-from-3-0-to-3-1-release"><a class="anchor" href="#upgrade-from-3-0-to-3-1-release"></a>Upgrade from 3.0 to 3.1 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation straight forward.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a backup of PostgreSQL database used by Unity-IdM instance.</p>
+</li>
+<li>
+<p>Make a backup of PostgreSQL database used by FURMS service instance.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file and change the version of furmsVersion to <code>3.1.0</code></p>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
+</li>
+<li>
+<p>Make sure that RabbitMQ broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
 </li>
 </ul>
 </div>
@@ -1369,7 +1802,7 @@ Any reconfiguration of aforementioned options in the case of FURMS installation 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-09-09 09:00:16 UTC
+Last updated 2021-11-25 13:51:36 UTC
 </div>
 </div>
 <style>

@@ -448,6 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#managing-community-administrators">Managing community administrators</a></li>
 <li><a href="#managing-community-metadata">Managing community metadata</a></li>
 <li><a href="#distributing-resources-to-projects">Distributing resources to projects</a></li>
+<li><a href="#managing-groups">Managing groups</a></li>
 <li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
 </ul>
 </li>
@@ -482,7 +483,8 @@ Project administrators can also themselves manage administrators of their projec
 </table>
 </div>
 <div class="paragraph">
-<p>{versionlimit} Adding project administrators is currently limited to users who has signed in to FURMS at least once.</p>
+<p>A new administrator can be invited either by selecting one of existing FURMS users or by providing an email address. In the latter case the invited person must have a Fenix infrastructure account. The invited user needs to accept the invitation to a new role.
+Selection of existing users is limited to the users already belonging to the community.</p>
 </div>
 </div>
 <div class="sect2">
@@ -491,7 +493,11 @@ Project administrators can also themselves manage administrators of their projec
 <p>FURMS allows for having multiple users with the community administrator role. Each community administrator can add (and remove) other administrators from the "Community Administrators" view.</p>
 </div>
 <div class="paragraph">
-<p>{versionlimit} Adding community administrators is currently limited to users who has signed in to FURMS at least once.</p>
+<p>A new administrator can be invited either by selecting one of existing FURMS users or by providing an email address. In the latter case the invited person must have a Fenix infrastructure account. The invited user needs to accept the invitation to a new role.
+Selection of existing users is limited to the users already belonging to the community.</p>
+</div>
+<div class="paragraph">
+<p>Note that removing the last administrator is not allowed.</p>
 </div>
 </div>
 <div class="sect2">
@@ -510,6 +516,18 @@ Project administrators can also themselves manage administrators of their projec
 </div>
 <div class="paragraph">
 <p>The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its <em>Allocations</em> tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="managing-groups"><a class="anchor" href="#managing-groups"></a>Managing groups</h3>
+<div class="paragraph">
+<p>FURMS allows community administrators to create groups and control membership of community users in the groups.</p>
+</div>
+<div class="paragraph">
+<p>There are no limits on membership in groups, any community member can be a member of zero, one or many groups. The sole restriction is that only existing community users can be added to a group (i.e. users of any of the community projects and community admins). Adding and removing a user to a group does not require user&#8217;s consent.</p>
+</div>
+<div class="paragraph">
+<p>Group membership is not changing the way how FURMS works in any way. It is, however, exposed on the REST APIs: both for the Fenix Central IdP and over Community REST API.</p>
 </div>
 </div>
 <div class="sect2">
@@ -537,7 +555,7 @@ Project administrators can also themselves manage administrators of their projec
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-09-09 09:00:16 UTC
+Last updated 2021-11-25 13:51:36 UTC
 </div>
 </div>
 <style>

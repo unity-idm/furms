@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Project management</title>
+<title>FURMS Command Line Interface (CLI)</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -442,15 +442,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#project-management">Project management</a>
+<li><a href="#furms-command-line-interface-cli">FURMS Command Line Interface (CLI)</a>
 <ul class="sectlevel2">
-<li><a href="#managing-users">Managing users</a></li>
-<li><a href="#project-settings">Project settings</a></li>
-<li><a href="#resource-access">Resource access</a></li>
-<li><a href="#resource-allocations">Resource allocations</a></li>
-<li><a href="#defining-alarms">Defining alarms</a></li>
-<li><a href="#managing-project-administrators">Managing project administrators</a></li>
-<li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
+<li><a href="#downloading">Downloading</a></li>
+<li><a href="#configuring-the-cli">Configuring the CLI</a></li>
+<li><a href="#using-the-client">Using the client</a></li>
+<li><a href="#format-of-selected-inputs">Format of selected inputs</a></li>
+<li><a href="#diagnostic-messages">Diagnostic messages</a></li>
 </ul>
 </li>
 </ul>
@@ -458,120 +456,242 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="project-management"><a class="anchor" href="#project-management"></a>Project management</h2>
+<h2 id="furms-command-line-interface-cli"><a class="anchor" href="#furms-command-line-interface-cli"></a>FURMS Command Line Interface (CLI)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>FURMS project groups users who work on a common topic and consume resources provided by sites and assigned by communities.</p>
+<p>FURMS ecosystem provides a command line executable, which can be used to conveniently access FURMS. The CLI application simplifies the use of the FURMS REST API, on which it is based.</p>
 </div>
 <div class="paragraph">
-<p>Each project must have a <em>project leader</em>, who is a formal representative and a responsible person. Besides this formal role, project has one or more administrators, who can manage the project in FURMS.</p>
+<p>FURMS CLI is designed in the first place for the Fenix and site level admins. It can be used as well by community and project admins.</p>
 </div>
 <div class="paragraph">
-<p>Project management in FURMS consists of two main operations:</p>
+<p>Access credentials of the FURMS CLI are the same as the ones used for the REST API access and can be generated in the FURMS web UI under User Settings &#8594; API Key view.</p>
+</div>
+<div class="sect2">
+<h3 id="downloading"><a class="anchor" href="#downloading"></a>Downloading</h3>
+<div class="paragraph">
+<p>FURMS CLI releases are published on GitHub. Please navigate to:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/unity-idm/furms/releases" class="bare">https://github.com/unity-idm/furms/releases</a></p>
+</div>
+<div class="paragraph">
+<p>and select the version of the CLI for download. Usually the latest release should be used.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-the-cli"><a class="anchor" href="#configuring-the-cli"></a>Configuring the CLI</h3>
+<div class="paragraph">
+<p>FURMS CLI can be run an a Linux AMD64 platform. There are no external dependencies, however it might be good to have an installation of Java Runtime Environment (of any recent version) in order to more quickly setup a truststore (see below).</p>
+</div>
+<div class="paragraph">
+<p>To run FURMS CLI the following parameters have to be provided:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>FURMS server URL</p>
+</li>
+<li>
+<p>Access credentials: user is and API key</p>
+</li>
+<li>
+<p>TLS/HTTPS truststore</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The options can be set in number of ways, enumerated here in priority order:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Provided as a command line parameter</p>
+</li>
+<li>
+<p>Provided as an environmental variable</p>
+</li>
+<li>
+<p>Loaded from a configuration file</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The following table lists all mandatory parameters:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Config file property</th>
+<th class="tableblock halign-left valign-top">Env variable</th>
+<th class="tableblock halign-left valign-top">Command line</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FURMS URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>url</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_URL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--furms-url</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_USER</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--user</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API key</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>apikey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_APIKEY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--api-key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Truststore path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>truststore</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_TRUSTSTORE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--truststore</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Truststore type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>truststoreType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_TRUSTSTORE_TYPE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--truststore-type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JKS</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Truststore password</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>truststorePass</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FURMS_TRUSTSTORE_PASS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--truststore-pass</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>changeit</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="configuration-file"><a class="anchor" href="#configuration-file"></a>Configuration file</h4>
+<div class="paragraph">
+<p>Using the configuration file is typically a preferred way to configure the client. Configuration file location can be either set as a command line parameter <code>--config-file</code> or placed in the default location which is <code>.furms.properties</code> in user&#8217;s home directory.</p>
+</div>
+<div class="paragraph">
+<p>Example configuration file contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>apikey=12345678-b9b9-4444-5555-71123d000820
+username=12345678-daaa-6666-7777-28324ec7ac88
+url=https://furms.example.com</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="configuring-truststore"><a class="anchor" href="#configuring-truststore"></a>Configuring truststore</h4>
+<div class="paragraph">
+<p>The most easy way to configure HTTPS (TLS) trusted certificates is to have an installation of JRE. It includes a truststore which will be automatically picked by FURMS CLI, if only <code>$JAVA_HOME</code> environment variable is properly pointing to the root of the JRE installation.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise a JKS or PKCS12 file needs to be created, including a CA certificate, which was used to issue a certificate of the FURMS server. In such case truststore needs to be configured with the three options shown in the table above.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using-the-client"><a class="anchor" href="#using-the-client"></a>Using the client</h3>
+<div class="paragraph">
+<p>All CLI main commands are listed with the <code>-h</code> switch, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[user001@examplebox]$ ./furms -h
+Usage: furms [-hV] [COMMAND]
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+Commands:
+  community
+  group
+  project
+  site</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each main command can have a subcommand (and sometimes even sub-sub command). In each case typing the <code>-h</code> switch after all commands provides contextual help:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[user001@examplebox]$ ./furms site policy list -h
+Usage: furms site policy list [-dhsvV] [--api-key=&lt;apiKey&gt;]
+                                     [--config-file=&lt;configFile&gt;]
+                                     [--furms-url=&lt;furmsurl&gt;]
+                                     [--truststore=&lt;truststore&gt;]
+                                     [--truststore-pass=&lt;truststorepass&gt;]
+                                     [--truststore-type=&lt;truststoreType&gt;]
+                                     [--user=&lt;username&gt;] &lt;siteId&gt;
+Retrieve site policies
+[...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Output of the operation is printed in JSON format.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="format-of-selected-inputs"><a class="anchor" href="#format-of-selected-inputs"></a>Format of selected inputs</h3>
+<div class="sect3">
+<h4 id="creation-of-community-allocation"><a class="anchor" href="#creation-of-community-allocation"></a>Creation of community allocation</h4>
+<div class="paragraph">
+<p>Creation of community allocation requires its definition provided in JSON format. The syntax should be as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>{
+  "name" : "My CLI Allocation",
+  "creditId" : "fe1f2d62-4568-42da-809d-0a59f6bc6174",
+  "amount" : 10
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>furms community allocation create --file &lt;PATH_TO_JSON_FILE&gt; &lt;COMMUNITY-ID&gt;</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="diagnostic-messages"><a class="anchor" href="#diagnostic-messages"></a>Diagnostic messages</h3>
+<div class="paragraph">
+<p>By default FURMS client prints command result in JSON, and can also print (rather rarely) some extra information prefixed with the <code>[INFO]</code> label.</p>
+</div>
+<div class="paragraph">
+<p>What is more all FURMS CLI commands share several options:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>managing users who work within the project,</p>
+<p><code>-s, --silent</code> will turn off any diagnostic output on the standard output. Only the results of operations are output in JSON format. Note that typically even without this option no extra messages are printed anyway; this option sets up the client not to print anything extra in any case.</p>
 </li>
 <li>
-<p>managing access of project users to resources allocated to the project.</p>
+<p><code>-v, --verbose</code> contrary to <code>--silent</code> will instruct the app to print more diagnostic data on standard output.</p>
+</li>
+<li>
+<p><code>-d, --debug</code> as above but even more diagnostic output can be printed.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>What is more, FURMS collects resource usage information from sites on which resources are consumed. This information can be used to track budget consumption and its spread over time.</p>
-</div>
-<div class="sect2">
-<h3 id="managing-users"><a class="anchor" href="#managing-users"></a>Managing users</h3>
-<div class="paragraph">
-<p>Under the Users menu entry, project administrator can view, add and remove project users. Note that project administrator needs not to be (and does not become by default) a regular project user. Administrator can however assign him/her-self project user role with a dedicated action button.</p>
-</div>
-<div class="paragraph">
-<p>A new project user can be invited by providing his or her email address. Note that the invited person must possess a Fenix infrastructure account and accept the invitation to eventually become project user.</p>
-</div>
-<div class="paragraph">
-<p>Users can also on their own apply for project membership. Such applications needs to be accepted (or rejected) by project admin.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="project-settings"><a class="anchor" href="#project-settings"></a>Project settings</h3>
-<div class="paragraph">
-<p>Under the Settings menu entry, project administrator can control project details. Some of the settings are under control of the parent community and therefore are presented as read-only values.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-access"><a class="anchor" href="#resource-access"></a>Resource access</h3>
-<div class="paragraph">
-<p>Users of a project do not access to each allocation automatically. Instead, the project administrator is responsible for granting (or removing) access to each individual allocation. This is controlled on the Resource access view.</p>
-</div>
-<div class="paragraph">
-<p>Note that there is one exception to that rule. Site sometimes define resources which are available to all users at the site. Such resources are available to all users at the site, and control of resource access is not possible for them as it is always enabled.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resource-allocations"><a class="anchor" href="#resource-allocations"></a>Resource allocations</h3>
-<div class="paragraph">
-<p>Resource allocations view shows a table with all allocations that were assigned to the project by its community. Each allocation is specific to a site and a single resource offered by this site.</p>
-</div>
-<div class="paragraph">
-<p>It is important to know that community assigned allocation needs to be acknowledged and installed by the site. In effect of this process, the site may decide to allocate less (or even more) resources than the community requested for the project. What is more site can allocate the resources in several portions, e.g. distributing a bigger allocation into several monthly or quarterly parts.</p>
-</div>
-<div class="paragraph">
-<p>To see the resources which were actually assigned by the site, a row with community assigned allocation needs to be expanded. This is presented on the example below, where a single community allocation for 64 hours was assigned in two chunks, of 32 and 16 hours. It is possible that the TOPSITE will provide in future additional chunk, with remaining 16 hours.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="./images/allocation.png" alt="allocation">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="defining-alarms"><a class="anchor" href="#defining-alarms"></a>Defining alarms</h3>
-<div class="paragraph">
-<p>{versionlimit} This functionality is not available yet.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="managing-project-administrators"><a class="anchor" href="#managing-project-administrators"></a>Managing project administrators</h3>
-<div class="paragraph">
-<p>FURMS project can have multiple administrators. Each project administrator can add (and remove) other administrators from the "Site administrators" view.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Project must have a single <em>project leader</em> defined. Typically this is one of the administrators but this is not strictly necessary.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>A new administrator can be invited either by selecting one of existing FURMS users or by providing an email address. In the latter case the invited person must have a Fenix infrastructure account. The invited user needs to accept the invitation to a new role.
-Selection of existing users is limited to the users already belonging to the project.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="rest-api-access-credentials"><a class="anchor" href="#rest-api-access-credentials"></a>REST API access credentials</h3>
-<div class="paragraph">
-<p>To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against <a href="./openapi-static.html">FURMS REST API</a> endpoints.</p>
-</div>
-<div class="paragraph">
-<p>The token can be generated in User Settings &#8594; API Key. The view also provides information about the fixed user identifier as well an option to revoke a previously generated token.</p>
-</div>
-<div class="paragraph">
-<p>The user identifier and API key should be used with the HTTP Basic authorization scheme when accessing the REST API. For example using cURL:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>curl [other params] -u USER_ID:API_KEY &lt;FURMS_ENDPOINT_URL&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that the generated key is bound to a user, so a user who has multiple roles (e.g. admin of a site and a project) should use the same token, regardless of the role. The generated credential is authorized to perform the same operations as its owner.</p>
 </div>
 </div>
 </div>
@@ -582,94 +702,5 @@ Selection of existing users is limited to the users already belonging to the pro
 Last updated 2021-11-25 13:51:36 UTC
 </div>
 </div>
-<style>
-/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
-pre.CodeRay{background:#f7f7f8}
-.CodeRay .line-numbers{border-right:1px solid currentColor;opacity:.35;padding:0 .5em 0 0}
-.CodeRay span.line-numbers{display:inline-block;margin-right:.75em}
-.CodeRay .line-numbers strong{color:#000}
-table.CodeRay{border-collapse:separate;border:0;margin-bottom:0;background:none}
-table.CodeRay td{vertical-align:top;line-height:inherit}
-table.CodeRay td.line-numbers{text-align:right}
-table.CodeRay td.code{padding:0 0 0 .75em}
-.CodeRay .debug{color:#fff !important;background:#000080 !important}
-.CodeRay .annotation{color:#007}
-.CodeRay .attribute-name{color:#000080}
-.CodeRay .attribute-value{color:#700}
-.CodeRay .binary{color:#509}
-.CodeRay .comment{color:#998;font-style:italic}
-.CodeRay .char{color:#04d}
-.CodeRay .char .content{color:#04d}
-.CodeRay .char .delimiter{color:#039}
-.CodeRay .class{color:#458;font-weight:bold}
-.CodeRay .complex{color:#a08}
-.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
-.CodeRay .color{color:#099}
-.CodeRay .class-variable{color:#369}
-.CodeRay .decorator{color:#b0b}
-.CodeRay .definition{color:#099}
-.CodeRay .delimiter{color:#000}
-.CodeRay .doc{color:#970}
-.CodeRay .doctype{color:#34b}
-.CodeRay .doc-string{color:#d42}
-.CodeRay .escape{color:#666}
-.CodeRay .entity{color:#800}
-.CodeRay .error{color:#808}
-.CodeRay .exception{color:inherit}
-.CodeRay .filename{color:#099}
-.CodeRay .function{color:#900;font-weight:bold}
-.CodeRay .global-variable{color:#008080}
-.CodeRay .hex{color:#058}
-.CodeRay .integer,.CodeRay .float{color:#099}
-.CodeRay .include{color:#555}
-.CodeRay .inline{color:#000}
-.CodeRay .inline .inline{background:#ccc}
-.CodeRay .inline .inline .inline{background:#bbb}
-.CodeRay .inline .inline-delimiter{color:#d14}
-.CodeRay .inline-delimiter{color:#d14}
-.CodeRay .important{color:#555;font-weight:bold}
-.CodeRay .interpreted{color:#b2b}
-.CodeRay .instance-variable{color:#008080}
-.CodeRay .label{color:#970}
-.CodeRay .local-variable{color:#963}
-.CodeRay .octal{color:#40e}
-.CodeRay .predefined{color:#369}
-.CodeRay .preprocessor{color:#579}
-.CodeRay .pseudo-class{color:#555}
-.CodeRay .directive{font-weight:bold}
-.CodeRay .type{font-weight:bold}
-.CodeRay .predefined-type{color:inherit}
-.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
-.CodeRay .key{color:#808}
-.CodeRay .key .delimiter{color:#606}
-.CodeRay .key .char{color:#80f}
-.CodeRay .value{color:#088}
-.CodeRay .regexp .delimiter{color:#808}
-.CodeRay .regexp .content{color:#808}
-.CodeRay .regexp .modifier{color:#808}
-.CodeRay .regexp .char{color:#d14}
-.CodeRay .regexp .function{color:#404;font-weight:bold}
-.CodeRay .string{color:#d20}
-.CodeRay .string .string .string{background:#ffd0d0}
-.CodeRay .string .content{color:#d14}
-.CodeRay .string .char{color:#d14}
-.CodeRay .string .delimiter{color:#d14}
-.CodeRay .shell{color:#d14}
-.CodeRay .shell .delimiter{color:#d14}
-.CodeRay .symbol{color:#990073}
-.CodeRay .symbol .content{color:#a60}
-.CodeRay .symbol .delimiter{color:#630}
-.CodeRay .tag{color:#008080}
-.CodeRay .tag-special{color:#d70}
-.CodeRay .variable{color:#036}
-.CodeRay .insert{background:#afa}
-.CodeRay .delete{background:#faa}
-.CodeRay .change{color:#aaf;background:#007}
-.CodeRay .head{color:#f8f;background:#505}
-.CodeRay .insert .insert{color:#080}
-.CodeRay .delete .delete{color:#800}
-.CodeRay .change .change{color:#66f}
-.CodeRay .head .head{color:#f4f}
-</style>
 </body>
 </html>

@@ -450,7 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#resource-types">Resource types</a></li>
 <li><a href="#resource-credits">Resource credits</a></li>
 <li><a href="#site-agent-connection-and-requests">Site agent connection and requests</a></li>
-<li><a href="#managing-site-administrators">Managing site administrators</a></li>
+<li><a href="#managing-site-admins">Managing site administrators</a></li>
 <li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
 </ul>
 </li>
@@ -504,7 +504,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 <div class="paragraph">
-<p>Users are asked to check the policy whenever they get access to a resource, which is either on a new site or a new service, for which the policy is defined and was not accepted yet. Regardless of the policy type, user can always read &amp; download its text. In the case of the web policies, direct acceptance is possible by the user. Contrary, the fact that the hand-signed paper policy document was received, must be recorded by site administrator. This functionality is available after entering into details of users policy acceptance status, in the Policy Documents view.</p>
+<p>Users are asked to check the policy whenever they get access to a resource, which is either on a new site or a new service, for which the policy is defined and was not accepted yet. Regardless of the policy type, user can always read &amp; download its text. In the case of the web policies, direct acceptance is possible by the user. Contrary, the fact that the hand-signed paper policy document was received, must be recorded by site administrator or site support (see <a href="#managing-site-admins">Managing site administrators</a>). This functionality is available after entering into details of users policy acceptance status, in the Policy Documents view.</p>
 </div>
 <div class="paragraph">
 <p>Policy documents can be updated after creation. Update can be done in two ways:</p>
@@ -569,7 +569,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="managing-site-administrators"><a class="anchor" href="#managing-site-administrators"></a>Managing site administrators</h3>
+<h3 id="managing-site-admins"><a class="anchor" href="#managing-site-admins"></a>Managing site administrators</h3>
 <div class="paragraph">
 <p>FURMS allows for multiple users with the site administrator role. Each site administrator can add (and remove) other administrators from the "Site administrators" view.</p>
 </div>
@@ -577,7 +577,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Additionally the view allows for adding users with the <code>site support</code> role. Such users will be able to access only the Policy Documents view and record the fact that a hand-signed paper policy document was received.</p>
 </div>
 <div class="paragraph">
-<p>{versionlimit} Adding site administrators is currently limited to users who has signed in to FURMS at least once.</p>
+<p>A new administrator can be invited by providing an email address of the invitation recipient. The invited person must possess a Fenix infrastructure account.</p>
+</div>
+<div class="paragraph">
+<p>Note that removing the last administrator is not allowed.</p>
 </div>
 </div>
 <div class="sect2">
@@ -605,7 +608,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-09-09 09:00:16 UTC
+Last updated 2021-11-25 13:51:36 UTC
 </div>
 </div>
 <style>
