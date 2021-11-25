@@ -140,15 +140,6 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public String findSiteIdByCorrelationId(CorrelationId correlationId) {
-		return userGrantJobEntityRepository
-			.findByCorrelationId(UUID.fromString(correlationId.id))
-			.flatMap(job -> userGrantEntityRepository.findById(job.userGrantId))
-			.map(userGrant -> userGrant.siteId.toString())
-			.orElseThrow(() -> new IllegalArgumentException("Correlation id doesn't exist: " + correlationId.id));
-	}
-
-	@Override
 	public void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status) {
 		UserGrantResolved userAllocation = userGrantEntityRepository
 			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
@@ -207,11 +198,5 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	@Override
 	public void deleteAll() {
 		userGrantEntityRepository.deleteAll();
-	}
-
-
-	@Override
-	public void delete(CorrelationId id) {
-		userGrantEntityRepository.deleteByCorrelationId(UUID.fromString(id.id));
 	}
 }
