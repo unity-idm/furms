@@ -20,6 +20,6 @@ class PendingResourceAccessRemover implements ResourceAccessRemover {
 
 	@Override
 	public void remove(CorrelationId correlationId) {
-		resourceAccessRepository.delete(correlationId);
+		resourceAccessRepository.deleteByCorrelationId(correlationId);
 	}
 }
