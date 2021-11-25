@@ -1,6 +1,7 @@
 [back](index)
-## [LATEST](ver/3.0.1/user-manual.html)
+## [LATEST](ver/3.1.0/user-manual.html)
 ## All versions
+* [3.1.0](ver/3.1.0/user-manual.html)
 * [3.0.1](ver/3.0.1/user-manual.html)
 * [3.0.0](ver/3.0.0/user-manual.html)
 * [2.0.0](ver/2.0.0/user-manual.html)
