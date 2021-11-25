@@ -5,28 +5,6 @@
 
 package io.imunity.furms.ui.views.site.connection;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.PLAY;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-
-import java.lang.invoke.MethodHandles;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -41,7 +19,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -57,6 +34,30 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLAY;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "site/admin/pending/requests", layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.pending-requests.page.title")
@@ -76,6 +77,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		this.siteId = new SiteId(getCurrentResourceId());
 		this.siteAgentConnectionService = siteAgentConnectionService;
 		this.searchLayout = new SearchLayout();
+		searchLayout.addValueChangeGridReloader(this::loadGrid);
 		this.browserZoneId = UIContext.getCurrent().getZone();
 		Map<CorrelationId, Checkbox> checkboxes = new HashMap<>();
 		grid = createPendingMessagesGrid(checkboxes, createMainContextMenu(checkboxes));
@@ -146,7 +148,9 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addComponentColumn(pendingMessageGridModel -> {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(pendingMessageGridModel.id, checkbox);
-			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Paragraph(
+			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox,
+				grid.isDetailsVisible(pendingMessageGridModel) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create(),
+				new Paragraph(
 					getTranslationOrDefault("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType,
 							pendingMessageGridModel.operationType)
 			));
@@ -170,7 +174,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addColumn(model -> model.retryAmount)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.5"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> createContextMenu(model.id))
+		grid.addComponentColumn(model -> createContextMenu(model))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(data -> {
@@ -181,24 +185,26 @@ public class PendingRequestsView extends FurmsViewComponent {
 			return json;
 		}));
 
-		
 		return grid;
 	}
 	
 
 	private String getTranslationOrDefault(String key, String defaultString) {
-		try
-		{
+		try {
 			return super.getTranslation(key);
-		} catch (MissingResourceException e)
-		{
+		} catch (MissingResourceException e) {
 			LOG.error("Unable to resolve message key: {}. Using default {}", key, defaultString, e);
 			return defaultString;
 		}
 	}
 
-	private Component createContextMenu(CorrelationId id) {
+	private Component createContextMenu(PendingMessageGridModel model) {
+		CorrelationId id = model.id;
 		GridActionMenu contextMenu = new GridActionMenu();
+		contextMenu.addItem(new MenuButton(
+				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.refresh"), REFRESH),
+			event -> refreshDetails(model)
+		);
 
 		Dialog retryConfirmDialog = createConfirmDialog(
 			() -> siteAgentConnectionService.retry(siteId, id),
@@ -226,6 +232,16 @@ public class PendingRequestsView extends FurmsViewComponent {
 		return gridActionsButtonLayout;
 	}
 
+	private void refreshDetails(PendingMessageGridModel model) {
+		boolean details = grid.isDetailsVisible(model);
+		Set<PendingMessageGridModel> pendingMessageGridModels = loadItems();
+		grid.setItems(pendingMessageGridModels);
+		pendingMessageGridModels.stream()
+			.filter(m -> m.id.equals(model.id))
+			.findAny()
+			.ifPresent(m -> grid.setDetailsVisible(m, details));
+	}
+
 	private Dialog createConfirmDialog(Runnable operation, String message) {
 		FurmsDialog furmsDialog = new FurmsDialog(message);
 		furmsDialog.addConfirmButtonClickListener(event -> {
@@ -241,7 +257,12 @@ public class PendingRequestsView extends FurmsViewComponent {
 	}
 
 	private void loadGrid() {
-		Set<PendingMessageGridModel> collect = siteAgentConnectionService.findAll(siteId)
+		Set<PendingMessageGridModel> collect = loadItems();
+		grid.setItems(collect);
+	}
+
+	private Set<PendingMessageGridModel> loadItems() {
+		return siteAgentConnectionService.findAll(siteId)
 			.stream()
 			.map(message ->
 				PendingMessageGridModel.builder()
@@ -262,7 +283,6 @@ public class PendingRequestsView extends FurmsViewComponent {
 			)
 			.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))
 			.collect(Collectors.toSet());
-		grid.setItems(collect);
 	}
 
 	private VerticalLayout createSiteConnectionLayout(UI ui, SiteId siteId) {
