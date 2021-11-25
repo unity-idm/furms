@@ -101,6 +101,24 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldRemoveUserAdditionByCorrelationId() {
+		CorrelationId correlationId = CorrelationId.randomID();
+		UserAddition userAddition = UserAddition.builder()
+			.siteId(new SiteId(siteId.toString(), new SiteExternalId("id")))
+			.projectId(projectId.toString())
+			.correlationId(correlationId)
+			.userId("userId")
+			.status(UserStatus.ADDING_ACKNOWLEDGED)
+			.build();
+
+		String id = userOperationDatabaseRepository.create(userAddition);
+
+		userOperationDatabaseRepository.deleteByCorrelationId(correlationId.id);
+
+		assertThat(userAdditionEntityRepository.findById(UUID.fromString(id))).isEmpty();
+	}
+
+	@Test
 	void shouldFindAllWithRelatedSiteAndProjectBySiteIdAndUserId() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
