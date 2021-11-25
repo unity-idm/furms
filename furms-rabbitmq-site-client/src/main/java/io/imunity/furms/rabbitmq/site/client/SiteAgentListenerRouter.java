@@ -62,8 +62,8 @@ class SiteAgentListenerRouter {
 	/**
 	 * This method update or delete pending message based on arriving message type.
 	 * If message is Ack type it should be update, if message is Result type it should be delete.
-	 * There is two exceptions when AgentProjectAllocationInstallationAck or AgentPingAck arrived, pending message should be remove,
-	 * because project allocation and ping message kind doesn't have result type.
+	 * There are two exceptions when AgentProjectAllocationInstallationAck or AgentPingAck arrived, pending message should be removed,
+	 * because project allocation and ping message kind don't have result type.
 	 */
 	private void updateOrDeletePendingRequests(Payload<?> payload) {
 		if(payload.body instanceof AgentPingAck || payload.body instanceof AgentProjectAllocationInstallationAck)
