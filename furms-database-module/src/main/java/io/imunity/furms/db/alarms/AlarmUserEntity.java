@@ -6,6 +6,7 @@
 package io.imunity.furms.db.alarms;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
@@ -14,6 +15,12 @@ import java.util.UUID;
 @Table("alarm_user")
 class AlarmUserEntity extends UUIDIdentifiable {
 	public final String userId;
+
+	@PersistenceConstructor
+	private AlarmUserEntity(UUID id, String userId) {
+		this.id = id;
+		this.userId = userId;
+	}
 
 	AlarmUserEntity(String userId) {
 		this.id = UUID.randomUUID();
@@ -36,7 +43,8 @@ class AlarmUserEntity extends UUIDIdentifiable {
 	@Override
 	public String toString() {
 		return "AlarmUserEntity{" +
-			", userId='" + userId + '\'' +
+			"userId='" + userId + '\'' +
+			", id=" + id +
 			'}';
 	}
 }

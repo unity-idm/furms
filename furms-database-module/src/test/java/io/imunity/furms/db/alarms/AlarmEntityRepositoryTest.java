@@ -197,6 +197,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 
 		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
 
+		System.out.println(alarmEntity);
 		System.out.println(alarmEntityRepository.findById(saved.getId()));
 	}
 
