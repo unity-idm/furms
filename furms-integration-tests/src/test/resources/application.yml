@@ -43,6 +43,9 @@ furms:
       language: en
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
+      layout:
+         styles:
+            custom:
    psk:
       centralIdPUser: cidp
       centralIdPSecret: cidppass
