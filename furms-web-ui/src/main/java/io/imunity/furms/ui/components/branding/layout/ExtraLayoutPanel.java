@@ -7,26 +7,24 @@ package io.imunity.furms.ui.components.branding.layout;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.html.Div;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.URL;
-import java.util.Optional;
+
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class ExtraLayoutPanel extends Div {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public ExtraLayoutPanel(final String id, final String filePath) {
+	public ExtraLayoutPanel(final String id, final Resource panelFile) {
 		setId(id);
-		final Optional<FileSystemResource> panelFile = findPanelFile(filePath);
-		if (panelFile.isPresent()) {
+		if (isPanelFileExists(panelFile)) {
 			try {
-				final Html html = new Html(panelFile.get().getInputStream());
+				final Html html = new Html(panelFile.getInputStream());
 				getElement().appendChild(html.getElement());
 			} catch (IOException exception) {
 				LOG.error("Could not load panel: " + id, exception);
@@ -34,22 +32,16 @@ public class ExtraLayoutPanel extends Div {
 		}
 	}
 
-	private Optional<FileSystemResource> findPanelFile(String filePath) {
-		if (StringUtils.isBlank(filePath)) {
-			return Optional.empty();
+	private boolean isPanelFileExists(final Resource panelFile) {
+		try {
+			return panelFile != null
+					&& !isEmpty(panelFile.getURL().getPath())
+					&& panelFile.exists()
+					&& panelFile.isReadable();
+		} catch (IOException exception) {
+			LOG.error("Could not read panel file", exception);
+			return false;
 		}
-		final FileSystemResource systemFile = new FileSystemResource(filePath);
-		if (systemFile.exists() && systemFile.isReadable()) {
-			return Optional.of(systemFile);
-		}
-		final URL resourceUrl = getClass().getResource(filePath);
-		if (resourceUrl == null) {
-			return Optional.empty();
-		}
-		final FileSystemResource resourceFile = new FileSystemResource(resourceUrl.getPath());
-		return resourceFile.exists() && resourceFile.isReadable()
-				? Optional.of(resourceFile)
-				: Optional.empty();
 	}
 
 }

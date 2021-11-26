@@ -7,36 +7,37 @@ package io.imunity.furms.ui.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.core.io.Resource;
 
 @ConstructorBinding
-@ConfigurationProperties(prefix = "furms.layout.panels")
+@ConfigurationProperties(prefix = "furms.front.layout.panels")
 public class FurmsLayoutExtraPanelsConfig {
 
-	private final String top;
-	private final String left;
-	private final String right;
-	private final String bottom;
+	private final Resource top;
+	private final Resource left;
+	private final Resource right;
+	private final Resource bottom;
 
-	public FurmsLayoutExtraPanelsConfig(String top, String left, String right, String bottom) {
+	public FurmsLayoutExtraPanelsConfig(Resource top, Resource left, Resource right, Resource bottom) {
 		this.top = top;
 		this.left = left;
 		this.right = right;
 		this.bottom = bottom;
 	}
 
-	public String getTop() {
+	public Resource getTop() {
 		return top;
 	}
 
-	public String getLeft() {
+	public Resource getLeft() {
 		return left;
 	}
 
-	public String getRight() {
+	public Resource getRight() {
 		return right;
 	}
 
-	public String getBottom() {
+	public Resource getBottom() {
 		return bottom;
 	}
 }

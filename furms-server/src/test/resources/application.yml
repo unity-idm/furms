@@ -24,6 +24,12 @@ furms:
       language: en
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
+      layout:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
       
    url: https://localhost:${server.port}
    psk:
@@ -46,12 +52,6 @@ furms:
       site-form: siteForm
       community-form: communityForm
       project-form: projectForm
-   layout:
-      panels:
-         top:
-         left:
-         right:
-         bottom:
 
 
 spring:
