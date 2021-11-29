@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.alarms;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class AlarmId {
@@ -13,6 +14,12 @@ public class AlarmId {
 
 	public AlarmId(UUID id) {
 		this.id = id;
+	}
+
+	public AlarmId(AlarmId id) {
+		this.id = Optional.ofNullable(id)
+			.map(alarmId -> alarmId.id)
+			.orElse(null);
 	}
 
 	@Override

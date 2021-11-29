@@ -5,9 +5,9 @@
 
 package io.imunity.furms.ui.notifications;
 
-import io.imunity.furms.api.applications.ProjectApplicationsService;
+import io.imunity.furms.api.alarms.ActiveAlarmsService;
 import io.imunity.furms.ui.user_context.ViewMode;
-import io.imunity.furms.ui.views.project.users.UsersView;
+import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsDetailsView;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Stream;
@@ -16,25 +16,25 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 @Component
 class AlarmNotificationProducer implements NotificationProducer{
-	private final ProjectApplicationsService projectApplicationsService;
+	private final ActiveAlarmsService activeAlarmsService;
 
-	AlarmNotificationProducer(ProjectApplicationsService projectApplicationsService) {
-		this.projectApplicationsService = projectApplicationsService;
+	AlarmNotificationProducer(ActiveAlarmsService activeAlarmsService) {
+		this.activeAlarmsService = activeAlarmsService;
 	}
 
 	@Override
 	public Stream<NotificationBarElement> findAllCurrentUserNotifications() {
-		return projectApplicationsService.findAllApplicationsUsersForCurrentProjectAdmins().stream()
-			.map(projectApplication ->
+		return activeAlarmsService.findAllActiveAlarmsAssignToCurrentUser().stream()
+			.map(activeAlarm ->
 				new NotificationBarElement(
 					getTranslation(
-						"notifications.new.application",
-						projectApplication.user.email,
-						projectApplication.projectName
+						"notifications.alarm.active",
+						activeAlarm.projectAllocationName,
+						activeAlarm.alarmName
 					),
 					ViewMode.PROJECT,
-					UsersView.class,
-					projectApplication.projectId
+					ResourceAllocationsDetailsView.class,
+					activeAlarm.projectId
 				)
 			);
 	}

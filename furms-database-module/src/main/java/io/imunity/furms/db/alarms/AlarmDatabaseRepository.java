@@ -5,20 +5,19 @@
 
 package io.imunity.furms.db.alarms;
 
-import io.imunity.furms.domain.alarms.Alarm;
+import io.imunity.furms.domain.alarms.ActiveAlarm;
 import io.imunity.furms.domain.alarms.AlarmId;
-import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.alarms.AlarmWithUserIds;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static java.util.function.Function.identity;
 
 @Repository
 class AlarmDatabaseRepository implements AlarmRepository {
@@ -32,21 +31,34 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	}
 
 	@Override
-	public Set<Alarm> findAll(String projectId) {
-		Map<String, FURMSUser> userIdFURMSUserMap = getGroupedUsers();
+	public Set<AlarmWithUserIds> findAll(String projectId) {
 		return repository.findAllByProjectId(UUID.fromString(projectId)).stream()
-			.map(alarmEntity -> map(userIdFURMSUserMap, alarmEntity))
+			.map(this::map)
 			.collect(Collectors.toSet());
 	}
+
 	@Override
-	public Optional<Alarm> find(AlarmId id) {
-		Map<String, FURMSUser> userIdFURMSUserMap = getGroupedUsers();
-		return repository.findById(id.id)
-			.map(alarmEntity -> map(userIdFURMSUserMap, alarmEntity));
+	public Set<ActiveAlarm> findAll(FenixUserId userId) {
+		return repository.findAllByUserId(userId.id).stream()
+			.filter(entity -> BigDecimal.valueOf((entity.allocationAmount.doubleValue() / 100) * entity.threshold).compareTo(entity.cumulativeConsumption) < 0)
+			.map(this::map)
+			.collect(Collectors.toSet());
 	}
 
-	private Alarm map(Map<String, FURMSUser> userIdFURMSUserMap, AlarmEntity alarmEntity) {
-		return Alarm.builder()
+	@Override
+	public Optional<AlarmWithUserIds> find(AlarmId id) {
+		return repository.findById(id.id)
+			.map(this::map);
+	}
+
+	@Override
+	public Optional<AlarmWithUserIds> find(String projectAllocationId) {
+		return repository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(this::map);
+	}
+
+	private AlarmWithUserIds map(AlarmEntity alarmEntity) {
+		return AlarmWithUserIds.builder()
 			.id(new AlarmId(alarmEntity.getId()))
 			.projectId(alarmEntity.projectId.toString())
 			.projectAllocationId(alarmEntity.projectAllocationId.toString())
@@ -54,20 +66,24 @@ class AlarmDatabaseRepository implements AlarmRepository {
 			.threshold(alarmEntity.threshold)
 			.allUsers(alarmEntity.allUsers)
 			.alarmUser(alarmEntity.alarmUserEntities.stream()
-				.map(y -> userIdFURMSUserMap.get(y.userId))
+				.map(y -> new FenixUserId(y.userId))
 				.collect(Collectors.toSet())
 			)
 			.build();
 	}
 
-	private Map<String, FURMSUser> getGroupedUsers() {
-		return usersDAO.getAllUsers().stream()
-			.filter(user -> user.fenixUserId.isPresent())
-			.collect(Collectors.toMap(user -> user.fenixUserId.get().id, identity()));
+	private ActiveAlarm map(ExtendedAlarmEntity alarmEntity) {
+		return ActiveAlarm.builder()
+			.alarmId(new AlarmId(alarmEntity.getId()))
+			.projectId(alarmEntity.projectId.toString())
+			.projectAllocationId(alarmEntity.projectAllocationId.toString())
+			.alarmName(alarmEntity.name)
+			.projectAllocationName(alarmEntity.projectAllocationName)
+			.build();
 	}
 
 	@Override
-	public AlarmId create(Alarm alarm) {
+	public AlarmId create(AlarmWithUserIds alarm) {
 		AlarmEntity alarmEntity = AlarmEntity.builder()
 			.id(alarm.id.id)
 			.projectId(UUID.fromString(alarm.projectId))
@@ -76,7 +92,7 @@ class AlarmDatabaseRepository implements AlarmRepository {
 			.threshold(alarm.threshold)
 			.allUsers(alarm.allUsers)
 			.alarmUserEntities(alarm.alarmUser.stream()
-				.map(x -> new AlarmUserEntity(x.fenixUserId.get().id))
+				.map(userId -> new AlarmUserEntity(userId.id))
 				.collect(Collectors.toSet())
 			)
 			.build();
@@ -85,7 +101,7 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	}
 
 	@Override
-	public void update(Alarm alarm) {
+	public void update(AlarmWithUserIds alarm) {
 		repository.findById(alarm.id.id)
 			.map(alarmEntity -> AlarmEntity.builder()
 				.id(alarmEntity.getId())
@@ -95,7 +111,7 @@ class AlarmDatabaseRepository implements AlarmRepository {
 				.threshold(alarm.threshold)
 				.allUsers(alarm.allUsers)
 				.alarmUserEntities(alarm.alarmUser.stream()
-					.map(y -> new AlarmUserEntity(y.fenixUserId.get().id))
+					.map(userId -> new AlarmUserEntity(userId.id))
 					.collect(Collectors.toSet())
 				)
 				.build()
@@ -110,5 +126,10 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	@Override
 	public boolean exist(String projectId, AlarmId id) {
 		return repository.existsByIdAndProjectId(id.id, UUID.fromString(projectId));
+	}
+
+	@Override
+	public boolean exist(String projectId, String name) {
+		return repository.existsByProjectIdAndName(UUID.fromString(projectId), name);
 	}
 }

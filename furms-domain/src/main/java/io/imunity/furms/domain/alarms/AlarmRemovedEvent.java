@@ -9,10 +9,10 @@ import io.imunity.furms.domain.FurmsEvent;
 
 import java.util.Objects;
 
-public class AlarmCreatedEvent implements FurmsEvent {
+public class AlarmRemovedEvent implements FurmsEvent {
 	public final AlarmWithUserIds alarm;
 
-	public AlarmCreatedEvent(AlarmWithUserIds alarm) {
+	public AlarmRemovedEvent(AlarmWithUserIds alarm) {
 		this.alarm = alarm;
 	}
 
@@ -20,7 +20,7 @@ public class AlarmCreatedEvent implements FurmsEvent {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		AlarmCreatedEvent that = (AlarmCreatedEvent) o;
+		AlarmRemovedEvent that = (AlarmRemovedEvent) o;
 		return Objects.equals(alarm, that.alarm);
 	}
 
@@ -31,7 +31,7 @@ public class AlarmCreatedEvent implements FurmsEvent {
 
 	@Override
 	public String toString() {
-		return "AlarmCreatedEvent{" +
+		return "AlarmRemovedEvent{" +
 			"alarm=" + alarm +
 			'}';
 	}
