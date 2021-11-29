@@ -24,6 +24,12 @@ furms:
       language: en
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
+      layout:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
       
    url: https://localhost:${server.port}
    psk:

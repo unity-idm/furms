@@ -24,7 +24,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;

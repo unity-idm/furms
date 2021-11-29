@@ -23,6 +23,7 @@ import io.imunity.furms.ui.components.*;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
