@@ -27,11 +27,13 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -58,6 +60,8 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
+	@MockBean
+	private UsersDAO usersDAO;
 
 	@Autowired
 	private AlarmEntityRepository alarmEntityRepository;
@@ -201,5 +205,22 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 		System.out.println(alarmEntityRepository.findById(saved.getId()));
 	}
 
+	@Test
+	void shouldCreateProjectAllocationChunk2() {
+		//given
+		AlarmEntity alarmEntity = AlarmEntity.builder()
+			.projectId(projectId)
+			.projectAllocationId(projectAllocationId)
+			.name("name")
+			.threshold(50)
+			.allUsers(false)
+			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
+			.build();
+
+		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
+
+		System.out.println(alarmEntity);
+		System.out.println(alarmEntityRepository.findAllByUserId("userId1"));
+	}
 
 }
