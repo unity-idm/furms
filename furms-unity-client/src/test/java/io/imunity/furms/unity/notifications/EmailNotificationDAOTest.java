@@ -50,6 +50,7 @@ class EmailNotificationDAOTest {
 			"newApplication",
 			"acceptedApplication",
 			"rejectedApplication",
+			"resourceUsageAlarm",
 				FURMS_BASE_URL);
 		emailNotificationDAO = new EmailNotificationDAOImpl(userService, emailNotificationProperties);
 	}
