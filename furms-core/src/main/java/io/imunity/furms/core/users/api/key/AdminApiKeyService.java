@@ -7,6 +7,7 @@ package io.imunity.furms.core.users.api.key;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -37,6 +38,7 @@ class AdminApiKeyService implements UserApiKeyService {
 	}
 
 	@Override
+	@FurmsPublicAccess
 	public Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey) {
 		final boolean exists = repository.exists(UserApiKey.builder()
 				.userId(userId)

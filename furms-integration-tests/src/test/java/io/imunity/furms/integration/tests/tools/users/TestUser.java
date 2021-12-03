@@ -8,10 +8,14 @@ package io.imunity.furms.integration.tests.tools.users;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.key.UserApiKey;
 import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
@@ -26,21 +30,34 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
+import static io.imunity.furms.domain.authz.roles.Role.translateRole;
+import static io.imunity.furms.unity.client.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.flatMapping;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
@@ -53,6 +70,7 @@ public class TestUser {
 	private final String apiKey;
 	private final Map<String, Set<Attribute>> attributes;
 	private final Entity entity;
+	private final FURMSUser furmsUser;
 
 	public TestUser(String userId, String apiKey, int entityId) {
 		this.userId = userId;
@@ -77,6 +95,13 @@ public class TestUser {
 						"userPassword", new CredentialPublicInformation(correct, ""),
 						"sys:password", new CredentialPublicInformation(correct, ""),
 						"clientPassword", new CredentialPublicInformation(correct, ""))));
+		this.furmsUser = FURMSUser.builder()
+				.id(new PersistentId("user"))
+				.firstName("firstName")
+				.lastName("lastName")
+				.email("email@domain.com")
+				.fenixUserId("fenixUserId")
+				.build();
 	}
 
 	public String getUserId() {
@@ -111,8 +136,17 @@ public class TestUser {
 		addRole("/fenix/communities/"+communityId+"/projects/"+projectId+"/users", PROJECT_ADMIN);
 	}
 
+	public void addProjectUser(String communityId, String projectId) {
+		addRole("/fenix/communities/"+communityId+"/projects/"+projectId+"/users", PROJECT_USER);
+	}
+
 	public void addCommunityAdmin(String communityId) {
 		addRole("/fenix/communities/"+communityId+"/users", COMMUNITY_ADMIN);
+	}
+
+	public void addFenixAdminRole() {
+		addRole("/", FENIX_ADMIN);
+		addRole("/fenix/users", FENIX_ADMIN);
 	}
 
 	public void addRole(String path, Role role) {
@@ -122,6 +156,19 @@ public class TestUser {
 		} else {
 			attributes.put(path, new HashSet<>(Set.of(attribute)));
 		}
+	}
+
+	public Map<ResourceId, Set<Role>> getRoles() {
+		return attributes.values().stream()
+				.flatMap(Collection::stream)
+				.filter(attribute -> attribute.getGroupPath().endsWith("/users"))
+				.collect(groupingBy(
+						attribute -> getResourceId(attribute.getGroupPath()),
+						flatMapping(this::attr2Role, mapping(identity(), toSet()))
+				))
+				.entrySet().stream()
+				.filter(resourceEntry -> !resourceEntry.getValue().isEmpty())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	public RequestPostProcessor getHttpBasic() {
@@ -145,6 +192,17 @@ public class TestUser {
 		createEntityMock(wireMockServer);
 		createFenixAttributeMock(wireMockServer);
 		createFenixIdentifierMock(wireMockServer);
+	}
+
+	public void registerInSecurityContext() {
+		final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				new TestUserProvider(furmsUser, getRoles()), null, Set.of());
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	public void removeFromSecurityContext() {
+		SecurityContextHolder.getContext().setAuthentication(null);
 	}
 
 	public void disableCentralIDPIdentity(WireMockServer wireMockServer) {
@@ -196,5 +254,20 @@ public class TestUser {
 						.withBody(new ObjectMapper().writeValueAsString(attributes.values().stream()
 								.flatMap(Collection::stream)
 								.collect(Collectors.toSet())))));
+	}
+
+	private Stream<Role> attr2Role(Attribute attribute) {
+		return attribute.getValues().stream()
+				.map(value -> translateRole(attribute.getName(), value))
+				.filter(Optional::isPresent)
+				.map(Optional::get);
+	}
+
+	@Override
+	public String toString() {
+		return "{" +
+				"userId='" + userId + '\'' +
+				", roles=" + getRoles() +
+				'}';
 	}
 }

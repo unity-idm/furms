@@ -7,6 +7,7 @@ package io.imunity.furms.core.ssh_keys;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.ssh_keys.*;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
@@ -68,6 +69,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	// needed
 	@Override
 	@Transactional
+	@FurmsPublicAccess
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result) {
 		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
 		if (job == null) {

@@ -31,7 +31,7 @@ class UserCapabilityCollector implements CapabilityCollector {
 	}
 
 	public Set<Capability> getCapabilities(Map<ResourceId, Set<Role>> roles, ResourceId resourceId) {
-		Set<Capability> capabilities = getAdditionalCapabilities(roles);
+		Set<Capability> capabilities = getGlobalCapabilities(roles);
 
 		if(resourceId.type.equals(PROJECT))
 			resourceId = getCommunityResourceIdAssociatedWithProject(roles, resourceId);
@@ -64,7 +64,7 @@ class UserCapabilityCollector implements CapabilityCollector {
 			.map(rId -> Map.entry(rId, communityResourceId));
 	}
 
-	private Set<Capability> getAdditionalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {
+	private Set<Capability> getGlobalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {
 		Set<Capability> capabilities = new HashSet<>();
 		Set<Role> roles = new HashSet<>();
 

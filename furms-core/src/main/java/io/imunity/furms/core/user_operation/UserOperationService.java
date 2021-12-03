@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.authz.AuthzService;
@@ -171,6 +172,7 @@ public class UserOperationService implements UserAllocationsService {
 			).collect(toSet());
 	}
 
+	@FurmsPublicAccess
 	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
 		if(repository.existsByUserIdAndSiteIdAndProjectId(userId, siteId.id, projectId))
@@ -189,11 +191,13 @@ public class UserOperationService implements UserAllocationsService {
 		);
 	}
 
+	@FurmsPublicAccess
 	public void createUserRemovals(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		createUserRemovals(projectId, user);
 	}
 
+	@FurmsPublicAccess
 	public void createUserRemovals(String siteId, String projectId, FenixUserId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		createUserRemovals(siteId, projectId, user);

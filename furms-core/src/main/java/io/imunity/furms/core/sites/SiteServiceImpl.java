@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
@@ -131,6 +132,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
+	@FurmsPublicAccess
 	public Set<SiteExternalId> findAllIds() {
 		return siteRepository.findAll().stream()
 				.map(Site::getExternalId)

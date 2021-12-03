@@ -13,10 +13,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface FurmsAuthorize {
 	Capability capability();
-	ResourceType resourceType();
+	ResourceType resourceType() default APP_LEVEL;
 	String id() default "";
 }

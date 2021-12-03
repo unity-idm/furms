@@ -76,7 +76,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public List<FURMSUser> findAllApplyingUsers(String projectId) {
 		Set<FenixUserId> usersIds = applicationRepository.findAllApplyingUsers(projectId);
 		return usersDAO.getAllUsers().stream()
@@ -86,7 +86,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public List<ProjectApplicationWithUser> findAllApplicationsUsersForCurrentProjectAdmins() {
 		List<UUID> projectIds = authzService.getRoles().entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
@@ -103,7 +103,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<String> findAllAppliedProjectsIdsForCurrentUser() {
 		FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
 			.orElseThrow(UserWithoutFenixIdValidationError::new);
@@ -111,7 +111,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public void createForCurrentUser(String projectId) {
 		projectRepository.findById(projectId).ifPresent(project -> {
 			FURMSUser currentUser = authzService.getCurrentAuthNUser();
@@ -128,7 +128,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public void removeForCurrentUser(String projectId) {
 		FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
 			.orElseThrow(UserWithoutFenixIdValidationError::new);
@@ -147,7 +147,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void accept(String projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {
@@ -167,7 +167,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void remove(String projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {

@@ -197,6 +197,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		}
 	}
 
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@Override
+	public void assertIsEligibleToManageKeys() {
+		validator.assertIsEligibleToManageKeys();
+	}
+
 	private void updateKeyOnSite(SSHKey oldKey, SSHKey newKey, Site site, FenixUserId userId) {
 		
 		if (!oldKey.getFingerprint().equals(newKey.getFingerprint()))
@@ -348,11 +354,5 @@ class SSHKeyServiceImpl implements SSHKeyService {
 			return Objects.equals(toAdd, other.toAdd) && Objects.equals(toRemove, other.toRemove)
 					&& Objects.equals(toUpdate, other.toUpdate);
 		}
-	}
-
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	@Override
-	public void assertIsEligibleToManageKeys() {
-		validator.assertIsEligibleToManageKeys();
 	}
 }

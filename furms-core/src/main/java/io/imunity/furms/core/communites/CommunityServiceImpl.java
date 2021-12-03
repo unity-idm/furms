@@ -75,7 +75,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public boolean existsById(String id) {
 		return communityRepository.exists(id);
 	}
