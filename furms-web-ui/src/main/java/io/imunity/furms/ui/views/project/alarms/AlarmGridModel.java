@@ -16,14 +16,16 @@ class AlarmGridModel {
 	public final String allocationName;
 	public final int threshold;
 	public final boolean allUsers;
+	public final boolean fired;
 	public final Set<String> users;
 
-	AlarmGridModel(AlarmId id, String name, String allocationName, int threshold, boolean allUsers, Set<String> users) {
+	private AlarmGridModel(AlarmId id, String name, String allocationName, int threshold, boolean allUsers, boolean fired, Set<String> users) {
 		this.id = id;
 		this.name = name;
 		this.allocationName = allocationName;
 		this.threshold = threshold;
 		this.allUsers = allUsers;
+		this.fired = fired;
 		this.users = users;
 	}
 
@@ -62,6 +64,7 @@ class AlarmGridModel {
 		public String allocationName;
 		public int threshold;
 		public boolean allUsers;
+		public boolean fired;
 		public Set<String> users;
 
 		private AlarmGridModelBuilder() {
@@ -92,13 +95,18 @@ class AlarmGridModel {
 			return this;
 		}
 
+		public AlarmGridModelBuilder fired(boolean fired) {
+			this.fired = fired;
+			return this;
+		}
+
 		public AlarmGridModelBuilder users(Set<String> users) {
 			this.users = Set.copyOf(users);
 			return this;
 		}
 
 		public AlarmGridModel build() {
-			return new AlarmGridModel(alarmId, name, allocationName, threshold, allUsers, users);
+			return new AlarmGridModel(alarmId, name, allocationName, threshold, allUsers, fired, users);
 		}
 	}
 }

@@ -6,8 +6,11 @@
 package io.imunity.furms.core.alarms;
 
 import io.imunity.furms.api.alarms.AlarmService;
+import io.imunity.furms.api.validation.exceptions.AlarmAlreadyExceedThresholdException;
+import io.imunity.furms.api.validation.exceptions.AlarmNotExistingException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.EmailNotPresentException;
+import io.imunity.furms.api.validation.exceptions.FiredAlarmThresholdReduceException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.alarms.AlarmCreatedEvent;
 import io.imunity.furms.domain.alarms.AlarmId;
@@ -22,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
@@ -39,11 +43,13 @@ class AlarmServiceImpl implements AlarmService {
 
 	private final AlarmRepository alarmRepository;
 	private final UsersDAO usersDAO;
+	private final FiredAlarmsServiceImpl firedAlarmsService;
 	private final ApplicationEventPublisher publisher;
 
-	AlarmServiceImpl(AlarmRepository alarmRepository, UsersDAO usersDAO, ApplicationEventPublisher publisher) {
+	AlarmServiceImpl(AlarmRepository alarmRepository, UsersDAO usersDAO, FiredAlarmsServiceImpl firedAlarmsService, ApplicationEventPublisher publisher) {
 		this.alarmRepository = alarmRepository;
 		this.usersDAO = usersDAO;
+		this.firedAlarmsService = firedAlarmsService;
 		this.publisher = publisher;
 	}
 
@@ -86,12 +92,16 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
 	public void create(AlarmWithUserEmails alarm) {
 		assertUniquenessForCreate(alarm.projectId, alarm.name);
+		assertThresholdIsNotExceeded(alarm);
+
 		Map<String, FenixUserId> userIds = getUserIds();
 		Set<FenixUserId> ids = getUserIds(alarm, userIds);
-		AlarmWithUserIds alarmWithUserIds = new AlarmWithUserIds(alarm, ids);
+		AlarmWithUserIds alarmWithUserIds = new AlarmWithUserIds(alarm, ids, false);
+
 		AlarmId alarmId = alarmRepository.create(alarmWithUserIds);
 		publisher.publishEvent(new AlarmCreatedEvent(alarmWithUserIds));
 		LOG.info("Alarm ID {} for project allocation ID: {} was created", alarmId.id, alarm.projectAllocationId);
@@ -109,18 +119,39 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
 	public void update(AlarmWithUserEmails alarm) {
-		if(!alarmRepository.exist(alarm.projectId, alarm.id))
-			throw new IllegalArgumentException(String.format("Alarm %s and project %s are not related", alarm.id, alarm.projectId));
+		assertExist(alarm.projectId, alarm.id);
 		assertUniquenessForUpdate(alarm.projectId, alarm.id, alarm.name);
 		AlarmWithUserIds oldAlarm = alarmRepository.find(alarm.id).get();
+		assertThresholdIsNotExceeded(alarm);
+		assertThresholdReduceForFiredAlarm(oldAlarm.fired, alarm.threshold, oldAlarm.threshold);
+
 		Map<String, FenixUserId> userIds = getUserIds();
 		Set<FenixUserId> ids = getUserIds(alarm, userIds);
-		AlarmWithUserIds alarmWithUserIds = new AlarmWithUserIds(alarm, ids);
+
+		boolean fired = firedAlarmsService.isExceedThreshold(alarm.projectAllocationId, alarm.threshold);
+		AlarmWithUserIds alarmWithUserIds = new AlarmWithUserIds(alarm, ids, fired);
+
 		alarmRepository.update(alarmWithUserIds);
 		publisher.publishEvent(new AlarmUpdatedEvent(alarmWithUserIds, oldAlarm));
 		LOG.info("Alarm ID {} for project allocation ID: {} was updated", alarm.id.id, alarm.projectAllocationId);
+	}
+
+	private void assertExist(String projectId, AlarmId alarmId) {
+		if(!alarmRepository.exist(projectId, alarmId))
+			throw new AlarmNotExistingException(String.format("Alarm %s and project %s are not related", alarmId, alarmId));
+	}
+
+	private void assertThresholdIsNotExceeded(AlarmWithUserEmails alarm) {
+		if(firedAlarmsService.isExceedThreshold(alarm.projectAllocationId, alarm.threshold))
+			throw new AlarmAlreadyExceedThresholdException("Alarm already exceed threshold");
+	}
+
+	private void assertThresholdReduceForFiredAlarm(boolean fired, int newThreshold, int oldThreshold) {
+		if(fired && newThreshold < oldThreshold)
+			throw new FiredAlarmThresholdReduceException("Fired alarm threshold cannot be reduce");
 	}
 
 	private void assertUniquenessForCreate(String projectId, String name) {
@@ -137,13 +168,13 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void remove(String projectId, AlarmId id) {
-		if(!alarmRepository.exist(projectId, id))
-			throw new IllegalArgumentException(String.format("Alarm %s and project %s are not related", id.id, projectId));
+		assertExist(projectId, id);
 		AlarmWithUserIds alarm = alarmRepository.find(id).get();
 		alarmRepository.remove(id);
 		publisher.publishEvent(new AlarmRemovedEvent(alarm));
-		LOG.info("Alarm ID {} for project allocation ID: {} was removed", alarm.id.id, alarm.projectAllocationId);
+		LOG.info("Alarm ID {} for project allocation ID: {} was removed", id.id, alarm.projectAllocationId);
 	}
 }

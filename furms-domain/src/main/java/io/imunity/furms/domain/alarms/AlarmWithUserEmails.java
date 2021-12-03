@@ -15,15 +15,17 @@ public class AlarmWithUserEmails {
 	public final String name;
 	public final int threshold;
 	public final boolean allUsers;
+	public final boolean fired;
 	public final Set<String> alarmUserEmails;
 
-	private AlarmWithUserEmails(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, Set<String> alarmUserEmails) {
+	private AlarmWithUserEmails(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<String> alarmUserEmails) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.name = name;
 		this.threshold = threshold;
 		this.allUsers = allUsers;
+		this.fired = fired;
 		this.alarmUserEmails = alarmUserEmails;
 	}
 
@@ -34,6 +36,7 @@ public class AlarmWithUserEmails {
 		this.name = alarm.name;
 		this.threshold = alarm.threshold;
 		this.allUsers = alarm.allUsers;
+		this.fired = alarm.fired;
 		this.alarmUserEmails = alarmUserEmails;
 	}
 
@@ -45,6 +48,7 @@ public class AlarmWithUserEmails {
 		AlarmWithUserEmails alarm = (AlarmWithUserEmails) o;
 		return threshold == alarm.threshold &&
 			allUsers == alarm.allUsers &&
+			fired == alarm.fired &&
 			Objects.equals(id, alarm.id) &&
 			Objects.equals(projectId, alarm.projectId) &&
 			Objects.equals(projectAllocationId, alarm.projectAllocationId) &&
@@ -54,7 +58,7 @@ public class AlarmWithUserEmails {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, projectAllocationId, name, threshold, allUsers, alarmUserEmails);
+		return Objects.hash(id, projectId, projectAllocationId, name, threshold, allUsers, fired, alarmUserEmails);
 	}
 
 	@Override
@@ -66,6 +70,7 @@ public class AlarmWithUserEmails {
 			", name='" + name + '\'' +
 			", threshold=" + threshold +
 			", allUsers=" + allUsers +
+			", fired=" + fired +
 			", alarmUser=" + alarmUserEmails +
 			'}';
 	}
@@ -81,6 +86,7 @@ public class AlarmWithUserEmails {
 		public String name;
 		public int threshold;
 		public boolean allUsers;
+		public boolean fired;
 		public Set<String> alarmUserEmails;
 
 		private AlarmWithUserEmailsBuilder() {
@@ -116,13 +122,18 @@ public class AlarmWithUserEmails {
 			return this;
 		}
 
+		public AlarmWithUserEmailsBuilder fired(boolean fired) {
+			this.fired = fired;
+			return this;
+		}
+
 		public AlarmWithUserEmailsBuilder alarmUser(Set<String> alarmUserEmails) {
 			this.alarmUserEmails = Set.copyOf(alarmUserEmails);
 			return this;
 		}
 
 		public AlarmWithUserEmails build() {
-			return new AlarmWithUserEmails(id, projectId, projectAllocationId, name, threshold, allUsers, alarmUserEmails);
+			return new AlarmWithUserEmails(id, projectId, projectAllocationId, name, threshold, allUsers, fired, alarmUserEmails);
 		}
 	}
 }

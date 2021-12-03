@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table("alarm_user")
+@Table("alarm_configuration_user")
 class AlarmUserEntity extends UUIDIdentifiable {
 	public final String userId;
 

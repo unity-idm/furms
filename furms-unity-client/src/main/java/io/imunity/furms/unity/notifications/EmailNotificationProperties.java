@@ -19,6 +19,7 @@ class EmailNotificationProperties {
 	public final String acceptedApplicationTemplateId;
 	public final String rejectedApplicationTemplateId;
 	public final String resourceUsageTemplateId;
+	public final String resourceUsageTemplateWithoutUrlId;
 	public final String furmsServerBaseURL;
 
 	EmailNotificationProperties(
@@ -30,7 +31,8 @@ class EmailNotificationProperties {
 		@Value("${furms.notification.new-application-template-id}") String newApplicationTemplateId,
 		@Value("${furms.notification.accepted-application-template-id}") String acceptedApplicationTemplateId,
 		@Value("${furms.notification.rejected-application-template-id}") String rejectedApplicationTemplateId,
-		@Value("${furms.notification.resource-usage-template-id}") String resourceUsageTemplateId,
+		@Value("${furms.notification.alarm-resource-usage-template-id}") String resourceUsageTemplateId,
+		@Value("${furms.notification.alarm-resource-usage-without-url-template-id}") String resourceUsageTemplateWithoutUrlId,
 		@Value("${furms.url}") String furmsServerBaseURL
 	) {
 		this.newPolicyAcceptanceTemplateId = newPolicyAcceptanceTemplateId;
@@ -43,5 +45,6 @@ class EmailNotificationProperties {
 		this.rejectedApplicationTemplateId = rejectedApplicationTemplateId;
 		this.resourceUsageTemplateId = resourceUsageTemplateId;
 		this.furmsServerBaseURL = furmsServerBaseURL;
+		this.resourceUsageTemplateWithoutUrlId = resourceUsageTemplateWithoutUrlId;
 	}
 }

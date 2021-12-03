@@ -10,7 +10,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
-public interface EmailNotificationDAO {
+public interface EmailNotificationSender {
 	void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument);
 	void notifyAboutChangedPolicy(PersistentId userId, String policyDocumentName);
 	void notifyAboutNotAcceptedPolicy(FenixUserId userId, String policyName);
@@ -24,5 +24,7 @@ public interface EmailNotificationDAO {
 	void notifyUserAboutApplicationAcceptance(PersistentId id, String projectName);
 	void notifyUserAboutApplicationRejection(PersistentId id, String projectName);
 
-	void notifyAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
+	void notifyProjectAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
+	void notifyProjectUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
+	void notifyUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
 }

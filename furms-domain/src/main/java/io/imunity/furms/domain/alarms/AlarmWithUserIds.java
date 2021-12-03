@@ -17,25 +17,28 @@ public class AlarmWithUserIds {
 	public final String name;
 	public final int threshold;
 	public final boolean allUsers;
+	public final boolean fired;
 	public final Set<FenixUserId> alarmUser;
 
-	private AlarmWithUserIds(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, Set<FenixUserId> alarmUser) {
+	private AlarmWithUserIds(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<FenixUserId> alarmUser) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.name = name;
 		this.threshold = threshold;
 		this.allUsers = allUsers;
+		this.fired = fired;
 		this.alarmUser = alarmUser;
 	}
 
-	public AlarmWithUserIds(AlarmWithUserEmails alarm, Set<FenixUserId> alarmUser) {
+	public AlarmWithUserIds(AlarmWithUserEmails alarm, Set<FenixUserId> alarmUser, boolean fired) {
 		this.id = new AlarmId(alarm.id);
 		this.projectId = alarm.projectId;
 		this.projectAllocationId = alarm.projectAllocationId;
 		this.name = alarm.name;
 		this.threshold = alarm.threshold;
 		this.allUsers = alarm.allUsers;
+		this.fired = fired;
 		this.alarmUser = alarmUser;
 	}
 
@@ -46,6 +49,7 @@ public class AlarmWithUserIds {
 		AlarmWithUserIds alarm = (AlarmWithUserIds) o;
 		return threshold == alarm.threshold &&
 			allUsers == alarm.allUsers &&
+			fired == alarm.fired &&
 			Objects.equals(id, alarm.id) &&
 			Objects.equals(projectId, alarm.projectId) &&
 			Objects.equals(projectAllocationId, alarm.projectAllocationId) &&
@@ -55,7 +59,7 @@ public class AlarmWithUserIds {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, projectId, projectAllocationId, name, threshold, allUsers, alarmUser);
+		return Objects.hash(id, projectId, projectAllocationId, name, threshold, allUsers, fired, alarmUser);
 	}
 
 	@Override
@@ -67,6 +71,7 @@ public class AlarmWithUserIds {
 			", name='" + name + '\'' +
 			", threshold=" + threshold +
 			", allUsers=" + allUsers +
+			", fired=" + fired +
 			", alarmUser=" + alarmUser +
 			'}';
 	}
@@ -82,6 +87,7 @@ public class AlarmWithUserIds {
 		public String name;
 		public int threshold;
 		public boolean allUsers;
+		public boolean fired;
 		public Set<FenixUserId> alarmUser;
 
 		private AlarmBuilder() {
@@ -117,13 +123,18 @@ public class AlarmWithUserIds {
 			return this;
 		}
 
+		public AlarmBuilder fired(boolean fired) {
+			this.fired = fired;
+			return this;
+		}
+
 		public AlarmBuilder alarmUser(Set<FenixUserId> alarmUser) {
 			this.alarmUser = alarmUser;
 			return this;
 		}
 
 		public AlarmWithUserIds build() {
-			return new AlarmWithUserIds(id, projectId, projectAllocationId, name, threshold, allUsers, alarmUser);
+			return new AlarmWithUserIds(id, projectId, projectAllocationId, name, threshold, allUsers, fired, alarmUser);
 		}
 	}
 }

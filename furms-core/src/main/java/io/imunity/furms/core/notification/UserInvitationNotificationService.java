@@ -9,7 +9,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationEvent;
 import io.imunity.furms.domain.notification.UserInvitationsListChangedEvent;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.notifications.EmailNotificationDAO;
+import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserInvitationNotificationService {
 
-	private final EmailNotificationDAO emailNotificationDAO;
+	private final EmailNotificationSender emailNotificationSender;
 	private final ApplicationEventPublisher publisher;
 
-	UserInvitationNotificationService(EmailNotificationDAO emailNotificationDAO, ApplicationEventPublisher publisher) {
-		this.emailNotificationDAO = emailNotificationDAO;
+	UserInvitationNotificationService(EmailNotificationSender emailNotificationSender, ApplicationEventPublisher publisher) {
+		this.emailNotificationSender = emailNotificationSender;
 		this.publisher = publisher;
 	}
 
@@ -31,15 +31,15 @@ public class UserInvitationNotificationService {
 	}
 
 	public void notifyUserAboutNewRole(PersistentId id, Role role) {
-		emailNotificationDAO.notifyUserAboutNewRole(id, role);
+		emailNotificationSender.notifyUserAboutNewRole(id, role);
 	}
 
 	public void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail) {
-		emailNotificationDAO.notifyAdminAboutRoleAcceptance(id, role, acceptanceUserEmail);
+		emailNotificationSender.notifyAdminAboutRoleAcceptance(id, role, acceptanceUserEmail);
 	}
 
 	public void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail) {
-		emailNotificationDAO.notifyAdminAboutRoleRejection(id, role, rejectionUserEmail);
+		emailNotificationSender.notifyAdminAboutRoleRejection(id, role, rejectionUserEmail);
 	}
 
 }

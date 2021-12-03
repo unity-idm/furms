@@ -53,7 +53,6 @@ public class AlarmsView extends FurmsViewComponent {
 	private final Grid<AlarmGridModel> grid;
 	private final String projectId;
 
-
 	AlarmsView(AlarmService alarmService, ProjectAllocationService projectAllocationService) {
 		this.alarmService = alarmService;
 		this.projectAllocationService = projectAllocationService;
@@ -87,6 +86,7 @@ public class AlarmsView extends FurmsViewComponent {
 				.allocationName(collect.get(alarm.projectAllocationId))
 				.threshold(alarm.threshold)
 				.allUsers(alarm.allUsers)
+				.fired(alarm.fired)
 				.users(alarm.alarmUserEmails)
 				.build()
 			)
@@ -107,11 +107,7 @@ public class AlarmsView extends FurmsViewComponent {
 		grid.addColumn(model -> model.threshold + "%")
 			.setHeader(getTranslation("view.project-admin.alarms.page.grid.3"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> {
-			Checkbox checkbox = new Checkbox(model.allUsers);
-			checkbox.setReadOnly(true);
-			return checkbox;
-		})
+		grid.addComponentColumn(model -> new DisableCheckbox(model.allUsers))
 			.setHeader(getTranslation("view.project-admin.alarms.page.grid.4"))
 			.setSortable(true)
 			.setComparator(model -> model.allUsers);
@@ -134,6 +130,7 @@ public class AlarmsView extends FurmsViewComponent {
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.project-admin.alarms.page.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
+		grid.setClassNameGenerator(model -> model.fired ? "light-red-row" : "usual-row");
 
 		return grid;
 	}
@@ -175,5 +172,14 @@ public class AlarmsView extends FurmsViewComponent {
 			}
 		});
 		return furmsDialog;
+	}
+
+	private static class DisableCheckbox extends Checkbox
+	{
+		DisableCheckbox(boolean value) {
+			super(value);
+			this.getStyle().set("pointer-events", "none");
+			this.setReadOnly(true);
+		}
 	}
 }

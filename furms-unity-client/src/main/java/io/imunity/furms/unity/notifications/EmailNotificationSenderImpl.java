@@ -9,7 +9,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.notifications.EmailNotificationDAO;
+import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import io.imunity.furms.unity.client.users.UserService;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 @Component
-class EmailNotificationDAOImpl implements EmailNotificationDAO {
+class EmailNotificationSenderImpl implements EmailNotificationSender {
 
 	private static final String NAME_ATTRIBUTE = "custom.name";
 	private static final String ROLE_ATTRIBUTE = "custom.role";
@@ -31,14 +31,15 @@ class EmailNotificationDAOImpl implements EmailNotificationDAO {
 	private static final String INVITATIONS_URL = "/front/users/settings/invitations";
 	private static final String QUERY_RESOURCE_PARAM = "?resourceId=";
 	private static final String ALLOCATION_CONSUMPTION_URL = "/front/project/admin/resource/allocations/details/";
+	private static final String PROJECT_ALLOCATION_CONSUMPTION_URL = "/front/users/settings/project/";
 	private static final String APPLICATIONS_URL = "/front/project/admin/users" + QUERY_RESOURCE_PARAM;
 
 	private final UserService userService;
 	private final EmailNotificationProperties emailNotificationProperties;
 	private final ResourceBundle bundle;
 
-	EmailNotificationDAOImpl(UserService userService,
-	                         EmailNotificationProperties emailNotificationProperties) {
+	EmailNotificationSenderImpl(UserService userService,
+	                            EmailNotificationProperties emailNotificationProperties) {
 		this.userService = userService;
 		this.emailNotificationProperties = emailNotificationProperties;
 		this.bundle = ResourceBundle.getBundle("messages", new Locale("en", "US"));
@@ -88,13 +89,32 @@ class EmailNotificationDAOImpl implements EmailNotificationDAO {
 	}
 
 	@Override
-	public void notifyAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public void notifyProjectAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
 		Map<String, String> attributes = Map.of(
 			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
 			ALARM_ATTRIBUTE, alarmName,
 			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + ALLOCATION_CONSUMPTION_URL + projectAllocationId + QUERY_RESOURCE_PARAM + projectId
 		);
 		userService.sendUserNotification(id, emailNotificationProperties.resourceUsageTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyProjectUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+		Map<String, String> attributes = Map.of(
+			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
+			ALARM_ATTRIBUTE, alarmName,
+			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + PROJECT_ALLOCATION_CONSUMPTION_URL + projectId
+		);
+		userService.sendUserNotification(id, emailNotificationProperties.resourceUsageTemplateId, attributes);
+	}
+
+	@Override
+	public void notifyUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+		Map<String, String> attributes = Map.of(
+			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
+			ALARM_ATTRIBUTE, alarmName
+		);
+		userService.sendUserNotification(id, emailNotificationProperties.resourceUsageTemplateWithoutUrlId, attributes);
 	}
 
 	@Override

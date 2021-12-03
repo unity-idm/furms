@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.shared.Registration;
 import io.imunity.furms.domain.FurmsEvent;
+import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
 import io.imunity.furms.domain.notification.UserApplicationsListChangedEvent;
 import io.imunity.furms.domain.notification.UserInvitationsListChangedEvent;
 import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
@@ -96,7 +97,12 @@ public class NotificationBarComponent extends Button {
 					.filter(context -> barElement.resourceId.filter(resourceId -> resourceId.equals(context.id)).isPresent())
 					.findAny()
 					.ifPresent(FurmsViewUserContext::setAsCurrent);
-				UI.getCurrent().navigate(barElement.redirect);
+				barElement.redirect.ifPresent(redirect ->
+					barElement.parameter.ifPresentOrElse(
+						parameter -> UI.getCurrent().navigate(redirect, parameter),
+						() -> UI.getCurrent().navigate(redirect)
+					)
+				);
 			});
 			menuItem.setId("context-menu-item-size");
 			if (iterator.hasNext())
@@ -121,8 +127,18 @@ public class NotificationBarComponent extends Button {
 				.predicate(this::isCurrentUserPoliciesAcceptanceListChanged)
 				.orPredicate(this::isCurrentUserInvitationsListChanged)
 				.orPredicate(this::isCurrentUserApplicationsListChanged)
+				.orPredicate(this::isCurrentUserFiredAlarmsListChanged)
 				.build()
 		);
+	}
+
+	private boolean isCurrentUserFiredAlarmsListChanged(FurmsEvent furmsEvent) {
+		if(!(furmsEvent instanceof UserAlarmListChangedEvent))
+			return false;
+		UserAlarmListChangedEvent event = (UserAlarmListChangedEvent) furmsEvent;
+		return currentUser.fenixUserId
+			.filter(id -> id.equals(event.fenixUserId))
+			.isPresent();
 	}
 
 	private boolean isCurrentUserInvitationsListChanged(FurmsEvent furmsEvent) {

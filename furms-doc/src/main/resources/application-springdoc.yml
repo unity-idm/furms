@@ -17,7 +17,8 @@ furms:
       new-application-template-id: testTemplate
       accepted-application-template-id: testTemplate
       rejected-application-template-id: testTemplate
-      resource-usage-template-id: testTemplate
+      alarm-resource-usage-template-id: testTemplate
+      alarm-resource-usage-without-url-template-id: testTemplate
    invitations:
       expiration-time-in-seconds: 604800
       fenix-form: fenixForm

@@ -7,14 +7,14 @@ package io.imunity.furms.domain.alarms;
 
 import java.util.Objects;
 
-public class ActiveAlarm {
+public class FiredAlarm {
 	public final AlarmId alarmId;
 	public final String projectId;
 	public final String projectAllocationId;
 	public final String projectAllocationName;
 	public final String alarmName;
 
-	public ActiveAlarm(AlarmId alarmId, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public FiredAlarm(AlarmId alarmId, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
 		this.alarmId = alarmId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -26,8 +26,12 @@ public class ActiveAlarm {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ActiveAlarm that = (ActiveAlarm) o;
-		return Objects.equals(alarmId, that.alarmId) && Objects.equals(projectId, that.projectId) && Objects.equals(projectAllocationId, that.projectAllocationId) && Objects.equals(projectAllocationName, that.projectAllocationName) && Objects.equals(alarmName, that.alarmName);
+		FiredAlarm that = (FiredAlarm) o;
+		return Objects.equals(alarmId, that.alarmId) &&
+			Objects.equals(projectId, that.projectId) &&
+			Objects.equals(projectAllocationId, that.projectAllocationId) &&
+			Objects.equals(projectAllocationName, that.projectAllocationName) &&
+			Objects.equals(alarmName, that.alarmName);
 	}
 
 	@Override
@@ -85,8 +89,8 @@ public class ActiveAlarm {
 			return this;
 		}
 
-		public ActiveAlarm build() {
-			return new ActiveAlarm(alarmId, projectId, projectAllocationId, projectAllocationName, alarmName);
+		public FiredAlarm build() {
+			return new FiredAlarm(alarmId, projectId, projectAllocationId, projectAllocationName, alarmName);
 		}
 	}
 }

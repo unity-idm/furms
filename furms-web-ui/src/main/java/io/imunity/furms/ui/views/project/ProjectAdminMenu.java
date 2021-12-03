@@ -14,6 +14,7 @@ import io.imunity.furms.ui.user_context.RoleTranslator;
 import io.imunity.furms.ui.user_context.ViewMode;
 import io.imunity.furms.ui.views.project.administrators.ProjectAdministratorsView;
 import io.imunity.furms.ui.views.project.alarms.AlarmsView;
+import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsDetailsView;
 import io.imunity.furms.ui.views.project.allocations.ResourceAllocationsView;
 import io.imunity.furms.ui.views.project.resource_access.ResourceAccessView;
 import io.imunity.furms.ui.views.project.settings.SettingsView;
@@ -27,7 +28,7 @@ public class ProjectAdminMenu extends FurmsAppLayout {
 		super(roleTranslator, vaadinBroadcaster, authzService, ViewMode.PROJECT, furmsLayoutFactory, List.of(
 			MenuComponent.builder(UsersView.class).build(),
 			MenuComponent.builder(SitesView.class).build(),
-			MenuComponent.builder(ResourceAccessView.class).build(),
+			MenuComponent.builder(ResourceAccessView.class).subViews(ResourceAllocationsDetailsView.class).build(),
 			MenuComponent.builder(ResourceAllocationsView.class).build(),
 			MenuComponent.builder(AlarmsView.class).build(),
 			MenuComponent.builder(ProjectAdministratorsView.class).build(),

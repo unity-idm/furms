@@ -26,8 +26,10 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.validation.exceptions.AlarmAlreadyExceedThresholdException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.EmailNotPresentException;
+import io.imunity.furms.api.validation.exceptions.FiredAlarmThresholdReduceException;
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -193,6 +195,10 @@ public class AlarmFormView extends FurmsViewComponent {
 			showErrorNotification(getTranslation("name.duplicated.error.message"));
 		} catch (EmailNotPresentException e) {
 			showErrorNotification(getTranslation("alarm.wrong.user", e.email));
+		} catch (AlarmAlreadyExceedThresholdException e) {
+			showErrorNotification(getTranslation("alarm.wrong.threshold"));
+		} catch (FiredAlarmThresholdReduceException e) {
+			showErrorNotification(getTranslation("fired.alarm.wrong.threshold"));
 		} catch (Exception e) {
 			showErrorNotification(getTranslation("base.error.message"));
 			throw e;

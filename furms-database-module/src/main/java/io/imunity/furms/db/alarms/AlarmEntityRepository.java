@@ -9,6 +9,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -19,11 +20,17 @@ interface AlarmEntityRepository extends CrudRepository<AlarmEntity, UUID> {
 	boolean existsByIdAndProjectId(UUID id, UUID projectId);
 	boolean existsByProjectIdAndName(UUID projectId, String name);
 
-	@Query("SELECT a.*, pa.name AS project_allocation_name, pa.amount AS allocation_amount, ru.cumulative_consumption AS cumulative_consumption " +
-		"FROM alarm a " +
-		"LEFT JOIN alarm_user au ON a.id = au.alarm_id " +
+	@Query("SELECT a.*, pa.name AS project_allocation_name " +
+		"FROM alarm_configuration a " +
+		"LEFT JOIN alarm_configuration_user au ON a.id = au.alarm_id " +
 		"JOIN project_allocation pa ON a.project_allocation_id = pa.id " +
-		"JOIN resource_usage ru ON a.project_allocation_id = ru.project_allocation_id " +
-		"WHERE au.user_id = :user_id OR a.all_users")
-	Set<ExtendedAlarmEntity> findAllByUserId(@Param("user_id") String userId);
+		"WHERE a.fired AND (au.user_id = :user_id OR (a.all_users AND (a.project_id IN (:project_ids))))")
+	Set<ExtendedAlarmEntity> findAllFiredByProjectIdsOrUserId(@Param("project_ids") List<UUID> projectIds, @Param("user_id") String userId);
+
+	@Query("SELECT a.*, pa.name AS project_allocation_name " +
+		"FROM alarm_configuration a " +
+		"LEFT JOIN alarm_configuration_user au ON a.id = au.alarm_id " +
+		"JOIN project_allocation pa ON a.project_allocation_id = pa.id " +
+		"WHERE a.fired AND au.user_id = :user_id")
+	Set<ExtendedAlarmEntity> findAllFiredByUserId(@Param("user_id") String userId);
 }
