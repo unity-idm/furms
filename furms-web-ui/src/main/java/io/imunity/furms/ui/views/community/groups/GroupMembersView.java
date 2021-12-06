@@ -15,7 +15,7 @@ import io.imunity.furms.api.validation.exceptions.UserNotPresentException;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;

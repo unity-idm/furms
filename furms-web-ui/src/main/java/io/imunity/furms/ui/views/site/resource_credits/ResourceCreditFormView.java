@@ -20,7 +20,7 @@ import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAm
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;

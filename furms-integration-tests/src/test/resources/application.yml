@@ -46,6 +46,11 @@ furms:
       layout:
          styles:
             custom:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
    psk:
       centralIdPUser: cidp
       centralIdPSecret: cidppass

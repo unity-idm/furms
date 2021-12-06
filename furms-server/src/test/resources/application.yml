@@ -27,6 +27,12 @@ furms:
       layout:
          styles:
             custom:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
+
    url: https://localhost:${server.port}
    psk:
       centralIdPUser: cidp

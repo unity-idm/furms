@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.components;
+package io.imunity.furms.ui.components.layout;
 
 import java.util.Objects;
 
