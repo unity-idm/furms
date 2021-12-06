@@ -26,7 +26,7 @@ class AlarmNotificationProducer implements NotificationProducer{
 
 	@Override
 	public Stream<NotificationBarElement> findAllCurrentUserNotifications() {
-		return firedAlarmsService.findAllFiredAlarmsOffCurrentUser().stream()
+		return firedAlarmsService.findAllFiredAlarmsOfCurrentUser().stream()
 			.map(activeAlarm -> {
 				String translation = getTranslation(
 					"notifications.alarm.active",

@@ -42,11 +42,15 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLAY;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
@@ -73,6 +77,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		this.siteId = new SiteId(getCurrentResourceId());
 		this.siteAgentConnectionService = siteAgentConnectionService;
 		this.searchLayout = new SearchLayout();
+		searchLayout.addValueChangeGridReloader(this::loadGrid);
 		this.browserZoneId = UIContext.getCurrent().getZone();
 		Map<CorrelationId, Checkbox> checkboxes = new HashMap<>();
 		grid = createPendingMessagesGrid(checkboxes, createMainContextMenu(checkboxes));
@@ -105,7 +110,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 			getTranslation("view.site-admin.pending-requests.page.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
-				getTranslation("view.site-admin.pending-requests.page.context-menu.retry"), REFRESH),
+				getTranslation("view.site-admin.pending-requests.page.context-menu.retry"), PLAY),
 			event -> retryConfirmDialog.open()
 		);
 
@@ -143,8 +148,11 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addComponentColumn(pendingMessageGridModel -> {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(pendingMessageGridModel.id, checkbox);
-			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Paragraph(
-				getTranslation("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType)
+			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox,
+				grid.isDetailsVisible(pendingMessageGridModel) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create(),
+				new Paragraph(
+					getTranslationOrDefault("view.site-admin.pending-requests.page.grid.operation-type." + pendingMessageGridModel.operationType,
+							pendingMessageGridModel.operationType)
 			));
 			horizontalLayout.setAlignItems(CENTER);
 			return horizontalLayout;
@@ -166,31 +174,48 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addColumn(model -> model.retryAmount)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.5"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> createContextMenu(model.id))
+		grid.addComponentColumn(model -> createContextMenu(model))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(data -> {
 			Paragraph json = new Paragraph(data.json);
-			json.getElement().getStyle().set("white-space", "pre");
+			json.getStyle().set("font-family", "monospace");
+			json.getStyle().set("word-wrap", "break-word");
+			json.getElement().getStyle().set("white-space", "pre-wrap");
 			return json;
 		}));
 
 		return grid;
 	}
+	
 
-	private Component createContextMenu(CorrelationId id) {
+	private String getTranslationOrDefault(String key, String defaultString) {
+		try {
+			return super.getTranslation(key);
+		} catch (MissingResourceException e) {
+			LOG.error("Unable to resolve message key: {}. Using default {}", key, defaultString, e);
+			return defaultString;
+		}
+	}
+
+	private Component createContextMenu(PendingMessageGridModel model) {
+		CorrelationId id = model.id;
 		GridActionMenu contextMenu = new GridActionMenu();
+		contextMenu.addItem(new MenuButton(
+				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.refresh"), REFRESH),
+			event -> refreshDetails(model)
+		);
 
 		Dialog retryConfirmDialog = createConfirmDialog(
 			() -> siteAgentConnectionService.retry(siteId, id),
 			getTranslation("view.site-admin.pending-requests.page.grid.dialog.retry.confirmation")
 		);
 		contextMenu.addItem(new MenuButton(
-				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.retry"), REFRESH),
+				getTranslation("view.site-admin.pending-requests.page.grid.context-menu.retry"), PLAY),
 			event -> retryConfirmDialog.open()
 		);
 
-		IconButton retryButton = new IconButton(REFRESH.create());
+		IconButton retryButton = new IconButton(PLAY.create());
 		retryButton.addClickListener(event -> retryConfirmDialog.open());
 
 		Dialog deleteConfirmDialog = createConfirmDialog(
@@ -205,6 +230,16 @@ public class PendingRequestsView extends FurmsViewComponent {
 		GridActionsButtonLayout gridActionsButtonLayout = new GridActionsButtonLayout(retryButton, contextMenu.getTarget());
 		gridActionsButtonLayout.setAlignItems(CENTER);
 		return gridActionsButtonLayout;
+	}
+
+	private void refreshDetails(PendingMessageGridModel model) {
+		boolean details = grid.isDetailsVisible(model);
+		Set<PendingMessageGridModel> pendingMessageGridModels = loadItems();
+		grid.setItems(pendingMessageGridModels);
+		pendingMessageGridModels.stream()
+			.filter(m -> m.id.equals(model.id))
+			.findAny()
+			.ifPresent(m -> grid.setDetailsVisible(m, details));
 	}
 
 	private Dialog createConfirmDialog(Runnable operation, String message) {
@@ -222,7 +257,12 @@ public class PendingRequestsView extends FurmsViewComponent {
 	}
 
 	private void loadGrid() {
-		Set<PendingMessageGridModel> collect = siteAgentConnectionService.findAll(siteId)
+		Set<PendingMessageGridModel> collect = loadItems();
+		grid.setItems(collect);
+	}
+
+	private Set<PendingMessageGridModel> loadItems() {
+		return siteAgentConnectionService.findAll(siteId)
 			.stream()
 			.map(message ->
 				PendingMessageGridModel.builder()
@@ -243,7 +283,6 @@ public class PendingRequestsView extends FurmsViewComponent {
 			)
 			.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))
 			.collect(Collectors.toSet());
-		grid.setItems(collect);
 	}
 
 	private VerticalLayout createSiteConnectionLayout(UI ui, SiteId siteId) {

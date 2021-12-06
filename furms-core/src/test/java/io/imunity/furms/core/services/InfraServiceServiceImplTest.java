@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.services;
 
-import io.imunity.furms.core.notification.PolicyNotificationService;
+import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.CreateServiceEvent;

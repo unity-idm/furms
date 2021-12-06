@@ -33,11 +33,11 @@ import io.imunity.furms.api.validation.exceptions.FiredAlarmThresholdReduceExcep
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import org.vaadin.gatanaso.MultiselectComboBox;
 

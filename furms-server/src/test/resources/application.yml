@@ -24,6 +24,12 @@ furms:
       language: en
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
+      layout:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
       
    url: https://localhost:${server.port}
    psk:
@@ -40,8 +46,8 @@ furms:
       new-application-template-id: applicationNew
       accepted-application-template-id: applicationAccepted
       rejected-application-template-id: applicationRejected
-      alarm-resource-usage-template-id: resourceUsageAlarm
-      alarm-resource-usage-without-url-template-id: resourceUsageAlarmWithoutUrl
+      resource-usage-alarm-template-id: resourceUsageAlarm
+      resource-usage-alarm-without-url-template-id: resourceUsageAlarmWithoutUrl
    invitations:
       expiration-time-in-seconds: 604800
       fenix-form: fenixForm

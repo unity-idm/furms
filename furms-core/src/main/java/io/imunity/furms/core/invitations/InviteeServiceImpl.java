@@ -10,7 +10,6 @@ import io.imunity.furms.api.invitations.InviteeService;
 import io.imunity.furms.api.validation.exceptions.InvitationNotExistingException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
-import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;

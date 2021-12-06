@@ -6,7 +6,6 @@
 package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;

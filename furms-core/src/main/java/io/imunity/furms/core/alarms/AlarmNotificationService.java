@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.alarms;
 
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -29,7 +29,7 @@ import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static java.util.stream.Collectors.toList;
 
 @Service
-public class AlarmNotificationService {
+class AlarmNotificationService {
 
 	private final ProjectGroupsDAO projectGroupsDAO;
 	private final ProjectRepository projectRepository;

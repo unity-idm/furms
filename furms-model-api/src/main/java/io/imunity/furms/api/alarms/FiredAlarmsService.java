@@ -10,5 +10,5 @@ import io.imunity.furms.domain.alarms.UserActiveAlarm;
 import java.util.Set;
 
 public interface FiredAlarmsService {
-	Set<UserActiveAlarm> findAllFiredAlarmsOffCurrentUser();
+	Set<UserActiveAlarm> findAllFiredAlarmsOfCurrentUser();
 }

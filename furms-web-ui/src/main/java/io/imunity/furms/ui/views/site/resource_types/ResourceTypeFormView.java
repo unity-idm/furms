@@ -26,7 +26,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.ui.components.BreadCrumbParameter;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;

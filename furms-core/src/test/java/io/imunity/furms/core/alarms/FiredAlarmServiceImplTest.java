@@ -6,7 +6,6 @@
 package io.imunity.furms.core.alarms;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.notification.AlarmNotificationService;
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.alarms.FiredAlarm;
@@ -79,7 +78,7 @@ class FiredAlarmServiceImplTest {
 			.build();
 		when(alarmRepository.findAll(List.of(projectId), userId)).thenReturn(Set.of(firedAlarm));
 
-		Set<UserActiveAlarm> allActiveAlarmsOffCurrentUser = firedAlarmsService.findAllFiredAlarmsOffCurrentUser();
+		Set<UserActiveAlarm> allActiveAlarmsOffCurrentUser = firedAlarmsService.findAllFiredAlarmsOfCurrentUser();
 		assertThat(allActiveAlarmsOffCurrentUser.size()).isEqualTo(1);
 		assertThat(allActiveAlarmsOffCurrentUser.iterator().next()).isEqualTo(new UserActiveAlarm(firedAlarm, userId, Set.of(Role.PROJECT_ADMIN)));
 	}

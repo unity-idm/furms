@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
@@ -45,7 +45,9 @@ public class PolicyNotificationService {
 	private final UserOperationRepository userOperationRepository;
 	private final SiteGroupDAO siteGroupDAO;
 
-	PolicyNotificationService(EmailNotificationSender emailNotificationSender, ApplicationEventPublisher publisher, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
+	PolicyNotificationService(EmailNotificationSender emailNotificationSender, ApplicationEventPublisher publisher,
+	                          PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
+	                          UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
 		this.emailNotificationSender = emailNotificationSender;
 		this.publisher = publisher;
 		this.policyDocumentDAO = policyDocumentDAO;

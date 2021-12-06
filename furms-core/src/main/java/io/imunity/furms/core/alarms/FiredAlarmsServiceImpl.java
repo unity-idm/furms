@@ -8,7 +8,6 @@ package io.imunity.furms.core.alarms;
 import io.imunity.furms.api.alarms.FiredAlarmsService;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.notification.AlarmNotificationService;
 import io.imunity.furms.domain.alarms.AlarmRemovedEvent;
 import io.imunity.furms.domain.alarms.AlarmUpdatedEvent;
 import io.imunity.furms.domain.alarms.UserActiveAlarm;
@@ -54,7 +53,7 @@ class FiredAlarmsServiceImpl implements FiredAlarmsService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
-	public Set<UserActiveAlarm> findAllFiredAlarmsOffCurrentUser() {
+	public Set<UserActiveAlarm> findAllFiredAlarmsOfCurrentUser() {
 		FURMSUser currentUser = authzService.getCurrentAuthNUser();
 		if(currentUser.fenixUserId.isEmpty())
 			return Set.of();

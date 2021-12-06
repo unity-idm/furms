@@ -33,11 +33,9 @@ public interface UserOperationRepository {
 	UserStatus findAdditionStatusByCorrelationId(String correlationId);
 	Optional<UserStatus> findAdditionStatus(String siteId, String projectId, FenixUserId userId);
 	UserAddition findAdditionByCorrelationId(CorrelationId correlationId);
-	String findSiteIdByCorrelationId(CorrelationId correlationId);
 	void deleteByCorrelationId(String correlationId);
 	boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
 	boolean isUserInstalledOnSite(FenixUserId userId, String siteId);
 	void deleteAll();
 	void delete(UserAddition userAddition);
-	void delete(CorrelationId id);
 }
