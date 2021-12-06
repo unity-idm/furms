@@ -166,13 +166,6 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public String findSiteIdByCorrelationId(CorrelationId correlationId) {
-		return userAdditionEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.map(userAddition -> userAddition.siteId.toString())
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-	}
-
-	@Override
 	public void deleteByCorrelationId(String correlationId) {
 		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.ifPresent(x -> userAdditionEntityRepository.deleteById(x.userAdditionId));
@@ -232,10 +225,5 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	@Override
 	public boolean isUserAdded(String siteId, String userId) {
 		return userAdditionEntityRepository.existsBySiteIdAndUserId(UUID.fromString(siteId), userId);
-	}
-
-	@Override
-	public void delete(CorrelationId id) {
-		userAdditionEntityRepository.deleteByCorrelationId(UUID.fromString(id.id));
 	}
 }

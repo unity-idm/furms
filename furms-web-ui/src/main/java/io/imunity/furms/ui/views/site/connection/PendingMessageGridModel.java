@@ -34,18 +34,12 @@ class PendingMessageGridModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PendingMessageGridModel that = (PendingMessageGridModel) o;
-		return retryAmount == that.retryAmount &&
-			Objects.equals(id, that.id) &&
-			Objects.equals(operationType, that.operationType) &&
-			Objects.equals(status, that.status) &&
-			Objects.equals(json, that.json) &&
-			Objects.equals(sentAt, that.sentAt) &&
-			Objects.equals(ackAt, that.ackAt);
+		return Objects.equals(id, that.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, operationType, json, status, sentAt, ackAt, retryAmount);
+		return Objects.hash(id);
 	}
 
 	@Override
