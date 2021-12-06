@@ -14,6 +14,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -50,10 +51,12 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 	private final ProjectAllocationService service;
 	private final String projectId;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
+	private AlarmService alarmService;
 
 
-	ResourceAllocationsView(ProjectAllocationService service) {
+	ResourceAllocationsView(ProjectAllocationService service, AlarmService alarmService) {
 		this.service = service;
+		this.alarmService = alarmService;
 		this.grid = createCommunityGrid();
 		this.projectId = getCurrentResourceId();
 
@@ -116,11 +119,17 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		})
 			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.7"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> new ResourceProgressBar(20, 70))
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.7"));
+		grid.addComponentColumn(model ->
+			new ResourceProgressBar(
+				(int)(model.consumedWithUnit.amount.doubleValue() / model.amountWithUnit.amount.doubleValue() * 100),
+				projectDataSnapshot.getAlarmThreshold(model.id)
+			)
+		)
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.8"))
+			.setTextAlign(ColumnTextAlign.CENTER);
 
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.8"))
+			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
 
@@ -152,7 +161,8 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			projectDataSnapshot = new ProjectAllocationDataSnapshot(
 				service.findAllInstallations(projectId),
 				service.findAllUninstallations(projectId),
-				service.findAllChunks(projectId)
+				service.findAllChunks(projectId),
+				alarmService.findAll(projectId)
 		);
 			grid.setItems(loadServicesViewsModels());
 		});

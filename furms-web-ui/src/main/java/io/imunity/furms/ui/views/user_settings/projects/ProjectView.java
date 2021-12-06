@@ -16,6 +16,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
@@ -25,6 +26,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.UserGrant;
+import io.imunity.furms.ui.components.ResourceProgressBar;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -60,15 +62,17 @@ public class ProjectView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final ProjectAllocationService service;
 	private final ResourceAccessService resourceAccessService;
+	private final AlarmService alarmService;
 
 	private final Grid<ProjectAllocationGridModel> grid;
 	private String projectId;
 	private UsersProjectAllocationDataSnapshot projectDataSnapshot;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	public ProjectView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {
+	public ProjectView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService, AlarmService alarmService) {
 		this.projectService = projectService;
 		this.service = projectAllocationService;
+		this.alarmService = alarmService;
 		this.resourceAccessService = resourceAccessService;
 		this.grid = createCommunityGrid();
 
@@ -128,10 +132,18 @@ public class ProjectView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
 			.setSortable(true);
 		grid.addColumn(x -> getEnabledValue(x.id, x.accessibleForAllProjectMembers))
-			.setHeader(getTranslation("view.project-admin.resource-access.grid.column.5"))
-			.setSortable(true);
-		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.9"))
+			.setSortable(true);
+		grid.addComponentColumn(model ->
+			new ResourceProgressBar(
+				(int)(model.consumedWithUnit.amount.doubleValue() / model.amountWithUnit.amount.doubleValue() * 100),
+				projectDataSnapshot.projectAllocationDataSnapshot.getAlarmThreshold(model.id)
+			)
+		)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.10"))
+			.setTextAlign(ColumnTextAlign.CENTER);
+		grid.addComponentColumn(this::createLastColumnContent)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.11"))
 			.setTextAlign(ColumnTextAlign.END);
 
 
@@ -173,7 +185,8 @@ public class ProjectView extends FurmsViewComponent {
 				new ProjectAllocationDataSnapshot(
 					service.findAllInstallations(projectId),
 					service.findAllUninstallations(projectId),
-					service.findAllChunks(projectId)
+					service.findAllChunks(projectId),
+					alarmService.findAll(projectId)
 			),
 				resourceAccessService.findCurrentUserGrants(projectId).stream()
 					.collect(toMap(grant -> grant.projectAllocationId, identity())));
