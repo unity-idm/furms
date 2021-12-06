@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationEvent;
@@ -15,7 +15,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserInvitationNotificationService {
+class UserInvitationNotificationService {
 
 	private final EmailNotificationSender emailNotificationSender;
 	private final ApplicationEventPublisher publisher;

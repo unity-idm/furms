@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.applications;
 
 import io.imunity.furms.domain.applications.ProjectApplicationEvent;
 import io.imunity.furms.domain.notification.UserApplicationsListChangedEvent;
@@ -14,7 +14,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserApplicationNotificationService {
+class UserApplicationNotificationService {
 
 	private final EmailNotificationSender emailNotificationSender;
 	private final ApplicationEventPublisher publisher;

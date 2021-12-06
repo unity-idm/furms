@@ -10,7 +10,6 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
-import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
