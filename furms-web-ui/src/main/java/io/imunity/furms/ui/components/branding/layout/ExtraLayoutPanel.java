@@ -22,13 +22,13 @@ public class ExtraLayoutPanel extends Div {
 
 	public ExtraLayoutPanel(final String id, final Resource panelFile) {
 		setId(id);
-		if (isPanelFileExists(panelFile)) {
+		if (panelFile != null) {
 			try {
-				if (panelFile.isReadable()) {
+				if (isPanelFileReadable(panelFile)) {
 					final Html html = new Html(panelFile.getInputStream());
 					getElement().appendChild(html.getElement());
 				} else {
-					LOG.error("Panel File exists but couldn't be read: {} , files is unreadable", id);
+					LOG.error("Configured Panel File: {}, couldn't be read, file is unreachable", id);
 				}
 			} catch (IOException | IllegalArgumentException exception) {
 				LOG.error("Could not load panel: " + id, exception);
@@ -36,11 +36,11 @@ public class ExtraLayoutPanel extends Div {
 		}
 	}
 
-	private boolean isPanelFileExists(final Resource panelFile) {
+	private boolean isPanelFileReadable(final Resource panelFile) {
 		try {
-			return panelFile != null
-					&& !isEmpty(panelFile.getURL().getPath())
-					&& panelFile.exists();
+			return !isEmpty(panelFile.getURL().getPath())
+					&& panelFile.exists()
+					&& panelFile.isReadable();
 		} catch (IOException exception) {
 			return false;
 		}
