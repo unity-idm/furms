@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class EmailNotificationDAOTest {
+class EmailNotificationSenderTest {
 	private static final String FURMS_BASE_URL = "https://localhost:333";
 	private static final String POLICY_DOCUMENT_BASE_URL = FURMS_BASE_URL + "/front/users/settings/policy/documents";
 	@Mock
@@ -37,7 +37,7 @@ class EmailNotificationDAOTest {
 	@Mock
 	private PolicyDocumentDAO policyDocumentDAO;
 
-	private EmailNotificationDAOImpl emailNotificationDAO;
+	private EmailNotificationSenderImpl emailNotificationDAO;
 
 	@BeforeEach
 	void setUp() {
@@ -50,8 +50,10 @@ class EmailNotificationDAOTest {
 			"newApplication",
 			"acceptedApplication",
 			"rejectedApplication",
+			"resourceUsageAlarm",
+			"resourceUsageAlarmWithoutUrl",
 				FURMS_BASE_URL);
-		emailNotificationDAO = new EmailNotificationDAOImpl(userService, emailNotificationProperties);
+		emailNotificationDAO = new EmailNotificationSenderImpl(userService, emailNotificationProperties);
 	}
 
 	@Test
@@ -146,6 +148,47 @@ class EmailNotificationDAOTest {
 		verify(userService).sendUserNotification(id, "policyAcceptanceNew",
 			Map.of("custom.name", "sitePolicyName",
 				"custom.furmsUrl", POLICY_DOCUMENT_BASE_URL)
+		);
+	}
+
+	@Test
+	void shouldNotifyProjectAdminAboutResourceUsage() {
+		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+
+		emailNotificationDAO.notifyProjectAdminAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+
+		verify(userService).sendUserNotification(id, "resourceUsageAlarm",
+			Map.of("custom.projectAllocationName", "projectAllocationName",
+				"custom.alarmName", "alarmName",
+				"custom.furmsUrl", FURMS_BASE_URL + "/front/project/admin/resource/allocations/details/" + "projectAllocationId?resourceId=projectId"
+			)
+		);
+	}
+
+	@Test
+	void shouldNotifyProjectUserAboutResourceUsage() {
+		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+
+		emailNotificationDAO.notifyProjectUserAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+
+		verify(userService).sendUserNotification(id, "resourceUsageAlarm",
+			Map.of("custom.projectAllocationName", "projectAllocationName",
+				"custom.alarmName", "alarmName",
+				"custom.furmsUrl", FURMS_BASE_URL + "/front/users/settings/project/projectId"
+			)
+		);
+	}
+
+	@Test
+	void shouldNotifyUserAboutResourceUsage() {
+		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+
+		emailNotificationDAO.notifyUserAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+
+		verify(userService).sendUserNotification(id, "resourceUsageAlarmWithoutUrl",
+			Map.of("custom.projectAllocationName", "projectAllocationName",
+				"custom.alarmName", "alarmName"
+			)
 		);
 	}
 
