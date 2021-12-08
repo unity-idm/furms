@@ -171,10 +171,6 @@ class ProjectInstallationServiceTest {
 			.id("id")
 			.leaderId(userId)
 			.build();
-		FURMSUser user = FURMSUser.builder()
-			.id(userId)
-			.email("email")
-			.build();
 
 		//when
 		when(repository.findProjectInstallation(project.getId())).thenReturn(Set.of(

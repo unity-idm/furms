@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
@@ -26,7 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.SITE_SUPPORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +39,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.quality.Strictness.LENIENT;
 
 @ExtendWith(MockitoExtension.class)
 class UnitySiteGroupDAOTest {
@@ -76,8 +77,6 @@ class UnitySiteGroupDAOTest {
 				.id(UUID.randomUUID().toString())
 				.name("test")
 				.build();
-		doNothing().when(unityClient).post(contains(site.getId()), any());
-		doNothing().when(unityClient).post(contains("users"), any());
 
 		//when
 		unitySiteWebClient.create(site);
@@ -89,6 +88,7 @@ class UnitySiteGroupDAOTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
+	@MockitoSettings(strictness = LENIENT)
 	void shouldExpectExceptionWhenCommunicationWithUnityIsBroken() {
 		//given
 		WebClientResponseException webException = new WebClientResponseException(400, "BAD_REQUEST", null, null, null);
@@ -113,7 +113,6 @@ class UnitySiteGroupDAOTest {
 		Group group = new Group("/path/"+site.getId());
 		group.setDisplayedName(new I18nString("test"));
 		when(unityClient.get(contains(site.getId()), eq(Group.class))).thenReturn(group);
-		doNothing().when(unityClient).put(contains(site.getId()), eq(Group.class));
 
 		//when
 		unitySiteWebClient.update(site);
@@ -202,8 +201,6 @@ class UnitySiteGroupDAOTest {
 		PersistentId userId = new PersistentId("userId");
 		String groupPath = "/fenix/sites/"+ siteId +"/users";
 
-		//when
-		when(userService.getRoleValues(eq(userId), eq(groupPath), eq(SITE_ADMIN))).thenReturn(Set.of(SITE_ADMIN.unityRoleValue, SITE_SUPPORT.unityRoleValue));
 		unitySiteWebClient.removeSiteUser(siteId, userId);
 
 		//then

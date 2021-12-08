@@ -278,7 +278,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
+		alarmEntityRepository.save(alarmEntity);
 
 		boolean exists = alarmEntityRepository.existsByProjectIdAndName(projectId, "name");
 		assertThat(exists).isTrue();
@@ -295,7 +295,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
+		alarmEntityRepository.save(alarmEntity);
 
 		boolean exists = alarmEntityRepository.existsByProjectIdAndName(projectId, "name2");
 		assertThat(exists).isFalse();
@@ -364,7 +364,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved2 = alarmEntityRepository.save(alarmEntity2);
+		alarmEntityRepository.save(alarmEntity2);
 
 		Set<AlarmEntity> alarms = alarmEntityRepository.findAllByProjectId(projectId);
 		assertThat(alarms.size()).isEqualTo(2);

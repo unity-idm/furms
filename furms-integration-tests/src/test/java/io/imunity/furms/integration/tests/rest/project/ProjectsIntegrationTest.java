@@ -196,15 +196,9 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotBeAbleToShowProjectWhenUserIsJustSiteAdmin() throws Exception {
 		//given
-		final Site.SiteBuilder siteBuilder = defaultSite();
-		final Site site2 = siteBuilder
-				.name("site2")
-				.externalId(new SiteExternalId("s2id"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
-				.build();
 		final String community = createCommunity();
 		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		createProject(community);
 
 		final TestUser siteAdmin = basicUser();
 		siteAdmin.addSiteAdmin(site.getId());

@@ -279,12 +279,6 @@ class InvitatoryServiceTest {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
-		InvitationCode code = new InvitationCode("code");
-		FURMSUser furmsUser = FURMSUser.builder()
-			.id(persistentId)
-			.fenixUserId(new FenixUserId("fenixId"))
-			.email("email")
-			.build();
 
 		String message = assertThrows(IllegalArgumentException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"))
 			.getMessage();

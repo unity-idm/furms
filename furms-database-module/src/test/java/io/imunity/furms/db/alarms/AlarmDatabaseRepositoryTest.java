@@ -274,7 +274,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved = alarmEntityRepository.save(alarm);
+		alarmEntityRepository.save(alarm);
 
 		AlarmEntity alarm1 = AlarmEntity.builder()
 			.projectId(projectId)
@@ -285,7 +285,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved1 = alarmEntityRepository.save(alarm1);
+		alarmEntityRepository.save(alarm1);
 
 		AlarmEntity alarm2 = AlarmEntity.builder()
 			.projectId(projectId2)
@@ -296,7 +296,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved2 = alarmEntityRepository.save(alarm2);
+		alarmEntityRepository.save(alarm2);
 
 		Set<AlarmWithUserIds> all = databaseRepository.findAll(projectId.toString());
 		assertThat(all.size()).isEqualTo(2);
@@ -489,7 +489,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId3")))
 			.build();
 
-		AlarmEntity saved1 = alarmEntityRepository.save(alarmEntity1);
+		alarmEntityRepository.save(alarmEntity1);
 
 		AlarmEntity alarmEntity2 = AlarmEntity.builder()
 			.projectId(projectId2)
@@ -536,7 +536,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId2"), new AlarmUserEntity("userId3")))
 			.build();
 
-		AlarmEntity saved1 = alarmEntityRepository.save(alarmEntity1);
+		alarmEntityRepository.save(alarmEntity1);
 
 		AlarmEntity alarmEntity2 = AlarmEntity.builder()
 			.projectId(projectId2)

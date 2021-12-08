@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -87,13 +86,13 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllApplyingUsers(){
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
-		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+		applicationEntityRepository.save(applicationEntity);
 
 		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId, "userId1");
-		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
+		applicationEntityRepository.save(applicationEntity1);
 
 		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId");
-		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+		applicationEntityRepository.save(applicationEntity2);
 
 		Set<FenixUserId> allApplyingUsers = applicationDatabaseRepository.findAllApplyingUsers(projectId.toString());
 
@@ -103,13 +102,13 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllApplyingUsersByProjectIds(){
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
-		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+		applicationEntityRepository.save(applicationEntity);
 
 		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId, "userId1");
-		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
+		applicationEntityRepository.save(applicationEntity1);
 
 		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId2");
-		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+		applicationEntityRepository.save(applicationEntity2);
 
 		Set<ProjectApplication> allApplyingUsers = applicationDatabaseRepository.findAllApplyingUsers(List.of(projectId, projectId2));
 
@@ -125,13 +124,13 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllAppliedProjectsIds(){
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
-		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+		applicationEntityRepository.save(applicationEntity);
 
 		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId, "userId1");
-		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
+		applicationEntityRepository.save(applicationEntity1);
 
 		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId");
-		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+		applicationEntityRepository.save(applicationEntity2);
 
 		Set<String> allAppliedProjectsIds = applicationDatabaseRepository.findAllAppliedProjectsIds(new FenixUserId("userId"));
 
@@ -161,7 +160,7 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldExistBy(){
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
-		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+		applicationEntityRepository.save(applicationEntity);
 
 		boolean exists = applicationDatabaseRepository.existsBy(projectId.toString(), new FenixUserId("userId"));
 		assertTrue(exists);
@@ -170,7 +169,7 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotExistBy(){
 		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
-		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
+		applicationEntityRepository.save(applicationEntity);
 
 		boolean exists = applicationDatabaseRepository.existsBy(projectId2.toString(), new FenixUserId("userId"));
 		assertFalse(exists);

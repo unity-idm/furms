@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.time.Instant;
 import java.util.Map;
@@ -52,9 +51,7 @@ class InvitationDAOTest {
 		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
 		Instant instant = Instant.now();
 		Role fenixAdmin = Role.FENIX_ADMIN;
-
-		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam("fenixAdminForm", instant, "email");
-
+		
 		when(invitationFormIdResolver.getFormId(fenixAdmin)).thenReturn("formId");
 		when(groupResolver.resolveGroup(resourceId, fenixAdmin)).thenReturn("group");
 		when(unityClient.post(eq("/invitation"), any(), eq(Map.of()), eq(new ParameterizedTypeReference<String>(){}))).thenReturn("code");

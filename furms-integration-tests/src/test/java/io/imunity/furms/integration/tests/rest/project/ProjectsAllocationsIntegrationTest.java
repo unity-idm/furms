@@ -90,7 +90,7 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 		final String project2 = createProject(community);
 		final String projectAllocation1 = createProjectAllocation(communityAllocation, project1, BigDecimal.ONE);
 		final String projectAllocation2 = createProjectAllocation(communityAllocation, project1, BigDecimal.ONE);
-		final String projectAllocation3 = createProjectAllocation(communityAllocation, project2, BigDecimal.ONE);
+		createProjectAllocation(communityAllocation, project2, BigDecimal.ONE);
 
 		projectAdmin.addProjectAdmin(community, project1);
 		projectAdmin.addProjectAdmin(community, project2);
@@ -141,7 +141,6 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 	void shouldFindProjectAllocationsByProjectIdWhenUserIsNotAnAdminButProjectIsInstalledOnManagedSite() throws Exception {
 		//given
 		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
 		final String community = createCommunity();
 		final String project = createProject(community);
 		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
@@ -171,7 +170,7 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
 		final String project = createProject(community);
 		final String projectAllocation1 = createProjectAllocation(communityAllocation, project, BigDecimal.valueOf(2));
-		final String projectAllocation2 = createProjectAllocation(communityAllocation, project, BigDecimal.ONE);
+		createProjectAllocation(communityAllocation, project, BigDecimal.ONE);
 
 		projectAdmin.addProjectAdmin(community, project);
 		projectAdmin.addProjectAdmin(community, project);
@@ -347,7 +346,6 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 	void shouldFindAllocationByProjectIdAndAllocationIdWhenUserIsNotAnAdminButProjectIsInstalledOnManagedSite() throws Exception {
 		//given
 		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
 		final String community = createCommunity();
 		final String project = createProject(community);
 		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
