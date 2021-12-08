@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
@@ -18,7 +18,7 @@ import io.imunity.furms.domain.user_site_access.UserSiteAccessGrantedEvent;
 import io.imunity.furms.domain.user_site_access.UserSiteAccessRevokedEvent;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.notifications.EmailNotificationDAO;
+import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -38,15 +38,17 @@ import java.util.stream.Stream;
 @Service
 public class PolicyNotificationService {
 
-	private final EmailNotificationDAO emailNotificationDAO;
+	private final EmailNotificationSender emailNotificationSender;
 	private final ApplicationEventPublisher publisher;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final UserOperationRepository userOperationRepository;
 	private final SiteGroupDAO siteGroupDAO;
 
-	PolicyNotificationService(EmailNotificationDAO emailNotificationDAO, ApplicationEventPublisher publisher, PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository, UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
-		this.emailNotificationDAO = emailNotificationDAO;
+	PolicyNotificationService(EmailNotificationSender emailNotificationSender, ApplicationEventPublisher publisher,
+	                          PolicyDocumentDAO policyDocumentDAO, PolicyDocumentRepository policyDocumentRepository,
+	                          UserOperationRepository userOperationRepository, SiteGroupDAO siteGroupDAO) {
+		this.emailNotificationSender = emailNotificationSender;
 		this.publisher = publisher;
 		this.policyDocumentDAO = policyDocumentDAO;
 		this.policyDocumentRepository = policyDocumentRepository;
@@ -75,7 +77,7 @@ public class PolicyNotificationService {
 	}
 
 	public void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument) {
-		emailNotificationDAO.notifyUserAboutNewPolicy(id, policyDocument);
+		emailNotificationSender.notifyUserAboutNewPolicy(id, policyDocument);
 	}
 
 	public void notifyAboutChangedPolicy(PolicyDocument policyDocument) {
@@ -87,7 +89,7 @@ public class PolicyNotificationService {
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.fenixUserId.isPresent())
 			.filter(user -> user.id.isPresent())
 			.forEach(user -> {
-				emailNotificationDAO.notifyAboutChangedPolicy(user.id.get(), policyDocument.name);
+				emailNotificationSender.notifyAboutChangedPolicy(user.id.get(), policyDocument.name);
 				publisher.publishEvent(new UserPoliciesListChangedEvent(user.fenixUserId.get()));
 			});
 	}
@@ -108,7 +110,7 @@ public class PolicyNotificationService {
 				servicePolicy.filter(policy -> policy.id.equals(policyDocument.id)).isPresent() ||
 					sitePolicy.filter(policy -> policy.id.equals(policyDocument.id)).isPresent())
 			.forEach(policyDocumentExtended ->
-				emailNotificationDAO.notifyAboutNotAcceptedPolicy(userId, policyDocumentExtended.name)
+				emailNotificationSender.notifyAboutNotAcceptedPolicy(userId, policyDocumentExtended.name)
 			);
 		publisher.publishEvent(new UserPoliciesListChangedEvent(userId));
 	}
@@ -140,7 +142,7 @@ public class PolicyNotificationService {
 			.filter(fenixUserId -> policyDocumentDAO.getPolicyAcceptances(fenixUserId).stream()
 				.noneMatch(acceptance -> isCurrentRevisionAccepted(policy, acceptance)))
 			.forEach(fenixUserId -> {
-				emailNotificationDAO.notifySiteUserAboutPolicyAssignmentChange(fenixUserId, policy.name);
+				emailNotificationSender.notifySiteUserAboutPolicyAssignmentChange(fenixUserId, policy.name);
 				publisher.publishEvent(new UserPoliciesListChangedEvent(fenixUserId));
 			});
 	}

@@ -27,18 +27,18 @@ class InvitationNotificationProducer implements NotificationProducer{
 	public Stream<NotificationBarElement> findAllCurrentUserNotifications() {
 		return inviteeService.findAllByCurrentUser().stream()
 			.map(invitation ->
-				new NotificationBarElement(
-					getTranslation(
+				NotificationBarElement.builder()
+					.text(getTranslation(
 						"notifications.new.invitation",
 						Optional.ofNullable(invitation.resourceName).map(name -> "'" + name + "'").orElse("") +
 							" " +
 							getTranslation("view.user-settings.invitations.grid.invitation.resource.type." + invitation.resourceId.type) +
 							" " +
 							getTranslation("view.user-settings.invitations.grid.invitation.role." + invitation.role.unityRoleValue)
-					),
-					ViewMode.USER,
-					InvitationsView.class
-				)
+					))
+					.viewMode(ViewMode.USER)
+					.redirect(InvitationsView.class)
+					.build()
 			);
 	}
 }

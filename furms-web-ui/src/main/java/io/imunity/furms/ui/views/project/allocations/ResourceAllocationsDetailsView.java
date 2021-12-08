@@ -23,7 +23,7 @@ import static java.util.Optional.ofNullable;
 
 @Route(value = "project/admin/resource/allocations/details", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.resource-allocations.details.page.title")
-class ResourceAllocationsDetailsView extends FurmsViewComponent {
+public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private BreadCrumbParameter breadCrumbParameter;
 
