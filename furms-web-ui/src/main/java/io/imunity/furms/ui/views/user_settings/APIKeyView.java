@@ -34,7 +34,6 @@ public class APIKeyView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final UserApiKeyService userApiKeyService;
-	private final AuthzService authzService;
 
 	private final CopyToClipboardStringComponent apiKeyFormItem;
 	private final Button generateRevokeButton;
@@ -45,8 +44,7 @@ public class APIKeyView extends FurmsViewComponent {
 
 	public APIKeyView(UserApiKeyService userApiKeyService, AuthzService authzService) {
 		this.userApiKeyService = userApiKeyService;
-		this.authzService = authzService;
-		this.userId = this.authzService.getCurrentAuthNUser().id
+		this.userId = authzService.getCurrentAuthNUser().id
 				.orElseThrow(() -> new AccessDeniedException("User ID not found in security context"));
 
 		final String apiKey = loadApiKey();

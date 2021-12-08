@@ -5,14 +5,6 @@
 
 package io.imunity.furms.ui.components.administrators;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
-
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -22,8 +14,15 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.provider.SortDirection;
-
 import io.imunity.furms.ui.components.DenseGrid;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class UserGrid {
 	private final Grid<UserGridItem> grid;
@@ -77,7 +76,8 @@ public class UserGrid {
 			return this;
 		}
 
-		public <T> Builder withCustomColumn(Function<T, String> valueProvider, String header) {
+		@SuppressWarnings("unchecked")
+		public <T extends UserGridItem> Builder withCustomColumn(Function<T, String> valueProvider, String header) {
 			grid.addColumn(t -> valueProvider.apply((T) t))
 				.setHeader(header)
 				.setSortable(true)

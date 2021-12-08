@@ -484,7 +484,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				"description",
 				new Validity(LocalDateTime.now(), LocalDateTime.now().plusDays(1)),
 				"researchField",
-				projectAdmin.getFenixId());;
+				projectAdmin.getFenixId());
 
 		//when
 		mockMvc.perform(post("/rest-api/v1/projects")
@@ -545,13 +545,13 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		}
 	}
 
-	private String createUserAddition(String projectId, String siteId, TestUser testUser) {
-		return userOperationRepository.create(defaultUserAddition()
-				.projectId(projectId)
-				.siteId(new SiteId(siteId))
-				.userId(testUser.getFenixId())
-				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
-				.build());
+	private void createUserAddition(String projectId, String siteId, TestUser testUser) {
+		userOperationRepository.create(defaultUserAddition()
+			.projectId(projectId)
+			.siteId(new SiteId(siteId))
+			.userId(testUser.getFenixId())
+			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+			.build());
 	}
 
 	private ProjectUpdateRequest defaultUpdateProject() {

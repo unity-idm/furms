@@ -29,7 +29,6 @@ import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,15 +66,11 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
-	@Autowired
-	private ResourceUsageRepository resourceUsageRepository;
 
 	@Autowired
 	private AlarmEntityRepository alarmEntityRepository;
 	@Autowired
 	private AlarmDatabaseRepository databaseRepository;
-
-	private UUID siteId;
 
 	private UUID projectId;
 	private UUID projectId2;
@@ -86,14 +80,14 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID projectAllocationId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()

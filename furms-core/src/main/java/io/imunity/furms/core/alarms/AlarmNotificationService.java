@@ -74,11 +74,9 @@ class AlarmNotificationService {
 		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
-			.forEach(userNotificationWrapper -> {
-				runAfterCommit(() ->
-					publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
-				);
-			});
+			.forEach(userNotificationWrapper -> runAfterCommit(() ->
+				publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
+			));
 	}
 
 	private Stream<UserNotificationWrapper> getAlarmUserStream(AlarmWithUserIds alarm, String communityId) {

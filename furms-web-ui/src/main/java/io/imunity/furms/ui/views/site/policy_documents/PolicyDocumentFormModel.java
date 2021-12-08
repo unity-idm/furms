@@ -14,7 +14,7 @@ import java.util.Objects;
 
 class PolicyDocumentFormModel {
 	public PolicyId id;
-	public String siteId;
+	public final String siteId;
 	public String name;
 	public PolicyWorkflow workflow;
 	public int revision;

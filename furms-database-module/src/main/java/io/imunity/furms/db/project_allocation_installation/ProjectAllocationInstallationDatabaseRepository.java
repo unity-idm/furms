@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocationInstallationRepository {
@@ -122,8 +122,8 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId) {
-		return allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+	public void update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId) {
+		allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
 			.map(old -> ProjectAllocationInstallationEntity.builder()
 				.id(old.getId())
 				.correlationId(UUID.fromString(correlationId.id))
@@ -139,8 +139,8 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
-		return allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
+	public void update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
+		allocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(old -> ProjectAllocationInstallationEntity.builder()
 				.id(old.getId())
 				.correlationId(old.correlationId)
@@ -168,8 +168,8 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
-		return deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
+	public void update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
+		deallocationRepository.findByCorrelationId(UUID.fromString(correlationId))
 			.map(oldProjectAllocation -> ProjectDeallocationEntity.builder()
 				.id(oldProjectAllocation.getId())
 				.correlationId(oldProjectAllocation.correlationId)

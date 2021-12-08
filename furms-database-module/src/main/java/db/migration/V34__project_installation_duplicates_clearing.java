@@ -51,7 +51,6 @@ public class V34__project_installation_duplicates_clearing extends BaseJavaMigra
 					"SELECT pij.* " +
 						"FROM project_installation_job pij " +
 						"WHERE pij.site_id = ? AND pij.project_id = ?",
-					new Object[] {projectSiteId.siteId, projectSiteId.projectId},
 					(rs, rowNum) -> ProjectInstallationJobEntity.builder()
 						.id(UUID.fromString(rs.getString("id")))
 						.correlationId(UUID.fromString(rs.getString("correlation_id")))
@@ -61,7 +60,8 @@ public class V34__project_installation_duplicates_clearing extends BaseJavaMigra
 						.gid(rs.getString("gid"))
 						.code(rs.getString("code"))
 						.message(rs.getString("message"))
-						.build()
+						.build(),
+					projectSiteId.siteId, projectSiteId.projectId
 				)
 			)
 			.flatMap(Collection::stream)

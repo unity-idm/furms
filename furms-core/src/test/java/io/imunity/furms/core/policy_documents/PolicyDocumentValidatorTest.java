@@ -14,10 +14,11 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PolicyDocumentValidatorTest {
 
 	@Mock
@@ -33,13 +35,8 @@ class PolicyDocumentValidatorTest {
 	@Mock
 	private SiteRepository siteRepository;
 
+	@InjectMocks
 	private PolicyDocumentValidator validator;
-
-	@BeforeEach
-	void init() {
-		MockitoAnnotations.initMocks(this);
-		validator = new PolicyDocumentValidator(repository, siteRepository);
-	}
 
 	@Test
 	void shouldThrowsExceptionWhileValidCreationWhenPolicyDocumentIsNull() {
@@ -103,8 +100,6 @@ class PolicyDocumentValidatorTest {
 			.name("name1")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name1")).thenReturn(false);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument1));
 
 
@@ -144,8 +139,6 @@ class PolicyDocumentValidatorTest {
 			.wysiwygText("sdsd")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 
@@ -200,8 +193,6 @@ class PolicyDocumentValidatorTest {
 			.file(new byte[2], "pdf", "name-rev0")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateUpdate(policyDocument))
@@ -221,8 +212,6 @@ class PolicyDocumentValidatorTest {
 			.wysiwygText("pdfdsd")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		validator.validateUpdate(policyDocument);

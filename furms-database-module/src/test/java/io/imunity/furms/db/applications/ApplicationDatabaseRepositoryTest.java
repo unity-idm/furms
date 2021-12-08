@@ -47,7 +47,7 @@ class ApplicationDatabaseRepositoryTest extends DBIntegrationTest {
 	UUID projectId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())

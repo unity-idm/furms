@@ -116,7 +116,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
 			.bind(credit -> ofNullable(credit.getStartTime()).orElse(null),
-					(credit, startTime) -> credit.setStartTime(startTime));
+				ResourceCreditViewModel::setStartTime);
 		binder.forField(endTimePicker)
 			.withValidator(
 				time -> Objects.nonNull(time)
@@ -124,7 +124,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
 			.bind(credit -> ofNullable(credit.getEndTime()).orElse(null),
-					(credit, endTime) -> credit.setEndTime(endTime));
+				ResourceCreditViewModel::setEndTime);
 	}
 
 	public void reloadDefaultName(){

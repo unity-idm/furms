@@ -21,10 +21,11 @@ import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class InfraServiceServiceImplTest {
 	@Mock
 	private InfraServiceRepository infraServiceRepository;
@@ -62,7 +64,6 @@ class InfraServiceServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		InfraServiceServiceValidator validator = new InfraServiceServiceValidator(infraServiceRepository, siteRepository, resourceTypeRepository, resourceCreditRepository);
 		service = new InfraServiceServiceImpl(infraServiceRepository, validator, siteAgentPolicyDocumentService, siteRepository, policyDocumentRepository, publisher, policyNotificationService);
 		orderVerifier = inOrder(infraServiceRepository, publisher);
@@ -88,14 +89,6 @@ class InfraServiceServiceImplTest {
 
 	@Test
 	void shouldNotReturnInfraService() {
-		//given
-		String id = "id";
-		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(InfraService.builder()
-			.id(id)
-			.name("userFacingName")
-			.build())
-		);
-
 		//when
 		Optional<InfraService> otherId = service.findById("otherId", "");
 
@@ -201,7 +194,6 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(oldService.name, oldService.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId1)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
@@ -239,7 +231,6 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(oldService.name, oldService.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId1)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
@@ -284,7 +275,6 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(oldService.name, oldService.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
@@ -308,8 +298,11 @@ class InfraServiceServiceImplTest {
 		//given
 		InfraService request = InfraService.builder()
 			.id("id")
+			.siteId("siteId")
 			.name("name")
 			.build();
+
+		when(siteRepository.exists("siteId")).thenReturn(true);
 		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
@@ -329,7 +322,6 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when
@@ -350,7 +342,6 @@ class InfraServiceServiceImplTest {
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when

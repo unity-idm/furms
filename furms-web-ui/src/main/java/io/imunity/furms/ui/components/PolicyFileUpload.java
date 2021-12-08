@@ -41,7 +41,7 @@ public class PolicyFileUpload extends HorizontalLayout
 
 	private boolean readOnly;
 
-	private MemoryBuffer memoryBuffer;
+	private final MemoryBuffer memoryBuffer;
 	private PolicyFile value;
 	private PolicyFile oldValue;
 

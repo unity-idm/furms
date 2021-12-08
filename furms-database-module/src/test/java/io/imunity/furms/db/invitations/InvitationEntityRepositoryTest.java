@@ -30,7 +30,7 @@ class InvitationEntityRepositoryTest extends DBIntegrationTest {
 	private InvitationEntityRepository entityRepository;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		entityRepository.deleteAll();
 	}
 

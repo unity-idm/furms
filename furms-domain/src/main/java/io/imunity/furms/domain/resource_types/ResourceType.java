@@ -100,9 +100,8 @@ public class ResourceType {
 			return this;
 		}
 
-		public ResourceTypeBuilder serviceName(String serviceName) {
+		public void serviceName(String serviceName) {
 			this.serviceName = serviceName;
-			return this;
 		}
 
 		public ResourceTypeBuilder type(ResourceMeasureType type) {

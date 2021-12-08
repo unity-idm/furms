@@ -37,13 +37,12 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	private ResourceTypeEntityRepository resourceTypeRepository;
 
 	private UUID siteId;
-	private UUID siteId2;
 
 	private UUID serviceId;
 	private UUID serviceId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
@@ -51,7 +50,7 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())

@@ -45,7 +45,7 @@ public class UserContextMenuFactory {
 	private final String confirmSelfRemovalMessageKey;
 	private final String removalNotAllowedMessageKey;
 
-	private final List<CustomContextMenuItem> customContextMenuItems;
+	private final List<CustomContextMenuItem<? super UserGridItem>> customContextMenuItems;
 
 	UserContextMenuFactory(Consumer<PersistentId> removeUserAction,
 	                       Consumer<PersistentId> postRemoveUserAction,
@@ -55,7 +55,7 @@ public class UserContextMenuFactory {
 	                       String confirmRemovalMessageKey,
 	                       String confirmSelfRemovalMessageKey,
 	                       String removalNotAllowedMessageKey,
-	                       List<CustomContextMenuItem> customContextMenuItems,
+	                       List<CustomContextMenuItem<? super UserGridItem>> customContextMenuItems,
 	                       Consumer<InvitationId> resendInvitationAction,
 	                       Consumer<InvitationId> removeInvitationAction) {
 		this.removeUserAction = removeUserAction;
@@ -143,24 +143,18 @@ public class UserContextMenuFactory {
 			Button button = new Button(getTranslation("component.administrators.context.menu.resend.invitation"),
 				PAPERPLANE.create());
 			button.addThemeVariants(LUMO_TERTIARY);
-			contextMenu.addItem(button, event -> {
-				resendInvitationAction.accept(gridItem.getInvitationId().get());
-			});
+			contextMenu.addItem(button, event -> resendInvitationAction.accept(gridItem.getInvitationId().get()));
 		}
 		if(removeInvitationAction != null && gridItem.getStatus().equals(UserUIStatus.AWAITS_APPROVAL)){
 			Button button = new Button(getTranslation("component.administrators.context.menu.remove.invitation"),
 				TRASH.create());
 			button.addThemeVariants(LUMO_TERTIARY);
-			contextMenu.addItem(button, event -> {
-				removeInvitationAction.accept(gridItem.getInvitationId().get());
-			});
+			contextMenu.addItem(button, event -> removeInvitationAction.accept(gridItem.getInvitationId().get()));
 		}
 		customContextMenuItems.stream()
 			.filter(item -> item.confirmer.test(gridItem))
 			.forEach(item ->
-			contextMenu.addItem((Component)item.buttonProvider.apply(gridItem), event -> {
-				item.menuButtonHandler.accept(gridItem);
-			})
+			contextMenu.addItem(item.buttonProvider.apply(gridItem), event -> item.menuButtonHandler.accept(gridItem))
 		);
 		if(contextMenu.getChildren().count() == 0)
 			return new Div();
@@ -186,7 +180,7 @@ public class UserContextMenuFactory {
 		private String confirmRemovalMessageKey;
 		private String confirmSelfRemovalMessageKey;
 		private String removalNotAllowedMessageKey;
-		private final List<CustomContextMenuItem> customContextMenuItems = new ArrayList<>();
+		private final List<CustomContextMenuItem<? super UserGridItem>> customContextMenuItems = new ArrayList<>();
 		private Consumer<InvitationId> resendInvitationAction;
 		private Consumer<InvitationId> removeInvitationAction;
 
@@ -231,12 +225,14 @@ public class UserContextMenuFactory {
 			return this;
 		}
 
-		public <T> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action) {
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		public <T extends UserGridItem> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action) {
 			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action, x -> true));
 			return this;
 		}
 
-		public <T> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action, Predicate<T> predicate) {
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		public <T extends UserGridItem> Builder addCustomContextMenuItem(Function<T, MenuButton> buttonProvider, Consumer<T> action, Predicate<T> predicate) {
 			this.customContextMenuItems.add(new CustomContextMenuItem(buttonProvider, action, predicate));
 			return this;
 		}

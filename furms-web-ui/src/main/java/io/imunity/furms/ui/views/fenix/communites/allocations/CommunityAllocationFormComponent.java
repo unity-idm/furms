@@ -36,14 +36,14 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 	private final Binder<CommunityAllocationViewModel> binder;
 	private final CommunityAllocationComboBoxesModelsResolver resolver;
 
-	private ComboBox<ComboBoxModel> siteComboBox;
-	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
-	private ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
+	private final ComboBox<ComboBoxModel> siteComboBox;
+	private final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
+	private final ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox;
 	private ResourceCreditComboBoxModel selectedCreditComboBoxModel;
-	private Label availableAmountLabel;
+	private final Label availableAmountLabel;
 	private BigDecimal availableAmount;
-	private BigDecimalField amountField;
-	private DefaultNameField defaultNameField;
+	private final BigDecimalField amountField;
+	private final DefaultNameField defaultNameField;
 	private boolean editMode;
 
 	CommunityAllocationFormComponent(Binder<CommunityAllocationViewModel> binder, CommunityAllocationComboBoxesModelsResolver resolver) {

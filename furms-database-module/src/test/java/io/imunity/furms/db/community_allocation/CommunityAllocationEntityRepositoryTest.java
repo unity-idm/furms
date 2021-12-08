@@ -54,28 +54,22 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private CommunityAllocationReadEntityRepository entityReadRepository;
 
-	private UUID siteId;
-	private UUID siteId2;
-
 	private UUID communityId;
 	private UUID communityId2;
-
-	private UUID resourceTypeId;
-	private UUID resourceTypeId2;
 
 	private UUID resourceCreditId;
 	private UUID resourceCreditId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -116,8 +110,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.unit(ResourceMeasureUnit.MB)
 			.build();
 
-		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		UUID resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
 
 		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())

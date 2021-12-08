@@ -39,7 +39,7 @@ class SSHKeyHistoryEntityRepositoryTest extends DBIntegrationTest {
 	private UUID siteId;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder().name("name").build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 	}

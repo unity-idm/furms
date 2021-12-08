@@ -68,7 +68,6 @@ class SiteServiceImplTest {
 	private SiteRepository repository;
 	@Mock
 	private SiteGroupDAO webClient;
-	private SiteServiceValidator validator;
 	private SiteServiceImpl service;
 	@Mock
 	private UsersDAO usersDAO;
@@ -95,7 +94,7 @@ class SiteServiceImplTest {
 	
 	@BeforeEach
 	void setUp() {
-		validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
+		SiteServiceValidator validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
 				siteAgentService, userOperationRepository, policyDocumentRepository,
 				siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService);
@@ -510,9 +509,7 @@ class SiteServiceImplTest {
 		Stream.of(declaredMethods)
 				.filter(method -> Modifier.isPublic(method.getModifiers()))
 				.filter(method -> !method.getName().equals("findAllIds"))
-				.forEach(method -> {
-					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
-				});
+				.forEach(method -> assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue());
 	}
 
 }

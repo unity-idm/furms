@@ -5,22 +5,21 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static java.util.stream.Collectors.toMap;
+import io.imunity.furms.domain.sites.Site;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.imunity.furms.domain.sites.Site;
+import static java.util.stream.Collectors.toMap;
 
 class SiteComboBoxModelResolver {
 	private final Map<String, SiteComboBoxModel> map;
 
 	SiteComboBoxModelResolver(Set<Site> sites) {
 		map = sites.stream().map(site -> SiteComboBoxModel.builder().id(site.getId()).name(site.getName())
-				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory() == null ? false
-						: site.isSshKeyFromOptionMandatory())
+				.sshKeyFromOptionMandatory(site.isSshKeyFromOptionMandatory() != null && site.isSshKeyFromOptionMandatory())
 				.build()).collect(toMap(siteModel -> siteModel.id, siteModel -> siteModel));
 	}
 

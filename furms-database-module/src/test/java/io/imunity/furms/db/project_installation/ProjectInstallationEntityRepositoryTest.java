@@ -53,7 +53,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	private UUID projectId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();

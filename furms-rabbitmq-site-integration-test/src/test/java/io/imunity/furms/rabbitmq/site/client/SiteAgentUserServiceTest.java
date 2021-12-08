@@ -35,7 +35,7 @@ class SiteAgentUserServiceTest extends IntegrationTestBase {
 	private UserOperationStatusUpdater userOperationStatusUpdater;
 
 	@Test
-	void shouldAddUser() throws ExecutionException, InterruptedException {
+	void shouldAddUser() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
 			.id("id")
@@ -54,7 +54,7 @@ class SiteAgentUserServiceTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldRemoveUser() throws ExecutionException, InterruptedException {
+	void shouldRemoveUser() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAdditionJob = UserAddition.builder()
 			.id("id")

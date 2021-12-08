@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 class InvitationDAOTest {
 
 	@Mock
@@ -43,7 +43,6 @@ class InvitationDAOTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		invitationDAO = new InvitationDAOImpl(unityClient, invitationFormIdResolver, groupResolver);
 	}
 

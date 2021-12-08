@@ -16,7 +16,7 @@ import java.util.UUID;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
@@ -74,8 +74,8 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public String update(ResourceType resourceType) {
-		return repository.findById(UUID.fromString(resourceType.id))
+	public void update(ResourceType resourceType) {
+		repository.findById(UUID.fromString(resourceType.id))
 			.map(oldResourceType -> ResourceTypeEntity.builder()
 				.id(oldResourceType.getId())
 				.siteId(UUID.fromString(resourceType.siteId))

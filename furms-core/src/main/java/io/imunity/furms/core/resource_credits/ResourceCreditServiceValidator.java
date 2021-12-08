@@ -69,8 +69,8 @@ class ResourceCreditServiceValidator {
 	private void assertAmountAboveAlreadyDistributed(ResourceCredit updated, ResourceCredit existing) {
 		BigDecimal remaining = communityAllocationRepository.getAvailableAmount(existing.id);
 		BigDecimal distributed = existing.amount.subtract(remaining);
-		assertTrue(updated.amount.compareTo(distributed) >= 0, 
-				() -> new CreditUpdateBelowDistributedAmountException());
+		assertTrue(updated.amount.compareTo(distributed) >= 0,
+			CreditUpdateBelowDistributedAmountException::new);
 	}
 
 	void validateDelete(String id) {

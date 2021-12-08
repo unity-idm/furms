@@ -23,8 +23,10 @@ import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Clock;
@@ -45,7 +47,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.quality.Strictness.LENIENT;
 
+@ExtendWith(MockitoExtension.class)
 class InvitatoryServiceTest {
 
 	private final static Instant LOCAL_DATE = Instant.now();
@@ -69,7 +73,6 @@ class InvitatoryServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
 		invitatoryService = new InvitatoryService(usersDAO, invitationRepository, authzService,
 			userInvitationNotificationService, publisher, fixedClock, applicationRepository, String.valueOf(EXPIRATION_TIME));
@@ -168,12 +171,8 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
-			.email("originator")
-			.build()
-		);
+
 		when(applicationRepository.existsBy(resourceId.id.toString(), fenixId)).thenReturn(true);
 
 		assertThrows(UserAlreadyAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
@@ -200,10 +199,6 @@ class InvitatoryServiceTest {
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.of(invitation));
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
-			.email("originator")
-			.build()
-		);
 
 		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
 
@@ -267,7 +262,6 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.inviteUser(resourceId, role, "email@email.com", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
-		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
@@ -291,14 +285,6 @@ class InvitatoryServiceTest {
 			.fenixUserId(new FenixUserId("fenixId"))
 			.email("email")
 			.build();
-
-		when(usersDAO.inviteUser(resourceId, role, "email", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(code);
-		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(invitationRepository.findBy("email", role, resourceId)).thenReturn(Optional.empty());
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
-			.email("originator")
-			.build()
-		);
 
 		String message = assertThrows(IllegalArgumentException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"))
 			.getMessage();
@@ -324,17 +310,13 @@ class InvitatoryServiceTest {
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
-		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.of(invitation));
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
-			.email("originator")
-			.build()
-		);
 
 		assertThrows(DuplicatedInvitationError.class, () -> invitatoryService.inviteUser("email@email.com", resourceId, role, "system"));
 	}
 
 	@Test
+	@MockitoSettings(strictness = LENIENT)
 	void shouldRemoveInvitationWhenCreatingFailed() {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
@@ -356,13 +338,7 @@ class InvitatoryServiceTest {
 			.utcExpiredAt(getExpiredAt())
 			.build();
 
-		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(usersDAO.inviteUser(resourceId, role,"email@email.com", getExpiredAt().toInstant(ZoneOffset.UTC))).thenReturn(invitationCode);
-		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
-		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
-			.email("originator")
-			.build()
-		);
 		when(invitationRepository.create(invitation)).thenThrow(new RuntimeException());
 
 		assertThrows(RuntimeException.class, () -> invitatoryService.inviteUser("email@email.com", resourceId, role, "system"));

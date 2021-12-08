@@ -4,13 +4,13 @@
  */
 package io.imunity.furms.core.config.security;
 
-import static java.util.Optional.ofNullable;
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import static java.util.Optional.ofNullable;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 public class SecurityProperties {

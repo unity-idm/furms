@@ -5,10 +5,17 @@
 
 package io.imunity.furms.db.ssh_keys;
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static java.time.Clock.systemUTC;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.internal.util.collections.Sets;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -16,18 +23,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.internal.util.collections.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.sites.SiteRepository;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static java.time.Clock.systemUTC;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
@@ -67,7 +66,7 @@ public class SSHKeyDatabaseRepositoryTest extends DBIntegrationTest {
 		// then
 		assertThat(byId).isPresent();
 		SSHKey key = byId.get();
-		assertThat(entity.getId().toString()).isEqualTo(key.id.toString());
+		assertThat(entity.getId().toString()).isEqualTo(key.id);
 		assertThat(entity.getOwnerId()).isEqualTo(key.ownerId.id);
 		assertThat(entity.getName()).isEqualTo(key.name);
 		assertThat(entity.getValue()).isEqualTo(key.value);

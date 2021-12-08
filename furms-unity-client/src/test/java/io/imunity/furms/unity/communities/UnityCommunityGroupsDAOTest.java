@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)

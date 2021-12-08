@@ -45,7 +45,7 @@ class ResourceCreditFormView extends FurmsViewComponent {
 	private final Binder<ResourceCreditViewModel> binder = new BeanValidationBinder<>(ResourceCreditViewModel.class);
 	private final ResourceCreditFormComponent resourceCreditFormComponent;
 	private final ResourceCreditService resourceCreditService;
-	private ZoneId zoneId;
+	private final ZoneId zoneId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 	private static final Map<Class<? extends Exception>, String> KNOWN_EXCEPTIONS = Map.of(

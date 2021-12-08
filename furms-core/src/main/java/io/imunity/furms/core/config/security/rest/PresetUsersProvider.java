@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -21,7 +22,7 @@ class PresetUsersProvider extends InMemoryUserDetailsManager {
 	private final Map<String, PresetUser> users;
 
 	public PresetUsersProvider(Collection<PresetUser> users) {
-		this.users = users.stream().collect(Collectors.toUnmodifiableMap(user -> user.getUsername(), user -> user));
+		this.users = users.stream().collect(Collectors.toUnmodifiableMap(User::getUsername, user -> user));
 	}
 
 	@Override

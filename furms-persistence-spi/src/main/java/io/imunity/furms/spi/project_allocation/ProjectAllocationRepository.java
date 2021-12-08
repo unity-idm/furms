@@ -27,7 +27,7 @@ public interface ProjectAllocationRepository {
 
 	String create(ProjectAllocation projectAllocation);
 
-	String update(ProjectAllocation projectAllocation);
+	void update(ProjectAllocation projectAllocation);
 
 	BigDecimal getAvailableAmount(String communityAllocationId);
 

@@ -434,13 +434,13 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 		}
 	}
 
-	private String createUserAddition(String projectId, String siteId, TestUser testUser) {
-		return userOperationRepository.create(defaultUserAddition()
-				.projectId(projectId)
-				.siteId(new SiteId(siteId))
-				.userId(testUser.getFenixId())
-				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
-				.build());
+	private void createUserAddition(String projectId, String siteId, TestUser testUser) {
+		userOperationRepository.create(defaultUserAddition()
+			.projectId(projectId)
+			.siteId(new SiteId(siteId))
+			.userId(testUser.getFenixId())
+			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+			.build());
 	}
 
 	private static class ProjectAllocationAddRequest {

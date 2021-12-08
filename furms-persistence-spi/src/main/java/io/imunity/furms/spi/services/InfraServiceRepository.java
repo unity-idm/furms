@@ -20,7 +20,7 @@ public interface InfraServiceRepository {
 
 	String create(InfraService infraService);
 
-	String update(InfraService infraService);
+	void update(InfraService infraService);
 
 	boolean exists(String id);
 

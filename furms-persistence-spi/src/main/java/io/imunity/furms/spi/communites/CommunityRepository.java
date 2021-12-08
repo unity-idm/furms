@@ -17,7 +17,7 @@ public interface CommunityRepository {
 
 	String create(Community community);
 
-	String update(Community community);
+	void update(Community community);
 
 	boolean exists(String id);
 

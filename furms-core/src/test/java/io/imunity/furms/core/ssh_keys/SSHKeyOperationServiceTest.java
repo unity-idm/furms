@@ -5,31 +5,13 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationError;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationResult;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
@@ -38,6 +20,22 @@ import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SSHKeyOperationServiceTest {
@@ -49,7 +47,7 @@ public class SSHKeyOperationServiceTest {
 	@Mock
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
 	@Mock
-	private InstalledSSHKeyRepository installedSSHKeyRepository;;
+	private InstalledSSHKeyRepository installedSSHKeyRepository;
 	
 	
 	private SSHKeyOperationServiceImpl service;
@@ -210,7 +208,7 @@ public class SSHKeyOperationServiceTest {
 				.status(SSHKeyOperationStatus.ACK).sshkeyId("key").siteId("site").build());
 		when(sshKeysRepository.findById("key")).thenReturn(Optional.of(key));
 
-		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("site", "id", 1)).thenReturn(Arrays.asList(SSHKeyHistory.builder().sshkeyFingerprint("xxx").build()));
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("site", "id", 1)).thenReturn(Collections.singletonList(SSHKeyHistory.builder().sshkeyFingerprint("xxx").build()));
 		
 		service.updateStatus(correlationId,
 				new SSHKeyOperationResult(SSHKeyOperationStatus.DONE, new SSHKeyOperationError(null, null)));

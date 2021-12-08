@@ -5,16 +5,15 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
+import io.imunity.furms.domain.users.PersistentId;
 import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.digest.BuiltinDigests;
 
-import io.imunity.furms.domain.users.PersistentId;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class SSHKey {
 	public final String id;
@@ -55,10 +54,11 @@ public class SSHKey {
 			return false;
 		SSHKey entity = (SSHKey) o;
 		return Objects.equals(id, entity.id) && Objects.equals(name, entity.name)
-				&& Objects.equals(value, entity.value) && Objects.equals(sites, entity.sites)
+				&& Objects.equals(value, entity.value)
+				&& Objects.equals(sites, entity.sites)
 				&& Objects.equals(createTime, entity.createTime)
 				&& Objects.equals(updateTime, entity.updateTime)
-				&& Objects.equals(ownerId, entity.ownerId) && Objects.equals(sites, entity.sites);
+				&& Objects.equals(ownerId, entity.ownerId);
 	}
 
 	@Override

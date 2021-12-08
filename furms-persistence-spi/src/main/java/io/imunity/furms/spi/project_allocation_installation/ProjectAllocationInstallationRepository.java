@@ -30,17 +30,17 @@ public interface ProjectAllocationInstallationRepository {
 
 	String create(ProjectDeallocation projectDeallocation);
 
-	String update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
+	void update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
 
 	String create(ProjectAllocationChunk projectAllocationChunk);
 
 	void update(ProjectAllocationChunk projectAllocationChunk);
 
-	String update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
+	void update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 
 	ProjectDeallocation findDeallocationByCorrelationId(String correlationId);
 
-	String update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
+	void update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 
 	boolean exists(String id);
 
