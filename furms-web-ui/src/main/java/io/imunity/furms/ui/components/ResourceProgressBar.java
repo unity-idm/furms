@@ -7,9 +7,12 @@ package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.html.Div;
 
+import java.math.BigDecimal;
+
 public class ResourceProgressBar extends Div {
 
-	public ResourceProgressBar(int currentUsage, int threshold) {
+	public ResourceProgressBar(BigDecimal totalAmount, BigDecimal consumed, int threshold) {
+		int currentUsage = (int)(consumed.doubleValue() / totalAmount.doubleValue() * 100);
 		currentUsage = Math.max(currentUsage, 0);
 		currentUsage = Math.min(currentUsage, 100);
 		threshold = Math.max(threshold, 0);

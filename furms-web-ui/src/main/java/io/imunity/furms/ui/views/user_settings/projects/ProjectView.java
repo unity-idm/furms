@@ -136,7 +136,8 @@ public class ProjectView extends FurmsViewComponent {
 			.setSortable(true);
 		grid.addComponentColumn(model ->
 			new ResourceProgressBar(
-				(int)(model.consumedWithUnit.amount.doubleValue() / model.amountWithUnit.amount.doubleValue() * 100),
+				model.amountWithUnit.amount,
+				model.consumedWithUnit.amount,
 				projectDataSnapshot.projectAllocationDataSnapshot.getAlarmThreshold(model.id)
 			)
 		)

@@ -50,8 +50,8 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
 	private final String projectId;
+	private final AlarmService alarmService;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
-	private AlarmService alarmService;
 
 
 	ResourceAllocationsView(ProjectAllocationService service, AlarmService alarmService) {
@@ -121,7 +121,8 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.setSortable(true);
 		grid.addComponentColumn(model ->
 			new ResourceProgressBar(
-				(int)(model.consumedWithUnit.amount.doubleValue() / model.amountWithUnit.amount.doubleValue() * 100),
+				model.amountWithUnit.amount,
+				model.consumedWithUnit.amount,
 				projectDataSnapshot.getAlarmThreshold(model.id)
 			)
 		)
