@@ -28,9 +28,7 @@ class PolicyDocumentNotificationProducer implements NotificationProducer {
 			.filter(policyDocumentExtended -> policyDocumentExtended.utcAcceptedTime.isEmpty())
 			.map(policyDocumentExtended ->
 				NotificationBarElement.builder()
-					.text(getTranslation(
-						getTranslation("notifications.new.policy", policyDocumentExtended.name)
-					))
+					.text(getTranslation("notifications.new.policy", policyDocumentExtended.name))
 					.viewMode(ViewMode.USER)
 					.redirect(PolicyDocumentsView.class)
 					.build()
