@@ -22,7 +22,7 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(CommunityService.class, service);
 	}
 
 	@Test

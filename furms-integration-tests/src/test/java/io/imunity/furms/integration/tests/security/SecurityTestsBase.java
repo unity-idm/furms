@@ -20,13 +20,19 @@ import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ch.qos.logback.classic.Level.INFO;
@@ -46,6 +52,8 @@ import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.p
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -117,15 +125,31 @@ public class SecurityTestsBase extends IntegrationTestBase {
 		((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger("WireMock").setLevel(null);
 	}
 
-	protected void assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(final Class<?> serviceType) {
-		final Method[] methods = isInjectedImplementations(serviceType)
-				? serviceType.getSuperclass().getDeclaredMethods()
-				: serviceType.getDeclaredMethods();
-		Stream.of(methods)
-				.filter(method -> Modifier.isPublic(method.getModifiers()))
-				.forEach(method ->
-					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)
-							|| method.isAnnotationPresent(FurmsPublicAccess.class)).isTrue());
+	protected void assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(final Class<?> baseInterface, final Object implementation) {
+		final Method[] implementedMethods = (AopUtils.isAopProxy(implementation) || AopUtils.isCglibProxy(implementation))
+				? implementation.getClass().getSuperclass().getMethods()
+				: implementation.getClass().getMethods();
+
+		final Set<Method> interfaceImplementedMethods = Stream.of(implementedMethods)
+				.filter(method -> Arrays.stream(baseInterface.getMethods())
+						.anyMatch(baseMethod ->
+								baseMethod.getName().equals(method.getName())
+										&& baseMethod.getReturnType().equals(method.getReturnType())
+										&& Arrays.equals(baseMethod.getParameterTypes(), method.getParameterTypes())))
+				.collect(toSet());
+
+		if (baseInterface.getMethods().length > 0) {
+			assertThat(interfaceImplementedMethods).hasSize(baseInterface.getMethods().length);
+		}
+
+		final Set<String> unsecuredMethods = interfaceImplementedMethods.stream()
+				.filter(method -> !method.isAnnotationPresent(FurmsAuthorize.class) && !method.isAnnotationPresent(FurmsPublicAccess.class))
+				.map(Method::getName)
+				.collect(toSet());
+
+		if (!unsecuredMethods.isEmpty()) {
+			throw new AssertionError(format("These methods in interface %s are expected to be secured: \n %s", baseInterface, unsecuredMethods));
+		}
 	}
 
 	protected void assertThatUserHasAccessToCallMethod(final Runnable method, final TestUser user) {
@@ -347,10 +371,6 @@ public class SecurityTestsBase extends IntegrationTestBase {
 		assertThatUserHasAccessToCallMethod(method, communityAdmin(UUID.randomUUID().toString()));
 		assertThatUserHasAccessToCallMethod(method, projectAdmin(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 		assertThatUserHasAccessToCallMethod(method, projectUser(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-	}
-
-	private boolean isInjectedImplementations(Class<?> serviceType) {
-		return serviceType.getName().contains("EnhancerBySpringCGLIB");
 	}
 
 }

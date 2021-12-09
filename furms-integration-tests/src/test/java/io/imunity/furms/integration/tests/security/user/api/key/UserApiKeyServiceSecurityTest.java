@@ -20,13 +20,7 @@ class UserApiKeyServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
-	}
-
-	@Test
-	void userWithoutCapabilitiesCanFindUserByUserIdAndApiKey() throws Throwable {
-		assertThatThisMethodCanBeCalledWithoutCapabilities(() ->
-				service.findUserByUserIdAndApiKey(new PersistentId("id"), UUID.randomUUID()));
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(UserApiKeyService.class, service);
 	}
 
 	@Test

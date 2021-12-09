@@ -21,7 +21,7 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(PolicyDocumentService.class, service);
 	}
 
 	@Test

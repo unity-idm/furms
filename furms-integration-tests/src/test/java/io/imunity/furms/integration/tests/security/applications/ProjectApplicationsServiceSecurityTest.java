@@ -20,7 +20,7 @@ class ProjectApplicationsServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(ProjectApplicationsService.class, service);
 	}
 
 	@Test

@@ -21,7 +21,7 @@ class FenixUserServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(FenixUserService.class, service);
 	}
 
 	@Test

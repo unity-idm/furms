@@ -54,7 +54,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_REA
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
@@ -103,7 +102,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public boolean existsById(String id) {
 		return projectRepository.exists(id);
 	}
@@ -133,7 +132,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<Project> findAllByCurrentUserId() {
 		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
 		return projectRepository.findAll().stream()
@@ -311,7 +310,7 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId) {
 		return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
 				.filter(siteInstalledProject -> siteInstalledProject.project.getId().equals(projectId))

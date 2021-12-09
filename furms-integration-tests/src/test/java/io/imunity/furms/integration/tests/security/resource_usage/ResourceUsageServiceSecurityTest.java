@@ -21,7 +21,7 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldAllPublicMethodsHaveSecurityAnnotation() {
-		assertThatAllPublicMethodsBeAnnotatedWithSecurityAnnotation(service.getClass());
+		assertThatAllInterfaceMethodsHaveBeenAnnotatedWithSecurityAnnotation(ResourceUsageService.class, service);
 	}
 
 	@Test

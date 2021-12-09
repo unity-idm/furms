@@ -15,15 +15,15 @@ import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 
 @Service
-@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 public class ServiceMock{
 
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL, id = "id")
+	@FurmsAuthorize(capability = USERS_MAINTENANCE, id = "id")
 	public Optional<Object> findById(String id) {
 		return Optional.empty();
 	}
 
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public Set<Object> findAll() {
 		return Collections.emptySet();
 	}

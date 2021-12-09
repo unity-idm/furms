@@ -12,7 +12,6 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -33,28 +32,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.nimbusds.oauth2.sdk.util.CollectionUtils.isNotEmpty;
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.*;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 
@@ -95,7 +83,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public Optional<SSHKey> findById(String id) {
 		LOG.debug("Getting SSH key with id={}", id);
 		Optional<SSHKey> key = sshKeysRepository.findById(id);
@@ -106,7 +94,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public Set<SSHKey> findOwned() {
 		PersistentId ownerId = authzService.getCurrentUserId();
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
@@ -114,14 +102,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public Set<SSHKey> findByOwnerId(String ownerId) {
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
 		return sshKeysRepository.findAllByOwnerId(new PersistentId(ownerId));
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId) {
 		final Set<String> sshKeys = sshKeysRepository.findAllByOwnerId(userId).stream()
 				.map(key -> installedSSHKeyRepository.findBySSHKeyId(key.id))
@@ -134,7 +122,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Transactional
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public String create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
 		String created = sshKeysRepository.create(sshKey);
@@ -147,7 +135,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Transactional
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public String update(SSHKey sshKey) {
 		validator.validateUpdate(sshKey);
 		final SSHKey oldKey = sshKeysRepository.findById(sshKey.id)
@@ -161,7 +149,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Transactional
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public void delete(String id) {
 		validator.validateDelete(id);
 		removeKeyFromSites(sshKeysRepository.findById(id).get());
@@ -176,7 +164,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public boolean isNamePresent(String name) {
 		try {
 			validator.validateName(name);
@@ -187,7 +175,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
 		try {
 			validator.validateIsNamePresentIgnoringRecord(name, recordToIgnore);
@@ -197,7 +185,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		}
 	}
 
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	@Override
 	public void assertIsEligibleToManageKeys() {
 		validator.assertIsEligibleToManageKeys();

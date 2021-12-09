@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Capability.POLICY_ACCEPTANCE_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus.ACCEPTED;
 import static java.util.stream.Collectors.toSet;
 
@@ -41,13 +40,13 @@ class PolicyDocumentServiceHelper {
 		this.usersDAO = usersDAO;
 	}
 
-	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE)
 	public Set<PolicyAcceptanceAtSite> findSitePolicyAcceptancesByUserId(FenixUserId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllSitePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);
 	}
 
-	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE)
 	public Set<PolicyAcceptanceAtSite> findServicesPolicyAcceptancesByUserId(FenixUserId userId) {
 		final Set<PolicyDocument> userPolicies = policyDocumentRepository.findAllServicePoliciesByUserId(userId);
 		return findPolicyAcceptancesByUserIdFilterByPolicies(userId, userPolicies);

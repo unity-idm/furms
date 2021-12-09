@@ -10,7 +10,6 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
@@ -55,7 +54,6 @@ import java.util.UUID;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
@@ -111,7 +109,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public boolean existsById(String id) {
 		return siteRepository.exists(id);
 	}
@@ -131,7 +129,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsPublicAccess
 	public Set<SiteExternalId> findAllIds() {
 		return siteRepository.findAll().stream()
 				.map(Site::getExternalId)
@@ -139,7 +136,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<Site> findUserSites(PersistentId userId) {
 		LOG.debug("Getting all Sites for user");
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(userId);
@@ -152,7 +149,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<Site> findAllOfCurrentUserId() {
 		final FURMSUser currentUser = authzService.getCurrentAuthNUser();
 		return siteRepository.findAll().stream()

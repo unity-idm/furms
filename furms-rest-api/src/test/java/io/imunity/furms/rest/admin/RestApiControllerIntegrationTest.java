@@ -67,7 +67,7 @@ abstract class RestApiControllerIntegrationTest extends TestBeansRegistry {
 
 	@BeforeEach
 	void setup() throws Exception {
-		when(userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey))
+		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.of(FURMSUser.builder()
 						.id(userId)
 						.email("email@domain.com")

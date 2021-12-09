@@ -10,7 +10,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import org.springframework.stereotype.Service;
 
 import io.imunity.furms.api.authz.AuthzService;
@@ -87,14 +85,14 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<UserSitesInstallationInfoData> findCurrentUserSitesInstallations() {
 		final PersistentId currentUserId = authzService.getCurrentUserId();
 		return findByUserId(currentUserId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
 		final FenixUserId fenixUserId = ofNullable(usersDAO.getFenixUserId(userId))
 				.orElse(null);
@@ -143,7 +141,7 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public Set<UserAddition> findAllByFenixUserId(FenixUserId fenixUserId) {
 		return repository.findAllUserAdditions(fenixUserId);
 	}
@@ -172,7 +170,6 @@ public class UserOperationService implements UserAllocationsService {
 			).collect(toSet());
 	}
 
-	@FurmsPublicAccess
 	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
 		if(repository.existsByUserIdAndSiteIdAndProjectId(userId, siteId.id, projectId))
@@ -191,13 +188,11 @@ public class UserOperationService implements UserAllocationsService {
 		);
 	}
 
-	@FurmsPublicAccess
 	public void createUserRemovals(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		createUserRemovals(projectId, user);
 	}
 
-	@FurmsPublicAccess
 	public void createUserRemovals(String siteId, String projectId, FenixUserId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		createUserRemovals(siteId, projectId, user);

@@ -7,7 +7,6 @@ package io.imunity.furms.core.users.api.key;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -22,12 +21,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.REST_API_KEY_MANAGEMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 @Service
-class AdminApiKeyService implements UserApiKeyService {
+class AdminApiKeyService implements UserApiKeyService, AdminApiKeyFinder {
 
 	private final UserApiKeyRepository repository;
 	private final UsersDAO usersDAO;
@@ -37,8 +35,6 @@ class AdminApiKeyService implements UserApiKeyService {
 		this.usersDAO = usersDAO;
 	}
 
-	@Override
-	@FurmsPublicAccess
 	public Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey) {
 		final boolean exists = repository.exists(UserApiKey.builder()
 				.userId(userId)
@@ -53,7 +49,7 @@ class AdminApiKeyService implements UserApiKeyService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT)
 	public Optional<UserApiKey> findByUserId(PersistentId userId) {
 		assertUserExists(userId);
 
@@ -62,7 +58,7 @@ class AdminApiKeyService implements UserApiKeyService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT)
 	public void save(PersistentId userId, String value) {
 		assertUserExists(userId);
 		assertKeyNotExists(userId);
@@ -77,7 +73,7 @@ class AdminApiKeyService implements UserApiKeyService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = REST_API_KEY_MANAGEMENT)
 	public void revoke(PersistentId userId) {
 		assertUserExists(userId);
 

@@ -6,6 +6,7 @@
 package io.imunity.furms.core.config.security.rest;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
+import io.imunity.furms.core.users.api.key.AdminApiKeyFinder;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.roles.RoleLoader;
@@ -29,17 +30,17 @@ public class RestApiBasicAuthenticationFilter extends BasicAuthenticationFilter 
 
 	private final static String REST_API_CIDP_CALLS_PATTERN = "\\/rest-api\\/.*\\/cidp\\/.*";
 
-	private final UserApiKeyService userApiKeyService;
+	private final AdminApiKeyFinder adminApiKeyFinder;
 	private final RoleLoader roleLoader;
 	private final BasicAuthenticationConverter authenticationConverter;
 
 	public RestApiBasicAuthenticationFilter(
 			AuthenticationManager authenticationManager,
-			UserApiKeyService userApiKeyService,
+			AdminApiKeyFinder adminApiKeyFinder,
 			RoleLoader roleLoader
 	) {
 		super(authenticationManager);
-		this.userApiKeyService = userApiKeyService;
+		this.adminApiKeyFinder = adminApiKeyFinder;
 		this.roleLoader = roleLoader;
 		this.authenticationConverter = new BasicAuthenticationConverter();
 	}
@@ -57,7 +58,7 @@ public class RestApiBasicAuthenticationFilter extends BasicAuthenticationFilter 
 				final PersistentId userId = new PersistentId(authRequest.getPrincipal().toString());
 				final UUID apiKey = UUID.fromString(authRequest.getCredentials().toString());
 
-				final Optional<FURMSUser> user = userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey);
+				final Optional<FURMSUser> user = adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey);
 				if (user.isEmpty()) {
 					chain.doFilter(request, response);
 					return;

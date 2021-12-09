@@ -7,7 +7,6 @@ package io.imunity.furms.core.user_site_access;
 
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -149,7 +148,6 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 	}
 
 	@Override
-	@FurmsPublicAccess
 	public void addAccessToSite(GrantAccess grantAccess) {
 		if(!userSiteAccessRepository.exists(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId))
 			userSiteAccessRepository.add(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
@@ -167,7 +165,6 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 	}
 
 	@Override
-	@FurmsPublicAccess
 	public void revokeAccessToSite(GrantAccess grantAccess) {
 		removeAccess(grantAccess);
 	}

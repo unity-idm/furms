@@ -46,7 +46,7 @@ class ProjectInstallationsServiceImpl implements ProjectInstallationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<SiteInstalledProjectResolved> findAllSiteInstalledProjectsOfCurrentUser() {
 		return siteService.findAllOfCurrentUserId().stream()
 				.map(site -> projectOperationRepository.findAllSiteInstalledProjectsBySiteId(site.getId()))
