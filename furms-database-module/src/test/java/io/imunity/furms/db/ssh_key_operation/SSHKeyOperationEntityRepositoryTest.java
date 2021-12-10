@@ -51,7 +51,7 @@ class SSHKeyOperationEntityRepositoryTest extends DBIntegrationTest {
 	private UUID sshkeyId1;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder().name("name").build();
 		Site site1 = Site.builder().name("name1").build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));

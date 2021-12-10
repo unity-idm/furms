@@ -27,7 +27,7 @@ public interface ResourceCreditRepository {
 
 	String create(ResourceCredit resourceType);
 
-	String update(ResourceCredit resourceType);
+	void update(ResourceCredit resourceType);
 
 	boolean exists(String id);
 

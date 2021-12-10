@@ -84,14 +84,12 @@ public class SSHKeyServiceImplTest {
 
 	private SSHKeyServiceImpl service;
 
-	private SSHKeyServiceValidator validator;
-	
 	@BeforeEach
 	void setUp() {
 		TransactionSynchronizationManager.initSynchronization();
 
-		validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
-				sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
+		SSHKeyServiceValidator validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
+			sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
 		final SSHKeyFromSiteRemover sshKeyFromSiteRemover = new SSHKeyFromSiteRemover(repository, siteRepository,
 				sshKeyOperationRepository, siteAgentSSHKeyInstallationService);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository, sshKeyOperationRepository,
@@ -534,9 +532,7 @@ public class SSHKeyServiceImplTest {
 	void allPublicMethodsShouldBeSecured() {
 		Method[] declaredMethods = SSHKeyServiceImpl.class.getDeclaredMethods();
 		Stream.of(declaredMethods).filter(method -> Modifier.isPublic(method.getModifiers()))
-				.forEach(method -> {
-					assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
-				});
+				.forEach(method -> assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue());
 	}
 
 	private SSHKey getKey(String name, Set<String> sites) {

@@ -37,7 +37,6 @@ public class ExternalIdGenerator {
 		char[] chars = new char[size];
 		for (int i = 0; i < size; i++)
 			chars[i] = alphabet[random.nextInt(alphabet.length)];
-		String candidate = String.valueOf(chars);
-		return candidate;
+		return String.valueOf(chars);
 	}
 }

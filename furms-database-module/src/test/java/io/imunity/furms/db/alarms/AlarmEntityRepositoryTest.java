@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,8 +69,6 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private AlarmEntityRepository alarmEntityRepository;
 
-	private UUID siteId;
-
 	private UUID projectId;
 	private UUID projectId2;
 
@@ -80,14 +77,14 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 	private UUID projectAllocationId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
@@ -281,7 +278,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
+		alarmEntityRepository.save(alarmEntity);
 
 		boolean exists = alarmEntityRepository.existsByProjectIdAndName(projectId, "name");
 		assertThat(exists).isTrue();
@@ -298,7 +295,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
+		alarmEntityRepository.save(alarmEntity);
 
 		boolean exists = alarmEntityRepository.existsByProjectIdAndName(projectId, "name2");
 		assertThat(exists).isFalse();
@@ -367,7 +364,7 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 			.alarmUserEntities(Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2")))
 			.build();
 
-		AlarmEntity saved2 = alarmEntityRepository.save(alarmEntity2);
+		alarmEntityRepository.save(alarmEntity2);
 
 		Set<AlarmEntity> alarms = alarmEntityRepository.findAllByProjectId(projectId);
 		assertThat(alarms.size()).isEqualTo(2);

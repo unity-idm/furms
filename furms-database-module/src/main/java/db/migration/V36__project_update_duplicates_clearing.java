@@ -40,7 +40,6 @@ public class V36__project_update_duplicates_clearing extends BaseJavaMigration {
 			.forEach(projectSiteId ->
 				jdbcTemplate.query(
 					"SELECT * FROM project_update_job WHERE site_id = ? AND project_id = ?",
-					new Object[] {projectSiteId.siteId, projectSiteId.projectId},
 					(rs, rowNum) -> {
 						StringBuilder row = new StringBuilder();
 						for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -48,7 +47,9 @@ public class V36__project_update_duplicates_clearing extends BaseJavaMigration {
 						}
 						LOG.warn("This row: {} will be removed", row.toString());
 						return null;
-					})
+					},
+					projectSiteId.siteId, projectSiteId.projectId
+				)
 			);
 
 		duplicatedIds

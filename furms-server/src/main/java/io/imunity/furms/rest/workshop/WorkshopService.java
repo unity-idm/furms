@@ -76,18 +76,16 @@ class WorkshopService {
 	void distributeToMateCommunity(CreateResourceCreditEvent event) {
 		LOG.info("Received credit allocation event {}", event);
 		Optional<ResourceCredit> credit = resourceCreditRepository.findById(event.id);
-		credit.ifPresent(rc -> {
-			getCorrespondingCommunityId(rc, event.originator).ifPresent(community -> {
-				LOG.info("Making community allocation from {} to {}", rc, community);
-				CommunityAllocation communityAllocation = CommunityAllocation.builder()
-						.communityId(community.getId())
-						.resourceCreditId(rc.id)
-						.name("Allocation " + ExternalIdGenerator.generate(id -> true))
-						.amount(rc.amount)
-						.build();
-				communityAllocationRepository.create(communityAllocation);
-			});
-		});
+		credit.ifPresent(rc -> getCorrespondingCommunityId(rc, event.originator).ifPresent(community -> {
+			LOG.info("Making community allocation from {} to {}", rc, community);
+			CommunityAllocation communityAllocation = CommunityAllocation.builder()
+					.communityId(community.getId())
+					.resourceCreditId(rc.id)
+					.name("Allocation " + ExternalIdGenerator.generate(id -> true))
+					.amount(rc.amount)
+					.build();
+			communityAllocationRepository.create(communityAllocation);
+		}));
 	}
 	
 	private Optional<Community> getCorrespondingCommunityId(ResourceCredit rc, PersistentId originator) {
@@ -214,8 +212,7 @@ class WorkshopService {
 			char[] chars = new char[size];
 			for (int i = 0; i < size; i++)
 				chars[i] = alphabet[random.nextInt(alphabet.length)];
-			String candidate = String.valueOf(chars);
-			return candidate;
+			return String.valueOf(chars);
 		}
 	}
 }

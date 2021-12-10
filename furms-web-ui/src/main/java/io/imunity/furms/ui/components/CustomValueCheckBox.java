@@ -17,9 +17,10 @@ import static com.vaadin.flow.dom.DebouncePhase.LEADING;
 class CustomValueCheckBox<T> extends ComboBox<T> {
 	private String customValue;
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	CustomValueCheckBox() {
 		this.setAllowCustomValue(true);
-		this.addListener(CustomValueCheckBoxEvent.class, (ComponentEventListener)x -> {
+		this.addListener(CustomValueCheckBoxEvent.class, (ComponentEventListener) eventListener -> {
 			customValue = getElement().getProperty("filter");
 			fireEvent(new CustomValueSetEvent<>(this, false, customValue));
 		});

@@ -19,9 +19,10 @@ import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Clock;
@@ -38,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class GenericGroupServiceImplTest {
 
 	private final static Instant LOCAL_DATE = Instant.now();
@@ -55,7 +57,6 @@ class GenericGroupServiceImplTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
 		genericGroupService = new GenericGroupServiceImpl(genericGroupRepository, usersDAO, fixedClock, publisher);
 	}
@@ -85,7 +86,6 @@ class GenericGroupServiceImplTest {
 	@Test
 	void shouldNotFindBy() {
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
-		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(false);
 
 		assertThrows(GroupNotBelongingToCommunityException.class, () -> genericGroupService.findBy("communityId2", genericGroupId));
 	}
@@ -143,6 +143,7 @@ class GenericGroupServiceImplTest {
 		FenixUserId userId = new FenixUserId("fenixUserId");
 
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(genericGroupId, userId)).thenReturn(false);
 
 		genericGroupService.createMembership("communityId", genericGroupId, userId);
 
@@ -163,9 +164,6 @@ class GenericGroupServiceImplTest {
 			.name("name")
 			.description("description")
 			.build();
-
-		when(genericGroupRepository.existsBy("communityId", "name")).thenReturn(false);
-		when(genericGroupRepository.create(genericGroup)).thenReturn(genericGroupId);
 
 		genericGroupService.update(genericGroup);
 

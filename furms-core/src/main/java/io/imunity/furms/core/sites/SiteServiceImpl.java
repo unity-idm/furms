@@ -60,7 +60,7 @@ import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {

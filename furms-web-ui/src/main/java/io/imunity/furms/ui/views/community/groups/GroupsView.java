@@ -48,7 +48,7 @@ public class GroupsView extends FurmsViewComponent {
 	private final GenericGroupService genericGroupService;
 
 	private Grid<GroupGridModel> grid;
-	private SearchLayout searchLayout;
+	private final SearchLayout searchLayout;
 
 	GroupsView(GenericGroupService genericGroupService) {
 		this.genericGroupService = genericGroupService;

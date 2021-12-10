@@ -14,7 +14,7 @@ import java.util.Objects;
 class ProjectAllocationViewModel {
 	private String id;
 	private String projectId;
-	private String projectName;
+	private final String projectName;
 	private String communityId;
 	private ResourceTypeComboBoxModel resourceType;
 	private AllocationCommunityComboBoxModel allocationCommunity;

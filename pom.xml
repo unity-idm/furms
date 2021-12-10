@@ -32,6 +32,8 @@
 
 		<unity.version>3.7.0</unity.version>
 
+		<vaadin.version>14.7.5</vaadin.version>
+
 		<qpid-broker.version>8.0.6</qpid-broker.version>
 
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -266,6 +268,15 @@
 				<groupId>net.i2p.crypto</groupId>
 				<artifactId>eddsa</artifactId>
 				<version>0.3.0</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
   				<groupId>org.vaadin.gatanaso</groupId>

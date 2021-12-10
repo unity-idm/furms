@@ -49,7 +49,6 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 
 	private final Binder<ProjectAllocationViewModel> binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
 	private final ProjectAllocationFormComponent projectAllocationFormComponent;
-	private final ProjectAllocationComboBoxesModelsResolver resolver;
 
 	private final String communityId;
 	private String projectId;
@@ -60,7 +59,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	                          ProjectService projectService) {
 		this.projectAllocationService = projectAllocationService;
 		this.projectService = projectService;
-		this.resolver = new ProjectAllocationComboBoxesModelsResolver(
+		ProjectAllocationComboBoxesModelsResolver resolver = new ProjectAllocationComboBoxesModelsResolver(
 			communityAllocationService.findAllNotExpiredByCommunityIdWithRelatedObjects(getCurrentResourceId()),
 			projectAllocationService::getAvailableAmount
 		);

@@ -16,16 +16,16 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_ACKNOWLEDGED;
@@ -42,6 +42,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserAllocationStatusUpdaterTest {
 	@Mock
 	private ResourceAccessRepository repository;
@@ -55,7 +56,6 @@ class UserAllocationStatusUpdaterTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new UserAllocationStatusUpdaterImpl(repository, userSiteAccessInnerService, publisher);
 		orderVerifier = inOrder(repository, publisher, userSiteAccessInnerService);
 		TransactionSynchronizationManager.initSynchronization();
@@ -71,10 +71,8 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersGrantToGrand(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		FenixUserId userId = new FenixUserId("userId");
-		when(repository.findUsersGrantsByCorrelationId(correlationId))
-			.thenReturn(Optional.of(new ProjectUserGrant("siteId", "grantId", "projectId", userId)));
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+
 		service.update(correlationId, GRANTED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANTED, "msg");
@@ -189,11 +187,11 @@ class UserAllocationStatusUpdaterTest {
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"})
 	void shouldRemoveUsersGrantAndUserAdditionWhenItIsLastGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
+		FenixUserId fenixUserId = new FenixUserId("userId");
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
 		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
-		FenixUserId fenixUserId = new FenixUserId("userId");
-		when(repository.findUserGrantsByProjectIdAndFenixUserId("projectId", fenixUserId)).thenReturn(Set.of());
+
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);

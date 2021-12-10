@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 
-public class UserGridItem {
+public class UserGridItem implements AbstractUserGridItem {
 	private final Optional<PersistentId> id;
 	private final Optional<FenixUserId> fenixUserId;
 	private final Optional<String> firstName;

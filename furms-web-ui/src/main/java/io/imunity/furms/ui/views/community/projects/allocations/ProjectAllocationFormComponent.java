@@ -31,12 +31,12 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<ProjectAllocationViewModel> binder;
-	ProjectAllocationComboBoxesModelsResolver resolver;
+	final ProjectAllocationComboBoxesModelsResolver resolver;
 
-	private ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
-	private ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox;
-	private Label availableAmountLabel;
-	private DefaultNameField defaultNameField;
+	private final ComboBox<ResourceTypeComboBoxModel> resourceTypeComboBox;
+	private final ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox;
+	private final Label availableAmountLabel;
+	private final DefaultNameField defaultNameField;
 	private BigDecimal availableAmount;
 	private BigDecimal lastAmount = new BigDecimal("0");
 

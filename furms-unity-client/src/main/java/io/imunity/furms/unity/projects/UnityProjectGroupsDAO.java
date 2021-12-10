@@ -32,7 +32,7 @@ import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.META;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.lang.Boolean.TRUE;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 class UnityProjectGroupsDAO implements ProjectGroupsDAO {

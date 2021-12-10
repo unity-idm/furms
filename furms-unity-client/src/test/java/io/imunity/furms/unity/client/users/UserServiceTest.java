@@ -31,7 +31,6 @@ import static io.imunity.furms.unity.common.UnityConst.*;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -134,22 +133,6 @@ public class UserServiceTest {
 		assertThat(allUsersFromGroup).isEmpty();
 	}
 
-//	@Test
-//	void shouldReturnEmptyUsersListFromMultipleGroups() {
-//		String path = "/group-members-multi/%2F";
-//
-//		when(unityClient.post(
-//			path,
-//			List.of("/fenix/communities/communityId/projects/projectId2/users", "/fenix/communities/communityId/projects/projectId1/users"),
-//			Map.of(),
-//			new ParameterizedTypeReference<MultiGroupMembers>() {})
-//		)
-//			.thenReturn(new MultiGroupMembers(List.of(), Map.of()));
-//
-//		Set<UserPolicyAcceptances> allUsersFromGroup = userService.getAllUsersPolicyAcceptanceFromGroups("/", Map.of("communityId", Set.of("projectId1", "projectId2")));
-//
-//		assertThat(allUsersFromGroup).isEmpty();
-//	}
 
 	@Test
 	void shouldRemoveUserRole() {

@@ -80,7 +80,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();

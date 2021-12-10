@@ -442,10 +442,10 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private String createProjectAllocationChunk(String allocation, BigDecimal amount) {
-		return projectAllocationInstallationRepository.create(defaultProjectAllocationChunk()
-				.projectAllocationId(allocation)
-				.amount(amount)
-				.build());
+	private void createProjectAllocationChunk(String allocation, BigDecimal amount) {
+		projectAllocationInstallationRepository.create(defaultProjectAllocationChunk()
+			.projectAllocationId(allocation)
+			.amount(amount)
+			.build());
 	}
 }

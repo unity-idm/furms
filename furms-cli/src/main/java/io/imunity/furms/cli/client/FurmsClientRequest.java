@@ -72,7 +72,7 @@ public class FurmsClientRequest {
 	}
 
 	public static final class FurmsClientRequestBuilder {
-		private String path;
+		private final String path;
 		private String body = "";
 		private List<String> pathParams = List.of();
 		private MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>(Map.of());

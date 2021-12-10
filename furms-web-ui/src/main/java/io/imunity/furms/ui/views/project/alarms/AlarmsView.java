@@ -174,8 +174,7 @@ public class AlarmsView extends FurmsViewComponent {
 		return furmsDialog;
 	}
 
-	private static class DisableCheckbox extends Checkbox
-	{
+	private static class DisableCheckbox extends Checkbox {
 		DisableCheckbox(boolean value) {
 			super(value);
 			this.getStyle().set("pointer-events", "none");

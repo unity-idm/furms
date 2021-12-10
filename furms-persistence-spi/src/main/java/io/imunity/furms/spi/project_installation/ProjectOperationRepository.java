@@ -26,9 +26,9 @@ public interface ProjectOperationRepository {
 
 	String createOrUpdate(ProjectUpdateJob projectUpdateJob);
 
-	String update(String id, ProjectInstallationResult result);
+	void update(String id, ProjectInstallationResult result);
 
-	String update(String id, ProjectUpdateResult result);
+	void update(String id, ProjectUpdateResult result);
 
 	boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId);
 

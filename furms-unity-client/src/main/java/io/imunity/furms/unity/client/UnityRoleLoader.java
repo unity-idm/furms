@@ -40,8 +40,7 @@ public class UnityRoleLoader implements RoleLoader {
 	@Override
 	public Map<ResourceId, Set<Role>> loadUserRoles(PersistentId sub) {
 		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
-		Map<ResourceId, Set<Role>> resourceIdSetMap = loadUserRoles(attributes);
-		return resourceIdSetMap;
+		return loadUserRoles(attributes);
 	}
 
 	private Map<ResourceId, Set<Role>> loadUserRoles(Map<String, List<Attribute>> attributes) {

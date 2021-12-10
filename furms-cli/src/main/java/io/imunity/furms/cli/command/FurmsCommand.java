@@ -5,11 +5,20 @@
 
 package io.imunity.furms.cli.command;
 
-import static ch.qos.logback.classic.Level.DEBUG;
-import static ch.qos.logback.classic.Level.OFF;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static org.apache.http.util.TextUtils.isEmpty;
+import ch.qos.logback.classic.LoggerContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.imunity.furms.cli.CLIApplication;
+import io.imunity.furms.cli.ConfigParameter;
+import io.imunity.furms.cli.ConfigParameterNames;
+import io.imunity.furms.cli.client.FurmsClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.FileCopyUtils;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -17,22 +26,11 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.FileCopyUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.qos.logback.classic.LoggerContext;
-import io.imunity.furms.cli.CLIApplication;
-import io.imunity.furms.cli.ConfigParameter;
-import io.imunity.furms.cli.ConfigParameterNames;
-import io.imunity.furms.cli.client.FurmsClient;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import static ch.qos.logback.classic.Level.DEBUG;
+import static ch.qos.logback.classic.Level.OFF;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static org.apache.http.util.TextUtils.isEmpty;
 
 @Command(mixinStandardHelpOptions = true)
 public abstract class FurmsCommand implements Runnable {
@@ -41,7 +39,7 @@ public abstract class FurmsCommand implements Runnable {
 
 	protected final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
-	protected ObjectMapper objectMapper = new ObjectMapper();
+	protected final ObjectMapper objectMapper = new ObjectMapper();
 	protected FurmsClient furmsClient;
 	private Optional<Properties> configurationFromFile;
 
@@ -105,7 +103,6 @@ public abstract class FurmsCommand implements Runnable {
 		} catch (Exception e) {
 			LOG.error("Error during command execution: {}", e.toString());
 			LOG.debug("Error details", e);
-			return;
 		}
 	}
 

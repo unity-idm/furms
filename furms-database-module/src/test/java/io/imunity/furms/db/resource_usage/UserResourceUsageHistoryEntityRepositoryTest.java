@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,7 +74,7 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 	private UUID communityAllocationId;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
@@ -255,14 +254,14 @@ class UserResourceUsageHistoryEntityRepositoryTest extends DBIntegrationTest {
 
 	}
 
-	private UserResourceUsageHistoryEntity createEntity(String userId, UUID allocationId, LocalDateTime consumedUntil) {
-		return entityRepository.save(UserResourceUsageHistoryEntity.builder()
-				.projectId(projectId)
-				.projectAllocationId(allocationId)
-				.fenixUserId(userId)
-				.cumulativeConsumption(BigDecimal.TEN)
-				.consumedUntil(consumedUntil)
-				.build());
+	private void createEntity(String userId, UUID allocationId, LocalDateTime consumedUntil) {
+		entityRepository.save(UserResourceUsageHistoryEntity.builder()
+			.projectId(projectId)
+			.projectAllocationId(allocationId)
+			.fenixUserId(userId)
+			.cumulativeConsumption(BigDecimal.TEN)
+			.consumedUntil(consumedUntil)
+			.build());
 	}
 
 }

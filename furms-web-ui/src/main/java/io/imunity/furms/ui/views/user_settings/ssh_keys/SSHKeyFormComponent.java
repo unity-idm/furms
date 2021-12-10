@@ -5,15 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.vaadin.gatanaso.MultiselectComboBox;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -24,12 +15,19 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
-
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyFromOptionValidator;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+import org.vaadin.gatanaso.MultiselectComboBox;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 
 @CssImport("./styles/views/settings/ssh-keys.css")
@@ -93,7 +91,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		keyValueField.addValueChangeListener(e -> binder.validate());
 
 		binder.forField(sitesComboBox).withValidator(new SiteValidator()).bind(
-				sshKeyViewModel -> sshKeyViewModel.getSites().stream().map(s -> resolver.getSite(s))
+				sshKeyViewModel -> sshKeyViewModel.getSites().stream().map(resolver::getSite)
 						.collect(Collectors.toSet()),
 				(sshKeyViewModel, sites) -> sshKeyViewModel
 						.setSites(sites.stream().map(s -> s.id).collect(Collectors.toSet())));
@@ -122,8 +120,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 			try {
 				Map<String, String> keyOptions = SSHKey.getKeyOptions(value);
 
-				if (sitesComboBox.getValue().stream().filter(s -> s.sshKeyFromOptionMandatory)
-						.count() > 0) {
+				if (sitesComboBox.getValue().stream().anyMatch(s -> s.sshKeyFromOptionMandatory)) {
 					SSHKeyFromOptionValidator.validateFromOption(keyOptions.get("from"));
 				}
 

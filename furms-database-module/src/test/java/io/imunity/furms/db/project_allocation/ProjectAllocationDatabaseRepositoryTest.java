@@ -86,11 +86,6 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID projectId;
 	private UUID projectId2;
 
-	private UUID resourceTypeId;
-
-	private UUID resourceCreditId;
-	private UUID resourceCreditId2;
-
 	private UUID communityAllocationId;
 	private UUID communityAllocationId2;
 	private UUID communityAllocationId3;
@@ -158,9 +153,9 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.TERA)
 			.build();
-		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 
-		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
@@ -170,7 +165,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build()));
-		resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		UUID resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId2.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")
