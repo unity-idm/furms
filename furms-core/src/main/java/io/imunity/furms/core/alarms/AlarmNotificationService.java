@@ -51,11 +51,13 @@ class AlarmNotificationService {
 	}
 
 
-	public void sendNotification(AlarmWithUserIds alarm) {
+	void sendNotification(AlarmWithUserIds alarm) {
 		String projectAllocationName = projectAllocationRepository.findById(alarm.projectAllocationId).get().name;
 		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
+			.filter(userNotificationWrapper -> userNotificationWrapper.user.id.isPresent())
+			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
 			.forEach(userNotificationWrapper -> {
 				if(userNotificationWrapper.isProjectAdmin())
 					emailNotificationSender.notifyProjectAdminAboutResourceUsage(userNotificationWrapper.user.id.get(), alarm.projectId, alarm.projectAllocationId, projectAllocationName, alarm.name);
@@ -70,10 +72,11 @@ class AlarmNotificationService {
 			});
 	}
 
-	public void cleanNotification(AlarmWithUserIds alarm) {
+	void cleanNotification(AlarmWithUserIds alarm) {
 		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
+			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
 			.forEach(userNotificationWrapper -> runAfterCommit(() ->
 				publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
 			));
