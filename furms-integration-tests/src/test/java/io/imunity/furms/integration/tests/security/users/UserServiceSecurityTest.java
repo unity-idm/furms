@@ -13,6 +13,15 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class UserServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -24,33 +33,44 @@ class UserServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_READ_ALL_USERS_canGetFenixAdmins() throws Throwable {
-		assertsForUserWith_READ_ALL_USERS(() -> service.getAllUsers());
+	void shouldPassForSecurityRulesForMethodsInUserService() {
+		forMethods(
+				() -> service.getAllUsers(),
+				() -> service.findById(persistentId),
+				() -> service.findByFenixUserId(fenixId))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject))
+				.deniedFor(
+						basicUser(),
+						siteSupport(site),
+						siteSupport(otherSite),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.setUserStatus(fenixId, UserStatus.ENABLED),
+				() -> service.getUserStatus(fenixId),
+				() -> service.getUserRecord(fenixId))
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
-
-	@Test
-	void userWith_USERS_MAINTENANCE_canSetUserStatus() throws Throwable {
-		assertsForUserWith_USERS_MAINTENANCE(() -> service.setUserStatus(new FenixUserId("id"), UserStatus.ENABLED));
-	}
-
-	@Test
-	void userWith_USERS_MAINTENANCE_canGetUserStatus() throws Throwable {
-		assertsForUserWith_USERS_MAINTENANCE(() -> service.getUserStatus(new FenixUserId("id")));
-	}
-
-	@Test
-	void userWith_READ_ALL_USERS_canFindById() throws Throwable {
-		assertsForUserWith_READ_ALL_USERS(() -> service.findById(new PersistentId("id")));
-	}
-
-	@Test
-	void userWith_READ_ALL_USERS_canFindByFenixId() throws Throwable {
-		assertsForUserWith_READ_ALL_USERS(() -> service.findByFenixUserId(new FenixUserId("id")));
-	}
-
-	@Test
-	void userWith_USERS_MAINTENANCE_canGetUserRecord() throws Throwable {
-		assertsForUserWith_USERS_MAINTENANCE(() -> service.getUserRecord(new FenixUserId("id")));
-	}
-
 }

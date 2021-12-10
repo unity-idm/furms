@@ -11,6 +11,15 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class ResourceTypeServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -22,32 +31,60 @@ class ResourceTypeServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindById() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findById(resourceType, site));
-	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAll(site));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_SITE_READ_canFindAll() throws Throwable {
-		assertsForUserWith_SITE_READ_withoutResourceSpecified(() -> service.findAll());
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canCreate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.create(ResourceType.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canUpdate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.update(ResourceType.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.delete(resourceType, site));
+	void shouldPassForSecurityRulesForMethodsInResourceTypeService() {
+		forMethods(
+				() -> service.findById(resourceType, site),
+				() -> service.findAll(site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAll())
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.create(ResourceType.builder().siteId(site).build()),
+				() -> service.update(ResourceType.builder().siteId(site).build()),
+				() -> service.delete(resourceType, site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 }

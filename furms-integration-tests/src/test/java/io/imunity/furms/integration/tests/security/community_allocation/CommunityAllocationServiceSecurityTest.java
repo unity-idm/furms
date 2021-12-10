@@ -11,6 +11,15 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class CommunityAllocationServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -22,72 +31,52 @@ class CommunityAllocationServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWithoutResourceSpecified_COMMUNITY_READ_canFindById() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ_withoutResourceSpecified(() -> service.findById(communityAllocation));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_READ_canFindByIdWithRelatedObjects() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ_withoutResourceSpecified(() -> service.findByIdWithRelatedObjects(communityAllocation));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindByCommunityIdAndIdWithRelatedObjects() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findByCommunityIdAndIdWithRelatedObjects(community, communityAllocation));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_READ_canFindAll() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ_withoutResourceSpecified(() -> service.findAll());
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllByCommunityId() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllByCommunityId(community));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canGetOccupiedNames() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.getOccupiedNames(community));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllWithRelatedObjects() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllWithRelatedObjects(community));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllWithRelatedObjectsByNames() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllWithRelatedObjects(community, "name", false, false));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllNotExpiredByCommunityIdWithRelatedObjects() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllNotExpiredByCommunityIdWithRelatedObjects(community));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_READ_canGetAvailableAmountForNew() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ_withoutResourceSpecified(() -> service.getAvailableAmountForNew(resourceCredit));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_READ_canGetAvailableAmountForUpdate() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ_withoutResourceSpecified(() -> service.getAvailableAmountForUpdate(resourceCredit, communityAllocation));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_WRITE_canCreate() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE_withoutResourceSpecified(() -> service.create(CommunityAllocation.builder().build()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_WRITE_canUpdate() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE_withoutResourceSpecified(() -> service.update(CommunityAllocation.builder().build()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_COMMUNITY_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE_withoutResourceSpecified(() -> service.delete(communityAllocation));
+	void shouldPassForSecurityRulesForMethodsInCommunityAllocationService() {
+		forMethods(
+				() -> service.findByCommunityIdAndIdWithRelatedObjects(community, communityAllocation),
+				() -> service.findAllByCommunityId(community),
+				() -> service.getOccupiedNames(community),
+				() -> service.findAllWithRelatedObjects(community),
+				() -> service.findAllWithRelatedObjects(community, "name", false, false),
+				() -> service.findAllNotExpiredByCommunityIdWithRelatedObjects(community))
+				.accessFor(
+						fenixAdmin(),
+						communityAdmin(community))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findById(communityAllocation),
+				() -> service.findByIdWithRelatedObjects(communityAllocation),
+				() -> service.findAll(),
+				() -> service.getAvailableAmountForNew(resourceCredit),
+				() -> service.getAvailableAmountForUpdate(resourceCredit, communityAllocation),
+				() -> service.create(CommunityAllocation.builder().build()),
+				() -> service.update(CommunityAllocation.builder().build()),
+				() -> service.delete(communityAllocation))
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 }

@@ -14,6 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class FenixUserServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -25,38 +34,30 @@ class FenixUserServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canGetFenixAdmins() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.getFenixAdmins());
+	void shouldPassForSecurityRulesForMethodsInFenixUserService() {
+		final InvitationId invitationId = new InvitationId(UUID.randomUUID().toString());
+		forMethods(
+				() -> service.getFenixAdmins(),
+				() -> service.getFenixAdminsInvitations(),
+				() -> service.inviteFenixAdmin("spock@uss-enterprise.gov"),
+				() -> service.inviteFenixAdmin(persistentId),
+				() -> service.resendFenixAdminInvitation(invitationId),
+				() -> service.removeFenixAdminInvitation(invitationId),
+				() -> service.removeFenixAdminRole(persistentId))
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canGetFenixAdminsInvitations() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.getFenixAdminsInvitations());
-	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canInviteFenixAdminByEmail() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.inviteFenixAdmin("spock@uss-enterprise.gov"));
-	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canInviteFenixAdminById() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.inviteFenixAdmin(new PersistentId("id")));
-	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canResendFenixAdminInvitation() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.resendFenixAdminInvitation(new InvitationId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canRemoveFenixAdminInvitation() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.removeFenixAdminInvitation(new InvitationId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_FENIX_ADMINS_MANAGEMENT_canRemoveFenixAdminRole() throws Throwable {
-		assertsForUserWith_FENIX_ADMINS_MANAGEMENT(() -> service.removeFenixAdminRole(new PersistentId("id")));
-	}
-
 }

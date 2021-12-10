@@ -11,7 +11,16 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
 
 class ProjectApplicationsServiceSecurityTest extends SecurityTestsBase {
 
@@ -24,38 +33,45 @@ class ProjectApplicationsServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_PROJECT_LIMITED_READ_forProjectCanFindAllApplyingUsers() throws Throwable {
-		assertsForUserWith_PROJECT_LIMITED_READ(() -> service.findAllApplyingUsers(project));
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canFindAllApplicationsUsersForCurrentProjectAdmins() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.findAllApplicationsUsersForCurrentProjectAdmins());
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canFindAllAppliedProjectsIdsForCurrentUser() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.findAllAppliedProjectsIdsForCurrentUser());
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canCreateForCurrentUser() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.createForCurrentUser(project));
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canRemoveForCurrentUser() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.removeForCurrentUser(project));
-	}
-
-	@Test
-	void userWith_PROJECT_LIMITED_WRITE_canAccept() throws Throwable {
-		assertsForUserWith_PROJECT_LIMITED_WRITE(() -> service.accept(project, new FenixUserId(basicUser().getFenixId())));
-	}
-
-	@Test
-	void userWith_PROJECT_LIMITED_WRITE_canRemove() throws Throwable {
-		assertsForUserWith_PROJECT_LIMITED_WRITE(() -> service.remove(project, new FenixUserId(basicUser().getFenixId())));
+	void shouldPassForSecurityRulesForMethodsInProjectApplicationsService() {
+		forMethods(
+				() -> service.findAllApplyingUsers(project),
+				() -> service.findAllApplicationsUsersForCurrentProjectAdmins(),
+				() -> service.findAllAppliedProjectsIdsForCurrentUser(),
+				() -> service.createForCurrentUser(project),
+				() -> service.removeForCurrentUser(project))
+				.accessFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.accept(project, fenixId),
+				() -> service.remove(project, fenixId))
+				.accessFor(
+						communityAdmin(community),
+						projectAdmin(community, project))
+				.deniedFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 
 }

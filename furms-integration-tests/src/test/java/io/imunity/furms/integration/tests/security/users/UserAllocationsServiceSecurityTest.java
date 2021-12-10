@@ -6,11 +6,23 @@
 package io.imunity.furms.integration.tests.security.users;
 
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.UUID;
+
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
 
 class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 
@@ -23,27 +35,74 @@ class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_AUTHENTICATED_canFindCurrentUserSitesInstallations() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.findCurrentUserSitesInstallations());
-	}
-
-	@Test
-	void userWith_USERS_MAINTENANCE_canFindUserSitesInstallations() throws Throwable {
-		assertsForUserWith_USERS_MAINTENANCE(() -> service.findUserSitesInstallations(new PersistentId("id")));
-	}
-
-	@Test
-	void userWith_USERS_MAINTENANCE_canFindAllByFenixUserId() throws Throwable {
-		assertsForUserWith_USERS_MAINTENANCE(() -> service.findAllByFenixUserId(new FenixUserId("id")));
-	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllBySiteId(site));
-	}
-
-	@Test
-	void userWith_PROJECT_READ_canFindAllByProjectId() throws Throwable {
-		assertsForUserWith_PROJECT_READ(() -> service.findAllByProjectId(project));
+	void shouldPassForSecurityRulesForMethodsInUserAllocationsService() {
+		forMethods(
+				() -> service.findCurrentUserSitesInstallations())
+				.accessFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findUserSitesInstallations(persistentId),
+				() -> service.findAllByFenixUserId(fenixId))
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAllBySiteId(site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAllByProjectId(project))
+				.accessFor(
+						communityAdmin(community),
+						projectAdmin(community, project),
+						projectUser(community, project))
+				.deniedFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 }

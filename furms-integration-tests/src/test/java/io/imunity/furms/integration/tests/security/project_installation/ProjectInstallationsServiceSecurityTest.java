@@ -6,9 +6,19 @@
 package io.imunity.furms.integration.tests.security.project_installation;
 
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
 
 class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 
@@ -21,43 +31,78 @@ class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindAllSiteInstalledProjectsBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllSiteInstalledProjectsBySiteId(site));
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canFindAllSiteInstalledProjectsOfCurrentUser() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.findAllSiteInstalledProjectsOfCurrentUser());
-	}
-
-	@Test
-	void userWith_PROJECT_LIMITED_READ_canFindAllSiteInstalledProjectsByProjectId() throws Throwable {
-		assertsForUserWith_PROJECT_LIMITED_READ(() -> service.findAllSiteInstalledProjectsByProjectId(project));
-	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllBySiteId(site));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllByCommunityId() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllByCommunityId(community));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllUpdatesByCommunityId() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllUpdatesByCommunityId(community));
-	}
-
-	@Test
-	void userWith_PROJECT_READ_canFindAllByProjectId() throws Throwable {
-		assertsForUserWith_PROJECT_READ(() -> service.findAllByProjectId(project));
-	}
-
-	@Test
-	void userWith_PROJECT_READ_canFindAllUpdatesByProjectId() throws Throwable {
-		assertsForUserWith_PROJECT_READ(() -> service.findAllUpdatesByProjectId(project));
+	void shouldPassForSecurityRulesForMethodsInProjectInstallationsService() {
+		forMethods(
+				() -> service.findAllSiteInstalledProjectsOfCurrentUser(),
+				() -> service.findAllSiteInstalledProjectsByProjectId(project))
+				.accessFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAllByProjectId(project),
+				() -> service.findAllUpdatesByProjectId(project))
+				.accessFor(
+						communityAdmin(community),
+						projectAdmin(community, project),
+						projectUser(community, project))
+				.deniedFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAllByCommunityId(community),
+				() -> service.findAllUpdatesByCommunityId(community))
+				.accessFor(
+						fenixAdmin(),
+						communityAdmin(community))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAllSiteInstalledProjectsBySiteId(site),
+				() -> service.findAllBySiteId(site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 
 }

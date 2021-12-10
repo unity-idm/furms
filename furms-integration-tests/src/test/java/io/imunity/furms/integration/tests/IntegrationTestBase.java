@@ -32,7 +32,6 @@ public class IntegrationTestBase extends DBTestManager {
 
 	private final static Integer SERVER_PORT = SocketUtils.findAvailableTcpPort();
 
-//	protected final WireMockServer server = new WireMockServer(options().port(SERVER_PORT).notifier(LocalNotifier.notifier()));
 	protected final WireMockServer server = new WireMockServer(options().port(SERVER_PORT));
 
 	@Autowired

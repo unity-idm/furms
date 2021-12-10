@@ -14,6 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class SSHKeyServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -25,62 +34,31 @@ class SSHKeyServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canAssertIsEligibleToManageKeys() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.assertIsEligibleToManageKeys());
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canFindById() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.findById(UUID.randomUUID().toString()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canFindOwned() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.findOwned());
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canFindByOwnerId() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.findByOwnerId(UUID.randomUUID().toString()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canFindSiteSSHKeysByUserIdAndSite() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.findSiteSSHKeysByUserIdAndSite(new PersistentId("id"), UUID.randomUUID().toString()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canCreate() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.create(SSHKey.builder().build()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canUpdate() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.update(SSHKey.builder().build()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canDelete() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.delete(UUID.randomUUID().toString()));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canCheckIsNamePresent() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.isNamePresent("name"));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_OWNED_SSH_KEY_MANAGMENT_canCheckIsNamePresentIgnoringRecord() throws Throwable {
-		assertsForUserWith_OWNED_SSH_KEY_MANAGMENT_withoutResourceSpecified(
-				() -> service.isNamePresentIgnoringRecord("name", UUID.randomUUID().toString()));
+	void shouldPassForSecurityRulesForMethodsInSSHKeyService() {
+		forMethods(
+				() -> service.assertIsEligibleToManageKeys(),
+				() -> service.findById(UUID.randomUUID().toString()),
+				() -> service.findOwned(),
+				() -> service.findByOwnerId(UUID.randomUUID().toString()),
+				() -> service.findSiteSSHKeysByUserIdAndSite(persistentId, UUID.randomUUID().toString()),
+				() -> service.create(SSHKey.builder().build()),
+				() -> service.update(SSHKey.builder().build()),
+				() -> service.delete(UUID.randomUUID().toString()),
+				() -> service.isNamePresent("name"),
+				() -> service.isNamePresentIgnoringRecord("name", UUID.randomUUID().toString()))
+				.accessFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 }

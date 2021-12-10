@@ -11,6 +11,15 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class ResourceCreditServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -22,48 +31,64 @@ class ResourceCreditServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindWithAllocationsByIdAndSiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findWithAllocationsByIdAndSiteId(resourceCredit, site));
+	void shouldPassForSecurityRulesForMethodsInResourceCreditService() {
+		forMethods(
+				() -> service.findWithAllocationsByIdAndSiteId(resourceCredit, site),
+				() -> service.findAllWithAllocations(site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAll(),
+				() -> service.findAllNotExpiredByResourceTypeId(resourceType),
+				() -> service.findAllWithAllocations("name", false, false))
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.create(ResourceCredit.builder().siteId(site).build()),
+				() -> service.update(ResourceCredit.builder().siteId(site).build()),
+				() -> service.delete(resourceCredit, site),
+				() -> service.hasCommunityAllocations(resourceCredit, site),
+				() -> service.getOccupiedNames(site))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllWithAllocations() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllWithAllocations(site));
-	}
-
-	@Test
-	void userWithoutResourceSpecified_SITE_READ_canFindAllNotExpiredByResourceTypeId() throws Throwable {
-		assertsForUserWith_SITE_READ_withoutResourceSpecified(() -> service.findAllNotExpiredByResourceTypeId(resourceType));
-	}
-
-	@Test
-	void userWithoutSpecificResource_SITE_READ_canFindAllWithAllocations() throws Throwable {
-		assertsForUserWith_SITE_READ_withoutResourceSpecified(() -> service.findAllWithAllocations("name", false, false));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canCreate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.create(ResourceCredit.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canUpdate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.update(ResourceCredit.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.delete(resourceCredit, site));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canCheckThatHasCommunityAllocations() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.hasCommunityAllocations(resourceCredit, site));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canGetOccupiedNames() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.getOccupiedNames(site));
-	}
-
 }

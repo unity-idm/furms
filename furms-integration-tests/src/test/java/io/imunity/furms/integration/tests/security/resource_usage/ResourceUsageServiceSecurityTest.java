@@ -12,6 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
 import static java.time.LocalDateTime.now;
 
 class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
@@ -25,7 +33,23 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindAllUserUsages() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllUserUsages(site, Set.of(), now(), now()));
+	void shouldPassForSecurityRulesForMethodsInResourceUsageService() {
+		forMethods(
+				() -> service.findAllUserUsages(site, Set.of(), now(), now()))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 }

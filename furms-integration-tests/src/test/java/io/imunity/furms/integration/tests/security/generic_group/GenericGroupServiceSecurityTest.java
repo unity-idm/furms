@@ -15,6 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class GenericGroupServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -26,55 +35,51 @@ class GenericGroupServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_COMMUNITY_READ_canFindAll() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAll(community));
+	void shouldPassForSecurityRulesForMethodsInGenericGroupService() {
+		final GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID().toString());
+
+		forMethods(
+				() -> service.findAll(community, genericGroupId),
+				() -> service.createMembership(community, genericGroupId, fenixId),
+				() -> service.deleteMembership(community, genericGroupId, fenixId))
+				.accessFor(
+						communityAdmin(community))
+				.deniedFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAll(community),
+				() -> service.findGroupWithAssignments(community, genericGroupId),
+				() -> service.findBy(community, genericGroupId),
+				() -> service.findAllGroupWithAssignmentsAmount(community),
+				() -> service.create(GenericGroup.builder().communityId(community).build()),
+				() -> service.update(GenericGroup.builder().communityId(community).build()),
+				() -> service.delete(community, genericGroupId))
+				.accessFor(
+						fenixAdmin(),
+						communityAdmin(community))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
 
-	@Test
-	void userWith_COMMUNITY_READ_canFindGroupWithAssignments() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findGroupWithAssignments(community,
-				new GenericGroupId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindBy() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findBy(community, new GenericGroupId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_COMMUNITY_READ_canFindAllGroupWithAssignmentsAmount() throws Throwable {
-		assertsForUserWith_COMMUNITY_READ(() -> service.findAllGroupWithAssignmentsAmount(community));
-	}
-
-	@Test
-	void userWith_MEMBERSHIP_GROUP_READ_canFindAll() throws Throwable {
-		assertsForUserWith_MEMBERSHIP_GROUP_READ(() -> service.findAll(community, new GenericGroupId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_COMMUNITY_WRITE_canCreate() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE(() -> service.create(GenericGroup.builder().communityId(community).build()));
-	}
-
-	@Test
-	void userWith_MEMBERSHIP_GROUP_WRITE_canCreateMembership() throws Throwable {
-		assertsForUserWith_MEMBERSHIP_GROUP_WRITE(() -> service.createMembership(community,
-				new GenericGroupId(UUID.randomUUID().toString()), new FenixUserId("Fawkes")));
-	}
-
-	@Test
-	void userWith_COMMUNITY_WRITE_canUpdate() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE(() -> service.update(GenericGroup.builder().communityId(community).build()));
-	}
-
-	@Test
-	void userWith_COMMUNITY_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_COMMUNITY_WRITE(() -> service.delete(community, new GenericGroupId(UUID.randomUUID().toString())));
-	}
-
-	@Test
-	void userWith_MEMBERSHIP_GROUP_WRITE_canDeleteMembership() throws Throwable {
-		assertsForUserWith_MEMBERSHIP_GROUP_WRITE(() -> service.deleteMembership(community,
-				new GenericGroupId(UUID.randomUUID().toString()), new FenixUserId("Fawkes")));
-	}
 }

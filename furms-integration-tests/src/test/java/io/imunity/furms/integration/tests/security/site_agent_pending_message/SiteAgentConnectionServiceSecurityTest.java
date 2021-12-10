@@ -12,6 +12,15 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
+
 class SiteAgentConnectionServiceSecurityTest extends SecurityTestsBase {
 
 	@Autowired
@@ -23,24 +32,44 @@ class SiteAgentConnectionServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindAllBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAll(new SiteId(site)));
+	void shouldPassForSecurityRulesForMethodsInSiteAgentConnectionService() {
+		final SiteId siteId = new SiteId(site);
+		forMethods(
+				() -> service.findAll(siteId),
+				() -> service.getSiteAgentStatus(siteId))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.retry(siteId, CorrelationId.randomID()),
+				() -> service.delete(siteId, CorrelationId.randomID()))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 	}
-
-	@Test
-	void userWith_SITE_WRITE_canRetry() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.retry(new SiteId(site), CorrelationId.randomID()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.retry(new SiteId(site), CorrelationId.randomID()));
-	}
-
-	@Test
-	void userWith_SITE_READ_canGetSiteAgentStatus() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.getSiteAgentStatus(new SiteId(site)));
-	}
-
 
 }

@@ -6,6 +6,7 @@
 package io.imunity.furms.integration.tests.security.policy_documents;
 
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
+import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -13,6 +14,17 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.UUID;
+
+import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
+import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
 
 class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 
@@ -25,74 +37,84 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 	}
 
 	@Test
-	void userWith_SITE_READ_canFindById() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findById(site, policy));
-	}
+	void shouldPassForSecurityRulesForMethodsInPolicyDocumentService() {
+		forMethods(
+				() -> service.findAllByCurrentUser(),
+				() -> service.addCurrentUserPolicyAcceptance(PolicyAcceptance.builder().build()))
+				.accessFor(
+						basicUser(),
+						fenixAdmin(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findById(site, policy),
+				() -> service.findAllUsersPolicies(site),
+				() -> service.findAllBySiteId(site),
+				() -> service.findAllUsersPolicyAcceptances(site),
+				() -> service.findAllUsersPolicyAcceptances(policy, site),
+				() -> service.resendPolicyInfo(site, persistentId, policy),
+				() -> service.addUserPolicyAcceptance(site, fenixId, PolicyAcceptance.builder().build()))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site),
+						siteSupport(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.create(PolicyDocument.builder().siteId(site).build()),
+				() -> service.update(PolicyDocument.builder().siteId(site).build()),
+				() -> service.updateWithRevision(PolicyDocument.builder().siteId(site).build()),
+				() -> service.delete(site, policy))
+				.accessFor(
+						fenixAdmin(),
+						siteAdmin(site))
+				.deniedFor(
+						basicUser(),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
+		forMethods(
+				() -> service.findAll())
+				.accessFor(
+						fenixAdmin())
+				.deniedFor(
+						basicUser(),
+						siteAdmin(site),
+						siteAdmin(otherSite),
+						siteSupport(site),
+						siteSupport(otherSite),
+						communityAdmin(community),
+						communityAdmin(otherCommunity),
+						projectAdmin(community, project),
+						projectAdmin(otherCommunity, otherProject),
+						projectUser(community, project),
+						projectUser(otherCommunity, otherProject))
+				.validate(server);
 
-	@Test
-	void userWithoutResourceSpecified_SITE_READ_canFindAll() throws Throwable {
-		assertsForUserWith_SITE_READ_withoutResourceSpecified(() -> service.findAll());
 	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllUsersPolicies() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllUsersPolicies(site));
-	}
-
-	@Test
-	void userWith_SITE_READ_canFindAllBySiteId() throws Throwable {
-		assertsForUserWith_SITE_READ(() -> service.findAllBySiteId(site));
-	}
-
-	@Test
-	void userWith_SITE_POLICY_ACCEPTANCE_READ_canFindAllUsersPolicyAcceptances() throws Throwable {
-		assertsForUserWith_SITE_POLICY_ACCEPTANCE_READ(() -> service.findAllUsersPolicyAcceptances(site));
-	}
-
-	@Test
-	void userWith_SITE_POLICY_ACCEPTANCE_READ_canFindAllUsersPolicyAcceptancesByPolicyId() throws Throwable {
-		assertsForUserWith_SITE_POLICY_ACCEPTANCE_READ(() -> service.findAllUsersPolicyAcceptances(policy, site));
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canFindAllByCurrentUser() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.findAllByCurrentUser());
-	}
-
-	@Test
-	void userWith_SITE_POLICY_ACCEPTANCE_READ_canResendPolicyInfo() throws Throwable {
-		assertsForUserWith_SITE_POLICY_ACCEPTANCE_READ(() -> service.resendPolicyInfo(site, new PersistentId("id"), policy));
-	}
-
-	@Test
-	void userWith_AUTHENTICATED_canAddCurrentUserPolicyAcceptance() throws Throwable {
-		assertsForUserWith_AUTHENTICATED(() -> service.addCurrentUserPolicyAcceptance(PolicyAcceptance.builder().build()));
-	}
-
-	@Test
-	void userWith_SITE_POLICY_ACCEPTANCE_READ_canAddUserPolicyAcceptance() throws Throwable {
-		assertsForUserWith_SITE_POLICY_ACCEPTANCE_READ(() -> service.addUserPolicyAcceptance(site, new FenixUserId("id"),
-				PolicyAcceptance.builder().build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canCreate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.create(PolicyDocument.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canUpdate() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.update(PolicyDocument.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canUpdateWithRevision() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.updateWithRevision(PolicyDocument.builder().siteId(site).build()));
-	}
-
-	@Test
-	void userWith_SITE_WRITE_canDelete() throws Throwable {
-		assertsForUserWith_SITE_WRITE(() -> service.delete(site, policy));
-	}
-
 }
