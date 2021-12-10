@@ -26,6 +26,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
+import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.AlarmAlreadyExceedThresholdException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.EmailNotPresentException;
@@ -70,7 +71,7 @@ public class AlarmFormView extends FurmsViewComponent {
 
 	private BreadCrumbParameter breadCrumbParameter;
 
-	AlarmFormView(AlarmService alarmService, ProjectAllocationService allocationService) {
+	AlarmFormView(AlarmService alarmService, ProjectAllocationService allocationService, ProjectService projectService) {
 		this.alarmService = alarmService;
 		this.allocationService = allocationService;
 		this.projectId = getCurrentResourceId();
@@ -108,7 +109,7 @@ public class AlarmFormView extends FurmsViewComponent {
 
 		MultiselectComboBox<String> multiselectComboBox = new MultiselectComboBox<>();
 		multiselectComboBox.setAllowCustomValues(true);
-		multiselectComboBox.setItems(new HashSet<>());
+		multiselectComboBox.setItems(projectService.findAllUsers(projectId).stream().map(user -> user.email));
 		multiselectComboBox.addCustomValuesSetListener(x -> {
 			HashSet<String> values = new HashSet<>(multiselectComboBox.getValue());
 			values.add(x.getDetail());
