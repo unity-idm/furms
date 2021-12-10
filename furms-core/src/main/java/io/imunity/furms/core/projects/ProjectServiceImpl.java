@@ -311,6 +311,14 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public List<FURMSUser> findAllUsers(String projectId) {
+		return projectRepository.findById(projectId)
+			.map(project -> projectGroupsDAO.getAllUsers(project.getCommunityId(), projectId))
+			.orElseGet(List::of);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
 	public Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId) {
 		return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
