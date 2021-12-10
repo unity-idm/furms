@@ -25,4 +25,5 @@ public interface ResourceUsageRepository {
 	ResourceUsageByCredit findResourceUsagesSumsBySiteId(String siteId);
 	ResourceUsageByCommunityAllocation findResourceUsagesSumsByCommunityId(String communityId);
 	Set<UserResourceUsage> findUserResourceUsages(Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to);
+	Set<ResourceUsage> findResourceUsagesHistory(UUID projectAllocationId);
 }

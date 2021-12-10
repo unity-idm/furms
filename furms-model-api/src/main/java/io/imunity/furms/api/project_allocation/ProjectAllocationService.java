@@ -35,6 +35,8 @@ public interface ProjectAllocationService {
 
 	Set<ProjectAllocationChunk> findAllChunks(String projectId);
 
+	Set<ProjectAllocationChunk> findAllChunks(String projectId, String projectAllocationId);
+
 	Set<ProjectAllocationChunkResolved> findAllChunksBySiteId(String siteId);
 
 	Set<ProjectAllocationChunkResolved> findAllChunksBySiteIdAndProjectId(String siteId, String projectId);

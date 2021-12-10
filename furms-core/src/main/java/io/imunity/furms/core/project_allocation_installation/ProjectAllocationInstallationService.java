@@ -51,6 +51,10 @@ public class ProjectAllocationInstallationService {
 		return projectAllocationInstallationRepository.findAllChunks(projectId);
 	}
 
+	public Set<ProjectAllocationChunk> findAllChunksByAllocationId(String projectAllocationId) {
+		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId);
+	}
+
 	@Transactional
 	public void createAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();

@@ -122,6 +122,10 @@
 			<groupId>org.vaadin.pekka</groupId>
 			<artifactId>wysiwyg_e-java</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>apexcharts</artifactId>
+		</dependency>
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>com.vaadin</groupId>

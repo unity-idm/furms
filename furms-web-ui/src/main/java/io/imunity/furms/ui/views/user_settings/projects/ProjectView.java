@@ -35,8 +35,10 @@ import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
@@ -48,6 +50,7 @@ import java.util.Optional;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.SPLINE_CHART;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED_STATUES;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -166,6 +169,7 @@ public class ProjectView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
 		return new GridActionsButtonLayout(
+			new RouterGridLink(SPLINE_CHART, projectAllocationGridModel.id, ProjectResourceAllocationsDetailsView.class, "projectId", projectAllocationGridModel.projectId),
 			createContextMenu()
 		);
 	}

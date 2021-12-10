@@ -20,5 +20,7 @@ public interface ProjectAllocationChunkEntityRepository extends CrudRepository<P
 		"where pa.project_id = :id")
 	Set<ProjectAllocationChunkEntity> findAllByProjectId(@Param("id") UUID projectId);
 
+	Set<ProjectAllocationChunkEntity> findAllByProjectAllocationId(UUID projectAllocationId);
+
 	Optional<ProjectAllocationChunkEntity> findByProjectAllocationIdAndChunkId(UUID projectAllocationId, String chunkId);
 }

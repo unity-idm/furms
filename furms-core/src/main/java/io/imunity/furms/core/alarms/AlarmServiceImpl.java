@@ -73,6 +73,15 @@ class AlarmServiceImpl implements AlarmService {
 			.map(alarm -> new AlarmWithUserEmails(alarm, getUserIds(groupedUsers, alarm)));
 	}
 
+	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
+	public Optional<AlarmWithUserEmails> find(String projectId, String projectAllocationId) {
+		Map<FenixUserId, String> groupedUsers = getUserEmails();
+
+		return alarmRepository.find(projectAllocationId)
+			.map(alarm -> new AlarmWithUserEmails(alarm, getUserIds(groupedUsers, alarm)));
+	}
+
 	private Set<String> getUserIds(Map<FenixUserId, String> groupedUsers, AlarmWithUserIds alarm) {
 		return alarm.alarmUser.stream()
 			.map(userId -> groupedUsers.getOrDefault(userId, userId.id))
