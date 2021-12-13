@@ -41,11 +41,13 @@ public class ResourceProgressBar extends Div {
 			add(linerDiv);
 		}
 		else {
-			currentUsageLine.getStyle().set("background-color", "darkorange");
+			currentUsageLine.getStyle().set("background-color", "#EF8354");
 
 			Div linerDiv = getLinerDiv();
 			linerDiv.setWidth((float) threshold / currentUsage * 100 + "%");
-			linerDiv.getStyle().set("background-color", "darkorange");
+			linerDiv.getStyle().set("background-color", "#EF8354");
+			linerDiv.getStyle().set("border-top-left-radius", "2px");
+			linerDiv.getStyle().set("border-bottom-left-radius", "2px");
 
 			Div trianglesTagDiv = getTrianglesTagDiv();
 			linerDiv.add(trianglesTagDiv);
@@ -85,10 +87,7 @@ public class ResourceProgressBar extends Div {
 		int value = currentUsage > threshold ? 100 - currentUsage : 100 - threshold;
 		thresholdLine.setWidth(value + "%");
 		thresholdLine.setHeightFull();
-		thresholdLine.getStyle().set("background-color", "blanchedalmond");
 		thresholdLine.getStyle().set("margin", "0");
-		thresholdLine.getStyle().set("border-top-right-radius", "3px");
-		thresholdLine.getStyle().set("border-bottom-right-radius", "3px");
 		return thresholdLine;
 	}
 
@@ -101,17 +100,17 @@ public class ResourceProgressBar extends Div {
 
 		Div topTriangle = new Div();
 		topTriangle.getStyle().set("clip-path", "polygon(50% 100%, 0 0, 100% 0)");
-		topTriangle.getStyle().set("background-color", "red");
+		topTriangle.getStyle().set("background-color", "#8F2D56");
 		topTriangle.getStyle().set("margin-top" ,"-0.1em");
 		topTriangle.getStyle().set("width" ,"0.4em");
-		topTriangle.getStyle().set("height" ,"0.3em");
+		topTriangle.getStyle().set("height" ,"0.5em");
 
 		Div bottomTriangle = new Div();
 		bottomTriangle.getStyle().set("clip-path", "polygon(0% 100%, 50% 0%, 100% 100%)");
-		bottomTriangle.getStyle().set("background-color", "red");
+		bottomTriangle.getStyle().set("background-color", "#8F2D56");
 		bottomTriangle.getStyle().set("margin-bottom" ,"-0.1em");
 		bottomTriangle.getStyle().set("width" ,"0.4em");
-		bottomTriangle.getStyle().set("height" ,"0.3em");
+		bottomTriangle.getStyle().set("height" ,"0.5em");
 		triangles.add(topTriangle, bottomTriangle);
 		return triangles;
 	}
