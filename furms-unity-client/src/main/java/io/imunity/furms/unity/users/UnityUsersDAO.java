@@ -176,7 +176,7 @@ class UnityUsersDAO implements UsersDAO {
 	private Map<ResourceId, Set<UserAttribute>> toFurmsAttributesMap(
 			Map<ResourceId, Set<Attribute>> unityAttributesMap) {
 		return unityAttributesMap.entrySet().stream()
-				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> toFurmsAttributes(entry.getValue())));
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> toFurmsAttributes(entry.getValue())));
 	}
 	
 	private Set<UserAttribute> toFurmsAttributes(Collection<Attribute> unityAttributes) {

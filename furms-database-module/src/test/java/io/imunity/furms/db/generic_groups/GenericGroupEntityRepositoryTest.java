@@ -237,7 +237,7 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.communityId(communityId)
 			.description("description")
 			.build();
-		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
+		entityRepository.save(genericGroupEntity);
 
 		Set<GenericGroupEntityWithMembershipAmount> allWithAssignmentAmount = entityRepository.findAllWithAssignmentAmount(communityId);
 
@@ -263,7 +263,7 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.communityId(communityId)
 			.description("description2")
 			.build();
-		GenericGroupEntity savedGroup1 = entityRepository.save(genericGroupEntity1);
+		entityRepository.save(genericGroupEntity1);
 
 		GenericGroupMembershipEntity genericGroupMembershipEntity = GenericGroupMembershipEntity.builder()
 			.userId("userId")
@@ -275,8 +275,8 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.genericGroupId(savedGroup.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupMembershipEntity save = membershipEntityRepository.save(genericGroupMembershipEntity);
-		GenericGroupMembershipEntity save1 = membershipEntityRepository.save(genericGroupMembershipEntity1);
+		membershipEntityRepository.save(genericGroupMembershipEntity);
+		membershipEntityRepository.save(genericGroupMembershipEntity1);
 
 		Set<GenericGroupEntityWithMembership> allAssignments = entityRepository.findAllAssignments(communityId, savedGroup.getId());
 
@@ -323,8 +323,8 @@ class GenericGroupEntityRepositoryTest extends DBIntegrationTest {
 			.genericGroupId(save2.getId())
 			.memberSince(LocalDateTime.now())
 			.build();
-		GenericGroupMembershipEntity save = membershipEntityRepository.save(genericGroupMembershipEntity);
-		GenericGroupMembershipEntity save1 = membershipEntityRepository.save(genericGroupMembershipEntity1);
+		membershipEntityRepository.save(genericGroupMembershipEntity);
+		membershipEntityRepository.save(genericGroupMembershipEntity1);
 
 		Set<GenericGroupEntityWithMembership> allAssignments = entityRepository.findAllAssignments("userId");
 

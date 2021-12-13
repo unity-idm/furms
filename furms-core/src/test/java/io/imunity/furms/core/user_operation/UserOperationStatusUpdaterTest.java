@@ -18,11 +18,12 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserOperationStatusUpdaterTest {
 	@Mock
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
@@ -64,7 +66,6 @@ class UserOperationStatusUpdaterTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new UserOperationStatusUpdaterImpl(siteAgentResourceAccessService, repository, resourceAccessRepository);
 		orderVerifier = inOrder(repository, resourceAccessRepository, siteAgentResourceAccessService);
 	}

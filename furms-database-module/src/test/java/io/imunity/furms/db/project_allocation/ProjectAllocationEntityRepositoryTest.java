@@ -62,31 +62,25 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationReadEntityRepository entityReadRepository;
 
-	private UUID siteId;
-
 	private UUID communityId;
 
 	private UUID projectId;
 	private UUID projectId2;
 
-	private UUID resourceTypeId;
-
-	private UUID resourceCreditId;
-
 	private UUID communityAllocationId;
 	private UUID communityAllocationId2;
 
-	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
-	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
-	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
-	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
+	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
+	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
+	private final LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
+	private final LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -132,9 +126,9 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
 
-		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
 			.resourceTypeId(resourceTypeId.toString())
 			.name("name")

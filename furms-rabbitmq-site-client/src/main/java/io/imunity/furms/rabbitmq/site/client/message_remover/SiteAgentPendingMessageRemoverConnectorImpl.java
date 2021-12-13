@@ -24,6 +24,7 @@ class SiteAgentPendingMessageRemoverConnectorImpl implements SiteAgentPendingMes
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void remove(CorrelationId correlationId, String json){
 		String type = ((Map<String, ?>) jacksonJsonParser.parseMap(json).get("body")).keySet().stream()
 			.findAny()

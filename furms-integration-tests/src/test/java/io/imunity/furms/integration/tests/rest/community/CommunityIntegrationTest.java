@@ -70,7 +70,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String community2 = createCommunity();
 		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
 		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation3 = createCommunityAllocation(community2, resourceCredit);
+		createCommunityAllocation(community2, resourceCredit);
 
 		final TestUser user = basicUser();
 		user.addCommunityAdmin(community1);
@@ -93,10 +93,10 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldGetAllCommunitiesAsFenixAdmin() throws Exception {
 		//given
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
-		final String community3 = createCommunity();
-		final String community4 = createCommunity();
+		createCommunity();
+		createCommunity();
+		createCommunity();
+		createCommunity();
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities"))
@@ -113,7 +113,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String community2 = createCommunity();
 		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
 		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation3 = createCommunityAllocation(community2, resourceCredit);
+		createCommunityAllocation(community2, resourceCredit);
 
 		communityAdmin.addCommunityAdmin(community1);
 		setupUser(communityAdmin);
@@ -163,7 +163,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String community2 = createCommunity();
 		final String project1 = createProject(community1);
 		final String project2 = createProject(community1);
-		final String project3 = createProject(community2);
+		createProject(community2);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/projects", community1))
@@ -179,9 +179,9 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		//given
 		final String community1 = createCommunity();
 		final String community2 = createCommunity();
-		final String project1 = createProject(community1);
-		final String project2 = createProject(community1);
-		final String project3 = createProject(community2);
+		createProject(community1);
+		createProject(community1);
+		createProject(community2);
 
 		communityAdmin.addCommunityAdmin(community2);
 		setupUser(communityAdmin);
@@ -228,7 +228,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String community2 = createCommunity();
 		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
 		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation3 = createCommunityAllocation(community2, resourceCredit);
+		createCommunityAllocation(community2, resourceCredit);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations", community1))
@@ -286,7 +286,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
 		final String community = createCommunity();
 		final String communityAllocation1 = createCommunityAllocation(community, resourceCredit);
-		final String communityAllocation2 = createCommunityAllocation(community, resourceCredit);
+		createCommunityAllocation(community, resourceCredit);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations/{communityAllocationId}",

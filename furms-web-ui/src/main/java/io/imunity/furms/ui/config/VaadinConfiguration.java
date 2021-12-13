@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import com.vaadin.componentfactory.IdleNotification;
-import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.SessionInitEvent;
 import com.vaadin.flow.server.UIInitEvent;
@@ -92,9 +91,7 @@ class VaadinConfiguration {
 
 			WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
 			String sessionId = wrappedSession.getId();
-			initEvent.getUI().addDetachListener(event -> {
-				LOG.debug("Closing UI of session {}", sessionId);
-			});
+			initEvent.getUI().addDetachListener(event -> LOG.debug("Closing UI of session {}", sessionId));
 
 			UIInSessionHolder.addUIToSession(initEvent.getUI(), (WrappedHttpSession) wrappedSession);
 			LOG.debug("Saved UI in session {}", sessionId);
@@ -112,7 +109,7 @@ class VaadinConfiguration {
 			}
 		}
 
-		private void sessionInit(SessionInitEvent event) throws ServiceException {
+		private void sessionInit(SessionInitEvent event) {
 			WrappedSession wrappedSession = event.getSession().getSession();
 			wrappedSession.setMaxInactiveInterval(frontConfig.getMaxSessionInactivity());
 			LOG.debug("Session {} created, max inactivity set to {}",

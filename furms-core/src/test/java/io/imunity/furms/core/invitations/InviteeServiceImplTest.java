@@ -6,7 +6,6 @@
 package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.notification.UserInvitationNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -28,9 +27,10 @@ import io.imunity.furms.spi.users.FenixUsersDAO;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
@@ -45,6 +45,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class InviteeServiceImplTest {
 
 	@Mock
@@ -75,7 +76,6 @@ class InviteeServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		invitationService = new InviteeServiceImpl(
 			invitationRepository, authzService, usersDAO, siteGroupDAO, communityGroupsDAO, projectGroupsDAO,
 			projectRepository, publisher, fenixUsersDAO, userInvitationNotificationService

@@ -5,16 +5,22 @@
 
 package io.imunity.furms.core.resource_types;
 
-import io.imunity.furms.domain.resource_types.*;
+import io.imunity.furms.domain.resource_types.CreateResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.RemoveResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.ResourceMeasureType;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.UpdateResourceTypeEvent;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
@@ -23,8 +29,11 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ResourceTypeServiceImplTest {
 	@Mock
 	private ResourceTypeRepository resourceTypeRepository;
@@ -42,7 +51,6 @@ class ResourceTypeServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		ResourceTypeServiceValidator validator = new ResourceTypeServiceValidator(resourceTypeRepository, resourceCreditRepository, infraServiceRepository, siteRepository);
 		service = new ResourceTypeServiceImpl(resourceTypeRepository, validator, publisher);
 		orderVerifier = inOrder(resourceTypeRepository, publisher);
@@ -68,14 +76,6 @@ class ResourceTypeServiceImplTest {
 
 	@Test
 	void shouldNotReturnResourceType() {
-		//given
-		String id = "id";
-		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(ResourceType.builder()
-			.id(id)
-			.name("name")
-			.build())
-		);
-
 		//when
 		Optional<ResourceType> otherId = service.findById("otherId", "");
 
@@ -128,7 +128,6 @@ class ResourceTypeServiceImplTest {
 			.id("id")
 			.name("name")
 			.build();
-		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -151,7 +150,6 @@ class ResourceTypeServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.id)).thenReturn(true);
-		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceTypeRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when

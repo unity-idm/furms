@@ -126,7 +126,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String update(String id, ProjectInstallationResult result) {
+	public void update(String id, ProjectInstallationResult result) {
 		installationRepository.findById(UUID.fromString(id))
 			.map(job -> ProjectInstallationJobEntity.builder()
 				.id(job.getId())
@@ -139,11 +139,10 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.message(result.error.message)
 				.build())
 			.ifPresent(installationRepository::save);
-		return id;
 	}
 
 	@Override
-	public String update(String id, ProjectUpdateResult result) {
+	public void update(String id, ProjectUpdateResult result) {
 		updateRepository.findById(UUID.fromString(id))
 			.map(job -> ProjectUpdateJobEntity.builder()
 				.id(job.getId())
@@ -155,7 +154,6 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				.message(result.error.message)
 				.build())
 			.ifPresent(updateRepository::save);
-		return id;
 	}
 
 	@Override

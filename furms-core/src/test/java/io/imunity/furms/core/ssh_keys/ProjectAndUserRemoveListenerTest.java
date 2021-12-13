@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
@@ -108,9 +108,9 @@ public class ProjectAndUserRemoveListenerTest {
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
 		listener.onProjectRemove(new RemoveProjectEvent(projectUUID.toString(),
-				Arrays.asList(FURMSUser.builder().email("demo@test.com")
-						.fenixUserId(new FenixUserId("id")).id(new PersistentId("id"))
-						.build())));
+			Collections.singletonList(FURMSUser.builder().email("demo@test.com")
+				.fenixUserId(new FenixUserId("id")).id(new PersistentId("id"))
+				.build())));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
 		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");

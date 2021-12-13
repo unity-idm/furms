@@ -88,7 +88,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 
 		//when+then
@@ -130,7 +130,7 @@ class ProjectAllocationServiceImplValidatorTest {
 
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-			.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+			.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 			.build()));
 
 		//when+then
@@ -151,7 +151,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
@@ -184,7 +184,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(false);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
@@ -215,7 +215,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(false);
 		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
@@ -260,12 +260,12 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findByIdWithRelatedObjects(projectAllocation.communityAllocationId))
 				.thenReturn(Optional.of(CommunityAllocationResolved.builder()
 						.resourceCredit(ResourceCredit.builder()
-								.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1l))
+								.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1L))
 								.build())
 						.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
@@ -311,7 +311,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusDays(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusDays(1L))
 				.build()));
 
 		//when+then
@@ -531,7 +531,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(projectInstallationService.isProjectInTerminalState(projectAllocation.projectId)).thenReturn(true);
 
@@ -640,7 +640,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1L))
 				.build()));
 
 		//when+then
@@ -662,7 +662,7 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
-				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(projectInstallationService.isProjectInTerminalState(projectAllocation.projectId)).thenReturn(false);
 

@@ -15,9 +15,10 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import static io.imunity.furms.domain.project_installation.ProjectInstallationSt
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectInstallationStatusUpdaterTest {
 	@Mock
 	private ProjectOperationRepository repository;
@@ -38,7 +40,6 @@ class ProjectInstallationStatusUpdaterTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService);
 		orderVerifier = inOrder(repository, projectAllocationInstallationService);
 	}

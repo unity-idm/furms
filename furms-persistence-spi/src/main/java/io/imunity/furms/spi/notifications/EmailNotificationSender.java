@@ -10,16 +10,21 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 
-public interface EmailNotificationDAO {
+public interface EmailNotificationSender {
 	void notifyUserAboutNewPolicy(PersistentId id, PolicyDocument policyDocument);
-	void notifyUserAboutNewRole(PersistentId id, Role role);
-	void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail);
-	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);
 	void notifyAboutChangedPolicy(PersistentId userId, String policyDocumentName);
 	void notifyAboutNotAcceptedPolicy(FenixUserId userId, String policyName);
 	void notifySiteUserAboutPolicyAssignmentChange(FenixUserId userId, String policyName);
 
+	void notifyUserAboutNewRole(PersistentId id, Role role);
+	void notifyAdminAboutRoleAcceptance(PersistentId id, Role role, String acceptanceUserEmail);
+	void notifyAdminAboutRoleRejection(PersistentId id, Role role, String rejectionUserEmail);
+
 	void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail);
 	void notifyUserAboutApplicationAcceptance(PersistentId id, String projectName);
 	void notifyUserAboutApplicationRejection(PersistentId id, String projectName);
+
+	void notifyProjectAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
+	void notifyProjectUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
+	void notifyUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName);
 }

@@ -5,18 +5,17 @@
 
 package io.imunity.furms.ui.user_context;
 
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.ZoneId;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.UI;
 
 public class UIContext {
 	
@@ -56,8 +55,14 @@ public class UIContext {
 		LOG.debug("Initializing zone");
 		CompletableFuture<ZoneId> zone = new CompletableFuture<>();
 		ui.getPage().retrieveExtendedClientDetails(cd -> {
-			LOG.debug("Zone initialized to {}", cd.getTimeZoneId());
-			zone.complete(zone == null ? DEFAULT_ZONE_ID : ZoneId.of(cd.getTimeZoneId()));
+			if (cd != null) {
+				String retrivedTZ = cd.getTimeZoneId();
+				LOG.debug("Zone initialized to {}", retrivedTZ);
+				zone.complete(retrivedTZ == null ? DEFAULT_ZONE_ID : ZoneId.of(retrivedTZ));
+			} else {
+				LOG.debug("Can't retrieve extended client details");
+				zone.complete(DEFAULT_ZONE_ID);
+			}
 		});
 
 		new UIContext(zone).setAsCurrent(ui);

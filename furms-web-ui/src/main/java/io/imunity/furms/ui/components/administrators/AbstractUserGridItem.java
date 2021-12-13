@@ -3,8 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.domain.site_agent;
+package io.imunity.furms.ui.components.administrators;
 
-public enum AckStatus {
-	ACK, NON_ACK
+interface AbstractUserGridItem {
 }

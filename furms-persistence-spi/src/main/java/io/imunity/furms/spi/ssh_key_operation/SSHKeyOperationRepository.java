@@ -20,7 +20,7 @@ public interface SSHKeyOperationRepository {
 
 	String create(SSHKeyOperationJob projectInstallationJob);
 
-	String update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
+	void update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
 
 	void delete(String id);
 

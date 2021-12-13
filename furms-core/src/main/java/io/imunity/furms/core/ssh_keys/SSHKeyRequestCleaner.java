@@ -41,7 +41,7 @@ class SSHKeyRequestCleaner {
 	}
 
 	private void sheduleCleanStaleRequests() {
-		scheduler.scheduleWithFixedDelay(() -> cleanStaleRequest(),
+		scheduler.scheduleWithFixedDelay(this::cleanStaleRequest,
 				configuration.cleanStaleRequestsAfter.toMillis() / 10);
 	}
 

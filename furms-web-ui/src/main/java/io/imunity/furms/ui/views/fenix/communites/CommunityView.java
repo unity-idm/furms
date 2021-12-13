@@ -55,7 +55,6 @@ public class CommunityView extends FurmsViewComponent {
 	private BreadCrumbParameter breadCrumbParameter;
 
 	private Div page1;
-	private Div page2;
 
 	private UsersGridComponent grid;
 
@@ -70,7 +69,7 @@ public class CommunityView extends FurmsViewComponent {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
-		page2 = new CommunityAllocationComponent(allocationService, communityId).getContent();
+		Div page2 = new CommunityAllocationComponent(allocationService, communityId).getContent();
 
 		RouterLink adminsRouterLink = new RouterLink(getTranslation("view.fenix-admin.community.tab.1"), CommunityView.class);
 		adminsRouterLink.setQueryParameters(QueryParameters.simple(Map.of(PARAM_NAME, ADMINISTRATORS_PARAM)));

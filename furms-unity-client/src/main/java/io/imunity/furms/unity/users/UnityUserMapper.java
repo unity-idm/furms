@@ -28,7 +28,7 @@ import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
 import static pl.edu.icm.unity.types.basic.EntityState.valid;
 
@@ -142,7 +142,7 @@ public class UnityUserMapper {
 	}
 
 	private static UserStatus getStatus(String entityState) {
-		return !isEmpty(entityState) && (entityState.equals(valid.name()) || entityState.equals(onlyLoginPermitted.name()))
+		return hasText(entityState) && (entityState.equals(valid.name()) || entityState.equals(onlyLoginPermitted.name()))
 				? ENABLED
 				: DISABLED;
 	}

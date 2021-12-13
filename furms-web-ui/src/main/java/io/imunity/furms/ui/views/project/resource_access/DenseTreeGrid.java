@@ -16,7 +16,7 @@ public class DenseTreeGrid<T> extends TreeGrid<T> {
 	}
 
 	private void setDefaults() {
-		setHeightByRows(true);
+		setAllRowsVisible(true);
 		addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 		addClassName("dense-grid");

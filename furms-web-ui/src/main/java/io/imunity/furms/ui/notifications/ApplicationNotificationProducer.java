@@ -26,16 +26,16 @@ class ApplicationNotificationProducer implements NotificationProducer{
 	public Stream<NotificationBarElement> findAllCurrentUserNotifications() {
 		return projectApplicationsService.findAllApplicationsUsersForCurrentProjectAdmins().stream()
 			.map(projectApplication ->
-				new NotificationBarElement(
-					getTranslation(
+				NotificationBarElement.builder()
+					.text(getTranslation(
 						"notifications.new.application",
 						projectApplication.user.email,
 						projectApplication.projectName
-					),
-					ViewMode.PROJECT,
-					UsersView.class,
-					projectApplication.projectId
-				)
-			);
+					))
+					.viewMode(ViewMode.PROJECT)
+					.redirect(UsersView.class)
+					.resourceId(projectApplication.projectId)
+					.build()
+				);
 	}
 }

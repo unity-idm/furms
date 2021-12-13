@@ -62,9 +62,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 		unitComboBox = new ComboBox<>();
 		unitComboBox.setItemLabelGenerator(ResourceMeasureUnit::name);
-		typeComboBox.addValueChangeListener(event -> {
-			unitComboBox.setItems(event.getValue().units);
-		});
+		typeComboBox.addValueChangeListener(event -> unitComboBox.setItems(event.getValue().units));
 		formLayout.addFormItem(unitComboBox, getTranslation("view.site-admin.resource-types.form.combo-box.unit"));
 
 		accessibleCheckbox = new Checkbox(getTranslation("view.site-admin.resource-types.form.checkbox.accessible"));

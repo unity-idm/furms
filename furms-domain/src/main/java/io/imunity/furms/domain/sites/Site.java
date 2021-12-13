@@ -70,7 +70,7 @@ public class Site {
 	}
 	
 	public boolean isSshKeyHistoryActive(){
-		return sshKeyHistoryLength == null || sshKeyHistoryLength.equals(0) ? false : true;
+		return sshKeyHistoryLength != null && !sshKeyHistoryLength.equals(0);
 	}
 
 	public PolicyId getPolicyId() {

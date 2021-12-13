@@ -5,35 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.lang.invoke.MethodHandles;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -49,7 +20,6 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
@@ -71,23 +41,50 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "users/settings/ssh/keys", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.page.title")
 public class SSHKeysView extends FurmsViewComponent implements AfterNavigationObserver {
 
-	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SSHKeyService sshKeysService;
 	private final SSHKeyOperationService sshKeyInstallationService;
 	private final Grid<SSHKeyViewModel> grid;
 	private final SiteComboBoxModelResolver resolver;
-	private ZoneId zoneId;
+	private final ZoneId zoneId;
 	private boolean userWithoutSites = false;
 
 	SSHKeysView(SSHKeyService sshKeysService, AuthzService authzService, SiteService siteService,
-			SSHKeyOperationService sshKeyInstallationService) throws InterruptedException, ExecutionException {
+			SSHKeyOperationService sshKeyInstallationService) {
 		this.sshKeysService = sshKeysService;
 		this.sshKeyInstallationService = sshKeyInstallationService;
 		this.grid = createSSHKeysGrid();
@@ -172,7 +169,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		sshKey.sites.stream()
 				.filter(s -> !(s.keyOperation.equals(SSHKeyOperation.REMOVE)
 						&& s.keyOperationStatus.equals(SSHKeyOperationStatus.DONE)))
-				.sorted((s1, s2) -> resolver.getName(s1.id).compareTo(resolver.getName(s2.id)))
+				.sorted(comparing(s -> resolver.getName(s.id)))
 				.forEach(s -> formLayout.add(new NoWrapLabel(resolver.getName(s.id) + ": "
 						+ mapToStatus(s.keyOperation, s.keyOperationStatus, s.error))));
 		VerticalLayout wrap = new VerticalLayout(layout);
@@ -272,9 +269,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		List<SSHKeyViewModel> models = loadSSHKeysViewsModels();
 		grid.setItems(models);
 		Optional<SSHKeyViewModel> selectedModel = models.stream().filter(m -> m.id.equals(key.id)).findAny();
-		if (selectedModel.isPresent()) {
-			grid.setDetailsVisible(selectedModel.get(), details);
-		}
+		selectedModel.ifPresent(sshKeyViewModel -> grid.setDetailsVisible(sshKeyViewModel, details));
 	}
 
 	@Override
@@ -303,7 +298,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		try {
 			setVisible(true);
 			return sshKeysService.findOwned().stream().map(
-					key -> SSHKeyViewModelMapper.map(key, zoneId, (k) -> getKeyStatus(k)))
+					key -> SSHKeyViewModelMapper.map(key, zoneId, this::getKeyStatus))
 					.sorted(comparing(sshKeyModel -> sshKeyModel.name.toLowerCase()))
 					.collect(toList());
 		} catch (AccessDeniedException e) {

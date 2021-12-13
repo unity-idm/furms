@@ -225,9 +225,7 @@ public class SettingsView extends FurmsViewComponent {
 			refreshBinder(binder);
 			formButtons.setVisible(false);
 		});
-		save.addClickListener(event -> {
-			doSaveAction(binder, formButtons);
-		});
+		save.addClickListener(event -> doSaveAction(binder, formButtons));
 
 		binder.addValueChangeListener(value -> {
 			if (isChanged(binder.getBean())) {

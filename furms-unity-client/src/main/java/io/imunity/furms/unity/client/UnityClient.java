@@ -134,7 +134,7 @@ public class UnityClient {
 
 	private MultiValueMap<String, String> createStringParams(Map<String, String> queryParams) {
 		Map<String, List<String>> mutatedQueryParams = queryParams.entrySet().stream()
-				.collect(toMap(entry -> entry.getKey(), entry -> List.of(entry.getValue().toString())));
+				.collect(toMap(Map.Entry::getKey, entry -> List.of(entry.getValue())));
 		return new LinkedMultiValueMap<>(mutatedQueryParams);
 	}
 	

@@ -65,23 +65,20 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationChunkEntityRepository entityRepository;
 
-	private UUID siteId;
-
 	private UUID projectId;
-	private UUID projectId2;
 
 	private UUID projectAllocationId;
 	private UUID projectAllocationId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
@@ -117,7 +114,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		UUID projectId2 = UUID.fromString(projectRepository.create(project2));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())

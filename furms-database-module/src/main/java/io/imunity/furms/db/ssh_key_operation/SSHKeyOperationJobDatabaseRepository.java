@@ -84,7 +84,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public String update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime originationTime) {
+	public void update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime originationTime) {
 		repository.findById(UUID.fromString(id))
 				.map(job -> SSHKeyOperationJobEntity.builder().id(job.getId())
 						.correlationId(job.correlationId).siteId(job.siteId)
@@ -93,7 +93,6 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 						.originationTime(originationTime)
 						.build())
 				.ifPresent(repository::save);
-		return id;
 	}
 
 	@Override

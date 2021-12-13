@@ -6,23 +6,6 @@
 package io.imunity.furms.db.invitations;
 
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -30,6 +13,23 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FenixUserId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
@@ -331,7 +331,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 		InvitationId invitationId = invitationDatabaseRepository.create(invitation);
 
 		Optional<InvitationEntity> invitationEntity = entityRepository.findById(invitationId.id);
-		assertEquals(true, invitationEntity.isPresent());
+		assertTrue(invitationEntity.isPresent());
 		assertEquals(invitation.resourceId.id, invitationEntity.get().resourceId);
 		assertEquals(invitation.resourceId.type.getPersistentId(), invitationEntity.get().resourceType);
 		assertEquals(invitation.resourceName, invitationEntity.get().resourceName);
@@ -436,6 +436,6 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		invitationDatabaseRepository.deleteBy(new InvitationCode("code"));
 
-		assertEquals(false, entityRepository.findAll().iterator().hasNext());
+		assertFalse(entityRepository.findAll().iterator().hasNext());
 	}
 }

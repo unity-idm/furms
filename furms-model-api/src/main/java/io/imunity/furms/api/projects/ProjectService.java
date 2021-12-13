@@ -68,6 +68,8 @@ public interface ProjectService {
 
 	List<FURMSUser> findAllUsers(String communityId, String projectId);
 
+	List<FURMSUser> findAllUsers(String projectId);
+
 	Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId);
 
 	boolean isUser(String projectId);

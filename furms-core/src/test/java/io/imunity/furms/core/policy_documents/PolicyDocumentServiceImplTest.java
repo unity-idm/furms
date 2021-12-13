@@ -6,7 +6,6 @@
 package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.notification.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -30,10 +29,11 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
@@ -48,6 +48,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PolicyDocumentServiceImplTest {
 
 	@Mock
@@ -78,7 +79,6 @@ class PolicyDocumentServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new PolicyDocumentServiceImpl(
 			authzService, repository, validator, policyDocumentDAO, policyNotificationService,
 			siteAgentPolicyDocumentService, siteRepository,
@@ -290,13 +290,10 @@ class PolicyDocumentServiceImplTest {
 			.siteId("siteId")
 			.revision(1)
 			.build();
-		Site site = Site.builder()
-			.build();
 
-		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
+
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
@@ -309,10 +306,6 @@ class PolicyDocumentServiceImplTest {
 	void shouldSendUserPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		Site site = Site.builder()
-			.id("siteId")
-			.policyId(policyId)
-			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.revision(1)
@@ -326,9 +319,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build();
 
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
@@ -340,10 +331,6 @@ class PolicyDocumentServiceImplTest {
 	void shouldAddPolicyToUserWithCurrentRevision() {
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		Site site = Site.builder()
-			.id("siteId")
-			.policyId(policyId)
-			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.revision(1)
@@ -356,9 +343,7 @@ class PolicyDocumentServiceImplTest {
 			.email("email")
 			.fenixUserId(userId).build();
 
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
@@ -394,7 +379,6 @@ class PolicyDocumentServiceImplTest {
 
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
-		when(authzService.getCurrentAuthNUser()).thenReturn(furmsUser);
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));

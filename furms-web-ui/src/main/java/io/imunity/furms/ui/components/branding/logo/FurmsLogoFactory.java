@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 public class FurmsLogoFactory {
 
-	private List<FurmsLogoProvider> providers;
+	private final List<FurmsLogoProvider> providers;
 
 	FurmsLogoFactory(List<FurmsLogoProvider> providers) {
 		this.providers = providers;

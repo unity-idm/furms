@@ -36,9 +36,9 @@ class PresetUser extends User implements FURMSUserProvider {
 		);
 	}
 
-	PresetUser(String username, String password,
-	           Collection<? extends GrantedAuthority> authorities,
-	           FURMSUser furmsUser) {
+	private PresetUser(String username, String password,
+	                   Collection<? extends GrantedAuthority> authorities,
+	                   FURMSUser furmsUser) {
 		super(username, password, authorities);
 		this.furmsUser = furmsUser;
 	}

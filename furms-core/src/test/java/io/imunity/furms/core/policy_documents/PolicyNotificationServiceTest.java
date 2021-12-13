@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.core.notification;
+package io.imunity.furms.core.policy_documents;
 
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
@@ -17,7 +17,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.notifications.EmailNotificationDAO;
+import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
@@ -48,7 +48,7 @@ class PolicyNotificationServiceTest {
 	@Mock
 	private UserOperationRepository userOperationRepository;
 	@Mock
-	private EmailNotificationDAO emailNotificationDAO;
+	private EmailNotificationSender emailNotificationSender;
 	@Mock
 	private SiteGroupDAO siteGroupDAO;
 	@Mock
@@ -85,7 +85,7 @@ class PolicyNotificationServiceTest {
 
 		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 
-		verify(emailNotificationDAO).notifyAboutChangedPolicy(id, "policyName");
+		verify(emailNotificationSender).notifyAboutChangedPolicy(id, "policyName");
 	}
 
 	@Test
@@ -116,7 +116,7 @@ class PolicyNotificationServiceTest {
 
 		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 
-		verify(emailNotificationDAO, times(0)).notifyAboutChangedPolicy(id, "policyName");
+		verify(emailNotificationSender, times(0)).notifyAboutChangedPolicy(id, "policyName");
 	}
 
 	@Test
@@ -144,7 +144,7 @@ class PolicyNotificationServiceTest {
 
 		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
+		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
 
 	@Test
@@ -180,8 +180,8 @@ class PolicyNotificationServiceTest {
 
 		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
 
-		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "sitePolicyName");
-		verify(emailNotificationDAO).notifyAboutNotAcceptedPolicy(fenixUserId, "servicePolicyName");
+		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "sitePolicyName");
+		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "servicePolicyName");
 	}
 
 	@Test
@@ -208,14 +208,13 @@ class PolicyNotificationServiceTest {
 
 		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
 
-		verify(emailNotificationDAO, times(0)).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
+		verify(emailNotificationSender, times(0)).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
 
 	@Test
 	void shouldNotifyAllInstalledUsersAndAttachedUsersInUnityGroupAboutSitePolicyChange() {
 		//given
 		final FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		final PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		final SiteId siteId = new SiteId(UUID.randomUUID().toString());
 
 		final PolicyDocument policyDocument = PolicyDocument.builder()
@@ -236,14 +235,13 @@ class PolicyNotificationServiceTest {
 		//when
 		policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(siteId);
 
-		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
+		verify(emailNotificationSender).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}
 
 	@Test
 	void shouldNotifyAllInstalledUsersAndAttachedUsersInUnityGroupAboutSiteServicePolicyChange() {
 		//given
 		final FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		final PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		final SiteId siteId = new SiteId(UUID.randomUUID().toString());
 
 		final PolicyDocument policyDocument = PolicyDocument.builder()
@@ -268,6 +266,6 @@ class PolicyNotificationServiceTest {
 		//when
 		policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(infraService);
 
-		verify(emailNotificationDAO).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
+		verify(emailNotificationSender).notifySiteUserAboutPolicyAssignmentChange(fenixUserId, "name");
 	}
 }

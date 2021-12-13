@@ -64,13 +64,11 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationDatabaseRepository entityDatabaseRepository;
 
 	private UUID siteId;
-	private UUID siteId2;
 
 	private UUID communityId;
 	private UUID communityId2;
 
 	private UUID resourceTypeId;
-	private UUID resourceTypeId2;
 
 	private UUID resourceCreditId;
 	private UUID resourceCreditId2;
@@ -86,7 +84,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.connectionInfo("alala")
 			.build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -128,7 +126,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+		UUID resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
 
 		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())

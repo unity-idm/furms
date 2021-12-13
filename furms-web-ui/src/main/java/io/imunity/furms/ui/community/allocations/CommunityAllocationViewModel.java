@@ -15,7 +15,7 @@ import java.util.Objects;
 public class CommunityAllocationViewModel {
 	private String id;
 	private String communityId;
-	private String communityName;
+	private final String communityName;
 	private ComboBoxModel site;
 	private ResourceTypeComboBoxModel resourceType;
 	private ResourceCreditComboBoxModel resourceCredit;

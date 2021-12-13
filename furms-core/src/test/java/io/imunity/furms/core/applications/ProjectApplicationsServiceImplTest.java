@@ -7,7 +7,6 @@ package io.imunity.furms.core.applications;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
-import io.imunity.furms.core.notification.UserApplicationNotificationService;
 import io.imunity.furms.domain.applications.ProjectApplicationAcceptedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationCreatedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;

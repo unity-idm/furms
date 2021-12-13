@@ -5,34 +5,6 @@
 
 package io.imunity.furms.rest.admin;
 
-import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
-import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
-import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
-import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.flatMapping;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-
-import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
-import io.imunity.furms.rest.user.User;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
@@ -50,9 +22,36 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.rest.user.User;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
+import static io.imunity.furms.rest.admin.AcceptanceStatus.NOT_ACCEPTED;
+import static io.imunity.furms.rest.admin.InstallationStatus.INSTALLED;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.flatMapping;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class SitesRestService {
@@ -330,7 +329,7 @@ class SitesRestService {
 
 	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions, String siteId) {
 		final String uid = userAdditions.stream()
-				.filter(userAddition -> !StringUtils.isEmpty(userAddition.uid))
+				.filter(userAddition -> StringUtils.hasText(userAddition.uid))
 				.findAny()
 				.map(userAddition -> userAddition.uid)
 				.orElseThrow(() -> new IllegalArgumentException("UID not found"));

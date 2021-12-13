@@ -12,17 +12,17 @@ import io.imunity.furms.domain.users.FenixUserId;
 import org.apache.commons.lang3.StringUtils;
 
 class ResourceAccessModel {
-	private String firstName;
-	private String lastName;
-	private String email;
-	private String allocation;
-	private String access;
-	private String status;
-	private SiteId siteId;
-	private String allocationId;
-	private FenixUserId fenixUserId;
-	private boolean accessible;
-	private String message;
+	private final String firstName;
+	private final String lastName;
+	private final String email;
+	private final String allocation;
+	private final String access;
+	private final String status;
+	private final SiteId siteId;
+	private final String allocationId;
+	private final FenixUserId fenixUserId;
+	private final boolean accessible;
+	private final String message;
 
 	ResourceAccessModel(String firstName, String lastName, String email, String allocation, String access, String status,
 	                    boolean accessible, SiteId siteId, String allocationId, FenixUserId fenixUserId, String message) {

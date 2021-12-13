@@ -12,7 +12,6 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -33,28 +32,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.nimbusds.oauth2.sdk.util.CollectionUtils.isNotEmpty;
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.*;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.SEND;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 
@@ -99,9 +92,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	public Optional<SSHKey> findById(String id) {
 		LOG.debug("Getting SSH key with id={}", id);
 		Optional<SSHKey> key = sshKeysRepository.findById(id);
-		if (!key.isEmpty()) {
-			validator.validateOwner(key.get().ownerId);
-		}
+		key.ifPresent(sshKey -> validator.validateOwner(sshKey.ownerId));
 		return key;
 	}
 
@@ -135,20 +126,19 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@Transactional
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	public String create(SSHKey sshKey) {
+	public void create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
 		String created = sshKeysRepository.create(sshKey);
 		SSHKey createdKey = sshKeysRepository.findById(created).orElseThrow(
 				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
 		LOG.info("Created SSHKey in repository: {}", createdKey);
 		addKeyToSites(createdKey);
-		return createdKey.id;
 	}
 
 	@Transactional
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
-	public String update(SSHKey sshKey) {
+	public void update(SSHKey sshKey) {
 		validator.validateUpdate(sshKey);
 		final SSHKey oldKey = sshKeysRepository.findById(sshKey.id)
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey.id));
@@ -156,7 +146,6 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		updateKeyOnSites(getSiteDiff(oldKey, merged), oldKey, merged);
 		String updatedId = sshKeysRepository.update(merged);
 		LOG.info("Update SSH key in repository with ID={}, {}", sshKey.id, merged);
-		return updatedId;
 	}
 
 	@Transactional

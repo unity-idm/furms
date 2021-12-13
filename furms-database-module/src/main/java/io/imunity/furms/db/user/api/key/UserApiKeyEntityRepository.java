@@ -21,5 +21,5 @@ interface UserApiKeyEntityRepository extends CrudRepository<UserApiKeyEntity, UU
 
 	@Modifying
 	@Query("DELETE FROM user_api_key WHERE user_id = :userId")
-	long deleteByUserId(@Param("userId") String userId);
+	void deleteByUserId(@Param("userId") String userId);
 }

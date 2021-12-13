@@ -9,7 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.notification.PolicyNotificationService;
+import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;

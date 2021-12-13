@@ -18,7 +18,6 @@ import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -60,10 +59,10 @@ public class PolicyAcceptanceMockUtils {
 
 	private MultiGroupMembers.EntityGroupAttributes createEntityGroupInformation(String path, PolicyUser policyAcceptance) {
 		try {
-			final List<AttributeExt> attributes = new ArrayList<>(policyAcceptance.user.getAttributes().values().stream()
-					.flatMap(Collection::stream)
-					.map(attribute -> new AttributeExt(attribute, true))
-					.collect(toList()));
+			final List<AttributeExt> attributes = policyAcceptance.user.getAttributes().values().stream()
+				.flatMap(Collection::stream)
+				.map(attribute -> new AttributeExt(attribute, true))
+				.collect(toList());
 			attributes.add(new AttributeExt(new Attribute(
 					FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
 					path,

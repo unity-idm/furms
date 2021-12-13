@@ -22,7 +22,7 @@ public interface ResourceTypeRepository {
 
 	String create(ResourceType resourceType);
 
-	String update(ResourceType resourceType);
+	void update(ResourceType resourceType);
 
 	boolean exists(String id);
 

@@ -54,17 +54,16 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	private ResourceCreditEntityRepository entityRepository;
 
 	private UUID siteId;
-	private UUID siteId2;
 
 	private UUID resourceTypeId;
 	private UUID resourceTypeId2;
 
-	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
-	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
-	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
-	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
-	private LocalDateTime createTime = LocalDateTime.of(2020, 1, 30, 5, 8, 8);
-	private LocalDateTime createTime2 = LocalDateTime.of(2021, 8, 23, 8, 18, 18);
+	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
+	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
+	private final LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
+	private final LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
+	private final LocalDateTime createTime = LocalDateTime.of(2020, 1, 30, 5, 8, 8);
+	private final LocalDateTime createTime2 = LocalDateTime.of(2021, 8, 23, 8, 18, 18);
 
 	@BeforeEach
 	void init() {
@@ -75,7 +74,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name2")
 			.build();
 		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
 
 		InfraService service = InfraService.builder()
 			.siteId(siteId.toString())

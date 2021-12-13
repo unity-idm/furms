@@ -34,7 +34,7 @@ class SiteAgentSSHKeyOperationServiceTest extends IntegrationTestBase {
 	private SSHKeyOperationStatusUpdater sshKeyOperationService;
 
 	@Test
-	void shouldAddKey() throws ExecutionException, InterruptedException {
+	void shouldAddKey() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		siteAgent.addSSHKey(correlationId, SSHKeyAddition.builder().siteExternalId(new SiteExternalId("mock"))
@@ -47,7 +47,7 @@ class SiteAgentSSHKeyOperationServiceTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldRemoveKey() throws ExecutionException, InterruptedException {
+	void shouldRemoveKey() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		siteAgent.removeSSHKey(correlationId, SSHKeyRemoval.builder().siteExternalId(new SiteExternalId("mock"))
@@ -60,7 +60,7 @@ class SiteAgentSSHKeyOperationServiceTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldUpdateKey() throws ExecutionException, InterruptedException {
+	void shouldUpdateKey() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
 		siteAgent.updateSSHKey(correlationId,

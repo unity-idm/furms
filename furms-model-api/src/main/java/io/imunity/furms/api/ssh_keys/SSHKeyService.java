@@ -24,9 +24,9 @@ public interface SSHKeyService {
 
 	SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId);
 
-	String create(SSHKey sshKey);
+	void create(SSHKey sshKey);
 
-	String update(SSHKey sshKey);
+	void update(SSHKey sshKey);
 
 	void delete(String id);
 

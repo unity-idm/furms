@@ -39,8 +39,6 @@ class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	private FurmsMethodSecurityMetadataSource getFurmsAbstractMethodSecurityMetadataSource(){
 		ExpressionBasedAnnotationAttributeFactory attributeFactory =
 			new ExpressionBasedAnnotationAttributeFactory(super.getExpressionHandler());
-		FurmsMethodSecurityMetadataSource furmsMethodSecurityMetadataSource =
-			new FurmsMethodSecurityMetadataSource(attributeFactory);
-		return furmsMethodSecurityMetadataSource;
+		return new FurmsMethodSecurityMetadataSource(attributeFactory);
 	}
 }

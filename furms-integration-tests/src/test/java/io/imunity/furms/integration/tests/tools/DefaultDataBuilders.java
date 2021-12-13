@@ -36,6 +36,7 @@ import io.imunity.furms.domain.users.PersistentId;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DefaultDataBuilders {
@@ -79,8 +80,8 @@ public class DefaultDataBuilders {
 				.logo(new FurmsImage("logo".getBytes(), "jpg"))
 				.acronym("DPN")
 				.researchField("DPN")
-				.utcStartTime(LocalDateTime.now().minusMinutes(10l))
-				.utcEndTime(LocalDateTime.now().plusMinutes(10l))
+				.utcStartTime(LocalDateTime.now().minusMinutes(10L))
+				.utcEndTime(LocalDateTime.now().plusMinutes(10L))
 				.leaderId(new PersistentId(UUID.randomUUID().toString()));
 	}
 
@@ -139,9 +140,9 @@ public class DefaultDataBuilders {
 				.resourceTypeId(UUID.randomUUID().toString())
 				.splittable(false)
 				.amount(BigDecimal.TEN)
-				.utcCreateTime(LocalDateTime.now().minusMinutes(10l))
-				.utcStartTime(LocalDateTime.now().minusMinutes(10l))
-				.utcEndTime(LocalDateTime.now().plusMinutes(10l));
+				.utcCreateTime(LocalDateTime.now().minusMinutes(10L))
+				.utcStartTime(LocalDateTime.now().minusMinutes(10L))
+				.utcEndTime(LocalDateTime.now().plusMinutes(10L));
 	}
 
 	public static ResourceType.ResourceTypeBuilder defaultResourceType() {
@@ -164,7 +165,7 @@ public class DefaultDataBuilders {
 				.uid(UUID.randomUUID().toString())
 				.userId(UUID.randomUUID().toString())
 				.status(UserStatus.ADDED)
-				.errorMessage(null);
+				.errorMessage(Optional.empty());
 	}
 
 	public static InfraService.ServiceBuilder defaultService() {
