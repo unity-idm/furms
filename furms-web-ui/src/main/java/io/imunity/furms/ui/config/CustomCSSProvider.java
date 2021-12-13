@@ -17,11 +17,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
+import static java.lang.String.format;
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 import static org.springframework.util.ResourceUtils.FILE_URL_PREFIX;
 
 @Configuration
-public class CustomCSSProvider implements WebMvcConfigurer {
+class CustomCSSProvider implements WebMvcConfigurer {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final Resource externalCSSResource;
@@ -42,18 +43,26 @@ public class CustomCSSProvider implements WebMvcConfigurer {
 					LOG.error("Custom CSS File is not available to load and configure ({})", externalCSSResource);
 				}
 			} catch (IOException exception) {
-				LOG.error("Could not load custom CSS file: ", exception);
+				try {
+					LOG.error(format("Could not load custom CSS file: %s", externalCSSResource.getFile().getPath()), exception);
+				} catch (IOException e) {
+					LOG.error("Unexpected error during panel loading:", exception);
+				}
 			}
 		}
 	}
 
-	public void initAndAttach(final UI uiToAttachStyle) {
+	void initAndAttach(final UI uiToAttachStyle) {
 		try {
 			if (externalCSSResource != null && isCustomCssFileAvailable()) {
 				uiToAttachStyle.getPage().addStyleSheet("/extra-style/" + externalCSSResource.getFilename());
 			}
 		} catch (final IOException exception) {
-			LOG.error("Could not load custom CSS file: ", exception);
+			try {
+				LOG.error(format("Could not load custom CSS file: %s", externalCSSResource.getFile().getPath()), exception);
+			} catch (IOException e) {
+				LOG.error("Unexpected error during panel loading:", exception);
+			}
 		}
 	}
 
