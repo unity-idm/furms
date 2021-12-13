@@ -17,7 +17,7 @@ public class SparseGrid<T> extends Grid<T> {
 	}
 
 	private void setDefaults() {
-		setHeightByRows(true);
+		setAllRowsVisible(true);
 		addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		addClassName("sparse-grid");
 	}

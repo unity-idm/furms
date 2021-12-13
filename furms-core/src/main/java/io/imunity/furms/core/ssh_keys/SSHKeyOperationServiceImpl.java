@@ -136,8 +136,7 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 
 	private void removeSSHKeyIfRemovedFromLastSite(SSHKeyOperationJob operationJob) {
 		List<SSHKeyOperationJob> keysOperations = sshKeyOperationRepository.findBySSHKey(operationJob.sshkeyId);
-		if (!keysOperations.stream().filter(o -> !o.operation.equals(REMOVE) || !o.status.equals(DONE))
-				.findAny().isPresent()) {
+		if (keysOperations.stream().noneMatch(o -> !o.operation.equals(REMOVE) || !o.status.equals(DONE))) {
 			for (SSHKeyOperationJob job : keysOperations) {
 				sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(job.sshkeyId, job.siteId);
 			}

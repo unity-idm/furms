@@ -17,7 +17,6 @@ import java.util.Set;
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Optional.ofNullable;
 
 public class FURMSUser {
@@ -60,7 +59,7 @@ public class FURMSUser {
 		if(roles == null)
 			return emptyMap();
 		Map<ResourceId, Set<Role>> newRoles = new HashMap<>(roles.size());
-		roles.forEach((key, value) -> newRoles.put(key, unmodifiableSet(Set.copyOf(value))));
+		roles.forEach((key, value) -> newRoles.put(key, Set.copyOf(value)));
 		return unmodifiableMap(newRoles);
 	}
 

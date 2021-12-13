@@ -20,7 +20,7 @@ import static java.util.Optional.empty;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class CommunityAllocationDatabaseRepository implements CommunityAllocationRepository {
@@ -119,8 +119,8 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public String update(CommunityAllocation allocation) {
-		return repository.findById(UUID.fromString(allocation.id))
+	public void update(CommunityAllocation allocation) {
+		repository.findById(UUID.fromString(allocation.id))
 			.map(oldCommunityAllocation -> CommunityAllocationEntity.builder()
 				.id(oldCommunityAllocation.getId())
 				.communityId(UUID.fromString(allocation.communityId))

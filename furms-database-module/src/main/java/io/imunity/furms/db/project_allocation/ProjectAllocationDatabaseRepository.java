@@ -25,7 +25,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
@@ -130,8 +130,8 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	}
 
 	@Override
-	public String update(ProjectAllocation projectAllocation) {
-		return repository.findById(UUID.fromString(projectAllocation.id))
+	public void update(ProjectAllocation projectAllocation) {
+		repository.findById(UUID.fromString(projectAllocation.id))
 			.map(oldProjectAllocation -> ProjectAllocationEntity.builder()
 				.id(oldProjectAllocation.getId())
 				.projectId(UUID.fromString(projectAllocation.projectId))

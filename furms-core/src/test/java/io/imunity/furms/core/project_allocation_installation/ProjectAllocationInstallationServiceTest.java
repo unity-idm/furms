@@ -17,9 +17,10 @@ import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationIns
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -31,6 +32,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectAllocationInstallationServiceTest {
 	@Mock
 	private ProjectAllocationInstallationRepository repository;
@@ -54,7 +56,6 @@ class ProjectAllocationInstallationServiceTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new ProjectAllocationInstallationService(repository, projectAllocationRepository, siteAgentProjectAllocationInstallationService);
 		orderVerifier = inOrder(repository, siteAgentProjectAllocationInstallationService, projectAllocationRepository);
 	}

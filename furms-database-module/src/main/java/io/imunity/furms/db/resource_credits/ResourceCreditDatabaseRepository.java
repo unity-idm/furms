@@ -20,7 +20,7 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
@@ -94,8 +94,8 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public String update(ResourceCredit credit) {
-		return repository.findById(UUID.fromString(credit.id))
+	public void update(ResourceCredit credit) {
+		repository.findById(UUID.fromString(credit.id))
 			.map(oldResourceCredit -> ResourceCreditEntity.builder()
 				.id(oldResourceCredit.getId())
 				.siteId(UUID.fromString(credit.siteId))

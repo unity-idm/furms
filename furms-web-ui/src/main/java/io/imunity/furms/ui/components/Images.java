@@ -12,7 +12,7 @@ public enum Images {
 
 	private final static String baseResource = "/META-INF/resources";
 
-	private Images(String path) {
+	Images(String path) {
 		this.path = path;
 		this.resourcePath = baseResource + path;
 	}

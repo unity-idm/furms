@@ -199,14 +199,14 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private ValueProvider<CommunityAllocationViewModel, ComboBoxModel> communityBinderGetter(Set<ComboBoxModel> items) {
-		return (ValueProvider<CommunityAllocationViewModel, ComboBoxModel>) viewModel ->
+		return viewModel ->
 				items.stream()
 						.filter(community -> community.getId().equals(viewModel.getCommunityId()))
 						.findFirst().orElse(null);
 	}
 
 	private Setter<CommunityAllocationViewModel, ComboBoxModel> communityBinderSetter() {
-		return (Setter<CommunityAllocationViewModel, ComboBoxModel>) (viewModel, comboBoxModel) ->
+		return (viewModel, comboBoxModel) ->
 			viewModel.setCommunityId(comboBoxModel.getId());
 	}
 

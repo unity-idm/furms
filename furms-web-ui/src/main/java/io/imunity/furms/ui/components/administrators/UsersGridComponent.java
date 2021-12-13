@@ -26,12 +26,10 @@ import static java.util.stream.Collectors.toList;
 public class UsersGridComponent extends VerticalLayout {
 
 	private final UserGrid userGrid;
-	private final SearchLayout searchLayout;
 
 	private UsersGridComponent(UserGrid userGrid, SearchLayout searchLayout) {
 		this.userGrid = userGrid;
-		this.searchLayout = searchLayout;
-		this.searchLayout.addValueChangeGridReloader(this::reloadGrid);
+		searchLayout.addValueChangeGridReloader(this::reloadGrid);
 
 		add(searchLayout);
 		add(userGrid.getGrid());

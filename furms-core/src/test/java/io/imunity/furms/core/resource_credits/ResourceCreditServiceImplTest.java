@@ -23,9 +23,10 @@ import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ResourceCreditServiceImplTest {
 	@Mock
 	private ResourceCreditRepository resourceCreditRepository;
@@ -68,8 +70,7 @@ class ResourceCreditServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
-		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository, 
+		ResourceCreditServiceValidator validator = new ResourceCreditServiceValidator(communityAllocationRepository,
 				resourceCreditRepository, resourceTypeRepository, siteRepository);
 		service = new ResourceCreditServiceImpl(resourceCreditRepository, validator, publisher,
 			communityAllocationServiceHelper, authzService, resourceTypeService, resourceUsageRepository);
@@ -98,14 +99,6 @@ class ResourceCreditServiceImplTest {
 
 	@Test
 	void shouldNotReturnResourceCredit() {
-		//given
-		String id = "id";
-		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(ResourceCredit.builder()
-			.id(id)
-			.name("name")
-			.build())
-		);
-
 		//when
 		Optional<ResourceCreditWithAllocations> otherId = service.findWithAllocationsByIdAndSiteId("otherId", "");
 
@@ -194,8 +187,7 @@ class ResourceCreditServiceImplTest {
 
 		//then
 		assertThat(all).hasSize(2);
-		assertThat(all.stream()
-					.noneMatch(credit -> credit.getId().equals("id2")));
+		assertThat(all.stream().noneMatch(credit -> credit.getId().equals("id2"))).isTrue();
 	}
 
 	@Test
@@ -229,10 +221,12 @@ class ResourceCreditServiceImplTest {
 		ResourceCredit request = ResourceCredit.builder()
 			.id("id")
 			.siteId("siteId")
+			.resourceTypeId("typeId")
 			.name("name")
 			.build();
+		when(siteRepository.exists("siteId")).thenReturn(true);
+		when(resourceTypeRepository.exists("typeId")).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
-		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("use"));
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -256,8 +250,6 @@ class ResourceCreditServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(communityAllocationRepository.getAvailableAmount(request.id)).thenReturn(BigDecimal.ZERO);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
-		when(resourceCreditRepository.exists(request.id)).thenReturn(true);
-		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 		when(resourceCreditRepository.findById(request.id)).thenReturn(Optional.of(request));
 
 		//when
@@ -284,7 +276,6 @@ class ResourceCreditServiceImplTest {
 	void shouldNotAllowToDeleteResourceCreditDueToResourceCreditNotExists() {
 		//given
 		String id = "id";
-		when(resourceCreditRepository.exists(id)).thenReturn(false);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));

@@ -46,7 +46,7 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 @PageTitle(key = "view.user-settings.invitations.page.title")
 public class InvitationsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final Grid<InvitationGridModel> grid;
 	private final ZoneId browserZoneId;

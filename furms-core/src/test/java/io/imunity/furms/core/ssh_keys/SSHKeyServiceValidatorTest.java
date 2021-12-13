@@ -5,24 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
@@ -42,6 +25,20 @@ import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SSHKeyServiceValidatorTest {
@@ -427,8 +424,8 @@ class SSHKeyServiceValidatorTest {
 
 		//given
 		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
-				.thenReturn(Arrays.asList(SSHKeyHistory.builder().siteId("siteId")
-						.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey().getFingerprint()).build()));
+				.thenReturn(Collections.singletonList(SSHKeyHistory.builder().siteId("siteId")
+					.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey().getFingerprint()).build()));
 		// when+then
 		assertThrows(SSHKeyHistoryException.class, () -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
 				getKey()));

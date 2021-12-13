@@ -24,18 +24,15 @@ public class CopyToClipboardStringComponent
 		implements HasValue<CopyToClipboardStringComponent, String>, HasValue.ValueChangeEvent<String> {
 
 	private final Label valueLabel;
-	private final Button button;
 	private final ClipboardHelper clipboardButton;
-
-	private String oldValue;
 
 	public CopyToClipboardStringComponent(String value, String onSuccessMessage) {
 
 		this.valueLabel = new Label(value);
 
-		this.button = new Button(CLIPBOARD.create());
-		this.button.addThemeVariants(LUMO_TERTIARY_INLINE);
-		this.button.addClickListener(e -> showSuccessNotification(onSuccessMessage));
+		Button button = new Button(CLIPBOARD.create());
+		button.addThemeVariants(LUMO_TERTIARY_INLINE);
+		button.addClickListener(e -> showSuccessNotification(onSuccessMessage));
 
 		this.clipboardButton = new ClipboardHelper(value, button);
 
@@ -44,12 +41,12 @@ public class CopyToClipboardStringComponent
 
 	@Override
 	public void setValue(String value) {
-		this.oldValue = getValue();
+		String oldValue = getValue();
 		this.valueLabel.setText(value);
 		this.clipboardButton.setContent(value);
 
 		ComponentUtil.fireEvent(this,
-				new AbstractField.ComponentValueChangeEvent<>(this, this, this.oldValue, true));
+				new AbstractField.ComponentValueChangeEvent<>(this, this, oldValue, true));
 	}
 
 	@Override

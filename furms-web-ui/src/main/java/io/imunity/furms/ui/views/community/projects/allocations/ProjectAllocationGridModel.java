@@ -13,14 +13,14 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 class ProjectAllocationGridModel {
-	public String id;
-	public String projectId;
-	public String siteName;
-	public String resourceTypeName;
-	public String name;
-	public AmountWithUnit amountWithUnit;
-	public AmountWithUnit consumedWithUnit;
-	public PositiveAmountWithUnit remainingWithUnit;
+	public final String id;
+	public final String projectId;
+	public final String siteName;
+	public final String resourceTypeName;
+	public final String name;
+	public final AmountWithUnit amountWithUnit;
+	public final AmountWithUnit consumedWithUnit;
+	public final PositiveAmountWithUnit remainingWithUnit;
 
 	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed) {
 		this.id = id;

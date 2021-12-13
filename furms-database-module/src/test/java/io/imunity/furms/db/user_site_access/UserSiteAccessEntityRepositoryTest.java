@@ -150,7 +150,7 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
 		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
-		UserSiteAccessEntity saved2 = userSiteAccessEntityRepository.save(userSiteAccessEntity2);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
 		Set<UserSiteAccessEntity> entities = userSiteAccessEntityRepository.findAllBySiteIdAndUserId(siteId, "userId");
 
@@ -160,7 +160,7 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllByProjectId(){
 		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
-		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId");
 		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
@@ -176,13 +176,13 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldExistsBySiteIdAndProjectIdAndUserId(){
 		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
-		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId");
-		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
 		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
-		UserSiteAccessEntity saved2 = userSiteAccessEntityRepository.save(userSiteAccessEntity2);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
 		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId1, "userId");
 
@@ -192,13 +192,13 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotExistsBySiteIdAndProjectIdAndUserId(){
 		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
-		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId1");
-		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
 		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
-		UserSiteAccessEntity saved2 = userSiteAccessEntityRepository.save(userSiteAccessEntity2);
+		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
 		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId1, "userId");
 

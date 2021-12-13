@@ -32,10 +32,10 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 	private UUID communityId;
 	private UUID communityId2;
 
-	private LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
-	private LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
-	private LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
-	private LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
+	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
+	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
+	private final LocalDateTime newStartTime = LocalDateTime.of(2020, 8, 3, 4, 7, 5);
+	private final LocalDateTime newEndTime = LocalDateTime.of(2021, 9, 13, 3, 35, 33);
 
 	private byte[] imgTestFile;
 	private byte[] imgTestFile2;

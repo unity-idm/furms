@@ -148,7 +148,7 @@ class GenericGroupMembershipEntityRepositoryTest extends DBIntegrationTest {
 			.genericGroupId(groupId2)
 			.memberSince(LocalDate.now().atStartOfDay().plusDays(2))
 			.build();
-		GenericGroupMembershipEntity savedAssignment2 = membershipEntityRepository.save(membershipEntity2);
+		membershipEntityRepository.save(membershipEntity2);
 
 
 		Set<GenericGroupMembershipEntity> genericGroupAssignmentEntities = membershipEntityRepository.findAllByGenericGroupId(groupId);

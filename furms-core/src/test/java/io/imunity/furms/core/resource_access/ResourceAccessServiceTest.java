@@ -9,7 +9,6 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
@@ -23,17 +22,17 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
@@ -48,6 +47,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ResourceAccessServiceTest {
 	@Mock
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
@@ -79,7 +79,6 @@ class ResourceAccessServiceTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
 		orderVerifier = inOrder(repository, siteAgentResourceAccessService, policyNotificationService, publisher);
 	}
@@ -151,7 +150,6 @@ class ResourceAccessServiceTest {
 			.fenixUserId(fenixUserId)
 			.email("email")
 			.build();
-		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
 
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
@@ -184,7 +182,6 @@ class ResourceAccessServiceTest {
 			.fenixUserId(fenixUserId)
 			.email("email")
 			.build();
-		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
 
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);

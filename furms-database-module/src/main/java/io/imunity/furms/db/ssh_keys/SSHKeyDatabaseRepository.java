@@ -5,24 +5,23 @@
 
 package io.imunity.furms.db.ssh_keys;
 
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.empty;
-import static java.util.UUID.fromString;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.sites.SiteRepository;
+import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.empty;
+import static java.util.UUID.fromString;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class SSHKeyDatabaseRepository implements SSHKeyRepository {

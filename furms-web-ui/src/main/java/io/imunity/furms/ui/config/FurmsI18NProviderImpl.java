@@ -4,9 +4,8 @@
  */
 package io.imunity.furms.ui.config;
 
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toMap;
+import com.vaadin.flow.component.UI;
+import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -14,9 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.springframework.stereotype.Component;
-
-import com.vaadin.flow.component.UI;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 class FurmsI18NProviderImpl implements FurmsI18NProvider {
@@ -30,7 +27,7 @@ class FurmsI18NProviderImpl implements FurmsI18NProvider {
 
 	@Override
 	public List<Locale> getProvidedLocales() {
-		return unmodifiableList(singletonList(DEFAULT_LOCALE));
+		return List.of(DEFAULT_LOCALE);
 	}
 
 	@Override

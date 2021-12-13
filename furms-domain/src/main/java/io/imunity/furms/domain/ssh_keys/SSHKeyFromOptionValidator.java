@@ -5,12 +5,11 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
-import java.util.stream.Stream;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.net.InternetDomainName;
-
 import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException.ErrorType;
+
+import java.util.stream.Stream;
 
 public class SSHKeyFromOptionValidator {
 
@@ -66,9 +65,9 @@ public class SSHKeyFromOptionValidator {
 				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation", input,
 						ErrorType.CIDR_MASK);
 			}
-			Integer mask;
+			int mask;
 			try {
-				mask = Integer.valueOf(split[1]);
+				mask = Integer.parseInt(split[1]);
 			} catch (Exception e) {
 				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation", input,
 						ErrorType.CIDR_MASK);
@@ -109,7 +108,7 @@ public class SSHKeyFromOptionValidator {
 				throw new InvalidSSHKeyFromOptionException("Invalid CIDR notation", input,
 						ErrorType.CIDR_MASK);
 			}
-			if (Integer.valueOf(split[1]) < VALID_IPv6_SUBNET_MASK) {
+			if (Integer.parseInt(split[1]) < VALID_IPv6_SUBNET_MASK) {
 				throw new InvalidSSHKeyFromOptionException(
 						"The subnet mask must be greater than or equal to "
 								+ VALID_IPv6_SUBNET_MASK,

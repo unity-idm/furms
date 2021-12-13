@@ -29,7 +29,7 @@ class UnityMonitoringDAOImpl implements UnityMonitoringDAO {
 				.uri("/unitygw/pub")
 				.retrieve()
 				.bodyToMono(Void.class)
-				.onErrorMap(isConnectException(), ex -> new UnityConnectException(ex))
+				.onErrorMap(isConnectException(), UnityConnectException::new)
 				.block();
 	}
 

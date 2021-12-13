@@ -75,8 +75,8 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 		);
 	}
 
-	public Registration addCustomValueSetListener(ComponentEventListener<GeneratedVaadinComboBox.CustomValueSetEvent<ComboBox<FurmsViewUserModel>>> listener) {
-		return comboBox.addCustomValueSetListener(listener);
+	public void addCustomValueSetListener(ComponentEventListener<GeneratedVaadinComboBox.CustomValueSetEvent<ComboBox<FurmsViewUserModel>>> listener) {
+		comboBox.addCustomValueSetListener(listener);
 	}
 
 	public String getEmail(){

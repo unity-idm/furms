@@ -134,14 +134,14 @@ public class ProjectFormComponent extends Composite<Div> {
 				getTranslation("view.community-admin.project.form.error.validation.field.start-time")
 			)
 			.bind(project -> ofNullable(project.startTime).orElse(null),
-					(project, startTime) -> project.setStartTime(startTime));
+				ProjectViewModel::setStartTime);
 		binder.forField(endDateTimePicker)
 			.withValidator(
 					time -> Objects.nonNull(time) && ofNullable(startDateTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 					getTranslation("view.community-admin.project.form.error.validation.field.end-time")
 			)
 			.bind(project -> ofNullable(project.endTime).orElse(null),
-				(project, endTime) -> project.setEndTime(endTime));
+				ProjectViewModel::setEndTime);
 		binder.forField(leaderComboBox)
 			.withValidator(
 				Objects::nonNull,

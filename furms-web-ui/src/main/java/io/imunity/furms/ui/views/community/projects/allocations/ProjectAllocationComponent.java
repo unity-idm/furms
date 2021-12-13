@@ -193,9 +193,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private Component getRefreshMenuItem(GridActionMenu contextMenu) {
 		contextMenu.addItem(new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.refresh"),
-			REFRESH), e -> {
-			loadGridContent();
-		});
+			REFRESH), e -> loadGridContent());
 		return contextMenu.getTarget();
 	}
 

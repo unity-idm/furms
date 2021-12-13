@@ -11,7 +11,7 @@ import io.imunity.furms.domain.users.UserRecord;
 import io.imunity.furms.rest.error.exceptions.RestNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import static java.util.stream.Collectors.toSet;
@@ -30,7 +30,7 @@ class CentralIdPRestAPIService {
 	}
 
 	UserRecordJson findUserRecordByFenixIdAndSiteId(String fenixUserId, String oauthClientId) {
-		if (StringUtils.isEmpty(fenixUserId) || StringUtils.isEmpty(oauthClientId)) {
+		if (ObjectUtils.isEmpty(fenixUserId) || ObjectUtils.isEmpty(oauthClientId)) {
 			throw new RestNotFoundException("Incorrect userId or siteId format.");
 		}
 		final UserRecord userRecord = userService.getUserRecord(new FenixUserId(fenixUserId));

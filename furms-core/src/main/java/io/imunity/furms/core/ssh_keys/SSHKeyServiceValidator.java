@@ -5,16 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static org.springframework.util.Assert.hasText;
-import static org.springframework.util.Assert.notNull;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
@@ -33,6 +23,15 @@ import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static org.springframework.util.Assert.hasText;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 public class SSHKeyServiceValidator {
@@ -114,14 +113,13 @@ public class SSHKeyServiceValidator {
 				() -> new DuplicatedNameValidationError("SSHKey name has to be unique."));
 	}
 
-	void validateValue(SSHKey key) {
+	private void validateValue(SSHKey key) {
 		notNull(key.value, "SSH key value has to be declared.");
 		hasText(key.value, "Invalid SSH key value: SSH key value is empty.");
 		key.validate();
-		if (siteRepository.findAll().stream().filter(s -> key.sites.contains(s.getId())
-					&& (s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory())).count() > 0)
-		{
-			key.validateFromOption();
+		if (siteRepository.findAll().stream().anyMatch(s -> key.sites.contains(s.getId())
+			&& (s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory()))) {
+				key.validateFromOption();
 		}
 		
 		
@@ -151,7 +149,7 @@ public class SSHKeyServiceValidator {
 					.collect(Collectors.toSet());
 			assertTrue(sites.isEmpty(),
 					() -> new IllegalArgumentException("Incorrect Sites: "
-							+ sites.stream().map(s -> s.getId())
+							+ sites.stream().map(Site::getId)
 									.collect(Collectors.joining(", "))
 							+ " requires ssh key \"from\""));
 		}
@@ -183,8 +181,7 @@ public class SSHKeyServiceValidator {
 		FenixUserId fenixId = validateFenixId(userId);
 		
 		assertTrue(siteRepository.findAll().stream()
-				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixId.id)).findAny()
-				.isPresent(),
+				.anyMatch(site -> userOperationRepository.isUserAdded(site.getId(), fenixId.id)),
 				() -> new UserWithoutSitesError("User with id" + userId.id
 						+ " don't have access to any site to install SSH keys"));
 

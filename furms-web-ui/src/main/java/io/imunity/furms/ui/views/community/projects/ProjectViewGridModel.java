@@ -68,7 +68,7 @@ class ProjectViewGridModel {
 		return name.toLowerCase().contains(lowerCaseValue) ||
 				(description != null && description.toLowerCase().contains(lowerCaseValue)) ||
 				(siteName != null && siteName.toLowerCase().contains(lowerCaseValue)) ||
-				(status != null && status.toString().toLowerCase().contains(lowerCaseValue));
+				(status != null && status.toLowerCase().contains(lowerCaseValue));
 	}
 
 	public static ProjectViewGridModelBuilder builder() {

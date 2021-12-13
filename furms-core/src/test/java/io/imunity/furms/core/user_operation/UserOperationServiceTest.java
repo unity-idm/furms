@@ -31,11 +31,12 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserOperationServiceTest {
 	@Mock
 	private UserOperationRepository repository;
@@ -91,7 +93,6 @@ class UserOperationServiceTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
 				policyService, sshKeyService, resourceAccessRepository, userSiteAccessRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
@@ -166,6 +167,7 @@ class UserOperationServiceTest {
 
 	@Test
 	void shouldCreateUserAddition() {
+		//given
 		SiteId siteId = new SiteId("siteId", new SiteExternalId("id"));
 		String projectId = "projectId";
 		PersistentId userId = new PersistentId("userId");
@@ -176,10 +178,9 @@ class UserOperationServiceTest {
 			.email("email")
 			.build();
 		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
-		//when
-		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
-		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
+
 		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
+
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -202,9 +203,7 @@ class UserOperationServiceTest {
 			.email("email")
 			.build();
 		//when
-		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(repository.existsByUserIdAndSiteIdAndProjectId(id, siteId.id, projectId)).thenReturn(true);
-		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		//then
 		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of())));

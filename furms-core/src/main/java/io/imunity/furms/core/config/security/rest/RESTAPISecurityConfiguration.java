@@ -68,7 +68,7 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public UserDetailsService presharedKeyUsers() throws Exception {
+	public UserDetailsService presharedKeyUsers() {
 
 		List<PresetUser> users = new ArrayList<>();
 		if (hasCentralIdPUserDefined())

@@ -16,7 +16,7 @@ import java.util.UUID;
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class CommunityDatabaseRepository implements CommunityRepository {
@@ -54,18 +54,18 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	@Override
-	public String update(Community community) {
-		return repository.findById(fromString(community.getId()))
-				.map(oldEntity -> CommunityEntity.builder()
-						.id(oldEntity.getId())
-						.name(community.getName())
-						.description(community.getDescription())
-						.logo(community.getLogo().getImage(), community.getLogo().getType())
-						.build())
-				.map(repository::save)
-				.map(CommunityEntity::getId)
-				.map(UUID::toString)
-				.get();
+	public void update(Community community) {
+		repository.findById(fromString(community.getId()))
+			.map(oldEntity -> CommunityEntity.builder()
+				.id(oldEntity.getId())
+				.name(community.getName())
+				.description(community.getDescription())
+				.logo(community.getLogo().getImage(), community.getLogo().getType())
+				.build())
+			.map(repository::save)
+			.map(CommunityEntity::getId)
+			.map(UUID::toString)
+			.get();
 	}
 
 	@Override

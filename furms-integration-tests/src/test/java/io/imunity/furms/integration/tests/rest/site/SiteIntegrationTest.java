@@ -71,7 +71,7 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	void shouldGetAllSitesThatCurrentUserIsInstalledOnTheseSites() throws Exception {
 		//given
 		final Site notMySite = defaultSite().name("NotMySite").externalId(new SiteExternalId("nmsid")).build();
-		final String notMySiteId2 = siteRepository.create(notMySite, notMySite.getExternalId());
+		siteRepository.create(notMySite, notMySite.getExternalId());
 		final TestUser testUser = basicUser();
 		testUser.addSiteSupport(site.getId());
 		setupUser(testUser);

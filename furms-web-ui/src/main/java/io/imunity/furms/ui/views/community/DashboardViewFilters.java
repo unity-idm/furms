@@ -43,7 +43,7 @@ class DashboardViewFilters {
 	static class Checkboxes {
 		enum Options {
 			INCLUDED_FULLY_DISTRIBUTED,
-			INCLUDED_EXPIRED;
+			INCLUDED_EXPIRED
 		}
 
 		private final Options option;

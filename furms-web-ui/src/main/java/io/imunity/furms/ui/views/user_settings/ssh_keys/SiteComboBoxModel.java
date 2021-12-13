@@ -16,7 +16,7 @@ class SiteComboBoxModel {
 	SiteComboBoxModel(String id, String name, Boolean sshKeyFromOptionMandatory) {
 		this.id = id;
 		this.name = name;
-		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory == null ? false : sshKeyFromOptionMandatory;
+		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory != null && sshKeyFromOptionMandatory;
 	}
 
 	@Override

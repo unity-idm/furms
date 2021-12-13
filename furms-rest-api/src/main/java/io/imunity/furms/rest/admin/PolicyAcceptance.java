@@ -39,7 +39,7 @@ class PolicyAcceptance {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PolicyAcceptance that = (PolicyAcceptance) o;
-		return acceptedRevision == that.acceptedRevision &&
+		return acceptedRevision.equals(that.acceptedRevision) &&
 			Objects.equals(fenixUserId, that.fenixUserId) &&
 			Objects.equals(policyId, that.policyId) &&
 				acceptanceStatus == that.acceptanceStatus &&

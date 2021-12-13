@@ -215,7 +215,6 @@ class PolicyNotificationServiceTest {
 	void shouldNotifyAllInstalledUsersAndAttachedUsersInUnityGroupAboutSitePolicyChange() {
 		//given
 		final FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		final PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		final SiteId siteId = new SiteId(UUID.randomUUID().toString());
 
 		final PolicyDocument policyDocument = PolicyDocument.builder()
@@ -243,7 +242,6 @@ class PolicyNotificationServiceTest {
 	void shouldNotifyAllInstalledUsersAndAttachedUsersInUnityGroupAboutSiteServicePolicyChange() {
 		//given
 		final FenixUserId fenixUserId = new FenixUserId("fenixUserId");
-		final PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		final SiteId siteId = new SiteId(UUID.randomUUID().toString());
 
 		final PolicyDocument policyDocument = PolicyDocument.builder()

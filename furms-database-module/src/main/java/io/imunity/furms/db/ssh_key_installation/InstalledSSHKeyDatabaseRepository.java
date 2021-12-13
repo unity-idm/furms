@@ -5,16 +5,15 @@
 
 package io.imunity.furms.db.ssh_key_installation;
 
-import static java.util.stream.StreamSupport.stream;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Repository;
-
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
+import static java.util.stream.StreamSupport.stream;
 
 @Repository
 class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
@@ -74,7 +73,7 @@ class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
 
 	@Override
 	public List<InstalledSSHKey> findBySSHKeyId(String sshkeyId) {
-		return stream(repository.findBySshkeyId(UUID.fromString(sshkeyId)).spliterator(), false)
+		return repository.findBySshkeyId(UUID.fromString(sshkeyId)).stream()
 				.map(entity -> InstalledSSHKey.builder().id(entity.getId().toString())
 						.siteId(entity.siteId.toString()).sshkeyId(entity.sshkeyId.toString())
 						.value(entity.value).build())
