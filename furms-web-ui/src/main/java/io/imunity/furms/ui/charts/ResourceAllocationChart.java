@@ -27,12 +27,12 @@ import com.github.appreciated.apexcharts.config.subtitle.Align;
 import com.github.appreciated.apexcharts.config.xaxis.XAxisType;
 import com.github.appreciated.apexcharts.config.yaxis.builder.TitleBuilder;
 import com.github.appreciated.apexcharts.helper.Series;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.furms.ui.components.MenuButton;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -41,7 +41,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 public class ResourceAllocationChart extends VerticalLayout {
 
-	public ResourceAllocationChart(ChartData chartData) {
+	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile) {
 		ApexCharts areaChart = ApexChartsBuilder.get()
 			.withChart(ChartBuilder.get()
 				.withType(Type.area)
@@ -82,17 +82,10 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withAnnotations(chartData.threshold > 0 ? getAnnotations(chartData.threshold) : null)
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
-		ChartGridActionMenu contextMenu = new ChartGridActionMenu();
-		contextMenu.addItem(new MenuButton(
-				getTranslation("chart.export.json")),
-			event -> {});
-		contextMenu.addItem(new MenuButton(
-				getTranslation("chart.export.csv")),
-			event -> {});
 
-		Div div = new Div(contextMenu.getTarget());
-		div.getStyle().set("margin-right", "0.6em");
-		add(div, areaChart);
+		Component contextMenu = new ChartContextMenu(chartData, jsonFile, csvFile);
+		add(contextMenu, areaChart);
+
 		setWidth("70%");
 		setAlignItems(Alignment.END);
 		setSpacing(false);
@@ -136,5 +129,6 @@ public class ResourceAllocationChart extends VerticalLayout {
 			getStyle().set("margin-right", "0.6em");
 		}
 	}
+
 }
 

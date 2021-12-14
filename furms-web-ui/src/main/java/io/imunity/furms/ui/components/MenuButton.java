@@ -20,9 +20,4 @@ public class MenuButton extends Div {
 	public MenuButton(VaadinIcon icon) {
 		this(null, icon);
 	}
-
-	public MenuButton(String label) {
-		super(new Span(label));
-		addClassName("menu-button");
-	}
 }

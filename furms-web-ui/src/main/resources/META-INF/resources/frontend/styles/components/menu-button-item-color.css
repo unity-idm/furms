@@ -1,0 +1,7 @@
+:host(.menu-button-color) {
+	background-color: inherit;
+}
+
+:host(.menu-button-color)::before, :host(.menu-button-color)::after {
+	background-color: inherit;
+}

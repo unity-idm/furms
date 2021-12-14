@@ -131,7 +131,7 @@ class ChartPowerServiceTest {
 		when(resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId))
 			.thenReturn(resourceUsages);
 
-		ChartData chartData = chartPowerService.generate(projectId, projectAllocationId);
+		ChartData chartData = chartPowerService.getChartData(projectId, projectAllocationId);
 
 		assertThat(chartData.unit).isEqualTo(unit.getSuffix());
 		assertThat(chartData.projectAllocationName).isEqualTo(name);

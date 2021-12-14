@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.charts;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
@@ -12,8 +14,10 @@ import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.ui.utils.NotificationUtils;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,17 +34,20 @@ import static java.util.stream.Collectors.toMap;
 
 @Service
 public class ChartPowerService {
-	public final ProjectAllocationService projectAllocationService;
-	public final AlarmService alarmService;
-	public final ResourceUsageService resourceUsageService;
+	private final ProjectAllocationService projectAllocationService;
+	private final AlarmService alarmService;
+	private final ResourceUsageService resourceUsageService;
+	private final ObjectMapper objectMapper;
 
 	ChartPowerService(ProjectAllocationService projectAllocationService, AlarmService alarmService, ResourceUsageService resourceUsageService) {
 		this.projectAllocationService = projectAllocationService;
 		this.alarmService = alarmService;
 		this.resourceUsageService = resourceUsageService;
+		this.objectMapper = new ObjectMapper();
+		objectMapper.findAndRegisterModules();
 	}
 
-	public ChartData generate(String projectId, String projectAllocationId){
+	public ChartData getChartData(String projectId, String projectAllocationId){
 		ProjectAllocationResolved projectAllocation = projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
 		Optional<AlarmWithUserEmails> alarm = alarmService.find(projectId, projectAllocationId);
 
@@ -93,5 +100,46 @@ public class ChartPowerService {
 			last = value;
 		}
 		return values;
+	}
+
+	public byte[] getJsonFile(String projectId, String projectAllocationId) {
+		ProjectAllocationResolved projectAllocation = projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
+		List<Consumption> consumption = resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId).stream()
+			.map(usage -> new Consumption(usage.utcProbedAt, usage.cumulativeConsumption))
+			.collect(toList());
+
+		ProjectResourceUsage projectResourceUsage = ProjectResourceUsage.builder()
+			.projectId(projectAllocation.projectId)
+			.project(projectAllocation.projectName)
+			.allocationId(projectAllocation.id)
+			.allocation(projectAllocation.name)
+			.unit(projectAllocation.resourceType.unit.getSuffix())
+			.consumption(consumption)
+			.build();
+
+		try {
+			return objectMapper.writeValueAsBytes(projectResourceUsage);
+		} catch (JsonProcessingException e) {
+			NotificationUtils.showErrorNotification("base.error.message");
+			throw new RuntimeException(e);
+		}
+	}
+
+	public byte[] getCsvFile(String projectId, String projectAllocationId) {
+		String header = "Allocation,Consumption until,Amount,Unit";
+		ProjectAllocationResolved projectAllocation = projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
+		Set<ResourceUsage> allResourceUsageHistory = resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId);
+		StringBuilder file = new StringBuilder(header);
+		for(ResourceUsage usage : allResourceUsageHistory){
+			file.append("\r\n")
+				.append(projectAllocation.name)
+				.append(",")
+				.append(usage.utcProbedAt)
+				.append(",")
+				.append(usage.cumulativeConsumption)
+				.append(",")
+				.append(projectAllocation.resourceType.unit.getSuffix());
+		}
+		return file.toString().getBytes(StandardCharsets.UTF_8);
 	}
 }
