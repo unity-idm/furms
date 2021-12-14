@@ -15,6 +15,10 @@ import java.util.List;
 
 @Component
 public class FurmsAppLayoutComponentsFactory {
+
+	public final static String MENU_CONTAINER_ID = "furms-layout-menu";
+	public final static String MAIN_VIEW_CONTAINER_ID = "furms-layout-view-content";
+
 	private final FurmsRolePickerFactory furmsSelectFactory;
 	private final FurmsNotificationBarFactory notificationBarFactory;
 	private final FurmsLogoFactory furmsLogoFactory;

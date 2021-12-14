@@ -41,6 +41,13 @@ import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.List;
 
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.BOTOOM_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.LEFT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.RIGHT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_ID;
+
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/custom-lumo-theme.css")
@@ -124,16 +131,16 @@ public class FurmsAppLayout
 	private void initView(FurmsLayoutExtraPanelsConfig furmsLayoutExtraPanelsConfig) {
 		setId("furms-layout");
 
-		final Div top = new ExtraLayoutPanel("furms-layout-top", furmsLayoutExtraPanelsConfig.getTop());
-		final Div left = new ExtraLayoutPanel("furms-layout-left", furmsLayoutExtraPanelsConfig.getLeft());
-		final Div right = new ExtraLayoutPanel("furms-layout-right", furmsLayoutExtraPanelsConfig.getRight());
-		final Div bottom = new ExtraLayoutPanel("furms-layout-bottom", furmsLayoutExtraPanelsConfig.getBottom());
+		final Div top = new ExtraLayoutPanel(TOP_PANEL_ID, furmsLayoutExtraPanelsConfig.getTop());
+		final Div left = new ExtraLayoutPanel(LEFT_PANEL_ID, furmsLayoutExtraPanelsConfig.getLeft());
+		final Div right = new ExtraLayoutPanel(RIGHT_PANEL_ID, furmsLayoutExtraPanelsConfig.getRight());
+		final Div bottom = new ExtraLayoutPanel(BOTOOM_PANEL_ID, furmsLayoutExtraPanelsConfig.getBottom());
 
 		final VerticalLayout menuContent = appLayoutComponents.getLogoMenuContainer();
-		menuContent.setId("furms-layout-menu");
+		menuContent.setId(MENU_CONTAINER_ID);
 
 		final VerticalLayout viewContent = new VerticalLayout();
-		viewContent.setId("furms-layout-view-content");
+		viewContent.setId(MAIN_VIEW_CONTAINER_ID);
 		viewContent.setAlignItems(FlexComponent.Alignment.STRETCH);
 		viewContent.add(appLayoutComponents.getNavbar(), appLayoutComponents.getViewContainer());
 

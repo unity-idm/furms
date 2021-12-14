@@ -46,6 +46,8 @@ furms:
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
       layout:
+         styles:
+            custom:
          panels:
             top:
             left:

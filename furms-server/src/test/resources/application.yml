@@ -25,12 +25,14 @@ furms:
       maxSessionInactivity: 600
       secondsBeforeShowingSessionExpirationWarning: 60
       layout:
+         styles:
+            custom:
          panels:
             top:
             left:
             right:
             bottom:
-      
+
    url: https://localhost:${server.port}
    psk:
       centralIdPUser: cidp
@@ -54,7 +56,6 @@ furms:
       site-form: siteForm
       community-form: communityForm
       project-form: projectForm
-
 
 spring:
    profiles:
