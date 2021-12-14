@@ -15,6 +15,7 @@ import org.springframework.util.ClassUtils;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -38,9 +39,12 @@ class FurmsMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSo
 		Capability capability = annotation.capability();
 		ResourceType resourceType = annotation.resourceType();
 		String idSpEl = "";
-		if(!annotation.id().isEmpty())
+		if(!annotation.id().isEmpty()) {
 			idSpEl = ",#" + annotation.id();
-		String furmsSpEl = "hasCapabilityForResource('" + capability.name() + "','" + resourceType.name() +"'" + idSpEl + ")";
+		}
+		final String methodName = method.getDeclaringClass() + "::" + method.getName();
+		String furmsSpEl = format("hasCapabilityForResource('%s', '%s', '%s'%s)", methodName, capability.name(),
+				resourceType.name(), idSpEl);
 
 		return singletonList(attributeFactory.createPreInvocationAttribute(null, null, furmsSpEl));
 	}
