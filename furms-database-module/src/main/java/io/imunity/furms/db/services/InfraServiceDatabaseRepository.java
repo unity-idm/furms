@@ -16,7 +16,7 @@ import java.util.UUID;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class InfraServiceDatabaseRepository implements InfraServiceRepository {
@@ -63,8 +63,8 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public String update(InfraService infraService) {
-		return repository.findById(UUID.fromString(infraService.id))
+	public void update(InfraService infraService) {
+		repository.findById(UUID.fromString(infraService.id))
 			.map(oldService -> InfraServiceEntity.builder()
 				.id(oldService.getId())
 				.siteId(UUID.fromString(infraService.siteId))

@@ -35,7 +35,7 @@ public interface CommunityAllocationRepository {
 
 	String create(CommunityAllocation resourceType);
 
-	String update(CommunityAllocation resourceType);
+	void update(CommunityAllocation resourceType);
 
 	boolean exists(String id);
 

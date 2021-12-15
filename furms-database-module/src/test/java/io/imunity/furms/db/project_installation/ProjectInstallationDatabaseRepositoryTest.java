@@ -64,7 +64,7 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID projectId;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();

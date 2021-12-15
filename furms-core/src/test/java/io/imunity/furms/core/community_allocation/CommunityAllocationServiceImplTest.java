@@ -15,9 +15,10 @@ import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CommunityAllocationServiceImplTest {
 	@Mock
 	private CommunityAllocationServiceValidator validator;
@@ -46,7 +48,6 @@ class CommunityAllocationServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new CommunityAllocationServiceImpl(communityAllocationRepository, validator,
 				publisher, projectAllocationService, resourceUsageRepository);
 		orderVerifier = inOrder(communityAllocationRepository, publisher);
@@ -146,8 +147,7 @@ class CommunityAllocationServiceImplTest {
 
 		//then
 		assertThat(all).hasSize(2);
-		assertThat(all.stream()
-				.noneMatch(credit -> credit.id.equals("id2")));
+		assertThat(all.stream().noneMatch(credit -> credit.id.equals("id2"))).isTrue();
 	}
 
 	@Test
@@ -190,7 +190,6 @@ class CommunityAllocationServiceImplTest {
 	void shouldAllowToDeleteCommunityAllocation() {
 		//given
 		String id = "id";
-		when(communityAllocationRepository.exists(id)).thenReturn(true);
 
 		//when
 		service.delete(id);

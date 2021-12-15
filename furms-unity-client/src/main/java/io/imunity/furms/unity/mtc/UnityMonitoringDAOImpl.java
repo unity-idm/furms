@@ -29,14 +29,19 @@ class UnityMonitoringDAOImpl implements UnityMonitoringDAO {
 				.uri("/unitygw/pub")
 				.retrieve()
 				.bodyToMono(Void.class)
-				.onErrorMap(isConnectException(), ex -> new UnityConnectException(ex))
+				.onErrorMap(isConnectException(), UnityConnectException::new)
 				.block();
 	}
 
 	private Predicate<? super Throwable> isConnectException() {
 		return ex -> {
-			Throwable exceptionToMatch = ex.getCause() != null ? ex.getCause() : ex;
-			return exceptionToMatch.getClass().isAssignableFrom(ConnectException.class);
+			Throwable exceptionToMatch = ex;
+			while (exceptionToMatch != null) {
+				if (exceptionToMatch.getClass().isAssignableFrom(ConnectException.class))
+					return true;
+				exceptionToMatch = exceptionToMatch.getCause();
+			}
+			return false;
 		};
 	}
 }

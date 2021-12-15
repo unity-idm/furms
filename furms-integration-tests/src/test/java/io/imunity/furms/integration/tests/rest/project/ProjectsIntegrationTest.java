@@ -196,15 +196,9 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotBeAbleToShowProjectWhenUserIsJustSiteAdmin() throws Exception {
 		//given
-		final Site.SiteBuilder siteBuilder = defaultSite();
-		final Site site2 = siteBuilder
-				.name("site2")
-				.externalId(new SiteExternalId("s2id"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
-				.build();
 		final String community = createCommunity();
 		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		createProject(community);
 
 		final TestUser siteAdmin = basicUser();
 		siteAdmin.addSiteAdmin(site.getId());
@@ -484,7 +478,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				"description",
 				new Validity(LocalDateTime.now(), LocalDateTime.now().plusDays(1)),
 				"researchField",
-				projectAdmin.getFenixId());;
+				projectAdmin.getFenixId());
 
 		//when
 		mockMvc.perform(post("/rest-api/v1/projects")
@@ -545,13 +539,13 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		}
 	}
 
-	private String createUserAddition(String projectId, String siteId, TestUser testUser) {
-		return userOperationRepository.create(defaultUserAddition()
-				.projectId(projectId)
-				.siteId(new SiteId(siteId))
-				.userId(testUser.getFenixId())
-				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
-				.build());
+	private void createUserAddition(String projectId, String siteId, TestUser testUser) {
+		userOperationRepository.create(defaultUserAddition()
+			.projectId(projectId)
+			.siteId(new SiteId(siteId))
+			.userId(testUser.getFenixId())
+			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+			.build());
 	}
 
 	private ProjectUpdateRequest defaultUpdateProject() {

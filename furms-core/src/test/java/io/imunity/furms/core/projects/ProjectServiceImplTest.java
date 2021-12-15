@@ -24,16 +24,16 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,13 +41,12 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-@TestInstance(Lifecycle.PER_CLASS)
+@ExtendWith(MockitoExtension.class)
 class ProjectServiceImplTest {
 	@Mock
 	private ProjectRepository projectRepository;
@@ -75,9 +74,8 @@ class ProjectServiceImplTest {
 	private ProjectServiceImpl service;
 	private InOrder orderVerifier;
 
-	@BeforeAll
+	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		ProjectServiceValidator validator = new ProjectServiceValidator(projectRepository, communityRepository);
 		service = new ProjectServiceImpl(
 			projectRepository, projectGroupsDAO, usersDAO, validator,
@@ -160,7 +158,6 @@ class ProjectServiceImplTest {
 			.id(id)
 			.name("userFacingName")
 			.build();
-		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(false);
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
@@ -223,7 +220,6 @@ class ProjectServiceImplTest {
 			.name("userFacingName")
 			.communityId("id")
 			.build();
-		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(projectRepository.exists(request.getId())).thenReturn(true);
 		when(projectRepository.findById(request.getId())).thenReturn(Optional.of(project));
 
@@ -252,7 +248,7 @@ class ProjectServiceImplTest {
 		String id = "id";
 		String id2 = "id";
 		when(projectRepository.exists(id)).thenReturn(true);
-		List<FURMSUser> users = Arrays.asList(FURMSUser.builder().id(new PersistentId("id")).email("email@test.com").build());
+		List<FURMSUser> users = Collections.singletonList(FURMSUser.builder().id(new PersistentId("id")).email("email@test.com").build());
 		when(projectGroupsDAO.getAllUsers("id", "id")).thenReturn(users);
 		
 		//when

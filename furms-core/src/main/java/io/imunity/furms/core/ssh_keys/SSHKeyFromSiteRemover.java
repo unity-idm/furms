@@ -60,7 +60,7 @@ class SSHKeyFromSiteRemover {
 			try {
 				operation = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshKey.id, site.getId());
 			} catch (Exception e) {
-				LOG.error("Can not get ssh key operation for key {0}", sshKey.id);
+				LOG.error("Can not get ssh key operation for key {}", sshKey.id);
 				return;
 			}
 			if (operation.operation.equals(ADD) && operation.status.equals(FAILED)) {

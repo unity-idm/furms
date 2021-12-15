@@ -27,7 +27,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.user_context.UIContext;
 
 public class ProjectAllocationDetailsComponentFactory {
-	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public static Component create(Set<ProjectAllocationChunk> allocationChunks, ResourceMeasureUnit unit) {
 		ZoneId browserZoneId = UIContext.getCurrent().getZone();

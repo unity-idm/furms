@@ -24,9 +24,10 @@ import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.lang.reflect.Method;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CommunityServiceImplTest {
 	@Mock
 	private CommunityRepository communityRepository;
@@ -68,7 +70,6 @@ class CommunityServiceImplTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
 		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator, authzService,
 				publisher, capabilityCollector, invitatoryService);
@@ -255,8 +256,6 @@ class CommunityServiceImplTest {
 		Method[] declaredMethods = CommunityServiceImpl.class.getDeclaredMethods();
 		Stream.of(declaredMethods)
 			.filter(method -> Modifier.isPublic(method.getModifiers()))
-			.forEach(method -> {
-				assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue();
-			});
+			.forEach(method -> assertThat(method.isAnnotationPresent(FurmsAuthorize.class)).isTrue());
 	}
 }

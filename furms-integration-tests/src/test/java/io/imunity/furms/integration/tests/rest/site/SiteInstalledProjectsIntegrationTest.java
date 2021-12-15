@@ -200,12 +200,12 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].sshKeys", equalTo(List.of(sshKeyDarkSiteValue))));
 	}
 
-	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
-		return projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
-				.projectId(projectId)
-				.siteId(siteId)
-				.status(status)
-				.build());
+	private void createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
+		projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
+			.projectId(projectId)
+			.siteId(siteId)
+			.status(status)
+			.build());
 	}
 
 	private void createUserSite(String projectId, String siteId, TestUser testUser) {
@@ -236,7 +236,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createSSHKey(String siteId, String value, TestUser user) {
+	private void createSSHKey(String siteId, String value, TestUser user) {
 		final String sshKeyId = sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
@@ -249,6 +249,5 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.sshkeyId(sshKeyId)
 				.value(value)
 				.build());
-		return sshKeyId;
 	}
 }

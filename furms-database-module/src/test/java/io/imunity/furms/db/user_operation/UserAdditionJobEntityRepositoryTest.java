@@ -41,16 +41,14 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserAdditionJobEntityRepository userAdditionJobEntityRepository;
 
-	private UUID siteId;
-	private UUID projectId;
 	private UUID userAdditionalId;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
 
 		Community community = Community.builder()
 			.name("name")
@@ -69,7 +67,7 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		UUID projectId = UUID.fromString(projectRepository.create(project));
 
 		userAdditionalId = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()

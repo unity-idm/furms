@@ -14,10 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 import java.time.Instant;
 import java.util.Map;
@@ -29,7 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 class InvitationDAOTest {
 
 	@Mock
@@ -43,7 +42,6 @@ class InvitationDAOTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		invitationDAO = new InvitationDAOImpl(unityClient, invitationFormIdResolver, groupResolver);
 	}
 
@@ -53,9 +51,7 @@ class InvitationDAOTest {
 		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
 		Instant instant = Instant.now();
 		Role fenixAdmin = Role.FENIX_ADMIN;
-
-		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam("fenixAdminForm", instant, "email");
-
+		
 		when(invitationFormIdResolver.getFormId(fenixAdmin)).thenReturn("formId");
 		when(groupResolver.resolveGroup(resourceId, fenixAdmin)).thenReturn("group");
 		when(unityClient.post(eq("/invitation"), any(), eq(Map.of()), eq(new ParameterizedTypeReference<String>(){}))).thenReturn("code");

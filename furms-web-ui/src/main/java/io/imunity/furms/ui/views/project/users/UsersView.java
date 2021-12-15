@@ -87,9 +87,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				() -> projectService.isUser(project.getId())
 		);
 		
-		userService.findById(currentUserId).ifPresent(user -> {
-			membershipLayout.setEnabled(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP.test(user));
-		});
+		userService.findById(currentUserId).ifPresent(user -> membershipLayout.setEnabled(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP.test(user)));
 		
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)

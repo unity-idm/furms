@@ -8,7 +8,7 @@ public interface UnityMonitoringDAO {
 
 	void ping();
 
-	static class UnityConnectException extends RuntimeException {
+	class UnityConnectException extends RuntimeException {
 		public UnityConnectException(Throwable cause) {
 			super(cause);
 		}

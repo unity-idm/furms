@@ -5,27 +5,7 @@
 
 package io.imunity.furms.core.community_allocation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
-
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationAmountNotEnoughException;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAmountException;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAvailableAmountException;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
@@ -36,6 +16,25 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CommunityAllocationServiceImplValidatorTest {
@@ -149,7 +148,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		when(resourceCreditRepository.exists(communityAllocation.resourceCreditId)).thenReturn(true);
 		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId))
 				.thenReturn(Optional.of(ResourceCredit.builder()
-					.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1l))
+					.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(1L))
 					.build()));
 
 		//when+then
@@ -174,7 +173,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		when(communityAllocationRepository.isUniqueName(any())).thenReturn(true);
 		when(resourceCreditRepository.findById(communityAllocation.resourceCreditId))
 				.thenReturn(Optional.of(ResourceCredit.builder()
-						.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1l))
+						.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 						.build()));
 		when(communityAllocationRepository.getAvailableAmount(communityAllocation.resourceCreditId)).thenReturn(BigDecimal.ONE);
 

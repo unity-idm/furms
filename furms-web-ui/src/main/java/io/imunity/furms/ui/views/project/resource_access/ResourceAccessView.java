@@ -81,9 +81,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 		Set<String> allocations = resourceAccessViewService.getAllocations();
 
 		multiselectComboBox.setItems(allocations);
-		multiselectComboBox.addSelectionListener(event -> {
-			reloadGrid(searchTextField.getValue().toLowerCase(), event.getAllSelectedItems());
-		});
+		multiselectComboBox.addSelectionListener(event -> reloadGrid(searchTextField.getValue().toLowerCase(), event.getAllSelectedItems()));
 
 		HorizontalLayout search = new HorizontalLayout(searchTextField);
 		search.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

@@ -28,8 +28,8 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 
 public class MembershipResolverTest {
 
-	private CommunityRepository communitiesDAO = mock(CommunityRepository.class);
-	private ProjectRepository projectsDAO = mock(ProjectRepository.class);
+	private final CommunityRepository communitiesDAO = mock(CommunityRepository.class);
+	private final ProjectRepository projectsDAO = mock(ProjectRepository.class);
 	
 	private final UUID COMMUNITY1_ID = UUID.randomUUID();
 	private final UUID COMMUNITY2_ID = UUID.randomUUID();

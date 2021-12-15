@@ -13,6 +13,11 @@ import org.springframework.core.io.Resource;
 @ConfigurationProperties(prefix = "furms.front.layout.panels")
 public class FurmsLayoutExtraPanelsConfig {
 
+	public final static String TOP_PANEL_ID = "furms-layout-top";
+	public final static String LEFT_PANEL_ID = "furms-layout-left";
+	public final static String RIGHT_PANEL_ID = "furms-layout-right";
+	public final static String BOTOOM_PANEL_ID = "furms-layout-bottom";
+
 	private final Resource top;
 	private final Resource left;
 	private final Resource right;

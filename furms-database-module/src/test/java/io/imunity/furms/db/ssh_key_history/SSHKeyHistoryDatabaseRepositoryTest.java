@@ -45,7 +45,7 @@ class SSHKeyHistoryDatabaseRepositoryTest extends DBIntegrationTest {
 	private UUID siteId;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		sshKeyRepository.deleteAll();
 		siteRepository.deleteAll();
 		Site site = Site.builder().name("name").build();

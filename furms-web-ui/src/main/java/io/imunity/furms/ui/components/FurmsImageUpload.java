@@ -38,7 +38,7 @@ public class FurmsImageUpload extends HorizontalLayout
 
 	private boolean readOnly;
 
-	private MemoryBuffer memoryBuffer;
+	private final MemoryBuffer memoryBuffer;
 	private FurmsImage value;
 	private FurmsImage oldValue;
 

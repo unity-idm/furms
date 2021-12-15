@@ -48,7 +48,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 
 	private final ResourceCreditService resourceCreditService;
 	private final Grid<ResourceCreditViewModel> grid;
-	private ZoneId zoneId;
+	private final ZoneId zoneId;
 
 	public ResourceCreditsView(ResourceCreditService resourceCreditService) {
 		this.resourceCreditService = resourceCreditService;

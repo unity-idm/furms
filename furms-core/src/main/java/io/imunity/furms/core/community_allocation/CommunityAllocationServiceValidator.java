@@ -5,18 +5,7 @@
 
 package io.imunity.furms.core.community_allocation;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.assertFalse;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static org.springframework.util.Assert.notNull;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationAmountNotEnoughException;
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationHasProjectAllocationsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAmountException;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAvailableAmountException;
@@ -29,6 +18,16 @@ import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+
+import static io.imunity.furms.core.constant.ValidationConst.*;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 class CommunityAllocationServiceValidator {
@@ -107,7 +106,7 @@ class CommunityAllocationServiceValidator {
 
 	private void validateName(CommunityAllocation communityAllocation) {
 		notNull(communityAllocation.name, "CommunityAllocation name has to be declared.");
-		validateLength("name", communityAllocation.name, MAX_NAME_LENGTH);
+		validateNameLength(communityAllocation.name);
 		if (isNameUnique(communityAllocation)) {
 			throw new DuplicatedNameValidationError("CommunityAllocation name has to be unique.");
 		}
@@ -119,9 +118,9 @@ class CommunityAllocationServiceValidator {
 			(optionalAllocation.isEmpty() || !optionalAllocation.get().name.equals(communityAllocation.name));
 	}
 
-	private void validateLength(String fieldName, String fieldVale, int length) {
-		if (Objects.nonNull(fieldVale) && fieldVale.length() > length) {
-			throw new IllegalArgumentException("CommunityAllocation " + fieldName + " is too long.");
+	private void validateNameLength(String fieldVale) {
+		if (Objects.nonNull(fieldVale) && fieldVale.length() > MAX_NAME_LENGTH) {
+			throw new IllegalArgumentException("CommunityAllocation name is too long.");
 		}
 	}
 

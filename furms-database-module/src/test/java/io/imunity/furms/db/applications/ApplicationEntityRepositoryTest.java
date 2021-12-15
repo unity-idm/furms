@@ -107,7 +107,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
 
 		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId");
-		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+		applicationEntityRepository.save(applicationEntity2);
 
 		Set<ApplicationEntity> allByProjectId = applicationEntityRepository.findAllByProjectId(projectId);
 		assertEquals(Set.of(savedApplication, savedApplication1), allByProjectId);
@@ -122,7 +122,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
 
 		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId, "userId1");
-		ApplicationEntity savedApplication2 = applicationEntityRepository.save(applicationEntity2);
+		applicationEntityRepository.save(applicationEntity2);
 
 		Set<ApplicationEntity> allByProjectId = applicationEntityRepository.findAllByUserId("userId");
 		assertEquals(Set.of(savedApplication, savedApplication1), allByProjectId);

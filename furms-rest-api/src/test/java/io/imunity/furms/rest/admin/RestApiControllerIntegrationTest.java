@@ -62,11 +62,11 @@ abstract class RestApiControllerIntegrationTest extends TestBeansRegistry {
 	protected final User sampleUser = new User("fenixIdentifier", "title", "firstname", "lastname", "email",
 			new Affiliation("name", "email", "country", "postalAddress"), "nationality",
 			"phone", LocalDate.MIN, "placeOfBirth", "postalAddress");
-	protected final ZonedDateTime sampleFrom = ZonedDateTime.of(LocalDateTime.of(2000, 01, 01, 01, 01), UTC);
+	protected final ZonedDateTime sampleFrom = ZonedDateTime.of(LocalDateTime.of(2000, 1, 1, 1, 1), UTC);
 	protected final ZonedDateTime sampleTo = ZonedDateTime.of(LocalDateTime.of(2000, 12, 31, 23, 59), UTC);
 
 	@BeforeEach
-	void setup() throws Exception {
+	void setup() {
 		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.of(FURMSUser.builder()
 						.id(userId)

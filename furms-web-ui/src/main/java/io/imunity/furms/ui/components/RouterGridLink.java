@@ -24,7 +24,7 @@ public class RouterGridLink extends RouterLink {
 	                      String paramValue) {
 		super("", route, id);
 		addClassName("router-grid-link");
-		if (!StringUtils.isEmpty(paramName))
+		if (StringUtils.hasText(paramName))
 			setQueryParameters(QueryParameters.simple(Map.of(paramName, paramValue)));
 		add(component);
 	}

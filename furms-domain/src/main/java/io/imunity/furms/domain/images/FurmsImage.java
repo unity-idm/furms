@@ -37,7 +37,7 @@ public class FurmsImage {
 	}
 
 	public static FurmsImage empty() {
-		return new FurmsImage(new byte[0], (String) null);
+		return new FurmsImage(new byte[0], null);
 	}
 
 	@Override

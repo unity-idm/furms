@@ -175,14 +175,14 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private ValueProvider<ProjectAllocationViewModel, ComboBoxModel> projectBinderGetter(Set<ComboBoxModel> items) {
-		return (ValueProvider<ProjectAllocationViewModel, ComboBoxModel>) viewModel ->
+		return viewModel ->
 				items.stream()
 						.filter(item -> item.getId().equals(viewModel.getProjectId()))
 						.findFirst().orElse(null);
 	}
 
 	private Setter<ProjectAllocationViewModel, ComboBoxModel> projectBinderSetter() {
-		return (Setter<ProjectAllocationViewModel, ComboBoxModel>) (viewModel, comboBoxModel) ->
+		return (viewModel, comboBoxModel) ->
 			viewModel.setProjectId(comboBoxModel.getId());
 	}
 

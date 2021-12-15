@@ -5,6 +5,37 @@
 
 package io.imunity.furms.integration.tests.rest.cidp;
 
+import io.imunity.furms.domain.generic_groups.GenericGroupId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
+import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.integration.tests.IntegrationTestBase;
+import io.imunity.furms.integration.tests.tools.PolicyAcceptanceMockUtils;
+import io.imunity.furms.integration.tests.tools.users.TestUser;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import pl.edu.icm.unity.types.basic.Attribute;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
 import static io.imunity.furms.integration.tests.tools.DefaultDataBuilders.defaultCommunity;
@@ -30,38 +61,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import io.imunity.furms.domain.policy_documents.PolicyDocument;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-
-import io.imunity.furms.domain.generic_groups.GenericGroupId;
-import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
-import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
-import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.user_operation.UserAddition;
-import io.imunity.furms.domain.user_operation.UserStatus;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.integration.tests.IntegrationTestBase;
-import io.imunity.furms.integration.tests.tools.PolicyAcceptanceMockUtils;
-import io.imunity.furms.integration.tests.tools.users.TestUser;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 public class CIDPRestIntegrationTest extends IntegrationTestBase {
 
@@ -188,12 +187,12 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedVersion").value(1));
 	}
 
-	private String createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
-		return projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
-				.projectId(projectId)
-				.siteId(siteId)
-				.status(status)
-				.build());
+	private void createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
+		projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
+			.projectId(projectId)
+			.siteId(siteId)
+			.status(status)
+			.build());
 	}
 
 	private void createUserSite(String projectId, String siteId, TestUser testUser) {
@@ -224,7 +223,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createSSHKey(String siteId, String value, TestUser user) {
+	private void createSSHKey(String siteId, String value, TestUser user) {
 		final String sshKeyId = sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
@@ -237,7 +236,6 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.sshkeyId(sshKeyId)
 				.value(value)
 				.build());
-		return sshKeyId;
 	}
 
 	private PolicyId createPolicy(String siteId) {
@@ -247,7 +245,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private GenericGroupId createGroup(String communityId, String groupName, TestUser testUser) {
+	private void createGroup(String communityId, String groupName, TestUser testUser) {
 		final GenericGroupId genericGroupId = genericGroupRepository.create(defaultGenericGroup()
 				.communityId(communityId)
 				.name(groupName)
@@ -257,7 +255,6 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.fenixUserId(testUser.getFenixId())
 				.utcMemberSince(LocalDateTime.now().minusDays(1))
 				.build());
-		return genericGroupId;
 	}
 
 	private CidpRequiredData createCidpRequiredData(TestUser testUser) {

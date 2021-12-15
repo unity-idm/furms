@@ -7,10 +7,6 @@ package io.imunity.furms.core.config.security.method;
 
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
 import static io.imunity.furms.domain.authz.roles.Capability.*;
 import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 
@@ -19,31 +15,25 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.*;
 public class ServiceMock{
 
 	@FurmsAuthorize(capability = USERS_MAINTENANCE, id = "id")
-	public Optional<Object> findById(String id) {
-		return Optional.empty();
+	public void findById(String id) {
 	}
 
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
-	public Set<Object> findAll() {
-		return Collections.emptySet();
+	public void findAll() {
 	}
 
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id")
-	public Optional<Object> getCommunity(String id) {
-		return Optional.empty();
+	public void getCommunity(String id) {
 	}
 
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
-	public Optional<Object> getProject(String id) {
-		return Optional.empty();
+	public void getProject(String id) {
 	}
 
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "id")
-	public Optional<Object> getLimitedProject(String id) {
-		return Optional.empty();
+	public void getLimitedProject(String id) {
 	}
 
-	public Set<Object> findAllWithClassScopeAuthorization() {
-		return Collections.emptySet();
+	public void findAllWithClassScopeAuthorization() {
 	}
 }

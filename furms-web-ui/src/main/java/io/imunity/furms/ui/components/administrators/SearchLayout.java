@@ -13,7 +13,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 
 public class SearchLayout extends HorizontalLayout {
-	private TextField textField;
+	private final TextField textField;
 	private String searchText = "";
 
 	public SearchLayout() {

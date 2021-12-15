@@ -6,7 +6,11 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
+import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -20,9 +24,10 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -31,10 +36,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectInstallationServiceTest {
 	@Mock
 	private ProjectOperationRepository repository;
@@ -62,7 +67,6 @@ class ProjectInstallationServiceTest {
 
 	@BeforeEach
 	void init() {
-		MockitoAnnotations.initMocks(this);
 		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectOperationService, usersDAO, siteRepository, communityRepository);
 		orderVerifier = inOrder(repository, siteAgentProjectOperationService);
 	}
@@ -71,9 +75,7 @@ class ProjectInstallationServiceTest {
 	void shouldCreateProjectInstallation() {
 		//given
 		ProjectInstallation projectInstallation = ProjectInstallation.builder().build();
-		//when
-		when(repository.findProjectInstallation(eq("projectAllocationId"), any()))
-			.thenReturn(projectInstallation);
+
 		service.createOrUpdate("projectId", projectInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
@@ -169,14 +171,8 @@ class ProjectInstallationServiceTest {
 			.id("id")
 			.leaderId(userId)
 			.build();
-		FURMSUser user = FURMSUser.builder()
-			.id(userId)
-			.email("email")
-			.build();
 
 		//when
-		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 		when(repository.findProjectInstallation(project.getId())).thenReturn(Set.of(
 			ProjectInstallationJob.builder()
 				.siteId("siteId")
@@ -184,7 +180,6 @@ class ProjectInstallationServiceTest {
 				.build()
 		));
 		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Set.of(ProjectUpdateStatus.ACKNOWLEDGED));
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 
 		assertThrows(IllegalStateException.class, () -> service.update(project));
 	}

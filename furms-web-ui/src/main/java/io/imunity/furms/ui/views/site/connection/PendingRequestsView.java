@@ -174,7 +174,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		grid.addColumn(model -> model.retryAmount)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.5"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> createContextMenu(model))
+		grid.addComponentColumn(this::createContextMenu)
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.6"))
 			.setTextAlign(ColumnTextAlign.END);
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(data -> {

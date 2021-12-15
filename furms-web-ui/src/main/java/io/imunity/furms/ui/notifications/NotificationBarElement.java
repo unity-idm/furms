@@ -85,9 +85,8 @@ public class NotificationBarElement {
 			return this;
 		}
 
-		public NotificationBarElementBuilder parameter(String parameter) {
+		public void parameter(String parameter) {
 			this.parameter = parameter;
-			return this;
 		}
 
 		public NotificationBarElement build() {

@@ -10,8 +10,7 @@ public enum MDCKey {
 
 	public final String key;
 
-	private MDCKey(String key)
-	{
+	MDCKey(String key) {
 		this.key = key;
 	}
 }

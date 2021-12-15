@@ -12,15 +12,15 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 class CommunityAllocationGridModel {
-	public String id;
-	public String siteName;
-	public String resourceTypeName;
-	public String resourceCreditName;
-	public String name;
-	public AmountWithUnit amountWithUnit;
-	public AmountWithUnit distributedWithUnit;
-	public AmountWithUnit remainingWithUnit;
-	public BigDecimal consumed;
+	public final String id;
+	public final String siteName;
+	public final String resourceTypeName;
+	public final String resourceCreditName;
+	public final String name;
+	public final AmountWithUnit amountWithUnit;
+	public final AmountWithUnit distributedWithUnit;
+	public final AmountWithUnit remainingWithUnit;
+	public final BigDecimal consumed;
 
 	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName,
 	                             ResourceMeasureUnit resourceTypeUnit, String resourceCreditName,

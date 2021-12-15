@@ -46,7 +46,7 @@ public class SettingsView extends FurmsViewComponent {
 	private final ProjectFormComponent projectFormComponent;
 	private final ProjectService projectService;
 	private final ProjectModelResolver resolver;
-	private ZoneId zoneId;
+	private final ZoneId zoneId;
 
 	private ProjectViewModel oldProject;
 

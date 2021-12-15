@@ -77,7 +77,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	private UUID projectAllocationId2;
 
 	@BeforeEach
-	void init() throws IOException {
+	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();

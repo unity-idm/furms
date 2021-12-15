@@ -12,7 +12,6 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
-import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,14 +29,11 @@ class PolicyDocumentServiceHelper {
 
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
-	private final UsersDAO usersDAO;
 
 	PolicyDocumentServiceHelper(PolicyDocumentRepository policyDocumentRepository,
-	                            PolicyDocumentDAO policyDocumentDAO,
-	                            UsersDAO usersDAO) {
+	                            PolicyDocumentDAO policyDocumentDAO) {
 		this.policyDocumentRepository = policyDocumentRepository;
 		this.policyDocumentDAO = policyDocumentDAO;
-		this.usersDAO = usersDAO;
 	}
 
 	@FurmsAuthorize(capability = POLICY_ACCEPTANCE_MAINTENANCE)

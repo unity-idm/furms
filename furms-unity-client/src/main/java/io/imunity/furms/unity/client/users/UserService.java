@@ -50,7 +50,6 @@ import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
 import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP_PATH;
-import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.SITE_USERS_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
@@ -324,7 +323,7 @@ public class UserService {
 			.flatMap(Collection::stream)
 			.collect(toList());
 
-		MultiGroupMembers multiGroupMembers = unityClient.post(path, groups, Map.of(), new ParameterizedTypeReference<MultiGroupMembers>() {});
+		MultiGroupMembers multiGroupMembers = unityClient.post(path, groups, Map.of(), new ParameterizedTypeReference<>() {});
 		Map<Long, List<Identity>> collect = multiGroupMembers.entities.stream().collect(toMap(x -> x.getEntityInformation().getId(), Entity::getIdentities));
 
 		return multiGroupMembers.members.values().stream()
