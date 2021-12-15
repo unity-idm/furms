@@ -35,7 +35,14 @@ public class ChartData {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ChartData chartData = (ChartData) o;
-		return Double.compare(chartData.threshold, threshold) == 0 && Objects.equals(unit, chartData.unit) && Objects.equals(projectAllocationName, chartData.projectAllocationName) && Objects.equals(endTime, chartData.endTime) && Objects.equals(resourceUsages, chartData.resourceUsages) && Objects.equals(chunks, chartData.chunks) && Objects.equals(thresholds, chartData.thresholds) && Objects.equals(times, chartData.times);
+		return Double.compare(chartData.threshold, threshold) == 0 &&
+			Objects.equals(unit, chartData.unit) &&
+			Objects.equals(projectAllocationName, chartData.projectAllocationName) &&
+			Objects.equals(endTime, chartData.endTime) &&
+			Objects.equals(resourceUsages, chartData.resourceUsages) &&
+			Objects.equals(chunks, chartData.chunks) &&
+			Objects.equals(thresholds, chartData.thresholds) &&
+			Objects.equals(times, chartData.times);
 	}
 
 	@Override
@@ -66,10 +73,10 @@ public class ChartData {
 		private String unit;
 		private String projectAllocationName;
 		private LocalDate endTime;
-		private List<Double> resourceUsages;
-		private List<Double> chunks;
-		private List<Double> thresholds;
-		private List<LocalDate> times;
+		private List<Double> resourceUsages = List.of();
+		private List<Double> chunks = List.of();
+		private List<Double> thresholds = List.of();
+		private List<LocalDate> times = List.of();
 
 		private ChartDataBuilder() {
 		}

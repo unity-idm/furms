@@ -13,6 +13,7 @@ import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
@@ -124,6 +126,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 				.communityAllocationId(UUID.fromString(projectAllocation.communityAllocationId))
 				.name(projectAllocation.name)
 				.amount(projectAllocation.amount)
+				.creationTime(convertToUTCTime(ZonedDateTime.now()))
 				.build()
 		);
 		return savedProjectAllocation.getId().toString();
@@ -138,6 +141,7 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 				.communityAllocationId(UUID.fromString(projectAllocation.communityAllocationId))
 				.name(projectAllocation.name)
 				.amount(projectAllocation.amount)
+				.creationTime(oldProjectAllocation.creationTime)
 				.build()
 			)
 			.map(repository::save)

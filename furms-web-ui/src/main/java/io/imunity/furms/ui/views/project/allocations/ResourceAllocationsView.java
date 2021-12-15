@@ -25,7 +25,7 @@ import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.AllocationDetailsComponentFactory;
 import io.imunity.furms.ui.components.ResourceProgressBar;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
@@ -136,7 +136,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 			.setTextAlign(ColumnTextAlign.END);
 
 
-		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> AllocationDetailsComponentFactory
 			.create(projectDataSnapshot.getChunks(c.id), c.amountWithUnit.unit)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 

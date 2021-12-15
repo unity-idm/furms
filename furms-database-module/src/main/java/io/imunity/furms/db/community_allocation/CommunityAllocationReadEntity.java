@@ -14,6 +14,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,10 +31,11 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 	public final String communityName;
 	public final String name;
 	public final BigDecimal amount;
+	public final LocalDateTime creationTime;
 
 	CommunityAllocationReadEntity(UUID id, String name,
 	                              UUID communityId, String communityName, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
-	                              ResourceCreditEntity resourceCredit) {
+	                              ResourceCreditEntity resourceCredit, LocalDateTime creationTime) {
 		this.id = id;
 		this.name = name;
 		this.communityId = communityId;
@@ -42,6 +44,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 		this.site = site;
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
+		this.creationTime = creationTime;
 	}
 
 	public boolean isExpired() {
@@ -57,6 +60,7 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			", communityName=" + communityName +
 			", name='" + name + '\'' +
 			", amount=" + amount +
+			", creationTime=" + creationTime +
 			", id=" + id +
 			'}';
 	}
@@ -73,12 +77,13 @@ public class CommunityAllocationReadEntity extends UUIDIdentifiable {
 			&& Objects.equals(communityName, that.communityName)
 			&& Objects.equals(communityId, that.communityId)
 			&& Objects.equals(name, that.name)
+			&& Objects.equals(creationTime, that.creationTime)
 			&& Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount, communityName);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityId, name, amount, creationTime, communityName);
 	}
 
 }

@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
@@ -43,6 +45,12 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ResourceUsage> findAllResourceUsageHistory(String projectId, String projectAllocations) {
 		return resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocations));
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(String communityId, String communityAllocationId) {
+		return resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(UUID.fromString(communityAllocationId));
 	}
 
 }

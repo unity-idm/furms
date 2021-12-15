@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.charts.ChartPowerService;
+import io.imunity.furms.ui.charts.FilePowerService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -29,11 +30,14 @@ import static java.util.Optional.ofNullable;
 public class ProjectResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private final ChartPowerService chartPowerService;
+	private final FilePowerService filePowerService;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPowerService chartPowerService) {
+	ProjectResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService,
+	                                      ChartPowerService chartPowerService, FilePowerService filePowerService) {
 		this.projectAllocationService = projectAllocationService;
 		this.chartPowerService = chartPowerService;
+		this.filePowerService = filePowerService;
 	}
 
 	@Override
@@ -58,9 +62,9 @@ public class ProjectResourceAllocationsDetailsView extends FurmsViewComponent {
 			);
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
-				chartPowerService.getChartData(projectAllocation.get().projectId, projectAllocation.get().id),
-				chartPowerService.getJsonFile(projectAllocation.get().projectId, projectAllocation.get().id),
-				chartPowerService.getCsvFile(projectAllocation.get().projectId, projectAllocation.get().id)
+				chartPowerService.getChartDataForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
+				filePowerService.getJsonFileForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
+				filePowerService.getCsvFileForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id)
 			);
 			getContent().add(resourceAllocationChart);
 		}

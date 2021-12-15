@@ -11,6 +11,7 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectAllocationResolved {
@@ -25,10 +26,11 @@ public class ProjectAllocationResolved {
 	public final String name;
 	public final BigDecimal amount;
 	public final BigDecimal consumed;
+	public final LocalDateTime creationTime;
 
 	ProjectAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
 	                          CommunityAllocation communityAllocation, String projectId, String projectName, String name,
-	                          BigDecimal amount, BigDecimal consumed) {
+	                          BigDecimal amount, BigDecimal consumed, LocalDateTime creationTime) {
 		this.id = id;
 		this.site = site;
 		this.resourceType = resourceType;
@@ -39,6 +41,7 @@ public class ProjectAllocationResolved {
 		this.name = name;
 		this.amount = amount;
 		this.consumed = consumed;
+		this.creationTime = creationTime;
 	}
 
 	@Override
@@ -55,12 +58,13 @@ public class ProjectAllocationResolved {
 			Objects.equals(communityAllocation, that.communityAllocation) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(consumed, that.consumed) &&
+			Objects.equals(creationTime, that.creationTime) &&
 			Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, projectName, name, amount, consumed);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, projectName, name, amount, consumed, creationTime);
 	}
 
 	@Override
@@ -76,6 +80,7 @@ public class ProjectAllocationResolved {
 			", name='" + name + '\'' +
 			", amount='" + amount + '\'' +
 			", consumed='" + consumed + '\'' +
+			", creationTime='" + creationTime + '\'' +
 			'}';
 	}
 
@@ -84,16 +89,17 @@ public class ProjectAllocationResolved {
 	}
 
 	public static final class CommunityAllocationResolvedBuilder {
-		protected String id;
-		public Site site;
-		public ResourceType resourceType;
-		public ResourceCredit resourceCredit;
-		public CommunityAllocation communityAllocation;
-		public String projectId;
-		public String projectName;
-		public String name;
-		public BigDecimal amount;
-		public BigDecimal consumed;
+		private String id;
+		private Site site;
+		private ResourceType resourceType;
+		private ResourceCredit resourceCredit;
+		private CommunityAllocation communityAllocation;
+		private String projectId;
+		private String projectName;
+		private String name;
+		private BigDecimal amount;
+		private BigDecimal consumed;
+		private LocalDateTime creationTime;
 
 		private CommunityAllocationResolvedBuilder() {
 		}
@@ -148,9 +154,14 @@ public class ProjectAllocationResolved {
 			return this;
 		}
 
+		public CommunityAllocationResolvedBuilder creationTime(LocalDateTime creationTime) {
+			this.creationTime = creationTime;
+			return this;
+		}
+
 		public ProjectAllocationResolved build() {
 			return new ProjectAllocationResolved(id, site, resourceType, resourceCredit, communityAllocation, projectId,
-				projectName, name, amount, consumed);
+				projectName, name, amount, consumed, creationTime);
 		}
 	}
 }

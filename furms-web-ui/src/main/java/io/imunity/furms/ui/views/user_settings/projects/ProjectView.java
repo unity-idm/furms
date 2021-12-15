@@ -26,15 +26,14 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.UserGrant;
-import io.imunity.furms.ui.components.ResourceProgressBar;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.AllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.ResourceProgressBar;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -93,25 +92,25 @@ public class ProjectView extends FurmsViewComponent {
 			Icon icon = grid.isDetailsVisible(allocation) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
 			return new Div(icon, new Label(allocation.siteName));
 		})
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.1"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.1"))
 			.setSortable(true);
 		grid.addColumn(model -> model.name)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.2"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.2"))
 			.setSortable(true)
 			.setComparator(model -> model.name.toLowerCase());
 		grid.addColumn(model -> model.resourceTypeName)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.3"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.3"))
 			.setSortable(true);
 		grid.addColumn(model -> model.amountWithUnit)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.4"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.4"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.amountWithUnit.amount));
 		grid.addColumn(model -> model.consumedWithUnit)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.5"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.5"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.consumedWithUnit.amount));
 		grid.addColumn(model -> model.remainingWithUnit)
-			.setHeader(getTranslation("view.project-admin.resource-allocations.grid.column.6"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.6"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.remainingWithUnit.amount));
 		grid.addComponentColumn(c -> {
@@ -132,10 +131,10 @@ public class ProjectView extends FurmsViewComponent {
 						getContent());
 				}).orElseGet(StatusLayout::new);
 		})
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.7"))
 			.setSortable(true);
 		grid.addColumn(x -> getEnabledValue(x.id, x.accessibleForAllProjectMembers))
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.9"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.8"))
 			.setSortable(true);
 		grid.addComponentColumn(model ->
 			new ResourceProgressBar(
@@ -144,14 +143,14 @@ public class ProjectView extends FurmsViewComponent {
 				projectDataSnapshot.projectAllocationDataSnapshot.getAlarmThreshold(model.id)
 			)
 		)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.10"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.CENTER);
 		grid.addComponentColumn(this::createLastColumnContent)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.11"))
+			.setHeader(getTranslation("view.user-settings.project-allocation.grid.column.10"))
 			.setTextAlign(ColumnTextAlign.END);
 
 
-		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> ProjectAllocationDetailsComponentFactory
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> AllocationDetailsComponentFactory
 			.create(projectDataSnapshot.getParent().getChunks(c.id), c.amountWithUnit.unit)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 

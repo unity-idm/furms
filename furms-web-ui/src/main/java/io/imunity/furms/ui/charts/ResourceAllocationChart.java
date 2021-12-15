@@ -35,13 +35,21 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 public class ResourceAllocationChart extends VerticalLayout {
+	public final boolean disableThreshold;
 
 	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile) {
+		this(chartData, jsonFile, csvFile, false);
+	}
+
+	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile, boolean disableThreshold) {
+		this.disableThreshold = disableThreshold;
 		ApexCharts areaChart = ApexChartsBuilder.get()
 			.withChart(ChartBuilder.get()
 				.withType(Type.area)
@@ -92,17 +100,14 @@ public class ResourceAllocationChart extends VerticalLayout {
 	}
 
 	private Series<?>[] createSeries(ChartData chartData) {
-		if(chartData.threshold < 1){
-			return new Series[] {
-				new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()),
-				new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()),
-			};
-		}
-		return new Series[] {
-			new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()),
-			new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()),
-			new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray())
-		};
+		Set<Series<Object>> series = new HashSet<>();
+
+		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()));
+		if(!chartData.chunks.isEmpty())
+			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
+		if(!(chartData.threshold < 1 || disableThreshold))
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
+		return series.toArray(Series[]::new);
 	}
 
 	private Annotations getAnnotations(double threshold) {
