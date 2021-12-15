@@ -125,6 +125,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationChunk> findAllChunks(String projectId, String projectAllocationId) {
+		validator.validateProjectIdAndProjectAllocationId(projectId, projectAllocationId);
 		return projectAllocationInstallationService.findAllChunksByAllocationId(projectAllocationId);
 	}
 
