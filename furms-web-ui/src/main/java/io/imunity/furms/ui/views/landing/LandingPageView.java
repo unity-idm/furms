@@ -63,12 +63,13 @@ public class LandingPageView extends FurmsViewComponent implements AfterNavigati
 				.toArray(VerticalLayout[]::new);
 
 		final VerticalLayout rolePicker = new VerticalLayout();
+		rolePicker.setId(MAIN_VIEW_CONTAINER_ID);
 		rolePicker.setDefaultHorizontalComponentAlignment(CENTER);
 		rolePicker.add(new H3(getTranslation("view.landing.title")));
 		rolePicker.add(linksBlocks);
 
 		final HorizontalLayout viewContent = new HorizontalLayout();
-		viewContent.setId(MAIN_VIEW_CONTAINER_ID);
+		viewContent.setId("landing-page-container");
 		viewContent.setAlignItems(FlexComponent.Alignment.STRETCH);
 		viewContent.add(left, rolePicker, right);
 
