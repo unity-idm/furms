@@ -6,8 +6,6 @@
 package io.imunity.furms.integration.tests.security.users;
 
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
@@ -52,8 +50,7 @@ class UserServiceSecurityTest extends SecurityTestsBase {
 						siteSupport(otherSite),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.setUserStatus(fenixId, UserStatus.ENABLED),
 				() -> service.getUserStatus(fenixId),
 				() -> service.getUserRecord(fenixId))
@@ -71,6 +68,6 @@ class UserServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(UserService.class, server);
 	}
 }

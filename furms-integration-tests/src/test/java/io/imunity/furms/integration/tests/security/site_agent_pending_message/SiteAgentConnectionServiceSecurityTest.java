@@ -51,8 +51,7 @@ class SiteAgentConnectionServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.retry(siteId, CorrelationId.randomID()),
 				() -> service.delete(siteId, CorrelationId.randomID()))
 				.accessFor(
@@ -69,7 +68,7 @@ class SiteAgentConnectionServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(SiteAgentConnectionService.class, server);
 	}
 
 }

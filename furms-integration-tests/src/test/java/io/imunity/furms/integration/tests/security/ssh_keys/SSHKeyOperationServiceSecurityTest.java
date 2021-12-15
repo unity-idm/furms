@@ -6,7 +6,6 @@
 package io.imunity.furms.integration.tests.security.ssh_keys;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
-import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +49,6 @@ class SSHKeyOperationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(SSHKeyOperationService.class, server);
 	}
 }

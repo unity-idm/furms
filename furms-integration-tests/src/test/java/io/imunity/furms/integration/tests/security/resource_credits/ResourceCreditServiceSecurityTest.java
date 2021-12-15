@@ -49,8 +49,7 @@ class ResourceCreditServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll(),
 				() -> service.findAllNotExpiredByResourceTypeId(resourceType),
 				() -> service.findAllWithAllocations("name", false, false))
@@ -68,8 +67,7 @@ class ResourceCreditServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.create(ResourceCredit.builder().siteId(site).build()),
 				() -> service.update(ResourceCredit.builder().siteId(site).build()),
 				() -> service.delete(resourceCredit, site),
@@ -89,6 +87,6 @@ class ResourceCreditServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ResourceCreditService.class, server);
 	}
 }

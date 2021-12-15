@@ -8,7 +8,6 @@ package io.imunity.furms.integration.tests.security.communities;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,7 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findById(community),
 				() -> service.findAllUsers(community),
 				() -> service.findAllAdmins(community),
@@ -80,8 +78,7 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll(),
 				() -> service.create(Community.builder().id(community).build()),
 				() -> service.delete(community))
@@ -99,7 +96,7 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(CommunityService.class, server);
 	}
 
 }

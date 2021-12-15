@@ -6,12 +6,9 @@
 package io.imunity.furms.integration.tests.security.applications;
 
 import io.imunity.furms.api.applications.ProjectApplicationsService;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
@@ -53,8 +50,7 @@ class ProjectApplicationsServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.accept(project, fenixId),
 				() -> service.remove(project, fenixId))
 				.accessFor(
@@ -71,7 +67,7 @@ class ProjectApplicationsServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ProjectApplicationsService.class, server);
 	}
 
 }

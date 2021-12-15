@@ -8,7 +8,6 @@ package io.imunity.furms.integration.tests.security.generic_group;
 import io.imunity.furms.api.generic_groups.GenericGroupService;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,7 @@ class GenericGroupServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll(community),
 				() -> service.findGroupWithAssignments(community, genericGroupId),
 				() -> service.findBy(community, genericGroupId),
@@ -79,7 +77,7 @@ class GenericGroupServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(GenericGroupService.class, server);
 	}
 
 }

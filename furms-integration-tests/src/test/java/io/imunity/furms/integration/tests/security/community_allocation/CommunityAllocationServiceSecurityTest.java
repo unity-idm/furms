@@ -53,8 +53,7 @@ class CommunityAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findById(communityAllocation),
 				() -> service.findByIdWithRelatedObjects(communityAllocation),
 				() -> service.findAll(),
@@ -77,6 +76,6 @@ class CommunityAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(CommunityAllocationService.class, server);
 	}
 }

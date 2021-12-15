@@ -6,10 +6,8 @@
 package io.imunity.furms.integration.tests.security.invitations;
 
 import io.imunity.furms.api.invitations.InviteeService;
-import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
-import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -55,6 +53,6 @@ class InviteeServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(InviteeService.class, server);
 	}
 }

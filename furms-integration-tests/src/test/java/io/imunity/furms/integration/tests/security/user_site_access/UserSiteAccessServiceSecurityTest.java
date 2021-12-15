@@ -6,13 +6,9 @@
 package io.imunity.furms.integration.tests.security.user_site_access;
 
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
@@ -52,8 +48,7 @@ public class UserSiteAccessServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.getUsersSitesAccesses(project))
 				.accessFor(
 						communityAdmin(community),
@@ -69,6 +64,6 @@ public class UserSiteAccessServiceSecurityTest extends SecurityTestsBase {
 						communityAdmin(otherCommunity),
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(UserSiteAccessService.class, server);
 	}
 }

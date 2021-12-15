@@ -47,8 +47,7 @@ class ResourceAccessServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAddedUser(project),
 				() -> service.findUsersGrants(project))
 				.accessFor(
@@ -65,8 +64,7 @@ class ResourceAccessServiceSecurityTest extends SecurityTestsBase {
 						communityAdmin(otherCommunity),
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAddedUserBySiteId(site))
 				.accessFor(
 						fenixAdmin(),
@@ -82,8 +80,7 @@ class ResourceAccessServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.grantAccess(GrantAccess.builder().projectId(project).build()),
 				() -> service.revokeAccess(GrantAccess.builder().projectId(project).build()))
 				.accessFor(
@@ -100,6 +97,6 @@ class ResourceAccessServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ResourceAccessService.class, server);
 	}
 }

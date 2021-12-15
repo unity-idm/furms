@@ -6,7 +6,6 @@
 package io.imunity.furms.integration.tests.security.project_allocation;
 
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,7 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findByProjectIdAndId(project, projectAllocation),
 				() -> service.findByIdValidatingProjectsWithRelatedObjects(projectAllocation, project),
 				() -> service.findAllWithRelatedObjects(community, project),
@@ -71,8 +69,7 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						communityAdmin(otherCommunity),
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findByIdWithRelatedObjects(community, projectAllocation),
 				() -> service.getOccupiedNames(community, projectAllocation),
 				() -> service.getAvailableAmount(community, communityAllocation),
@@ -93,8 +90,7 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAllChunksBySiteId(site),
 				() -> service.findAllChunksBySiteIdAndProjectId(site, project),
 				() -> service.findAllWithRelatedObjectsBySiteId(site),
@@ -113,7 +109,7 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ProjectAllocationService.class, server);
 	}
 
 }

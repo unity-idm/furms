@@ -11,8 +11,6 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Set;
-
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.communityAdmin;
@@ -21,7 +19,6 @@ import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.p
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.projectUser;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteAdmin;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.siteSupport;
-import static java.time.LocalDateTime.now;
 
 class InfraServiceServiceSecurityTest extends SecurityTestsBase {
 
@@ -52,8 +49,7 @@ class InfraServiceServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll())
 				.accessFor(
 						fenixAdmin())
@@ -69,8 +65,7 @@ class InfraServiceServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.create(InfraService.builder().siteId(site).build()),
 				() -> service.update(InfraService.builder().siteId(site).build()),
 				() -> service.delete(infraService, site))
@@ -88,6 +83,6 @@ class InfraServiceServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(InfraServiceService.class, server);
 	}
 }

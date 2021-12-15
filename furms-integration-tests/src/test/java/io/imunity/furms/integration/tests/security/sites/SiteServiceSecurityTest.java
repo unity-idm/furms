@@ -8,8 +8,6 @@ package io.imunity.furms.integration.tests.security.sites;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +53,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findById(site),
 				() -> service.isNamePresentIgnoringRecord("name", site),
 				() -> service.findAllAdministrators(site),
@@ -78,8 +75,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.isNamePresent("name"),
 				() -> service.findAll(),
 				() -> service.create(Site.builder().build()),
@@ -98,8 +94,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.update(Site.builder().id(site).build()),
 				() -> service.inviteAdmin(site, persistentId),
 				() -> service.inviteAdmin(site, "indiana.jones@colorado.edu.us"),
@@ -130,6 +125,6 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(SiteService.class, server);
 	}
 }

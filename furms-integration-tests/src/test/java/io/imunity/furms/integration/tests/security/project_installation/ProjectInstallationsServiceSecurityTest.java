@@ -6,7 +6,6 @@
 package io.imunity.furms.integration.tests.security.project_installation;
 
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +47,7 @@ class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAllByProjectId(project),
 				() -> service.findAllUpdatesByProjectId(project))
 				.accessFor(
@@ -66,8 +64,7 @@ class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 						communityAdmin(otherCommunity),
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAllByCommunityId(community),
 				() -> service.findAllUpdatesByCommunityId(community))
 				.accessFor(
@@ -84,8 +81,7 @@ class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAllSiteInstalledProjectsBySiteId(site),
 				() -> service.findAllBySiteId(site))
 				.accessFor(
@@ -102,7 +98,7 @@ class ProjectInstallationsServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ProjectInstallationsService.class, server);
 	}
 
 }

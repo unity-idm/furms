@@ -6,7 +6,6 @@
 package io.imunity.furms.integration.tests.security.user.api.key;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ class UserApiKeyServiceSecurityTest extends SecurityTestsBase {
 						siteSupport(otherSite),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(UserApiKeyService.class, server);
 	}
 
 }

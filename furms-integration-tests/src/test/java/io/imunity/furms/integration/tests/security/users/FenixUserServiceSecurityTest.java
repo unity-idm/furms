@@ -7,7 +7,6 @@ package io.imunity.furms.integration.tests.security.users;
 
 import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +57,6 @@ class FenixUserServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+				.verifySecurityRulesAndInterfaceCoverage(FenixUserService.class, server);
 	}
 }

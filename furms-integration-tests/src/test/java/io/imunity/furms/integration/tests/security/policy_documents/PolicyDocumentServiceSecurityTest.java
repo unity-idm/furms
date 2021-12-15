@@ -6,16 +6,11 @@
 package io.imunity.furms.integration.tests.security.policy_documents;
 
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.basicUser;
@@ -54,8 +49,7 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findById(site, policy),
 				() -> service.findAllUsersPolicies(site),
 				() -> service.findAllBySiteId(site),
@@ -77,8 +71,7 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.create(PolicyDocument.builder().siteId(site).build()),
 				() -> service.update(PolicyDocument.builder().siteId(site).build()),
 				() -> service.updateWithRevision(PolicyDocument.builder().siteId(site).build()),
@@ -97,8 +90,7 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll())
 				.accessFor(
 						fenixAdmin())
@@ -114,7 +106,7 @@ class PolicyDocumentServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(PolicyDocumentService.class, server);
 
 	}
 }

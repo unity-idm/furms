@@ -35,6 +35,7 @@ class AdminApiKeyService implements UserApiKeyService, AdminApiKeyFinder {
 		this.usersDAO = usersDAO;
 	}
 
+	@Override
 	public Optional<FURMSUser> findUserByUserIdAndApiKey(PersistentId userId, UUID apiKey) {
 		final boolean exists = repository.exists(UserApiKey.builder()
 				.userId(userId)

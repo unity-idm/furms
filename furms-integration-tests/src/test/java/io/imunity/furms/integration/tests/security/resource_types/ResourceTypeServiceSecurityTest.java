@@ -49,8 +49,7 @@ class ResourceTypeServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAll())
 				.accessFor(
 						fenixAdmin())
@@ -66,8 +65,7 @@ class ResourceTypeServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.create(ResourceType.builder().siteId(site).build()),
 				() -> service.update(ResourceType.builder().siteId(site).build()),
 				() -> service.delete(resourceType, site))
@@ -85,6 +83,6 @@ class ResourceTypeServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ResourceTypeService.class, server);
 	}
 }

@@ -10,7 +10,6 @@ import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +56,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.update(new ProjectAdminControlledAttributes(
 						project, "description", "researchField", FurmsImage.empty())),
 				() -> service.addUser(community, project, persistentId),
@@ -87,8 +85,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findById(project),
 				() -> service.isProjectInTerminalState(project),
 				() -> service.isProjectExpired(project),
@@ -111,8 +108,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						communityAdmin(otherCommunity),
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.update(Project.builder().id(project).build()))
 				.accessFor(
 						communityAdmin(community))
@@ -128,8 +124,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
-		forMethods(
+		.andForMethods(
 				() -> service.findAllByCommunityId(community),
 				() -> service.findAllNotExpiredByCommunityId(community),
 				() -> service.isProjectInTerminalState(community, project),
@@ -149,7 +144,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
-				.validate(server);
+		.verifySecurityRulesAndInterfaceCoverage(ProjectService.class, server);
 	}
 
 }
