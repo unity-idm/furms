@@ -39,7 +39,6 @@ import java.util.Set;
 
 import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;

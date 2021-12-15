@@ -93,6 +93,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 				() -> service.isAdmin(project),
 				() -> service.hasAdminRights(project),
 				() -> service.findAllUsers(community, project),
+				() -> service.findAllUsers(project),
 				() -> service.resignFromMembership(community, project))
 				.accessFor(
 						communityAdmin(community),
