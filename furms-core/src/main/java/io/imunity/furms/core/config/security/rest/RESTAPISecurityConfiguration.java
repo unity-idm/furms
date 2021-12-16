@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.imunity.furms.api.user.api.key.UserApiKeyService;
+import io.imunity.furms.core.users.api.key.AdminApiKeyFinder;
 import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +40,16 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private static final Logger LOG = LoggerFactory.getLogger(RESTAPISecurityConfiguration.class);
 	private final SecurityProperties configuration;
 	private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-	private final UserApiKeyService userApiKeyService;
+	private final AdminApiKeyFinder adminApiKeyFinder;
 	private final RoleLoader roleLoader;
 
 	RESTAPISecurityConfiguration(
 			SecurityProperties configuration,
-			UserApiKeyService userApiKeyService,
+			AdminApiKeyFinder adminApiKeyFinder,
 			RoleLoader roleLoader
 	) {
 		this.configuration = configuration;
-		this.userApiKeyService = userApiKeyService;
+		this.adminApiKeyFinder = adminApiKeyFinder;
 		this.roleLoader = roleLoader;
 	}
 
@@ -59,7 +59,7 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatcher("/rest-api/**")
 				.addFilterAfter(new UserContextSetterFilter(), BasicAuthenticationFilter.class)
 				.addFilterAt(
-						new RestApiBasicAuthenticationFilter(super.authenticationManagerBean(), userApiKeyService, roleLoader),
+						new RestApiBasicAuthenticationFilter(super.authenticationManagerBean(), adminApiKeyFinder, roleLoader),
 						BasicAuthenticationFilter.class)
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.csrf().disable()

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.constant.SSHKeysConst.MAX_HISTORY_SIZE;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.*;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
@@ -51,13 +50,13 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
 	}
 
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	@Override
 	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
 	}
 	
-	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	@Override
 	public List<SSHKeyOperationJob> findBySSHKeyId(String sshkeyId) {
 		return sshKeyOperationRepository.findBySSHKey(sshkeyId);

@@ -5,6 +5,7 @@
 
 package io.imunity.furms;
 
+import io.imunity.furms.core.users.api.key.AdminApiKeyFinder;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
@@ -17,7 +18,7 @@ public class TestBeansRegistry {
 	protected UserService userService;
 
 	@MockBean
-	protected UserApiKeyService userApiKeyService;
+	protected AdminApiKeyFinder adminApiKeyFinder;
 
 	@MockBean
 	protected RoleLoader roleLoader;

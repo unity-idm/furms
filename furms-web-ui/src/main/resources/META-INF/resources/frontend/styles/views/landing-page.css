@@ -6,3 +6,12 @@
 .landing-page .button-link {
     width: 25em;
 }
+
+#furms-layout {
+    display: flex;
+    overflow: hidden;
+}
+
+#landing-page-container {
+    overflow: auto;
+}

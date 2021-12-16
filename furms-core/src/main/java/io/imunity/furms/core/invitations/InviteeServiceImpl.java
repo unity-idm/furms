@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
@@ -70,7 +69,7 @@ class InviteeServiceImpl implements InviteeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public void acceptBy(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		Invitation invitation = invitationRepository.findBy(id)
@@ -128,7 +127,7 @@ class InviteeServiceImpl implements InviteeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<Invitation> findAllByCurrentUser() {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		if(user.fenixUserId.isEmpty())
@@ -138,7 +137,7 @@ class InviteeServiceImpl implements InviteeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public void removeBy(InvitationId id) {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		invitationRepository.findBy(id, user.email).ifPresent(invitation -> {

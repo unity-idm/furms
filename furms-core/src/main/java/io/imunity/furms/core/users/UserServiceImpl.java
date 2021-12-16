@@ -32,7 +32,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.imunity.furms.domain.authz.roles.Capability.READ_ALL_USERS;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.users.UserAccountStatusUpdateReason.SECURITY_INCIDENT;
 
 @Service
@@ -56,13 +55,13 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = READ_ALL_USERS)
 	public List<FURMSUser> getAllUsers(){
 		return usersDAO.getAllUsers();
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public void setUserStatus(FenixUserId fenixUserId, UserStatus status) {
 		checkNotNull(status);
 		checkNotNull(fenixUserId);
@@ -79,7 +78,7 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public UserStatus getUserStatus(FenixUserId fenixUserId) {
 		checkNotNull(fenixUserId);
 		try {
@@ -91,7 +90,7 @@ class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = READ_ALL_USERS)
 	public Optional<FURMSUser> findById(PersistentId userId) {
 		checkNotNull(userId);
 		checkNotNull(userId.id);
@@ -99,7 +98,7 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = READ_ALL_USERS, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = READ_ALL_USERS)
 	public Optional<FURMSUser> findByFenixUserId(FenixUserId fenixUserId) {
 		checkNotNull(fenixUserId);
 		checkNotNull(fenixUserId.id);
@@ -107,7 +106,7 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public UserRecord getUserRecord(FenixUserId fenixUserId) {
 		try {
 			FURMSUser user = findByFenixUserId(fenixUserId)

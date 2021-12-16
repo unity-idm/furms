@@ -20,6 +20,7 @@ import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +45,15 @@ class AlarmServiceImpl implements AlarmService {
 	private final AlarmRepository alarmRepository;
 	private final UsersDAO usersDAO;
 	private final FiredAlarmsServiceImpl firedAlarmsService;
+	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ApplicationEventPublisher publisher;
 
-	AlarmServiceImpl(AlarmRepository alarmRepository, UsersDAO usersDAO, FiredAlarmsServiceImpl firedAlarmsService, ApplicationEventPublisher publisher) {
+	AlarmServiceImpl(AlarmRepository alarmRepository, UsersDAO usersDAO, FiredAlarmsServiceImpl firedAlarmsService,
+	                 ProjectAllocationRepository projectAllocationRepository, ApplicationEventPublisher publisher) {
 		this.alarmRepository = alarmRepository;
 		this.usersDAO = usersDAO;
 		this.firedAlarmsService = firedAlarmsService;
+		this.projectAllocationRepository = projectAllocationRepository;
 		this.publisher = publisher;
 	}
 
@@ -76,6 +80,11 @@ class AlarmServiceImpl implements AlarmService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
 	public Optional<AlarmWithUserEmails> find(String projectId, String projectAllocationId) {
+		projectAllocationRepository.findById(projectAllocationId)
+			.filter(allocation -> allocation.projectId.equals(projectId))
+			.orElseThrow(() -> new IllegalArgumentException(String.format(
+				"Project id %s and project allocation id %s are not related", projectId, projectAllocationId)
+			));
 		Map<FenixUserId, String> groupedUsers = getUserEmails();
 
 		return alarmRepository.find(projectAllocationId)

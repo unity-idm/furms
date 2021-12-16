@@ -10,7 +10,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
@@ -86,14 +85,14 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<UserSitesInstallationInfoData> findCurrentUserSitesInstallations() {
 		final PersistentId currentUserId = authzService.getCurrentUserId();
 		return findByUserId(currentUserId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public Set<SiteUser> findUserSitesInstallations(PersistentId userId) {
 		final FenixUserId fenixUserId = ofNullable(usersDAO.getFenixUserId(userId))
 				.orElse(null);
@@ -142,7 +141,7 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = USERS_MAINTENANCE, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
 	public Set<UserAddition> findAllByFenixUserId(FenixUserId fenixUserId) {
 		return repository.findAllUserAdditions(fenixUserId);
 	}

@@ -35,8 +35,13 @@ class UnityMonitoringDAOImpl implements UnityMonitoringDAO {
 
 	private Predicate<? super Throwable> isConnectException() {
 		return ex -> {
-			Throwable exceptionToMatch = ex.getCause() != null ? ex.getCause() : ex;
-			return exceptionToMatch.getClass().isAssignableFrom(ConnectException.class);
+			Throwable exceptionToMatch = ex;
+			while (exceptionToMatch != null) {
+				if (exceptionToMatch.getClass().isAssignableFrom(ConnectException.class))
+					return true;
+				exceptionToMatch = exceptionToMatch.getCause();
+			}
+			return false;
 		};
 	}
 }

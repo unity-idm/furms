@@ -49,7 +49,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTA
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_POLICY_ACCEPTANCE_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -136,7 +135,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<PolicyDocumentExtended> findAllByCurrentUser() {
 		Optional<FenixUserId> userId = authzService.getCurrentAuthNUser().fenixUserId;
 		if(userId.isEmpty())
@@ -166,7 +165,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = AUTHENTICATED)
 	public void addCurrentUserPolicyAcceptance(PolicyAcceptance policyAcceptance) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		addUserPolicyAcceptance(currentAuthNUser, policyAcceptance);
