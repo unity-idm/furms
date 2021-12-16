@@ -73,7 +73,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Optional<ProjectAllocationResolved> findByIdValidatingProjectsWithRelatedObjects(String allocationId,
 	                                                                                        String projectId) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, allocationId);
@@ -120,6 +120,13 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectAllocationChunk> findAllChunks(String projectId) {
 		return projectAllocationInstallationService.findAllChunks(projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ProjectAllocationChunk> findAllChunks(String projectId, String projectAllocationId) {
+		validator.validateProjectIdAndProjectAllocationId(projectId, projectAllocationId);
+		return projectAllocationInstallationService.findAllChunksByAllocationId(projectAllocationId);
 	}
 
 	@Override

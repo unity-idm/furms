@@ -135,6 +135,13 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 				.collect(toSet());
 	}
 
+	@Override
+	public Set<ResourceUsage> findResourceUsagesHistory(UUID projectAllocationId) {
+		return resourceUsageHistoryEntityRepository.findAllByProjectAllocationId(projectAllocationId).stream()
+			.map(ResourceUsageHistoryEntity::toResourceUsage)
+			.collect(toSet());
+	}
+
 	private Collector<ResourceUsageEntity, ?, Map<String, BigDecimal>> getResourceUsageSumCollector(Function<ResourceUsageEntity, String> classifier) {
 		return groupingBy(
 					classifier,

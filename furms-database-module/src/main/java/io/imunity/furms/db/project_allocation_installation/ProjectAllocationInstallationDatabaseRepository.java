@@ -14,6 +14,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Optional;
 import java.util.Set;
@@ -85,6 +86,16 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			throw new IllegalArgumentException("Project Id is empty");
 		}
 		return chunkRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+			.map(ProjectAllocationChunkEntity::toProjectAllocationChunk)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<ProjectAllocationChunk> findAllChunksByAllocationId(String projectAllocationId) {
+		if (ObjectUtils.isEmpty(projectAllocationId)) {
+			throw new IllegalArgumentException("Project Id is empty");
+		}
+		return chunkRepository.findAllByProjectAllocationId(UUID.fromString(projectAllocationId)).stream()
 			.map(ProjectAllocationChunkEntity::toProjectAllocationChunk)
 			.collect(Collectors.toSet());
 	}

@@ -7,7 +7,9 @@ package io.imunity.furms.core.resource_usage;
 
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +17,20 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
-public class ResourceUsageServiceImpl implements ResourceUsageService {
+class ResourceUsageServiceImpl implements ResourceUsageService {
 
 	private final ResourceUsageRepository resourceUsageRepository;
+	private final ProjectAllocationRepository projectAllocationRepository;
 
-	public ResourceUsageServiceImpl(ResourceUsageRepository resourceUsageRepository) {
+	ResourceUsageServiceImpl(ResourceUsageRepository resourceUsageRepository, ProjectAllocationRepository projectAllocationRepository) {
 		this.resourceUsageRepository = resourceUsageRepository;
+		this.projectAllocationRepository = projectAllocationRepository;
 	}
 
 	@Override
@@ -34,6 +40,17 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
 	                                                LocalDateTime from,
 	                                                LocalDateTime to) {
 		return resourceUsageRepository.findUserResourceUsages(projectAllocations, from, to);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	public Set<ResourceUsage> findAllResourceUsageHistory(String projectId, String projectAllocationId) {
+		projectAllocationRepository.findById(projectAllocationId)
+			.filter(allocation -> allocation.projectId.equals(projectId))
+			.orElseThrow(() -> new IllegalArgumentException(String.format(
+				"Project id %s and project allocation id %s are not related", projectId, projectAllocationId)
+			));
+		return resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId));
 	}
 
 }

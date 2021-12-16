@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.views.project.allocations;
+package io.imunity.furms.ui.views.user_settings.projects;
 
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
@@ -15,33 +15,38 @@ import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
-import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Optional.ofNullable;
 
-@Route(value = "project/admin/resource/allocations/details", layout = ProjectAdminMenu.class)
-@PageTitle(key = "view.project-admin.resource-allocations.details.page.title")
-public class ResourceAllocationsDetailsView extends FurmsViewComponent {
+@Route(value = "users/settings/project/allocations/details", layout = UserSettingsMenu.class)
+@PageTitle(key = "view.user-settings.projects.page.details.title")
+public class ProjectResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private final ChartPowerService chartPowerService;
-	private final String projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPowerService chartPowerService) {
+	ProjectResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPowerService chartPowerService) {
 		this.projectAllocationService = projectAllocationService;
 		this.chartPowerService = chartPowerService;
-		this.projectId = getCurrentResourceId();
 	}
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		Optional<String> projectId = event.getLocation()
+			.getQueryParameters()
+			.getParameters()
+			.getOrDefault("projectId", List.of())
+			.stream().findAny();
+
 		Optional<ProjectAllocation> projectAllocation = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByProjectIdAndId(projectId, id)))
+			.filter(id -> projectId.isPresent())
+			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByProjectIdAndId(projectId.get(), id)))
 			.flatMap(Function.identity());
 
 		if(projectAllocation.isPresent()) {
@@ -49,7 +54,7 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 			breadCrumbParameter = new BreadCrumbParameter(
 				parameter,
 				projectAllocation.get().name,
-				getTranslation("view.project-admin.resource-allocations.details.page.bread-crumb")
+				getTranslation("view.user-settings.projects.page.details.bread-crumb")
 			);
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(

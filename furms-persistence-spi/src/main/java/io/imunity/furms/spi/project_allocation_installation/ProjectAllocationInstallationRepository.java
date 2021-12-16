@@ -24,6 +24,8 @@ public interface ProjectAllocationInstallationRepository {
 
 	Set<ProjectAllocationChunk> findAllChunks(String projectId);
 
+	Set<ProjectAllocationChunk> findAllChunksByAllocationId(String projectAllocationId);
+
 	Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId id);
 
 	String create(ProjectAllocationInstallation projectAllocation);
