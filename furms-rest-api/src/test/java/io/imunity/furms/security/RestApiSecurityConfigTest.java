@@ -46,7 +46,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 		final PersistentId userId = new PersistentId("userId");
 		final UUID apiKey = UUID.randomUUID();
 
-		when(userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey))
+		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.of(FURMSUser.builder()
 						.id(userId)
 						.email("email@domain.com")
@@ -64,7 +64,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 		final PersistentId wrongUserId = new PersistentId("wrongUserId");
 		final UUID wrongApiKey = UUID.randomUUID();
 
-		when(userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey))
+		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.of(FURMSUser.builder()
 						.id(userId)
 						.email("email@domain.com")
@@ -83,7 +83,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 		final PersistentId userId = new PersistentId("userId");
 		final UUID apiKey = UUID.randomUUID();
 
-		when(userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey))
+		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.empty());
 
 		mockMvc.perform(get("/rest-api/v1/test")
@@ -96,7 +96,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 		final PersistentId userId = new PersistentId("userId");
 		final UUID apiKey = UUID.randomUUID();
 
-		when(userApiKeyService.findUserByUserIdAndApiKey(userId, apiKey))
+		when(adminApiKeyFinder.findUserByUserIdAndApiKey(userId, apiKey))
 				.thenReturn(Optional.of(FURMSUser.builder()
 						.id(userId)
 						.email("email@domain.com")

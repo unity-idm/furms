@@ -45,45 +45,45 @@ class FenixUserServiceImpl implements FenixUserService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public List<FURMSUser> getFenixAdmins(){
 		return usersDAO.getAdminUsers();
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public Set<Invitation> getFenixAdminsInvitations(){
 		return invitatoryService.getInvitations(Role.FENIX_ADMIN, null);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void inviteFenixAdmin(PersistentId userId) {
 		invitatoryService.inviteUser(userId, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void resendFenixAdminInvitation(InvitationId id) {
 		invitatoryService.resendInvitation(id);
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void removeFenixAdminInvitation(InvitationId id) {
 		invitatoryService.removeInvitation(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void inviteFenixAdmin(String email) {
 		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT, resourceType = APP_LEVEL)
+	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
