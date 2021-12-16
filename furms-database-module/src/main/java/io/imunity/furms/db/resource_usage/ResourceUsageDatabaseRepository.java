@@ -136,6 +136,13 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 	}
 
 	@Override
+	public Set<UserResourceUsage> findUserResourceUsagesHistory(UUID projectAllocationId) {
+		return userResourceUsageHistoryEntityRepository.findAllByProjectAllocationId(projectAllocationId)
+			.stream().map(UserResourceUsageHistoryEntity::toUserResourceUsage)
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<ResourceUsage> findResourceUsagesHistory(UUID projectAllocationId) {
 		return resourceUsageHistoryEntityRepository.findAllByProjectAllocationId(projectAllocationId).stream()
 			.map(ResourceUsageHistoryEntity::toResourceUsage)

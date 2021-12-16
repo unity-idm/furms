@@ -48,6 +48,12 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	public Set<UserResourceUsage> findAllUserUsagesHistory(String projectId, String projectAllocations) {
+		return resourceUsageRepository.findUserResourceUsagesHistory(UUID.fromString(projectAllocations));
+	}
+
+	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(String communityId, String communityAllocationId) {
 		return resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(UUID.fromString(communityAllocationId));

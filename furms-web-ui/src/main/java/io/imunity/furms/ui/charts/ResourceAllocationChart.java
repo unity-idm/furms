@@ -12,7 +12,6 @@ import com.github.appreciated.apexcharts.config.annotations.builder.YAxisAnnotat
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
 import com.github.appreciated.apexcharts.config.builder.DataLabelsBuilder;
 import com.github.appreciated.apexcharts.config.builder.LegendBuilder;
-import com.github.appreciated.apexcharts.config.builder.StrokeBuilder;
 import com.github.appreciated.apexcharts.config.builder.TitleSubtitleBuilder;
 import com.github.appreciated.apexcharts.config.builder.XAxisBuilder;
 import com.github.appreciated.apexcharts.config.builder.YAxisBuilder;
@@ -35,9 +34,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
@@ -66,7 +64,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withDataLabels(DataLabelsBuilder.get()
 				.withEnabled(false)
 				.build())
-			.withStroke(StrokeBuilder.get().withCurve(Curve.stepline).build())
+			.withStroke(new MultiStroke(List.of(Curve.stepline, Curve.stepline, Curve.straight), List.of(5D, 5D, 1D)))
 			.withSeries(createSeries(chartData))
 			.withColors("blue", "red", "orange")
 			.withTitle(TitleSubtitleBuilder.get()
@@ -100,13 +98,17 @@ public class ResourceAllocationChart extends VerticalLayout {
 	}
 
 	private Series<?>[] createSeries(ChartData chartData) {
-		Set<Series<Object>> series = new HashSet<>();
+		List<Series<Object>> series = new ArrayList<>();
 
 		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()));
 		if(!chartData.chunks.isEmpty())
 			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
 		if(!(chartData.threshold < 1 || disableThreshold))
 			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
+		for(UserUsage userUsage : chartData.usersUsages){
+			series.add(new Series<>(userUsage.email, SeriesType.line, userUsage.usages.toArray()));
+		}
+
 		return series.toArray(Series[]::new);
 	}
 

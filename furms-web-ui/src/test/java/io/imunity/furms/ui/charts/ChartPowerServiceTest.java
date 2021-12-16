@@ -17,6 +17,7 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -136,6 +137,111 @@ class ChartPowerServiceTest {
 			.thenReturn(resourceUsages);
 
 		ChartData chartData = chartPowerService.getChartDataForProjectAlloc(projectId, projectAllocationId);
+
+		assertThat(chartData.unit).isEqualTo(unit.getSuffix());
+		assertThat(chartData.projectAllocationName).isEqualTo(name);
+		assertThat(chartData.threshold).isEqualTo(70);
+		assertThat(chartData.endTime).isEqualTo(endDate);
+		assertThat(chartData.times).isEqualTo(XTimeAxis);
+		assertThat(chartData.chunks).isEqualTo(List.of(
+			0D, 20D, 20D, 20D, 40D, 40D, 40D, 60D, 90D
+		));
+		assertThat(chartData.resourceUsages).isEqualTo(List.of(
+			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
+		));
+		assertThat(chartData.thresholds).isEqualTo(List.of(
+			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+		));
+	}
+
+	@Test
+	void shouldGenerateValidDataForProjectAllocChartWithUserUsages() {
+		String projectId = "projectId";
+		String projectAllocationId = "projectAllocationId";
+		String name = "name";
+		ResourceMeasureUnit unit = ResourceMeasureUnit.KILO;
+
+		LocalDate startDate = LocalDate.now();
+		LocalDate endDate = startDate.plusDays(60);
+
+		List<LocalDate> XTimeAxis = List.of(
+			startDate,
+			startDate.plusDays(3),
+			startDate.plusDays(5),
+			startDate.plusDays(10),
+			startDate.plusDays(13),
+			startDate.plusDays(18),
+			startDate.plusDays(24),
+			startDate.plusDays(25),
+			startDate.plusDays(50)
+		);
+
+		List<Double> YChunkAxis = List.of(20D, 40D, 60D, 90D);
+		List<Double> YUsageAxis = List.of(3D, 7D, 20D, 30D, 50D);
+
+		Set<ProjectAllocationChunk> allocationChunks = new HashSet<>();
+		Set<ResourceUsage> resourceUsages = new HashSet<>();
+		Set<UserResourceUsage> usersResourceUsages = new HashSet<>();
+
+		Iterator<LocalDate> XTimeAxisIterator = XTimeAxis.iterator();
+		Iterator<Double> YChunkAxisIterator = YChunkAxis.iterator();
+		Iterator<Double> YUsageAxisIterator = YUsageAxis.iterator();
+
+		//0 -day
+		XTimeAxisIterator.next();
+
+		//3 - day
+		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+
+		//5 & 10 - day
+		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+
+		//13 - day
+		LocalDate temp = XTimeAxisIterator.next();
+		Double usageTemp = YUsageAxisIterator.next();
+		allocationChunks.add(createChunk(temp.atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(10), valueOf(usageTemp - 2)));
+		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(20), valueOf(usageTemp - 5)));
+		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(30), valueOf(usageTemp)));
+
+		//18 & 24 - day
+		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+
+		//25 & 50 - day
+		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+
+
+		when(projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
+			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
+				.name(name)
+				.amount(new BigDecimal(100))
+				.resourceCredit(ResourceCredit.builder()
+					.utcStartTime(startDate.atStartOfDay())
+					.utcEndTime(endDate.atStartOfDay())
+					.build())
+				.resourceType(ResourceType.builder()
+					.unit(unit)
+					.build())
+				.build())
+			);
+		when(alarmService.find(projectId, projectAllocationId))
+			.thenReturn(Optional.of(
+					AlarmWithUserEmails.builder()
+						.threshold(70)
+						.build()
+				)
+			);
+		when(projectAllocationService.findAllChunks(projectId, projectAllocationId))
+			.thenReturn(allocationChunks);
+		when(resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId))
+			.thenReturn(resourceUsages);
+		when(resourceUsageService.findAllUserUsagesHistory(projectId, projectAllocationId))
+			.thenReturn(usersResourceUsages);
+
+		ChartData chartData = chartPowerService.getChartDataForProjectAllocWithUserUsages(projectId, projectAllocationId);
 
 		assertThat(chartData.unit).isEqualTo(unit.getSuffix());
 		assertThat(chartData.projectAllocationName).isEqualTo(name);

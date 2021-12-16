@@ -18,8 +18,11 @@ public class ChartData {
 	public final List<Double> chunks;
 	public final List<Double> thresholds;
 	public final List<LocalDate> times;
+	public final List<UserUsage> usersUsages;
 
-	private ChartData(double threshold, String unit, String projectAllocationName, LocalDate endTime, List<Double> resourceUsages, List<Double> chunks, List<Double> thresholds, List<LocalDate> times) {
+	private ChartData(double threshold, String unit, String projectAllocationName, LocalDate endTime,
+	                  List<Double> resourceUsages, List<Double> chunks, List<Double> thresholds, List<LocalDate> times,
+	                  List<UserUsage> usersUsages) {
 		this.threshold = threshold;
 		this.unit = unit;
 		this.projectAllocationName = projectAllocationName;
@@ -28,6 +31,7 @@ public class ChartData {
 		this.chunks = chunks;
 		this.thresholds = thresholds;
 		this.times = times;
+		this.usersUsages = usersUsages;
 	}
 
 	@Override
@@ -42,12 +46,13 @@ public class ChartData {
 			Objects.equals(resourceUsages, chartData.resourceUsages) &&
 			Objects.equals(chunks, chartData.chunks) &&
 			Objects.equals(thresholds, chartData.thresholds) &&
+			Objects.equals(usersUsages, chartData.usersUsages) &&
 			Objects.equals(times, chartData.times);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(threshold, unit, projectAllocationName, endTime, resourceUsages, chunks, thresholds, times);
+		return Objects.hash(threshold, unit, projectAllocationName, endTime, resourceUsages, chunks, thresholds, times, usersUsages);
 	}
 
 	@Override
@@ -61,6 +66,7 @@ public class ChartData {
 			", chunks=" + chunks +
 			", thresholds=" + thresholds +
 			", times=" + times +
+			", usersUsages=" + usersUsages +
 			'}';
 	}
 
@@ -77,6 +83,8 @@ public class ChartData {
 		private List<Double> chunks = List.of();
 		private List<Double> thresholds = List.of();
 		private List<LocalDate> times = List.of();
+		public List<UserUsage> usersUsages = List.of();
+
 
 		private ChartDataBuilder() {
 		}
@@ -121,8 +129,13 @@ public class ChartData {
 			return this;
 		}
 
+		public ChartDataBuilder usersUsages(List<UserUsage> usersUsages) {
+			this.usersUsages = usersUsages;
+			return this;
+		}
+
 		public ChartData build() {
-			return new ChartData(threshold, unit, projectAllocationName, endTime, resourceUsages, chunks, thresholds, times);
+			return new ChartData(threshold, unit, projectAllocationName, endTime, resourceUsages, chunks, thresholds, times, usersUsages);
 		}
 	}
 }

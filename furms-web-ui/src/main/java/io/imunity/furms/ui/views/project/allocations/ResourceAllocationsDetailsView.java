@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.project.allocations;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
@@ -56,13 +57,33 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 				getTranslation("view.project-admin.resource-allocations.details.page.bread-crumb")
 			);
 
-			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
-				chartPowerService.getChartDataForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
-				filePowerService.getJsonFileForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
-				filePowerService.getCsvFileForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id)
-			);
-			getContent().add(resourceAllocationChart);
+			ToggleButton toggle = new ToggleButton("Show per-user breakdown");
+			toggle.addValueChangeListener(evt -> {
+				getContent().removeAll();
+				if(evt.getValue())
+					getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
+				else
+					getContent().add(toggle, getResourceAllocationChartWithUsersUsage(projectAllocation.get()));
+
+			});
+			getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
 		}
+	}
+
+	private ResourceAllocationChart getBasicResourceAllocationChart(ProjectAllocation projectAllocation) {
+		return new ResourceAllocationChart(
+			chartPowerService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
+			filePowerService.getJsonFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
+			filePowerService.getCsvFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id)
+		);
+	}
+
+	private ResourceAllocationChart getResourceAllocationChartWithUsersUsage(ProjectAllocation projectAllocation) {
+		return new ResourceAllocationChart(
+			chartPowerService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
+			filePowerService.getJsonFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
+			filePowerService.getCsvFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id)
+		);
 	}
 
 	@Override

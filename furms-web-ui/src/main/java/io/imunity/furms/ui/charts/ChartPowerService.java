@@ -9,11 +9,13 @@ import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,12 +39,15 @@ public class ChartPowerService {
 	private final CommunityAllocationService communityAllocationService;
 	private final AlarmService alarmService;
 	private final ResourceUsageService resourceUsageService;
+	private final UserService userService;
 
-	ChartPowerService(ProjectAllocationService projectAllocationService, CommunityAllocationService communityAllocationService, AlarmService alarmService, ResourceUsageService resourceUsageService) {
+	ChartPowerService(ProjectAllocationService projectAllocationService, CommunityAllocationService communityAllocationService,
+	                  AlarmService alarmService, ResourceUsageService resourceUsageService, UserService userService) {
 		this.projectAllocationService = projectAllocationService;
 		this.communityAllocationService = communityAllocationService;
 		this.alarmService = alarmService;
 		this.resourceUsageService = resourceUsageService;
+		this.userService = userService;
 	}
 
 	public ChartData getChartDataForProjectAlloc(String projectId, String projectAllocationId){
@@ -73,9 +78,7 @@ public class ChartPowerService {
 		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
 		List<Double> usage = prepareData(dates, orderedUsagesAmountByTime);
 
-		double amount = projectAllocation.amount.doubleValue();
-		int thresholdPercentage = alarm.map(x -> x.threshold).orElse(0);
-		double threshold = thresholdPercentage > 0 ? amount * thresholdPercentage / 100 : 0;
+		double threshold = getThreshold(projectAllocation, alarm);
 
 		return ChartData.builder()
 			.endTime(projectAllocation.resourceCredit.utcEndTime.toLocalDate())
@@ -87,6 +90,88 @@ public class ChartPowerService {
 			.times(dates)
 			.thresholds(IntStream.range(0, dates.size()).boxed().map(x -> threshold).collect(toList()))
 			.build();
+	}
+
+	public ChartData getChartDataForProjectAllocWithUserUsages(String projectId, String projectAllocationId){
+		Map<String, String> userIdsToEmails = userService.getAllUsers().stream()
+			.filter(user -> user.fenixUserId.isPresent())
+			.collect(toMap(user -> user.fenixUserId.get().id, user -> user.email));
+
+		ProjectAllocationResolved projectAllocation = projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
+		Optional<AlarmWithUserEmails> alarm = alarmService.find(projectId, projectAllocationId);
+
+		Set<ProjectAllocationChunk> allChunks = projectAllocationService.findAllChunks(projectId, projectAllocationId);
+		Set<UserResourceUsage> allUserResourceUsageHistory = resourceUsageService.findAllUserUsagesHistory(projectId, projectAllocationId);
+		Set<ResourceUsage> allResourceUsageHistory = resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId);
+
+		List<LocalDate> dates = Stream.of(
+				Stream.of(projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
+				allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate()),
+				allChunks.stream().map(chunk -> chunk.receivedTime.toLocalDate()),
+				allUserResourceUsageHistory.stream().map(usage -> usage.utcConsumedUntil.toLocalDate())
+			)
+			.flatMap(identity())
+			.distinct()
+			.sorted(Comparator.comparing(identity()))
+			.collect(toList());
+
+		Map<LocalDate, Double> orderedChunksAmountByTime = allChunks.stream()
+			.collect(toMap(chunk -> chunk.receivedTime.toLocalDate(), identity(), (chunk, chunk1) -> chunk.receivedTime.isAfter(chunk1.receivedTime) ? chunk : chunk1))
+			.entrySet().stream()
+			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().amount.doubleValue()));
+		Map<LocalDate, Double> orderedUsagesAmountByTime = allResourceUsageHistory.stream()
+			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
+			.entrySet().stream()
+			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()));
+		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
+		List<Double> usages = prepareData(dates, orderedUsagesAmountByTime);
+		List<UserUsage> usersUsages = prepareUserUsages(userIdsToEmails, allUserResourceUsageHistory, dates);
+
+		double threshold = getThreshold(projectAllocation, alarm);
+
+		return ChartData.builder()
+			.endTime(projectAllocation.resourceCredit.utcEndTime.toLocalDate())
+			.projectAllocationName(projectAllocation.name)
+			.unit(projectAllocation.resourceType.unit.getSuffix())
+			.threshold(threshold)
+			.chunks(chunks)
+			.resourceUsages(usages)
+			.times(dates)
+			.thresholds(IntStream.range(0, dates.size()).boxed().map(x -> threshold).collect(toList()))
+			.usersUsages(usersUsages)
+			.build();
+	}
+
+	private double getThreshold(ProjectAllocationResolved projectAllocation, Optional<AlarmWithUserEmails> alarm) {
+		double amount = projectAllocation.amount.doubleValue();
+		int thresholdPercentage = alarm.map(x -> x.threshold).orElse(0);
+		return thresholdPercentage > 0 ? amount * thresholdPercentage / 100 : 0;
+	}
+
+	private List<UserUsage> prepareUserUsages(Map<String, String> userIdsToEmails, Set<UserResourceUsage> allUserResourceUsageHistory, List<LocalDate> dates) {
+		return allUserResourceUsageHistory.stream()
+			.collect(
+				groupingBy(
+					usage -> usage.fenixUserId,
+					toMap(usage ->
+							usage.utcConsumedUntil.toLocalDate(),
+						identity(),
+						(usage, usage1) -> usage.utcConsumedUntil.isAfter(usage1.utcConsumedUntil) ? usage : usage1
+					)
+				)
+			).entrySet().stream()
+			.map(usageMap -> new UserUsage(
+				userIdsToEmails.getOrDefault(usageMap.getKey().id, usageMap.getKey().id),
+				prepareData(
+					dates,
+					usageMap.getValue()
+						.entrySet().stream()
+						.collect(toMap(
+							Map.Entry::getKey,
+							entry -> entry.getValue().cumulativeConsumption.doubleValue())
+						)
+				)))
+			.collect(toList());
 	}
 
 	public ChartData getChartDataForCommunityAlloc(String communityId, String communityAllocationId){
