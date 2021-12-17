@@ -9,9 +9,10 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.api.export.ResourceUsageCSVExporter;
+import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.ui.charts.ChartPowerService;
-import io.imunity.furms.ui.charts.FilePowerService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -29,13 +30,17 @@ import static java.util.Optional.ofNullable;
 public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 	private final CommunityAllocationService communityAllocationService;
 	private final ChartPowerService chartPowerService;
-	private final FilePowerService filePowerService;
+	private final ResourceUsageJSONExporter jsonExporter;
+	private final ResourceUsageCSVExporter csvExporter;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	CommunityAllocationsDetailsView(CommunityAllocationService communityAllocationService, ChartPowerService chartPowerService, FilePowerService filePowerService) {
+	CommunityAllocationsDetailsView(CommunityAllocationService communityAllocationService,
+	                                ChartPowerService chartPowerService, ResourceUsageJSONExporter jsonExporter,
+	                                ResourceUsageCSVExporter csvExporter) {
 		this.communityAllocationService = communityAllocationService;
 		this.chartPowerService = chartPowerService;
-		this.filePowerService = filePowerService;
+		this.jsonExporter = jsonExporter;
+		this.csvExporter = csvExporter;
 	}
 
 	@Override
@@ -54,8 +59,8 @@ public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
 				chartPowerService.getChartDataForCommunityAlloc(communityAllocation.get().communityId, communityAllocation.get().id),
-				filePowerService.getJsonFileForCommunity(communityAllocation.get().communityId, communityAllocation.get().id),
-				filePowerService.getCsvFileForCommunity(communityAllocation.get().communityId, communityAllocation.get().id),
+				jsonExporter.getJsonFileForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
+				csvExporter.getCsvFileForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
 				true
 			);
 			getContent().add(resourceAllocationChart);

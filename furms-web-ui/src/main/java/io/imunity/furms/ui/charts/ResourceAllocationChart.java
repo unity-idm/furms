@@ -64,9 +64,9 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withDataLabels(DataLabelsBuilder.get()
 				.withEnabled(false)
 				.build())
-			.withStroke(new MultiStroke(List.of(Curve.stepline, Curve.stepline, Curve.straight), List.of(5D, 5D, 1D)))
+			.withStroke(getStroke(chartData))
 			.withSeries(createSeries(chartData))
-			.withColors("blue", "red", "orange")
+			.withColors("blue", "red", "orange", "green", "yellow", "black", "purple", "coral", "darkmagenta", "pink", "grey", "indigo", "maroon", "olive")
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
 				.withAlign(Align.left).build())
@@ -95,6 +95,28 @@ public class ResourceAllocationChart extends VerticalLayout {
 		setWidth("70%");
 		setAlignItems(Alignment.END);
 		setSpacing(false);
+	}
+
+	private MultiStroke getStroke(ChartData chartData) {
+		List<Curve> curves = new ArrayList<>();
+		List<Double> widths = new ArrayList<>();
+
+		curves.add(Curve.smooth);
+		curves.add(Curve.stepline);
+		curves.add(Curve.smooth);
+
+		widths.add(5D);
+		widths.add(5D);
+
+		if(!(chartData.threshold < 1 || disableThreshold)) {
+			curves.add(Curve.smooth);
+			widths.add(1D);
+		}
+		for(int i = 0; i < chartData.usersUsages.size(); i++) {
+			curves.add(Curve.smooth);
+			widths.add(1D);
+		}
+		return new MultiStroke(curves, widths);
 	}
 
 	private Series<?>[] createSeries(ChartData chartData) {

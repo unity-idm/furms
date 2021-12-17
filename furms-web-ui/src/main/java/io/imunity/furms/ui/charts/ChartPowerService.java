@@ -171,6 +171,7 @@ public class ChartPowerService {
 							entry -> entry.getValue().cumulativeConsumption.doubleValue())
 						)
 				)))
+			.sorted(Comparator.comparing(userUsage -> userUsage.email))
 			.collect(toList());
 	}
 

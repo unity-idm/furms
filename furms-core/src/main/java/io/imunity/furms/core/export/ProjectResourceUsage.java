@@ -3,24 +3,24 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.core.export;
 
 import java.util.List;
 import java.util.Objects;
 
-class CommunityResourceUsage {
+class ProjectResourceUsage {
 	public final String allocation;
 	public final String allocationId;
-	public final String community;
-	public final String communityId;
+	public final String project;
+	public final String projectId;
 	public final String unit;
 	public final List<Consumption> consumption;
 
-	private CommunityResourceUsage(String allocation, String allocationId, String community, String communityId, String unit, List<Consumption> consumption) {
+	private ProjectResourceUsage(String allocation, String allocationId, String project, String projectId, String unit, List<Consumption> consumption) {
 		this.allocation = allocation;
 		this.allocationId = allocationId;
-		this.community = community;
-		this.communityId = communityId;
+		this.project = project;
+		this.projectId = projectId;
 		this.unit = unit;
 		this.consumption = consumption;
 	}
@@ -29,37 +29,37 @@ class CommunityResourceUsage {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		CommunityResourceUsage that = (CommunityResourceUsage) o;
+		ProjectResourceUsage that = (ProjectResourceUsage) o;
 		return Objects.equals(allocation, that.allocation) &&
 			Objects.equals(allocationId, that.allocationId) &&
-			Objects.equals(community, that.community) &&
-			Objects.equals(communityId, that.communityId) &&
+			Objects.equals(project, that.project) &&
+			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(unit, that.unit) &&
 			Objects.equals(consumption, that.consumption);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allocation, allocationId, community, communityId, unit, consumption);
+		return Objects.hash(allocation, allocationId, project, projectId, unit, consumption);
 	}
 
 	@Override
 	public String toString() {
-		return "CommunityResourceUsage{" +
+		return "ProjectResourceUsage{" +
 			"allocation='" + allocation + '\'' +
 			", allocationId='" + allocationId + '\'' +
-			", project='" + community + '\'' +
-			", projectId='" + communityId + '\'' +
+			", project='" + project + '\'' +
+			", projectId='" + projectId + '\'' +
 			", unit='" + unit + '\'' +
 			", consumption=" + consumption +
 			'}';
 	}
 
-	public static CommunityResourceUsageBuilder builder() {
-		return new CommunityResourceUsageBuilder();
+	public static ProjectResourceUsageBuilder builder() {
+		return new ProjectResourceUsageBuilder();
 	}
 
-	public static final class CommunityResourceUsageBuilder {
+	public static final class ProjectResourceUsageBuilder {
 		public String allocation;
 		public String allocationId;
 		public String project;
@@ -67,41 +67,41 @@ class CommunityResourceUsage {
 		public String unit;
 		public List<Consumption> consumption;
 
-		private CommunityResourceUsageBuilder() {
+		private ProjectResourceUsageBuilder() {
 		}
 
-		public CommunityResourceUsageBuilder allocation(String allocation) {
+		public ProjectResourceUsageBuilder allocation(String allocation) {
 			this.allocation = allocation;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder allocationId(String allocationId) {
+		public ProjectResourceUsageBuilder allocationId(String allocationId) {
 			this.allocationId = allocationId;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder community(String project) {
+		public ProjectResourceUsageBuilder project(String project) {
 			this.project = project;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder communityId(String projectId) {
+		public ProjectResourceUsageBuilder projectId(String projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder unit(String unit) {
+		public ProjectResourceUsageBuilder unit(String unit) {
 			this.unit = unit;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder consumption(List<Consumption> consumption) {
+		public ProjectResourceUsageBuilder consumption(List<Consumption> consumption) {
 			this.consumption = consumption;
 			return this;
 		}
 
-		public CommunityResourceUsage build() {
-			return new CommunityResourceUsage(allocation, allocationId, project, projectId, unit, consumption);
+		public ProjectResourceUsage build() {
+			return new ProjectResourceUsage(allocation, allocationId, project, projectId, unit, consumption);
 		}
 	}
 }

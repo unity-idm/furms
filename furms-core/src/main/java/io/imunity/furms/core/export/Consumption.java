@@ -3,7 +3,10 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.core.export;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +16,8 @@ class Consumption {
 	public final LocalDateTime consumptionUntil;
 	public final BigDecimal amount;
 
-	Consumption(LocalDateTime consumptionUntil, BigDecimal amount) {
+	@JsonCreator
+	Consumption(@JsonProperty("consumptionUntil") LocalDateTime consumptionUntil, @JsonProperty("amount") BigDecimal amount) {
 		this.consumptionUntil = consumptionUntil;
 		this.amount = amount;
 	}

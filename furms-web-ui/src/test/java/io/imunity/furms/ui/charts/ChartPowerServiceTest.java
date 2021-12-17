@@ -9,6 +9,7 @@ import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
+import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
@@ -18,6 +19,7 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.users.FenixUserId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,6 +50,8 @@ class ChartPowerServiceTest {
 	private AlarmService alarmService;
 	@Mock
 	private ResourceUsageService resourceUsageService;
+	@Mock
+	private UserService userService;
 
 	@InjectMocks
 	private ChartPowerService chartPowerService;
@@ -160,6 +164,9 @@ class ChartPowerServiceTest {
 		String projectAllocationId = "projectAllocationId";
 		String name = "name";
 		ResourceMeasureUnit unit = ResourceMeasureUnit.KILO;
+		FenixUserId user1 = new FenixUserId("user1");
+		FenixUserId user2 = new FenixUserId("user2");
+		FenixUserId user3 = new FenixUserId("user3");
 
 		LocalDate startDate = LocalDate.now();
 		LocalDate endDate = startDate.plusDays(60);
@@ -178,41 +185,65 @@ class ChartPowerServiceTest {
 
 		List<Double> YChunkAxis = List.of(20D, 40D, 60D, 90D);
 		List<Double> YUsageAxis = List.of(3D, 7D, 20D, 30D, 50D);
+		List<Double> YUsersUsageAxis = List.of(1D, 2D, 3D, 4D, 10D, 8D, 13D, 20D, 15D, 19D);
 
 		Set<ProjectAllocationChunk> allocationChunks = new HashSet<>();
 		Set<ResourceUsage> resourceUsages = new HashSet<>();
 		Set<UserResourceUsage> usersResourceUsages = new HashSet<>();
 
+
 		Iterator<LocalDate> XTimeAxisIterator = XTimeAxis.iterator();
 		Iterator<Double> YChunkAxisIterator = YChunkAxis.iterator();
 		Iterator<Double> YUsageAxisIterator = YUsageAxis.iterator();
+		Iterator<Double> YUsersUsageAxisIterator = YUsersUsageAxis.iterator();
 
 		//0 -day
 		XTimeAxisIterator.next();
 
 		//3 - day
-		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		LocalDate temp = XTimeAxisIterator.next();
+		allocationChunks.add(createChunk(temp.atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user1));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user3));
 
 		//5 & 10 - day
-		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
-		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		temp = XTimeAxisIterator.next();
+		resourceUsages.add(createUsage(temp.atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user2));
+
+		temp = XTimeAxisIterator.next();
+		resourceUsages.add(createUsage(temp.atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user3));
 
 		//13 - day
-		LocalDate temp = XTimeAxisIterator.next();
+		temp = XTimeAxisIterator.next();
 		Double usageTemp = YUsageAxisIterator.next();
 		allocationChunks.add(createChunk(temp.atStartOfDay(), valueOf(YChunkAxisIterator.next())));
 		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(10), valueOf(usageTemp - 2)));
 		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(20), valueOf(usageTemp - 5)));
 		resourceUsages.add(createUsage(temp.atStartOfDay().plusMinutes(30), valueOf(usageTemp)));
+		Double tmp = YUsersUsageAxisIterator.next();
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(tmp - 2), user1));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay().plusMinutes(10), valueOf(tmp), user1));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user2));
 
 		//18 & 24 - day
-		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
-		resourceUsages.add(createUsage(XTimeAxisIterator.next().atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		temp = XTimeAxisIterator.next();
+		resourceUsages.add(createUsage(temp.atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user3));
+
+		temp = XTimeAxisIterator.next();
+		resourceUsages.add(createUsage(temp.atStartOfDay(), valueOf(YUsageAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user1));
 
 		//25 & 50 - day
-		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
-		allocationChunks.add(createChunk(XTimeAxisIterator.next().atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		temp = XTimeAxisIterator.next();
+		allocationChunks.add(createChunk(temp.atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user2));
 
+		temp = XTimeAxisIterator.next();
+		allocationChunks.add(createChunk(temp.atStartOfDay(), valueOf(YChunkAxisIterator.next())));
+		usersResourceUsages.add(createUserUsage(projectAllocationId, temp.atStartOfDay(), valueOf(YUsersUsageAxisIterator.next()), user3));
 
 		when(projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
 			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
@@ -256,6 +287,11 @@ class ChartPowerServiceTest {
 		));
 		assertThat(chartData.thresholds).isEqualTo(List.of(
 			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+		));
+		assertThat(chartData.usersUsages).isEqualTo(List.of(
+			new UserUsage("user1", List.of(0D, 1D, 1D, 1D, 10D, 10D, 20D, 20D, 20D)),
+			new UserUsage("user2", List.of(0D, 0D, 3D, 3D, 8D, 8D, 8D, 15D, 15D)),
+			new UserUsage("user3", List.of(0D, 2D, 2D, 4D, 4D, 13D, 13D, 13D, 19D))
 		));
 	}
 
@@ -310,7 +346,7 @@ class ChartPowerServiceTest {
 		communityAllocationUsage.add(createUsage(projectAllocationId1, temp.atStartOfDay(), valueOf(projectAllocation1Iterator.next())));
 		communityAllocationUsage.add(createUsage(projectAllocationId2, temp.atStartOfDay(), valueOf(usageTemp - 2)));
 		communityAllocationUsage.add(createUsage(projectAllocationId2, temp.atStartOfDay(), valueOf(usageTemp - 5)));
-		communityAllocationUsage.add(createUsage(projectAllocationId2, temp.atStartOfDay(), valueOf(usageTemp)));
+		communityAllocationUsage.add(createUsage(projectAllocationId2, temp.atStartOfDay().plusMinutes(30), valueOf(usageTemp)));
 
 		//18 & 24 - day
 		communityAllocationUsage.add(createUsage(projectAllocationId1, XTimeAxisIterator.next().atStartOfDay(), valueOf(projectAllocation1Iterator.next())));
@@ -363,6 +399,15 @@ class ChartPowerServiceTest {
 			.projectAllocationId(projectAllocId)
 			.cumulativeConsumption(amount)
 			.probedAt(startDate)
+			.build();
+	}
+
+	private UserResourceUsage createUserUsage(String projectAllocId, LocalDateTime startDate, BigDecimal amount, FenixUserId userId) {
+		return UserResourceUsage.builder()
+			.projectAllocationId(projectAllocId)
+			.cumulativeConsumption(amount)
+			.consumedUntil(startDate)
+			.fenixUserId(userId)
 			.build();
 	}
 

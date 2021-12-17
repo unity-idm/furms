@@ -9,10 +9,11 @@ import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.export.ResourceUsageCSVExporter;
+import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.charts.ChartPowerService;
-import io.imunity.furms.ui.charts.FilePowerService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -31,15 +32,18 @@ import static java.util.Optional.ofNullable;
 public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private final ChartPowerService chartPowerService;
-	private final FilePowerService filePowerService;
+	private final ResourceUsageJSONExporter jsonExporter;
+	private final ResourceUsageCSVExporter csvExporter;
 	private final String projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService,
-	                               ChartPowerService chartPowerService, FilePowerService filePowerService) {
+	                               ChartPowerService chartPowerService, ResourceUsageJSONExporter jsonExporter,
+	                               ResourceUsageCSVExporter csvExporter) {
 		this.projectAllocationService = projectAllocationService;
 		this.chartPowerService = chartPowerService;
-		this.filePowerService = filePowerService;
+		this.jsonExporter = jsonExporter;
+		this.csvExporter = csvExporter;
 		this.projectId = getCurrentResourceId();
 	}
 
@@ -61,9 +65,9 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 			toggle.addValueChangeListener(evt -> {
 				getContent().removeAll();
 				if(evt.getValue())
-					getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
-				else
 					getContent().add(toggle, getResourceAllocationChartWithUsersUsage(projectAllocation.get()));
+				else
+					getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
 
 			});
 			getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
@@ -73,16 +77,16 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private ResourceAllocationChart getBasicResourceAllocationChart(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
 			chartPowerService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
-			filePowerService.getJsonFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
-			filePowerService.getCsvFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id)
+			jsonExporter.getJsonFileForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvFileForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);
 	}
 
 	private ResourceAllocationChart getResourceAllocationChartWithUsersUsage(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
 			chartPowerService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
-			filePowerService.getJsonFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
-			filePowerService.getCsvFileForProjectAlloc(projectAllocation.projectId, projectAllocation.id)
+			jsonExporter.getJsonFileForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvFileForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);
 	}
 

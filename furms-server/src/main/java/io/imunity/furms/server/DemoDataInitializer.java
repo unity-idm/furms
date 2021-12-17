@@ -14,6 +14,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -25,10 +26,13 @@ import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
@@ -42,9 +46,10 @@ import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
+import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
+import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -78,6 +83,7 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectOperationRepository projectOperationRepository;
+	private final ResourceUsageRepository resourceUsageRepository;
 
 	private String communityId;
 	private String community2Id;
@@ -95,7 +101,7 @@ class DemoDataInitializer implements CommandLineRunner {
 	                    CommunityAllocationRepository communityAllocationRepository, SiteAgentService siteAgentService,
 	                    PolicyDocumentRepository policyDocumentRepository, ProjectAllocationRepository projectAllocationRepository,
 	                    ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
-	                    ProjectOperationRepository projectOperationRepository) {
+	                    ProjectOperationRepository projectOperationRepository, ResourceUsageRepository resourceUsageRepository) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.siteRepository = siteRepository;
@@ -113,6 +119,7 @@ class DemoDataInitializer implements CommandLineRunner {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectOperationRepository = projectOperationRepository;
+		this.resourceUsageRepository = resourceUsageRepository;
 	}
 
 	@Override
@@ -482,15 +489,212 @@ class DemoDataInitializer implements CommandLineRunner {
 				.chunkId("1")
 				.validFrom(LocalDateTime.now().minusDays(10))
 				.validTo(LocalDateTime.now().plusDays(20))
-				.receivedTime(LocalDateTime.now())
+				.receivedTime(LocalDateTime.now().minusMonths(2))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk);
+
+			ProjectAllocationChunk projectAllocationChunk1 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(8))
+				.projectAllocationId(projectAllocationId)
+				.chunkId("2")
+				.validFrom(LocalDateTime.now().minusDays(5))
+				.validTo(LocalDateTime.now().plusDays(25))
+				.receivedTime(LocalDateTime.now().minusMonths(1))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk1);
+
+			ProjectAllocationChunk projectAllocationChunk2 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(12))
+				.projectAllocationId(projectAllocationId)
+				.chunkId("3")
+				.validFrom(LocalDateTime.now().minusDays(2))
+				.validTo(LocalDateTime.now().plusDays(27))
+				.receivedTime(LocalDateTime.now().minusDays(15))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk2);
+
+			ProjectAllocationChunk projectAllocationChunk3 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(15))
+				.projectAllocationId(projectAllocationId)
+				.chunkId("3")
+				.validFrom(LocalDateTime.now())
+				.validTo(LocalDateTime.now().plusDays(35))
+				.receivedTime(LocalDateTime.now().minusDays(2))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk3);
+
+			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(1))
+					.probedAt(LocalDateTime.now().minusDays(59))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(2))
+					.probedAt(LocalDateTime.now().minusDays(50))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(5))
+					.probedAt(LocalDateTime.now().minusDays(40))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(8))
+					.probedAt(LocalDateTime.now().minusDays(25))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(10))
+					.probedAt(LocalDateTime.now().minusDays(15))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(13))
+					.probedAt(LocalDateTime.now().minusDays(5))
+					.build(),
+				projectAllocationResolved
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(16))
+					.probedAt(LocalDateTime.now().minusDays(1))
+					.build(),
+				projectAllocationResolved
+			);
+
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(59))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(54))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(2))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(49))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(2))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(45))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(42))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(4))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(28))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(3))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(17))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(3))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(16))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(10))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(7))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(4))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(4))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(2))
+					.build()
+			);
 
 			ProjectAllocation projectAllocation1 = ProjectAllocation.builder()
 				.projectId(projectId)
 				.name("Neuroinforamtics Cineca Allocation 2")
 				.amount(new BigDecimal(20))
-				.communityAllocationId(communityAllocationId1)
+				.communityAllocationId(communityAllocationId)
 				.build();
 
 			String projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
@@ -504,7 +708,7 @@ class DemoDataInitializer implements CommandLineRunner {
 
 			projectAllocationInstallationRepository.create(projectAllocationInstallation1);
 
-			ProjectAllocationChunk projectAllocationChunk1 = ProjectAllocationChunk.builder()
+			ProjectAllocationChunk projectAllocationChunk10 = ProjectAllocationChunk.builder()
 				.amount(new BigDecimal(5))
 				.projectAllocationId(projectAllocationId1)
 				.chunkId("1")
@@ -512,8 +716,204 @@ class DemoDataInitializer implements CommandLineRunner {
 				.validTo(LocalDateTime.now().plusDays(20))
 				.receivedTime(LocalDateTime.now())
 				.build();
-			projectAllocationInstallationRepository.create(projectAllocationChunk1);
+			projectAllocationInstallationRepository.create(projectAllocationChunk10);
 
+			ProjectAllocationChunk projectAllocationChunk11 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(8))
+				.projectAllocationId(projectAllocationId1)
+				.chunkId("2")
+				.validFrom(LocalDateTime.now().minusDays(5))
+				.validTo(LocalDateTime.now().plusDays(25))
+				.receivedTime(LocalDateTime.now().minusMonths(1))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk11);
+
+			ProjectAllocationChunk projectAllocationChunk12 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(12))
+				.projectAllocationId(projectAllocationId1)
+				.chunkId("3")
+				.validFrom(LocalDateTime.now().minusDays(2))
+				.validTo(LocalDateTime.now().plusDays(27))
+				.receivedTime(LocalDateTime.now().minusDays(15))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk12);
+
+			ProjectAllocationChunk projectAllocationChunk13 = ProjectAllocationChunk.builder()
+				.amount(new BigDecimal(15))
+				.projectAllocationId(projectAllocationId1)
+				.chunkId("3")
+				.validFrom(LocalDateTime.now())
+				.validTo(LocalDateTime.now().plusDays(35))
+				.receivedTime(LocalDateTime.now().minusDays(2))
+				.build();
+			projectAllocationInstallationRepository.create(projectAllocationChunk13);
+
+			ProjectAllocationResolved projectAllocationResolved1 = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId1).get();
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(1))
+					.probedAt(LocalDateTime.now().minusDays(59))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(2))
+					.probedAt(LocalDateTime.now().minusDays(50))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(5))
+					.probedAt(LocalDateTime.now().minusDays(40))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(8))
+					.probedAt(LocalDateTime.now().minusDays(25))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(10))
+					.probedAt(LocalDateTime.now().minusDays(15))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(13))
+					.probedAt(LocalDateTime.now().minusDays(5))
+					.build(),
+				projectAllocationResolved1
+			);
+			resourceUsageRepository.create(ResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(16))
+					.probedAt(LocalDateTime.now().minusDays(1))
+					.build(),
+				projectAllocationResolved1
+			);
+
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(59))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(54))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(2))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(49))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(2))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(45))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(1))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(42))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(4))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(28))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(3))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(17))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(3))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(16))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr1@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(10))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr3@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(7))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(4))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(4))
+					.build()
+			);
+			resourceUsageRepository.create(
+				UserResourceUsage.builder()
+					.projectId(projectId)
+					.projectAllocationId(projectAllocationId1)
+					.cumulativeConsumption(new BigDecimal(5))
+					.fenixUserId(new FenixUserId("usr2@email.com"))
+					.consumedUntil(LocalDateTime.now().minusDays(2))
+					.build()
+			);
 
 			ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 				.gid("gid")
