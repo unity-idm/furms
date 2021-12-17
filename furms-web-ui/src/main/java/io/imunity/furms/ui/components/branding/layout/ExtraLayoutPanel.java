@@ -28,7 +28,8 @@ public class ExtraLayoutPanel extends Div {
 					final Html html = new Html(panelFile.getInputStream());
 					getElement().appendChild(html.getElement());
 				} else {
-					LOG.error("Configured Panel File: {}, couldn't be read, file is unreachable", id);
+					LOG.error("Configured Panel File: {}, couldn't be read, file is unreachable", 
+							panelFile.getURL().getPath());
 				}
 			} catch (IOException | IllegalArgumentException exception) {
 				LOG.error("Could not load panel: " + id, exception);
