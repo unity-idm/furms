@@ -38,28 +38,24 @@ class VaadinConfiguration {
 		
 	@Bean
 	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context,
-	                                                                  FrontProperties frontConfig,
-	                                                                  FurmsI18NProvider i18nProvider,
-	                                                                  CustomCSSProvider customCSSProvider) {
-		return new ServletRegistrationBean<>(new FurmsVaadinServlet(context, false, frontConfig, 
-				i18nProvider, customCSSProvider), FRONT + "/*");
+			FrontProperties frontConfig,
+			FurmsI18NProvider i18nProvider) {
+		return new ServletRegistrationBean<>(new FurmsVaadinServlet(context, false, frontConfig, i18nProvider),
+				FRONT + "/*");
 	}
 	
 	private static class FurmsVaadinServlet extends SpringServlet {
 		private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 		private final FrontProperties frontConfig;
 		private final FurmsI18NProvider i18nProvider;
-		private final CustomCSSProvider customCSSProvider;
 
 		public FurmsVaadinServlet(ApplicationContext context,
 		                          boolean rootMapping,
 		                          FrontProperties frontConfig,
-		                          FurmsI18NProvider i18nProvider,
-		                          CustomCSSProvider customCSSProvider) {
+		                          FurmsI18NProvider i18nProvider) {
 			super(context, rootMapping);
 			this.frontConfig = frontConfig;
 			this.i18nProvider = i18nProvider;
-			this.customCSSProvider = customCSSProvider;
 		}
 
 		@Override
@@ -86,8 +82,6 @@ class VaadinConfiguration {
 			idleNotification.addCloseButton();
 			idleNotification.setExtendSessionOnOutsideClick(false);
 			initEvent.getUI().add(idleNotification);
-
-			customCSSProvider.initAndAttach(initEvent.getUI());
 
 			WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
 			String sessionId = wrappedSession.getId();
