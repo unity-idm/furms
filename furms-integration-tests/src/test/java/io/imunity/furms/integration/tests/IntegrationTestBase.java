@@ -8,8 +8,6 @@ package io.imunity.furms.integration.tests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,6 +21,7 @@ import org.springframework.util.SocketUtils;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -77,5 +76,10 @@ public class IntegrationTestBase extends DBTestManager {
 	protected RequestBuilder adminPOST(String url, Object... vars) {
 		return post(url, vars)
 				.with(ADMIN_USER.getHttpBasic());
+	}
+
+	protected RequestBuilder adminDELETE(String url, Object... vars) {
+		return delete(url, vars)
+			.with(ADMIN_USER.getHttpBasic());
 	}
 }

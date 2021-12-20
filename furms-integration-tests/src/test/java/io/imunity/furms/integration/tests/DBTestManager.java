@@ -18,6 +18,7 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
@@ -56,6 +57,7 @@ public abstract class DBTestManager {
 	@Autowired protected ResourceAccessRepository resourceAccessDatabaseRepository;
 	@Autowired protected GenericGroupRepository genericGroupRepository;
 	@Autowired protected UserSiteAccessRepository userSiteAccessRepository;
+	@Autowired protected SiteAgentPendingMessageRepository siteAgentPendingMessageRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -91,5 +93,6 @@ public abstract class DBTestManager {
 		jdbcTemplate.execute("DELETE FROM user_resource_usage");
 		jdbcTemplate.execute("DELETE FROM user_resource_usage_history");
 		jdbcTemplate.execute("DELETE FROM user_site_access");
+		jdbcTemplate.execute("DELETE FROM site_agent_pending_message");
 	}
 }
