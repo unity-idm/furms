@@ -5,7 +5,9 @@
 
 package io.imunity.furms.api.export;
 
+import java.util.function.Supplier;
+
 public interface ResourceUsageCSVExporter {
-	String getCsvForProjectAllocation(String projectId, String projectAllocationId);
-	String getCsvForCommunityAllocation(String communityId, String communityAllocationId);
+	Supplier<String> getCsvForProjectAllocation(String projectId, String projectAllocationId);
+	Supplier<String> getCsvForCommunityAllocation(String communityId, String communityAllocationId);
 }

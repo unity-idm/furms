@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
@@ -47,7 +48,7 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public String getJsonForProjectAllocation(String projectId, String projectAllocationId) {
+	public Supplier<String> getJsonForProjectAllocation(String projectId, String projectAllocationId) {
 		exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
 		List<Consumption> consumption = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId)).stream()
@@ -64,23 +65,25 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 			.consumption(consumption)
 			.build();
 
-		try {
-			return objectMapper.writeValueAsString(projectResourceUsage);
-		} catch (JsonProcessingException e) {
-			throw new ExportException(e);
-		}
+			return () -> {
+				try {
+				return objectMapper.writeValueAsString(projectResourceUsage);
+				} catch (JsonProcessingException e) {
+					throw new ExportException(e);
+				}
+			};
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public String getJsonForCommunityAllocation(String communityId, String communityAllocationId) {
+	public Supplier<String> getJsonForCommunityAllocation(String communityId, String communityAllocationId) {
 		exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
 		CommunityAllocationResolved communityAllocation = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
 		List<Consumption> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId).entrySet().stream()
 			.map(usage -> new Consumption(usage.getKey(), usage.getValue()))
 			.collect(toList());
 
-		CommunityResourceUsage projectResourceUsage = CommunityResourceUsage.builder()
+		CommunityResourceUsage communityResourceUsage = CommunityResourceUsage.builder()
 			.communityId(communityAllocation.communityId)
 			.community(communityAllocation.communityName)
 			.allocationId(communityAllocation.id)
@@ -89,10 +92,12 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 			.consumption(consumption)
 			.build();
 
-		try {
-			return objectMapper.writeValueAsString(projectResourceUsage);
-		} catch (JsonProcessingException e) {
-			throw new ExportException(e);
-		}
+		return () -> {
+			try {
+				return objectMapper.writeValueAsString(communityResourceUsage);
+			} catch (JsonProcessingException e) {
+				throw new ExportException(e);
+			}
+		};
 	}
 }

@@ -110,7 +110,7 @@ class ResourceUsageCSVExporterTest {
 				.build()
 		));
 
-		String jsonForCommunity = exporter.getJsonForCommunityAllocation(communityId, communityAllocationId);
+		String jsonForCommunity = exporter.getJsonForCommunityAllocation(communityId, communityAllocationId).get();
 		ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 		CommunityResourceUsage communityResourceUsage = objectMapper.readValue(jsonForCommunity, CommunityResourceUsage.class);
 

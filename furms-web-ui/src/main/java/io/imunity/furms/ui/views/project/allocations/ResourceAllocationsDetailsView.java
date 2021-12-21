@@ -77,16 +77,16 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private ResourceAllocationChart getBasicResourceAllocationChart(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
 			chartPowerService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
-			() -> jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
-			() -> csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
+			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);
 	}
 
 	private ResourceAllocationChart getResourceAllocationChartWithUsersUsage(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
 			chartPowerService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
-			() -> jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
-			() -> csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
+			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);
 	}
 

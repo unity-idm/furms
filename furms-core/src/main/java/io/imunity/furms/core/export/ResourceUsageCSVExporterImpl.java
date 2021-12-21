@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -47,7 +48,7 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public String getCsvForProjectAllocation(String projectId, String projectAllocationId) {
+	public Supplier<String> getCsvForProjectAllocation(String projectId, String projectAllocationId) {
 		exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
 		List<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId))
@@ -63,12 +64,12 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 				.append(",")
 				.append(projectAllocation.resourceType.unit.getSuffix());
 		}
-		return file.toString();
+		return file::toString;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public String getCsvForCommunityAllocation(String communityId, String communityAllocationId) {
+	public Supplier<String> getCsvForCommunityAllocation(String communityId, String communityAllocationId) {
 		exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
 		CommunityAllocationResolved communityAllocationResolved = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
 		Map<LocalDateTime, BigDecimal> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId);
@@ -83,6 +84,6 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 				.append(",")
 				.append(communityAllocationResolved.resourceType.unit.getSuffix());
 		}
-		return file.toString();
+		return file::toString;
 	}
 }

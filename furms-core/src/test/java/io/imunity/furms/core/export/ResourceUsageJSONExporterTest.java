@@ -108,7 +108,7 @@ class ResourceUsageJSONExporterTest {
 				.build()
 		));
 
-		String csvForCommunity = exporter.getCsvForCommunityAllocation(communityId, communityAllocationId);
+		String csvForCommunity = exporter.getCsvForCommunityAllocation(communityId, communityAllocationId).get();
 
 		String header = "Allocation,Consumption until,Amount,Unit" + "\r\n";
 		String row1 = name + "," + XTimeAxis.get(1).atStartOfDay() +  ",50.0," +  unit.getSuffix() + "\r\n";
