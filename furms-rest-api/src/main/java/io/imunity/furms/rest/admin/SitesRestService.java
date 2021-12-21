@@ -76,17 +76,17 @@ class SitesRestService {
 	private final SiteAgentConnectionService siteAgentConnectionService;
 
 	SitesRestService(SiteService siteService,
-	                 ResourceCreditService resourceCreditService,
-	                 ResourceTypeService resourceTypeService,
-	                 ResourceUsageService resourceUsageService,
-	                 InfraServiceService infraServiceService,
-	                 ProjectAllocationService projectAllocationService,
-	                 ProjectInstallationsService projectInstallationsService,
-	                 UserService userService,
-	                 UserAllocationsService userAllocationsService,
-	                 SSHKeyService sshKeyService,
-	                 PolicyDocumentService policyDocumentService,
-					 SiteAgentConnectionService siteAgentConnectionService) {
+			ResourceCreditService resourceCreditService,
+			ResourceTypeService resourceTypeService,
+			ResourceUsageService resourceUsageService,
+			InfraServiceService infraServiceService,
+			ProjectAllocationService projectAllocationService,
+			ProjectInstallationsService projectInstallationsService,
+			UserService userService,
+			UserAllocationsService userAllocationsService,
+			SSHKeyService sshKeyService,
+			PolicyDocumentService policyDocumentService,
+			SiteAgentConnectionService siteAgentConnectionService) {
 		this.siteService = siteService;
 		this.resourceCreditService = resourceCreditService;
 		this.resourceTypeService = resourceTypeService;
