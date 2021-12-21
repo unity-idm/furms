@@ -28,7 +28,7 @@ import static java.util.Optional.ofNullable;
 
 @Route(value = "community/admin/project/allocations/details", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.resource-allocations.details.page.title")
-class ProjectAllocationsDetailsView extends FurmsViewComponent {
+public class ProjectAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private final ChartPowerService chartPowerService;
 	private final ResourceUsageJSONExporter jsonExporter;
@@ -66,8 +66,8 @@ class ProjectAllocationsDetailsView extends FurmsViewComponent {
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
 				chartPowerService.getChartDataForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
-				jsonExporter.getJsonFileForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
-				csvExporter.getCsvFileForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
+				() -> jsonExporter.getJsonForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
+				() -> csvExporter.getCsvForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
 				true
 			);
 			getContent().add(resourceAllocationChart);

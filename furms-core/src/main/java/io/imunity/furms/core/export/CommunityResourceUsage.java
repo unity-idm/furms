@@ -28,7 +28,7 @@ class CommunityResourceUsage {
 		this.community = community;
 		this.communityId = communityId;
 		this.unit = unit;
-		this.consumption = consumption;
+		this.consumption = List.copyOf(consumption);
 	}
 
 	@Override

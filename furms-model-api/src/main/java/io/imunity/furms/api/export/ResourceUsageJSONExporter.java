@@ -6,6 +6,6 @@
 package io.imunity.furms.api.export;
 
 public interface ResourceUsageJSONExporter {
-	byte[] getJsonFileForProjectAllocation(String projectId, String projectAllocationId);
-	byte[] getJsonFileForCommunityAllocation(String communityId, String communityAllocationId);
+	String getJsonForProjectAllocation(String projectId, String projectAllocationId);
+	String getJsonForCommunityAllocation(String communityId, String communityAllocationId);
 }

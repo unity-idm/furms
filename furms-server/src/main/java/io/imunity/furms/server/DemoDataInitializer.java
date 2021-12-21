@@ -487,37 +487,37 @@ class DemoDataInitializer implements CommandLineRunner {
 				.amount(new BigDecimal(5))
 				.projectAllocationId(projectAllocationId)
 				.chunkId("1")
-				.validFrom(LocalDateTime.now().minusDays(10))
+				.validFrom(LocalDateTime.now().minusMonths(2))
 				.validTo(LocalDateTime.now().plusDays(20))
 				.receivedTime(LocalDateTime.now().minusMonths(2))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk);
 
 			ProjectAllocationChunk projectAllocationChunk1 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(8))
+				.amount(new BigDecimal(3))
 				.projectAllocationId(projectAllocationId)
 				.chunkId("2")
-				.validFrom(LocalDateTime.now().minusDays(5))
+				.validFrom(LocalDateTime.now().minusMonths(1))
 				.validTo(LocalDateTime.now().plusDays(25))
 				.receivedTime(LocalDateTime.now().minusMonths(1))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk1);
 
 			ProjectAllocationChunk projectAllocationChunk2 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(12))
+				.amount(new BigDecimal(4))
 				.projectAllocationId(projectAllocationId)
 				.chunkId("3")
-				.validFrom(LocalDateTime.now().minusDays(2))
+				.validFrom(LocalDateTime.now().minusDays(15))
 				.validTo(LocalDateTime.now().plusDays(27))
 				.receivedTime(LocalDateTime.now().minusDays(15))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk2);
 
 			ProjectAllocationChunk projectAllocationChunk3 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(15))
+				.amount(new BigDecimal(3))
 				.projectAllocationId(projectAllocationId)
 				.chunkId("3")
-				.validFrom(LocalDateTime.now())
+				.validFrom(LocalDateTime.now().minusDays(2))
 				.validTo(LocalDateTime.now().plusDays(35))
 				.receivedTime(LocalDateTime.now().minusDays(2))
 				.build();
@@ -712,37 +712,37 @@ class DemoDataInitializer implements CommandLineRunner {
 				.amount(new BigDecimal(5))
 				.projectAllocationId(projectAllocationId1)
 				.chunkId("1")
-				.validFrom(LocalDateTime.now().minusDays(10))
+				.validFrom(LocalDateTime.now().minusMonths(2))
 				.validTo(LocalDateTime.now().plusDays(20))
-				.receivedTime(LocalDateTime.now())
+				.receivedTime(LocalDateTime.now().minusMonths(2))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk10);
 
 			ProjectAllocationChunk projectAllocationChunk11 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(8))
+				.amount(new BigDecimal(3))
 				.projectAllocationId(projectAllocationId1)
 				.chunkId("2")
-				.validFrom(LocalDateTime.now().minusDays(5))
+				.validFrom(LocalDateTime.now().minusMonths(1))
 				.validTo(LocalDateTime.now().plusDays(25))
 				.receivedTime(LocalDateTime.now().minusMonths(1))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk11);
 
 			ProjectAllocationChunk projectAllocationChunk12 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(12))
+				.amount(new BigDecimal(4))
 				.projectAllocationId(projectAllocationId1)
 				.chunkId("3")
-				.validFrom(LocalDateTime.now().minusDays(2))
+				.validFrom(LocalDateTime.now().minusDays(15))
 				.validTo(LocalDateTime.now().plusDays(27))
 				.receivedTime(LocalDateTime.now().minusDays(15))
 				.build();
 			projectAllocationInstallationRepository.create(projectAllocationChunk12);
 
 			ProjectAllocationChunk projectAllocationChunk13 = ProjectAllocationChunk.builder()
-				.amount(new BigDecimal(15))
+				.amount(new BigDecimal(3))
 				.projectAllocationId(projectAllocationId1)
 				.chunkId("3")
-				.validFrom(LocalDateTime.now())
+				.validFrom(LocalDateTime.now().minusDays(2))
 				.validTo(LocalDateTime.now().plusDays(35))
 				.receivedTime(LocalDateTime.now().minusDays(2))
 				.build();

@@ -6,10 +6,10 @@
 package io.imunity.furms.ui.views.project;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.layout.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.components.layout.FurmsAppLayout;
+import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.components.layout.UserViewContextHandler;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -36,8 +36,8 @@ public class ProjectAdminMenu extends FurmsAppLayout {
 				List.of(
 						MenuComponent.builder(UsersView.class).build(),
 						MenuComponent.builder(SitesView.class).build(),
-						MenuComponent.builder(ResourceAccessView.class).subViews(ResourceAllocationsDetailsView.class).build(),
-						MenuComponent.builder(ResourceAllocationsView.class).build(),
+						MenuComponent.builder(ResourceAccessView.class).build(),
+						MenuComponent.builder(ResourceAllocationsView.class).subViews(ResourceAllocationsDetailsView.class).build(),
 						MenuComponent.builder(AlarmsView.class).build(),
 						MenuComponent.builder(ProjectAdministratorsView.class).build(),
 						MenuComponent.builder(SettingsView.class).build()));

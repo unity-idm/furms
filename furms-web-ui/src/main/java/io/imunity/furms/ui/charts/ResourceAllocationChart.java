@@ -36,17 +36,18 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 public class ResourceAllocationChart extends VerticalLayout {
 	public final boolean disableThreshold;
 
-	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile) {
-		this(chartData, jsonFile, csvFile, false);
+	public ResourceAllocationChart(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter) {
+		this(chartData, jsonGetter, csvGetter, false);
 	}
 
-	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile, boolean disableThreshold) {
+	public ResourceAllocationChart(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter, boolean disableThreshold) {
 		this.disableThreshold = disableThreshold;
 		ApexCharts areaChart = ApexChartsBuilder.get()
 			.withChart(ChartBuilder.get()
@@ -70,7 +71,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
 				.withAlign(Align.left).build())
-			.withLabels(chartData.times.stream()
+			.withLabels(chartData.getFullTimes().stream()
 				.map(LocalDate::toString)
 				.toArray(String[]::new)
 			)
@@ -89,7 +90,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
 
-		Component contextMenu = new ChartContextMenu(chartData, jsonFile, csvFile);
+		Component contextMenu = new ChartContextMenu(chartData, jsonGetter, csvGetter);
 		add(contextMenu, areaChart);
 
 		setWidth("70%");

@@ -148,7 +148,7 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 40D, 40D, 40D, 60D, 90D
+			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
 			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
@@ -280,7 +280,7 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 40D, 40D, 40D, 60D, 90D
+			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
 			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
@@ -414,7 +414,7 @@ class ChartPowerServiceTest {
 	private ProjectAllocationChunk createChunk(LocalDateTime startDate, BigDecimal amount) {
 		return ProjectAllocationChunk.builder()
 			.amount(amount)
-			.receivedTime(startDate)
+			.validFrom(startDate)
 			.build();
 	}
 }

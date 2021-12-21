@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.charts;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +33,12 @@ public class ChartData {
 		this.thresholds = thresholds;
 		this.times = times;
 		this.usersUsages = usersUsages;
+	}
+
+	List<LocalDate> getFullTimes() {
+		List<LocalDate> times =  new ArrayList<>(this.times);
+		times.add(endTime);
+		return times;
 	}
 
 	@Override

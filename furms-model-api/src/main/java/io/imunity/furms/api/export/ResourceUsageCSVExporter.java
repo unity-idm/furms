@@ -6,6 +6,6 @@
 package io.imunity.furms.api.export;
 
 public interface ResourceUsageCSVExporter {
-	byte[] getCsvFileForProjectAllocation(String projectId, String projectAllocationId);
-	byte[] getCsvFileForCommunityAllocation(String communityId, String communityAllocationId);
+	String getCsvForProjectAllocation(String projectId, String projectAllocationId);
+	String getCsvForCommunityAllocation(String communityId, String communityAllocationId);
 }

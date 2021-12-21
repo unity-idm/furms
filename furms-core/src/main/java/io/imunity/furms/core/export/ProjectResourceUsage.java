@@ -22,7 +22,7 @@ class ProjectResourceUsage {
 		this.project = project;
 		this.projectId = projectId;
 		this.unit = unit;
-		this.consumption = consumption;
+		this.consumption = List.copyOf(consumption);
 	}
 
 	@Override

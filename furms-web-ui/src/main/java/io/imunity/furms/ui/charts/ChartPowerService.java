@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class ChartPowerService {
 
 		List<LocalDate> dates = Stream.of(
 			Stream.of(projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
-			allChunks.stream().map(chunk -> chunk.receivedTime.toLocalDate()),
+			allChunks.stream().map(chunk -> chunk.validFrom.toLocalDate()),
 			allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate())
 		)
 			.flatMap(identity())
@@ -67,10 +68,7 @@ public class ChartPowerService {
 			.sorted(Comparator.comparing(identity()))
 			.collect(toList());
 
-		Map<LocalDate, Double> orderedChunksAmountByTime = allChunks.stream()
-			.collect(toMap(chunk -> chunk.receivedTime.toLocalDate(), identity(), (chunk, chunk1) -> chunk.receivedTime.isAfter(chunk1.receivedTime) ? chunk : chunk1))
-			.entrySet().stream()
-			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().amount.doubleValue()));
+		Map<LocalDate, Double> orderedChunksAmountByTime = prepareChunks(allChunks);
 		Map<LocalDate, Double> orderedUsagesAmountByTime = allResourceUsageHistory.stream()
 			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
 			.entrySet().stream()
@@ -107,7 +105,7 @@ public class ChartPowerService {
 		List<LocalDate> dates = Stream.of(
 				Stream.of(projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
 				allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate()),
-				allChunks.stream().map(chunk -> chunk.receivedTime.toLocalDate()),
+				allChunks.stream().map(chunk -> chunk.validFrom.toLocalDate()),
 				allUserResourceUsageHistory.stream().map(usage -> usage.utcConsumedUntil.toLocalDate())
 			)
 			.flatMap(identity())
@@ -115,10 +113,7 @@ public class ChartPowerService {
 			.sorted(Comparator.comparing(identity()))
 			.collect(toList());
 
-		Map<LocalDate, Double> orderedChunksAmountByTime = allChunks.stream()
-			.collect(toMap(chunk -> chunk.receivedTime.toLocalDate(), identity(), (chunk, chunk1) -> chunk.receivedTime.isAfter(chunk1.receivedTime) ? chunk : chunk1))
-			.entrySet().stream()
-			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().amount.doubleValue()));
+		Map<LocalDate, Double> orderedChunksAmountByTime = prepareChunks(allChunks);
 		Map<LocalDate, Double> orderedUsagesAmountByTime = allResourceUsageHistory.stream()
 			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
 			.entrySet().stream()
@@ -233,5 +228,19 @@ public class ChartPowerService {
 			last = value;
 		}
 		return values;
+	}
+
+	private Map<LocalDate, Double> prepareChunks(Set<ProjectAllocationChunk> allChunks) {
+		List<ProjectAllocationChunk> orderedChunks = allChunks.stream()
+			.sorted(Comparator.comparing(x -> x.validFrom))
+			.collect(toList());
+
+		double last = 0;
+		Map<LocalDate, Double> map = new HashMap<>();
+		for(ProjectAllocationChunk chunk : orderedChunks){
+			map.put(chunk.validFrom.toLocalDate(), chunk.amount.doubleValue() + last);
+			last = chunk.amount.doubleValue() + last;
+		}
+		return map;
 	}
 }

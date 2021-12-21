@@ -59,8 +59,8 @@ public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
 				chartPowerService.getChartDataForCommunityAlloc(communityAllocation.get().communityId, communityAllocation.get().id),
-				jsonExporter.getJsonFileForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
-				csvExporter.getCsvFileForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
+				() -> jsonExporter.getJsonForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
+				() -> csvExporter.getCsvForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
 				true
 			);
 			getContent().add(resourceAllocationChart);
