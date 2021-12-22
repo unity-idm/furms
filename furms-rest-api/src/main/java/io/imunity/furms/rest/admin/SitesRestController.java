@@ -255,7 +255,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/protocolMessages")
 	public List<ProtocolMessage> getProtocolMessages(
 			@PathVariable("siteId") String siteId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		return sitesRestService.getProtocolMessages(siteId);
 	}
 
 	@Operation(
@@ -271,7 +271,7 @@ public class SitesRestController {
 	public void dropProtocolMessage(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		sitesRestService.dropProtocolMessage(siteId, messageId);
 	}
 
 	@Operation(
@@ -286,7 +286,7 @@ public class SitesRestController {
 	public void retryProtocolMessage(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
-		throw new UnsupportedOperationException("Not implemented yet"); // TODO
+		sitesRestService.retryProtocolMessage(siteId, messageId);
 	}
 	
 	

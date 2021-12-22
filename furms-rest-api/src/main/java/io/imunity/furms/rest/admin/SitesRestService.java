@@ -12,6 +12,7 @@ import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
 import io.imunity.furms.api.services.InfraServiceService;
+import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
@@ -22,6 +23,8 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -36,10 +39,12 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED_FORMER_REVISION;
@@ -68,18 +73,20 @@ class SitesRestService {
 	private final SSHKeyService sshKeyService;
 	private final ResourceChecker resourceChecker;
 	private final PolicyDocumentService policyDocumentService;
+	private final SiteAgentConnectionService siteAgentConnectionService;
 
 	SitesRestService(SiteService siteService,
-	                 ResourceCreditService resourceCreditService,
-	                 ResourceTypeService resourceTypeService,
-	                 ResourceUsageService resourceUsageService,
-	                 InfraServiceService infraServiceService,
-	                 ProjectAllocationService projectAllocationService,
-	                 ProjectInstallationsService projectInstallationsService,
-	                 UserService userService,
-	                 UserAllocationsService userAllocationsService,
-	                 SSHKeyService sshKeyService,
-	                 PolicyDocumentService policyDocumentService) {
+			ResourceCreditService resourceCreditService,
+			ResourceTypeService resourceTypeService,
+			ResourceUsageService resourceUsageService,
+			InfraServiceService infraServiceService,
+			ProjectAllocationService projectAllocationService,
+			ProjectInstallationsService projectInstallationsService,
+			UserService userService,
+			UserAllocationsService userAllocationsService,
+			SSHKeyService sshKeyService,
+			PolicyDocumentService policyDocumentService,
+			SiteAgentConnectionService siteAgentConnectionService) {
 		this.siteService = siteService;
 		this.resourceCreditService = resourceCreditService;
 		this.resourceTypeService = resourceTypeService;
@@ -92,6 +99,7 @@ class SitesRestService {
 		this.sshKeyService = sshKeyService;
 		this.resourceChecker = new ResourceChecker(siteService::existsById);
 		this.policyDocumentService = policyDocumentService;
+		this.siteAgentConnectionService = siteAgentConnectionService;
 	}
 
 	List<Site> findAll() {
@@ -216,6 +224,27 @@ class SitesRestService {
 				.decisionTs(convertToUTCTime(ZonedDateTime.now(ZoneId.systemDefault())).toInstant(ZoneOffset.UTC))
 				.build());
 		return findAllPoliciesAcceptances(siteId);
+	}
+
+	List<ProtocolMessage> getProtocolMessages(String siteId) {
+		return resourceChecker.performIfExists(siteId, () -> siteAgentConnectionService.findAll(new SiteId(siteId)))
+			.stream()
+			.map(message -> new ProtocolMessage(
+				message.correlationId.id,
+				message.jsonContent,
+				message.utcAckAt == null ? MessageStatus.SENT : MessageStatus.ACKNOWLEDGED,
+				Optional.ofNullable(message.utcSentAt).map(x -> x.atZone(ZoneOffset.UTC)).orElse(null),
+				Optional.ofNullable(message.utcAckAt).map(x -> x.atZone(ZoneOffset.UTC)).orElse(null),
+				message.retryCount)
+			).collect(Collectors.toList());
+	}
+
+	void dropProtocolMessage(String siteId, String messageId) {
+		siteAgentConnectionService.delete(new SiteId(siteId), new CorrelationId(messageId));
+	}
+
+	void retryProtocolMessage(String siteId, String messageId) {
+		siteAgentConnectionService.retry(new SiteId(siteId), new CorrelationId(messageId));
 	}
 
 	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {
