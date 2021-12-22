@@ -11,11 +11,13 @@ import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.Optional.empty;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
@@ -113,6 +115,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
 				.name(allocation.name)
 				.amount(allocation.amount)
+				.creationTime(convertToUTCTime(ZonedDateTime.now()))
 				.build()
 		);
 		return savedCommunityAllocation.getId().toString();
@@ -127,6 +130,7 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
 				.name(allocation.name)
 				.amount(allocation.amount)
+				.creationTime(oldCommunityAllocation.creationTime)
 				.build()
 			)
 			.map(repository::save)

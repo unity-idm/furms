@@ -15,5 +15,11 @@ import java.util.UUID;
 public interface ResourceUsageService {
 
 	Set<UserResourceUsage> findAllUserUsages(String siteId, Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to);
+
+	Set<UserResourceUsage> findAllUserUsagesHistory(String projectId, String projectAllocationId);
+
 	Set<ResourceUsage> findAllResourceUsageHistory(String projectId, String projectAllocations);
+
+	Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(String communityId, String communityAllocationId);
+
 }

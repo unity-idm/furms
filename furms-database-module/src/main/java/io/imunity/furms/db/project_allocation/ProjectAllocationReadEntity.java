@@ -14,6 +14,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,10 +33,12 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 	public final String projectName;
 	public final String name;
 	public final BigDecimal amount;
+	public final LocalDateTime creationTime;
 
 	ProjectAllocationReadEntity(UUID id, String name,
 	                            UUID projectId, BigDecimal amount, SiteEntity site, ResourceTypeEntity resourceType,
-	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation, String projectName) {
+	                            ResourceCreditEntity resourceCredit, CommunityAllocationEntity communityAllocation, String projectName,
+	                            LocalDateTime creationTime) {
 		this.id = id;
 		this.name = name;
 		this.projectId = projectId;
@@ -45,6 +48,7 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 		this.resourceType = resourceType;
 		this.resourceCredit = resourceCredit;
 		this.communityAllocation = communityAllocation;
+		this.creationTime = creationTime;
 	}
 
 	@Override
@@ -75,12 +79,13 @@ public class ProjectAllocationReadEntity extends UUIDIdentifiable {
 			&& Objects.equals(projectId, that.projectId)
 			&& Objects.equals(name, that.name)
 			&& Objects.equals(projectName, that.projectName)
-			&& Objects.equals(amount, that.amount);
+			&& Objects.equals(amount, that.amount)
+			&& Objects.equals(creationTime, that.creationTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, projectName, name, amount);
+		return Objects.hash(id, site, resourceType, resourceCredit, communityAllocation, projectId, projectName, name, amount, creationTime);
 	}
 
 }

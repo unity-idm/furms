@@ -20,6 +20,9 @@ class CommunityAllocationGridModelMapper {
 				.amount(communityAllocationResolved.amount)
 				.remaining(communityAllocationResolved.remaining)
 				.consumed(communityAllocationResolved.consumed)
+				.creationTime(communityAllocationResolved.creationTime)
+				.validFrom(communityAllocationResolved.resourceCredit.utcStartTime)
+				.validTo(communityAllocationResolved.resourceCredit.utcEndTime)
 				.build();
 	}
 

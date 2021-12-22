@@ -10,6 +10,7 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,14 +21,16 @@ public class CommunityAllocationEntity extends UUIDIdentifiable {
 	public final UUID resourceCreditId;
 	public final String name;
 	public final BigDecimal amount;
+	public final LocalDateTime creationTime;
 
 	CommunityAllocationEntity(UUID id, UUID communityId, UUID resourceCreditId,
-	                          String name, BigDecimal amount) {
+	                          String name, BigDecimal amount, LocalDateTime creationTime) {
 		this.id = id;
 		this.communityId = communityId;
 		this.resourceCreditId = resourceCreditId;
 		this.name = name;
 		this.amount = amount;
+		this.creationTime = creationTime;
 	}
 
 	public CommunityAllocation toCommunityAllocation() {
@@ -48,12 +51,13 @@ public class CommunityAllocationEntity extends UUIDIdentifiable {
 		return Objects.equals(id, that.id) &&
 			Objects.equals(resourceCreditId, that.resourceCreditId) &&
 			Objects.equals(name, that.name) &&
+			Objects.equals(creationTime, that.creationTime) &&
 			Objects.equals(amount, that.amount);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, resourceCreditId, name, amount);
+		return Objects.hash(id, resourceCreditId, name, creationTime, amount);
 	}
 
 	@Override
@@ -63,6 +67,7 @@ public class CommunityAllocationEntity extends UUIDIdentifiable {
 			", resourceCreditId=" + resourceCreditId +
 			", name='" + name + '\'' +
 			", amount=" + amount +
+			", creationTime=" + creationTime +
 			'}';
 	}
 
@@ -71,11 +76,12 @@ public class CommunityAllocationEntity extends UUIDIdentifiable {
 	}
 
 	public static final class CommunityAllocationEntityBuilder {
-		protected UUID id;
-		public UUID communityId;
-		public UUID resourceCreditId;
-		public String name;
-		public BigDecimal amount;
+		private UUID id;
+		private UUID communityId;
+		private UUID resourceCreditId;
+		private String name;
+		private BigDecimal amount;
+		private LocalDateTime creationTime;
 
 		private CommunityAllocationEntityBuilder() {
 		}
@@ -105,8 +111,13 @@ public class CommunityAllocationEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public CommunityAllocationEntityBuilder creationTime(LocalDateTime creationTime) {
+			this.creationTime = creationTime;
+			return this;
+		}
+
 		public CommunityAllocationEntity build() {
-			return new CommunityAllocationEntity(id, communityId, resourceCreditId, name, amount);
+			return new CommunityAllocationEntity(id, communityId, resourceCreditId, name, amount, creationTime);
 		}
 	}
 }

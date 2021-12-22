@@ -9,6 +9,7 @@ import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 class CommunityAllocationGridModel {
@@ -21,10 +22,14 @@ class CommunityAllocationGridModel {
 	public final AmountWithUnit distributedWithUnit;
 	public final AmountWithUnit remainingWithUnit;
 	public final BigDecimal consumed;
+	public final LocalDateTime creationTime;
+	public final LocalDateTime validFrom;
+	public final LocalDateTime validTo;
 
 	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName,
 	                             ResourceMeasureUnit resourceTypeUnit, String resourceCreditName,
-	                             String name, BigDecimal amount, BigDecimal remaining, BigDecimal consumed) {
+	                             String name, BigDecimal amount, BigDecimal remaining, BigDecimal consumed,
+	                             LocalDateTime creationTime, LocalDateTime validFrom, LocalDateTime validTo) {
 		this.id = id;
 		this.siteName = siteName;
 		this.resourceTypeName = resourceTypeName;
@@ -34,6 +39,9 @@ class CommunityAllocationGridModel {
 		this.distributedWithUnit = new AmountWithUnit(amount.subtract(remaining), resourceTypeUnit);
 		this.remainingWithUnit = new AmountWithUnit(remaining, resourceTypeUnit);
 		this.consumed = consumed;
+		this.creationTime = creationTime;
+		this.validFrom = validFrom;
+		this.validTo = validTo;
 	}
 
 	@Override
@@ -61,6 +69,9 @@ class CommunityAllocationGridModel {
 			", distributedWithUnit=" + distributedWithUnit +
 			", remainingWithUnit=" + remainingWithUnit +
 			", consumed=" + consumed +
+			", creationTime=" + creationTime +
+			", validFrom=" + validFrom +
+			", validTo=" + validTo +
 			'}';
 	}
 
@@ -69,15 +80,18 @@ class CommunityAllocationGridModel {
 	}
 
 	public static final class CommunityAllocationGridModelBuilder {
-		public String id;
-		public String siteName;
-		public String resourceTypeName;
-		public ResourceMeasureUnit resourceTypeUnit;
-		public String resourceCreditName;
-		public String name;
-		public BigDecimal amount;
-		public BigDecimal remaining;
-		public BigDecimal consumed;
+		private String id;
+		private String siteName;
+		private String resourceTypeName;
+		private ResourceMeasureUnit resourceTypeUnit;
+		private String resourceCreditName;
+		private String name;
+		private BigDecimal amount;
+		private BigDecimal remaining;
+		private BigDecimal consumed;
+		private LocalDateTime creationTime;
+		private LocalDateTime validFrom;
+		private LocalDateTime validTo;
 
 		private CommunityAllocationGridModelBuilder() {
 		}
@@ -127,8 +141,23 @@ class CommunityAllocationGridModel {
 			return this;
 		}
 
+		public CommunityAllocationGridModelBuilder creationTime(LocalDateTime creationTime) {
+			this.creationTime = creationTime;
+			return this;
+		}
+
+		public CommunityAllocationGridModelBuilder validFrom(LocalDateTime validFrom) {
+			this.validFrom = validFrom;
+			return this;
+		}
+
+		public CommunityAllocationGridModelBuilder validTo(LocalDateTime validTo) {
+			this.validTo = validTo;
+			return this;
+		}
+
 		public CommunityAllocationGridModel build() {
-			return new CommunityAllocationGridModel(id, siteName, resourceTypeName, resourceTypeUnit, resourceCreditName, name, amount, remaining, consumed);
+			return new CommunityAllocationGridModel(id, siteName, resourceTypeName, resourceTypeUnit, resourceCreditName, name, amount, remaining, consumed, creationTime, validFrom, validTo);
 		}
 	}
 }

@@ -6,10 +6,10 @@
 package io.imunity.furms.ui.views.community;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.VaadinBroadcaster;
-import io.imunity.furms.ui.components.layout.FurmsAppLayout;
 import io.imunity.furms.ui.components.MenuComponent;
+import io.imunity.furms.ui.components.layout.FurmsAppLayout;
+import io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory;
 import io.imunity.furms.ui.components.layout.UserViewContextHandler;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -17,6 +17,7 @@ import io.imunity.furms.ui.views.community.adminstrators.CommunityAdminsView;
 import io.imunity.furms.ui.views.community.groups.GroupsView;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 import io.imunity.furms.ui.views.community.projects.ProjectsView;
+import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationsDetailsView;
 import io.imunity.furms.ui.views.community.settings.SettingsView;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class CommunityAdminMenu extends FurmsAppLayout {
 				ViewMode.COMMUNITY,
 				List.of(
 						MenuComponent.builder(DashboardView.class).build(),
-						MenuComponent.builder(ProjectsView.class).subViews(ProjectView.class).build(),
+						MenuComponent.builder(ProjectsView.class).subViews(ProjectView.class, ProjectAllocationsDetailsView.class).build(),
 						MenuComponent.builder(GroupsView.class).build(),
 						MenuComponent.builder(CommunityAdminsView.class).build(),
 						MenuComponent.builder(SettingsView.class).build()));

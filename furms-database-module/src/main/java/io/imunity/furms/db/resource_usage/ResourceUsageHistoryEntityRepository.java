@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface ResourceUsageHistoryEntityRepository extends CrudRepository<ResourceUsageHistoryEntity, Long> {
+	Set<ResourceUsageHistoryEntity> findAllByCommunityAllocationId(UUID projectAllocationId);
 	Set<ResourceUsageHistoryEntity> findAllByProjectAllocationId(UUID projectAllocationId);
 	Set<ResourceUsageHistoryEntity> findAllByProjectId(UUID projectId);
 }

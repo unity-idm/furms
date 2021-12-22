@@ -8,9 +8,7 @@ package db.migration;
 import io.imunity.furms.db.user_site_access.UserSiteAccessEntity;
 import io.imunity.furms.db.user_site_access.UserSiteAccessEntityRepository;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -25,8 +23,6 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
-import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -70,10 +66,6 @@ class V39__user_site_access_filling_migration_tests {
 	private ResourceTypeRepository resourceTypeRepository;
 	@Autowired
 	private ResourceCreditRepository resourceCreditRepository;
-	@Autowired
-	private CommunityAllocationRepository communityAllocationRepository;
-	@Autowired
-	private ProjectAllocationRepository projectAllocationRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -173,23 +165,16 @@ class V39__user_site_access_filling_migration_tests {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build()));
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
-			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
-				.name("anem")
-				.amount(new BigDecimal(10))
-				.build()
-		));
-
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
-			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
-				.name("anem")
-				.amount(new BigDecimal(5))
-				.build()
-		));
+		UUID communityAllocationId = UUID.randomUUID();
+		jdbcTemplate.update(
+			"INSERT INTO community_allocation (id, community_id, resource_credit_id, name, amount) VALUES (?, ?, ?, ?, ?)",
+			communityAllocationId, communityId, resourceCreditId, "anem", new BigDecimal(10)
+		);
+		projectAllocationId = UUID.randomUUID();
+		jdbcTemplate.update(
+			"INSERT INTO project_allocation (id, project_id, community_allocation_id, name, amount) VALUES (?, ?, ?, ?, ?)",
+			projectAllocationId, projectId, communityAllocationId, "anem", new BigDecimal(5)
+		);
 	}
 
 	@AfterEach

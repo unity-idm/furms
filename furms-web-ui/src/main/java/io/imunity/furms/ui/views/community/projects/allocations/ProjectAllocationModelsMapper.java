@@ -43,6 +43,9 @@ class ProjectAllocationModelsMapper {
 			.name(projectAllocation.name)
 			.amount(projectAllocation.amount)
 			.consumed(projectAllocation.consumed)
+			.creationTime(projectAllocation.creationTime)
+			.validFrom(projectAllocation.resourceCredit.utcStartTime)
+			.validTo(projectAllocation.resourceCredit.utcEndTime)
 			.build();
 	}
 }

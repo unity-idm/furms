@@ -5,9 +5,16 @@
 
 package io.imunity.furms.ui.components;
 
-import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.dom.Element;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.user_context.UIContext;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -16,17 +23,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.dom.Element;
+import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
-import io.imunity.furms.domain.resource_types.AmountWithUnit;
-import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
-import io.imunity.furms.ui.user_context.UIContext;
-
-public class ProjectAllocationDetailsComponentFactory {
+public class AllocationDetailsComponentFactory {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	public static Component create(Set<ProjectAllocationChunk> allocationChunks, ResourceMeasureUnit unit) {
@@ -76,6 +76,60 @@ public class ProjectAllocationDetailsComponentFactory {
 			row.appendChild(amountField, receivedField, validFrom, validTo);
 			tbody.appendChild(row);
 		}
+		tableElement.appendChild(thead, tbody);
+		Div div = new AllocationDetails();
+		div.getElement().appendChild(tableElement);
+		return div;
+	}
+
+	public static Component create(LocalDateTime created, LocalDateTime validFrom, LocalDateTime validTo) {
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
+		Element tableElement = new Element("table");
+		tableElement.getStyle().set("width", "50%");
+		tableElement.getStyle().set("text-align", "left");
+		Element thead = new Element("thead");
+
+		Tbody tbody = new Tbody();
+
+		Tr row = new Tr();
+		Td createdTd = new Td();
+		createdTd.setText(getTranslation("table.created"));
+		createdTd.getStyle().set("font-weight", "bold");
+		Td createdTimeTd = new Td();
+		createdTimeTd.setText(Optional.ofNullable(created)
+			.map(t -> convertToZoneTime(t, browserZoneId))
+			.map(t -> t.format(dateTimeFormatter))
+			.orElse(""));
+		row.appendChild(createdTd, createdTimeTd);
+		tbody.appendChild(row);
+
+		Tr row1 = new Tr();
+		Td validFromTd = new Td();
+		validFromTd.setText(getTranslation("table.valid.from"));
+		validFromTd.getStyle().set("font-weight", "bold");
+		Td validFromTimeTd = new Td();
+		validFromTimeTd.setText(Optional.ofNullable(validFrom)
+			.map(t -> convertToZoneTime(t, browserZoneId))
+			.map(t -> t.format(dateTimeFormatter))
+			.orElse(""));
+		row1.appendChild(validFromTd, validFromTimeTd);
+		tbody.appendChild(row1);
+
+
+		Tr row2 = new Tr();
+		Td validToTd = new Td();
+		validToTd.setText(getTranslation("table.valid.to"));
+		validToTd.getStyle().set("font-weight", "bold");
+		Td validToTimeTd = new Td();
+		validToTimeTd.setText(Optional.ofNullable(validTo)
+			.map(t -> convertToZoneTime(t, browserZoneId))
+			.map(t -> t.format(dateTimeFormatter))
+			.orElse(""));
+
+		row2.appendChild(validToTd, validToTimeTd);
+		tbody.appendChild(row2);
+
+
 		tableElement.appendChild(thead, tbody);
 		Div div = new AllocationDetails();
 		div.getElement().appendChild(tableElement);

@@ -12,7 +12,6 @@ import com.github.appreciated.apexcharts.config.annotations.builder.YAxisAnnotat
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
 import com.github.appreciated.apexcharts.config.builder.DataLabelsBuilder;
 import com.github.appreciated.apexcharts.config.builder.LegendBuilder;
-import com.github.appreciated.apexcharts.config.builder.StrokeBuilder;
 import com.github.appreciated.apexcharts.config.builder.TitleSubtitleBuilder;
 import com.github.appreciated.apexcharts.config.builder.XAxisBuilder;
 import com.github.appreciated.apexcharts.config.builder.YAxisBuilder;
@@ -35,13 +34,21 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 public class ResourceAllocationChart extends VerticalLayout {
+	public final boolean disableThreshold;
 
-	public ResourceAllocationChart(ChartData chartData, byte[] jsonFile, byte[] csvFile) {
+	public ResourceAllocationChart(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter) {
+		this(chartData, jsonGetter, csvGetter, false);
+	}
+
+	public ResourceAllocationChart(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter, boolean disableThreshold) {
+		this.disableThreshold = disableThreshold;
 		ApexCharts areaChart = ApexChartsBuilder.get()
 			.withChart(ChartBuilder.get()
 				.withType(Type.area)
@@ -58,13 +65,13 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withDataLabels(DataLabelsBuilder.get()
 				.withEnabled(false)
 				.build())
-			.withStroke(StrokeBuilder.get().withCurve(Curve.stepline).build())
+			.withStroke(getStroke(chartData))
 			.withSeries(createSeries(chartData))
-			.withColors("blue", "red", "orange")
+			.withColors("blue", "red", "orange", "green", "yellow", "black", "purple", "coral", "darkmagenta", "pink", "grey", "indigo", "maroon", "olive")
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
 				.withAlign(Align.left).build())
-			.withLabels(chartData.times.stream()
+			.withLabels(chartData.getFullTimes().stream()
 				.map(LocalDate::toString)
 				.toArray(String[]::new)
 			)
@@ -83,7 +90,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
 
-		Component contextMenu = new ChartContextMenu(chartData, jsonFile, csvFile);
+		Component contextMenu = new ChartContextMenu(chartData, jsonGetter, csvGetter);
 		add(contextMenu, areaChart);
 
 		setWidth("70%");
@@ -91,18 +98,41 @@ public class ResourceAllocationChart extends VerticalLayout {
 		setSpacing(false);
 	}
 
-	private Series<?>[] createSeries(ChartData chartData) {
-		if(chartData.threshold < 1){
-			return new Series[] {
-				new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()),
-				new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()),
-			};
+	private MultiStroke getStroke(ChartData chartData) {
+		List<Curve> curves = new ArrayList<>();
+		List<Double> widths = new ArrayList<>();
+
+		curves.add(Curve.smooth);
+		curves.add(Curve.stepline);
+		curves.add(Curve.smooth);
+
+		widths.add(5D);
+		widths.add(5D);
+
+		if(!(chartData.threshold < 1 || disableThreshold)) {
+			curves.add(Curve.smooth);
+			widths.add(1D);
 		}
-		return new Series[] {
-			new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()),
-			new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()),
-			new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray())
-		};
+		for(int i = 0; i < chartData.usersUsages.size(); i++) {
+			curves.add(Curve.smooth);
+			widths.add(1D);
+		}
+		return new MultiStroke(curves, widths);
+	}
+
+	private Series<?>[] createSeries(ChartData chartData) {
+		List<Series<Object>> series = new ArrayList<>();
+
+		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()));
+		if(!chartData.chunks.isEmpty())
+			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
+		if(!(chartData.threshold < 1 || disableThreshold))
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
+		for(UserUsage userUsage : chartData.usersUsages){
+			series.add(new Series<>(userUsage.email, SeriesType.line, userUsage.usages.toArray()));
+		}
+
+		return series.toArray(Series[]::new);
 	}
 
 	private Annotations getAnnotations(double threshold) {

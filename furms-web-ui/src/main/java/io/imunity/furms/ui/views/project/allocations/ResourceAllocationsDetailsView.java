@@ -5,9 +5,12 @@
 
 package io.imunity.furms.ui.views.project.allocations;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+import io.imunity.furms.api.export.ResourceUsageCSVExporter;
+import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.ui.charts.ChartPowerService;
@@ -29,12 +32,18 @@ import static java.util.Optional.ofNullable;
 public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
 	private final ChartPowerService chartPowerService;
+	private final ResourceUsageJSONExporter jsonExporter;
+	private final ResourceUsageCSVExporter csvExporter;
 	private final String projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPowerService chartPowerService) {
+	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService,
+	                               ChartPowerService chartPowerService, ResourceUsageJSONExporter jsonExporter,
+	                               ResourceUsageCSVExporter csvExporter) {
 		this.projectAllocationService = projectAllocationService;
 		this.chartPowerService = chartPowerService;
+		this.jsonExporter = jsonExporter;
+		this.csvExporter = csvExporter;
 		this.projectId = getCurrentResourceId();
 	}
 
@@ -52,13 +61,33 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 				getTranslation("view.project-admin.resource-allocations.details.page.bread-crumb")
 			);
 
-			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
-				chartPowerService.getChartData(projectAllocation.get().projectId, projectAllocation.get().id),
-				chartPowerService.getJsonFile(projectAllocation.get().projectId, projectAllocation.get().id),
-				chartPowerService.getCsvFile(projectAllocation.get().projectId, projectAllocation.get().id)
-			);
-			getContent().add(resourceAllocationChart);
+			ToggleButton toggle = new ToggleButton("Show per-user breakdown");
+			toggle.addValueChangeListener(evt -> {
+				getContent().removeAll();
+				if(evt.getValue())
+					getContent().add(toggle, getResourceAllocationChartWithUsersUsage(projectAllocation.get()));
+				else
+					getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
+
+			});
+			getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
 		}
+	}
+
+	private ResourceAllocationChart getBasicResourceAllocationChart(ProjectAllocation projectAllocation) {
+		return new ResourceAllocationChart(
+			chartPowerService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
+			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
+		);
+	}
+
+	private ResourceAllocationChart getResourceAllocationChartWithUsersUsage(ProjectAllocation projectAllocation) {
+		return new ResourceAllocationChart(
+			chartPowerService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
+			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
+			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
+		);
 	}
 
 	@Override

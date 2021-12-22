@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.charts;
 
+import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -14,13 +15,15 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 
-import java.io.ByteArrayInputStream;
+import java.util.function.Supplier;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @CssImport(value="./styles/components/menu-button-item.css", themeFor="vaadin-context-menu-list-box")
 @CssImport(value="./styles/components/menu-button-item-color.css", themeFor="vaadin-button")
 class ChartContextMenu extends Div {
 
-	ChartContextMenu(ChartData chartData, byte[] jsonFile, byte[] csvFile) {
+	ChartContextMenu(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter) {
 		ResourceAllocationChart.ChartGridActionMenu contextMenu = new ResourceAllocationChart.ChartGridActionMenu();
 
 		Button jsonButton = new Button(getTranslation("chart.export.json"));
@@ -29,7 +32,7 @@ class ChartContextMenu extends Div {
 		jsonAnchor.getElement().setAttribute("download", true);
 		jsonAnchor.setHref(VaadinSession.getCurrent()
 			.getResourceRegistry()
-			.registerResource(new StreamResource(chartData.projectAllocationName + ".json", () -> new ByteArrayInputStream(jsonFile)))
+			.registerResource(new StreamResource(chartData.projectAllocationName + ".json", () -> new StringInputStream(jsonGetter.get(), UTF_8)))
 			.getResourceUri()
 			.toString()
 		);
@@ -40,7 +43,7 @@ class ChartContextMenu extends Div {
 		csvAnchor.getElement().setAttribute("download", true);
 		csvAnchor.setHref(VaadinSession.getCurrent()
 			.getResourceRegistry()
-			.registerResource(new StreamResource(chartData.projectAllocationName + ".csv", () -> new ByteArrayInputStream(csvFile)))
+			.registerResource(new StreamResource(chartData.projectAllocationName + ".csv", () -> new StringInputStream(csvGetter.get(), UTF_8)))
 			.getResourceUri()
 			.toString()
 		);

@@ -20,7 +20,7 @@ public class ProjectAllocationConverter {
 		this.resourceTypeConverter = resourceTypeConverter;
 	}
 
-	public ProjectAllocationResolved toProjectAllocationResolved(ProjectAllocationReadEntity entity, BigDecimal consumed) {
+	ProjectAllocationResolved toProjectAllocationResolved(ProjectAllocationReadEntity entity, BigDecimal consumed) {
 		return ProjectAllocationResolved.builder()
 				.id(entity.getId().toString())
 				.site(entity.site.toSite())
@@ -32,6 +32,7 @@ public class ProjectAllocationConverter {
 				.name(entity.name)
 				.amount(entity.amount)
 				.consumed(consumed)
+				.creationTime(entity.creationTime)
 				.build();
 	}
 }

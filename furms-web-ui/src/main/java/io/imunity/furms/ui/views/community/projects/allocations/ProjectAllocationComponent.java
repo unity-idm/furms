@@ -30,7 +30,9 @@ import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
-import io.imunity.furms.ui.components.ProjectAllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.AllocationDetailsComponentFactory;
+import io.imunity.furms.ui.components.ResourceProgressBar;
+import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.project_allocation.ProjectAllocationDataSnapshot;
@@ -45,6 +47,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.SPLINE_CHART;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
@@ -106,18 +109,18 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setSortable(true)
 			.setComparator(model -> model.name.toLowerCase());
 		grid.addColumn(model -> model.resourceTypeName)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.4"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.3"))
 			.setSortable(true);
 		grid.addColumn(model -> model.amountWithUnit)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.4"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.amountWithUnit.amount));
 		grid.addColumn(model -> model.consumedWithUnit)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.5"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.consumedWithUnit.amount));
 		grid.addColumn(model -> model.remainingWithUnit)
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.6"))
 			.setSortable(true)
 			.setComparator(comparing(c -> c.remainingWithUnit.amount));
 		grid.addComponentColumn(c -> {
@@ -140,14 +143,28 @@ public class ProjectAllocationComponent extends Composite<Div> {
 					})
 					.orElseGet(StatusLayout::new);
 			})
-			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.7"))
 			.setSortable(true);
+		grid.addComponentColumn(model ->
+				new ResourceProgressBar(
+					model.amountWithUnit.amount,
+					model.consumedWithUnit.amount,
+					0
+				)
+		)
+			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.8"))
+			.setTextAlign(ColumnTextAlign.CENTER);
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
-		grid.setItemDetailsRenderer(new ComponentRenderer<>(x -> ProjectAllocationDetailsComponentFactory
-			.create(projectDataSnapshot.getChunks(x.id), x.amountWithUnit.unit)));
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(x ->
+			new Div(
+				AllocationDetailsComponentFactory.create(x.creationTime, x.validFrom, x.validTo),
+				AllocationDetailsComponentFactory
+					.create(projectDataSnapshot.getChunks(x.id), x.amountWithUnit.unit))
+			)
+		);
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
 
 		return grid;
@@ -159,6 +176,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			return getRefreshMenuItem(new GridActionMenu());
 		}
 		return new GridActionsButtonLayout(
+			new RouterGridLink(SPLINE_CHART, model.id, ProjectAllocationsDetailsView.class, "projectId", model.projectId),
 			createContextMenu(model)
 		);
 	}

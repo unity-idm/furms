@@ -29,6 +29,7 @@ public class CommunityAllocationConverter {
 				.communityName(entity.communityName)
 				.name(entity.name)
 				.amount(entity.amount)
+				.creationTime(entity.creationTime)
 				.build();
 	}
 

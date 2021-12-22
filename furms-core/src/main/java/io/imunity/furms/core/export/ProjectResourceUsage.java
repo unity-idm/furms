@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.core.export;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,13 +16,13 @@ class ProjectResourceUsage {
 	public final String unit;
 	public final List<Consumption> consumption;
 
-	ProjectResourceUsage(String allocation, String allocationId, String project, String projectId, String unit, List<Consumption> consumption) {
+	private ProjectResourceUsage(String allocation, String allocationId, String project, String projectId, String unit, List<Consumption> consumption) {
 		this.allocation = allocation;
 		this.allocationId = allocationId;
 		this.project = project;
 		this.projectId = projectId;
 		this.unit = unit;
-		this.consumption = consumption;
+		this.consumption = List.copyOf(consumption);
 	}
 
 	@Override
@@ -30,7 +30,12 @@ class ProjectResourceUsage {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		ProjectResourceUsage that = (ProjectResourceUsage) o;
-		return Objects.equals(allocation, that.allocation) && Objects.equals(allocationId, that.allocationId) && Objects.equals(project, that.project) && Objects.equals(projectId, that.projectId) && Objects.equals(unit, that.unit) && Objects.equals(consumption, that.consumption);
+		return Objects.equals(allocation, that.allocation) &&
+			Objects.equals(allocationId, that.allocationId) &&
+			Objects.equals(project, that.project) &&
+			Objects.equals(projectId, that.projectId) &&
+			Objects.equals(unit, that.unit) &&
+			Objects.equals(consumption, that.consumption);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import io.imunity.furms.domain.resource_types.PositiveAmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 class ProjectAllocationGridModel {
@@ -21,8 +22,13 @@ class ProjectAllocationGridModel {
 	public final AmountWithUnit amountWithUnit;
 	public final AmountWithUnit consumedWithUnit;
 	public final PositiveAmountWithUnit remainingWithUnit;
+	public final LocalDateTime creationTime;
+	public final LocalDateTime validFrom;
+	public final LocalDateTime validTo;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName, ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed) {
+	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
+	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed,
+	                           LocalDateTime creationTime, LocalDateTime validFrom, LocalDateTime validTo) {
 		this.id = id;
 		this.projectId = projectId;
 		this.siteName = siteName;
@@ -31,6 +37,9 @@ class ProjectAllocationGridModel {
 		this.amountWithUnit = new AmountWithUnit(amount, resourceTypeUnit);
 		this.consumedWithUnit = new AmountWithUnit(consumed, resourceTypeUnit);
 		this.remainingWithUnit = PositiveAmountWithUnit.roundToPositiveValue(amount.subtract(consumed), resourceTypeUnit);
+		this.creationTime = creationTime;
+		this.validFrom = validFrom;
+		this.validTo = validTo;
 	}
 
 	@Override
@@ -54,7 +63,9 @@ class ProjectAllocationGridModel {
 			", siteName='" + siteName + '\'' +
 			", resourceTypeName='" + resourceTypeName + '\'' +
 			", name='" + name + '\'' +
-			", amountWithUnit=" + amountWithUnit +
+			", creationTime=" + creationTime +
+			", validFrom=" + validFrom +
+			", validTo=" + validTo +
 			'}';
 	}
 
@@ -63,14 +74,17 @@ class ProjectAllocationGridModel {
 	}
 
 	public static final class ProjectAllocationGridModelBuilder {
-		public String id;
-		public String projectId;
-		public String siteName;
-		public String resourceTypeName;
-		public ResourceMeasureUnit resourceTypeUnit;
-		public String name;
-		public BigDecimal amount;
-		public BigDecimal consumed;
+		private String id;
+		private String projectId;
+		private String siteName;
+		private String resourceTypeName;
+		private ResourceMeasureUnit resourceTypeUnit;
+		private String name;
+		private BigDecimal amount;
+		private BigDecimal consumed;
+		private LocalDateTime creationTime;
+		private LocalDateTime validFrom;
+		private LocalDateTime validTo;
 
 		private ProjectAllocationGridModelBuilder() {
 		}
@@ -115,8 +129,23 @@ class ProjectAllocationGridModel {
 			return this;
 		}
 
+		public ProjectAllocationGridModelBuilder creationTime(LocalDateTime creationTime) {
+			this.creationTime = creationTime;
+			return this;
+		}
+
+		public ProjectAllocationGridModelBuilder validFrom(LocalDateTime validFrom) {
+			this.validFrom = validFrom;
+			return this;
+		}
+
+		public ProjectAllocationGridModelBuilder validTo(LocalDateTime validTo) {
+			this.validTo = validTo;
+			return this;
+		}
+
 		public ProjectAllocationGridModel build() {
-			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed);
+			return new ProjectAllocationGridModel(id, projectId, siteName, resourceTypeName, resourceTypeUnit, name, amount, consumed, creationTime, validFrom, validTo);
 		}
 	}
 }

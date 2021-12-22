@@ -5,38 +5,43 @@
 
 package io.imunity.furms.ui.views.fenix.communites.allocations;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.math.RoundingMode.HALF_UP;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.ui.components.AllocationDetailsComponentFactory;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
-import io.imunity.furms.ui.components.FurmsProgressBar;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
+import io.imunity.furms.ui.components.ResourceProgressBar;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.SPLINE_CHART;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 public class CommunityAllocationComponent extends Composite<Div> {
 
@@ -71,7 +76,10 @@ public class CommunityAllocationComponent extends Composite<Div> {
 	private Grid<CommunityAllocationGridModel> createCommunityGrid() {
 		Grid<CommunityAllocationGridModel> grid = new DenseGrid<>(CommunityAllocationGridModel.class);
 
-		grid.addColumn(model -> model.siteName)
+		grid.addComponentColumn(model -> {
+			Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
+			return new Div(icon, new Text(model.siteName));
+		})
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.1"))
 			.setSortable(true);
 		grid.addComponentColumn(model -> new RouterLink(model.name, CommunityAllocationFormView.class, model.id))
@@ -96,24 +104,24 @@ public class CommunityAllocationComponent extends Composite<Div> {
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.7"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.remainingWithUnit.amount));
-		grid.addComponentColumn(model -> {
-			double value = model.consumed
-				.divide(model.amountWithUnit.amount, 4, HALF_UP)
-				.doubleValue();
-			return new FurmsProgressBar(value);
-		})
+		grid.addComponentColumn(model -> new ResourceProgressBar(model.amountWithUnit.amount, model.consumed, 0))
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.8"))
 			.setComparator(comparing(model -> model.consumed));
 		grid.addComponentColumn(this::createLastColumnContent)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.9"))
 			.setTextAlign(ColumnTextAlign.END);
 
+		grid.setItemDetailsRenderer(new ComponentRenderer<>(model ->
+			AllocationDetailsComponentFactory.create(model.creationTime, model.validFrom, model.validTo)
+		));
+
 		return grid;
 	}
 
-	private HorizontalLayout createLastColumnContent(CommunityAllocationGridModel communityAllocationGridModel) {
+	private HorizontalLayout createLastColumnContent(CommunityAllocationGridModel model) {
 		return new GridActionsButtonLayout(
-			createContextMenu(communityAllocationGridModel.id, communityAllocationGridModel.name)
+			new RouterGridLink(SPLINE_CHART, model.id, CommunityAllocationsDetailsView.class),
+			createContextMenu(model.id, model.name)
 		);
 	}
 
