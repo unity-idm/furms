@@ -62,4 +62,6 @@ class MockBeansConfig {
 	private ResourceUsageSiteIdResolver resourceUsageSiteIdResolver;
 	@MockBean
 	private SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
+	@MockBean
+	private SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock;
 }

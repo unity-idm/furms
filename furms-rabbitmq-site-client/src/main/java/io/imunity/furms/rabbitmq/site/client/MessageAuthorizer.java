@@ -29,6 +29,6 @@ public class MessageAuthorizer {
 		SiteIdGetter siteIdResolversConnector = siteIdGetterMap.getOrDefault(payload.body.getClass(), defaultSiteIdResolversConnector);
 		siteIdResolversConnector.getSiteId(payload)
 			.filter(siteExternalId -> getSiteId(queueName).equals(siteExternalId.id))
-			.orElseThrow(() -> new IllegalArgumentException(String.format("Message doesn't belong to site:  %s", payload)));
+			.orElseThrow(() -> new IllegalSiteIdException(String.format("Message doesn't belong to site:  %s", payload)));
 	}
 }

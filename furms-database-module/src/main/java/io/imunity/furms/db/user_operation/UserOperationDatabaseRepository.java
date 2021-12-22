@@ -141,10 +141,9 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public UserStatus findAdditionStatusByCorrelationId(String correlationId) {
+	public Optional<UserStatus> findAdditionStatusByCorrelationId(String correlationId) {
 		return userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
-			.map(x -> UserStatus.valueOf(x.status))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+			.map(x -> UserStatus.valueOf(x.status));
 	}
 
 	@Override

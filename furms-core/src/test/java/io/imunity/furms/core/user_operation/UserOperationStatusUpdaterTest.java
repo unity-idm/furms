@@ -81,7 +81,7 @@ class UserOperationStatusUpdaterTest {
 			.correlationId(correlationId)
 			.status(UserStatus.ADDED)
 			.build();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(userAddition);
 
 		service.update(userAddition);
@@ -101,7 +101,7 @@ class UserOperationStatusUpdaterTest {
 			.correlationId(correlationId)
 			.status(UserStatus.ADDED)
 			.build();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(userAddition);
 		GrantAccess grantAccess = GrantAccess.builder().build();
 		when(resourceAccessRepository.findWaitingGrantAccesses(new FenixUserId("userId"), "projectId", "siteId")).thenReturn(Set.of(
@@ -130,7 +130,7 @@ class UserOperationStatusUpdaterTest {
 			.correlationId(correlationId)
 			.status(UserStatus.ADDED)
 			.build();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(userAddition);
 
 		service.update(userAddition);
@@ -142,7 +142,7 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"ADDING_PENDING", "ADDING_ACKNOWLEDGED", "REMOVED"}, mode = EXCLUDE)
 	void shouldNotUpdateUserAdditionToFailed(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 
 		UserAddition userAddition = UserAddition.builder()
 			.correlationId(correlationId)
@@ -156,7 +156,7 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"ADDING_PENDING", "ADDING_ACKNOWLEDGED"}, mode = EXCLUDE)
 	void shouldNotUpdateUserAdditionToAdded(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 
 		UserAddition userAddition = UserAddition.builder()
 			.correlationId(correlationId)
@@ -169,7 +169,7 @@ class UserOperationStatusUpdaterTest {
 	@Test
 	void shouldUpdateUserAdditionToAcknowledged() {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(ADDING_PENDING);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(ADDING_PENDING));
 
 		service.update(UserAddition.builder()
 			.correlationId(correlationId)
@@ -183,7 +183,7 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"REMOVAL_PENDING", "REMOVAL_ACKNOWLEDGED"})
 	void shouldRemoveUserAddition(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(UserAddition.builder()
 			.siteId(new SiteId("siteId"))
 			.correlationId(correlationId)
@@ -202,7 +202,7 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"REMOVAL_PENDING", "REMOVAL_ACKNOWLEDGED"}, mode = EXCLUDE)
 	void shouldNotRemoveUserAddition(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 
 		assertThrows(IllegalArgumentException.class, () -> service.updateStatus(correlationId, REMOVED, Optional.empty()));
 	}
@@ -211,7 +211,7 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"ADDING_PENDING"}, mode = EXCLUDE)
 	void shouldNotUpdateUserAdditionToAcknowledged(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(userStatus);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 
 		UserAddition userAddition = UserAddition.builder()
 			.correlationId(correlationId)
@@ -225,7 +225,7 @@ class UserOperationStatusUpdaterTest {
 	void shouldUpdateUserAdditionStatus() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(ADDING_PENDING);
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(ADDING_PENDING));
 		service.updateStatus(correlationId, ADDING_ACKNOWLEDGED, Optional.empty());
 
 		orderVerifier.verify(repository).updateStatus(correlationId, ADDING_ACKNOWLEDGED, Optional.empty());

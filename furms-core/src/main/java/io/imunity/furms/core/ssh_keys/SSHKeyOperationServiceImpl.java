@@ -8,6 +8,8 @@ package io.imunity.furms.core.ssh_keys;
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.IllegalCorrelationIdException;
+import io.imunity.furms.domain.site_agent.IllegalTransitStateException;
 import io.imunity.furms.domain.ssh_keys.*;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
@@ -70,13 +72,11 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 	public void updateStatus(CorrelationId correlationId, SSHKeyOperationResult result) {
 		SSHKeyOperationJob job = sshKeyOperationRepository.findByCorrelationId(correlationId);
 		if (job == null) {
-			LOG.info("SSHKeyOperation with given correlation id {} does not exists", correlationId.id);
-			return;
+			throw new IllegalCorrelationIdException("SSHKeyOperation does not exists");
 		}
 		
 		if (job.status.equals(FAILED) || job.status.equals(DONE)) {
-			LOG.info("SSHKeyOperation with given correlation id {} cannot be modified", correlationId.id);
-			return;
+			throw new IllegalTransitStateException(String.format("SSHKeyOperation status is %s, it cannot be modified", job.status));
 		}
 
 		sshKeyOperationRepository.update(job.id, result.status, Optional.ofNullable(result.error.message),

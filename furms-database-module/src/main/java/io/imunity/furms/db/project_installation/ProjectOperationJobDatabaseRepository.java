@@ -43,30 +43,28 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public ProjectInstallationJob findInstallationJobByCorrelationId(CorrelationId correlationId) {
-		ProjectInstallationJobEntity job = installationRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-		return ProjectInstallationJob.builder()
-			.id(job.getId().toString())
-			.correlationId(new CorrelationId(job.correlationId.toString()))
-			.siteId(job.siteId.toString())
-			.projectId(job.projectId.toString())
-			.status(ProjectInstallationStatus.valueOf(job.status))
-			.gid(job.gid)
-			.build();
+	public Optional<ProjectInstallationJob> findInstallationJobByCorrelationId(CorrelationId correlationId) {
+		return installationRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(job -> ProjectInstallationJob.builder()
+				.id(job.getId().toString())
+				.correlationId(new CorrelationId(job.correlationId.toString()))
+				.siteId(job.siteId.toString())
+				.projectId(job.projectId.toString())
+				.status(ProjectInstallationStatus.valueOf(job.status))
+				.gid(job.gid)
+				.build());
 	}
 
 	@Override
-	public ProjectUpdateJob findUpdateJobByCorrelationId(CorrelationId correlationId) {
-		ProjectUpdateJobEntity job = updateRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
-		return ProjectUpdateJob.builder()
-			.id(job.getId().toString())
-			.correlationId(new CorrelationId(job.correlationId.toString()))
-			.siteId(job.siteId.toString())
-			.projectId(job.projectId.toString())
-			.status(ProjectUpdateStatus.valueOf(job.status))
-			.build();
+	public Optional<ProjectUpdateJob> findUpdateJobByCorrelationId(CorrelationId correlationId) {
+		return updateRepository.findByCorrelationId(UUID.fromString(correlationId.id))
+			.map(job -> ProjectUpdateJob.builder()
+				.id(job.getId().toString())
+				.correlationId(new CorrelationId(job.correlationId.toString()))
+				.siteId(job.siteId.toString())
+				.projectId(job.projectId.toString())
+				.status(ProjectUpdateStatus.valueOf(job.status))
+				.build());
 	}
 
 	@Override

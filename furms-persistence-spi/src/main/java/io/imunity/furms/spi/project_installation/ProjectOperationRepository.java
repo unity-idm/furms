@@ -16,9 +16,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 public interface ProjectOperationRepository {
-	ProjectInstallationJob findInstallationJobByCorrelationId(CorrelationId id);
+	Optional<ProjectInstallationJob> findInstallationJobByCorrelationId(CorrelationId id);
 
-	ProjectUpdateJob findUpdateJobByCorrelationId(CorrelationId id);
+	Optional<ProjectUpdateJob> findUpdateJobByCorrelationId(CorrelationId id);
 
 	ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter);
 

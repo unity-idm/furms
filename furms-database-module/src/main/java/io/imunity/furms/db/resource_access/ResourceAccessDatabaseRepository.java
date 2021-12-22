@@ -131,12 +131,11 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public AccessStatus findCurrentStatus(CorrelationId correlationId) {
+	public Optional<AccessStatus> findCurrentStatus(CorrelationId correlationId) {
 		return userGrantJobEntityRepository
 			.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(userGrantJob -> userGrantJob.status)
-			.map(AccessStatus::valueOf)
-			.orElseThrow(() -> new IllegalArgumentException("Correlation id doesn't exist: " + correlationId.id));
+			.map(AccessStatus::valueOf);
 	}
 
 	@Override

@@ -119,9 +119,9 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		CorrelationId id = new CorrelationId("id");
 
 		//when
-		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(ProjectDeallocation.builder()
+		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(Optional.of(ProjectDeallocation.builder()
 			.status(ProjectDeallocationStatus.PENDING)
-			.build());
+			.build()));
 		service.updateStatus(id, ProjectDeallocationStatus.PENDING, Optional.empty());
 
 		//then

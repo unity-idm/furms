@@ -29,7 +29,7 @@ public interface ResourceAccessRepository {
 	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
 	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId);
 	Set<GrantAccess> findGrantAccessesBy(String siteId, String projectAllocationId);
-	AccessStatus findCurrentStatus(CorrelationId correlationId);
+	Optional<AccessStatus> findCurrentStatus(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);
 	void deleteByUserAndAllocationId(FenixUserId userId, String allocationId);
 	void deleteByUserAndProjectId(FenixUserId userId, String projectId);
