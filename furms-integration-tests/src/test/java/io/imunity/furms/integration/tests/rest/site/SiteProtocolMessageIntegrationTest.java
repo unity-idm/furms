@@ -10,8 +10,10 @@ import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessa
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
+import io.imunity.furms.site.api.site_agent.SiteAgentRetryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 
 	private Site site;
+	@MockBean
+	private SiteAgentRetryService siteAgentRetryService;
 
 	@BeforeEach
 	void setUp() {
