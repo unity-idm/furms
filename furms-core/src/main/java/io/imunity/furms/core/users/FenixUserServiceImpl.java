@@ -14,7 +14,7 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.users.FenixUsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +87,6 @@ class FenixUserServiceImpl implements FenixUserService {
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
-		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId((String) null, APP_LEVEL)));
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId((String) null, APP_LEVEL), "system", Role.FENIX_ADMIN));
 	}
 }

@@ -8,11 +8,11 @@ package io.imunity.furms.core.project_allocation;
 import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationCreatedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
-import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationRemovedEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationUpdatedEvent;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
@@ -143,7 +143,7 @@ class ProjectAllocationServiceImplTest {
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationCreatedEvent(null)));
 	}
 
 	@Test
@@ -169,7 +169,7 @@ class ProjectAllocationServiceImplTest {
 
 		orderVerifier.verify(projectAllocationRepository).update(eq(request));
 		orderVerifier.verify(projectAllocationInstallationService).updateAndStartAllocation("id");
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationUpdatedEvent( null, null)));
 	}
 
 	@Test
@@ -186,7 +186,7 @@ class ProjectAllocationServiceImplTest {
 		service.delete("projectId", id);
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationRemovedEvent(null)));
 	}
 
 	@Test

@@ -8,10 +8,10 @@ package io.imunity.furms.core.services;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.services.CreateServiceEvent;
+import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
 import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.domain.services.RemoveServiceEvent;
-import io.imunity.furms.domain.services.UpdateServiceEvent;
+import io.imunity.furms.domain.services.InfraServiceRemovedEvent;
+import io.imunity.furms.domain.services.InfraServiceUpdatedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -127,7 +127,7 @@ class InfraServiceServiceImplTest {
 		service.create(request);
 
 		orderVerifier.verify(infraServiceRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateServiceEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceCreatedEvent(null)));
 	}
 
 	@Test
@@ -308,7 +308,7 @@ class InfraServiceServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(infraServiceRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateServiceEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InfraServiceCreatedEvent(null)));
 	}
 
 	@Test
@@ -328,7 +328,7 @@ class InfraServiceServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(infraServiceRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateServiceEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent( null, null)));
 	}
 
 	@Test
@@ -348,7 +348,7 @@ class InfraServiceServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(infraServiceRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateServiceEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent( null, null)));
 	}
 
 	@Test
@@ -361,7 +361,7 @@ class InfraServiceServiceImplTest {
 		service.delete(id, "");
 
 		orderVerifier.verify(infraServiceRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveServiceEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceRemovedEvent(null)));
 	}
 
 	@Test
@@ -373,7 +373,7 @@ class InfraServiceServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(infraServiceRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateServiceEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InfraServiceUpdatedEvent(null, null)));
 	}
 
 }

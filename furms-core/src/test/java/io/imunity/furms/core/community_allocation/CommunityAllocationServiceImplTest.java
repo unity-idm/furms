@@ -8,9 +8,9 @@ package io.imunity.furms.core.community_allocation;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
-import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
-import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationCreatedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationRemovedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationUpdatedEvent;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,7 +165,7 @@ class CommunityAllocationServiceImplTest {
 		service.create(request);
 
 		orderVerifier.verify(communityAllocationRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateCommunityAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityAllocationCreatedEvent(request)));
 	}
 
 	@Test
@@ -183,7 +183,7 @@ class CommunityAllocationServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(communityAllocationRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateCommunityAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityAllocationUpdatedEvent(request, request)));
 	}
 
 	@Test
@@ -195,6 +195,6 @@ class CommunityAllocationServiceImplTest {
 		service.delete(id);
 
 		orderVerifier.verify(communityAllocationRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveCommunityAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityAllocationRemovedEvent(null)));
 	}
 }

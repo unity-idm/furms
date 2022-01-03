@@ -8,11 +8,11 @@ package io.imunity.furms.core.generic_groups;
 import io.imunity.furms.api.validation.exceptions.GroupNotBelongingToCommunityException;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
-import io.imunity.furms.domain.generic_groups.GenericGroupCreateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
-import io.imunity.furms.domain.generic_groups.GenericGroupRemoveEvent;
-import io.imunity.furms.domain.generic_groups.GenericGroupUpdateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupRemovedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
@@ -134,7 +134,7 @@ class GenericGroupServiceImplTest {
 		GenericGroupId createdGenericGroupId = genericGroupService.create(genericGroup);
 
 		assertEquals(genericGroupId, createdGenericGroupId);
-		verify(publisher).publishEvent(new GenericGroupCreateEvent(genericGroupId));
+		verify(publisher).publishEvent(new GenericGroupCreatedEvent(null));
 	}
 
 	@Test
@@ -168,7 +168,7 @@ class GenericGroupServiceImplTest {
 		genericGroupService.update(genericGroup);
 
 		verify(genericGroupRepository).update(genericGroup);
-		verify(publisher).publishEvent(new GenericGroupUpdateEvent(genericGroupId));
+		verify(publisher).publishEvent(new GenericGroupUpdatedEvent(null, null));
 	}
 
 	@Test
@@ -179,7 +179,7 @@ class GenericGroupServiceImplTest {
 		genericGroupService.delete("communityId", groupId);
 
 		verify(genericGroupRepository).delete(groupId);
-		verify(publisher).publishEvent(new GenericGroupRemoveEvent(groupId));
+		verify(publisher).publishEvent(new GenericGroupRemovedEvent(null));
 	}
 
 	@Test

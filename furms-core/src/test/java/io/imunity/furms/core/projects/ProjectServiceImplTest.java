@@ -12,12 +12,12 @@ import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.CreateProjectEvent;
+import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.projects.RemoveProjectEvent;
-import io.imunity.furms.domain.projects.UpdateProjectEvent;
+import io.imunity.furms.domain.projects.ProjectRemovedEvent;
+import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -147,7 +147,7 @@ class ProjectServiceImplTest {
 		orderVerifier.verify(projectRepository).create(eq(request));
 		orderVerifier.verify(projectGroupsDAO).create(eq(groupRequest));
 
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectEvent(id)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectCreatedEvent(null)));
 	}
 
 	@Test
@@ -162,7 +162,7 @@ class ProjectServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(projectRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateProjectEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ProjectCreatedEvent(null)));
 	}
 
 	@Test
@@ -194,7 +194,7 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).update(eq(request));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent(id)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectUpdatedEvent(null, null)));
 	}
 
 	@Test
@@ -239,7 +239,7 @@ class ProjectServiceImplTest {
 			.build();
 		orderVerifier.verify(projectRepository).update(eq(updatedProject));
 		orderVerifier.verify(projectGroupsDAO).update(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectUpdatedEvent( null, null)));
 	}
 
 	@Test
@@ -256,7 +256,7 @@ class ProjectServiceImplTest {
 
 		orderVerifier.verify(projectRepository).delete(eq(id));
 		orderVerifier.verify(projectGroupsDAO).delete(eq(id), eq(id2));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectEvent("id", users)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectRemovedEvent(users, null)));
 	}
 
 	@Test
@@ -269,7 +269,7 @@ class ProjectServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, id2));
 		orderVerifier.verify(projectRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateProjectEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ProjectUpdatedEvent(null, null)));
 	}
 
 }

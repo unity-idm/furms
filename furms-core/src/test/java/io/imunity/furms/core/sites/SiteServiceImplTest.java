@@ -11,20 +11,19 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.sites.CreateSiteEvent;
-import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteCreatedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.sites.UpdateSiteEvent;
+import io.imunity.furms.domain.sites.SiteRemovedEvent;
+import io.imunity.furms.domain.sites.SiteUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
@@ -51,6 +50,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
@@ -171,7 +171,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).create(eq(request), any());
 		verify(webClient, times(1)).create(request);
-		verify(publisher, times(1)).publishEvent(new CreateSiteEvent("id"));
+		verify(publisher, times(1)).publishEvent(new SiteCreatedEvent(null));
 	}
 
 	@Test
@@ -187,7 +187,7 @@ class SiteServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		verify(repository, times(0)).create(request, new SiteExternalId("id"));
 		verify(webClient, times(0)).create(request);
-		verify(publisher, times(0)).publishEvent(new CreateSiteEvent("id"));
+		verify(publisher, times(0)).publishEvent(new SiteCreatedEvent(null));
 	}
 
 	@Test
@@ -208,7 +208,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(request);
 		verify(webClient, times(1)).update(request);
-		verify(publisher, times(1)).publishEvent(new UpdateSiteEvent("id"));
+		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent( null, null));
 	}
 
 	@Test
@@ -325,7 +325,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(expectedSite);
 		verify(webClient, times(1)).update(expectedSite);
-		verify(publisher, times(1)).publishEvent(new UpdateSiteEvent("id"));
+		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent( null, null));
 	}
 
 	@Test
@@ -339,7 +339,7 @@ class SiteServiceImplTest {
 
 		verify(repository, times(1)).delete(id);
 		verify(webClient, times(1)).delete(id);
-		verify(publisher, times(1)).publishEvent(new RemoveSiteEvent("id"));
+		verify(publisher, times(1)).publishEvent(new SiteRemovedEvent(null));
 	}
 
 	@Test
@@ -352,7 +352,7 @@ class SiteServiceImplTest {
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
 		verify(repository, times(0)).delete(id);
 		verify(webClient, times(0)).delete(id);
-		verify(publisher, times(0)).publishEvent(new RemoveSiteEvent("id"));
+		verify(publisher, times(0)).publishEvent(new SiteRemovedEvent(null));
 	}
 
 	@Test
@@ -405,7 +405,7 @@ class SiteServiceImplTest {
 	void shouldReturnAllSiteAdmins() {
 		//given
 		String siteId = "id";
-		when(webClient.getAllSiteUsers(siteId, Set.of(Role.SITE_ADMIN))).thenReturn(List.of(FURMSUser.builder()
+		when(webClient.getAllSiteUsers(siteId, Set.of(SITE_ADMIN))).thenReturn(List.of(FURMSUser.builder()
 			.id(new PersistentId("id"))
 			.firstName("firstName")
 			.lastName("lastName")
@@ -437,7 +437,7 @@ class SiteServiceImplTest {
 		service.addAdmin(siteId, userId);
 
 		//then
-		verify(webClient, times(1)).addSiteUser(siteId, userId, Role.SITE_ADMIN);
+		verify(webClient, times(1)).addSiteUser(siteId, userId, SITE_ADMIN);
 	}
 
 	@Test
@@ -456,14 +456,14 @@ class SiteServiceImplTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
-		doThrow(UnityFailureException.class).when(webClient).addSiteUser(siteId, userId, Role.SITE_ADMIN);
+		doThrow(UnityFailureException.class).when(webClient).addSiteUser(siteId, userId, SITE_ADMIN);
 		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
 	}
 
 	@Test
@@ -477,7 +477,7 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
+		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
 	}
 
 	@Test
@@ -500,7 +500,7 @@ class SiteServiceImplTest {
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeSiteUser(siteId, userId));
-		verify(publisher, times(0)).publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
 	}
 
 	@Test

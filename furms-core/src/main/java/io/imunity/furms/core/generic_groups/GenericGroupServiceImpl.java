@@ -12,11 +12,13 @@ import io.imunity.furms.api.validation.exceptions.UserAlreadyIsInGroupError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
-import io.imunity.furms.domain.generic_groups.GenericGroupCreateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
-import io.imunity.furms.domain.generic_groups.GenericGroupRemoveEvent;
-import io.imunity.furms.domain.generic_groups.GenericGroupUpdateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupRemovedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUpdatedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUserGrantedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUserRevokedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -105,8 +107,9 @@ class GenericGroupServiceImpl implements GenericGroupService {
 		assertNotNull(group);
 		assertUniqueness(group.communityId, group.name);
 		GenericGroupId genericGroupId = genericGroupRepository.create(group);
+		GenericGroup genericGroup = genericGroupRepository.findBy(group.id).get();
 		LOG.info("Generic group with given ID: {} was created: {}", genericGroupId.id, group);
-		publisher.publishEvent(new GenericGroupCreateEvent(genericGroupId));
+		publisher.publishEvent(new GenericGroupCreatedEvent(genericGroup));
 		return genericGroupId;
 	}
 
@@ -123,6 +126,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 				.utcMemberSince(convertToUTCTime(ZonedDateTime.now(clock)))
 				.build()
 		);
+		publisher.publishEvent(new GenericGroupUserGrantedEvent(usersDAO.findById(userId).get(), genericGroupRepository.findBy(groupId).get()));
 		LOG.info("Membership in group ID: {} for user ID: {} was created", groupId.id, userId.id);
 	}
 
@@ -131,18 +135,20 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	public void update(GenericGroup group) {
 		assertNotNull(group);
 		assertUniqueness(group.id, group.communityId, group.name);
+		GenericGroup genericGroup = genericGroupRepository.findBy(group.id).get();
 		genericGroupRepository.update(group);
 		LOG.info("Generic group with given ID: {} was updated: {}", group.id.id, group);
-		publisher.publishEvent(new GenericGroupUpdateEvent(group.id));
+		publisher.publishEvent(new GenericGroupUpdatedEvent(genericGroup, group));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
+		GenericGroup genericGroup = genericGroupRepository.findBy(id).get();
 		genericGroupRepository.delete(id);
 		LOG.info("Generic group with given ID: {} was removed", id.id);
-		publisher.publishEvent(new GenericGroupRemoveEvent(id));
+		publisher.publishEvent(new GenericGroupRemovedEvent(genericGroup));
 	}
 
 	@Override
@@ -151,6 +157,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 		assertNotNull(communityId, groupId, fenixUserId);
 		assertGroupBelongsToCommunity(communityId, groupId);
 		genericGroupRepository.deleteMembership(groupId, fenixUserId);
+		publisher.publishEvent(new GenericGroupUserRevokedEvent(usersDAO.findById(fenixUserId).get(), genericGroupRepository.findBy(groupId).get()));
 		LOG.info("Membership in group ID: {} for user ID: {} was removed", groupId.id, fenixUserId.id);
 	}
 

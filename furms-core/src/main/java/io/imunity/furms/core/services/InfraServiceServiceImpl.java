@@ -10,10 +10,10 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.services.CreateServiceEvent;
+import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
 import io.imunity.furms.domain.services.InfraService;
-import io.imunity.furms.domain.services.RemoveServiceEvent;
-import io.imunity.furms.domain.services.UpdateServiceEvent;
+import io.imunity.furms.domain.services.InfraServiceRemovedEvent;
+import io.imunity.furms.domain.services.InfraServiceUpdatedEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -83,9 +83,10 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	public void create(InfraService infraService) {
 		validator.validateCreate(infraService);
 		String id = infraServiceRepository.create(infraService);
+		InfraService created = infraServiceRepository.findById(id).get();
 		if(infraService.policyId != null && infraService.policyId.id != null)
 			sendUpdateToSite(id, infraService);
-		publisher.publishEvent(new CreateServiceEvent(infraService.id));
+		publisher.publishEvent(new InfraServiceCreatedEvent(created));
 		LOG.info("InfraService with given ID: {} was created: {}", id, infraService);
 	}
 
@@ -97,7 +98,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Infra service id %s doesn't exist", infraService.id)));
 		infraServiceRepository.update(infraService);
 		handlePolicyChange(infraService, oldInfraService);
-		publisher.publishEvent(new UpdateServiceEvent(infraService.id));
+		publisher.publishEvent(new InfraServiceUpdatedEvent(oldInfraService, infraService));
 		LOG.info("InfraService was updated {}", infraService);
 	}
 
@@ -160,8 +161,9 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(String infraServiceId, String siteId) {
 		validator.validateDelete(infraServiceId);
+		InfraService infraService = infraServiceRepository.findById(infraServiceId).get();
 		infraServiceRepository.delete(infraServiceId);
-		publisher.publishEvent(new RemoveServiceEvent(infraServiceId));
+		publisher.publishEvent(new InfraServiceRemovedEvent(infraService));
 		LOG.info("InfraService with given ID: {} was deleted", infraServiceId);
 	}
 }

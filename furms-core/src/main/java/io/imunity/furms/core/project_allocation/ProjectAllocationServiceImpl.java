@@ -10,11 +10,11 @@ import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAlloca
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationCreatedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
-import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationRemovedEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationUpdatedEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -213,10 +213,11 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	public void create(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateCreate(communityId, projectAllocation);
 		String id = projectAllocationRepository.create(projectAllocation);
+		ProjectAllocation created = projectAllocationRepository.findById(id).get();
 
 		allocateProject(projectAllocation, id);
 
-		publisher.publishEvent(new CreateProjectAllocationEvent(projectAllocation.id));
+		publisher.publishEvent(new ProjectAllocationCreatedEvent(created));
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
 
@@ -236,11 +237,12 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void update(String communityId, ProjectAllocation projectAllocation) {
 		validator.validateUpdate(communityId, projectAllocation);
+		ProjectAllocation oldProjectAllocation = projectAllocationRepository.findById(projectAllocation.id).get();
 		projectAllocationRepository.update(projectAllocation);
 
 		updateProjectAllocation(projectAllocation);
 
-		publisher.publishEvent(new UpdateProjectAllocationEvent(projectAllocation.id));
+		publisher.publishEvent(new ProjectAllocationUpdatedEvent(oldProjectAllocation, projectAllocation));
 		LOG.info("ProjectAllocation was updated {}", projectAllocation);
 	}
 
@@ -262,7 +264,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 			throw new RemovalOfConsumedProjectAllocationIsFirbiddenException(id);
 		}
 		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
-		publisher.publishEvent(new RemoveProjectAllocationEvent(id));
+		ProjectAllocation projectAllocation = projectAllocationRepository.findById(id).get();
+		publisher.publishEvent(new ProjectAllocationRemovedEvent(projectAllocation));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);
 	}
 }

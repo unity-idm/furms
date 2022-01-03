@@ -9,7 +9,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -73,9 +73,9 @@ class WorkshopService {
 	
 	@Async
 	@EventListener
-	void distributeToMateCommunity(CreateResourceCreditEvent event) {
+	void distributeToMateCommunity(ResourceCreditCreatedEvent event) {
 		LOG.info("Received credit allocation event {}", event);
-		Optional<ResourceCredit> credit = resourceCreditRepository.findById(event.id);
+		Optional<ResourceCredit> credit = resourceCreditRepository.findById(event.resourceCredit.id);
 		credit.ifPresent(rc -> getCorrespondingCommunityId(rc, event.originator).ifPresent(community -> {
 			LOG.info("Making community allocation from {} to {}", rc, community);
 			CommunityAllocation communityAllocation = CommunityAllocation.builder()

@@ -125,7 +125,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateCreate(policyDocument);
 		orderVerifier.verify(repository).create(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreatedEvent(null));
 	}
 
 	@Test
@@ -138,7 +138,7 @@ class PolicyDocumentServiceImplTest {
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, false);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent( null, null));
 
 	}
 
@@ -161,7 +161,7 @@ class PolicyDocumentServiceImplTest {
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
 		orderVerifier.verify(policyNotificationService).notifyAboutChangedPolicy(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(null, null));
 	}
 
 	@Test
@@ -218,7 +218,7 @@ class PolicyDocumentServiceImplTest {
 		service.delete("siteId", policyId);
 
 		orderVerifier.verify(repository).deleteById(policyId);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(null));
 	}
 
 	@Test

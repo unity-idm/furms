@@ -8,10 +8,12 @@ package io.imunity.furms.domain.policy_documents;
 import java.util.Objects;
 
 public class PolicyDocumentUpdatedEvent implements PolicyDocumentEvent {
-	public final PolicyId id;
+	public final PolicyDocument oldPolicyDocument;
+	public final PolicyDocument newPolicyDocument;
 
-	public PolicyDocumentUpdatedEvent(PolicyId id) {
-		this.id = id;
+	public PolicyDocumentUpdatedEvent(PolicyDocument oldPolicyDocument, PolicyDocument newPolicyDocument) {
+		this.oldPolicyDocument = oldPolicyDocument;
+		this.newPolicyDocument = newPolicyDocument;
 	}
 
 	@Override
@@ -19,18 +21,20 @@ public class PolicyDocumentUpdatedEvent implements PolicyDocumentEvent {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PolicyDocumentUpdatedEvent siteEvent = (PolicyDocumentUpdatedEvent) o;
-		return Objects.equals(id, siteEvent.id);
+		return Objects.equals(oldPolicyDocument, siteEvent.oldPolicyDocument) &&
+			Objects.equals(newPolicyDocument, siteEvent.newPolicyDocument);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(oldPolicyDocument, newPolicyDocument);
 	}
 
 	@Override
 	public String toString() {
 		return "PolicyDocumentUpdatedEvent{" +
-			"id='" + id + '\'' +
+			"oldPolicyDocument='" + oldPolicyDocument + '\'' +
+			",newPolicyDocument='" + newPolicyDocument + '\'' +
 			'}';
 	}
 }

@@ -17,7 +17,7 @@ import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationWithUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.AddUserEvent;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -158,7 +158,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				publisher.publishEvent(
 					new ProjectApplicationAcceptedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
-				publisher.publishEvent(new AddUserEvent(persistentId, new ResourceId(projectId, PROJECT)));
+				publisher.publishEvent(new UserRoleGrantedEvent(persistentId, new ResourceId(projectId, PROJECT), project.getName(), Role.PROJECT_USER));
 				LOG.info("User {} application for project ID: {} was accepted", projectId, fenixUserId);
 			});
 		} else

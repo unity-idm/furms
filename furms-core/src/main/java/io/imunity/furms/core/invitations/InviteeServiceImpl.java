@@ -16,9 +16,10 @@ import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
-import io.imunity.furms.domain.users.AddUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.UserRoleGrantedByRegistrationEvent;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -93,7 +94,7 @@ class InviteeServiceImpl implements InviteeService {
 		invitationRepository.deleteBy(invitation.id);
 		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
 		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), user.email, invitation.resourceId));
-		publisher.publishEvent(new AddUserEvent(user.id.get(), invitation.resourceId));
+		publisher.publishEvent(new UserRoleGrantedEvent(user.id.get(), invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	private void notifyOriginatorAndSameHierarchyAdmins(Invitation invitation, Consumer<FURMSUser> notifier){
@@ -154,6 +155,7 @@ class InviteeServiceImpl implements InviteeService {
 		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
 			invitationRepository.deleteBy(invitationCode);
 			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
+			publisher.publishEvent(new UserRoleGrantedByRegistrationEvent(new FenixUserId(invitation.originator), invitation.resourceId, invitation.resourceName, invitation.role));
 		});
 	}
 }
