@@ -39,7 +39,8 @@ class AlarmServiceSecurityTest extends SecurityTestsBase {
 		final AlarmWithUserEmails alarm = AlarmWithUserEmails.builder().projectId(project).build();
 		forMethods(
 				() -> service.findAll(project),
-				() -> service.find(project, alarmId))
+				() -> service.find(project, alarmId),
+				() -> service.find(project, projectAllocation))
 				.accessFor(
 						basicUser(),
 						fenixAdmin(),
