@@ -7,7 +7,7 @@ package io.imunity.furms.core.ssh_keys;
 
 import com.google.common.collect.Sets;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.IllegalTransitStateException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
@@ -70,7 +70,7 @@ public class SSHKeyOperationServiceTest {
 				.thenReturn(SSHKeyOperationJob.builder().id("id").correlationId(correlationId)
 						.status(SSHKeyOperationStatus.FAILED).build());
 
-		assertThrows(IllegalTransitStateException.class, () -> service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.ACK,
+		assertThrows(IllegalStateTransitionException.class, () -> service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.ACK,
 				new SSHKeyOperationError(null, null))));
 
 		verify(sshKeyOperationRepository, times(0)).update(eq("id"), eq(SSHKeyOperationStatus.ACK),

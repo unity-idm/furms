@@ -748,7 +748,7 @@ channels:
    site/site_id/error/info:
       subscribe:
          summary: Error info callback
-         description: Sent from the FURMS to site agent to report about handling message errors.
+         description: Sent from FURMS to site agent to report message handling errors.
          operationId: AgentMessageErrorInfo
          message:
             name: AgentMessageErrorInfo
@@ -764,10 +764,10 @@ channels:
                   errorType:
                      type: string
                      enum:
-                        - IllegalMessageContent
-                        - IllegalSiteId
-                        - IllegalCorrelationId
-                        - IllegalTransitState
+                        - InvalidMessageContent
+                        - InvalidSiteId
+                        - InvalidCorrelationId
+                        - IllegalStateTransition
                         - IllegalArgument
                      description: Type of problem
                   description:

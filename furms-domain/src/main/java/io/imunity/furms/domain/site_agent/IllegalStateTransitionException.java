@@ -5,8 +5,8 @@
 
 package io.imunity.furms.domain.site_agent;
 
-public class IllegalCorrelationIdException extends IllegalArgumentException {
-	public IllegalCorrelationIdException(String s) {
+public class IllegalStateTransitionException extends IllegalArgumentException {
+	public IllegalStateTransitionException(String s) {
 		super(s);
 	}
 }

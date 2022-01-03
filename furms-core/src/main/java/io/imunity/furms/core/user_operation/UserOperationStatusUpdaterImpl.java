@@ -8,8 +8,8 @@ package io.imunity.furms.core.user_operation;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.IllegalCorrelationIdException;
-import io.imunity.furms.domain.site_agent.IllegalTransitStateException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -46,9 +46,9 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 	@Transactional
 	public void update(UserAddition userAddition){
 		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id)
-			.orElseThrow(() -> new IllegalCorrelationIdException("Correlation Id not found"));
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found"));
 		if(!status.isTransitionalTo(userAddition.status)){
-			throw new IllegalTransitStateException(String.format("Transition between %s and %s states is not allowed, UserAddition is %s", status, userAddition.status, status));
+			throw new IllegalStateTransitionException(String.format("Transition between %s and %s states is not allowed, UserAddition is %s", status, userAddition.status, status));
 		}
 		repository.update(userAddition);
 		if(userAddition.status.equals(UserStatus.ADDED)){
@@ -72,9 +72,9 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage) {
 		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id)
-			.orElseThrow(() -> new IllegalCorrelationIdException("Correlation Id not found"));
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found"));
 		if(!status.isTransitionalTo(userStatus)){
-			throw new IllegalTransitStateException(String.format("Transition between %s and %s states is not allowed", status, userStatus));
+			throw new IllegalStateTransitionException(String.format("Transition between %s and %s states is not allowed", status, userStatus));
 		}
 
 		if(userStatus.equals(UserStatus.REMOVED)){

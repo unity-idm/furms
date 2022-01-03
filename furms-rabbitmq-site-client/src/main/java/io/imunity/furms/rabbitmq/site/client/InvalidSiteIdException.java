@@ -5,8 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
-class IllegalSiteIdException extends RuntimeException {
-	IllegalSiteIdException(String message) {
+class InvalidSiteIdException extends RuntimeException {
+	InvalidSiteIdException(String message) {
 		super(message);
 	}
 }

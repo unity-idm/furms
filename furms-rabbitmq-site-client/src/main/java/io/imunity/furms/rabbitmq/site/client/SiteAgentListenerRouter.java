@@ -99,7 +99,7 @@ class SiteAgentListenerRouter {
 			queueName,
 			new Payload<>(
 				new io.imunity.furms.rabbitmq.site.models.Header(VERSION, null),
-				new AgentMessageErrorInfo(null, "IllegalMessageContent", "This message cannot be parse: " + o)
+				new AgentMessageErrorInfo(null, "InvalidMessageContent", "The message can not be parsed: " + o)
 			));
 	}
 

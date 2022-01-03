@@ -14,8 +14,8 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.IllegalCorrelationIdException;
-import io.imunity.furms.domain.site_agent.IllegalTransitStateException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -55,9 +55,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
-			.orElseThrow(() -> new IllegalCorrelationIdException("Correlation Id not found: " + correlationId));
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 		if(job.status.isTerminal())
-			throw new IllegalTransitStateException(String.format("ProjectAllocation status is %s, cannot be modified", job.status));
+			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be modified", job.status));
 
 		if(isTransitionFromUpdatingToFailedStatus(job.status, status))
 			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
@@ -75,7 +75,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id)
-			.orElseThrow(() -> new IllegalCorrelationIdException("Correlation Id not found: " + correlationId));
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
 			Set<GrantAccess> grantAccesses = resourceAccessRepository.findGrantAccessesBy(projectDeallocation.siteId, projectDeallocation.projectAllocationId);
@@ -84,7 +84,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			return;
 		}
 		if(projectDeallocation.status.equals(ProjectDeallocationStatus.FAILED)) {
-			throw new IllegalTransitStateException(String.format("ProjectDeallocation with status failed cannot be transit to %s", status));
+			throw new IllegalStateTransitionException(String.format("ProjectDeallocation with status failed cannot be transit to %s", status));
 		}
 		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
 		LOG.info("ProjectDeallocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
@@ -95,7 +95,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	public void createChunk(ProjectAllocationChunk result) {
 		ProjectAllocationInstallation allocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(result.projectAllocationId);
 		if(!allocationInstallation.status.equals(ACKNOWLEDGED))
-			throw new IllegalTransitStateException(String.format(
+			throw new IllegalStateTransitionException(String.format(
 				"Protocol error, only acknowledged allocation get add chunk - project allocation %s status is %s",
 				allocationInstallation.projectAllocationId,
 				allocationInstallation.status)

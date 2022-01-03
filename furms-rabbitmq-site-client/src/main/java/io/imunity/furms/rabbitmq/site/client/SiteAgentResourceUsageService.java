@@ -7,7 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
-import io.imunity.furms.domain.site_agent.IllegalTransitStateException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
 import io.imunity.furms.rabbitmq.site.models.Payload;
@@ -36,7 +36,7 @@ class SiteAgentResourceUsageService {
 	@EventListener
 	void receiveCumulativeResourceUsageRecord(Payload<CumulativeResourceUsageRecord> record) {
 		if(record.header.status.equals(Status.FAILED)){
-			throw new IllegalTransitStateException("Usage is failed - it's not supported");
+			throw new IllegalStateTransitionException("Usage is failed - it's not supported");
 		}
 		resourceUsageUpdater.updateUsage(
 			ResourceUsage.builder()
@@ -51,7 +51,7 @@ class SiteAgentResourceUsageService {
 	@EventListener
 	void receiveUserResourceUsageRecord(Payload<UserResourceUsageRecord> record) {
 		if(record.header.status.equals(Status.FAILED)){
-			throw new IllegalTransitStateException("Usage is failed - it's not supported");
+			throw new IllegalStateTransitionException("Usage is failed - it's not supported");
 		}
 		resourceUsageUpdater.updateUsage(
 			UserResourceUsage.builder()
