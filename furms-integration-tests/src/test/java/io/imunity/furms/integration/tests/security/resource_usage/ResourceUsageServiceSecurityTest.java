@@ -38,11 +38,12 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 				() -> service.findAllUserUsages(site, Set.of(), now(), now()))
 				.accessFor(
 						fenixAdmin(),
-						siteAdmin(site),
-						siteSupport(site))
+						siteAdmin(site)
+				)
 				.deniedFor(
 						basicUser(),
 						siteAdmin(otherSite),
+						siteSupport(site),
 						siteSupport(otherSite),
 						communityAdmin(community),
 						communityAdmin(otherCommunity),
@@ -54,18 +55,21 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 				() -> service.findAllUserUsagesHistory(project, projectAllocation),
 				() -> service.findAllResourceUsageHistory(project, projectAllocation))
 				.accessFor(
-					basicUser(),
 					fenixAdmin(),
+					communityAdmin(community),
+					projectAdmin(community, project),
+					projectUser(community, project)
+				)
+				.deniedFor(
 					siteAdmin(site),
 					siteAdmin(otherSite),
 					siteSupport(site),
 					siteSupport(otherSite),
-					communityAdmin(community),
+					basicUser(),
 					communityAdmin(otherCommunity),
-					projectAdmin(community, project),
 					projectAdmin(otherCommunity, otherProject),
-					projectUser(community, project),
-					projectUser(otherCommunity, otherProject))
+					projectUser(otherCommunity, otherProject)
+					)
 			.andForMethods(
 					() -> service.findAllResourceUsageHistoryByCommunity(community, communityAllocation))
 				.accessFor(
