@@ -74,6 +74,9 @@ class ResourceChecker {
 		if (result instanceof Map && ((Map<?, ?>) result).isEmpty() && isNotAvailable(resourceId)) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
+		if (result instanceof Boolean && !(Boolean)result) {
+			throw new RestNotFoundException("Searched object does not exist");
+		}
 	}
 
 	private void assertUUID(String resourceId) {

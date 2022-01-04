@@ -68,17 +68,17 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
-	public void retry(SiteId siteId, CorrelationId correlationId) {
-		repository.find(correlationId).ifPresentOrElse(
-			message -> {
+	public boolean retry(SiteId siteId, CorrelationId correlationId) {
+		return repository.find(correlationId)
+			.map(message -> {
 				if(isMessageRelatedToSite(siteId, message)) {
 					siteAgentRetryService.retry(new SiteExternalId(message.siteExternalId.id), message.jsonContent);
 					repository.overwriteSentTime(correlationId, UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)));
-					return;
+					return true;
 				}
-				LOG.warn("Correlation id {} doesn't belong to site id {}", correlationId, siteId);
-			},
-			() -> LOG.warn("Correlation id {} doesn't exist", correlationId));
+				throw new IllegalArgumentException(String.format("Correlation Id %s doesn't belong to site %s", correlationId, siteId));
+			})
+			.orElse(false);
 	}
 
 	private Boolean isMessageRelatedToSite(SiteId siteId, SiteAgentPendingMessage message) {
@@ -89,17 +89,17 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
-	public void delete(SiteId siteId, CorrelationId correlationId) {
-		repository.find(correlationId).ifPresentOrElse(
-			message -> {
+	public boolean delete(SiteId siteId, CorrelationId correlationId) {
+		return repository.find(correlationId)
+			.map(message -> {
 				if(isMessageRelatedToSite(siteId, message)) {
 					siteAgentPendingMessageRemoverConnector.remove(correlationId, message.jsonContent);
 					repository.delete(correlationId);
-					return;
+					return true;
 				}
-				LOG.warn("Correlation id {} doesn't belong to site id {}", correlationId, siteId);
-			},
-			() -> LOG.warn("Correlation id {} doesn't exist", correlationId));
+				throw new IllegalArgumentException(String.format("Correlation Id %s doesn't belong to site %s", correlationId, siteId));
+			})
+			.orElse(false);
 	}
 
 	@Override
