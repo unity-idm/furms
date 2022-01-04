@@ -7,6 +7,8 @@ package io.imunity.furms.core.export;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
@@ -42,57 +44,59 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.communityAllocationRepository = communityAllocationRepository;
 		this.resourceUsageRepository = resourceUsageRepository;
-		this.objectMapper = new ObjectMapper().findAndRegisterModules();
+		this.objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		this.exportHelper = exportHelper;
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Supplier<String> getJsonForProjectAllocation(String projectId, String projectAllocationId) {
-		exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
-		ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-		List<Consumption> consumption = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId)).stream()
-			.sorted(Comparator.comparing(usage -> usage.utcProbedAt))
-			.map(usage -> new Consumption(usage.utcProbedAt, usage.cumulativeConsumption))
-			.collect(toList());
+		return () -> {
+			exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
+			ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+			List<Consumption> consumption = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId)).stream()
+				.sorted(Comparator.comparing(usage -> usage.utcProbedAt))
+				.map(usage -> new Consumption(usage.utcProbedAt, usage.cumulativeConsumption))
+				.collect(toList());
 
-		ProjectResourceUsage projectResourceUsage = ProjectResourceUsage.builder()
-			.projectId(projectAllocation.projectId)
-			.project(projectAllocation.projectName)
-			.allocationId(projectAllocation.id)
-			.allocation(projectAllocation.name)
-			.unit(projectAllocation.resourceType.unit.getSuffix())
-			.consumption(consumption)
-			.build();
+			ProjectResourceUsage projectResourceUsage = ProjectResourceUsage.builder()
+				.projectId(projectAllocation.projectId)
+				.project(projectAllocation.projectName)
+				.allocationId(projectAllocation.id)
+				.allocation(projectAllocation.name)
+				.unit(projectAllocation.resourceType.unit.getSuffix())
+				.consumption(consumption)
+				.build();
 
-			return () -> {
-				try {
+			try {
 				return objectMapper.writeValueAsString(projectResourceUsage);
-				} catch (JsonProcessingException e) {
+			} catch (JsonProcessingException e) {
 					throw new ExportException(e);
-				}
-			};
+			}
+		};
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Supplier<String> getJsonForCommunityAllocation(String communityId, String communityAllocationId) {
-		exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
-		CommunityAllocationResolved communityAllocation = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
-		List<Consumption> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId).entrySet().stream()
-			.map(usage -> new Consumption(usage.getKey(), usage.getValue()))
-			.collect(toList());
-
-		CommunityResourceUsage communityResourceUsage = CommunityResourceUsage.builder()
-			.communityId(communityAllocation.communityId)
-			.community(communityAllocation.communityName)
-			.allocationId(communityAllocation.id)
-			.allocation(communityAllocation.name)
-			.unit(communityAllocation.resourceType.unit.getSuffix())
-			.consumption(consumption)
-			.build();
-
 		return () -> {
+			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
+			CommunityAllocationResolved communityAllocation = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
+			List<Consumption> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId).entrySet().stream()
+				.map(usage -> new Consumption(usage.getKey(), usage.getValue()))
+				.collect(toList());
+
+			CommunityResourceUsage communityResourceUsage = CommunityResourceUsage.builder()
+				.communityId(communityAllocation.communityId)
+				.community(communityAllocation.communityName)
+				.allocationId(communityAllocation.id)
+				.allocation(communityAllocation.name)
+				.unit(communityAllocation.resourceType.unit.getSuffix())
+				.consumption(consumption)
+				.build();
+
 			try {
 				return objectMapper.writeValueAsString(communityResourceUsage);
 			} catch (JsonProcessingException e) {
