@@ -28,6 +28,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -106,7 +107,7 @@ class SiteAgentConnectionServiceImplTest {
 				.build()
 		));
 
-		service.retry(id, correlationId);
+		assertThrows(IllegalArgumentException.class, () -> service.retry(id, correlationId));
 
 		verify(siteAgentRetryService, times(0)).retry(externalId, json);
 		verify(repository, times(0)).overwriteSentTime(correlationId, ZonedDateTime.now(clock).toLocalDateTime());
@@ -154,7 +155,7 @@ class SiteAgentConnectionServiceImplTest {
 				.build()
 		));
 
-		service.delete(id, correlationId);
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id, correlationId));
 
 		verify(siteAgentPendingMessageRemoverConnector, times(0)).remove(correlationId, json);
 		verify(repository, times(0)).delete(correlationId);

@@ -34,7 +34,7 @@ class SiteAgentErrorMessageCallbackTest extends IntegrationTestBase {
 		siteAgentErrorProducerMock.sendCumulativeResourceUsageRecord(correlationId, brokenMessage);
 
 		verify(receiverMock, timeout(10000)).process(
-			new AgentMessageErrorInfo(correlationId, "IllegalTransitState", "Usage is failed - it's not supported")
+			new AgentMessageErrorInfo(correlationId, "IllegalStateTransition", "Usage is failed - it's not supported")
 		);
 	}
 }

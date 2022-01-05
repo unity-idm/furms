@@ -48,7 +48,7 @@ class MessageAuthorizerTest {
 
 		when(resolversConnector.getSiteId(payload)).thenReturn(Optional.of(new SiteExternalId("fzx1")));
 
-		String message = assertThrows(IllegalArgumentException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
+		String message = assertThrows(InvalidSiteIdException.class, () -> messageAuthorizer.validate(payload, getSitePublishQueueName("fzx")))
 			.getMessage();
 		assertEquals(String.format("Message doesn't belong to site:  %s", payload), message);
 	}
