@@ -125,7 +125,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 
 		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()));
 		if(!chartData.chunks.isEmpty())
-			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
+			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.area, chartData.chunks.toArray()));
 		if(!(chartData.threshold < 1 || disableThreshold))
 			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
 		for(UserUsage userUsage : chartData.usersUsages){

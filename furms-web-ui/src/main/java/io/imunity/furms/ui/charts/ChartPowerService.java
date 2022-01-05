@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -65,7 +65,7 @@ public class ChartPowerService {
 		)
 			.flatMap(identity())
 			.distinct()
-			.sorted(Comparator.comparing(identity()))
+			.sorted(comparing(identity()))
 			.collect(toList());
 
 		Map<LocalDate, Double> orderedChunksAmountByTime = prepareChunks(allChunks);
@@ -73,8 +73,9 @@ public class ChartPowerService {
 			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
 			.entrySet().stream()
 			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()));
-		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
 		List<Double> usage = prepareData(dates, orderedUsagesAmountByTime);
+		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
+		addValidToTime(allChunks, chunks, dates);
 
 		double threshold = getThreshold(projectAllocation, alarm);
 
@@ -88,6 +89,14 @@ public class ChartPowerService {
 			.times(dates)
 			.thresholds(IntStream.range(0, dates.size()).boxed().map(x -> threshold).collect(toList()))
 			.build();
+	}
+
+	private void addValidToTime(Set<ProjectAllocationChunk> allChunks, List<Double> chunks, List<LocalDate> dates) {
+		Optional<ProjectAllocationChunk> max = allChunks.stream().max(comparing(chunk -> chunk.validFrom.toLocalDate().toEpochDay()));
+		if(max.isPresent()){
+			chunks.add(chunks.get(chunks.size() - 1));
+			dates.add(max.get().validTo.toLocalDate());
+		}
 	}
 
 	public ChartData getChartDataForProjectAllocWithUserUsages(String projectId, String projectAllocationId){
@@ -110,7 +119,7 @@ public class ChartPowerService {
 			)
 			.flatMap(identity())
 			.distinct()
-			.sorted(Comparator.comparing(identity()))
+			.sorted(comparing(identity()))
 			.collect(toList());
 
 		Map<LocalDate, Double> orderedChunksAmountByTime = prepareChunks(allChunks);
@@ -118,9 +127,10 @@ public class ChartPowerService {
 			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
 			.entrySet().stream()
 			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()));
-		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
-		List<Double> usages = prepareData(dates, orderedUsagesAmountByTime);
 		List<UserUsage> usersUsages = prepareUserUsages(userIdsToEmails, allUserResourceUsageHistory, dates);
+		List<Double> usages = prepareData(dates, orderedUsagesAmountByTime);
+		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
+		addValidToTime(allChunks, chunks, dates);
 
 		double threshold = getThreshold(projectAllocation, alarm);
 
@@ -166,7 +176,7 @@ public class ChartPowerService {
 							entry -> entry.getValue().cumulativeConsumption.doubleValue())
 						)
 				)))
-			.sorted(Comparator.comparing(userUsage -> userUsage.email))
+			.sorted(comparing(userUsage -> userUsage.email))
 			.collect(toList());
 	}
 
@@ -180,7 +190,7 @@ public class ChartPowerService {
 			)
 			.flatMap(identity())
 			.distinct()
-			.sorted(Comparator.comparing(identity()))
+			.sorted(comparing(identity()))
 			.collect(toList());
 
 		List<List<Double>> orderedUsagesGroupedByAllocationId = allResourceUsageHistory.stream()
@@ -232,7 +242,7 @@ public class ChartPowerService {
 
 	private Map<LocalDate, Double> prepareChunks(Set<ProjectAllocationChunk> allChunks) {
 		List<ProjectAllocationChunk> orderedChunks = allChunks.stream()
-			.sorted(Comparator.comparing(x -> x.validFrom))
+			.sorted(comparing(x -> x.validFrom))
 			.collect(toList());
 
 		double last = 0;
