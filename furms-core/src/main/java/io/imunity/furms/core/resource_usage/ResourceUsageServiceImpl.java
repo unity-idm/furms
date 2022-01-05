@@ -18,9 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.RESOURCE_USAGE_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
@@ -40,7 +38,7 @@ class ResourceUsageServiceImpl implements ResourceUsageService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserResourceUsage> findAllUserUsages(String siteId,
 	                                                Set<UUID> projectAllocations,
 	                                                LocalDateTime from,
@@ -49,21 +47,21 @@ class ResourceUsageServiceImpl implements ResourceUsageService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ResourceUsage> findAllResourceUsageHistory(String projectId, String projectAllocationId) {
 		validProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		return resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId));
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserResourceUsage> findAllUserUsagesHistory(String projectId, String projectAllocationId) {
 		validProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		return resourceUsageRepository.findUserResourceUsagesHistory(UUID.fromString(projectAllocationId));
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(String communityId, String communityAllocationId) {
 		communityAllocationRepository.findById(communityAllocationId)
 			.filter(allocation -> allocation.communityId.equals(communityId))
