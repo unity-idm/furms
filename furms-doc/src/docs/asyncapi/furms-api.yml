@@ -745,6 +745,34 @@ channels:
                      type: string
                      format: dateTime
 
+   site/site_id/error/info:
+      subscribe:
+         summary: Error info callback
+         description: Sent from FURMS to site agent to report message handling errors.
+         operationId: AgentMessageErrorInfo
+         message:
+            name: AgentMessageErrorInfo
+            traits:
+               - $ref: "#/components/messageTraits/oneWay"
+            payload:
+               type: object
+               additionalProperties: false
+               properties:
+                  correlationId:
+                     type: string
+                     description: Correlation id of the problematic message
+                  errorType:
+                     type: string
+                     enum:
+                        - InvalidMessageContent
+                        - InvalidSiteId
+                        - InvalidCorrelationId
+                        - IllegalStateTransition
+                        - IllegalArgument
+                     description: Type of problem
+                  description:
+                     type: string
+                     description: Human readable description
 
    site/site_id/ping/req:
       subscribe:

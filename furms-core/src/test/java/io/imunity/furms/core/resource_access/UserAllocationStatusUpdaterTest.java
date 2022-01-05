@@ -71,7 +71,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersGrantToGrand(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		service.update(correlationId, GRANTED, "msg");
 
@@ -82,7 +82,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersGrantToAcknowledged() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(GRANT_PENDING);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(GRANT_PENDING));
 		service.update(correlationId, GRANT_ACKNOWLEDGED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANT_ACKNOWLEDGED, "msg");
@@ -93,7 +93,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersGrantToFailed(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 		service.update(correlationId, GRANT_FAILED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, GRANT_FAILED, "msg");
@@ -104,7 +104,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotUpdateUsersGrantToGrantedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, GRANTED, "msg"));
 	}
@@ -114,7 +114,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotUpdateUsersGrantToAcknowledgedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, GRANT_ACKNOWLEDGED, "msg"));
 	}
@@ -124,7 +124,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotUpdateUsersGrantToFailedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, GRANTED, "msg"));
 	}
@@ -133,7 +133,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersRevokeToAcknowledged() {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(REVOKE_PENDING);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(REVOKE_PENDING));
 		service.update(correlationId, REVOKE_ACKNOWLEDGED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, REVOKE_ACKNOWLEDGED, "msg");
@@ -144,7 +144,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldUpdateUsersRevokeToFailed(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 		service.update(correlationId, REVOKE_FAILED, "msg");
 
 		orderVerifier.verify(repository).update(correlationId, REVOKE_FAILED, "msg");
@@ -155,7 +155,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotUpdateUsersRevokeToAcknowledgedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, REVOKE_ACKNOWLEDGED, "msg"));
 	}
@@ -165,7 +165,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotUpdateUsersRevokeToFailedIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, REVOKE_FAILED, "msg"));
 	}
@@ -175,7 +175,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldRemoveUsersGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 		service.update(correlationId, REVOKED, "msg");
 
@@ -189,7 +189,7 @@ class UserAllocationStatusUpdaterTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		FenixUserId fenixUserId = new FenixUserId("userId");
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
 
 		service.update(correlationId, REVOKED, "msg");
@@ -209,7 +209,7 @@ class UserAllocationStatusUpdaterTest {
 	void shouldNotRemoveUsersGrantIfPreviousStateIs(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 
-		when(repository.findCurrentStatus(correlationId)).thenReturn(status);
+		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
 
 		assertThrows(IllegalArgumentException.class, () -> service.update(correlationId, REVOKED, "msg"));
 	}

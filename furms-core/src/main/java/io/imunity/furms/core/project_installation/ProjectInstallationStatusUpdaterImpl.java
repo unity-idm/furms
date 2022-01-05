@@ -14,6 +14,8 @@ import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.slf4j.Logger;
@@ -40,11 +42,12 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 	@Override
 	@Transactional
 	public void update(CorrelationId correlationId, ProjectInstallationResult result) {
-		ProjectInstallationJob job = projectOperationRepository.findInstallationJobByCorrelationId(correlationId);
+		ProjectInstallationJob job = projectOperationRepository.findInstallationJobByCorrelationId(correlationId)
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 		if(job.status.equals(ProjectInstallationStatus.INSTALLED) || job.status.equals(ProjectInstallationStatus.FAILED)){
-			LOG.info("ProjectInstallation with given correlation id {} cannot be modified", correlationId.id);
-			return;
+			throw new IllegalStateTransitionException(String.format("ProjectInstallation status is %s, it cannot be modified", job.status));
 		}
+
 		projectOperationRepository.update(job.id, result);
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
@@ -58,11 +61,12 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 	@Override
 	@Transactional
 	public void update(CorrelationId correlationId, ProjectUpdateResult result) {
-		ProjectUpdateJob job = projectOperationRepository.findUpdateJobByCorrelationId(correlationId);
+		ProjectUpdateJob job = projectOperationRepository.findUpdateJobByCorrelationId(correlationId)
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 		if(job.status.equals(ProjectUpdateStatus.UPDATED) || job.status.equals(ProjectUpdateStatus.FAILED)){
-			LOG.info("ProjectInstallation with given correlation id {} cannot be modified", correlationId.id);
-			return;
+			throw new IllegalStateTransitionException(String.format("ProjectUpdate status is %s, it cannot be modified", job.status));
 		}
+
 		projectOperationRepository.update(job.id, result);
 		LOG.info("ProjectUpdate status with given id {} was updated to {}", job.id, result.status);
 	}

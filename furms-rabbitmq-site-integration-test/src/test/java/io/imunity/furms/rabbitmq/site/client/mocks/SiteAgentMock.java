@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
+import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
@@ -74,12 +75,16 @@ public class SiteAgentMock {
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
 	private final SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
+	private final SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock;
 	private static final long OP_SLEEP_MS = 0;
 
-	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher, SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock){
+	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher,
+			SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock,
+			SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.publisher = publisher;
 		this.siteAgentPolicyDocumentReceiverMock = siteAgentPolicyDocumentReceiverMock;
+		this.siteAgentMessageErrorInfoReceiverMock = siteAgentMessageErrorInfoReceiverMock;
 	}
 
 	@RabbitHandler
@@ -99,6 +104,12 @@ public class SiteAgentMock {
 	public void receiveAgentPolicyUpdate(Payload<AgentPolicyUpdate> message) throws InterruptedException {
 		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 		siteAgentPolicyDocumentReceiverMock.process(message.body);
+	}
+
+	@EventListener
+	public void receiveAgentMessageErrorInfo(Payload<AgentMessageErrorInfo> message) throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
+		siteAgentMessageErrorInfoReceiverMock.process(message.body);
 	}
 
 	@EventListener
