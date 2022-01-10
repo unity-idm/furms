@@ -7,6 +7,7 @@ package io.imunity.furms.core.ssh_keys;
 
 import com.google.common.collect.Sets;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -68,8 +70,8 @@ public class SSHKeyOperationServiceTest {
 				.thenReturn(SSHKeyOperationJob.builder().id("id").correlationId(correlationId)
 						.status(SSHKeyOperationStatus.FAILED).build());
 
-		service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.ACK,
-				new SSHKeyOperationError(null, null)));
+		assertThrows(IllegalStateTransitionException.class, () -> service.updateStatus(correlationId, new SSHKeyOperationResult(SSHKeyOperationStatus.ACK,
+				new SSHKeyOperationError(null, null))));
 
 		verify(sshKeyOperationRepository, times(0)).update(eq("id"), eq(SSHKeyOperationStatus.ACK),
 				eq(Optional.empty()), any());

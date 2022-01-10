@@ -11,6 +11,8 @@ import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
@@ -41,9 +43,11 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 	@Override
 	@Transactional
 	public void update(CorrelationId correlationId, AccessStatus status, String msg) {
-		AccessStatus currentStatus = repository.findCurrentStatus(correlationId);
+		AccessStatus currentStatus = repository.findCurrentStatus(correlationId)
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation id doesn't exist: " + correlationId.id));
 		if(!currentStatus.isTransitionalTo(status))
-			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, status));
+			throw new IllegalStateTransitionException(String.format("Transition between %s and %s states is not allowed", currentStatus, status));
+
 		if(status.equals(AccessStatus.REVOKED)) {
 			ProjectUserGrant projectUserGrant = repository.findUsersGrantsByCorrelationId(correlationId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));

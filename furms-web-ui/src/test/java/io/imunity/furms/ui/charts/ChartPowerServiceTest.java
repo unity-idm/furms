@@ -75,7 +75,8 @@ class ChartPowerServiceTest {
 			startDate.plusDays(18),
 			startDate.plusDays(24),
 			startDate.plusDays(25),
-			startDate.plusDays(50)
+			startDate.plusDays(50),
+			startDate.plusDays(64)
 		);
 
 		List<Double> YChunkAxis = List.of(20D, 40D, 60D, 90D);
@@ -148,13 +149,13 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D
+			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
 			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
 		));
 		assertThat(chartData.thresholds).isEqualTo(List.of(
-			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
 		));
 	}
 
@@ -180,7 +181,8 @@ class ChartPowerServiceTest {
 			startDate.plusDays(18),
 			startDate.plusDays(24),
 			startDate.plusDays(25),
-			startDate.plusDays(50)
+			startDate.plusDays(50),
+			startDate.plusDays(64)
 		);
 
 		List<Double> YChunkAxis = List.of(20D, 40D, 60D, 90D);
@@ -280,13 +282,13 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D
+			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
 			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
 		));
 		assertThat(chartData.thresholds).isEqualTo(List.of(
-			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
 		));
 		assertThat(chartData.usersUsages).isEqualTo(List.of(
 			new UserUsage("user1", List.of(0D, 1D, 1D, 1D, 10D, 10D, 20D, 20D, 20D)),
@@ -415,6 +417,7 @@ class ChartPowerServiceTest {
 		return ProjectAllocationChunk.builder()
 			.amount(amount)
 			.validFrom(startDate)
+			.validTo(startDate.plusWeeks(2))
 			.build();
 	}
 }

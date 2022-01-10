@@ -38,11 +38,12 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 				() -> service.findAllUserUsages(site, Set.of(), now(), now()))
 				.accessFor(
 						fenixAdmin(),
-						siteAdmin(site),
-						siteSupport(site))
+						siteAdmin(site)
+				)
 				.deniedFor(
 						basicUser(),
 						siteAdmin(otherSite),
+						siteSupport(site),
 						siteSupport(otherSite),
 						communityAdmin(community),
 						communityAdmin(otherCommunity),
@@ -50,6 +51,41 @@ class ResourceUsageServiceSecurityTest extends SecurityTestsBase {
 						projectAdmin(otherCommunity, otherProject),
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
+			.andForMethods(
+				() -> service.findAllUserUsagesHistory(project, projectAllocation),
+				() -> service.findAllResourceUsageHistory(project, projectAllocation))
+				.accessFor(
+					fenixAdmin(),
+					communityAdmin(community),
+					projectAdmin(community, project),
+					projectUser(community, project)
+				)
+				.deniedFor(
+					siteAdmin(site),
+					siteAdmin(otherSite),
+					siteSupport(site),
+					siteSupport(otherSite),
+					basicUser(),
+					communityAdmin(otherCommunity),
+					projectAdmin(otherCommunity, otherProject),
+					projectUser(otherCommunity, otherProject)
+					)
+			.andForMethods(
+					() -> service.findAllResourceUsageHistoryByCommunity(community, communityAllocation))
+				.accessFor(
+					fenixAdmin(),
+					communityAdmin(community))
+				.deniedFor(
+					basicUser(),
+					siteAdmin(site),
+					siteAdmin(otherSite),
+					siteSupport(site),
+					siteSupport(otherSite),
+					communityAdmin(otherCommunity),
+					projectAdmin(community, project),
+					projectAdmin(otherCommunity, otherProject),
+					projectUser(community, project),
+					projectUser(otherCommunity, otherProject))
 		.verifySecurityRulesAndInterfaceCoverage(ResourceUsageService.class, server);
 	}
 }

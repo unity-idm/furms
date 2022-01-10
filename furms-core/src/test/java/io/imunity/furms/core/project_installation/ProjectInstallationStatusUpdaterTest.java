@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
@@ -55,7 +56,7 @@ class ProjectInstallationStatusUpdaterTest {
 				.build();
 
 		//when
-		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(Optional.of(projectInstallationJob));
 		ProjectInstallationResult result = new ProjectInstallationResult(Map.of(), ACKNOWLEDGED, null);
 		service.update(id, result);
 
@@ -76,7 +77,7 @@ class ProjectInstallationStatusUpdaterTest {
 			.build();
 
 		//when
-		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		when(repository.findInstallationJobByCorrelationId(id)).thenReturn(Optional.of(projectInstallationJob));
 		ProjectInstallationResult result = new ProjectInstallationResult(Map.of("gid", "gid"), INSTALLED, null);
 		service.update(id, result);
 
@@ -96,7 +97,7 @@ class ProjectInstallationStatusUpdaterTest {
 			.build();
 
 		//when
-		when(repository.findUpdateJobByCorrelationId(id)).thenReturn(projectInstallationJob);
+		when(repository.findUpdateJobByCorrelationId(id)).thenReturn(Optional.of(projectInstallationJob));
 		ProjectUpdateResult result = new ProjectUpdateResult(ProjectUpdateStatus.UPDATED, null);
 		service.update(id, result);
 

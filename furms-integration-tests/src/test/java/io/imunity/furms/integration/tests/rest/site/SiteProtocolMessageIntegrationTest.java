@@ -8,6 +8,7 @@ package io.imunity.furms.integration.tests.rest.site;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentRetryService;
@@ -38,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 
 	private Site site;
+	private Site site1;
 	@MockBean
 	private SiteAgentRetryService siteAgentRetryService;
 
@@ -47,6 +49,12 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 		site = siteBuilder
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
+
+		Site.SiteBuilder siteBuilder1 = defaultSite().name("site2")
+			.externalId(new SiteExternalId("se_i1"));
+		site1 = siteBuilder1
+			.id(siteRepository.create(siteBuilder1.build(), siteBuilder1.build().getExternalId()))
+			.build();
 	}
 
 	@Test
@@ -149,6 +157,15 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 	}
 
 	@Test
+	void shouldReturnNotFoundIfCorrelationIdDoesNotExistDuringRemovingProtocolMessages() throws Exception {
+		//when
+		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{correlationId}", site, "randomText")
+			.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
 	void shouldReturnForbiddenIfSiteDoesNotBelongToUserDuringGettingAllProtocolMessages() throws Exception {
 		final TestUser testUser = basicUser();
 		setupUser(testUser);
@@ -159,6 +176,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 				.andDo(print())
 				.andExpect(status().isForbidden());
 	}
+
 
 	@Test
 	void shouldReturnForbiddenIfSiteDoesNotBelongToUserDuringRemovingProtocolMessages() throws Exception {
@@ -210,6 +228,56 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 				.with(testUser.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void shouldReturnNotFoundIfSiteDoesNotBelongToMessageDuringRetryingProtocolMessages() throws Exception {
+		//given
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		LocalDateTime sentOn = LocalDate.now().minusDays(10).atStartOfDay().plusSeconds(30);
+
+		LocalDateTime ackOn = LocalDate.now().minusDays(2).atStartOfDay().plusSeconds(20);
+
+		siteAgentPendingMessageRepository.create(SiteAgentPendingMessage.builder()
+			.siteExternalId(site1.getExternalId())
+			.correlationId(correlationId)
+			.jsonContent("content1")
+			.utcSentAt(sentOn)
+			.utcAckAt(ackOn)
+			.retryCount(2)
+			.build());
+
+		//when
+		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+				.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void shouldReturnNotFoundIfSiteDoesNotBelongToMessageDuringRemovingProtocolMessages() throws Exception {
+		//given
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		LocalDateTime sentOn = LocalDate.now().minusDays(10).atStartOfDay().plusSeconds(30);
+
+		LocalDateTime ackOn = LocalDate.now().minusDays(2).atStartOfDay().plusSeconds(20);
+
+		siteAgentPendingMessageRepository.create(SiteAgentPendingMessage.builder()
+			.siteExternalId(site1.getExternalId())
+			.correlationId(correlationId)
+			.jsonContent("content1")
+			.utcSentAt(sentOn)
+			.utcAckAt(ackOn)
+			.retryCount(2)
+			.build());
+
+		//when
+		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+				.with(ADMIN_USER.getHttpBasic()))
+			.andDo(print())
+			.andExpect(status().isNotFound());
 	}
 
 }

@@ -227,6 +227,7 @@ class SitesRestService {
 	}
 
 	List<ProtocolMessage> getProtocolMessages(String siteId) {
+		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
 		return resourceChecker.performIfExists(siteId, () -> siteAgentConnectionService.findAll(new SiteId(siteId)))
 			.stream()
 			.map(message -> new ProtocolMessage(
@@ -240,11 +241,13 @@ class SitesRestService {
 	}
 
 	void dropProtocolMessage(String siteId, String messageId) {
-		siteAgentConnectionService.delete(new SiteId(siteId), new CorrelationId(messageId));
+		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
+		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.delete(new SiteId(siteId), new CorrelationId(messageId)));
 	}
 
 	void retryProtocolMessage(String siteId, String messageId) {
-		siteAgentConnectionService.retry(new SiteId(siteId), new CorrelationId(messageId));
+		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
+		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.retry(new SiteId(siteId), new CorrelationId(messageId)));
 	}
 
 	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {

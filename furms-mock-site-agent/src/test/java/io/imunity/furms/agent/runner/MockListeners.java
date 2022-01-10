@@ -5,6 +5,7 @@
 
 package io.imunity.furms.agent.runner;
 
+import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdate;
@@ -96,6 +97,11 @@ class MockListeners {
 
 		Header header = getHeader(message.header);
 		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentPingAck()));
+	}
+
+	@EventListener
+	public void receiveAgentMessageErrorInfo(Payload<AgentMessageErrorInfo> message) throws InterruptedException {
+
 	}
 
 	@EventListener

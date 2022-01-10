@@ -7,6 +7,7 @@ package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.rabbitmq.site.models.Ack;
+import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdateAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,7 @@ import java.lang.invoke.MethodHandles;
 
 import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
 import static io.imunity.furms.rabbitmq.site.models.Status.OK;
+import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 
 @Component
 @RabbitListener(id = FURMS_LISTENER)
@@ -39,11 +42,15 @@ class SiteAgentListenerRouter {
 	private final ApplicationEventPublisher publisher;
 	private final MessageAuthorizer validator;
 	private final AgentPendingMessageSiteService agentPendingMessageSiteService;
+	private final RabbitTemplate rabbitTemplate;
 
-	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer validator, AgentPendingMessageSiteService agentPendingMessageSiteService) {
+
+	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer validator,
+			AgentPendingMessageSiteService agentPendingMessageSiteService, RabbitTemplate rabbitTemplate) {
 		this.publisher = publisher;
 		this.validator = validator;
 		this.agentPendingMessageSiteService = agentPendingMessageSiteService;
+		this.rabbitTemplate = rabbitTemplate;
 	}
 
 	@RabbitHandler
@@ -56,6 +63,12 @@ class SiteAgentListenerRouter {
 			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
 			LOG.error("This error occurred while processing payload: {} from queue {}", payload, queueName, e);
+			rabbitTemplate.convertAndSend(
+				queueName,
+				new Payload<>(
+					new io.imunity.furms.rabbitmq.site.models.Header(VERSION, null),
+					new AgentMessageErrorInfo(payload.header.messageCorrelationId, e.getClass().getSimpleName().replace("Exception", ""), e.getMessage())
+				));
 		} finally {
 			MDC.remove(MDCKey.QUEUE_NAME.key);
 		}
@@ -80,8 +93,14 @@ class SiteAgentListenerRouter {
 	}
 
 	@RabbitHandler(isDefault = true)
-	public void receive(Object o) {
+	public void receive(Object o, @Header("amqp_consumerQueue") String queueName) {
 		LOG.info("Received object, which cannot be processed {}", o);
+		rabbitTemplate.convertAndSend(
+			queueName,
+			new Payload<>(
+				new io.imunity.furms.rabbitmq.site.models.Header(VERSION, null),
+				new AgentMessageErrorInfo(null, "InvalidMessageContent", "The message can not be parsed: " + o)
+			));
 	}
 
 }

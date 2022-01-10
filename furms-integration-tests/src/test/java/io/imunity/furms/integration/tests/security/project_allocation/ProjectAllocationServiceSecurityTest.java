@@ -35,7 +35,9 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 		forMethods(
 				() -> service.findAllUninstallations(project),
 				() -> service.findAllChunks(project),
+				() -> service.findAllChunks(project, projectAllocation),
 				() -> service.findAllInstallations(project),
+				() -> service.findByIdValidatingProjectsWithRelatedObjects(projectAllocation, project),
 				() -> service.findAllWithRelatedObjects(project))
 				.accessFor(
 						basicUser(),
@@ -52,7 +54,6 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findByProjectIdAndId(project, projectAllocation),
-				() -> service.findByIdValidatingProjectsWithRelatedObjects(projectAllocation, project),
 				() -> service.findAllWithRelatedObjects(community, project),
 				() -> service.findAll(community, project))
 				.accessFor(

@@ -40,7 +40,7 @@ public interface ProjectAllocationInstallationRepository {
 
 	void update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 
-	ProjectDeallocation findDeallocationByCorrelationId(String correlationId);
+	Optional<ProjectDeallocation> findDeallocationByCorrelationId(String correlationId);
 
 	void update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 
