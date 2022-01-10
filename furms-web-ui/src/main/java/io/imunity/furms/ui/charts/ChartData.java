@@ -7,8 +7,10 @@ package io.imunity.furms.ui.charts;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class ChartData {
 	public final double threshold;
@@ -33,6 +35,14 @@ public class ChartData {
 		this.thresholds = thresholds;
 		this.times = times;
 		this.usersUsages = usersUsages;
+	}
+
+	double getMaxValue() {
+		return Stream.of(resourceUsages, chunks)
+			.flatMap(Collection::stream)
+			.mapToDouble(value -> value)
+			.max()
+			.orElse(0);
 	}
 
 	List<LocalDate> getFullTimes() {
@@ -83,6 +93,7 @@ public class ChartData {
 
 	public static final class ChartDataBuilder {
 		private double threshold;
+		private double max;
 		private String unit;
 		private String projectAllocationName;
 		private LocalDate endTime;

@@ -19,6 +19,7 @@ import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -58,13 +60,17 @@ public class ChartPowerService {
 		Set<ProjectAllocationChunk> allChunks = projectAllocationService.findAllChunks(projectId, projectAllocationId);
 		Set<ResourceUsage> allResourceUsageHistory = resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId);
 
+		Optional<ProjectAllocationChunk> lastChunk = allChunks.stream()
+			.max(comparing(chunk -> chunk.validFrom.toLocalDate().toEpochDay()));
+
 		List<LocalDate> dates = Stream.of(
-			Stream.of(projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
+			Stream.of(convertToUTCTime(ZonedDateTime.now()).toLocalDate(), projectAllocation.resourceCredit.utcStartTime.toLocalDate().minusDays(1), projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
 			allChunks.stream().map(chunk -> chunk.validFrom.toLocalDate()),
 			allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate())
 		)
 			.flatMap(identity())
 			.distinct()
+			.filter(date -> lastChunk.map(chunk -> chunk.validTo.toLocalDate().isAfter(date) || chunk.validTo.toLocalDate().isEqual(date)).orElse(false))
 			.sorted(comparing(identity()))
 			.collect(toList());
 
@@ -75,7 +81,10 @@ public class ChartPowerService {
 			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()));
 		List<Double> usage = prepareData(dates, orderedUsagesAmountByTime);
 		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
-		addValidToTime(allChunks, chunks, dates);
+		lastChunk.ifPresent(chunk -> {
+			chunks.add(chunks.get(chunks.size() - 1));
+			dates.add(chunk.validTo.toLocalDate());
+		});
 
 		double threshold = getThreshold(projectAllocation, alarm);
 
@@ -91,14 +100,6 @@ public class ChartPowerService {
 			.build();
 	}
 
-	private void addValidToTime(Set<ProjectAllocationChunk> allChunks, List<Double> chunks, List<LocalDate> dates) {
-		Optional<ProjectAllocationChunk> max = allChunks.stream().max(comparing(chunk -> chunk.validFrom.toLocalDate().toEpochDay()));
-		if(max.isPresent()){
-			chunks.add(chunks.get(chunks.size() - 1));
-			dates.add(max.get().validTo.toLocalDate());
-		}
-	}
-
 	public ChartData getChartDataForProjectAllocWithUserUsages(String projectId, String projectAllocationId){
 		Map<String, String> userIdsToEmails = userService.getAllUsers().stream()
 			.filter(user -> user.fenixUserId.isPresent())
@@ -111,14 +112,18 @@ public class ChartPowerService {
 		Set<UserResourceUsage> allUserResourceUsageHistory = resourceUsageService.findAllUserUsagesHistory(projectId, projectAllocationId);
 		Set<ResourceUsage> allResourceUsageHistory = resourceUsageService.findAllResourceUsageHistory(projectId, projectAllocationId);
 
+		Optional<ProjectAllocationChunk> lastChunk = allChunks.stream()
+			.max(comparing(chunk -> chunk.validFrom.toLocalDate().toEpochDay()));
+
 		List<LocalDate> dates = Stream.of(
-				Stream.of(projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
+				Stream.of(convertToUTCTime(ZonedDateTime.now()).toLocalDate(), projectAllocation.resourceCredit.utcStartTime.toLocalDate().minusDays(1), projectAllocation.resourceCredit.utcStartTime.toLocalDate()),
 				allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate()),
 				allChunks.stream().map(chunk -> chunk.validFrom.toLocalDate()),
 				allUserResourceUsageHistory.stream().map(usage -> usage.utcConsumedUntil.toLocalDate())
 			)
 			.flatMap(identity())
 			.distinct()
+			.filter(date -> lastChunk.map(chunk -> chunk.validTo.toLocalDate().isAfter(date) || chunk.validTo.toLocalDate().isEqual(date)).orElse(false))
 			.sorted(comparing(identity()))
 			.collect(toList());
 
@@ -130,7 +135,10 @@ public class ChartPowerService {
 		List<UserUsage> usersUsages = prepareUserUsages(userIdsToEmails, allUserResourceUsageHistory, dates);
 		List<Double> usages = prepareData(dates, orderedUsagesAmountByTime);
 		List<Double> chunks = prepareData(dates, orderedChunksAmountByTime);
-		addValidToTime(allChunks, chunks, dates);
+		lastChunk.ifPresent(chunk -> {
+			chunks.add(chunks.get(chunks.size() - 1));
+			dates.add(chunk.validTo.toLocalDate());
+		});
 
 		double threshold = getThreshold(projectAllocation, alarm);
 

@@ -67,6 +67,7 @@ class ChartPowerServiceTest {
 		LocalDate endDate = startDate.plusDays(60);
 
 		List<LocalDate> XTimeAxis = List.of(
+			startDate.minusDays(1),
 			startDate,
 			startDate.plusDays(3),
 			startDate.plusDays(5),
@@ -90,6 +91,7 @@ class ChartPowerServiceTest {
 		Iterator<Double> YUsageAxisIterator = YUsageAxis.iterator();
 
 		//0 -day
+		XTimeAxisIterator.next();
 		XTimeAxisIterator.next();
 
 		//3 - day
@@ -149,13 +151,13 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
+			0D, 0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
-			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
+			0D, 0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
 		));
 		assertThat(chartData.thresholds).isEqualTo(List.of(
-			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
 		));
 	}
 
@@ -173,6 +175,7 @@ class ChartPowerServiceTest {
 		LocalDate endDate = startDate.plusDays(60);
 
 		List<LocalDate> XTimeAxis = List.of(
+			startDate.minusDays(1),
 			startDate,
 			startDate.plusDays(3),
 			startDate.plusDays(5),
@@ -200,6 +203,7 @@ class ChartPowerServiceTest {
 		Iterator<Double> YUsersUsageAxisIterator = YUsersUsageAxis.iterator();
 
 		//0 -day
+		XTimeAxisIterator.next();
 		XTimeAxisIterator.next();
 
 		//3 - day
@@ -282,18 +286,18 @@ class ChartPowerServiceTest {
 		assertThat(chartData.endTime).isEqualTo(endDate);
 		assertThat(chartData.times).isEqualTo(XTimeAxis);
 		assertThat(chartData.chunks).isEqualTo(List.of(
-			0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
+			0D, 0D, 20D, 20D, 20D, 60D, 60D, 60D, 120D, 210D, 210D
 		));
 		assertThat(chartData.resourceUsages).isEqualTo(List.of(
-			0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
+			0D, 0D, 0D, 3D, 7D, 20D, 30D, 50D, 50D, 50D
 		));
 		assertThat(chartData.thresholds).isEqualTo(List.of(
-			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
+			70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D, 70D
 		));
 		assertThat(chartData.usersUsages).isEqualTo(List.of(
-			new UserUsage("user1", List.of(0D, 1D, 1D, 1D, 10D, 10D, 20D, 20D, 20D)),
-			new UserUsage("user2", List.of(0D, 0D, 3D, 3D, 8D, 8D, 8D, 15D, 15D)),
-			new UserUsage("user3", List.of(0D, 2D, 2D, 4D, 4D, 13D, 13D, 13D, 19D))
+			new UserUsage("user1", List.of(0D, 0D, 1D, 1D, 1D, 10D, 10D, 20D, 20D, 20D)),
+			new UserUsage("user2", List.of(0D, 0D, 0D, 3D, 3D, 8D, 8D, 8D, 15D, 15D)),
+			new UserUsage("user3", List.of(0D, 0D, 2D, 2D, 4D, 4D, 13D, 13D, 13D, 19D))
 		));
 	}
 
