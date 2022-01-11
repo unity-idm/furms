@@ -49,41 +49,45 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Supplier<String> getCsvForProjectAllocation(String projectId, String projectAllocationId) {
-		exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
-		ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-		List<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId))
-			.stream().sorted(Comparator.comparing(usage -> usage.utcProbedAt)).collect(Collectors.toList());
-		StringBuilder file = new StringBuilder(HEADER);
-		for(ResourceUsage usage : allResourceUsageHistory){
-			file.append("\r\n")
-				.append(projectAllocation.name)
-				.append(",")
-				.append(usage.utcProbedAt)
-				.append(",")
-				.append(usage.cumulativeConsumption)
-				.append(",")
-				.append(projectAllocation.resourceType.unit.getSuffix());
-		}
-		return file::toString;
+		return () -> {
+			exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
+			ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
+			List<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId))
+				.stream().sorted(Comparator.comparing(usage -> usage.utcProbedAt)).collect(Collectors.toList());
+			StringBuilder file = new StringBuilder(HEADER);
+			for (ResourceUsage usage : allResourceUsageHistory) {
+				file.append("\r\n")
+					.append(projectAllocation.name)
+					.append(",")
+					.append(usage.utcProbedAt)
+					.append(",")
+					.append(usage.cumulativeConsumption)
+					.append(",")
+					.append(projectAllocation.resourceType.unit.getSuffix());
+			}
+			return file.toString();
+		};
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Supplier<String> getCsvForCommunityAllocation(String communityId, String communityAllocationId) {
-		exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
-		CommunityAllocationResolved communityAllocationResolved = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
-		Map<LocalDateTime, BigDecimal> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId);
-		StringBuilder file = new StringBuilder(HEADER);
-		for(Map.Entry<LocalDateTime, BigDecimal> usage : consumption.entrySet()){
-			file.append("\r\n")
-				.append(communityAllocationResolved.name)
-				.append(",")
-				.append(usage.getKey())
-				.append(",")
-				.append(usage.getValue())
-				.append(",")
-				.append(communityAllocationResolved.resourceType.unit.getSuffix());
-		}
-		return file::toString;
+		return () -> {
+			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
+			CommunityAllocationResolved communityAllocationResolved = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
+			Map<LocalDateTime, BigDecimal> consumption = exportHelper.getCumulativeUsageForCommunityAlloc(communityAllocationId);
+			StringBuilder file = new StringBuilder(HEADER);
+			for (Map.Entry<LocalDateTime, BigDecimal> usage : consumption.entrySet()) {
+				file.append("\r\n")
+					.append(communityAllocationResolved.name)
+					.append(",")
+					.append(usage.getKey())
+					.append(",")
+					.append(usage.getValue())
+					.append(",")
+					.append(communityAllocationResolved.resourceType.unit.getSuffix());
+			}
+			return file.toString();
+		};
 	}
 }
