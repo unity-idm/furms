@@ -112,7 +112,7 @@ vaadin-form-item > div {
 }
 
 #furms-layout-menu {
-	width: 20rem !important;
+	width: 20rem;
 	height: 100%;
 	overflow: auto;
 	margin: 0;

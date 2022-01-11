@@ -5,6 +5,15 @@
 
 package io.imunity.furms.ui.components.layout;
 
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.BOTOOM_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.LEFT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.RIGHT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_ID;
+
+import java.util.List;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasElement;
@@ -27,6 +36,7 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -38,15 +48,6 @@ import io.imunity.furms.ui.components.branding.layout.ExtraLayoutPanel;
 import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
-
-import java.util.List;
-
-import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
-import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.BOTOOM_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.LEFT_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.RIGHT_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_ID;
 
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
@@ -138,6 +139,7 @@ public class FurmsAppLayout
 
 		final VerticalLayout menuContent = appLayoutComponents.getLogoMenuContainer();
 		menuContent.setId(MENU_CONTAINER_ID);
+		menuContent.getStyle().set("width", null);
 
 		final VerticalLayout viewContent = new VerticalLayout();
 		viewContent.setId(MAIN_VIEW_CONTAINER_ID);
