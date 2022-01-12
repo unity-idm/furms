@@ -86,7 +86,11 @@ public class ResourceAllocationChart extends VerticalLayout {
 				)
 				.build()
 			)
-			.withAnnotations(chartData.threshold > 0 ? getAnnotations(chartData.threshold, chartData.getMaxValue()) : null)
+			.withAnnotations(
+				chartData.threshold > 0 && !disableThreshold ?
+					getAnnotations(chartData.threshold, chartData.getMaxValue()) :
+					null
+			)
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
 
