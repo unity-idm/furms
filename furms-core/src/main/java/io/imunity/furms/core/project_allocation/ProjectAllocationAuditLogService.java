@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationCreatedEvent;
@@ -82,11 +83,11 @@ class ProjectAllocationAuditLogService {
 		publisher.publishEvent(new AuditLogEvent(auditLog));
 	}
 
-	private String toJson(ProjectAllocation communityAllocation) {
+	private String toJson(ProjectAllocation projectAllocation) {
 		try {
-			return objectMapper.writeValueAsString(communityAllocation);
+			return objectMapper.writeValueAsString(projectAllocation);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Project allocation with id %s cannot be parse", projectAllocation.id), e);
 		}
 	}
 
@@ -100,7 +101,7 @@ class ProjectAllocationAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Project allocation with id %s cannot be parse", oldProjectAllocation.id), e);
 		}
 	}
 }

@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
@@ -86,7 +87,7 @@ class ResourceCreditAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(resourceCredit);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Resource credit with id %s cannot be parse", resourceCredit.id), e);
 		}
 	}
 
@@ -106,7 +107,7 @@ class ResourceCreditAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Resource credit with id %s cannot be parse", oldResourceCredit.id), e);
 		}
 	}
 }

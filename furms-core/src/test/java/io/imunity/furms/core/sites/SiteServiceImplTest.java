@@ -171,7 +171,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).create(eq(request), any());
 		verify(webClient, times(1)).create(request);
-		verify(publisher, times(1)).publishEvent(new SiteCreatedEvent(null));
+		verify(publisher, times(1)).publishEvent(new SiteCreatedEvent(request));
 	}
 
 	@Test
@@ -208,7 +208,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(request);
 		verify(webClient, times(1)).update(request);
-		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent( null, null));
+		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent(request, request));
 	}
 
 	@Test
@@ -317,7 +317,8 @@ class SiteServiceImplTest {
 		when(repository.exists(request.getId())).thenReturn(true);
 		when(repository.isNamePresentIgnoringRecord(request.getName(), request.getId())).thenReturn(false);
 		when(repository.update(expectedSite)).thenReturn(request.getId());
-		when(repository.findById(request.getId())).thenReturn(Optional.of(expectedSite));
+		when(repository.findById(request.getId())).thenReturn(Optional.of(oldSite))
+			.thenReturn(Optional.of(expectedSite));
 
 		//when
 		service.update(request);
@@ -325,7 +326,7 @@ class SiteServiceImplTest {
 		//then
 		verify(repository, times(1)).update(expectedSite);
 		verify(webClient, times(1)).update(expectedSite);
-		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent( null, null));
+		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent(oldSite, expectedSite));
 	}
 
 	@Test
@@ -333,13 +334,15 @@ class SiteServiceImplTest {
 		//given
 		final String id = "id";
 		when(repository.exists(id)).thenReturn(true);
+		Site site = Site.builder().build();
+		when(repository.findById(id)).thenReturn(Optional.of(site));
 
 		//when
 		service.delete(id);
 
 		verify(repository, times(1)).delete(id);
 		verify(webClient, times(1)).delete(id);
-		verify(publisher, times(1)).publishEvent(new SiteRemovedEvent(null));
+		verify(publisher, times(1)).publishEvent(new SiteRemovedEvent(site));
 	}
 
 	@Test
@@ -432,6 +435,10 @@ class SiteServiceImplTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
+		Site site = Site.builder()
+			.name("name")
+			.build();
+		when(repository.findById(siteId)).thenReturn(Optional.of(site));
 
 		//when
 		service.addAdmin(siteId, userId);
@@ -472,12 +479,16 @@ class SiteServiceImplTest {
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
 
+		Site site = Site.builder()
+			.name("name")
+			.build();
+		when(service.findById(siteId)).thenReturn(Optional.of(site));
 		//when
 		service.removeSiteUser(siteId, userId);
 
 		//then
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
+		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), "name", SITE_ADMIN));
 	}
 
 	@Test
@@ -496,11 +507,15 @@ class SiteServiceImplTest {
 		//given
 		String siteId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
+		Site site = Site.builder()
+			.name("name")
+			.build();
+		when(repository.findById(siteId)).thenReturn(Optional.of(site));
 		doThrow(UnityFailureException.class).when(webClient).removeSiteUser(siteId, userId);
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeSiteUser(siteId, userId));
-		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), "name", SITE_ADMIN));
 	}
 
 	@Test

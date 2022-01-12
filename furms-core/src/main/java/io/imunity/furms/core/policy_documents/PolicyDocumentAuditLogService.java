@@ -6,13 +6,12 @@
 package io.imunity.furms.core.policy_documents;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -107,15 +106,24 @@ class PolicyDocumentAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(policyAcceptance);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Policy acceptance with id %s cannot be parse", policyAcceptance.policyDocumentId), e);
 		}
 	}
 
 	private String toJson(PolicyDocument policyDocument) {
-		JsonNode jsonNodes = objectMapper.valueToTree(policyDocument);
-		((ObjectNode)jsonNodes).remove("htmlText");
-		((ObjectNode)jsonNodes).remove("policyFile");
-		return jsonNodes.toString();
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", policyDocument.id.id);
+		json.put("name", policyDocument.name);
+		json.put("siteId", policyDocument.siteId);
+		json.put("workflow", policyDocument.workflow);
+		json.put("revision", policyDocument.revision);
+		json.put("contentType", policyDocument.contentType);
+
+		try {
+			return objectMapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			throw new AuditLogException(String.format("Policy document with id %s cannot be parse", policyDocument.id), e);
+		}
 	}
 
 	private String toJsonDiff(PolicyDocument oldPolicyDocument, PolicyDocument newPolicyDocument) {
@@ -136,7 +144,7 @@ class PolicyDocumentAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Policy document with id %s cannot be parse", oldPolicyDocument.id), e);
 		}
 	}
 }

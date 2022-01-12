@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
@@ -120,14 +121,14 @@ class InfraServiceServiceImplTest {
 			.build();
 
 		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
+		when(infraServiceRepository.findById("id")).thenReturn(Optional.of(request));
 		when(infraServiceRepository.create(request)).thenReturn("id");
 
 		//when
 		service.create(request);
 
 		orderVerifier.verify(infraServiceRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceCreatedEvent(null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceCreatedEvent(request)));
 	}
 
 	@Test
@@ -147,11 +148,11 @@ class InfraServiceServiceImplTest {
 				.policyId(policyId)
 				.build();
 
-		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(infraServiceRepository.create(request)).thenReturn("id");
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+		when(siteRepository.exists("id")).thenReturn(true);
+		when(infraServiceRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
@@ -328,7 +329,7 @@ class InfraServiceServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(infraServiceRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent( null, null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent(request, request)));
 	}
 
 	@Test
@@ -348,7 +349,7 @@ class InfraServiceServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(infraServiceRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent( null, null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceUpdatedEvent(request, request)));
 	}
 
 	@Test
@@ -356,12 +357,14 @@ class InfraServiceServiceImplTest {
 		//given
 		String id = "id";
 		when(infraServiceRepository.exists(id)).thenReturn(true);
+		InfraService infraService = InfraService.builder().build();
+		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(infraService));
 
 		//when
 		service.delete(id, "");
 
 		orderVerifier.verify(infraServiceRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceRemovedEvent(null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceRemovedEvent(infraService)));
 	}
 
 	@Test
@@ -373,7 +376,7 @@ class InfraServiceServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(infraServiceRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new InfraServiceUpdatedEvent(null, null)));
+		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 
 }

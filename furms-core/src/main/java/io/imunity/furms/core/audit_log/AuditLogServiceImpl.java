@@ -10,6 +10,7 @@ import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -18,15 +19,17 @@ import java.util.Set;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
-class AuditLogServiceImpl implements AuditLogService {
+class AuditLogServiceImpl implements AuditLogService, AuditLogListener {
 	private final AuditLogRepository repository;
 
 	AuditLogServiceImpl(AuditLogRepository repository) {
 		this.repository = repository;
 	}
 
+	@Async
+	@Override
 	@EventListener
-	void onAuditLogEvent(AuditLogEvent event) {
+	public void onAuditLogEvent(AuditLogEvent event) {
 		repository.create(event.auditLog);
 	}
 

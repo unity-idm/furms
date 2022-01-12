@@ -139,11 +139,12 @@ class ProjectAllocationServiceImplTest {
 				.build()
 		);
 		when(projectAllocationRepository.create(request)).thenReturn("projectAllocationId");
+		when(projectAllocationRepository.findById("projectAllocationId")).thenReturn(Optional.of(request));
 
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationCreatedEvent(null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationCreatedEvent(request)));
 	}
 
 	@Test
@@ -163,13 +164,14 @@ class ProjectAllocationServiceImplTest {
 				.build()
 		);
 		when(projectInstallationService.isProjectInstalled("siteId", "id")).thenReturn(true);
+		when(projectAllocationRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.update("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).update(eq(request));
 		orderVerifier.verify(projectAllocationInstallationService).updateAndStartAllocation("id");
-		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationUpdatedEvent( null, null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationUpdatedEvent( request, request)));
 	}
 
 	@Test
@@ -180,13 +182,15 @@ class ProjectAllocationServiceImplTest {
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.ZERO)
 			.build();
+		ProjectAllocation projectAllocation = ProjectAllocation.builder().build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(projectAllocation));
 
 		//when
 		service.delete("projectId", id);
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
-		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationRemovedEvent(null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationRemovedEvent(projectAllocation)));
 	}
 
 	@Test

@@ -20,6 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,13 +45,13 @@ class CommunityEventsITTest {
 	@MockBean
 	private CapabilityCollector capabilityCollector;
 
-
 	@Autowired
 	private CommunityService communityService;
 
 	@Test
 	void shouldRunCommunityRemoveEvent() {
 		when(communityRepository.exists("id")).thenReturn(true);
+		when(communityRepository.findById("id")).thenReturn(Optional.of(Community.builder().build()));
 
 		communityService.delete("id");
 
@@ -63,6 +65,8 @@ class CommunityEventsITTest {
 			.name("userFacingName")
 			.build();
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(communityRepository.findById("id")).thenReturn(Optional.of(Community.builder().build()));
+
 		when(communityRepository.create(request)).thenReturn("id");
 
 		communityService.create(request);
@@ -78,6 +82,7 @@ class CommunityEventsITTest {
 			.build();
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(communityRepository.findById("id")).thenReturn(Optional.of(Community.builder().build()));
 
 		communityService.update(request);
 

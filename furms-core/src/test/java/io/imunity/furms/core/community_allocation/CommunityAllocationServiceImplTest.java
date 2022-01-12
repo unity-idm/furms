@@ -160,6 +160,8 @@ class CommunityAllocationServiceImplTest {
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
+		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
+		when(communityAllocationRepository.create(request)).thenReturn("id");
 
 		//when
 		service.create(request);
@@ -178,6 +180,7 @@ class CommunityAllocationServiceImplTest {
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
+		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.update(request);
@@ -190,11 +193,19 @@ class CommunityAllocationServiceImplTest {
 	void shouldAllowToDeleteCommunityAllocation() {
 		//given
 		String id = "id";
+		CommunityAllocation request = CommunityAllocation.builder()
+			.id("id")
+			.communityId("id")
+			.resourceCreditId("id")
+			.name("name")
+			.amount(new BigDecimal(1))
+			.build();
+		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.delete(id);
 
 		orderVerifier.verify(communityAllocationRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new CommunityAllocationRemovedEvent(null)));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityAllocationRemovedEvent(request)));
 	}
 }

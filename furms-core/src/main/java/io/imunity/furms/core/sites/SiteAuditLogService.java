@@ -6,13 +6,12 @@
 package io.imunity.furms.core.sites;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteCreatedEvent;
@@ -85,10 +84,18 @@ class SiteAuditLogService {
 	}
 
 	private String toJson(Site site) {
-		JsonNode jsonNodes = objectMapper.valueToTree(site);
-		((ObjectNode)jsonNodes).remove("logo");
-		((ObjectNode)jsonNodes).remove("sshKeyHistoryLength");
-		return jsonNodes.toString();
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", site.getId());
+		json.put("name", site.getName());
+		json.put("connectionInfo", site.getConnectionInfo());
+		json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
+		json.put("policyId", site.getPolicyId());
+
+		try {
+			return objectMapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			throw new AuditLogException(String.format("Site with id %s cannot be parse", site.getId()), e);
+		}
 	}
 
 	private String toJsonDiff(Site oldSite, Site newSite) {
@@ -107,7 +114,7 @@ class SiteAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Site with id %s cannot be parse", oldSite.getId()), e);
 		}
 	}
 }

@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.ResourceTypeCreatedEvent;
@@ -82,11 +83,11 @@ class ResourceTypeAuditLogService {
 		publisher.publishEvent(new AuditLogEvent(auditLog));
 	}
 
-	private String toJson(ResourceType community) {
+	private String toJson(ResourceType resourceType) {
 		try {
-			return objectMapper.writeValueAsString(community);
+			return objectMapper.writeValueAsString(resourceType);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Resource type with id %s cannot be parse", resourceType.id), e);
 		}
 	}
 
@@ -104,7 +105,7 @@ class ResourceTypeAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Resource type with id %s cannot be parse", oldResourceType.id), e);
 		}
 	}
 }

@@ -6,13 +6,12 @@
 package io.imunity.furms.core.projects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectCreatedEvent;
@@ -85,9 +84,20 @@ class ProjectAuditLogService {
 	}
 
 	private String toJson(Project project) {
-		JsonNode jsonNodes = objectMapper.valueToTree(project);
-		((ObjectNode)jsonNodes).remove("logo");
-		return jsonNodes.toString();
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", project.getId());
+		json.put("communityId", project.getCommunityId());
+		json.put("name", project.getName());
+		json.put("researchField", project.getResearchField());
+		json.put("utcStartTime", project.getUtcStartTime());
+		json.put("utcEndTime", project.getUtcEndTime());
+		json.put("leaderId", project.getLeaderId());
+
+		try {
+			return objectMapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			throw new AuditLogException(String.format("Project with id %s cannot be parse", project.getId()), e);
+		}
 	}
 
 	private String toJsonDiff(Project oldProject, Project newProject) {
@@ -112,7 +122,7 @@ class ProjectAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Project with id %s cannot be parse", oldProject.getId()), e);
 		}
 	}
 }

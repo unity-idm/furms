@@ -55,7 +55,6 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 	private void revokeOauthToken(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
 		if (oAuth2AuthenticationToken == null) //may be null if request to logout is made while session expired on its own
 			return;
-		FURMSUser furmsUser = ((FurmsOAuthAuthenticatedUser)oAuth2AuthenticationToken.getPrincipal()).furmsUser;
 		LOG.info("Closing Unity authn session & invalidating oauth token");
 		DefaultOAuth2User principal = (DefaultOAuth2User)oAuth2AuthenticationToken.getPrincipal();
 		String authorizedClientRegistrationId = oAuth2AuthenticationToken.getAuthorizedClientRegistrationId();
@@ -65,6 +64,12 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 		String clientId = oAuth2AuthorizedClient.getClientRegistration().getClientId();
 
 		accessTokenRepository.revoke(accessToken, clientId);
-		publisher.publishEvent(new UserLoggedOutEvent(furmsUser));
+
+		try {
+			FURMSUser furmsUser = ((FurmsOAuthAuthenticatedUser)oAuth2AuthenticationToken.getPrincipal()).furmsUser;
+			publisher.publishEvent(new UserLoggedOutEvent(furmsUser));
+		} catch (Exception e){
+			LOG.error("Publishing user logged out event failed", e);
+		}
 	}
 }

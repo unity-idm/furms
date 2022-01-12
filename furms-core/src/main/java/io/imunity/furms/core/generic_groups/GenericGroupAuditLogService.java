@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
@@ -116,7 +117,7 @@ class GenericGroupAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(group);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Group with id %s cannot be parse", group.id), e);
 		}
 	}
 
@@ -130,7 +131,7 @@ class GenericGroupAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Group with id %s cannot be parse", oldGroup.id), e);
 		}
 	}
 }

@@ -6,13 +6,12 @@
 package io.imunity.furms.core.communites;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityCreatedEvent;
@@ -85,9 +84,16 @@ class CommunityAuditLogService {
 	}
 
 	private String toJson(Community community) {
-		JsonNode jsonNodes = objectMapper.valueToTree(community);
-		((ObjectNode)jsonNodes).remove("logo");
-		return jsonNodes.toString();
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", community.getId());
+		json.put("name", community.getName());
+		json.put("description", community.getDescription());
+
+		try {
+			return objectMapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			throw new AuditLogException(String.format("Community with id %s cannot be parse", community.getId()), e);
+		}
 	}
 
 	private String toJsonDiff(Community oldCommunity, Community newCommunity) {
@@ -102,7 +108,7 @@ class CommunityAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Community with id %s cannot be parse", oldCommunity.getId()), e);
 		}
 	}
 }

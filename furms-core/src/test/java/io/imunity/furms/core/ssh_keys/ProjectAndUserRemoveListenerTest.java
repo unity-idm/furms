@@ -8,6 +8,7 @@ package io.imunity.furms.core.ssh_keys;
 import com.google.common.collect.Sets;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -110,7 +111,7 @@ public class ProjectAndUserRemoveListenerTest {
 		listener.onProjectRemove(new ProjectRemovedEvent(
 			Collections.singletonList(FURMSUser.builder().email("demo@test.com")
 				.fenixUserId(new FenixUserId("id")).id(new PersistentId("id"))
-				.build()), null));
+				.build()), Project.builder().build()));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
 		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");

@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
@@ -86,7 +87,7 @@ class InfraServiceAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(infraService);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Infra service with id %s cannot be parse", infraService.id), e);
 		}
 	}
 
@@ -102,7 +103,7 @@ class InfraServiceAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Infra service with id %s cannot be parse", oldService.id), e);
 		}
 	}
 }

@@ -87,6 +87,6 @@ class FenixUserServiceImpl implements FenixUserService {
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
-		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId((String) null, APP_LEVEL), "system", Role.FENIX_ADMIN));
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId((String) null, APP_LEVEL), RESOURCE_NAME, Role.FENIX_ADMIN));
 	}
 }

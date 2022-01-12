@@ -15,7 +15,7 @@ public class ProjectRemovedEvent implements ProjectEvent {
 	public final List<FURMSUser> projectUsers;
 
 	public ProjectRemovedEvent(List<FURMSUser> projectUsers, Project project) {
-		this.projectUsers = projectUsers != null ? List.copyOf(projectUsers) : null;
+		this.projectUsers = projectUsers != null ? List.copyOf(projectUsers) : List.of();
 		this.project = project;
 	}
 

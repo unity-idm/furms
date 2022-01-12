@@ -207,6 +207,7 @@ class ResourceCreditServiceImplTest {
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceCreditRepository.create(request)).thenReturn("id");
+		when(resourceCreditRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
@@ -281,7 +282,7 @@ class ResourceCreditServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(resourceCreditRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ResourceCreditUpdatedEvent(any(), any())));
+		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 
 }

@@ -6,13 +6,12 @@
 package io.imunity.furms.core.ssh_keys;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
@@ -85,9 +84,18 @@ class SSHKeyAuditLogService {
 	}
 
 	private String toJson(SSHKey sshKey) {
-		JsonNode jsonNodes = objectMapper.valueToTree(sshKey);
-		((ObjectNode)jsonNodes).remove("value");
-		return jsonNodes.toString();
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", sshKey.id);
+		json.put("name", sshKey.name);
+		json.put("createTime", sshKey.createTime);
+		json.put("updateTime", sshKey.updateTime);
+		json.put("sites", sshKey.sites);
+
+		try {
+			return objectMapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			throw new AuditLogException(String.format("SSH Key with id %s cannot be parse", sshKey.id), e);
+		}
 	}
 
 	private String toJsonDiff(SSHKey oldSshKey, SSHKey newSshKey) {
@@ -104,7 +112,7 @@ class SSHKeyAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("SSH Key with id %s cannot be parse", oldSshKey.id), e);
 		}
 	}
 }

@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationCreatedEvent;
@@ -86,7 +87,7 @@ class CommunityAllocationAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(communityAllocation);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Community allocation with id %s cannot be parse", communityAllocation.id), e);
 		}
 	}
 
@@ -100,7 +101,7 @@ class CommunityAllocationAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(diffs);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Community allocation with id %s cannot be parse", oldCommunityAllocation.id), e);
 		}
 	}
 }

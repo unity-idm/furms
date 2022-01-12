@@ -174,7 +174,7 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
-		Project createdProject = projectRepository.findById(project.getId()).get();
+		Project createdProject = projectRepository.findById(id).get();
 		addAdmin(project.getCommunityId(), id, project.getLeaderId());
 		publisher.publishEvent(new ProjectCreatedEvent(createdProject));
 		LOG.info("Project with given ID: {} was created: {}", id, project);

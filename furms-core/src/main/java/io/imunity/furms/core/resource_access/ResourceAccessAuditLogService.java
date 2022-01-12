@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
@@ -72,7 +73,7 @@ class ResourceAccessAuditLogService {
 		try {
 			return objectMapper.writeValueAsString(grantAccess);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new AuditLogException(String.format("Grant access for %s with allocation id %s cannot be parse", grantAccess.fenixUserId, grantAccess.allocationId), e);
 		}
 	}
 
