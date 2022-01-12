@@ -193,7 +193,10 @@ public class ChartPowerService {
 		Set<ResourceUsage> allResourceUsageHistory = resourceUsageService.findAllResourceUsageHistoryByCommunity(communityId, communityAllocationId);
 
 		List<LocalDate> dates = Stream.of(
-				Stream.of(communityAllocation.resourceCredit.utcStartTime.toLocalDate()),
+				Stream.of(
+					convertToUTCTime(ZonedDateTime.now()).toLocalDate(),
+					communityAllocation.resourceCredit.utcStartTime.toLocalDate()
+				),
 				allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate())
 			)
 			.flatMap(identity())
