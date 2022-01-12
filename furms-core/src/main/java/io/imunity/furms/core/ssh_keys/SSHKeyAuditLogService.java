@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -100,13 +101,13 @@ class SSHKeyAuditLogService {
 
 	private String toJsonDiff(SSHKey oldSshKey, SSHKey newSshKey) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldSshKey.name.equals(newSshKey.name))
+		if(!Objects.equals(oldSshKey.name, newSshKey.name))
 			diffs.put("name", newSshKey.name);
-		if(!oldSshKey.value.equals(newSshKey.value))
+		if(!Objects.equals(oldSshKey.value, newSshKey.value))
 			diffs.put("value", "changed");
-		if(!oldSshKey.ownerId.equals(newSshKey.ownerId))
+		if(!Objects.equals(oldSshKey.ownerId, newSshKey.ownerId))
 			diffs.put("ownerId", newSshKey.ownerId);
-		if(!oldSshKey.sites.equals(newSshKey.sites))
+		if(!Objects.equals(oldSshKey.sites, newSshKey.sites))
 			diffs.put("sites", newSshKey.sites);
 
 		try {

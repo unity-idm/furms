@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -93,11 +94,11 @@ class ResourceTypeAuditLogService {
 
 	private String toJsonDiff(ResourceType oldResourceType, ResourceType newResourceType) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldResourceType.name.equals(newResourceType.name))
+		if(!Objects.equals(oldResourceType.name, newResourceType.name))
 			diffs.put("name", newResourceType.name);
-		if(!oldResourceType.type.equals(newResourceType.type))
+		if(!Objects.equals(oldResourceType.type, newResourceType.type))
 			diffs.put("type", newResourceType.type);
-		if(!oldResourceType.unit.equals(newResourceType.unit))
+		if(!Objects.equals(oldResourceType.unit, newResourceType.unit))
 			diffs.put("unit", newResourceType.unit);
 		if(oldResourceType.accessibleForAllProjectMembers != (newResourceType.accessibleForAllProjectMembers))
 			diffs.put("accessibleForAllProjectMembers", newResourceType.accessibleForAllProjectMembers);

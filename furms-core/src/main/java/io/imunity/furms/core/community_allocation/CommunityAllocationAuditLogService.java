@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -93,9 +94,9 @@ class CommunityAllocationAuditLogService {
 
 	private String toJsonDiff(CommunityAllocation oldCommunityAllocation, CommunityAllocation newCommunityAllocation) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldCommunityAllocation.name.equals(newCommunityAllocation.name))
+		if(!Objects.equals(oldCommunityAllocation.name, newCommunityAllocation.name))
 			diffs.put("name", newCommunityAllocation.name);
-		if(!oldCommunityAllocation.amount.equals(newCommunityAllocation.amount))
+		if(!Objects.equals(oldCommunityAllocation.amount, newCommunityAllocation.amount))
 			diffs.put("amount", newCommunityAllocation.amount);
 
 		try {

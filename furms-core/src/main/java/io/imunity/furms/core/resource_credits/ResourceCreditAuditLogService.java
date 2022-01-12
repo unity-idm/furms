@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -93,15 +94,15 @@ class ResourceCreditAuditLogService {
 
 	private String toJsonDiff(ResourceCredit oldResourceCredit, ResourceCredit newResourceCredit) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldResourceCredit.name.equals(newResourceCredit.name))
+		if(!Objects.equals(oldResourceCredit.name, newResourceCredit.name))
 			diffs.put("name", newResourceCredit.name);
 		if(!oldResourceCredit.splittable == newResourceCredit.splittable)
 			diffs.put("splittable", newResourceCredit.splittable);
-		if(!oldResourceCredit.amount.equals(newResourceCredit.amount))
+		if(!Objects.equals(oldResourceCredit.amount, newResourceCredit.amount))
 			diffs.put("amount", newResourceCredit.amount);
-		if(!oldResourceCredit.utcStartTime.equals(newResourceCredit.utcStartTime))
+		if(!Objects.equals(oldResourceCredit.utcStartTime, newResourceCredit.utcStartTime))
 			diffs.put("utcStartTime", newResourceCredit.utcStartTime);
-		if(!oldResourceCredit.utcEndTime.equals(newResourceCredit.utcEndTime))
+		if(!Objects.equals(oldResourceCredit.utcEndTime, newResourceCredit.utcEndTime))
 			diffs.put("utcEndTime", newResourceCredit.utcEndTime);
 
 		try {

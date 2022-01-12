@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -123,9 +124,9 @@ class GenericGroupAuditLogService {
 
 	private String toJsonDiff(GenericGroup oldGroup, GenericGroup newGroup) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldGroup.name.equals(newGroup.name))
+		if(!Objects.equals(oldGroup.name, newGroup.name))
 			diffs.put("name", newGroup.name);
-		if(!oldGroup.description.equals(newGroup.description))
+		if(!Objects.equals(oldGroup.description, newGroup.description))
 			diffs.put("description", newGroup.description);
 
 		try {

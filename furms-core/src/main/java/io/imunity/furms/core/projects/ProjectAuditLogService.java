@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -102,21 +103,21 @@ class ProjectAuditLogService {
 
 	private String toJsonDiff(Project oldProject, Project newProject) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldProject.getName().equals(newProject.getName()))
+		if(!Objects.equals(oldProject.getName(), newProject.getName()))
 			diffs.put("name", newProject.getName());
-		if(!oldProject.getDescription().equals(newProject.getDescription()))
+		if(!Objects.equals(oldProject.getDescription(), newProject.getDescription()))
 			diffs.put("description", newProject.getDescription());
-		if(!oldProject.getAcronym().equals(newProject.getAcronym()))
+		if(!Objects.equals(oldProject.getAcronym(), newProject.getAcronym()))
 			diffs.put("acronym", newProject.getAcronym());
-		if(!oldProject.getResearchField().equals(newProject.getResearchField()))
+		if(!Objects.equals(oldProject.getResearchField(), newProject.getResearchField()))
 			diffs.put("researchField", newProject.getResearchField());
-		if(!oldProject.getUtcStartTime().equals(newProject.getUtcStartTime()))
+		if(!Objects.equals(oldProject.getUtcStartTime(), newProject.getUtcStartTime()))
 			diffs.put("utcStartTime", newProject.getUtcStartTime());
-		if(!oldProject.getUtcEndTime().equals(newProject.getUtcEndTime()))
+		if(!Objects.equals(oldProject.getUtcEndTime(), newProject.getUtcEndTime()))
 			diffs.put("utcEndTime", newProject.getUtcEndTime());
-		if(!oldProject.getLeaderId().equals(newProject.getLeaderId()))
+		if(!Objects.equals(oldProject.getLeaderId(), newProject.getLeaderId()))
 			diffs.put("leaderId", newProject.getLeaderId());
-		if(!oldProject.getLogo().equals(newProject.getLogo()))
+		if(!Objects.equals(oldProject.getLogo(), newProject.getLogo()))
 			diffs.put("logo", "changed");
 
 		try {

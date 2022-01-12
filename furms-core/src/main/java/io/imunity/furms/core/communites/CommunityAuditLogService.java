@@ -20,15 +20,16 @@ import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
-@Service
+@Component
 class CommunityAuditLogService {
 
 	private final AuthzService authzService;
@@ -98,11 +99,11 @@ class CommunityAuditLogService {
 
 	private String toJsonDiff(Community oldCommunity, Community newCommunity) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldCommunity.getName().equals(newCommunity.getName()))
+		if(!Objects.equals(oldCommunity.getName(), newCommunity.getName()))
 			diffs.put("name", newCommunity.getName());
-		if(!oldCommunity.getDescription().equals(newCommunity.getDescription()))
+		if(!Objects.equals(oldCommunity.getDescription(), newCommunity.getDescription()))
 			diffs.put("description", newCommunity.getDescription());
-		if(!oldCommunity.getLogo().equals(newCommunity.getLogo()))
+		if(!Objects.equals(oldCommunity.getLogo(), newCommunity.getLogo()))
 			diffs.put("logo", "changed");
 
 		try {

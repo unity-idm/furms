@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -93,11 +94,11 @@ class InfraServiceAuditLogService {
 
 	private String toJsonDiff(InfraService oldService, InfraService newService) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldService.name.equals(newService.name))
+		if(!Objects.equals(oldService.name, newService.name))
 			diffs.put("name", newService.name);
-		if(!oldService.description.equals(newService.description))
+		if(!Objects.equals(oldService.description, newService.description))
 			diffs.put("description", newService.description);
-		if(!oldService.policyId.equals(newService.policyId))
+		if(!Objects.equals(oldService.policyId, newService.policyId))
 			diffs.put("policyId", newService.policyId);
 
 		try {

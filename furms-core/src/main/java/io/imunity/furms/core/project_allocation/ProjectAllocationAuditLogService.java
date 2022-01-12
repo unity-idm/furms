@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -93,9 +94,9 @@ class ProjectAllocationAuditLogService {
 
 	private String toJsonDiff(ProjectAllocation oldProjectAllocation, ProjectAllocation newProjectAllocation) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldProjectAllocation.name.equals(newProjectAllocation.name))
+		if(!Objects.equals(oldProjectAllocation.name, newProjectAllocation.name))
 			diffs.put("name", newProjectAllocation.name);
-		if(!oldProjectAllocation.amount.equals(newProjectAllocation.amount))
+		if(!Objects.equals(oldProjectAllocation.amount, newProjectAllocation.amount))
 			diffs.put("amount", newProjectAllocation.amount);
 
 		try {

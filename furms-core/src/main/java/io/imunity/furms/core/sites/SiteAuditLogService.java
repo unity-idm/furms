@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -100,15 +101,15 @@ class SiteAuditLogService {
 
 	private String toJsonDiff(Site oldSite, Site newSite) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldSite.getName().equals(newSite.getName()))
+		if(!Objects.equals(oldSite.getName(), newSite.getName()))
 			diffs.put("name", newSite.getName());
-		if(!oldSite.getConnectionInfo().equals(newSite.getConnectionInfo()))
+		if(!Objects.equals(oldSite.getConnectionInfo(), newSite.getConnectionInfo()))
 			diffs.put("connectionInfo", newSite.getConnectionInfo());
-		if(!oldSite.isSshKeyFromOptionMandatory().equals(newSite.isSshKeyFromOptionMandatory()))
+		if(!Objects.equals(oldSite.isSshKeyFromOptionMandatory(), newSite.isSshKeyFromOptionMandatory()))
 			diffs.put("sshKeyFromOptionMandatory", newSite.isSshKeyFromOptionMandatory());
-		if(!oldSite.getPolicyId().equals(newSite.getPolicyId()))
+		if(!Objects.equals(oldSite.getPolicyId(), newSite.getPolicyId()))
 			diffs.put("policyId", newSite.getPolicyId());
-		if(!oldSite.getLogo().equals(newSite.getLogo()))
+		if(!Objects.equals(oldSite.getLogo(), newSite.getLogo()))
 			diffs.put("logo", "changed");
 
 		try {

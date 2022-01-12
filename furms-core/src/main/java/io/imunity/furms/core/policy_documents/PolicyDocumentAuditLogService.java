@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -128,17 +129,17 @@ class PolicyDocumentAuditLogService {
 
 	private String toJsonDiff(PolicyDocument oldPolicyDocument, PolicyDocument newPolicyDocument) {
 		Map<String, Object> diffs = new HashMap<>();
-		if(!oldPolicyDocument.name.equals(newPolicyDocument.name))
+		if(!Objects.equals(oldPolicyDocument.name, newPolicyDocument.name))
 			diffs.put("name", newPolicyDocument.name);
-		if(!oldPolicyDocument.workflow.equals(newPolicyDocument.workflow))
+		if(!Objects.equals(oldPolicyDocument.workflow, newPolicyDocument.workflow))
 			diffs.put("workflow", newPolicyDocument.workflow);
 		if(oldPolicyDocument.revision != newPolicyDocument.revision)
 			diffs.put("revision", newPolicyDocument.revision);
-		if(!oldPolicyDocument.contentType.equals(newPolicyDocument.contentType))
+		if(!Objects.equals(oldPolicyDocument.contentType, newPolicyDocument.contentType))
 			diffs.put("contentType", newPolicyDocument.contentType);
-		if(!oldPolicyDocument.htmlText.equals(newPolicyDocument.htmlText))
+		if(!Objects.equals(oldPolicyDocument.htmlText, newPolicyDocument.htmlText))
 			diffs.put("htmlText", "changed");
-		if(!oldPolicyDocument.policyFile.equals(newPolicyDocument.policyFile))
+		if(!Objects.equals(oldPolicyDocument.policyFile, newPolicyDocument.policyFile))
 			diffs.put("policyFile", "changed");
 
 		try {
