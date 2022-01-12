@@ -30,4 +30,13 @@ public class QueueNamesService {
 	public static String getSiteId(String queueName){
 		return queueName.replace(SITE_PUB,"").replace(FURMS_PUB, "");
 	}
+
+	public static String getOppositeDirectionQueue(String queueName){
+		if(queueName.contains(SITE_PUB))
+			return queueName.replace(SITE_PUB, FURMS_PUB);
+		if(queueName.contains(FURMS_PUB))
+			return queueName.replace(FURMS_PUB, SITE_PUB);
+
+		return queueName;
+	}
 }
