@@ -428,6 +428,37 @@ NOTE: For more information on email templates configuration, please refer to <<E
 |integer (default 120)
 |Optional value that, defines number of seconds before the user is shown the warning message about automatic logout from FURMS UI.
 
+|furmsServer.layout
+2+a|Configuration of FURMS UI look&feel. 
+
+NOTE: For more information on styling the FURMS UI please refer to <<Styling FURMS application>> section.
+
+
+|furmsServer.layout.cssStyle
+|filesystem path on Ansible management host
+|Optional value with custom CSS styles applied to FURMS UI.  
+
+|furmsServer.layout.panels
+2+a|Configuration of FURMS UI outer panels.
+
+NOTE: For more information on panels please refer to <<FURMS UI outer panels>> section.
+
+
+|furmsServer.layout.panels.top
+|filesystem path on Ansible management host
+|Optional value which provides HTML content of the top outer element displayed in the FURMS application.  
+
+|furmsServer.layout.panels.bottom
+|filesystem path on Ansible management host
+|Optional value which provides HTML content of the bottom outer element displayed in the FURMS application.  
+
+|furmsServer.layout.panels.left
+|filesystem path on Ansible management host
+|Optional value which provides HTML content of the left outer element displayed in the FURMS application.  
+
+|furmsServer.layout.panels.right
+|filesystem path on Ansible management host
+|Optional value which provides HTML content of the right outer element displayed in the FURMS application.  
 
 |===
 
@@ -606,6 +637,71 @@ applicationRejected.html
 | `${custom.projectName}`
 | Project name for which user has requested membership 
 |===   
+
+=== Styling FURMS application
+FURMS UI look & feel adjustments are achieved through custom CSS configuration that overrides the default styles. 
+The custom CSS is provided in a file that can be configured in `furmsServer.layout.cssStyle` property of Ansible groups variable file. Administrator is capable to customize:
+
+* color and size of main layout components like menu, breadcrumb view, page content view,
+* color scheme, 
+* font scheme including font sizes.
+
+In order to customize the main layout components, administrator must find the corresponding component's HTML ID, and then provide the style changes in the aforementioned custom CSS file, here is the example of such style changes:
+
+```
+/*
+ * Changes the width and background color of the right side menu.
+ */
+#furms-layout-menu {
+    width: 25rem;
+    background-color: magenta;
+}
+
+/*
+ * Changes background color of the component that displays the content of page view.
+ */
+#furms-layout-main {
+    background-color: white;
+}
+
+/*
+ * Changes the style of breadcrumb view.
+ */
+#header {
+    height: 10rem;
+    background-color: gray;
+}
+```
+
+Any other changes like color scheme & fonts, can be done with help of https://demo.vaadin.com/lumo-editor[Vaadin styles editor]. Using this editor the administrator is capable to change the overall look&feel of the entire application. The styles editor provides convenient way of styling the web components, and generates the CSS that can be included in FURMS custom CSS file. In order to do so, after finishing the styling in Vaadin styles editor, the administrator should click on the "Download" button on the top right corner of the page, copy the "html" CSS section from the popup, and paste it into the custom CSS file, example of copied "html" styles:
+```
+html {
+  --lumo-shade-5pct: rgba(72, 129, 203, 0.05);
+  --lumo-shade-10pct: rgba(72, 129, 203, 0.1);
+  --lumo-shade-20pct: rgba(72, 129, 203, 0.2);
+  --lumo-shade-30pct: rgba(72, 129, 203, 0.3);
+  --lumo-shade-40pct: rgba(72, 129, 203, 0.4);
+  --lumo-shade-50pct: rgba(72, 129, 203, 0.5);
+  --lumo-shade-60pct: rgba(72, 129, 203, 0.6);
+  --lumo-shade-70pct: rgba(72, 129, 203, 0.7);
+  --lumo-shade-80pct: rgba(72, 129, 203, 0.8);
+  --lumo-shade-90pct: rgba(72, 129, 203, 0.9);
+  --lumo-shade: hsl(214, 56%, 54%);
+}
+```
+
+=== FURMS UI outer panels
+Outer panels are fixed HTML contents that can be displayed on top, bottom, right and/or left side of the FURMS UI application, typically to include additional information for users e.g. with links or legal information. In order to configure e.g. bottom panel, administrator must create a HTML file and configure the path to it in the `furmsServer.layout.panels.bottom` property of the Ansible groups variable file. 
+
+NOTE: The HTML content of a panel must consists of exactly one top level element, example: 
+```
+<!-- example of bottom pannel -->
+<div style="background-color:gray; height:50px; width:100%;">
+    <!--
+    	Here goes the content of the panel.
+    -->
+</div>
+```
 
 
 === Install FURMS stack
