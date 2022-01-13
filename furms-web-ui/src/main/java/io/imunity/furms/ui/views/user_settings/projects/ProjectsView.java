@@ -26,6 +26,7 @@ import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
+import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -230,13 +231,18 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private List<ProjectGridModel> loadProjectsViewsModels() {
-		return handleExceptions(projectService::findAll)
-			.orElseGet(Collections::emptySet)
-			.stream()
-			.map(mapper::map)
-			.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
-			.filter(project -> currentFilters.contains(project.status))
-			.filter(project -> searchText.isEmpty() || project.matches(searchText))
-			.collect(toList());
+		try {
+			return handleExceptions(projectService::findAll)
+				.orElseGet(Collections::emptySet)
+				.stream()
+				.map(mapper::map)
+				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
+				.filter(project -> currentFilters.contains(project.status))
+				.filter(project -> searchText.isEmpty() || project.matches(searchText))
+				.collect(toList());
+		} catch (UserWithoutFenixIdValidationError e) {
+			showErrorNotification(getTranslation("user.without.fenixid.error.message"));
+		}
+		return List.of();
 	}
 }
