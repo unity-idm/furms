@@ -1,9 +1,5 @@
 :versionlimit: icon:wrench[] v2 limitation icon:wrench[]
 
-NOTE: In various places in this document, the following text is used to mark a limitation which is specific to the current release: +
-{versionlimit} +
-All such marked limitations will be removed in the final release.
-
 Fenix User and Resource Management Service (FURMS for short) is a central system responsible for the authorization of access and resource management across multiple research infrastructures.
 
 FURMS is organized around three main concepts: sites, communities and projects:

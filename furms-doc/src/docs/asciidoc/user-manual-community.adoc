@@ -34,6 +34,16 @@ The typical path to distribute available resource allocations starts at the comm
 
 The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its _Allocations_ tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected. 
 
+=== Resource usage
+
+Community administrators can see the details of resource usage per each project resource allocation.
+
+High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.
+
+Chart is showing the resource usage reported by a site under the given allocation.
+
+If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax. 
+
 === Managing groups
 
 FURMS allows community administrators to create groups and control membership of community users in the groups. 

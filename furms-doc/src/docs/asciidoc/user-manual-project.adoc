@@ -40,9 +40,29 @@ To see the resources which were actually assigned by the site, a row with commun
 
 image::allocation.png[scaledwidth=75%]  
 
+==== Resource usage
+
+Project administrators can see the details of resource usage per each resource allocation.
+
+High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.
+
+Chart is showing the resource usage reported by a site under the given allocation. What is more the actual allocation chunks as assigned by site are also shown as a red line. Finally, if an alarm is defined, its threshold level is also shown as an orange line.
+
+In case when site agent is reporting per-user resource consumption (what is optional in FURMS), it is possible to see per-user breakdown of the consumption, after turning it on with a toggle on top of the page.
+
+If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax. 
+
 === Defining alarms
 
-{versionlimit} This functionality is not available yet.
+Project administrator can define resource usage alarms, in order to notify stakeholders about reaching a warning level of resources consumption from an allocation.
+
+image::alarm.png[scaledwidth=75%] 
+
+Alarm threshold is defined as a percentage of a total usage of allocated resources. 
+
+Administrator can define who should be notified in case of reaching of the alarm's threshold: all administrators of the project can be notified and/or individually picked users.
+
+NOTE: Alarm level is shown on resource usage charts as well as is marked on the small resource usage widget shown in allocations table.  
 
 === Managing project administrators
 
