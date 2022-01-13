@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.user_settings.sites;
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.componentfactory.TooltipAlignment;
 import com.vaadin.componentfactory.TooltipPosition;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -134,8 +135,9 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 	}
 	
 	private void showConnectionInfo(UserSitesGridModel item) {
+		connectionInfo.removeAll();
 		connectionInfoLabel.setText(getTranslation("view.user-settings.sites.connectionInfo.label", item.getSiteName()));
-		connectionInfo.setText(item.getConnectionInfo());
+		connectionInfo.add(new Html("<div>" + item.getConnectionInfo() + "</div>"));
 		connectionInfoLabel.setVisible(true);
 		connectionInfo.setVisible(true);
 	}
