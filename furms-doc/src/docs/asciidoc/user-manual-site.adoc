@@ -64,7 +64,17 @@ Finally credits can be marked as _granted to all project members_. Allocation de
 
 === Site agent connection and requests
 
-{versionlimit} This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.
+Site connection view allows site administrators to monitor and debug problems related to connection with site agent.
+
+The module offers two functions. First of all it is possible to send a ping message (which is a part of the site agent protocol) to test whether the agent is up, running and answers the most basic request properly.
+
+The other function of the module is to present all messages that are expected to have a response (or at least acknowledgment of request reception) and for which such response haven't arrived yet.
+
+For all the presented messages administrator can check the contents of the request's body. It is also possible to re-send any message, and to cancel (drop) it.
+
+Cancellation can be used to unblock some parts of UI, which are blocked waiting for an operation to be finished, when it is certain that the requested operation will not be served on site agent (e.g. due to its crash or other bug). 
+
+WARNING: Using cancel and resend functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore canceling and resend of requests should be performed only when it is certain that site agent is not going to properly handle the original request.     
 
 [[managing-site-admins]]
 === Managing site administrators
